@@ -29,10 +29,43 @@ public class StringElement extends AbstractElement {
 	 * @param value
 	 *            The BSON string value.
 	 */
-	public StringElement(String name, String value) {
+	public StringElement(final String name, final String value) {
 		super(TYPE, name);
 
 		myValue = value;
+	}
+
+	/**
+	 * Accepts the visitor and calls the {@link Visitor#visitString} method.
+	 * 
+	 * @see Element#accept(Visitor)
+	 */
+	@Override
+	public void accept(final Visitor visitor) {
+		visitor.visitString(getName(), getValue());
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final StringElement other = (StringElement) object;
+
+			result = super.equals(object)
+					&& nullSafeEquals(myValue, other.myValue);
+		}
+		return result;
 	}
 
 	/**
@@ -42,16 +75,6 @@ public class StringElement extends AbstractElement {
 	 */
 	public String getValue() {
 		return myValue;
-	}
-
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitString} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visitString(getName(), getValue());
 	}
 
 	/**
@@ -68,29 +91,6 @@ public class StringElement extends AbstractElement {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			StringElement other = (StringElement) object;
-
-			result = super.equals(object)
-					&& nullSafeEquals(myValue, other.myValue);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -99,7 +99,7 @@ public class StringElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());

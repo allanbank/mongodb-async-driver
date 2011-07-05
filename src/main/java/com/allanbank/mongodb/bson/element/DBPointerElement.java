@@ -31,7 +31,8 @@ public class DBPointerElement extends ObjectIdElement {
 	 * @param machineId
 	 *            The machine id.
 	 */
-	public DBPointerElement(String name, int timestamp, long machineId) {
+	public DBPointerElement(final String name, final int timestamp,
+			final long machineId) {
 		super(TYPE, name, timestamp, machineId);
 	}
 
@@ -41,18 +42,8 @@ public class DBPointerElement extends ObjectIdElement {
 	 * @see Element#accept(Visitor)
 	 */
 	@Override
-	public void accept(Visitor visitor) {
+	public void accept(final Visitor visitor) {
 		visitor.visitDBPointer(getName(), getTimestamp(), getMachineId());
-	}
-
-	/**
-	 * Computes a reasonable hash code.
-	 * 
-	 * @return The hash code value.
-	 */
-	@Override
-	public int hashCode() {
-		return super.hashCode();
 	}
 
 	/**
@@ -65,8 +56,18 @@ public class DBPointerElement extends ObjectIdElement {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object object) {
+	public boolean equals(final Object object) {
 		return super.equals(object);
+	}
+
+	/**
+	 * Computes a reasonable hash code.
+	 * 
+	 * @return The hash code value.
+	 */
+	@Override
+	public int hashCode() {
+		return super.hashCode();
 	}
 
 	/**

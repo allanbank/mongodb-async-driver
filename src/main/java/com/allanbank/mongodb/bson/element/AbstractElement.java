@@ -28,9 +28,32 @@ public abstract class AbstractElement implements Element {
 	 * @param name
 	 *            The name for the BSON type.
 	 */
-	public AbstractElement(ElementType type, String name) {
+	public AbstractElement(final ElementType type, final String name) {
 		myType = type;
 		myName = name;
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final AbstractElement other = (AbstractElement) object;
+
+			result = nullSafeEquals(myName, other.myName)
+					&& nullSafeEquals(myType, other.myType);
+		}
+		return result;
 	}
 
 	/**
@@ -67,29 +90,6 @@ public abstract class AbstractElement implements Element {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			AbstractElement other = (AbstractElement) object;
-
-			result = nullSafeEquals(myName, other.myName)
-					&& nullSafeEquals(myType, other.myType);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -111,7 +111,7 @@ public abstract class AbstractElement implements Element {
 	 * @return True if the rhs equals the lhs. Note: nullSafeEquals(null, null)
 	 *         returns true.
 	 */
-	protected boolean nullSafeEquals(Object rhs, Object lhs) {
+	protected boolean nullSafeEquals(final Object rhs, final Object lhs) {
 		return (rhs == lhs) || ((rhs != null) && rhs.equals(lhs));
 	}
 }

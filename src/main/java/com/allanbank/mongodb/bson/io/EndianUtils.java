@@ -17,7 +17,7 @@ public final class EndianUtils {
 	 *            The value to swap.
 	 * @return The swapped value.
 	 */
-	public static int swap(int value) {
+	public static int swap(final int value) {
 		return (((value << 24) & 0xFF000000) | ((value << 8) & 0x00FF0000)
 				| ((value >> 8) & 0x0000FF00) | ((value >> 24) & 0x000000FF));
 	}
@@ -29,7 +29,7 @@ public final class EndianUtils {
 	 *            The value to swap.
 	 * @return The swapped value.
 	 */
-	public static long swap(long value) {
+	public static long swap(final long value) {
 		return (((value << 56) & 0xFF00000000000000L)
 				| ((value << 40) & 0x00FF000000000000L)
 				| ((value << 24) & 0x0000FF0000000000L)

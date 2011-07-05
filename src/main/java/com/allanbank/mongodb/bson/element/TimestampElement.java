@@ -29,10 +29,42 @@ public class TimestampElement extends AbstractElement {
 	 * @param value
 	 *            The BSON timestamp value as the milliseconds since the epoch.
 	 */
-	public TimestampElement(String name, long value) {
+	public TimestampElement(final String name, final long value) {
 		super(TYPE, name);
 
 		myTimestamp = value;
+	}
+
+	/**
+	 * Accepts the visitor and calls the {@link Visitor#visitTimestamp} method.
+	 * 
+	 * @see Element#accept(Visitor)
+	 */
+	@Override
+	public void accept(final Visitor visitor) {
+		visitor.visitTimestamp(getName(), getTime());
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final TimestampElement other = (TimestampElement) object;
+
+			result = (myTimestamp == other.myTimestamp) && super.equals(object);
+		}
+		return result;
 	}
 
 	/**
@@ -42,16 +74,6 @@ public class TimestampElement extends AbstractElement {
 	 */
 	public long getTime() {
 		return myTimestamp;
-	}
-
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitTimestamp} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visitTimestamp(getName(), getTime());
 	}
 
 	/**
@@ -69,28 +91,6 @@ public class TimestampElement extends AbstractElement {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			TimestampElement other = (TimestampElement) object;
-
-			result = (myTimestamp == other.myTimestamp) && super.equals(object);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -99,7 +99,7 @@ public class TimestampElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());

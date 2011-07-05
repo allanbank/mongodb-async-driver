@@ -23,9 +23,6 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class ObjectIdElement extends AbstractElement {
 
-	/** The counter to add to the machine id. */
-	private static final AtomicLong COUNTER = new AtomicLong(0);
-
 	/** The BSON type for a Object Id. */
 	public static final String DEFAULT_NAME = "_id";
 
@@ -35,29 +32,32 @@ public class ObjectIdElement extends AbstractElement {
 	/** The BSON type for a Object Id. */
 	public static final ElementType TYPE = ElementType.OBJECT_ID;
 
+	/** The counter to add to the machine id. */
+	private static final AtomicLong COUNTER = new AtomicLong(0);
+
 	static {
 		long value = 0;
-		SecureRandom rand = new SecureRandom();
+		final SecureRandom rand = new SecureRandom();
 		try {
 			boolean foundIface = true;
-			MessageDigest md5 = MessageDigest.getInstance("MD5");
+			final MessageDigest md5 = MessageDigest.getInstance("MD5");
 
 			try {
-				Enumeration<NetworkInterface> ifaces = NetworkInterface
+				final Enumeration<NetworkInterface> ifaces = NetworkInterface
 						.getNetworkInterfaces();
 				while (ifaces.hasMoreElements()) {
 					try {
-						NetworkInterface iface = ifaces.nextElement();
+						final NetworkInterface iface = ifaces.nextElement();
 
 						if (!iface.isLoopback()) {
 							md5.update(iface.getHardwareAddress());
 							foundIface = true;
 						}
-					} catch (Throwable tryAnotherIface) {
+					} catch (final Throwable tryAnotherIface) {
 						// Noting to do. Try the next one.
 					}
 				}
-			} catch (Throwable tryTheHostName) {
+			} catch (final Throwable tryTheHostName) {
 				// Nothing to do here. Fall through.
 			}
 
@@ -66,14 +66,14 @@ public class ObjectIdElement extends AbstractElement {
 						.getBytes("UTF8"));
 			}
 
-			byte[] hash = md5.digest();
+			final byte[] hash = md5.digest();
 			value += (hash[0] & 0xFF);
 			value <<= Byte.SIZE;
 			value += (hash[1] & 0xFF);
 			value <<= Byte.SIZE;
 			value += (hash[2] & 0xFF);
 			value <<= Byte.SIZE;
-		} catch (Throwable t) {
+		} catch (final Throwable t) {
 			// Degenerate to a random machine id.
 			for (int i = 0; i < 3; ++i) {
 				value += rand.nextInt(256);
@@ -133,7 +133,8 @@ public class ObjectIdElement extends AbstractElement {
 	 * @param machineId
 	 *            The BSON Object Id machine id.
 	 */
-	public ObjectIdElement(String name, int timestamp, long machineId) {
+	public ObjectIdElement(final String name, final int timestamp,
+			final long machineId) {
 		this(TYPE, name, timestamp, machineId);
 	}
 
@@ -149,12 +150,46 @@ public class ObjectIdElement extends AbstractElement {
 	 * @param machineId
 	 *            The BSON Object Id machine id.
 	 */
-	protected ObjectIdElement(ElementType type, String name, int timestamp,
-			long machineId) {
+	protected ObjectIdElement(final ElementType type, final String name,
+			final int timestamp, final long machineId) {
 		super(type, name);
 
 		myTimestamp = timestamp;
 		myMachineId = machineId;
+	}
+
+	/**
+	 * Accepts the visitor and calls the {@link Visitor#visitObjectId} method.
+	 * 
+	 * @see Element#accept(Visitor)
+	 */
+	@Override
+	public void accept(final Visitor visitor) {
+		visitor.visitObjectId(getName(), getTimestamp(), getMachineId());
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final ObjectIdElement other = (ObjectIdElement) object;
+
+			result = (myMachineId == other.myMachineId)
+					&& (myTimestamp == other.myTimestamp)
+					&& super.equals(object);
+		}
+		return result;
 	}
 
 	/**
@@ -176,16 +211,6 @@ public class ObjectIdElement extends AbstractElement {
 	}
 
 	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitObjectId} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visitObjectId(getName(), getTimestamp(), getMachineId());
-	}
-
-	/**
 	 * Computes a reasonable hash code.
 	 * 
 	 * @return The hash code value.
@@ -201,30 +226,6 @@ public class ObjectIdElement extends AbstractElement {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			ObjectIdElement other = (ObjectIdElement) object;
-
-			result = (myMachineId == other.myMachineId)
-					&& (myTimestamp == other.myTimestamp)
-					&& super.equals(object);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -233,7 +234,7 @@ public class ObjectIdElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());

@@ -48,9 +48,6 @@ public class RegularExpressionElement extends AbstractElement {
 	/** Option for verbose mode. */
 	public static final int OPTION_X;
 
-	/** The options for each possible bit field. */
-	private static final String[] OPTIONS;
-
 	/** The BSON type for a string. */
 	public static final ElementType TYPE = ElementType.REGEX;
 
@@ -59,6 +56,9 @@ public class RegularExpressionElement extends AbstractElement {
 
 	/** Option for verbose mode. */
 	public static final int VERBOSE;
+
+	/** The options for each possible bit field. */
+	private static final String[] OPTIONS;
 
 	static {
 
@@ -77,9 +77,9 @@ public class RegularExpressionElement extends AbstractElement {
 		UNICODE = OPTION_U;
 		VERBOSE = OPTION_X;
 
-		String[] options = new String[OPTION_MASK];
+		final String[] options = new String[OPTION_MASK];
 
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < OPTION_MASK; ++i) {
 			builder.setLength(0);
 
@@ -108,43 +108,6 @@ public class RegularExpressionElement extends AbstractElement {
 		OPTIONS = options;
 	}
 
-	/** The BSON regular expression options. */
-	private final int myOptions;
-
-	/** The BSON regular expression pattern. */
-	private final String myPattern;
-
-	/**
-	 * Constructs a new {@link RegularExpressionElement}.
-	 * 
-	 * @param name
-	 *            The name for the BSON string.
-	 * @param pattern
-	 *            The BSON regular expression pattern.
-	 * @param options
-	 *            The BSON regular expression options.
-	 */
-	public RegularExpressionElement(String name, String pattern, int options) {
-		super(TYPE, name);
-
-		myPattern = pattern;
-		myOptions = options;
-	}
-
-	/**
-	 * Constructs a new {@link RegularExpressionElement}.
-	 * 
-	 * @param name
-	 *            The name for the BSON string.
-	 * @param pattern
-	 *            The BSON regular expression pattern.
-	 * @param options
-	 *            The BSON regular expression options.
-	 */
-	public RegularExpressionElement(String name, String pattern, String options) {
-		this(name, pattern, optionsAsInt(options));
-	}
-
 	/**
 	 * Converts the options string into a options value.
 	 * 
@@ -152,11 +115,11 @@ public class RegularExpressionElement extends AbstractElement {
 	 *            The possibly non-normalized options string.
 	 * @return The options integer value.
 	 */
-	private static int optionsAsInt(String options) {
+	private static int optionsAsInt(final String options) {
 		int optInt = 0;
 
 		if (options != null) {
-			for (char c : options.toCharArray()) {
+			for (final char c : options.toCharArray()) {
 				switch (c) {
 				case 'i':
 				case 'I':
@@ -193,6 +156,80 @@ public class RegularExpressionElement extends AbstractElement {
 		return optInt;
 	}
 
+	/** The BSON regular expression options. */
+	private final int myOptions;
+
+	/** The BSON regular expression pattern. */
+	private final String myPattern;
+
+	/**
+	 * Constructs a new {@link RegularExpressionElement}.
+	 * 
+	 * @param name
+	 *            The name for the BSON string.
+	 * @param pattern
+	 *            The BSON regular expression pattern.
+	 * @param options
+	 *            The BSON regular expression options.
+	 */
+	public RegularExpressionElement(final String name, final String pattern,
+			final int options) {
+		super(TYPE, name);
+
+		myPattern = pattern;
+		myOptions = options;
+	}
+
+	/**
+	 * Constructs a new {@link RegularExpressionElement}.
+	 * 
+	 * @param name
+	 *            The name for the BSON string.
+	 * @param pattern
+	 *            The BSON regular expression pattern.
+	 * @param options
+	 *            The BSON regular expression options.
+	 */
+	public RegularExpressionElement(final String name, final String pattern,
+			final String options) {
+		this(name, pattern, optionsAsInt(options));
+	}
+
+	/**
+	 * Accepts the visitor and calls the {@link Visitor#visitRegularExpression}
+	 * method.
+	 * 
+	 * @see Element#accept(Visitor)
+	 */
+	@Override
+	public void accept(final Visitor visitor) {
+		visitor.visitRegularExpression(getName(), getPattern(),
+				OPTIONS[getOptions() & OPTION_MASK]);
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final RegularExpressionElement other = (RegularExpressionElement) object;
+
+			result = (myOptions == other.myOptions) && super.equals(object)
+					&& nullSafeEquals(myPattern, other.myPattern);
+		}
+		return result;
+	}
+
 	/**
 	 * Returns the regular expression options.
 	 * 
@@ -212,18 +249,6 @@ public class RegularExpressionElement extends AbstractElement {
 	}
 
 	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitRegularExpression}
-	 * method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visitRegularExpression(getName(), getPattern(),
-				OPTIONS[getOptions() & OPTION_MASK]);
-	}
-
-	/**
 	 * Computes a reasonable hash code.
 	 * 
 	 * @return The hash code value.
@@ -238,29 +263,6 @@ public class RegularExpressionElement extends AbstractElement {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			RegularExpressionElement other = (RegularExpressionElement) object;
-
-			result = (myOptions == other.myOptions) && super.equals(object)
-					&& nullSafeEquals(myPattern, other.myPattern);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -269,7 +271,7 @@ public class RegularExpressionElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());

@@ -46,7 +46,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * @param outerBuilder
 	 *            The outer builder scope.
 	 */
-	public ArrayBuilderImpl(AbstractBuilder outerBuilder) {
+	public ArrayBuilderImpl(final AbstractBuilder outerBuilder) {
 		super(outerBuilder);
 	}
 
@@ -54,16 +54,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addBinary(byte[] value) {
-		myElements.add(new BinaryElement(nextIndex(), (byte) 0, value));
-		return this;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ArrayBuilder addBinary(byte subType, byte[] value) {
+	public ArrayBuilder addBinary(final byte subType, final byte[] value) {
 		myElements.add(new BinaryElement(nextIndex(), subType, value));
 		return this;
 	}
@@ -72,7 +63,16 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addBoolean(boolean value) {
+	public ArrayBuilder addBinary(final byte[] value) {
+		myElements.add(new BinaryElement(nextIndex(), (byte) 0, value));
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ArrayBuilder addBoolean(final boolean value) {
 		myElements.add(new BooleanElement(nextIndex(), value));
 		return this;
 	}
@@ -82,7 +82,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 */
 	@Override
 	@Deprecated
-	public ArrayBuilder addDBPointer(int timestamp, long machineId) {
+	public ArrayBuilder addDBPointer(final int timestamp, final long machineId) {
 		myElements.add(new com.allanbank.mongodb.bson.element.DBPointerElement(
 				nextIndex(), timestamp, machineId));
 		return this;
@@ -92,7 +92,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addDouble(double value) {
+	public ArrayBuilder addDouble(final double value) {
 		myElements.add(new DoubleElement(nextIndex(), value));
 		return this;
 	}
@@ -101,7 +101,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addInteger(int value) {
+	public ArrayBuilder addInteger(final int value) {
 		myElements.add(new IntegerElement(nextIndex(), value));
 		return this;
 	}
@@ -110,7 +110,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addJavaScript(String code) {
+	public ArrayBuilder addJavaScript(final String code) {
 		myElements.add(new JavaScriptElement(nextIndex(), code));
 		return this;
 	}
@@ -119,7 +119,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addJavaScript(String code, Document scope) {
+	public ArrayBuilder addJavaScript(final String code, final Document scope) {
 		myElements
 				.add(new JavaScriptWithScopeElement(nextIndex(), code, scope));
 		return this;
@@ -129,7 +129,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addLong(long value) {
+	public ArrayBuilder addLong(final long value) {
 		myElements.add(new LongElement(nextIndex(), value));
 		return this;
 	}
@@ -156,7 +156,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addMongoTimestamp(long value) {
+	public ArrayBuilder addMongoTimestamp(final long value) {
 		myElements.add(new MongoTimestampElement(nextIndex(), value));
 		return this;
 	}
@@ -174,7 +174,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addObjectId(int timestamp, long machineId) {
+	public ArrayBuilder addObjectId(final int timestamp, final long machineId) {
 		myElements.add(new ObjectIdElement(nextIndex(), timestamp, machineId));
 		return this;
 	}
@@ -183,7 +183,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addRegularExpression(String pattern, String options) {
+	public ArrayBuilder addRegularExpression(final String pattern,
+			final String options) {
 		myElements.add(new RegularExpressionElement(nextIndex(), pattern,
 				options));
 		return this;
@@ -193,7 +194,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addString(String value) {
+	public ArrayBuilder addString(final String value) {
 		myElements.add(new StringElement(nextIndex(), value));
 		return this;
 	}
@@ -202,7 +203,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addSymbol(String symbol) {
+	public ArrayBuilder addSymbol(final String symbol) {
 		myElements.add(new SymbolElement(nextIndex(), symbol));
 		return this;
 	}
@@ -211,7 +212,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ArrayBuilder addTimestamp(long timestamp) {
+	public ArrayBuilder addTimestamp(final long timestamp) {
 		myElements.add(new TimestampElement(nextIndex(), timestamp));
 		return this;
 	}
@@ -233,22 +234,22 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * Overridden to return an {@link ArrayElement}.
-	 * </p>
-	 */
-	@Override
-	protected Element get(String name) {
-		return new ArrayElement(name, subElements());
-	}
-
-	/**
 	 * Returns the next index value for an element.
 	 * 
 	 * @return The next index value for an element.
 	 */
 	private String nextIndex() {
 		return String.valueOf(myElements.size());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to return an {@link ArrayElement}.
+	 * </p>
+	 */
+	@Override
+	protected Element get(final String name) {
+		return new ArrayElement(name, subElements());
 	}
 }

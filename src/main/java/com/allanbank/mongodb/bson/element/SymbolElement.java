@@ -29,10 +29,43 @@ public class SymbolElement extends AbstractElement {
 	 * @param symbol
 	 *            The BSON symbol value.
 	 */
-	public SymbolElement(String name, String symbol) {
+	public SymbolElement(final String name, final String symbol) {
 		super(TYPE, name);
 
 		mySymbol = symbol;
+	}
+
+	/**
+	 * Accepts the visitor and calls the {@link Visitor#visitSymbol} method.
+	 * 
+	 * @see Element#accept(Visitor)
+	 */
+	@Override
+	public void accept(final Visitor visitor) {
+		visitor.visitSymbol(getName(), getSymbol());
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final SymbolElement other = (SymbolElement) object;
+
+			result = super.equals(object)
+					&& nullSafeEquals(mySymbol, other.mySymbol);
+		}
+		return result;
 	}
 
 	/**
@@ -42,16 +75,6 @@ public class SymbolElement extends AbstractElement {
 	 */
 	public String getSymbol() {
 		return mySymbol;
-	}
-
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitSymbol} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visitSymbol(getName(), getSymbol());
 	}
 
 	/**
@@ -68,29 +91,6 @@ public class SymbolElement extends AbstractElement {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			SymbolElement other = (SymbolElement) object;
-
-			result = super.equals(object)
-					&& nullSafeEquals(mySymbol, other.mySymbol);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -99,7 +99,7 @@ public class SymbolElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());

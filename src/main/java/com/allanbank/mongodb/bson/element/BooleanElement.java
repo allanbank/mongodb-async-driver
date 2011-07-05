@@ -9,40 +9,32 @@ import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
- * A wrapper for a BSON (signed 64-bit) integer or long.
+ * A wrapper for a BSON boolean.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class LongElement extends AbstractElement {
-
-	/** The BSON type for a long. */
-	public static final ElementType TYPE = ElementType.LONG;
-
-	/** The BSON long value. */
-	private final long myValue;
+public class BooleanElement extends AbstractElement {
 
 	/**
-	 * Constructs a new {@link LongElement}.
+	 * Constructs a new {@link BooleanElement}.
 	 * 
 	 * @param name
-	 *            The name for the BSON long.
+	 *            The name for the BSON boolean.
 	 * @param value
-	 *            The BSON integer value.
+	 *            The BSON boolean value.
 	 */
-	public LongElement(final String name, final long value) {
-		super(TYPE, name);
-
-		myValue = value;
+	public BooleanElement(final String name, final boolean value) {
+		super(value ? ElementType.TRUE : ElementType.FALSE, name);
 	}
 
 	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitLong} method.
+	 * Accepts the visitor and calls the {@link Visitor#visitBoolean} method.
 	 * 
 	 * @see Element#accept(Visitor)
 	 */
 	@Override
 	public void accept(final Visitor visitor) {
-		visitor.visitLong(getName(), getValue());
+		visitor.visitBoolean(getName(), getValue());
 	}
 
 	/**
@@ -56,24 +48,16 @@ public class LongElement extends AbstractElement {
 	 */
 	@Override
 	public boolean equals(final Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			final LongElement other = (LongElement) object;
-
-			result = (myValue == other.myValue) && super.equals(object);
-		}
-		return result;
+		return super.equals(object);
 	}
 
 	/**
-	 * Returns the BSON long value.
+	 * Returns the BSON boolean value.
 	 * 
-	 * @return The BSON long value.
+	 * @return The BSON boolean value.
 	 */
-	public long getValue() {
-		return myValue;
+	public boolean getValue() {
+		return (getType() == ElementType.TRUE);
 	}
 
 	/**
@@ -83,11 +67,7 @@ public class LongElement extends AbstractElement {
 	 */
 	@Override
 	public int hashCode() {
-		int result = 1;
-		result = 31 * result + super.hashCode();
-		result = 31 * result + (int) (myValue & 0xFFFFFFFF);
-		result = 31 * result + (int) ((myValue >> 32) & 0xFFFFFFFF);
-		return result;
+		return super.hashCode();
 	}
 
 	/**
@@ -104,7 +84,7 @@ public class LongElement extends AbstractElement {
 		builder.append('"');
 		builder.append(getName());
 		builder.append("\" : ");
-		builder.append(myValue);
+		builder.append(getValue());
 
 		return builder.toString();
 	}

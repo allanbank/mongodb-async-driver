@@ -12,6 +12,15 @@ package com.allanbank.mongodb.bson;
 public interface Element {
 
 	/**
+	 * Accepts the visitor and calls the appropriate method on the visitor based
+	 * on the element type.
+	 * 
+	 * @param visitor
+	 *            The visitor for the element.
+	 */
+	public void accept(Visitor visitor);
+
+	/**
 	 * Returns the name for the BSON type.
 	 * 
 	 * @return The name for the BSON type.
@@ -24,13 +33,4 @@ public interface Element {
 	 * @return The type for the BSON type.
 	 */
 	public ElementType getType();
-
-	/**
-	 * Accepts the visitor and calls the appropriate method on the visitor based
-	 * on the element type.
-	 * 
-	 * @param visitor
-	 *            The visitor for the element.
-	 */
-	public void accept(Visitor visitor);
 }

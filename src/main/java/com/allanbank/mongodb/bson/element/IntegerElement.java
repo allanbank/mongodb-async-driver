@@ -29,10 +29,42 @@ public class IntegerElement extends AbstractElement {
 	 * @param value
 	 *            The BSON integer value.
 	 */
-	public IntegerElement(String name, int value) {
+	public IntegerElement(final String name, final int value) {
 		super(TYPE, name);
 
 		myValue = value;
+	}
+
+	/**
+	 * Accepts the visitor and calls the {@link Visitor#visitInteger} method.
+	 * 
+	 * @see Element#accept(Visitor)
+	 */
+	@Override
+	public void accept(final Visitor visitor) {
+		visitor.visitInteger(getName(), getValue());
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final IntegerElement other = (IntegerElement) object;
+
+			result = (myValue == other.myValue) && super.equals(object);
+		}
+		return result;
 	}
 
 	/**
@@ -42,16 +74,6 @@ public class IntegerElement extends AbstractElement {
 	 */
 	public int getValue() {
 		return myValue;
-	}
-
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitInteger} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visitInteger(getName(), getValue());
 	}
 
 	/**
@@ -68,28 +90,6 @@ public class IntegerElement extends AbstractElement {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			IntegerElement other = (IntegerElement) object;
-
-			result = (myValue == other.myValue) && super.equals(object);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -98,7 +98,7 @@ public class IntegerElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());

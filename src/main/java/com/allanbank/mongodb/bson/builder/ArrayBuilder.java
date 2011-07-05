@@ -14,15 +14,6 @@ import com.allanbank.mongodb.bson.Document;
 public interface ArrayBuilder extends Builder {
 
 	/**
-	 * Adds a binary element using sub-type zero (the default).
-	 * 
-	 * @param data
-	 *            The binary value.
-	 * @return This {@link ArrayBuilder} for method chaining.
-	 */
-	public ArrayBuilder addBinary(byte[] data);
-
-	/**
 	 * Adds a binary element.
 	 * 
 	 * @param subType
@@ -32,6 +23,15 @@ public interface ArrayBuilder extends Builder {
 	 * @return This {@link ArrayBuilder} for method chaining.
 	 */
 	public ArrayBuilder addBinary(byte subType, byte[] data);
+
+	/**
+	 * Adds a binary element using sub-type zero (the default).
+	 * 
+	 * @param data
+	 *            The binary value.
+	 * @return This {@link ArrayBuilder} for method chaining.
+	 */
+	public ArrayBuilder addBinary(byte[] data);
 
 	/**
 	 * Adds a boolean element.

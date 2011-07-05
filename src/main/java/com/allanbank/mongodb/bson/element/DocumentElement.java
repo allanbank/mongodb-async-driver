@@ -27,14 +27,14 @@ public class DocumentElement extends AbstractElement implements Document {
 	/** The BSON type for a document. */
 	public static final ElementType TYPE = ElementType.DOCUMENT;
 
-	/** The elements of the document. */
-	private final List<Element> myElements;
-
 	/**
 	 * Constructed when a user tries to access the elements of the document by
 	 * name.
 	 */
 	private Map<String, Element> myElementMap;
+
+	/** The elements of the document. */
+	private final List<Element> myElements;
 
 	/**
 	 * Constructs a new {@link DocumentElement}.
@@ -44,7 +44,7 @@ public class DocumentElement extends AbstractElement implements Document {
 	 * @param elements
 	 *            The sub-elements for the document.
 	 */
-	public DocumentElement(String name, Element... elements) {
+	public DocumentElement(final String name, final Element... elements) {
 		super(TYPE, name);
 
 		if (elements.length > 0) {
@@ -62,7 +62,7 @@ public class DocumentElement extends AbstractElement implements Document {
 	 * @param elements
 	 *            The sub-elements for the document.
 	 */
-	public DocumentElement(String name, List<Element> elements) {
+	public DocumentElement(final String name, final List<Element> elements) {
 		super(TYPE, name);
 
 		if ((elements != null) && !elements.isEmpty()) {
@@ -74,22 +74,46 @@ public class DocumentElement extends AbstractElement implements Document {
 	}
 
 	/**
-	 * Returns the elements in the document.
+	 * Accepts the visitor and calls the {@link Visitor#visitDocument} method.
 	 * 
-	 * @return The elements in the document.
+	 * @see Element#accept(Visitor)
 	 */
-	public List<Element> getElements() {
-		return Collections.unmodifiableList(myElements);
+	@Override
+	public void accept(final Visitor visitor) {
+		visitor.visitDocument(getName(), getElements());
 	}
 
 	/**
-	 * Returns an iterator over the documents elements.
+	 * Returns true if the document contains an element with the specified name.
 	 * 
-	 * @see Iterable#iterator()
+	 * @see Document#contains(String)
 	 */
 	@Override
-	public Iterator<Element> iterator() {
-		return getElements().iterator();
+	public boolean contains(final String name) {
+		return getElementMap().containsKey(name);
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final DocumentElement other = (DocumentElement) object;
+
+			result = super.equals(object)
+					&& myElements.equals(other.myElements);
+		}
+		return result;
 	}
 
 	/**
@@ -99,50 +123,17 @@ public class DocumentElement extends AbstractElement implements Document {
 	 * @see Document#get(String)
 	 */
 	@Override
-	public Element get(String name) {
+	public Element get(final String name) {
 		return getElementMap().get(name);
 	}
 
 	/**
-	 * Returns true if the document contains an element with the specified name.
+	 * Returns the elements in the document.
 	 * 
-	 * @see Document#contains(String)
+	 * @return The elements in the document.
 	 */
-	@Override
-	public boolean contains(String name) {
-		return getElementMap().containsKey(name);
-	}
-
-	/**
-	 * Returns a map from the element names to the elements in the document.
-	 * Used for faster by-name access.
-	 * 
-	 * @return The element name to element mapping.
-	 */
-	private Map<String, Element> getElementMap() {
-		if (myElementMap == null) {
-			Map<String, Element> mapping = new HashMap<String, Element>(
-					myElements.size() + myElements.size());
-
-			for (Element element : myElements) {
-				mapping.put(element.getName(), element);
-			}
-
-			// Swap the finished map into position.
-			myElementMap = mapping;
-		}
-
-		return myElementMap;
-	}
-
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitDocument} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visitDocument(getName(), getElements());
+	public List<Element> getElements() {
+		return Collections.unmodifiableList(myElements);
 	}
 
 	/**
@@ -160,26 +151,13 @@ public class DocumentElement extends AbstractElement implements Document {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
+	 * Returns an iterator over the documents elements.
 	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
+	 * @see Iterable#iterator()
 	 */
 	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			DocumentElement other = (DocumentElement) object;
-
-			result = super.equals(object)
-					&& myElements.equals(other.myElements);
-		}
-		return result;
+	public Iterator<Element> iterator() {
+		return getElements().iterator();
 	}
 
 	/**
@@ -191,14 +169,14 @@ public class DocumentElement extends AbstractElement implements Document {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());
 		builder.append("\" : { ");
 
 		boolean first = true;
-		for (Element element : myElements) {
+		for (final Element element : myElements) {
 			if (!first) {
 				builder.append(",\n");
 			}
@@ -208,5 +186,27 @@ public class DocumentElement extends AbstractElement implements Document {
 		builder.append("}\n");
 
 		return builder.toString();
+	}
+
+	/**
+	 * Returns a map from the element names to the elements in the document.
+	 * Used for faster by-name access.
+	 * 
+	 * @return The element name to element mapping.
+	 */
+	private Map<String, Element> getElementMap() {
+		if (myElementMap == null) {
+			final Map<String, Element> mapping = new HashMap<String, Element>(
+					myElements.size() + myElements.size());
+
+			for (final Element element : myElements) {
+				mapping.put(element.getName(), element);
+			}
+
+			// Swap the finished map into position.
+			myElementMap = mapping;
+		}
+
+		return myElementMap;
 	}
 }

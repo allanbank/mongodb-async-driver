@@ -37,7 +37,7 @@ public class ArrayElement extends AbstractElement {
 	 * @param entries
 	 *            The entries in the array.
 	 */
-	public ArrayElement(String name, Element... entries) {
+	public ArrayElement(final String name, final Element... entries) {
 		super(TYPE, name);
 
 		myEntries = new ArrayList<Element>(Arrays.asList(entries));
@@ -51,7 +51,7 @@ public class ArrayElement extends AbstractElement {
 	 * @param entries
 	 *            The entries in the array.
 	 */
-	public ArrayElement(String name, List<Element> entries) {
+	public ArrayElement(final String name, final List<Element> entries) {
 		super(TYPE, name);
 
 		if ((entries != null) && !entries.isEmpty()) {
@@ -59,6 +59,39 @@ public class ArrayElement extends AbstractElement {
 		} else {
 			myEntries = Collections.emptyList();
 		}
+	}
+
+	/**
+	 * Accepts the visitor and calls the
+	 * {@link Visitor#visitArray(String, List)} method.
+	 * 
+	 * @see Element#accept(Visitor)
+	 */
+	@Override
+	public void accept(final Visitor visitor) {
+		visitor.visitArray(getName(), getEntries());
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final ArrayElement other = (ArrayElement) object;
+
+			result = super.equals(object) && myEntries.equals(other.myEntries);
+		}
+		return result;
 	}
 
 	/**
@@ -70,17 +103,6 @@ public class ArrayElement extends AbstractElement {
 	 */
 	public List<Element> getEntries() {
 		return Collections.unmodifiableList(myEntries);
-	}
-
-	/**
-	 * Accepts the visitor and calls the
-	 * {@link Visitor#visitArray(String, List)} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visitArray(getName(), getEntries());
 	}
 
 	/**
@@ -97,28 +119,6 @@ public class ArrayElement extends AbstractElement {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			ArrayElement other = (ArrayElement) object;
-
-			result = super.equals(object) && myEntries.equals(other.myEntries);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -127,14 +127,14 @@ public class ArrayElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());
 		builder.append("\" : [ ");
 
 		boolean first = true;
-		for (Element entry : myEntries) {
+		for (final Element entry : myEntries) {
 			if (!first) {
 				builder.append(",\n");
 			}

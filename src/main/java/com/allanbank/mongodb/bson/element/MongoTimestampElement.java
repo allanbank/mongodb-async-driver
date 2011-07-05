@@ -31,10 +31,43 @@ public class MongoTimestampElement extends AbstractElement {
 	 *            The BSON timestamp value as 4 byte increment and 4 byte
 	 *            timestamp.
 	 */
-	public MongoTimestampElement(String name, long value) {
+	public MongoTimestampElement(final String name, final long value) {
 		super(TYPE, name);
 
 		myTimestamp = value;
+	}
+
+	/**
+	 * Accepts the visitor and calls the {@link Visitor#visitMongoTimestamp}
+	 * method.
+	 * 
+	 * @see Element#accept(Visitor)
+	 */
+	@Override
+	public void accept(final Visitor visitor) {
+		visitor.visitMongoTimestamp(getName(), getTime());
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final MongoTimestampElement other = (MongoTimestampElement) object;
+
+			result = (myTimestamp == other.myTimestamp) && super.equals(object);
+		}
+		return result;
 	}
 
 	/**
@@ -46,17 +79,6 @@ public class MongoTimestampElement extends AbstractElement {
 	 */
 	public long getTime() {
 		return myTimestamp;
-	}
-
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitMongoTimestamp}
-	 * method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visitMongoTimestamp(getName(), getTime());
 	}
 
 	/**
@@ -74,28 +96,6 @@ public class MongoTimestampElement extends AbstractElement {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			MongoTimestampElement other = (MongoTimestampElement) object;
-
-			result = (myTimestamp == other.myTimestamp) && super.equals(object);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -104,7 +104,7 @@ public class MongoTimestampElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());

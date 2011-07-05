@@ -29,19 +29,10 @@ public class DoubleElement extends AbstractElement {
 	 * @param value
 	 *            The BSON double value.
 	 */
-	public DoubleElement(String name, double value) {
+	public DoubleElement(final String name, final double value) {
 		super(TYPE, name);
 
 		myValue = value;
-	}
-
-	/**
-	 * Returns the BSON double value.
-	 * 
-	 * @return The BSON double value.
-	 */
-	public double getValue() {
-		return myValue;
 	}
 
 	/**
@@ -50,24 +41,8 @@ public class DoubleElement extends AbstractElement {
 	 * @see Element#accept(Visitor)
 	 */
 	@Override
-	public void accept(Visitor visitor) {
+	public void accept(final Visitor visitor) {
 		visitor.visitDouble(getName(), getValue());
-	}
-
-	/**
-	 * Computes a reasonable hash code.
-	 * 
-	 * @return The hash code value.
-	 */
-	@Override
-	public int hashCode() {
-		int result = 1;
-		long bits = Double.doubleToLongBits(myValue);
-
-		result = 31 * result + super.hashCode();
-		result = 31 * result + (int) (bits & 0xFFFFFFFF);
-		result = 31 * result + (int) ((bits >> 32) & 0xFFFFFFFF);
-		return result;
 	}
 
 	/**
@@ -80,15 +55,40 @@ public class DoubleElement extends AbstractElement {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object object) {
+	public boolean equals(final Object object) {
 		boolean result = false;
 		if (this == object) {
 			result = true;
 		} else if ((object != null) && (getClass() == object.getClass())) {
-			DoubleElement other = (DoubleElement) object;
+			final DoubleElement other = (DoubleElement) object;
 
 			result = (myValue == other.myValue) && super.equals(object);
 		}
+		return result;
+	}
+
+	/**
+	 * Returns the BSON double value.
+	 * 
+	 * @return The BSON double value.
+	 */
+	public double getValue() {
+		return myValue;
+	}
+
+	/**
+	 * Computes a reasonable hash code.
+	 * 
+	 * @return The hash code value.
+	 */
+	@Override
+	public int hashCode() {
+		int result = 1;
+		final long bits = Double.doubleToLongBits(myValue);
+
+		result = 31 * result + super.hashCode();
+		result = 31 * result + (int) (bits & 0xFFFFFFFF);
+		result = 31 * result + (int) ((bits >> 32) & 0xFFFFFFFF);
 		return result;
 	}
 
@@ -101,7 +101,7 @@ public class DoubleElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());

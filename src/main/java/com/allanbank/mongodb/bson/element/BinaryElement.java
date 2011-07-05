@@ -38,7 +38,8 @@ public class BinaryElement extends AbstractElement {
 	 * @throws IllegalArgumentException
 	 *             If the <code>value</code> is null.
 	 */
-	public BinaryElement(String name, byte subType, byte[] value) {
+	public BinaryElement(final String name, final byte subType,
+			final byte[] value) {
 		super(TYPE, name);
 		mySubType = subType;
 		if (value != null) {
@@ -48,6 +49,39 @@ public class BinaryElement extends AbstractElement {
 					"Binary element value cannot be null.  Add a "
 							+ "null element instead.");
 		}
+	}
+
+	/**
+	 * Accepts the visitor and calls the {@link Visitor#visitBinary} method.
+	 * 
+	 * @see Element#accept(Visitor)
+	 */
+	@Override
+	public void accept(final Visitor visitor) {
+		visitor.visitBinary(getName(), getSubType(), getValue());
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final BinaryElement other = (BinaryElement) object;
+
+			result = super.equals(object) && (mySubType == other.mySubType)
+					&& Arrays.equals(myValue, other.myValue);
+		}
+		return result;
 	}
 
 	/**
@@ -67,16 +101,6 @@ public class BinaryElement extends AbstractElement {
 	}
 
 	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitBinary} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visitBinary(getName(), getSubType(), getValue());
-	}
-
-	/**
 	 * Computes a reasonable hash code.
 	 * 
 	 * @return The hash code value.
@@ -91,29 +115,6 @@ public class BinaryElement extends AbstractElement {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			BinaryElement other = (BinaryElement) object;
-
-			result = super.equals(object) && (mySubType == other.mySubType)
-					&& Arrays.equals(myValue, other.myValue);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -122,7 +123,7 @@ public class BinaryElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());
@@ -135,7 +136,7 @@ public class BinaryElement extends AbstractElement {
 		builder.append(hex);
 
 		builder.append(") 0x");
-		for (int element : myValue) {
+		for (final int element : myValue) {
 			hex = Integer.toHexString(element & 0xFF);
 			if (hex.length() <= 1) {
 				builder.append('0');

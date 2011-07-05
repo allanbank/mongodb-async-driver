@@ -27,7 +27,7 @@ public class BsonWriter extends FilterOutputStream {
 	 * @param output
 	 *            The stream to write to.
 	 */
-	public BsonWriter(OutputStream output) {
+	public BsonWriter(final OutputStream output) {
 		super(output);
 
 		myVisitor = new WriteVisitor();
@@ -42,11 +42,11 @@ public class BsonWriter extends FilterOutputStream {
 	 * @throws IOException
 	 *             On a failure to write to the underlying document.
 	 */
-	public long write(Document doc) throws IOException {
+	public long write(final Document doc) throws IOException {
 
 		doc.accept(myVisitor);
 
-		long position = myVisitor.getSize();
+		final long position = myVisitor.getSize();
 		myVisitor.writeTo(out);
 		myVisitor.reset();
 

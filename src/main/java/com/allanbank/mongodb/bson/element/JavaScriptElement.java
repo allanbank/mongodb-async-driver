@@ -29,7 +29,7 @@ public class JavaScriptElement extends AbstractElement {
 	 * @param javaScript
 	 *            The BSON JavaScript value.
 	 */
-	public JavaScriptElement(String name, String javaScript) {
+	public JavaScriptElement(final String name, final String javaScript) {
 		this(TYPE, name, javaScript);
 	}
 
@@ -43,19 +43,11 @@ public class JavaScriptElement extends AbstractElement {
 	 * @param javaScript
 	 *            The BSON JavaScript value.
 	 */
-	protected JavaScriptElement(ElementType type, String name, String javaScript) {
+	protected JavaScriptElement(final ElementType type, final String name,
+			final String javaScript) {
 		super(type, name);
 
 		myJavaScript = javaScript;
-	}
-
-	/**
-	 * Returns the BSON JavaScript value.
-	 * 
-	 * @return The BSON JavaScript value.
-	 */
-	public String getJavaScript() {
-		return myJavaScript;
 	}
 
 	/**
@@ -65,8 +57,40 @@ public class JavaScriptElement extends AbstractElement {
 	 * @see Element#accept(Visitor)
 	 */
 	@Override
-	public void accept(Visitor visitor) {
+	public void accept(final Visitor visitor) {
 		visitor.visitJavaScript(getName(), getJavaScript());
+	}
+
+	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final JavaScriptElement other = (JavaScriptElement) object;
+
+			result = super.equals(object)
+					&& nullSafeEquals(myJavaScript, other.myJavaScript);
+		}
+		return result;
+	}
+
+	/**
+	 * Returns the BSON JavaScript value.
+	 * 
+	 * @return The BSON JavaScript value.
+	 */
+	public String getJavaScript() {
+		return myJavaScript;
 	}
 
 	/**
@@ -84,29 +108,6 @@ public class JavaScriptElement extends AbstractElement {
 	}
 
 	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			JavaScriptElement other = (JavaScriptElement) object;
-
-			result = super.equals(object)
-					&& nullSafeEquals(myJavaScript, other.myJavaScript);
-		}
-		return result;
-	}
-
-	/**
 	 * String form of the object.
 	 * 
 	 * @return A human readable form of the object.
@@ -115,7 +116,7 @@ public class JavaScriptElement extends AbstractElement {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 
 		builder.append('"');
 		builder.append(getName());

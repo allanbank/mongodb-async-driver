@@ -24,11 +24,11 @@ import java.util.List;
  */
 public class RandomAccessOutputStream extends OutputStream {
 
-	/** The minimum size buffer to allocate. */
-	private static final int MIN_BUFFER_SIZE = 512;
-
 	/** The maximum size buffer to allocate. */
 	private static final int MAX_BUFFER_SIZE = 8192;
+
+	/** The minimum size buffer to allocate. */
+	private static final int MIN_BUFFER_SIZE = 512;
 
 	/** The set of buffers allocated. */
 	private final List<byte[]> myBuffers;
@@ -56,6 +56,22 @@ public class RandomAccessOutputStream extends OutputStream {
 
 		myBuffers = new ArrayList<byte[]>();
 		myBuffers.add(myCurrentBuffer);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void close() {
+		// Nothing.
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void flush() {
+		// Nothing.
 	}
 
 	/**
@@ -95,7 +111,7 @@ public class RandomAccessOutputStream extends OutputStream {
 	 *            the data.
 	 */
 	@Override
-	public void write(byte buffer[]) {
+	public void write(final byte buffer[]) {
 		write(buffer, 0, buffer.length);
 	}
 
@@ -152,30 +168,6 @@ public class RandomAccessOutputStream extends OutputStream {
 		myCurrentBuffer[myCurrentBufferOffset] = (byte) b;
 		myCurrentBufferOffset += 1;
 		mySize += 1;
-	}
-
-	/**
-	 * Similar to {@link #write(int)} but allows a portion of the already
-	 * written buffer to be re-written.
-	 * 
-	 * @param position
-	 *            The position to write at. This location should have already
-	 *            been written.
-	 * @param b
-	 *            The byte value to write.
-	 */
-	public void writeAt(final long position, final int b) {
-		// Find the start buffer.
-		long start = position;
-		int bufferIndex = 0;
-		byte[] internalBuffer = myBuffers.get(bufferIndex);
-		while (internalBuffer.length <= start) {
-			start -= myBuffers.get(bufferIndex).length;
-			bufferIndex += 1;
-			internalBuffer = myBuffers.get(bufferIndex);
-		}
-
-		internalBuffer[(int) start] = (byte) b;
 	}
 
 	/**
@@ -253,6 +245,30 @@ public class RandomAccessOutputStream extends OutputStream {
 	}
 
 	/**
+	 * Similar to {@link #write(int)} but allows a portion of the already
+	 * written buffer to be re-written.
+	 * 
+	 * @param position
+	 *            The position to write at. This location should have already
+	 *            been written.
+	 * @param b
+	 *            The byte value to write.
+	 */
+	public void writeAt(final long position, final int b) {
+		// Find the start buffer.
+		long start = position;
+		int bufferIndex = 0;
+		byte[] internalBuffer = myBuffers.get(bufferIndex);
+		while (internalBuffer.length <= start) {
+			start -= myBuffers.get(bufferIndex).length;
+			bufferIndex += 1;
+			internalBuffer = myBuffers.get(bufferIndex);
+		}
+
+		internalBuffer[(int) start] = (byte) b;
+	}
+
+	/**
 	 * Writes the complete contents of this byte array output stream to the
 	 * specified output stream argument, as if by calling the output stream's
 	 * write method using <code>out.write(buf, 0, count)</code>.
@@ -267,22 +283,6 @@ public class RandomAccessOutputStream extends OutputStream {
 			out.write(myBuffers.get(i));
 		}
 		out.write(myCurrentBuffer, 0, myCurrentBufferOffset);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void flush() {
-		// Nothing.
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void close() {
-		// Nothing.
 	}
 
 	/**

@@ -200,7 +200,7 @@ import com.allanbank.mongodb.bson.Visitor;
 
 		scope.accept(this);
 
-		int size = (int) (myOutputBuffer.getPosition() - start);
+		final int size = (int) (myOutputBuffer.getPosition() - start);
 		writeIntAt(start, size);
 	}
 

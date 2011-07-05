@@ -17,17 +17,6 @@ public interface DocumentBuilder extends Builder {
 	 * 
 	 * @param name
 	 *            The name of the element.
-	 * @param data
-	 *            The binary value.
-	 * @return This {@link DocumentBuilder} for method chaining.
-	 */
-	public DocumentBuilder addBinary(String name, byte[] data);
-
-	/**
-	 * Adds a binary element using sub-type zero (the default).
-	 * 
-	 * @param name
-	 *            The name of the element.
 	 * @param subType
 	 *            The sub-type for the binary data.
 	 * @param data
@@ -35,6 +24,17 @@ public interface DocumentBuilder extends Builder {
 	 * @return This {@link DocumentBuilder} for method chaining.
 	 */
 	public DocumentBuilder addBinary(String name, byte subType, byte[] data);
+
+	/**
+	 * Adds a binary element using sub-type zero (the default).
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param data
+	 *            The binary value.
+	 * @return This {@link DocumentBuilder} for method chaining.
+	 */
+	public DocumentBuilder addBinary(String name, byte[] data);
 
 	/**
 	 * Adds a boolean element.

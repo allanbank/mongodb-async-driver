@@ -24,11 +24,11 @@ import com.allanbank.mongodb.bson.element.AbstractElement;
  */
 public abstract class AbstractBuilder implements Builder {
 
-	/** The list of elements in the builder. */
-	protected final List<Element> myElements;
-
 	/** The outer scope to this builder. */
 	private final AbstractBuilder myOuterBuilder;
+
+	/** The list of elements in the builder. */
+	protected final List<Element> myElements;
 
 	/**
 	 * Creates a new builder.
@@ -36,7 +36,7 @@ public abstract class AbstractBuilder implements Builder {
 	 * @param outerBuilder
 	 *            The outer scoped builder.
 	 */
-	public AbstractBuilder(AbstractBuilder outerBuilder) {
+	public AbstractBuilder(final AbstractBuilder outerBuilder) {
 		super();
 		myOuterBuilder = outerBuilder;
 		myElements = new ArrayList<Element>(5);
@@ -58,8 +58,8 @@ public abstract class AbstractBuilder implements Builder {
 	 * @return A {@link DocumentBuilder} for constructing the sub-document.
 	 */
 
-	protected DocumentBuilder doPush(String name) {
-		DocumentBuilderImpl pushed = new DocumentBuilderImpl(this);
+	protected DocumentBuilder doPush(final String name) {
+		final DocumentBuilderImpl pushed = new DocumentBuilderImpl(this);
 		myElements.add(new BuilderElement(name, pushed));
 		return pushed;
 	}
@@ -71,11 +71,20 @@ public abstract class AbstractBuilder implements Builder {
 	 *            The name of the sub-array.
 	 * @return A {@link ArrayBuilder} for constructing the sub-array.
 	 */
-	protected ArrayBuilder doPushArray(String name) {
-		ArrayBuilderImpl pushed = new ArrayBuilderImpl(this);
+	protected ArrayBuilder doPushArray(final String name) {
+		final ArrayBuilderImpl pushed = new ArrayBuilderImpl(this);
 		myElements.add(new BuilderElement(name, pushed));
 		return pushed;
 	}
+
+	/**
+	 * Constructs the final form of the element being constructed.
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @return The Element constructed by the builder.
+	 */
+	protected abstract Element get(String name);
 
 	/**
 	 * Renders the final form of the sub elements in the builder replacing all
@@ -93,7 +102,7 @@ public abstract class AbstractBuilder implements Builder {
 				element = ((BuilderElement) element).get();
 			}
 
-			String name = element.getName();
+			final String name = element.getName();
 			assert !names.contains(name) : name + " is not unique in  "
 					+ myElements;
 
@@ -103,15 +112,6 @@ public abstract class AbstractBuilder implements Builder {
 
 		return elements;
 	}
-
-	/**
-	 * Constructs the final form of the element being constructed.
-	 * 
-	 * @param name
-	 *            The name of the element.
-	 * @return The Element constructed by the builder.
-	 */
-	protected abstract Element get(String name);
 
 	/**
 	 * A temporary Element to stand in for a element being constructed with a
@@ -134,9 +134,17 @@ public abstract class AbstractBuilder implements Builder {
 		 * @param builder
 		 *            The Builder doing the building.
 		 */
-		public BuilderElement(String name, AbstractBuilder builder) {
+		public BuilderElement(final String name, final AbstractBuilder builder) {
 			super(null, name);
 			myBuilder = builder;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void accept(final Visitor visitor) {
+			// No-op.
 		}
 
 		/**
@@ -147,14 +155,6 @@ public abstract class AbstractBuilder implements Builder {
 		 */
 		public Element get() {
 			return myBuilder.get(getName());
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void accept(Visitor visitor) {
-			// No-op.
 		}
 	}
 }

@@ -56,7 +56,7 @@ public class BsonReader extends FilterInputStream {
 	 * @param input
 	 *            the underlying stream to read from.
 	 */
-	public BsonReader(InputStream input) {
+	public BsonReader(final InputStream input) {
 		super(input);
 	}
 
@@ -81,6 +81,32 @@ public class BsonReader extends FilterInputStream {
 	}
 
 	/**
+	 * Reads the complete set of bytes from the stream or throws an
+	 * {@link EOFException}.
+	 * 
+	 * @param buffer
+	 *            The buffer into which the data is read.
+	 * @exception EOFException
+	 *                If the input stream reaches the end before reading all the
+	 *                bytes.
+	 * @exception IOException
+	 *                On an error reading from the underlying stream.
+	 */
+	private void readFully(final byte[] buffer) throws EOFException,
+			IOException {
+
+		final int length = buffer.length;
+		int index = 0;
+		while (index < length) {
+			final int count = in.read(buffer, index, length - index);
+			if (count < 0) {
+				throw new EOFException();
+			}
+			index += count;
+		}
+	}
+
+	/**
 	 * Reads a BSON Array element: <code>
 	 * <pre>
 	 * "\x04" e_name document
@@ -95,7 +121,7 @@ public class BsonReader extends FilterInputStream {
 	 */
 	protected ArrayElement readArrayElement() throws EOFException, IOException {
 
-		String name = readCString();
+		final String name = readCString();
 
 		// The total length of the document. Not used.
 		readInt();
@@ -104,80 +130,48 @@ public class BsonReader extends FilterInputStream {
 	}
 
 	/**
-	 * Reads a BSON Subdocument element: <code>
-	 * <pre>
-	 * "\x03" e_name document
+	 * Reads a {@link BinaryElement}'s contents: <code><pre>
+	 * binary 	::= 	int32 subtype (byte*) 	
+	 * subtype 	::= 	"\x00" 	Binary / Generic
+	 * 	           | 	"\x01" 	Function
+	 * 	           | 	"\x02" 	Binary (Old)
+	 * 	           | 	"\x03" 	UUID
+	 * 	           | 	"\x05" 	MD5
+	 * 	           | 	"\x80" 	User defined
 	 * </pre>
 	 * </code>
 	 * 
-	 * @return The {@link ArrayElement}.
+	 * @return The {@link BinaryElement}.
 	 * @throws EOFException
-	 *             On insufficient data for the document.
+	 *             On insufficient data for the binary data.
 	 * @throws IOException
-	 *             On a failure reading the document.
+	 *             On a failure reading the binary data.
 	 */
-	protected DocumentElement readDocumentElement() throws EOFException,
+	protected BinaryElement readBinaryElement() throws EOFException,
 			IOException {
 
-		String name = readCString();
+		final String name = readCString();
+		int length = readInt();
 
-		// The total length of the document. Not used.
-		readInt();
-
-		return new DocumentElement(name, readElements());
-	}
-
-	/**
-	 * Reads a BSON element list (e_list): <code>
-	 * <pre>
-	 * e_list 	::= 	element e_list | "" 	
-	 * </pre>
-	 * </code>
-	 * 
-	 * @return The list of elements.
-	 * @throws EOFException
-	 *             On insufficient data for the elements.
-	 * @throws IOException
-	 *             On a failure reading the elements.
-	 */
-	protected List<Element> readElements() throws EOFException, IOException {
-		List<Element> elements = new ArrayList<Element>();
-		int elementToken = in.read();
-		while (elementToken > 0) {
-			elements.add(readElement((byte) elementToken));
-
-			elementToken = in.read();
-		}
-		if (elementToken < 0) {
+		final int subType = in.read();
+		if (subType < 0) {
 			throw new EOFException();
 		}
-		return elements;
-	}
 
-	/**
-	 * Reads a little-endian 4 byte signed integer from the stream.
-	 * 
-	 * @return The integer value.
-	 * @throws EOFException
-	 *             On insufficient data for the integer.
-	 * @throws IOException
-	 *             On a failure reading the integer.
-	 */
-	protected int readInt() throws EOFException, IOException {
-		int read = 0;
-		int eofCheck = 0;
-		int result = 0;
+		// Old binary handling.
+		if (subType == 2) {
+			final int anotherLength = readInt();
 
-		for (int i = 0; i < Integer.SIZE; i += Byte.SIZE) {
-			read = in.read();
-			eofCheck |= read;
-			result += (read << i);
+			assert (anotherLength == length - 4) : "Binary Element Subtye 2 "
+					+ "length should be outer length - 4.";
+
+			length -= 4;
 		}
 
-		if (eofCheck < 0) {
-			throw new EOFException();
-		}
-		return result;
+		final byte[] binary = new byte[length];
+		readFully(binary);
+
+		return new BinaryElement(name, (byte) subType, binary);
 	}
 
 	/**
@@ -202,10 +196,10 @@ public class BsonReader extends FilterInputStream {
 
 		// Don't know how big the cstring is so have to
 		// read a little, decode a little, read a little, ...
-		CharsetDecoder decoder = UTF8.newDecoder();
-		ByteBuffer bytesIn = ByteBuffer.allocate(64);
-		CharBuffer charBuffer = CharBuffer.allocate(64);
-		StringBuilder builder = new StringBuilder(64);
+		final CharsetDecoder decoder = UTF8.newDecoder();
+		final ByteBuffer bytesIn = ByteBuffer.allocate(64);
+		final CharBuffer charBuffer = CharBuffer.allocate(64);
+		final StringBuilder builder = new StringBuilder(64);
 
 		int read = in.read();
 		while (read > 0) {
@@ -239,58 +233,27 @@ public class BsonReader extends FilterInputStream {
 	}
 
 	/**
-	 * Reads a "string" value from the stream:<code>
+	 * Reads a BSON Subdocument element: <code>
 	 * <pre>
-	 * string 	::= 	int32 (byte*) "\x00"
+	 * "\x03" e_name document
 	 * </pre>
 	 * </code>
-	 * <p>
-	 * <blockquote>String - The int32 is the number bytes in the (byte*) + 1
-	 * (for the trailing '\x00'). The (byte*) is zero or more UTF-8 encoded
-	 * characters. </blockquote>
-	 * </p>
 	 * 
-	 * @return The string value.
+	 * @return The {@link ArrayElement}.
 	 * @throws EOFException
-	 *             On insufficient data for the integer.
+	 *             On insufficient data for the document.
 	 * @throws IOException
-	 *             On a failure reading the integer.
+	 *             On a failure reading the document.
 	 */
-	protected String readString() throws EOFException, IOException {
-		int length = readInt();
+	protected DocumentElement readDocumentElement() throws EOFException,
+			IOException {
 
-		byte[] bytes = new byte[length];
-		readFully(bytes);
+		final String name = readCString();
 
-		// Remember to remove the null byte at the end of the string.
-		return new String(bytes, 0, bytes.length - 1, UTF8);
-	}
+		// The total length of the document. Not used.
+		readInt();
 
-	/**
-	 * Reads a little-endian 8 byte signed integer from the stream.
-	 * 
-	 * @return The long value.
-	 * @throws EOFException
-	 *             On insufficient data for the long.
-	 * @throws IOException
-	 *             On a failure reading the long.
-	 */
-	protected long readLong() throws EOFException, IOException {
-		int read = 0;
-		int eofCheck = 0;
-		long result = 0;
-
-		for (int i = 0; i < Long.SIZE; i += Byte.SIZE) {
-			read = in.read();
-			eofCheck |= read;
-			result += (((long) read) << i);
-		}
-
-		if (eofCheck < 0) {
-			throw new EOFException();
-		}
-
-		return result;
+		return new DocumentElement(name, readElements());
 	}
 
 	/**
@@ -329,8 +292,9 @@ public class BsonReader extends FilterInputStream {
 	 *             On a failure reading the binary data.
 	 */
 	@SuppressWarnings("deprecation")
-	protected Element readElement(byte token) throws EOFException, IOException {
-		ElementType type = ElementType.valueOf(token);
+	protected Element readElement(final byte token) throws EOFException,
+			IOException {
+		final ElementType type = ElementType.valueOf(token);
 		if (type == null) {
 			throw new StreamCorruptedException("Unknown element type: 0x"
 					+ Integer.toHexString(token & 0xFF) + ".");
@@ -363,7 +327,7 @@ public class BsonReader extends FilterInputStream {
 			return new JavaScriptElement(readCString(), readString());
 		}
 		case JAVA_SCRIPT_WITH_SCOPE: {
-			String name = readCString();
+			final String name = readCString();
 
 			// Total length - not used.
 			readInt();
@@ -413,72 +377,110 @@ public class BsonReader extends FilterInputStream {
 	}
 
 	/**
-	 * Reads a {@link BinaryElement}'s contents: <code><pre>
-	 * binary 	::= 	int32 subtype (byte*) 	
-	 * subtype 	::= 	"\x00" 	Binary / Generic
-	 * 	           | 	"\x01" 	Function
-	 * 	           | 	"\x02" 	Binary (Old)
-	 * 	           | 	"\x03" 	UUID
-	 * 	           | 	"\x05" 	MD5
-	 * 	           | 	"\x80" 	User defined
+	 * Reads a BSON element list (e_list): <code>
+	 * <pre>
+	 * e_list 	::= 	element e_list | "" 	
 	 * </pre>
 	 * </code>
 	 * 
-	 * @return The {@link BinaryElement}.
+	 * @return The list of elements.
 	 * @throws EOFException
-	 *             On insufficient data for the binary data.
+	 *             On insufficient data for the elements.
 	 * @throws IOException
-	 *             On a failure reading the binary data.
+	 *             On a failure reading the elements.
 	 */
-	protected BinaryElement readBinaryElement() throws EOFException,
-			IOException {
+	protected List<Element> readElements() throws EOFException, IOException {
+		final List<Element> elements = new ArrayList<Element>();
+		int elementToken = in.read();
+		while (elementToken > 0) {
+			elements.add(readElement((byte) elementToken));
 
-		String name = readCString();
-		int length = readInt();
-
-		int subType = in.read();
-		if (subType < 0) {
+			elementToken = in.read();
+		}
+		if (elementToken < 0) {
 			throw new EOFException();
 		}
-
-		// Old binary handling.
-		if (subType == 2) {
-			int anotherLength = readInt();
-
-			assert (anotherLength == length - 4) : "Binary Element Subtye 2 "
-					+ "length should be outer length - 4.";
-
-			length -= 4;
-		}
-
-		byte[] binary = new byte[length];
-		readFully(binary);
-
-		return new BinaryElement(name, (byte) subType, binary);
+		return elements;
 	}
 
 	/**
-	 * Reads the complete set of bytes from the stream or throws an
-	 * {@link EOFException}.
+	 * Reads a little-endian 4 byte signed integer from the stream.
 	 * 
-	 * @param buffer
-	 *            The buffer into which the data is read.
-	 * @exception EOFException
-	 *                If the input stream reaches the end before reading all the
-	 *                bytes.
-	 * @exception IOException
-	 *                On an error reading from the underlying stream.
+	 * @return The integer value.
+	 * @throws EOFException
+	 *             On insufficient data for the integer.
+	 * @throws IOException
+	 *             On a failure reading the integer.
 	 */
-	private void readFully(byte[] buffer) throws EOFException, IOException {
+	protected int readInt() throws EOFException, IOException {
+		int read = 0;
+		int eofCheck = 0;
+		int result = 0;
 
-		final int length = buffer.length;
-		int index = 0;
-		while (index < length) {
-			int count = in.read(buffer, index, length - index);
-			if (count < 0) {
-				throw new EOFException();
-			}
-			index += count;
+		for (int i = 0; i < Integer.SIZE; i += Byte.SIZE) {
+			read = in.read();
+			eofCheck |= read;
+			result += (read << i);
 		}
+
+		if (eofCheck < 0) {
+			throw new EOFException();
+		}
+		return result;
+	}
+
+	/**
+	 * Reads a little-endian 8 byte signed integer from the stream.
+	 * 
+	 * @return The long value.
+	 * @throws EOFException
+	 *             On insufficient data for the long.
+	 * @throws IOException
+	 *             On a failure reading the long.
+	 */
+	protected long readLong() throws EOFException, IOException {
+		int read = 0;
+		int eofCheck = 0;
+		long result = 0;
+
+		for (int i = 0; i < Long.SIZE; i += Byte.SIZE) {
+			read = in.read();
+			eofCheck |= read;
+			result += (((long) read) << i);
+		}
+
+		if (eofCheck < 0) {
+			throw new EOFException();
+		}
+
+		return result;
+	}
+
+	/**
+	 * Reads a "string" value from the stream:<code>
+	 * <pre>
+	 * string 	::= 	int32 (byte*) "\x00"
+	 * </pre>
+	 * </code>
+	 * <p>
+	 * <blockquote>String - The int32 is the number bytes in the (byte*) + 1
+	 * (for the trailing '\x00'). The (byte*) is zero or more UTF-8 encoded
+	 * characters. </blockquote>
+	 * </p>
+	 * 
+	 * @return The string value.
+	 * @throws EOFException
+	 *             On insufficient data for the integer.
+	 * @throws IOException
+	 *             On a failure reading the integer.
+	 */
+	protected String readString() throws EOFException, IOException {
+		final int length = readInt();
+
+		final byte[] bytes = new byte[length];
+		readFully(bytes);
+
+		// Remember to remove the null byte at the end of the string.
+		return new String(bytes, 0, bytes.length - 1, UTF8);
 	}
 }
