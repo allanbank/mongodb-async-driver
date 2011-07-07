@@ -6,6 +6,7 @@ package com.allanbank.mongodb.bson.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,8 @@ import java.util.List;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class RandomAccessOutputStream extends OutputStream {
+	/** UTF-8 Character set for encoding strings. */
+	public final static Charset UTF8 = Charset.forName("UTF-8");
 
 	/** The maximum size buffer to allocate. */
 	private static final int MAX_BUFFER_SIZE = 8192;
@@ -42,6 +45,16 @@ public class RandomAccessOutputStream extends OutputStream {
 	/** The offset into the current buffer. */
 	private int myCurrentBufferOffset;
 
+	/**
+	 * Buffer for serialization of integer types. Not needed for normal integer
+	 * writes since the {@link RandomAccessOutputStream} will coalesce the
+	 * single byte writes but for the {@link RandomAccessOutputStream#writeAt}
+	 * operation a seek to the appropriate backing buffer is required. For large
+	 * documents the seeks could be significant. This buffer ensures there is
+	 * only 1 seek for each {@link #writeIntAt(long, int)}.
+	 */
+	private final byte[] myIntegerBytes;
+
 	/** The current buffer being written. */
 	private long mySize;
 
@@ -56,6 +69,8 @@ public class RandomAccessOutputStream extends OutputStream {
 
 		myBuffers = new ArrayList<byte[]>();
 		myBuffers.add(myCurrentBuffer);
+
+		myIntegerBytes = new byte[8];
 	}
 
 	/**
@@ -269,6 +284,106 @@ public class RandomAccessOutputStream extends OutputStream {
 	}
 
 	/**
+	 * Writes a single byte to the stream.
+	 * 
+	 * @param b
+	 *            The byte to write.
+	 */
+	public void writeByte(final byte b) {
+		write(b & 0xFF);
+	}
+
+	/**
+	 * Writes a sequence of bytes to the under lying stream.
+	 * 
+	 * @param data
+	 *            The bytes to write.
+	 */
+	public void writeBytes(final byte[] data) {
+		write(data);
+	}
+
+	/**
+	 * Writes a "Cstring" to the stream.
+	 * 
+	 * @param strings
+	 *            The CString to write. The strings are concatenated into a
+	 *            single CString value.
+	 */
+	public void writeCString(final String... strings) {
+		for (final String string : strings) {
+			writeBytes(string.getBytes(UTF8));
+		}
+		writeByte((byte) 0);
+	}
+
+	/**
+	 * Write the integer value in little-endian byte order.
+	 * 
+	 * @param value
+	 *            The integer to write.
+	 */
+	public void writeInt(final int value) {
+		myIntegerBytes[0] = (byte) (value & 0xFF);
+		myIntegerBytes[1] = (byte) ((value >> 8) & 0xFF);
+		myIntegerBytes[2] = (byte) ((value >> 16) & 0xFF);
+		myIntegerBytes[3] = (byte) ((value >> 24) & 0xFF);
+
+		write(myIntegerBytes, 0, 4);
+	}
+
+	/**
+	 * Write the integer value in little-endian byte order at the specified
+	 * position in the stream.
+	 * 
+	 * @param position
+	 *            The position in the stream to write the integer.
+	 * @param value
+	 *            The long to write.
+	 */
+	public void writeIntAt(final long position, final int value) {
+		myIntegerBytes[0] = (byte) (value & 0xFF);
+		myIntegerBytes[1] = (byte) ((value >> 8) & 0xFF);
+		myIntegerBytes[2] = (byte) ((value >> 16) & 0xFF);
+		myIntegerBytes[3] = (byte) ((value >> 24) & 0xFF);
+
+		writeAt(position, myIntegerBytes, 0, 4);
+	}
+
+	/**
+	 * Write the long value in little-endian byte order.
+	 * 
+	 * @param value
+	 *            The long to write.
+	 */
+	public void writeLong(final long value) {
+		myIntegerBytes[0] = (byte) (value & 0xFF);
+		myIntegerBytes[1] = (byte) ((value >> 8) & 0xFF);
+		myIntegerBytes[2] = (byte) ((value >> 16) & 0xFF);
+		myIntegerBytes[3] = (byte) ((value >> 24) & 0xFF);
+		myIntegerBytes[4] = (byte) ((value >> 32) & 0xFF);
+		myIntegerBytes[5] = (byte) ((value >> 40) & 0xFF);
+		myIntegerBytes[6] = (byte) ((value >> 48) & 0xFF);
+		myIntegerBytes[7] = (byte) ((value >> 56) & 0xFF);
+
+		write(myIntegerBytes, 0, 8);
+	}
+
+	/**
+	 * Writes a "string" to the stream.
+	 * 
+	 * @param string
+	 *            The String to write.
+	 */
+	public void writeString(final String string) {
+		final byte[] bytes = string.getBytes(UTF8);
+
+		writeInt(bytes.length + 1);
+		writeBytes(bytes);
+		writeByte((byte) 0);
+	}
+
+	/**
 	 * Writes the complete contents of this byte array output stream to the
 	 * specified output stream argument, as if by calling the output stream's
 	 * write method using <code>out.write(buf, 0, count)</code>.
@@ -286,7 +401,7 @@ public class RandomAccessOutputStream extends OutputStream {
 	}
 
 	/**
-	 * 
+	 * Allocates a new buffer to use.
 	 */
 	protected void nextBuffer() {
 		// Need a new buffer.

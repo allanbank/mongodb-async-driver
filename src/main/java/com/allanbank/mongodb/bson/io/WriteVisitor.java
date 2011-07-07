@@ -6,7 +6,6 @@ package com.allanbank.mongodb.bson.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import com.allanbank.mongodb.bson.Document;
@@ -24,19 +23,6 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 /* package */class WriteVisitor implements Visitor {
 
-	/** UTF-8 Character set for encoding strings. */
-	public final static Charset UTF8 = Charset.forName("UTF-8");
-
-	/**
-	 * Buffer for serialization of integer types. Not needed for normal integer
-	 * writes since the {@link RandomAccessOutputStream} will coalesce the
-	 * single byte writes but for the {@link RandomAccessOutputStream#writeAt}
-	 * operation a seek to the appropriate backing buffer is required. For large
-	 * documents the seeks could be significant. This buffer ensures there is
-	 * only 1 seek for each {@link #writeIntAt(long, int)}.
-	 */
-	private final byte[] myIntegerBytes;
-
 	/** Output buffer for spooling the written document. */
 	protected final RandomAccessOutputStream myOutputBuffer;
 
@@ -45,7 +31,16 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	public WriteVisitor() {
 		myOutputBuffer = new RandomAccessOutputStream();
-		myIntegerBytes = new byte[8];
+	}
+
+	/**
+	 * Creates a new {@link WriteVisitor}.
+	 * 
+	 * @param output
+	 *            The output buffer to use.
+	 */
+	public WriteVisitor(final RandomAccessOutputStream output) {
+		myOutputBuffer = output;
 	}
 
 	/**
@@ -71,14 +66,14 @@ import com.allanbank.mongodb.bson.Visitor;
 	public void visit(final List<Element> elements) {
 		final long position = myOutputBuffer.getPosition();
 
-		writeInt(0);
+		myOutputBuffer.writeInt(0);
 		for (final Element element : elements) {
 			element.accept(this);
 		}
-		writeByte((byte) 0);
+		myOutputBuffer.writeByte((byte) 0);
 
 		final int size = (int) (myOutputBuffer.getPosition() - position);
-		writeIntAt(position, size);
+		myOutputBuffer.writeIntAt(position, size);
 	}
 
 	/**
@@ -86,8 +81,8 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitArray(final String name, final List<Element> elements) {
-		writeByte(ElementType.ARRAY.getToken());
-		writeCString(name);
+		myOutputBuffer.writeByte(ElementType.ARRAY.getToken());
+		myOutputBuffer.writeCString(name);
 		visit(elements);
 	}
 
@@ -97,22 +92,22 @@ import com.allanbank.mongodb.bson.Visitor;
 	@Override
 	public void visitBinary(final String name, final byte subType,
 			final byte[] data) {
-		writeByte(ElementType.BINARY.getToken());
-		writeCString(name);
+		myOutputBuffer.writeByte(ElementType.BINARY.getToken());
+		myOutputBuffer.writeCString(name);
 		switch (subType) {
 		case 2: {
-			writeInt(data.length + 4);
-			writeByte(subType);
-			writeInt(data.length);
-			writeBytes(data);
+			myOutputBuffer.writeInt(data.length + 4);
+			myOutputBuffer.writeByte(subType);
+			myOutputBuffer.writeInt(data.length);
+			myOutputBuffer.writeBytes(data);
 			break;
 
 		}
 		case 0:
 		default:
-			writeInt(data.length);
-			writeByte(subType);
-			writeBytes(data);
+			myOutputBuffer.writeInt(data.length);
+			myOutputBuffer.writeByte(subType);
+			myOutputBuffer.writeBytes(data);
 			break;
 		}
 	}
@@ -124,11 +119,11 @@ import com.allanbank.mongodb.bson.Visitor;
 	public void visitBoolean(final String name, final boolean value) {
 
 		if (value) {
-			writeByte(ElementType.TRUE.getToken());
+			myOutputBuffer.writeByte(ElementType.TRUE.getToken());
 		} else {
-			writeByte(ElementType.FALSE.getToken());
+			myOutputBuffer.writeByte(ElementType.FALSE.getToken());
 		}
-		writeCString(name);
+		myOutputBuffer.writeCString(name);
 	}
 
 	/**
@@ -138,11 +133,11 @@ import com.allanbank.mongodb.bson.Visitor;
 	@Override
 	public void visitDBPointer(final String name, final int timestamp,
 			final long machineId) {
-		writeByte(ElementType.DB_POINTER.getToken());
-		writeCString(name);
+		myOutputBuffer.writeByte(ElementType.DB_POINTER.getToken());
+		myOutputBuffer.writeCString(name);
 		// Just to be complicated the Object ID is big endian.
-		writeInt(timestamp);
-		writeLong(machineId);
+		myOutputBuffer.writeInt(timestamp);
+		myOutputBuffer.writeLong(machineId);
 	}
 
 	/**
@@ -150,8 +145,8 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitDocument(final String name, final List<Element> elements) {
-		writeByte(ElementType.DOCUMENT.getToken());
-		writeCString(name);
+		myOutputBuffer.writeByte(ElementType.DOCUMENT.getToken());
+		myOutputBuffer.writeCString(name);
 		visit(elements);
 	}
 
@@ -160,9 +155,9 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitDouble(final String name, final double value) {
-		writeByte(ElementType.DOUBLE.getToken());
-		writeCString(name);
-		writeLong(Double.doubleToLongBits(value));
+		myOutputBuffer.writeByte(ElementType.DOUBLE.getToken());
+		myOutputBuffer.writeCString(name);
+		myOutputBuffer.writeLong(Double.doubleToLongBits(value));
 	}
 
 	/**
@@ -170,9 +165,9 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitInteger(final String name, final int value) {
-		writeByte(ElementType.INTEGER.getToken());
-		writeCString(name);
-		writeInt(value);
+		myOutputBuffer.writeByte(ElementType.INTEGER.getToken());
+		myOutputBuffer.writeCString(name);
+		myOutputBuffer.writeInt(value);
 	}
 
 	/**
@@ -180,9 +175,9 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitJavaScript(final String name, final String code) {
-		writeByte(ElementType.JAVA_SCRIPT.getToken());
-		writeCString(name);
-		writeString(code);
+		myOutputBuffer.writeByte(ElementType.JAVA_SCRIPT.getToken());
+		myOutputBuffer.writeCString(name);
+		myOutputBuffer.writeString(code);
 	}
 
 	/**
@@ -191,17 +186,17 @@ import com.allanbank.mongodb.bson.Visitor;
 	@Override
 	public void visitJavaScript(final String name, final String code,
 			final Document scope) {
-		writeByte(ElementType.JAVA_SCRIPT_WITH_SCOPE.getToken());
-		writeCString(name);
+		myOutputBuffer.writeByte(ElementType.JAVA_SCRIPT_WITH_SCOPE.getToken());
+		myOutputBuffer.writeCString(name);
 
 		final long start = myOutputBuffer.getPosition();
-		writeInt(0);
-		writeString(code);
+		myOutputBuffer.writeInt(0);
+		myOutputBuffer.writeString(code);
 
 		scope.accept(this);
 
 		final int size = (int) (myOutputBuffer.getPosition() - start);
-		writeIntAt(start, size);
+		myOutputBuffer.writeIntAt(start, size);
 	}
 
 	/**
@@ -209,9 +204,9 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitLong(final String name, final long value) {
-		writeByte(ElementType.LONG.getToken());
-		writeCString(name);
-		writeLong(value);
+		myOutputBuffer.writeByte(ElementType.LONG.getToken());
+		myOutputBuffer.writeCString(name);
+		myOutputBuffer.writeLong(value);
 	}
 
 	/**
@@ -219,8 +214,8 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitMaxKey(final String name) {
-		writeByte(ElementType.MAX_KEY.getToken());
-		writeCString(name);
+		myOutputBuffer.writeByte(ElementType.MAX_KEY.getToken());
+		myOutputBuffer.writeCString(name);
 	}
 
 	/**
@@ -228,8 +223,8 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitMinKey(final String name) {
-		writeByte(ElementType.MIN_KEY.getToken());
-		writeCString(name);
+		myOutputBuffer.writeByte(ElementType.MIN_KEY.getToken());
+		myOutputBuffer.writeCString(name);
 	}
 
 	/**
@@ -237,9 +232,9 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitMongoTimestamp(final String name, final long value) {
-		writeByte(ElementType.MONGO_TIMESTAMP.getToken());
-		writeCString(name);
-		writeLong(value);
+		myOutputBuffer.writeByte(ElementType.MONGO_TIMESTAMP.getToken());
+		myOutputBuffer.writeCString(name);
+		myOutputBuffer.writeLong(value);
 	}
 
 	/**
@@ -247,8 +242,8 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitNull(final String name) {
-		writeByte(ElementType.NULL.getToken());
-		writeCString(name);
+		myOutputBuffer.writeByte(ElementType.NULL.getToken());
+		myOutputBuffer.writeCString(name);
 	}
 
 	/**
@@ -257,11 +252,11 @@ import com.allanbank.mongodb.bson.Visitor;
 	@Override
 	public void visitObjectId(final String name, final int timestamp,
 			final long machineId) {
-		writeByte(ElementType.OBJECT_ID.getToken());
-		writeCString(name);
+		myOutputBuffer.writeByte(ElementType.OBJECT_ID.getToken());
+		myOutputBuffer.writeCString(name);
 		// Just to be complicated the Object ID is big endian.
-		writeInt(EndianUtils.swap(timestamp));
-		writeLong(EndianUtils.swap(machineId));
+		myOutputBuffer.writeInt(EndianUtils.swap(timestamp));
+		myOutputBuffer.writeLong(EndianUtils.swap(machineId));
 	}
 
 	/**
@@ -270,10 +265,10 @@ import com.allanbank.mongodb.bson.Visitor;
 	@Override
 	public void visitRegularExpression(final String name, final String pattern,
 			final String options) {
-		writeByte(ElementType.REGEX.getToken());
-		writeCString(name);
-		writeCString(pattern);
-		writeCString(options);
+		myOutputBuffer.writeByte(ElementType.REGEX.getToken());
+		myOutputBuffer.writeCString(name);
+		myOutputBuffer.writeCString(pattern);
+		myOutputBuffer.writeCString(options);
 	}
 
 	/**
@@ -281,9 +276,9 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitString(final String name, final String value) {
-		writeByte(ElementType.STRING.getToken());
-		writeCString(name);
-		writeString(value);
+		myOutputBuffer.writeByte(ElementType.STRING.getToken());
+		myOutputBuffer.writeCString(name);
+		myOutputBuffer.writeString(value);
 	}
 
 	/**
@@ -291,9 +286,9 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitSymbol(final String name, final String symbol) {
-		writeByte(ElementType.SYMBOL.getToken());
-		writeCString(name);
-		writeString(symbol);
+		myOutputBuffer.writeByte(ElementType.SYMBOL.getToken());
+		myOutputBuffer.writeCString(name);
+		myOutputBuffer.writeString(symbol);
 	}
 
 	/**
@@ -301,9 +296,9 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@Override
 	public void visitTimestamp(final String name, final long timestamp) {
-		writeByte(ElementType.UTC_TIMESTAMP.getToken());
-		writeCString(name);
-		writeLong(timestamp);
+		myOutputBuffer.writeByte(ElementType.UTC_TIMESTAMP.getToken());
+		myOutputBuffer.writeCString(name);
+		myOutputBuffer.writeLong(timestamp);
 	}
 
 	/**
@@ -319,100 +314,12 @@ import com.allanbank.mongodb.bson.Visitor;
 	}
 
 	/**
-	 * Writes a single byte to the stream.
+	 * Returns the visitor's output buffer.
 	 * 
-	 * @param b
-	 *            The byte to write.
+	 * @return The visitor's output buffer.
 	 */
-	private void writeByte(final byte b) {
-		myOutputBuffer.write(b & 0xFF);
-	}
-
-	/**
-	 * Writes a sequence of bytes to the under lying stream.
-	 * 
-	 * @param data
-	 *            The bytes to write.
-	 */
-	private void writeBytes(final byte[] data) {
-		myOutputBuffer.write(data);
-	}
-
-	/**
-	 * Writes a "Cstring" to the stream.
-	 * 
-	 * @param string
-	 *            The CString to write.
-	 */
-	private void writeCString(final String string) {
-		writeBytes(string.getBytes(UTF8));
-		writeByte((byte) 0);
-	}
-
-	/**
-	 * Write the integer value in little-endian byte order.
-	 * 
-	 * @param value
-	 *            The integer to write.
-	 */
-	private void writeInt(final int value) {
-		myIntegerBytes[0] = (byte) (value & 0xFF);
-		myIntegerBytes[1] = (byte) ((value >> 8) & 0xFF);
-		myIntegerBytes[2] = (byte) ((value >> 16) & 0xFF);
-		myIntegerBytes[3] = (byte) ((value >> 24) & 0xFF);
-
-		myOutputBuffer.write(myIntegerBytes, 0, 4);
-	}
-
-	/**
-	 * Write the integer value in little-endian byte order at the specified
-	 * position in the stream.
-	 * 
-	 * @param position
-	 *            The position in the stream to write the integer.
-	 * @param value
-	 *            The long to write.
-	 */
-	private void writeIntAt(final long position, final int value) {
-		myIntegerBytes[0] = (byte) (value & 0xFF);
-		myIntegerBytes[1] = (byte) ((value >> 8) & 0xFF);
-		myIntegerBytes[2] = (byte) ((value >> 16) & 0xFF);
-		myIntegerBytes[3] = (byte) ((value >> 24) & 0xFF);
-
-		myOutputBuffer.writeAt(position, myIntegerBytes, 0, 4);
-	}
-
-	/**
-	 * Write the long value in little-endian byte order.
-	 * 
-	 * @param value
-	 *            The long to write.
-	 */
-	private void writeLong(final long value) {
-		myIntegerBytes[0] = (byte) (value & 0xFF);
-		myIntegerBytes[1] = (byte) ((value >> 8) & 0xFF);
-		myIntegerBytes[2] = (byte) ((value >> 16) & 0xFF);
-		myIntegerBytes[3] = (byte) ((value >> 24) & 0xFF);
-		myIntegerBytes[4] = (byte) ((value >> 32) & 0xFF);
-		myIntegerBytes[5] = (byte) ((value >> 40) & 0xFF);
-		myIntegerBytes[6] = (byte) ((value >> 48) & 0xFF);
-		myIntegerBytes[7] = (byte) ((value >> 56) & 0xFF);
-
-		myOutputBuffer.write(myIntegerBytes, 0, 8);
-	}
-
-	/**
-	 * Writes a "string" to the stream.
-	 * 
-	 * @param string
-	 *            The String to write.
-	 */
-	private void writeString(final String string) {
-		final byte[] bytes = string.getBytes(UTF8);
-
-		writeInt(bytes.length + 1);
-		writeBytes(bytes);
-		writeByte((byte) 0);
+	protected RandomAccessOutputStream getOutputBuffer() {
+		return myOutputBuffer;
 	}
 
 }

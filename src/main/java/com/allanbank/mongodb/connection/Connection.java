@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.connection;
 
+import java.io.Closeable;
+import java.io.Flushable;
 import java.util.List;
 
 import com.allanbank.mongodb.MongoDbException;
@@ -17,7 +19,7 @@ import com.allanbank.mongodb.bson.Document;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface Connection {
+public interface Connection extends Closeable, Flushable {
 	/** The collection to use when issuing commands to the database. */
 	public static final String COMMAND_COLLECTION = "$cmd";
 
@@ -38,7 +40,7 @@ public interface Connection {
 	 * @throws MongoDbException
 	 *             On an error communicating with the MongoDB server.
 	 */
-	void delete(String dbName, String collectionName, Document query,
+	public void delete(String dbName, String collectionName, Document query,
 			boolean multiDelete) throws MongoDbException;
 
 	/**
@@ -62,12 +64,16 @@ public interface Connection {
 	 *            been written to the journal.
 	 * @param w
 	 *            The replication factor to wait for.
+	 * @param wtimeout
+	 *            The amount of time (in milliseconds) to wait for the write to
+	 *            finish.
 	 * @return The request id assigned to this query. Can be used to correlate
 	 *         to a read response.
 	 * @throws MongoDbException
 	 *             On an error communicating with the MongoDB server.
 	 */
-	int getLastError(String dbName, boolean fsync, boolean waitForJournal, int w)
+	public int getLastError(final String dbName, final boolean fsync,
+			final boolean waitForJournal, final int w, final int wtimeout)
 			throws MongoDbException;
 
 	/**
@@ -88,8 +94,8 @@ public interface Connection {
 	 * @throws MongoDbException
 	 *             On an error communicating with the MongoDB server.
 	 */
-	int getMore(String dbName, String collectionName, long cursorId,
-			long numberToReturn) throws MongoDbException;
+	public int getMore(String dbName, String collectionName, long cursorId,
+			int numberToReturn) throws MongoDbException;
 
 	/**
 	 * Sends an <a href=
@@ -108,8 +114,9 @@ public interface Connection {
 	 * @throws MongoDbException
 	 *             On an error communicating with the MongoDB server.
 	 */
-	void insert(String dbName, String collectionName, List<Document> documents,
-			boolean keepGoing) throws MongoDbException;
+	public void insert(String dbName, String collectionName,
+			List<Document> documents, boolean keepGoing)
+			throws MongoDbException;
 
 	/**
 	 * Sends a <a href=
@@ -125,7 +132,7 @@ public interface Connection {
 	 * @throws MongoDbException
 	 *             On an error communicating with the MongoDB server.
 	 */
-	void killCursor(String dbName, String collectionName, long cursorId)
+	public void killCursor(String dbName, String collectionName, long cursorId)
 			throws MongoDbException;
 
 	/**
@@ -140,7 +147,9 @@ public interface Connection {
 	 * @param collectionName
 	 *            The name of the collection.
 	 * @param query
-	 *            The query to use inselecting documents to return.
+	 *            The query to use in selecting documents to return.
+	 * @param returnFields
+	 *            The return fields document, may be null.
 	 * @param numberToReturn
 	 *            The number of documents to be returned.
 	 * @param numberToSkip
@@ -165,10 +174,11 @@ public interface Connection {
 	 * @throws MongoDbException
 	 *             On an error communicating with the MongoDB server.
 	 */
-	int query(String dbName, String collectionName, Document query,
-			long numberToReturn, long numberToSkip, boolean tailable,
-			boolean slaveOk, boolean noCursorTimeout, boolean awaitData,
-			boolean exhaust, boolean partial) throws MongoDbException;
+	public int query(String dbName, String collectionName, Document query,
+			Document returnFields, int numberToReturn, int numberToSkip,
+			boolean tailable, boolean slaveOk, boolean noCursorTimeout,
+			boolean awaitData, boolean exhaust, boolean partial)
+			throws MongoDbException;
 
 	/**
 	 * Reads a <a href=
@@ -180,7 +190,7 @@ public interface Connection {
 	 * @throws MongoDbException
 	 *             On an error communicating with the MongoDB server.
 	 */
-	Reply read() throws MongoDbException;
+	public Reply read() throws MongoDbException;
 
 	/**
 	 * Sends an <a href=
@@ -203,7 +213,7 @@ public interface Connection {
 	 * @throws MongoDbException
 	 *             On an error communicating with the MongoDB server.
 	 */
-	void update(String dbName, String collectionName, Document query,
+	public void update(String dbName, String collectionName, Document query,
 			Document update, boolean upsert, boolean multiUpdate)
 			throws MongoDbException;
 

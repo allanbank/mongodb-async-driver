@@ -27,8 +27,6 @@ import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
-import com.allanbank.mongodb.bson.io.BsonReader;
-import com.allanbank.mongodb.bson.io.BsonWriter;
 
 /**
  * Tests for the BsonReader class.
@@ -44,62 +42,24 @@ public class BsonReaderTest {
 	 *             On a failure reading the test document.
 	 */
 	@Test
-	public void testReadHelloWorldDocument() throws IOException {
-		// From the BSON specification.
-		byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
-				(byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
-				0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
-				(byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
-
-		ByteArrayInputStream in = new ByteArrayInputStream(helloWorld);
-		BsonReader reader = new BsonReader(in);
-
-		Document doc = reader.readDocument();
-
-		assertTrue("Should be a RootDocument.", doc instanceof RootDocument);
-		assertTrue("Should contain a 'hello' element.", doc.contains("hello"));
-
-		Iterator<Element> iter = doc.iterator();
-		assertTrue("Should contain a single element.", iter.hasNext());
-		iter.next();
-		assertFalse("Should contain a single element.", iter.hasNext());
-
-		Element element = doc.get("hello");
-		assertNotNull("'hello' element should not be null.", element);
-		assertTrue("'hello' element should be a StringElement",
-				element instanceof StringElement);
-
-		StringElement worldElement = (StringElement) element;
-		assertEquals("'hello' elements value should be 'world'.", "world",
-				worldElement.getValue());
-
-	}
-
-	/**
-	 * Test method for {@link BsonReader#readDocument()}.
-	 * 
-	 * @throws IOException
-	 *             On a failure reading the test document.
-	 */
-	@Test
 	public void testReadArrayDocument() throws IOException {
 		// From the BSON specification.
-		byte[] arrayDocument = new byte[] { '1', 0x00, 0x00, 0x00, 0x04, 'B',
-				'S', 'O', 'N', 0x00, '&', 0x00, 0x00, 0x00, 0x02, '0', 0x00,
-				0x08, 0x00, 0x00, 0x00, 'a', 'w', 'e', 's', 'o', 'm', 'e',
-				0x00, 0x01, '1', 0x00, '3', '3', '3', '3', '3', '3', 0x14, '@',
-				0x10, '2', 0x00, (byte) 0xc2, 0x07, 0x00, 0x00, 0x00, 0x00 };
+		final byte[] arrayDocument = new byte[] { '1', 0x00, 0x00, 0x00, 0x04,
+				'B', 'S', 'O', 'N', 0x00, '&', 0x00, 0x00, 0x00, 0x02, '0',
+				0x00, 0x08, 0x00, 0x00, 0x00, 'a', 'w', 'e', 's', 'o', 'm',
+				'e', 0x00, 0x01, '1', 0x00, '3', '3', '3', '3', '3', '3', 0x14,
+				'@', 0x10, '2', 0x00, (byte) 0xc2, 0x07, 0x00, 0x00, 0x00, 0x00 };
 
 		// Expected: { "BSON": ["awesome", 5.05, 1986] }
-		ByteArrayInputStream in = new ByteArrayInputStream(arrayDocument);
-		BsonReader reader = new BsonReader(in);
+		final ByteArrayInputStream in = new ByteArrayInputStream(arrayDocument);
+		final BsonReader reader = new BsonReader(in);
 
-		Document doc = reader.readDocument();
+		final Document doc = reader.readDocument();
 
 		assertTrue("Should be a RootDocument.", doc instanceof RootDocument);
 		assertTrue("Should contain a 'hello' element.", doc.contains("BSON"));
 
-		Iterator<Element> iter = doc.iterator();
+		final Iterator<Element> iter = doc.iterator();
 		assertTrue("Should contain a single element.", iter.hasNext());
 		iter.next();
 		assertFalse("Should contain a single element.", iter.hasNext());
@@ -109,8 +69,8 @@ public class BsonReaderTest {
 		assertTrue("'BSON' element should be a ArrayElement",
 				element instanceof ArrayElement);
 
-		ArrayElement values = (ArrayElement) element;
-		List<Element> entries = values.getEntries();
+		final ArrayElement values = (ArrayElement) element;
+		final List<Element> entries = values.getEntries();
 		assertEquals("Should contain 3 entries in the 'BSON' array.", 3,
 				entries.size());
 
@@ -148,13 +108,51 @@ public class BsonReaderTest {
 	 * @throws IOException
 	 *             On a failure reading the test document.
 	 */
+	@Test
+	public void testReadHelloWorldDocument() throws IOException {
+		// From the BSON specification.
+		final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
+				(byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
+				0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
+				(byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
+
+		final ByteArrayInputStream in = new ByteArrayInputStream(helloWorld);
+		final BsonReader reader = new BsonReader(in);
+
+		final Document doc = reader.readDocument();
+
+		assertTrue("Should be a RootDocument.", doc instanceof RootDocument);
+		assertTrue("Should contain a 'hello' element.", doc.contains("hello"));
+
+		final Iterator<Element> iter = doc.iterator();
+		assertTrue("Should contain a single element.", iter.hasNext());
+		iter.next();
+		assertFalse("Should contain a single element.", iter.hasNext());
+
+		final Element element = doc.get("hello");
+		assertNotNull("'hello' element should not be null.", element);
+		assertTrue("'hello' element should be a StringElement",
+				element instanceof StringElement);
+
+		final StringElement worldElement = (StringElement) element;
+		assertEquals("'hello' elements value should be 'world'.", "world",
+				worldElement.getValue());
+
+	}
+
+	/**
+	 * Test method for {@link BsonReader#readDocument()}.
+	 * 
+	 * @throws IOException
+	 *             On a failure reading the test document.
+	 */
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testReadWriteCompleteDocument() throws IOException {
 		DocumentBuilder builder = BuilderFactory.start();
 
 		builder.addBoolean("true", true);
-		Document simple = builder.get();
+		final Document simple = builder.get();
 
 		builder = BuilderFactory.start();
 		builder.addBinary("binary", new byte[20]);
@@ -180,7 +178,7 @@ public class BsonReaderTest {
 		builder.addTimestamp("timestamp", System.currentTimeMillis());
 		builder.push("sub-doc").addBoolean("true", true).pop();
 
-		ArrayBuilder aBuilder = builder.pushArray("array");
+		final ArrayBuilder aBuilder = builder.pushArray("array");
 		aBuilder.addBinary(new byte[20]);
 		aBuilder.addBinary((byte) 2, new byte[40]);
 		aBuilder.addBoolean(true);
@@ -202,17 +200,18 @@ public class BsonReaderTest {
 		aBuilder.addTimestamp(System.currentTimeMillis());
 		aBuilder.push().addBoolean("true", true).pop();
 
-		Document doc = builder.get();
+		final Document doc = builder.get();
 
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BsonWriter writer = new BsonWriter(out);
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		final BsonWriter writer = new BsonWriter(out);
 
 		writer.write(doc);
 
-		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		BsonReader reader = new BsonReader(in);
+		final ByteArrayInputStream in = new ByteArrayInputStream(
+				out.toByteArray());
+		final BsonReader reader = new BsonReader(in);
 
-		Document read = reader.readDocument();
+		final Document read = reader.readDocument();
 
 		assertTrue("Should be a RootDocument.", read instanceof RootDocument);
 		assertEquals("Should equal the orginal document.", doc, read);

@@ -34,6 +34,18 @@ public class BsonWriter extends FilterOutputStream {
 	}
 
 	/**
+	 * Creates a new {@link BsonWriter}.
+	 * 
+	 * @param output
+	 *            The stream to write to.
+	 */
+	public BsonWriter(final RandomAccessOutputStream output) {
+		super(output);
+
+		myVisitor = new WriteVisitor(output);
+	}
+
+	/**
 	 * Writes the Document in BSON format to the underlying stream.
 	 * 
 	 * @param doc
@@ -47,8 +59,11 @@ public class BsonWriter extends FilterOutputStream {
 		doc.accept(myVisitor);
 
 		final long position = myVisitor.getSize();
-		myVisitor.writeTo(out);
-		myVisitor.reset();
+
+		if (out != myVisitor.getOutputBuffer()) {
+			myVisitor.writeTo(out);
+			myVisitor.reset();
+		}
 
 		return position;
 	}

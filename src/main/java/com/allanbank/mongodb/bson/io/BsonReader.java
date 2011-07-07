@@ -61,6 +61,64 @@ public class BsonReader extends FilterInputStream {
 	}
 
 	/**
+	 * Reads a "cstring" value from the stream:<code>
+	 * <pre>
+	 * cstring 	::= 	(byte*) "\x00"
+	 * </pre>
+	 * </code>
+	 * <p>
+	 * <blockquote> CString - Zero or more modified UTF-8 encoded characters
+	 * followed by '\x00'. The (byte*) MUST NOT contain '\x00', hence it is not
+	 * full UTF-8. </blockquote>
+	 * </p>
+	 * 
+	 * @return The string value.
+	 * @throws EOFException
+	 *             On insufficient data for the integer.
+	 * @throws IOException
+	 *             On a failure reading the integer.
+	 */
+	public String readCString() throws EOFException, IOException {
+
+		// Don't know how big the cstring is so have to
+		// read a little, decode a little, read a little, ...
+		final CharsetDecoder decoder = UTF8.newDecoder();
+		final ByteBuffer bytesIn = ByteBuffer.allocate(64);
+		final CharBuffer charBuffer = CharBuffer.allocate(64);
+		final StringBuilder builder = new StringBuilder(64);
+
+		int read = in.read();
+		while (read > 0) {
+			bytesIn.put((byte) read);
+
+			if (!bytesIn.hasRemaining()) {
+
+				bytesIn.flip();
+				decoder.decode(bytesIn, charBuffer, false);
+				charBuffer.flip();
+				builder.append(charBuffer);
+
+				charBuffer.clear();
+				bytesIn.compact();
+			}
+
+			read = in.read();
+		}
+
+		if (read < 0) {
+			throw new EOFException();
+		}
+
+		// Last decode.
+		bytesIn.flip();
+		decoder.decode(bytesIn, charBuffer, true);
+		charBuffer.flip();
+		builder.append(charBuffer);
+
+		return builder.toString();
+	}
+
+	/**
 	 * Reads a BSON document element: <code>
 	 * <pre>
 	 * document 	::= 	int32 e_list "\x00"
@@ -92,8 +150,7 @@ public class BsonReader extends FilterInputStream {
 	 * @exception IOException
 	 *                On an error reading from the underlying stream.
 	 */
-	private void readFully(final byte[] buffer) throws EOFException,
-			IOException {
+	public void readFully(final byte[] buffer) throws EOFException, IOException {
 
 		final int length = buffer.length;
 		int index = 0;
@@ -104,6 +161,59 @@ public class BsonReader extends FilterInputStream {
 			}
 			index += count;
 		}
+	}
+
+	/**
+	 * Reads a little-endian 4 byte signed integer from the stream.
+	 * 
+	 * @return The integer value.
+	 * @throws EOFException
+	 *             On insufficient data for the integer.
+	 * @throws IOException
+	 *             On a failure reading the integer.
+	 */
+	public int readInt() throws EOFException, IOException {
+		int read = 0;
+		int eofCheck = 0;
+		int result = 0;
+
+		for (int i = 0; i < Integer.SIZE; i += Byte.SIZE) {
+			read = in.read();
+			eofCheck |= read;
+			result += (read << i);
+		}
+
+		if (eofCheck < 0) {
+			throw new EOFException();
+		}
+		return result;
+	}
+
+	/**
+	 * Reads a little-endian 8 byte signed integer from the stream.
+	 * 
+	 * @return The long value.
+	 * @throws EOFException
+	 *             On insufficient data for the long.
+	 * @throws IOException
+	 *             On a failure reading the long.
+	 */
+	public long readLong() throws EOFException, IOException {
+		int read = 0;
+		int eofCheck = 0;
+		long result = 0;
+
+		for (int i = 0; i < Long.SIZE; i += Byte.SIZE) {
+			read = in.read();
+			eofCheck |= read;
+			result += (((long) read) << i);
+		}
+
+		if (eofCheck < 0) {
+			throw new EOFException();
+		}
+
+		return result;
 	}
 
 	/**
@@ -172,64 +282,6 @@ public class BsonReader extends FilterInputStream {
 		readFully(binary);
 
 		return new BinaryElement(name, (byte) subType, binary);
-	}
-
-	/**
-	 * Reads a "cstring" value from the stream:<code>
-	 * <pre>
-	 * cstring 	::= 	(byte*) "\x00"
-	 * </pre>
-	 * </code>
-	 * <p>
-	 * <blockquote> CString - Zero or more modified UTF-8 encoded characters
-	 * followed by '\x00'. The (byte*) MUST NOT contain '\x00', hence it is not
-	 * full UTF-8. </blockquote>
-	 * </p>
-	 * 
-	 * @return The string value.
-	 * @throws EOFException
-	 *             On insufficient data for the integer.
-	 * @throws IOException
-	 *             On a failure reading the integer.
-	 */
-	protected String readCString() throws EOFException, IOException {
-
-		// Don't know how big the cstring is so have to
-		// read a little, decode a little, read a little, ...
-		final CharsetDecoder decoder = UTF8.newDecoder();
-		final ByteBuffer bytesIn = ByteBuffer.allocate(64);
-		final CharBuffer charBuffer = CharBuffer.allocate(64);
-		final StringBuilder builder = new StringBuilder(64);
-
-		int read = in.read();
-		while (read > 0) {
-			bytesIn.put((byte) read);
-
-			if (!bytesIn.hasRemaining()) {
-
-				bytesIn.flip();
-				decoder.decode(bytesIn, charBuffer, false);
-				charBuffer.flip();
-				builder.append(charBuffer);
-
-				charBuffer.clear();
-				bytesIn.compact();
-			}
-
-			read = in.read();
-		}
-
-		if (read < 0) {
-			throw new EOFException();
-		}
-
-		// Last decode.
-		bytesIn.flip();
-		decoder.decode(bytesIn, charBuffer, true);
-		charBuffer.flip();
-		builder.append(charBuffer);
-
-		return builder.toString();
 	}
 
 	/**
@@ -401,59 +453,6 @@ public class BsonReader extends FilterInputStream {
 			throw new EOFException();
 		}
 		return elements;
-	}
-
-	/**
-	 * Reads a little-endian 4 byte signed integer from the stream.
-	 * 
-	 * @return The integer value.
-	 * @throws EOFException
-	 *             On insufficient data for the integer.
-	 * @throws IOException
-	 *             On a failure reading the integer.
-	 */
-	protected int readInt() throws EOFException, IOException {
-		int read = 0;
-		int eofCheck = 0;
-		int result = 0;
-
-		for (int i = 0; i < Integer.SIZE; i += Byte.SIZE) {
-			read = in.read();
-			eofCheck |= read;
-			result += (read << i);
-		}
-
-		if (eofCheck < 0) {
-			throw new EOFException();
-		}
-		return result;
-	}
-
-	/**
-	 * Reads a little-endian 8 byte signed integer from the stream.
-	 * 
-	 * @return The long value.
-	 * @throws EOFException
-	 *             On insufficient data for the long.
-	 * @throws IOException
-	 *             On a failure reading the long.
-	 */
-	protected long readLong() throws EOFException, IOException {
-		int read = 0;
-		int eofCheck = 0;
-		long result = 0;
-
-		for (int i = 0; i < Long.SIZE; i += Byte.SIZE) {
-			read = in.read();
-			eofCheck |= read;
-			result += (((long) read) << i);
-		}
-
-		if (eofCheck < 0) {
-			throw new EOFException();
-		}
-
-		return result;
 	}
 
 	/**

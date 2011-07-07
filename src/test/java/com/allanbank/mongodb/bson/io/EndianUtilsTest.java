@@ -11,8 +11,6 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.allanbank.mongodb.bson.io.EndianUtils;
-
 /**
  * Test class for the {@link EndianUtils} class.
  * 
@@ -27,7 +25,7 @@ public class EndianUtilsTest {
 	@Test
 	public void testSwapInt() {
 		for (int i = -5; i < 5; ++i) {
-			int swapped = EndianUtils.swap(i);
+			final int swapped = EndianUtils.swap(i);
 			if ((i != 0) && (i != -1)) {
 				assertTrue("The swaped value should not equals the original i="
 						+ i + ", swapped=" + swapped, i != swapped);
@@ -36,10 +34,10 @@ public class EndianUtilsTest {
 					EndianUtils.swap(swapped));
 		}
 
-		Random random = new Random(System.currentTimeMillis());
+		final Random random = new Random(System.currentTimeMillis());
 		for (int i = 0; i < 100; ++i) {
-			int value = random.nextInt();
-			int swapped = EndianUtils.swap(value);
+			final int value = random.nextInt();
+			final int swapped = EndianUtils.swap(value);
 			assertEquals("Double swap should return the same value value="
 					+ value + ", swapped=" + swapped, value,
 					EndianUtils.swap(swapped));
@@ -53,7 +51,7 @@ public class EndianUtilsTest {
 	@Test
 	public void testSwapLong() {
 		for (long i = -5; i < 5; ++i) {
-			long swapped = EndianUtils.swap(i);
+			final long swapped = EndianUtils.swap(i);
 			if ((i != 0) && (i != -1)) {
 				assertTrue("The swaped value should not equals the original.",
 						i != swapped);
@@ -62,10 +60,10 @@ public class EndianUtilsTest {
 					EndianUtils.swap(swapped));
 		}
 
-		Random random = new Random(System.currentTimeMillis());
+		final Random random = new Random(System.currentTimeMillis());
 		for (long i = 0; i < 100; ++i) {
-			long value = random.nextInt();
-			long swapped = EndianUtils.swap(value);
+			final long value = random.nextInt();
+			final long swapped = EndianUtils.swap(value);
 			assertEquals("Double swap should return the same value.", value,
 					EndianUtils.swap(swapped));
 		}
