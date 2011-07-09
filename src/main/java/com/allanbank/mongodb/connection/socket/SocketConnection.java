@@ -175,7 +175,7 @@ public class SocketConnection implements Connection {
 			builder.addInteger("w", w);
 		}
 		if (wtimeout > 0) {
-			builder.addInteger("w", wtimeout);
+			builder.addInteger("wtimeout", wtimeout);
 		}
 
 		return query(dbName, CMD, builder.get(), null, 1, 0, false, false,
@@ -249,7 +249,6 @@ public class SocketConnection implements Connection {
 		}
 
 		final long start = writeHeader(myNextId++, Operation.INSERT);
-		myOutBuffer.writeInt(0);
 		myOutBuffer.writeInt(flags);
 		myOutBuffer.writeCString(dbName, ".", collectionName);
 
@@ -364,7 +363,7 @@ public class SocketConnection implements Connection {
 
 		final int requestId = myNextId++;
 
-		final long start = writeHeader(requestId, Operation.GET_MORE);
+		final long start = writeHeader(requestId, Operation.QUERY);
 		myOutBuffer.writeInt(flags);
 		myOutBuffer.writeCString(dbName, ".", collectionName);
 		myOutBuffer.writeInt(numberToSkip);
@@ -477,7 +476,7 @@ public class SocketConnection implements Connection {
 			flags += 0x02;
 		}
 
-		final long start = writeHeader(myNextId++, Operation.GET_MORE);
+		final long start = writeHeader(myNextId++, Operation.UPDATE);
 		myOutBuffer.writeInt(0);
 		myOutBuffer.writeCString(dbName, ".", collectionName);
 		myOutBuffer.writeInt(flags);

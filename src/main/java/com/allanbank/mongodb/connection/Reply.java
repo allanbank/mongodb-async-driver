@@ -82,6 +82,34 @@ public class Reply {
 	}
 
 	/**
+	 * Determines if the passed object is of this same type as this object and
+	 * if so that its fields are equal.
+	 * 
+	 * @param object
+	 *            The object to compare to.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object object) {
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final Reply other = (Reply) object;
+
+			result = (myCursorNotFound == other.myCursorNotFound)
+					&& (myQueryFailed == other.myQueryFailed)
+					&& (myShardConfigStale == other.myShardConfigStale)
+					&& (myAwaitCapable == other.myAwaitCapable)
+					&& (myId == other.myId)
+					&& (myStartingIndex == other.myStartingIndex)
+					&& myResults.equals(other.myResults);
+		}
+		return result;
+	}
+
+	/**
 	 * Returns the id of the request this response is for.
 	 * 
 	 * @return The id of the request this response is for.
@@ -108,6 +136,24 @@ public class Reply {
 	 */
 	public int getStartingIndex() {
 		return myStartingIndex;
+	}
+
+	/**
+	 * Computes a reasonable hash code.
+	 * 
+	 * @return The hash code value.
+	 */
+	@Override
+	public int hashCode() {
+		int result = 1;
+		result = 31 * result + (myCursorNotFound ? 1 : 3);
+		result = 31 * result + (myQueryFailed ? 1 : 3);
+		result = 31 * result + (myShardConfigStale ? 1 : 3);
+		result = 31 * result + (myAwaitCapable ? 1 : 3);
+		result = 31 * result + myId;
+		result = 31 * result + myStartingIndex;
+		result = 31 * result + myResults.hashCode();
+		return result;
 	}
 
 	/**
