@@ -32,9 +32,6 @@ import com.allanbank.mongodb.connection.Reply;
  */
 public class SocketConnection implements Connection {
 
-	/** The 'command' collection name. */
-	public static final String CMD = "$cmd";
-
 	/** The length of the message header in bytes. */
 	public static final int HEADER_LENGTH = 16;
 
@@ -178,8 +175,8 @@ public class SocketConnection implements Connection {
 			builder.addInteger("wtimeout", wtimeout);
 		}
 
-		return query(dbName, CMD, builder.get(), null, 1, 0, false, false,
-				false, false, false, false);
+		return query(dbName, COMMAND_COLLECTION, builder.get(), null, 1, 0,
+				false, false, false, false, false, false);
 	}
 
 	/**
