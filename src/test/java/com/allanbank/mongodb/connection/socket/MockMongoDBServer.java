@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.connection.socket;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
@@ -52,7 +53,8 @@ public class MockMongoDBServer extends Thread {
 		super("MockMongoDBServer");
 
 		myServerSocket = ServerSocketChannel.open();
-		myServerSocket.socket().bind(null);
+		myServerSocket.socket().bind(
+				new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 0));
 		myServerSocket.configureBlocking(false);
 
 		myRunning = false;
