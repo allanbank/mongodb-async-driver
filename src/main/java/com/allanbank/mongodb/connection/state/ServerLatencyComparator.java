@@ -34,7 +34,7 @@ public class ServerLatencyComparator implements Comparator<ServerState>,
 	 * @see Comparator#compare
 	 */
 	@Override
-	public int compare(ServerState o1, ServerState o2) {
+	public int compare(final ServerState o1, final ServerState o2) {
 		return Double.compare(o1.getAverageLatency(), o2.getAverageLatency());
 	}
 

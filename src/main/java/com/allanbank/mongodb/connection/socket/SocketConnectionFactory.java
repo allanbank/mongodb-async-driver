@@ -46,16 +46,16 @@ public class SocketConnectionFactory implements ConnectionFactory {
 	 */
 	@Override
 	public Connection connect() throws IOException {
-		List<InetSocketAddress> servers = new ArrayList<InetSocketAddress>(
+		final List<InetSocketAddress> servers = new ArrayList<InetSocketAddress>(
 				myConfig.getServers());
 
 		// Shuffle the servers and try to connect to each until one works.
 		MongoDbException last = null;
 		Collections.shuffle(servers);
-		for (InetSocketAddress address : servers) {
+		for (final InetSocketAddress address : servers) {
 			try {
 				return new SocketConnection(address, myConfig);
-			} catch (MongoDbException error) {
+			} catch (final MongoDbException error) {
 				last = error;
 			}
 		}

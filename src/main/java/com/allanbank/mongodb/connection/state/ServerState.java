@@ -23,14 +23,14 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ServerState {
 
-	/** The default MongoDB port. */
-	public static final int DEFAULT_PORT = 27017;
-
 	/** The decay rate for the exponential average for the latency. */
 	public static final double DECAY_ALPHA;
 
 	/** The decay period (number of samples) for the average latency. */
 	public static final double DECAY_SAMPLES = 1000.0D;
+
+	/** The default MongoDB port. */
+	public static final int DEFAULT_PORT = 27017;
 
 	static {
 		DECAY_ALPHA = (2.0D / (DECAY_SAMPLES + 1));
@@ -61,32 +61,6 @@ public class ServerState {
 		myServer = parse(server);
 		myWritable = new AtomicBoolean(false);
 		myAverageLatency = new AtomicLong(0);
-	}
-
-	/**
-	 * Parse the name into a {@link InetSocketAddress}. If a port component is
-	 * not provided then port 27017 is assumed.
-	 * 
-	 * @param server
-	 *            The server[:port] string.
-	 * @return The {@link InetSocketAddress} parsed from the server string.
-	 */
-	protected InetSocketAddress parse(String server) {
-		String name = server;
-		int port = DEFAULT_PORT;
-
-		int colonIndex = server.indexOf(':');
-		if (colonIndex > 0) {
-			String portString = server.substring(colonIndex + 1);
-			try {
-				port = Integer.parseInt(portString);
-				name = server.substring(0, colonIndex);
-			} catch (NumberFormatException nfe) {
-				// Not a port after the colon. Move on.
-			}
-		}
-
-		return new InetSocketAddress(name, port);
 	}
 
 	/**
@@ -159,6 +133,32 @@ public class ServerState {
 					+ ((1.0D - DECAY_ALPHA) * oldAverage);
 			myAverageLatency.set(Double.doubleToLongBits(newAverage));
 		}
+	}
+
+	/**
+	 * Parse the name into a {@link InetSocketAddress}. If a port component is
+	 * not provided then port 27017 is assumed.
+	 * 
+	 * @param server
+	 *            The server[:port] string.
+	 * @return The {@link InetSocketAddress} parsed from the server string.
+	 */
+	protected InetSocketAddress parse(final String server) {
+		String name = server;
+		int port = DEFAULT_PORT;
+
+		final int colonIndex = server.indexOf(':');
+		if (colonIndex > 0) {
+			final String portString = server.substring(colonIndex + 1);
+			try {
+				port = Integer.parseInt(portString);
+				name = server.substring(0, colonIndex);
+			} catch (final NumberFormatException nfe) {
+				// Not a port after the colon. Move on.
+			}
+		}
+
+		return new InetSocketAddress(name, port);
 	}
 
 	/**

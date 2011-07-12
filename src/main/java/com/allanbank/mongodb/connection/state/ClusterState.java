@@ -36,14 +36,14 @@ public class ClusterState {
 	/** Support for firing property change events. */
 	private final PropertyChangeSupport myChangeSupport;
 
+	/** The complete list of non-writable servers. */
+	private final List<ServerState> myNonWritableServers;
+
 	/** The complete list of servers. */
 	private final Map<String, ServerState> myServers;
 
 	/** The complete list of writable servers. */
 	private final List<ServerState> myWritableServers;
-
-	/** The complete list of non-writable servers. */
-	private final List<ServerState> myNonWritableServers;
 
 	/**
 	 * Creates a new CLusterState.
@@ -66,7 +66,7 @@ public class ClusterState {
 	 *            The address of the {@link ServerState} to return.
 	 * @return The {@link ServerState} for the address.
 	 */
-	public ServerState add(String address) {
+	public ServerState add(final String address) {
 		return get(address);
 	}
 
@@ -76,18 +76,8 @@ public class ClusterState {
 	 * @param listener
 	 *            The listener for the state changes.
 	 */
-	public synchronized void addListener(PropertyChangeListener listener) {
+	public synchronized void addListener(final PropertyChangeListener listener) {
 		myChangeSupport.addPropertyChangeListener(listener);
-	}
-
-	/**
-	 * Removes a listener to the state.
-	 * 
-	 * @param listener
-	 *            The listener for the state changes.
-	 */
-	public synchronized void removeListener(PropertyChangeListener listener) {
-		myChangeSupport.removePropertyChangeListener(listener);
 	}
 
 	/**
@@ -99,7 +89,7 @@ public class ClusterState {
 	 *            The address of the {@link ServerState} to return.
 	 * @return The {@link ServerState} for the address.
 	 */
-	public synchronized ServerState get(String address) {
+	public synchronized ServerState get(final String address) {
 
 		ServerState state = myServers.get(address);
 		if (state == null) {
@@ -115,37 +105,13 @@ public class ClusterState {
 	}
 
 	/**
-	 * Marks the server as writable. Fires a {@link PropertyChangeEvent} if the
-	 * server was previously non-writable.
+	 * Returns a copy of the list of non-writable servers. The list returned is
+	 * a copy of the internal list and can be modified by the caller.
 	 * 
-	 * @param server
-	 *            The server to mark writable.
+	 * @return The complete list of non-writable servers.
 	 */
-	public synchronized void markWritable(ServerState server) {
-		if (!server.isWritable()) {
-			server.setWritable(true);
-
-			myNonWritableServers.remove(server);
-			myWritableServers.add(server);
-			myChangeSupport.firePropertyChange("writable", false, true);
-		}
-	}
-
-	/**
-	 * Marks the server as non-writable. Fires a {@link PropertyChangeEvent} if
-	 * the server was previously writable.
-	 * 
-	 * @param server
-	 *            The server to mark non-writable.
-	 */
-	public synchronized void markNotWritable(ServerState server) {
-		if (server.isWritable()) {
-			server.setWritable(false);
-
-			myWritableServers.remove(server);
-			myNonWritableServers.add(server);
-			myChangeSupport.firePropertyChange("writable", true, false);
-		}
+	public synchronized List<ServerState> getNonWritableServers() {
+		return new ArrayList<ServerState>(myNonWritableServers);
 	}
 
 	/**
@@ -169,12 +135,47 @@ public class ClusterState {
 	}
 
 	/**
-	 * Returns a copy of the list of non-writable servers. The list returned is
-	 * a copy of the internal list and can be modified by the caller.
+	 * Marks the server as non-writable. Fires a {@link PropertyChangeEvent} if
+	 * the server was previously writable.
 	 * 
-	 * @return The complete list of non-writable servers.
+	 * @param server
+	 *            The server to mark non-writable.
 	 */
-	public synchronized List<ServerState> getNonWritableServers() {
-		return new ArrayList<ServerState>(myNonWritableServers);
+	public synchronized void markNotWritable(final ServerState server) {
+		if (server.isWritable()) {
+			server.setWritable(false);
+
+			myWritableServers.remove(server);
+			myNonWritableServers.add(server);
+			myChangeSupport.firePropertyChange("writable", true, false);
+		}
+	}
+
+	/**
+	 * Marks the server as writable. Fires a {@link PropertyChangeEvent} if the
+	 * server was previously non-writable.
+	 * 
+	 * @param server
+	 *            The server to mark writable.
+	 */
+	public synchronized void markWritable(final ServerState server) {
+		if (!server.isWritable()) {
+			server.setWritable(true);
+
+			myNonWritableServers.remove(server);
+			myWritableServers.add(server);
+			myChangeSupport.firePropertyChange("writable", false, true);
+		}
+	}
+
+	/**
+	 * Removes a listener to the state.
+	 * 
+	 * @param listener
+	 *            The listener for the state changes.
+	 */
+	public synchronized void removeListener(
+			final PropertyChangeListener listener) {
+		myChangeSupport.removePropertyChangeListener(listener);
 	}
 }
