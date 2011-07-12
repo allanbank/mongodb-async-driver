@@ -5,7 +5,6 @@
 package com.allanbank.mongodb.connection.bootstrap;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.connection.Connection;
@@ -60,8 +59,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 	 * </p>
 	 */
 	@Override
-	public Connection connect(final InetSocketAddress address,
-			final MongoDbConfiguration config) throws IOException {
-		return myDelegate.connect(address, config);
+	public Connection connect() throws IOException {
+		return myDelegate.connect();
 	}
 }

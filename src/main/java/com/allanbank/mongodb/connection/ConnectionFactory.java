@@ -6,9 +6,7 @@
 package com.allanbank.mongodb.connection;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.connection.bootstrap.BootstrapConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnection;
 
@@ -31,15 +29,9 @@ public interface ConnectionFactory {
 	/**
 	 * Creates a connection to the address provided.
 	 * 
-	 * @param address
-	 *            The address to connect to.
-	 * @param config
-	 *            The configuration to use in establishing the connection.
 	 * @return The Connection to MongoDB.
 	 * @throws IOException
 	 *             On a failure connecting to the server.
 	 */
-	public Connection connect(final InetSocketAddress address,
-			final MongoDbConfiguration config) throws IOException;
-
+	public Connection connect() throws IOException;
 }

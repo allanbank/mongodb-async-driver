@@ -2,7 +2,7 @@
  * Copyright 2011, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
-package com.allanbank.mongodb.connection.util;
+package com.allanbank.mongodb.connection.state;
 
 import java.io.Serializable;
 import java.util.Comparator;

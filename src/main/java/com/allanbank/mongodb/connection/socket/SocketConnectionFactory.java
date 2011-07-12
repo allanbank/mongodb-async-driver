@@ -6,8 +6,12 @@ package com.allanbank.mongodb.connection.socket;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 
@@ -18,11 +22,18 @@ import com.allanbank.mongodb.connection.ConnectionFactory;
  */
 public class SocketConnectionFactory implements ConnectionFactory {
 
+	/** The MongoDB client configuration. */
+	private final MongoDbConfiguration myConfig;
+
 	/**
 	 * Creates a new {@link SocketConnectionFactory}.
+	 * 
+	 * @param config
+	 *            The MongoDB client configuration.
 	 */
-	public SocketConnectionFactory() {
+	public SocketConnectionFactory(final MongoDbConfiguration config) {
 		super();
+		myConfig = config;
 	}
 
 	/**
@@ -31,12 +42,29 @@ public class SocketConnectionFactory implements ConnectionFactory {
 	 * Returns a new {@link SocketConnection}.
 	 * </p>
 	 * 
-	 * @see ConnectionFactory#connect(InetSocketAddress,MongoDbConfiguration)
+	 * @see ConnectionFactory#connect()
 	 */
 	@Override
-	public Connection connect(final InetSocketAddress address,
-			final MongoDbConfiguration config) throws IOException {
-		return new SocketConnection(address, config);
+	public Connection connect() throws IOException {
+		List<InetSocketAddress> servers = new ArrayList<InetSocketAddress>(
+				myConfig.getServers());
+
+		// Shuffle the servers and try to connect to each until one works.
+		MongoDbException last = null;
+		Collections.shuffle(servers);
+		for (InetSocketAddress address : servers) {
+			try {
+				return new SocketConnection(address, myConfig);
+			} catch (MongoDbException error) {
+				last = error;
+			}
+		}
+
+		if (last != null) {
+			throw last;
+		}
+		throw new MongoDbException("Could not connect to any server: "
+				+ servers);
 	}
 
 }

@@ -2,7 +2,7 @@
  * Copyright 2011, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
-package com.allanbank.mongodb.connection.util;
+package com.allanbank.mongodb.connection.state;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -14,10 +14,18 @@ import java.util.concurrent.atomic.AtomicLong;
  * <li>Is the server available to receive writes (inserts/updates/deletes)?</li>
  * <li>What is the exponential moving average for the server's reply latency.</li>
  * </ul>
+ * <p>
+ * {@link ServerState}s should generally be created and their writable state
+ * updated via a {@link ClusterState}.
+ * </p>
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerState {
+
+	/** The default MongoDB port. */
+	public static final int DEFAULT_PORT = 27017;
+
 	/** The decay rate for the exponential average for the latency. */
 	public static final double DECAY_ALPHA;
 
@@ -43,15 +51,42 @@ public class ServerState {
 	private final AtomicBoolean myWritable;
 
 	/**
-	 * Creates a new {@link ServerState}.
+	 * Creates a new {@link ServerState}. Package private to force creation
+	 * through the {@link ClusterState}.
 	 * 
 	 * @param server
 	 *            The server being tracked.
 	 */
-	public ServerState(final InetSocketAddress server) {
-		myServer = server;
+	/* package */ServerState(final String server) {
+		myServer = parse(server);
 		myWritable = new AtomicBoolean(false);
 		myAverageLatency = new AtomicLong(0);
+	}
+
+	/**
+	 * Parse the name into a {@link InetSocketAddress}. If a port component is
+	 * not provided then port 27017 is assumed.
+	 * 
+	 * @param server
+	 *            The server[:port] string.
+	 * @return The {@link InetSocketAddress} parsed from the server string.
+	 */
+	protected InetSocketAddress parse(String server) {
+		String name = server;
+		int port = DEFAULT_PORT;
+
+		int colonIndex = server.indexOf(':');
+		if (colonIndex > 0) {
+			String portString = server.substring(colonIndex + 1);
+			try {
+				port = Integer.parseInt(portString);
+				name = server.substring(0, colonIndex);
+			} catch (NumberFormatException nfe) {
+				// Not a port after the colon. Move on.
+			}
+		}
+
+		return new InetSocketAddress(name, port);
 	}
 
 	/**
@@ -83,10 +118,15 @@ public class ServerState {
 	 * secondary server in a replica set or we cannot or have not connected to
 	 * the server yet.
 	 * </p>
+	 * <p>
+	 * To modify the writable flag update the {@link ClusterState} via a
+	 * {@link ClusterState#markNotWritable(ServerState)} or
+	 * {@link ClusterState#markWritable(ServerState)} call.
+	 * </p>
 	 * 
 	 * @return True if the server can be written to, false otherwise.
 	 */
-	public boolean getWritable() {
+	public boolean isWritable() {
 		return myWritable.get();
 	}
 
@@ -100,16 +140,6 @@ public class ServerState {
 	 */
 	public void setAverageLatency(final double latency) {
 		myAverageLatency.set(Double.doubleToLongBits(latency));
-	}
-
-	/**
-	 * Sets if the server can be written to.
-	 * 
-	 * @param writable
-	 *            If true the server can be written to, false otherwise.
-	 */
-	public void setWritable(final boolean writable) {
-		myWritable.set(writable);
 	}
 
 	/**
@@ -129,5 +159,16 @@ public class ServerState {
 					+ ((1.0D - DECAY_ALPHA) * oldAverage);
 			myAverageLatency.set(Double.doubleToLongBits(newAverage));
 		}
+	}
+
+	/**
+	 * Sets if the server can be written to. This is package private to force
+	 * updates to occur through the ClusterState.
+	 * 
+	 * @param writable
+	 *            If true the server can be written to, false otherwise.
+	 */
+	/* package */void setWritable(final boolean writable) {
+		myWritable.set(writable);
 	}
 }

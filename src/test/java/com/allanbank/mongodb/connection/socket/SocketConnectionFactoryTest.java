@@ -21,7 +21,8 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.connection.Connection;
 
 /**
- * @author rjmoore
+ * SocketConnectionFactoryTest provides tests for the
+ * {@link SocketConnectionFactory} class.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
@@ -63,9 +64,7 @@ public class SocketConnectionFactoryTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link SocketConnectionFactory#connect(InetSocketAddress, MongoDbConfiguration)}
-	 * .
+	 * Test method for {@link SocketConnectionFactory#connect()} .
 	 * 
 	 * @throws IOException
 	 *             On a failure connecting to the Mock MongoDB server.
@@ -73,11 +72,13 @@ public class SocketConnectionFactoryTest {
 	@Test
 	public void testConnect() throws IOException {
 		final InetSocketAddress addr = ourServer.getInetSocketAddress();
-		final SocketConnectionFactory factory = new SocketConnectionFactory();
+		final MongoDbConfiguration config = new MongoDbConfiguration(addr);
+		final SocketConnectionFactory factory = new SocketConnectionFactory(
+				config);
 
 		Connection conn = null;
 		try {
-			conn = factory.connect(addr, new MongoDbConfiguration());
+			conn = factory.connect();
 
 			assertTrue("Should have connected to the server.",
 					ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -95,9 +96,7 @@ public class SocketConnectionFactoryTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link SocketConnectionFactory#connect(InetSocketAddress, MongoDbConfiguration)}
-	 * .
+	 * Test method for {@link SocketConnectionFactory#connect()} .
 	 * 
 	 * @throws IOException
 	 *             On a failure connecting to the Mock MongoDB server.
@@ -105,13 +104,18 @@ public class SocketConnectionFactoryTest {
 	@Test(expected = SocketException.class)
 	public void testConnectFailure() throws IOException {
 		final InetSocketAddress addr = ourServer.getInetSocketAddress();
-		final SocketConnectionFactory factory = new SocketConnectionFactory();
+
+		// Force to the wrong port.
+		final InetSocketAddress bad = new InetSocketAddress(addr.getAddress(),
+				addr.getPort() + 1);
+		final MongoDbConfiguration config = new MongoDbConfiguration(bad);
+
+		final SocketConnectionFactory factory = new SocketConnectionFactory(
+				config);
 
 		Connection conn = null;
 		try {
-			// Force to the wrong port.
-			conn = factory.connect(new InetSocketAddress(addr.getAddress(),
-					addr.getPort() + 1), new MongoDbConfiguration());
+			conn = factory.connect();
 		} finally {
 			if (conn != null) {
 				conn.close();
