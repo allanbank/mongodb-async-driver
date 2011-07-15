@@ -180,6 +180,8 @@ public class MockMongoDBServer extends Thread {
 	public boolean waitForClient(final long timeout) {
 		long now = System.currentTimeMillis();
 		final long deadline = now + timeout;
+
+		boolean result = false;
 		synchronized (this) {
 			while (!myClientConnected && (now < deadline)) {
 				try {
@@ -190,9 +192,10 @@ public class MockMongoDBServer extends Thread {
 				}
 				now = System.currentTimeMillis();
 			}
+			result = myClientConnected;
 		}
 
-		return myClientConnected;
+		return result;
 	}
 
 	/**
@@ -205,6 +208,8 @@ public class MockMongoDBServer extends Thread {
 	public boolean waitForDisconnect(final long timeout) {
 		long now = System.currentTimeMillis();
 		final long deadline = now + timeout;
+
+		boolean result;
 		synchronized (this) {
 			while (myClientConnected && (now < deadline)) {
 				try {
@@ -215,8 +220,9 @@ public class MockMongoDBServer extends Thread {
 				}
 				now = System.currentTimeMillis();
 			}
+			result = !myClientConnected;
 		}
-		return !myClientConnected;
+		return result;
 	}
 
 	/**
@@ -335,9 +341,15 @@ public class MockMongoDBServer extends Thread {
 	 * 
 	 */
 	protected void sleep() {
+		long now = System.currentTimeMillis();
+		final long deadline = now + 5000;
+
 		try {
 			synchronized (this) {
-				wait(5000);
+				while (now < deadline) {
+					wait(5000);
+					now = deadline;
+				}
 			}
 		} catch (final InterruptedException e) {
 			// Ignore.

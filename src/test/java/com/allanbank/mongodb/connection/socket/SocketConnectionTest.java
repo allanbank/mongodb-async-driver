@@ -396,7 +396,7 @@ public class SocketConnectionTest {
 				EndianUtils.swap(asInts.get(8)) & 0xFFFFFFFFL);
 		assertEquals("High cursor value is wrong.",
 				12345678901234L >> Integer.SIZE,
-				EndianUtils.swap(asInts.get(9)) >> Integer.SIZE);
+				EndianUtils.swap(asInts.get(9)));
 	}
 
 	/**
@@ -566,7 +566,7 @@ public class SocketConnectionTest {
 				EndianUtils.swap(asInts.get(6)) & 0xFFFFFFFFL);
 		assertEquals("High cursor value is wrong.",
 				12345678901234L >> Integer.SIZE,
-				EndianUtils.swap(asInts.get(7)) >> Integer.SIZE);
+				EndianUtils.swap(asInts.get(7)));
 	}
 
 	/**

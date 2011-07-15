@@ -26,7 +26,7 @@ import com.allanbank.mongodb.connection.Operation;
 import com.allanbank.mongodb.connection.Reply;
 
 /**
- * Provides a simple blocking Socket based connection to a MongoDB server.
+ * Provides a blocking Socket based connection to a MongoDB server.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */

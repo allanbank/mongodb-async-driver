@@ -77,8 +77,11 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
 	 */
 	private int myReadTimeout = 60000;
 
-	/** The list of servers to initially attempt to connect to. */
-	private final List<InetSocketAddress> myServers = new ArrayList<InetSocketAddress>();
+	/**
+	 * The list of servers to initially attempt to connect to. Not final for
+	 * clone.
+	 */
+	private ArrayList<InetSocketAddress> myServers = new ArrayList<InetSocketAddress>();
 
 	/**
 	 * Determines if the {@link java.net.Socket#setKeepAlive(boolean)
@@ -145,9 +148,14 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
 	 */
 	@Override
 	public MongoDbConfiguration clone() {
-		// Have to use a copy constructor to ensure the server list is a deep
-		// copy.
-		return new MongoDbConfiguration(this);
+		MongoDbConfiguration clone = null;
+		try {
+			clone = (MongoDbConfiguration) super.clone();
+			clone.myServers = new ArrayList<InetSocketAddress>(getServers());
+		} catch (CloneNotSupportedException shouldNotHappen) {
+			clone = new MongoDbConfiguration(this);
+		}
+		return clone;
 	}
 
 	/**

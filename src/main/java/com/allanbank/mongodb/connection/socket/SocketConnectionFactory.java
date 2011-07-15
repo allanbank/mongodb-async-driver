@@ -11,16 +11,17 @@ import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
-import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
+import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 
 /**
  * {@link ConnectionFactory} to create direct socket connections to the servers.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class SocketConnectionFactory implements ConnectionFactory {
+public class SocketConnectionFactory implements ConnectionFactory,
+		ProxiedConnectionFactory {
 
 	/** The MongoDB client configuration. */
 	private final MongoDbConfiguration myConfig;
@@ -37,6 +38,23 @@ public class SocketConnectionFactory implements ConnectionFactory {
 	}
 
 	/**
+	 * Creates a connection to the address provided.
+	 * 
+	 * @param address
+	 *            The address of the MongoDB server to connect to.
+	 * @param config
+	 *            The configuration for the Connection to the MongoDB server.
+	 * @return The Connection to MongoDB.
+	 * @throws IOException
+	 *             On a failure connecting to the server.
+	 */
+	@Override
+	public Connection connect(InetSocketAddress address,
+			MongoDbConfiguration config) throws IOException {
+		return new SocketConnection(address, myConfig);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 * <p>
 	 * Returns a new {@link SocketConnection}.
@@ -50,12 +68,12 @@ public class SocketConnectionFactory implements ConnectionFactory {
 				myConfig.getServers());
 
 		// Shuffle the servers and try to connect to each until one works.
-		MongoDbException last = null;
+		IOException last = null;
 		Collections.shuffle(servers);
 		for (final InetSocketAddress address : servers) {
 			try {
-				return new SocketConnection(address, myConfig);
-			} catch (final MongoDbException error) {
+				return connect(address, myConfig);
+			} catch (final IOException error) {
 				last = error;
 			}
 		}
@@ -63,8 +81,7 @@ public class SocketConnectionFactory implements ConnectionFactory {
 		if (last != null) {
 			throw last;
 		}
-		throw new MongoDbException("Could not connect to any server: "
-				+ servers);
+		throw new IOException("Could not connect to any server: " + servers);
 	}
 
 }
