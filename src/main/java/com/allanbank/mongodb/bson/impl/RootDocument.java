@@ -40,7 +40,8 @@ public class RootDocument implements Document {
 	 */
 	public RootDocument(final Element... elements) {
 		if (elements.length > 0) {
-			myElements = new ArrayList<Element>(Arrays.asList(elements));
+			myElements = Collections.unmodifiableList(new ArrayList<Element>(
+					Arrays.asList(elements)));
 		} else {
 			myElements = Collections.emptyList();
 		}
@@ -54,7 +55,8 @@ public class RootDocument implements Document {
 	 */
 	public RootDocument(final List<Element> elements) {
 		if ((elements != null) && !elements.isEmpty()) {
-			myElements = new ArrayList<Element>(elements);
+			myElements = Collections.unmodifiableList(new ArrayList<Element>(
+					elements));
 		} else {
 			myElements = Collections.emptyList();
 		}
@@ -120,7 +122,7 @@ public class RootDocument implements Document {
 	 * @return The elements in the document.
 	 */
 	public List<Element> getElements() {
-		return Collections.unmodifiableList(myElements);
+		return myElements;
 	}
 
 	/**

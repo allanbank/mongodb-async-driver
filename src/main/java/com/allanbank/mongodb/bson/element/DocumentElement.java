@@ -48,7 +48,8 @@ public class DocumentElement extends AbstractElement implements Document {
 		super(TYPE, name);
 
 		if (elements.length > 0) {
-			myElements = new ArrayList<Element>(Arrays.asList(elements));
+			myElements = Collections.unmodifiableList(new ArrayList<Element>(
+					Arrays.asList(elements)));
 		} else {
 			myElements = Collections.emptyList();
 		}
@@ -66,7 +67,8 @@ public class DocumentElement extends AbstractElement implements Document {
 		super(TYPE, name);
 
 		if ((elements != null) && !elements.isEmpty()) {
-			myElements = new ArrayList<Element>(elements);
+			myElements = Collections.unmodifiableList(new ArrayList<Element>(
+					elements));
 		} else {
 			myElements = Collections.emptyList();
 		}
@@ -133,7 +135,7 @@ public class DocumentElement extends AbstractElement implements Document {
 	 * @return The elements in the document.
 	 */
 	public List<Element> getElements() {
-		return Collections.unmodifiableList(myElements);
+		return myElements;
 	}
 
 	/**

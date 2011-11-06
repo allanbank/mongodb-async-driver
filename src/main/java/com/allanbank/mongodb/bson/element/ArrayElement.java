@@ -40,7 +40,8 @@ public class ArrayElement extends AbstractElement {
 	public ArrayElement(final String name, final Element... entries) {
 		super(TYPE, name);
 
-		myEntries = new ArrayList<Element>(Arrays.asList(entries));
+		myEntries = Collections.unmodifiableList(new ArrayList<Element>(Arrays
+				.asList(entries)));
 	}
 
 	/**
@@ -55,7 +56,8 @@ public class ArrayElement extends AbstractElement {
 		super(TYPE, name);
 
 		if ((entries != null) && !entries.isEmpty()) {
-			myEntries = new ArrayList<Element>(entries);
+			myEntries = Collections.unmodifiableList(new ArrayList<Element>(
+					entries));
 		} else {
 			myEntries = Collections.emptyList();
 		}
@@ -102,7 +104,7 @@ public class ArrayElement extends AbstractElement {
 	 * @return The entries in the array.
 	 */
 	public List<Element> getEntries() {
-		return Collections.unmodifiableList(myEntries);
+		return myEntries;
 	}
 
 	/**
