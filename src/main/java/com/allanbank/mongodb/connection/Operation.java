@@ -52,4 +52,31 @@ public enum Operation {
 	public int getCode() {
 		return myCode;
 	}
+
+	/**
+	 * Returns the {@link Operation} for the provided opCode.
+	 * 
+	 * @param opCode
+	 *            The operation code for the {@link Operation}.
+	 * @return The {@link Operation} for the operation code or <code>null</code>
+	 *         if the operation code is invalid.
+	 */
+	public static Operation fromCode(int opCode) {
+		if (opCode == REPLY.getCode()) {
+			return REPLY;
+		} else if (opCode == DELETE.getCode()) {
+			return DELETE;
+		} else if (opCode == GET_MORE.getCode()) {
+			return GET_MORE;
+		} else if (opCode == INSERT.getCode()) {
+			return INSERT;
+		} else if (opCode == KILL_CURSORS.getCode()) {
+			return KILL_CURSORS;
+		} else if (opCode == QUERY.getCode()) {
+			return QUERY;
+		} else if (opCode == UPDATE.getCode()) {
+			return UPDATE;
+		}
+		return null;
+	}
 }
