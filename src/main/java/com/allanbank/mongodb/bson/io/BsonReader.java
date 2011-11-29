@@ -32,6 +32,7 @@ import com.allanbank.mongodb.bson.element.MaxKeyElement;
 import com.allanbank.mongodb.bson.element.MinKeyElement;
 import com.allanbank.mongodb.bson.element.MongoTimestampElement;
 import com.allanbank.mongodb.bson.element.NullElement;
+import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.ObjectIdElement;
 import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
@@ -359,8 +360,19 @@ public class BsonReader extends FilterInputStream {
 			return readBinaryElement();
 		}
 		case DB_POINTER: {
+			String name = readCString();
+			String dbDotCollection = readString();
+			String db = dbDotCollection;
+			String collection = "";
+			int firstDot = dbDotCollection.indexOf('.');
+			if (0 <= firstDot) {
+				db = dbDotCollection.substring(0, firstDot);
+				collection = dbDotCollection.substring(firstDot + 1);
+			}
 			return new com.allanbank.mongodb.bson.element.DBPointerElement(
-					readCString(), readInt(), readLong());
+					name, db, collection, new ObjectId(
+							EndianUtils.swap(readInt()),
+							EndianUtils.swap(readLong())));
 		}
 		case DOCUMENT: {
 			return readDocumentElement();
@@ -403,8 +415,8 @@ public class BsonReader extends FilterInputStream {
 			return new NullElement(readCString());
 		}
 		case OBJECT_ID: {
-			return new ObjectIdElement(readCString(),
-					EndianUtils.swap(readInt()), EndianUtils.swap(readLong()));
+			return new ObjectIdElement(readCString(), new ObjectId(
+					EndianUtils.swap(readInt()), EndianUtils.swap(readLong())));
 		}
 		case REGEX: {
 			return new RegularExpressionElement(readCString(), readCString(),

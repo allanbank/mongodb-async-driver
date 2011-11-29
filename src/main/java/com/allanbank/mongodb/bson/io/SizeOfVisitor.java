@@ -11,6 +11,7 @@ import java.util.List;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
  * A visitor to determine the size of the documents it visits. Intermediate
@@ -137,10 +138,11 @@ import com.allanbank.mongodb.bson.Visitor;
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void visitDBPointer(final String name, final int timestamp,
-			final long machineId) {
+	public void visitDBPointer(final String name, String databaseName,
+			String collectionName, final ObjectId id) {
 		mySize += 1;
 		mySize += computeCStringSize(name);
+		mySize += computeStringSize(databaseName + "." + collectionName);
 		mySize += (4 + 8);
 	}
 
@@ -250,8 +252,7 @@ import com.allanbank.mongodb.bson.Visitor;
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void visitObjectId(final String name, final int timestamp,
-			final long machineId) {
+	public void visitObjectId(final String name, final ObjectId id) {
 		mySize += 1;
 		mySize += computeCStringSize(name);
 		mySize += (4 + 8);

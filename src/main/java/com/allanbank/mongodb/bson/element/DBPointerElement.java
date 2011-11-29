@@ -15,12 +15,20 @@ import com.allanbank.mongodb.bson.Visitor;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
-public class DBPointerElement extends ObjectIdElement {
+public class DBPointerElement extends AbstractElement {
 
 	/** The BSON type for a Object Id. */
-	@SuppressWarnings("hiding")
 	public static final ElementType TYPE = ElementType.DB_POINTER;
 
+	/** The id for the document. */
+	private final ObjectId myId;
+	
+	/** The name of the datanase containing the document. */
+	private final String myDatabaseName;
+	
+	/** The name of the collection containing the document. */
+	private final String myCollectionName;
+	
 	/**
 	 * Constructs a new {@link DBPointerElement}.
 	 * 
@@ -31,9 +39,13 @@ public class DBPointerElement extends ObjectIdElement {
 	 * @param machineId
 	 *            The machine id.
 	 */
-	public DBPointerElement(final String name, final int timestamp,
-			final long machineId) {
-		super(TYPE, name, timestamp, machineId);
+	public DBPointerElement(final String name, String dbName, String collectionName, final ObjectId id) {
+		super(TYPE, name);
+		
+		myDatabaseName = dbName;
+		myCollectionName = collectionName;
+		myId = id;
+		
 	}
 
 	/**
@@ -43,7 +55,7 @@ public class DBPointerElement extends ObjectIdElement {
 	 */
 	@Override
 	public void accept(final Visitor visitor) {
-		visitor.visitDBPointer(getName(), getTimestamp(), getMachineId());
+		visitor.visitDBPointer(getName(), myDatabaseName, myCollectionName, myId);
 	}
 
 	/**
@@ -57,7 +69,18 @@ public class DBPointerElement extends ObjectIdElement {
 	 */
 	@Override
 	public boolean equals(final Object object) {
-		return super.equals(object);
+		boolean result = false;
+		if (this == object) {
+			result = true;
+		} else if ((object != null) && (getClass() == object.getClass())) {
+			final DBPointerElement other = (DBPointerElement) object;
+
+			result = myDatabaseName.equals(other.myDatabaseName)
+					&& myCollectionName.equals(other.myCollectionName)
+					&& myId.equals(other.myId)
+					&& super.equals(object);
+		}
+		return result;
 	}
 
 	/**
@@ -67,7 +90,12 @@ public class DBPointerElement extends ObjectIdElement {
 	 */
 	@Override
 	public int hashCode() {
-		return super.hashCode();
+		int result = 1;
+		result = 31 * result + super.hashCode();
+		result = 31 * result + myDatabaseName.hashCode();
+		result = 31 * result + myCollectionName.hashCode();
+		result = 31 * result + myId.hashCode();
+		return result;
 	}
 
 	/**
@@ -79,6 +107,18 @@ public class DBPointerElement extends ObjectIdElement {
 	 */
 	@Override
 	public String toString() {
-		return super.toString();
+		final StringBuilder builder = new StringBuilder();
+
+		builder.append('"');
+		builder.append(getName());
+		builder.append("\" : DBPointer( \"");
+		builder.append(myDatabaseName);
+		builder.append('.');
+		builder.append(myCollectionName);
+		builder.append("\", ");
+		builder.append(myId);
+		builder.append(")");
+
+		return builder.toString();
 	}
 }

@@ -5,6 +5,8 @@
 package com.allanbank.mongodb.bson.builder;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.bson.element.ObjectIdElement;
 
 /**
  * Interface for a builder used to construct a BSON array.
@@ -45,16 +47,19 @@ public interface ArrayBuilder extends Builder {
 	/**
 	 * Adds a deprecated DBPointer element.
 	 * 
-	 * @param timestamp
-	 *            The timestamp from the DB pointer.
-	 * @param machineId
-	 *            The machine id from the DB pointer.
+	 * @param databaseName
+	 *            The name of the database containing the document.
+	 * @param collectionName
+	 *            The name of the collection containing the document.
+	 * @param id
+	 *            The id for the document.
 	 * @return This {@link ArrayBuilder} for method chaining.
 	 * 
 	 * @deprecated See BSON specification.
 	 */
 	@Deprecated
-	public ArrayBuilder addDBPointer(int timestamp, long machineId);
+	public ArrayBuilder addDBPointer(String databaseName,
+			String collectionName, ObjectId id);
 
 	/**
 	 * Adds a double element.
@@ -136,13 +141,11 @@ public interface ArrayBuilder extends Builder {
 	/**
 	 * Adds an ObjectId element.
 	 * 
-	 * @param timestamp
-	 *            The timestamp from the object id.
-	 * @param machineId
-	 *            The machine id from the object id.
+	 * @param id
+	 *            The ObjectId to add.
 	 * @return This {@link ArrayBuilder} for method chaining.
 	 */
-	public ArrayBuilder addObjectId(int timestamp, long machineId);
+	public ArrayBuilder addObjectId(ObjectId id);
 
 	/**
 	 * Adds a regular expression element.

@@ -12,6 +12,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
  * A visitor to myOutput.write the BSON document to a {@link OutputStream}. The
@@ -165,13 +166,14 @@ import com.allanbank.mongodb.bson.Visitor;
 	 */
 	@SuppressWarnings("deprecation")
 	@Override
-	public void visitDBPointer(final String name, final int timestamp,
-			final long machineId) {
+	public void visitDBPointer(final String name, String databaseName,
+			String collectionName, final ObjectId id) {
 		myOutput.writeByte(ElementType.DB_POINTER.getToken());
 		myOutput.writeCString(name);
+		myOutput.writeString(databaseName + "." + collectionName);
 		// Just to be complicated the Object ID is big endian.
-		myOutput.writeInt(timestamp);
-		myOutput.writeLong(machineId);
+		myOutput.writeInt(EndianUtils.swap(id.getTimestamp()));
+		myOutput.writeLong(EndianUtils.swap(id.getMachineId()));
 	}
 
 	/**
@@ -284,13 +286,12 @@ import com.allanbank.mongodb.bson.Visitor;
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void visitObjectId(final String name, final int timestamp,
-			final long machineId) {
+	public void visitObjectId(final String name, final ObjectId id) {
 		myOutput.writeByte(ElementType.OBJECT_ID.getToken());
 		myOutput.writeCString(name);
 		// Just to be complicated the Object ID is big endian.
-		myOutput.writeInt(EndianUtils.swap(timestamp));
-		myOutput.writeLong(EndianUtils.swap(machineId));
+		myOutput.writeInt(EndianUtils.swap(id.getTimestamp()));
+		myOutput.writeLong(EndianUtils.swap(id.getMachineId()));
 	}
 
 	/**

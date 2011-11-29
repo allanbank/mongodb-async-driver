@@ -4,14 +4,6 @@
  */
 package com.allanbank.mongodb.bson.element;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.util.Enumeration;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -26,102 +18,11 @@ public class ObjectIdElement extends AbstractElement {
 	/** The BSON type for a Object Id. */
 	public static final String DEFAULT_NAME = "_id";
 
-	/** The current process's machine id. */
-	public static final long MACHINE_ID;
-
 	/** The BSON type for a Object Id. */
 	public static final ElementType TYPE = ElementType.OBJECT_ID;
 
-	/** The counter to add to the machine id. */
-	private static final AtomicLong COUNTER = new AtomicLong(0);
-
-	static {
-		long value = 0;
-		final SecureRandom rand = new SecureRandom();
-		try {
-			boolean foundIface = true;
-			final MessageDigest md5 = MessageDigest.getInstance("MD5");
-
-			try {
-				final Enumeration<NetworkInterface> ifaces = NetworkInterface
-						.getNetworkInterfaces();
-				while (ifaces.hasMoreElements()) {
-					try {
-						final NetworkInterface iface = ifaces.nextElement();
-
-						if (!iface.isLoopback()) {
-							md5.update(iface.getHardwareAddress());
-							foundIface = true;
-						}
-					} catch (final Throwable tryAnotherIface) {
-						// Noting to do. Try the next one.
-					}
-				}
-			} catch (final Throwable tryTheHostName) {
-				// Nothing to do here. Fall through.
-			}
-
-			if (!foundIface) {
-				md5.update(InetAddress.getLocalHost().getHostName()
-						.getBytes("UTF8"));
-			}
-
-			final byte[] hash = md5.digest();
-			value += (hash[0] & 0xFF);
-			value <<= Byte.SIZE;
-			value += (hash[1] & 0xFF);
-			value <<= Byte.SIZE;
-			value += (hash[2] & 0xFF);
-			value <<= Byte.SIZE;
-		} catch (final Throwable t) {
-			// Degenerate to a random machine id.
-			for (int i = 0; i < 3; ++i) {
-				value += rand.nextInt(256);
-				value <<= Byte.SIZE;
-			}
-		}
-
-		// Use a random value for the pid.
-		value += rand.nextInt(256);
-		value <<= Byte.SIZE;
-		value += rand.nextInt(256);
-
-		MACHINE_ID = (value << 24);
-	}
-
-	/**
-	 * Generates the current timestamp value. This is the number of
-	 * <b>seconds</b> since the Unix Epoch.
-	 * 
-	 * @return The unique object id value.
-	 */
-	private static int now() {
-		return (int) TimeUnit.MILLISECONDS
-				.toSeconds(System.currentTimeMillis());
-	}
-
-	/**
-	 * Generates the current timestamp value. This is the number of
-	 * <b>seconds</b> since the Unix Epoch.
-	 * 
-	 * @return The unique object id value.
-	 */
-	private static long processId() {
-		return MACHINE_ID + (COUNTER.incrementAndGet() & 0xFFFFFFL);
-	}
-
-	/** The BSON Object Id's machine identifier. */
-	private final long myMachineId;
-
-	/** The BSON ObjectId's timestamp. */
-	private final int myTimestamp;
-
-	/**
-	 * Constructs a new {@link ObjectIdElement}.
-	 */
-	public ObjectIdElement() {
-		this(DEFAULT_NAME, now(), processId());
-	}
+	/** The BSON Object id. */
+	private final ObjectId myId;
 
 	/**
 	 * Constructs a new {@link ObjectIdElement}.
@@ -133,29 +34,9 @@ public class ObjectIdElement extends AbstractElement {
 	 * @param machineId
 	 *            The BSON Object Id machine id.
 	 */
-	public ObjectIdElement(final String name, final int timestamp,
-			final long machineId) {
-		this(TYPE, name, timestamp, machineId);
-	}
-
-	/**
-	 * Constructs a new {@link ObjectIdElement}.
-	 * 
-	 * @param type
-	 *            The type of the inherited element.
-	 * @param name
-	 *            The name for the BSON Object Id.
-	 * @param timestamp
-	 *            The BSON Object Id timestamp.
-	 * @param machineId
-	 *            The BSON Object Id machine id.
-	 */
-	protected ObjectIdElement(final ElementType type, final String name,
-			final int timestamp, final long machineId) {
-		super(type, name);
-
-		myTimestamp = timestamp;
-		myMachineId = machineId;
+	public ObjectIdElement(final String name, final ObjectId id) {
+		super(TYPE, name);
+		myId = id;
 	}
 
 	/**
@@ -165,7 +46,7 @@ public class ObjectIdElement extends AbstractElement {
 	 */
 	@Override
 	public void accept(final Visitor visitor) {
-		visitor.visitObjectId(getName(), getTimestamp(), getMachineId());
+		visitor.visitObjectId(getName(), myId);
 	}
 
 	/**
@@ -185,29 +66,10 @@ public class ObjectIdElement extends AbstractElement {
 		} else if ((object != null) && (getClass() == object.getClass())) {
 			final ObjectIdElement other = (ObjectIdElement) object;
 
-			result = (myMachineId == other.myMachineId)
-					&& (myTimestamp == other.myTimestamp)
+			result = myId.equals(other.myId)
 					&& super.equals(object);
 		}
 		return result;
-	}
-
-	/**
-	 * The lower 8 bytes of the object id.
-	 * 
-	 * @return The lower 8 bytes of the object id.
-	 */
-	public long getMachineId() {
-		return myMachineId;
-	}
-
-	/**
-	 * The upper 4 bytes of the object id.
-	 * 
-	 * @return The upper 4 bytes of the object id.
-	 */
-	public int getTimestamp() {
-		return myTimestamp;
 	}
 
 	/**
@@ -219,9 +81,7 @@ public class ObjectIdElement extends AbstractElement {
 	public int hashCode() {
 		int result = 1;
 		result = 31 * result + super.hashCode();
-		result = 31 * result + (int) (myMachineId & 0xFFFFFFFF);
-		result = 31 * result + (int) ((myMachineId >> 32) & 0xFFFFFFFF);
-		result = 31 * result + myTimestamp;
+		result = 31 * result + myId.hashCode();
 		return result;
 	}
 
@@ -238,16 +98,10 @@ public class ObjectIdElement extends AbstractElement {
 
 		builder.append('"');
 		builder.append(getName());
-		builder.append("\" : ObjectId(");
+		builder.append("\" : ");
 
-		String hex = Integer.toHexString(myTimestamp);
-		builder.append("00000000".substring(hex.length()));
-		builder.append(hex);
-
-		hex = Long.toHexString(myMachineId);
-		builder.append("0000000000000000".substring(hex.length()));
-		builder.append(hex);
-
+		builder.append(myId);
+		
 		builder.append(")");
 
 		return builder.toString();

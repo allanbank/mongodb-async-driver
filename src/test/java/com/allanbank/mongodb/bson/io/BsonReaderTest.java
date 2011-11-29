@@ -25,6 +25,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 
@@ -159,7 +160,7 @@ public class BsonReaderTest {
 		builder.addBinary("binary-2", (byte) 2, new byte[40]);
 		builder.addBoolean("true", true);
 		builder.addBoolean("false", false);
-		builder.addDBPointer("DBPointer", 1, 2L);
+		builder.addDBPointer("DBPointer", "db", "collection", new ObjectId(1, 2L));
 		builder.addDouble("double", 4884.45345);
 		builder.addInteger("int", 123456);
 		builder.addJavaScript("javascript", "function foo() { }");
@@ -170,8 +171,8 @@ public class BsonReaderTest {
 		builder.addMinKey("min");
 		builder.addMongoTimestamp("mongo-time", System.currentTimeMillis());
 		builder.addNull("null");
-		builder.addObjectId("object-id",
-				(int) System.currentTimeMillis() / 1000, 1234L);
+		builder.addObjectId("object-id", new ObjectId(
+				(int) System.currentTimeMillis() / 1000, 1234L));
 		builder.addRegularExpression("regex", ".*", "");
 		builder.addString("string", "string");
 		builder.addSymbol("symbol", "symbol");
@@ -183,7 +184,7 @@ public class BsonReaderTest {
 		aBuilder.addBinary((byte) 2, new byte[40]);
 		aBuilder.addBoolean(true);
 		aBuilder.addBoolean(false);
-		aBuilder.addDBPointer(1, 2L);
+		aBuilder.addDBPointer("db", "collection", new ObjectId(1, 2L));
 		aBuilder.addDouble(4884.45345);
 		aBuilder.addInteger(123456);
 		aBuilder.addJavaScript("function foo() { }");
@@ -193,7 +194,7 @@ public class BsonReaderTest {
 		aBuilder.addMinKey();
 		aBuilder.addMongoTimestamp(System.currentTimeMillis());
 		aBuilder.addNull();
-		aBuilder.addObjectId((int) System.currentTimeMillis() / 1000, 1234L);
+		aBuilder.addObjectId(new ObjectId((int) System.currentTimeMillis() / 1000, 1234L));
 		aBuilder.addRegularExpression(".*", "");
 		aBuilder.addString("string");
 		aBuilder.addSymbol("symbol");

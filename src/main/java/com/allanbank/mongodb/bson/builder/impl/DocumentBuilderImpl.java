@@ -20,6 +20,7 @@ import com.allanbank.mongodb.bson.element.MaxKeyElement;
 import com.allanbank.mongodb.bson.element.MinKeyElement;
 import com.allanbank.mongodb.bson.element.MongoTimestampElement;
 import com.allanbank.mongodb.bson.element.NullElement;
+import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.ObjectIdElement;
 import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
@@ -85,10 +86,10 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
 	 */
 	@Override
 	@Deprecated
-	public DocumentBuilder addDBPointer(final String name, final int timestamp,
-			final long machineId) {
+	public DocumentBuilder addDBPointer(final String name, String databaseName,
+			String collectionName, ObjectId id) {
 		myElements.add(new com.allanbank.mongodb.bson.element.DBPointerElement(
-				name, timestamp, machineId));
+				name, databaseName, collectionName, id));
 		return this;
 	}
 
@@ -178,9 +179,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DocumentBuilder addObjectId(final String name, final int timestamp,
-			final long machineId) {
-		myElements.add(new ObjectIdElement(name, timestamp, machineId));
+	public DocumentBuilder addObjectId(final String name, final ObjectId id) {
+		myElements.add(new ObjectIdElement(name, id));
 		return this;
 	}
 

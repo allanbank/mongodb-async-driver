@@ -6,6 +6,8 @@ package com.allanbank.mongodb.bson;
 
 import java.util.List;
 
+import com.allanbank.mongodb.bson.element.ObjectId;
+
 /**
  * Interface for callbacks to navigate the document structure. The accept method
  * of each {@link Element} calls the appropriate Visit method in this interface
@@ -60,12 +62,15 @@ public interface Visitor {
 	 * 
 	 * @param name
 	 *            The name of the element.
-	 * @param timestamp
-	 *            The timestamp from the DB pointer.
-	 * @param machineId
-	 *            The machine id from the DB pointer.
+	 * @param databaseName
+	 *            The name of the database containing the document.
+	 * @param collectionName
+	 *            The name of the collection containing the document.
+	 * @param id
+	 *            The id for the document.
 	 */
-	public void visitDBPointer(String name, int timestamp, long machineId);
+	public void visitDBPointer(String name, String databaseName,
+			String collectionName, ObjectId id);
 
 	/**
 	 * Visits a sub-document element.
@@ -168,12 +173,10 @@ public interface Visitor {
 	 * 
 	 * @param name
 	 *            The name of the element.
-	 * @param timestamp
-	 *            The timestamp from the object id.
-	 * @param machineId
-	 *            The machine id from the object id.
+	 * @param id
+	 *            The object id.
 	 */
-	public void visitObjectId(String name, int timestamp, long machineId);
+	public void visitObjectId(String name, ObjectId id);
 
 	/**
 	 * Visits a regular expression element.
