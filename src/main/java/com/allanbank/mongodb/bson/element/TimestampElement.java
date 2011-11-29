@@ -15,98 +15,99 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class TimestampElement extends AbstractElement {
 
-	/** The BSON type for a long. */
-	public static final ElementType TYPE = ElementType.UTC_TIMESTAMP;
+    /** The BSON type for a long. */
+    public static final ElementType TYPE = ElementType.UTC_TIMESTAMP;
 
-	/** The BSON timestamp value as the milliseconds since the epoch. */
-	private final long myTimestamp;
+    /** The BSON timestamp value as the milliseconds since the epoch. */
+    private final long myTimestamp;
 
-	/**
-	 * Constructs a new {@link TimestampElement}.
-	 * 
-	 * @param name
-	 *            The name for the BSON long.
-	 * @param value
-	 *            The BSON timestamp value as the milliseconds since the epoch.
-	 */
-	public TimestampElement(final String name, final long value) {
-		super(TYPE, name);
+    /**
+     * Constructs a new {@link TimestampElement}.
+     * 
+     * @param name
+     *            The name for the BSON long.
+     * @param value
+     *            The BSON timestamp value as the milliseconds since the epoch.
+     */
+    public TimestampElement(final String name, final long value) {
+        super(TYPE, name);
 
-		myTimestamp = value;
-	}
+        myTimestamp = value;
+    }
 
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitTimestamp} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(final Visitor visitor) {
-		visitor.visitTimestamp(getName(), getTime());
-	}
+    /**
+     * Accepts the visitor and calls the {@link Visitor#visitTimestamp} method.
+     * 
+     * @see Element#accept(Visitor)
+     */
+    @Override
+    public void accept(final Visitor visitor) {
+        visitor.visitTimestamp(getName(), getTime());
+    }
 
-	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(final Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			final TimestampElement other = (TimestampElement) object;
+    /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     * 
+     * @param object
+     *            The object to compare to.
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final TimestampElement other = (TimestampElement) object;
 
-			result = (myTimestamp == other.myTimestamp) && super.equals(object);
-		}
-		return result;
-	}
+            result = (myTimestamp == other.myTimestamp) && super.equals(object);
+        }
+        return result;
+    }
 
-	/**
-	 * Returns the BSON timestamp value as the milliseconds since the epoch.
-	 * 
-	 * @return The BSON timestamp value as the milliseconds since the epoch.
-	 */
-	public long getTime() {
-		return myTimestamp;
-	}
+    /**
+     * Returns the BSON timestamp value as the milliseconds since the epoch.
+     * 
+     * @return The BSON timestamp value as the milliseconds since the epoch.
+     */
+    public long getTime() {
+        return myTimestamp;
+    }
 
-	/**
-	 * Computes a reasonable hash code.
-	 * 
-	 * @return The hash code value.
-	 */
-	@Override
-	public int hashCode() {
-		int result = 1;
-		result = 31 * result + super.hashCode();
-		result = 31 * result + (int) (myTimestamp & 0xFFFFFFFF);
-		result = 31 * result + (int) ((myTimestamp >> 32) & 0xFFFFFFFF);
-		return result;
-	}
+    /**
+     * Computes a reasonable hash code.
+     * 
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + (int) (myTimestamp & 0xFFFFFFFF);
+        result = (31 * result) + (int) ((myTimestamp >> 32) & 0xFFFFFFFF);
+        return result;
+    }
 
-	/**
-	 * String form of the object.
-	 * 
-	 * @return A human readable form of the object.
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		final StringBuilder builder = new StringBuilder();
+    /**
+     * String form of the object.
+     * 
+     * @return A human readable form of the object.
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
 
-		builder.append('"');
-		builder.append(getName());
-		builder.append("\" : UTC(");
-		builder.append(myTimestamp);
-		builder.append(")");
+        builder.append('"');
+        builder.append(getName());
+        builder.append("\" : UTC(");
+        builder.append(myTimestamp);
+        builder.append(")");
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
 }

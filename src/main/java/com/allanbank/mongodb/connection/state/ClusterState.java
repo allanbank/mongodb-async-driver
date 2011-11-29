@@ -33,149 +33,149 @@ import java.util.Map;
  */
 public class ClusterState {
 
-	/** Support for firing property change events. */
-	private final PropertyChangeSupport myChangeSupport;
+    /** Support for firing property change events. */
+    private final PropertyChangeSupport myChangeSupport;
 
-	/** The complete list of non-writable servers. */
-	private final List<ServerState> myNonWritableServers;
+    /** The complete list of non-writable servers. */
+    private final List<ServerState> myNonWritableServers;
 
-	/** The complete list of servers. */
-	private final Map<String, ServerState> myServers;
+    /** The complete list of servers. */
+    private final Map<String, ServerState> myServers;
 
-	/** The complete list of writable servers. */
-	private final List<ServerState> myWritableServers;
+    /** The complete list of writable servers. */
+    private final List<ServerState> myWritableServers;
 
-	/**
-	 * Creates a new CLusterState.
-	 */
-	public ClusterState() {
-		myChangeSupport = new PropertyChangeSupport(this);
-		myServers = new HashMap<String, ServerState>();
-		myWritableServers = new ArrayList<ServerState>();
-		myNonWritableServers = new ArrayList<ServerState>();
-	}
+    /**
+     * Creates a new CLusterState.
+     */
+    public ClusterState() {
+        myChangeSupport = new PropertyChangeSupport(this);
+        myServers = new HashMap<String, ServerState>();
+        myWritableServers = new ArrayList<ServerState>();
+        myNonWritableServers = new ArrayList<ServerState>();
+    }
 
-	/**
-	 * Adds a {@link ServerState} to the {@link ClusterState} for the address
-	 * provided if one does not already exist.
-	 * <p>
-	 * This method is equivalent to calling {@link #get(String)}.
-	 * </p>
-	 * 
-	 * @param address
-	 *            The address of the {@link ServerState} to return.
-	 * @return The {@link ServerState} for the address.
-	 */
-	public ServerState add(final String address) {
-		return get(address);
-	}
+    /**
+     * Adds a {@link ServerState} to the {@link ClusterState} for the address
+     * provided if one does not already exist.
+     * <p>
+     * This method is equivalent to calling {@link #get(String)}.
+     * </p>
+     * 
+     * @param address
+     *            The address of the {@link ServerState} to return.
+     * @return The {@link ServerState} for the address.
+     */
+    public ServerState add(final String address) {
+        return get(address);
+    }
 
-	/**
-	 * Adds a listener to the state.
-	 * 
-	 * @param listener
-	 *            The listener for the state changes.
-	 */
-	public synchronized void addListener(final PropertyChangeListener listener) {
-		myChangeSupport.addPropertyChangeListener(listener);
-	}
+    /**
+     * Adds a listener to the state.
+     * 
+     * @param listener
+     *            The listener for the state changes.
+     */
+    public synchronized void addListener(final PropertyChangeListener listener) {
+        myChangeSupport.addPropertyChangeListener(listener);
+    }
 
-	/**
-	 * Returns the server state for the address provided. If the
-	 * {@link ServerState} does not already exist a non-writable state is
-	 * created and returned.
-	 * 
-	 * @param address
-	 *            The address of the {@link ServerState} to return.
-	 * @return The {@link ServerState} for the address.
-	 */
-	public synchronized ServerState get(final String address) {
+    /**
+     * Returns the server state for the address provided. If the
+     * {@link ServerState} does not already exist a non-writable state is
+     * created and returned.
+     * 
+     * @param address
+     *            The address of the {@link ServerState} to return.
+     * @return The {@link ServerState} for the address.
+     */
+    public synchronized ServerState get(final String address) {
 
-		ServerState state = myServers.get(address);
-		if (state == null) {
-			state = new ServerState(address);
-			state.setWritable(false);
+        ServerState state = myServers.get(address);
+        if (state == null) {
+            state = new ServerState(address);
+            state.setWritable(false);
 
-			myServers.put(address, state);
-			myNonWritableServers.add(state);
+            myServers.put(address, state);
+            myNonWritableServers.add(state);
 
-			myChangeSupport.firePropertyChange("server", null, state);
-		}
-		return state;
-	}
+            myChangeSupport.firePropertyChange("server", null, state);
+        }
+        return state;
+    }
 
-	/**
-	 * Returns a copy of the list of non-writable servers. The list returned is
-	 * a copy of the internal list and can be modified by the caller.
-	 * 
-	 * @return The complete list of non-writable servers.
-	 */
-	public synchronized List<ServerState> getNonWritableServers() {
-		return new ArrayList<ServerState>(myNonWritableServers);
-	}
+    /**
+     * Returns a copy of the list of non-writable servers. The list returned is
+     * a copy of the internal list and can be modified by the caller.
+     * 
+     * @return The complete list of non-writable servers.
+     */
+    public synchronized List<ServerState> getNonWritableServers() {
+        return new ArrayList<ServerState>(myNonWritableServers);
+    }
 
-	/**
-	 * Returns a copy of the list of servers. The list returned is a copy of the
-	 * internal list and can be modified by the caller.
-	 * 
-	 * @return The complete list of servers.
-	 */
-	public synchronized List<ServerState> getServers() {
-		return new ArrayList<ServerState>(myServers.values());
-	}
+    /**
+     * Returns a copy of the list of servers. The list returned is a copy of the
+     * internal list and can be modified by the caller.
+     * 
+     * @return The complete list of servers.
+     */
+    public synchronized List<ServerState> getServers() {
+        return new ArrayList<ServerState>(myServers.values());
+    }
 
-	/**
-	 * Returns a copy of the list of writable servers. The list returned is a
-	 * copy of the internal list and can be modified by the caller.
-	 * 
-	 * @return The complete list of writable servers.
-	 */
-	public synchronized List<ServerState> getWritableServers() {
-		return new ArrayList<ServerState>(myWritableServers);
-	}
+    /**
+     * Returns a copy of the list of writable servers. The list returned is a
+     * copy of the internal list and can be modified by the caller.
+     * 
+     * @return The complete list of writable servers.
+     */
+    public synchronized List<ServerState> getWritableServers() {
+        return new ArrayList<ServerState>(myWritableServers);
+    }
 
-	/**
-	 * Marks the server as non-writable. Fires a {@link PropertyChangeEvent} if
-	 * the server was previously writable.
-	 * 
-	 * @param server
-	 *            The server to mark non-writable.
-	 */
-	public synchronized void markNotWritable(final ServerState server) {
-		if (server.isWritable()) {
-			server.setWritable(false);
+    /**
+     * Marks the server as non-writable. Fires a {@link PropertyChangeEvent} if
+     * the server was previously writable.
+     * 
+     * @param server
+     *            The server to mark non-writable.
+     */
+    public synchronized void markNotWritable(final ServerState server) {
+        if (server.isWritable()) {
+            server.setWritable(false);
 
-			myWritableServers.remove(server);
-			myNonWritableServers.add(server);
-			myChangeSupport.firePropertyChange("writable", true, false);
-		}
-	}
+            myWritableServers.remove(server);
+            myNonWritableServers.add(server);
+            myChangeSupport.firePropertyChange("writable", true, false);
+        }
+    }
 
-	/**
-	 * Marks the server as writable. Fires a {@link PropertyChangeEvent} if the
-	 * server was previously non-writable.
-	 * 
-	 * @param server
-	 *            The server to mark writable.
-	 */
-	public synchronized void markWritable(final ServerState server) {
-		if (!server.isWritable()) {
-			server.setWritable(true);
+    /**
+     * Marks the server as writable. Fires a {@link PropertyChangeEvent} if the
+     * server was previously non-writable.
+     * 
+     * @param server
+     *            The server to mark writable.
+     */
+    public synchronized void markWritable(final ServerState server) {
+        if (!server.isWritable()) {
+            server.setWritable(true);
 
-			myNonWritableServers.remove(server);
-			myWritableServers.add(server);
-			myChangeSupport.firePropertyChange("writable", false, true);
-		}
-	}
+            myNonWritableServers.remove(server);
+            myWritableServers.add(server);
+            myChangeSupport.firePropertyChange("writable", false, true);
+        }
+    }
 
-	/**
-	 * Removes a listener to the state.
-	 * 
-	 * @param listener
-	 *            The listener for the state changes.
-	 */
-	public synchronized void removeListener(
-			final PropertyChangeListener listener) {
-		myChangeSupport.removePropertyChangeListener(listener);
-	}
+    /**
+     * Removes a listener to the state.
+     * 
+     * @param listener
+     *            The listener for the state changes.
+     */
+    public synchronized void removeListener(
+            final PropertyChangeListener listener) {
+        myChangeSupport.removePropertyChangeListener(listener);
+    }
 }

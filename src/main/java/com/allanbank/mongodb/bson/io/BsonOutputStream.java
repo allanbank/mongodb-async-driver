@@ -20,11 +20,11 @@ public class BsonOutputStream {
     /** UTF-8 Character set for encoding strings. */
     public final static Charset UTF8 = Charset.forName("UTF-8");
 
-    /** Output buffer for spooling the written document. */
-    protected final OutputStream myOutput;
-
     /** Any thrown exceptions. */
     protected IOException myError;
+
+    /** Output buffer for spooling the written document. */
+    protected final OutputStream myOutput;
 
     /** The visitor for writing BSON documents. */
     protected final UnbufferedWriteVisitor myWriteVisitor;
@@ -35,7 +35,7 @@ public class BsonOutputStream {
      * @param output
      *            The underlying Stream to write to.
      */
-    public BsonOutputStream(OutputStream output) {
+    public BsonOutputStream(final OutputStream output) {
         myOutput = output;
         myWriteVisitor = new UnbufferedWriteVisitor(this);
     }
@@ -66,6 +66,43 @@ public class BsonOutputStream {
     }
 
     /**
+     * Returns the size of the writing the {@link Document} as a BSON document.
+     * 
+     * @param document
+     *            The document to determine the size of.
+     * @return The size of the writing {@link Document} as a BSON document.
+     */
+    public int sizeOf(final Document document) {
+        return myWriteVisitor.sizeOf(document);
+    }
+
+    /**
+     * Returns the size of the writing the <tt>strings</tt> as a c-string.
+     * 
+     * @param strings
+     *            The 'C' strings to determine the size of.
+     * @return The size of the writing the <tt>strings</tt> as a c-string.
+     */
+    public int sizeOfCString(final String... strings) {
+        int size = 0;
+        for (final String string : strings) {
+            size += UTF8.encode(string).limit();
+        }
+        return (size + 1);
+    }
+
+    /**
+     * Returns the size of the writing the <tt>string</tt> as a string.
+     * 
+     * @param string
+     *            The 'UTF8' string to determine the size of.
+     * @return The size of the writing the <tt>string</tt> as a string.
+     */
+    public int sizeOfString(final String string) {
+        return 4 + UTF8.encode(string).limit() + 1;
+    }
+
+    /**
      * Writes a single byte to the stream.
      * 
      * @param b
@@ -74,7 +111,8 @@ public class BsonOutputStream {
     public void writeByte(final byte b) {
         try {
             myOutput.write(b & 0xFF);
-        } catch (IOException ioe) {
+        }
+        catch (final IOException ioe) {
             myError = ioe;
         }
     }
@@ -88,7 +126,8 @@ public class BsonOutputStream {
     public void writeBytes(final byte[] data) {
         try {
             myOutput.write(data);
-        } catch (IOException ioe) {
+        }
+        catch (final IOException ioe) {
             myError = ioe;
         }
     }
@@ -108,6 +147,26 @@ public class BsonOutputStream {
     }
 
     /**
+     * Writes a BSON {@link Document} to the stream.
+     * 
+     * @param document
+     *            The {@link Document} to write.
+     * @throws IOException
+     *             On a failure writing the document.
+     */
+    public void writeDocument(final Document document) throws IOException {
+        try {
+            document.accept(myWriteVisitor);
+            if (myWriteVisitor.hasError()) {
+                throw myWriteVisitor.getError();
+            }
+        }
+        finally {
+            myWriteVisitor.reset();
+        }
+    }
+
+    /**
      * Write the integer value in little-endian byte order.
      * 
      * @param value
@@ -119,7 +178,8 @@ public class BsonOutputStream {
             myOutput.write((byte) ((value >> 8) & 0xFF));
             myOutput.write((byte) ((value >> 16) & 0xFF));
             myOutput.write((byte) ((value >> 24) & 0xFF));
-        } catch (IOException ioe) {
+        }
+        catch (final IOException ioe) {
             myError = ioe;
         }
     }
@@ -140,7 +200,8 @@ public class BsonOutputStream {
             myOutput.write((byte) ((value >> 40) & 0xFF));
             myOutput.write((byte) ((value >> 48) & 0xFF));
             myOutput.write((byte) ((value >> 56) & 0xFF));
-        } catch (IOException ioe) {
+        }
+        catch (final IOException ioe) {
             myError = ioe;
         }
     }
@@ -157,62 +218,6 @@ public class BsonOutputStream {
         writeInt(bytes.length + 1);
         writeBytes(bytes);
         writeByte((byte) 0);
-    }
-
-    /**
-     * Writes a BSON {@link Document} to the stream.
-     * 
-     * @param document
-     *            The {@link Document} to write.
-     * @throws IOException
-     *             On a failure writing the document.
-     */
-    public void writeDocument(final Document document) throws IOException {
-        try {
-            document.accept(myWriteVisitor);
-            if (myWriteVisitor.hasError()) {
-                throw myWriteVisitor.getError();
-            }
-        } finally {
-            myWriteVisitor.reset();
-        }
-    }
-
-    /**
-     * Returns the size of the writing the {@link Document} as a BSON document.
-     * 
-     * @param document
-     *            The document to determine the size of.
-     * @return The size of the writing {@link Document} as a BSON document.
-     */
-    public int sizeOf(Document document) {
-        return myWriteVisitor.sizeOf(document);
-    }
-
-    /**
-     * Returns the size of the writing the <tt>strings</tt> as a c-string.
-     * 
-     * @param strings
-     *            The 'C' strings to determine the size of.
-     * @return The size of the writing the <tt>strings</tt> as a c-string.
-     */
-    public int sizeOfCString(String... strings) {
-        int size = 0;
-        for (String string : strings) {
-            size += UTF8.encode(string).limit();
-        }
-        return (size + 1);
-    }
-
-    /**
-     * Returns the size of the writing the <tt>string</tt> as a string.
-     * 
-     * @param string
-     *            The 'UTF8' string to determine the size of.
-     * @return The size of the writing the <tt>string</tt> as a string.
-     */
-    public int sizeOfString(String string) {
-        return 4 + UTF8.encode(string).limit() + 1;
     }
 
 }

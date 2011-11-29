@@ -15,99 +15,100 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class DoubleElement extends AbstractElement {
 
-	/** The BSON type for a double. */
-	public static final ElementType TYPE = ElementType.DOUBLE;
+    /** The BSON type for a double. */
+    public static final ElementType TYPE = ElementType.DOUBLE;
 
-	/** The BSON double value. */
-	private final double myValue;
+    /** The BSON double value. */
+    private final double myValue;
 
-	/**
-	 * Constructs a new {@link DoubleElement}.
-	 * 
-	 * @param name
-	 *            The name for the BSON double.
-	 * @param value
-	 *            The BSON double value.
-	 */
-	public DoubleElement(final String name, final double value) {
-		super(TYPE, name);
+    /**
+     * Constructs a new {@link DoubleElement}.
+     * 
+     * @param name
+     *            The name for the BSON double.
+     * @param value
+     *            The BSON double value.
+     */
+    public DoubleElement(final String name, final double value) {
+        super(TYPE, name);
 
-		myValue = value;
-	}
+        myValue = value;
+    }
 
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitDouble} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(final Visitor visitor) {
-		visitor.visitDouble(getName(), getValue());
-	}
+    /**
+     * Accepts the visitor and calls the {@link Visitor#visitDouble} method.
+     * 
+     * @see Element#accept(Visitor)
+     */
+    @Override
+    public void accept(final Visitor visitor) {
+        visitor.visitDouble(getName(), getValue());
+    }
 
-	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(final Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			final DoubleElement other = (DoubleElement) object;
+    /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     * 
+     * @param object
+     *            The object to compare to.
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final DoubleElement other = (DoubleElement) object;
 
-			result = (myValue == other.myValue) && super.equals(object);
-		}
-		return result;
-	}
+            result = (myValue == other.myValue) && super.equals(object);
+        }
+        return result;
+    }
 
-	/**
-	 * Returns the BSON double value.
-	 * 
-	 * @return The BSON double value.
-	 */
-	public double getValue() {
-		return myValue;
-	}
+    /**
+     * Returns the BSON double value.
+     * 
+     * @return The BSON double value.
+     */
+    public double getValue() {
+        return myValue;
+    }
 
-	/**
-	 * Computes a reasonable hash code.
-	 * 
-	 * @return The hash code value.
-	 */
-	@Override
-	public int hashCode() {
-		int result = 1;
-		final long bits = Double.doubleToLongBits(myValue);
+    /**
+     * Computes a reasonable hash code.
+     * 
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        int result = 1;
+        final long bits = Double.doubleToLongBits(myValue);
 
-		result = 31 * result + super.hashCode();
-		result = 31 * result + (int) (bits & 0xFFFFFFFF);
-		result = 31 * result + (int) ((bits >> 32) & 0xFFFFFFFF);
-		return result;
-	}
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + (int) (bits & 0xFFFFFFFF);
+        result = (31 * result) + (int) ((bits >> 32) & 0xFFFFFFFF);
+        return result;
+    }
 
-	/**
-	 * String form of the object.
-	 * 
-	 * @return A human readable form of the object.
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		final StringBuilder builder = new StringBuilder();
+    /**
+     * String form of the object.
+     * 
+     * @return A human readable form of the object.
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
 
-		builder.append('"');
-		builder.append(getName());
-		builder.append("\" : ");
-		builder.append(myValue);
+        builder.append('"');
+        builder.append(getName());
+        builder.append("\" : ");
+        builder.append(myValue);
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
 }

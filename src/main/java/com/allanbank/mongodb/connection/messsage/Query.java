@@ -115,7 +115,7 @@ public class Query extends AbstractMessage {
     public Query(final Header header, final BsonInputStream in)
             throws IOException {
         final long position = in.getBytesRead();
-        final long end = position + header.getLength() - Header.SIZE;
+        final long end = (position + header.getLength()) - Header.SIZE;
 
         final int flags = in.readInt();
         init(in.readCString());
@@ -124,7 +124,8 @@ public class Query extends AbstractMessage {
         myQuery = in.readDocument();
         if (in.getBytesRead() < end) {
             myReturnFields = in.readDocument();
-        } else {
+        }
+        else {
             myReturnFields = null;
         }
         myAwaitData = (flags & AWAIT_DATA_FLAG_BIT) == AWAIT_DATA_FLAG_BIT;
@@ -203,7 +204,8 @@ public class Query extends AbstractMessage {
         boolean result = false;
         if (this == object) {
             result = true;
-        } else if ((object != null) && (getClass() == object.getClass())) {
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
             final Query other = (Query) object;
 
             result = super.equals(object)
@@ -271,17 +273,17 @@ public class Query extends AbstractMessage {
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + super.hashCode();
-        result = 31 * result + (myAwaitData ? 1 : 3);
-        result = 31 * result + (myExhaust ? 1 : 3);
-        result = 31 * result + (myNoCursorTimeout ? 1 : 3);
-        result = 31 * result + (myPartial ? 1 : 3);
-        result = 31 * result + (mySlaveOk ? 1 : 3);
-        result = 31 * result + (myTailable ? 1 : 3);
-        result = 31 * result + myNumberToReturn;
-        result = 31 * result + myNumberToSkip;
-        result = 31 * result + myQuery.hashCode();
-        result = 31 * result
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + (myAwaitData ? 1 : 3);
+        result = (31 * result) + (myExhaust ? 1 : 3);
+        result = (31 * result) + (myNoCursorTimeout ? 1 : 3);
+        result = (31 * result) + (myPartial ? 1 : 3);
+        result = (31 * result) + (mySlaveOk ? 1 : 3);
+        result = (31 * result) + (myTailable ? 1 : 3);
+        result = (31 * result) + myNumberToReturn;
+        result = (31 * result) + myNumberToSkip;
+        result = (31 * result) + myQuery.hashCode();
+        result = (31 * result)
                 + (myReturnFields == null ? 1 : myReturnFields.hashCode());
         return result;
     }

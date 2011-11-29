@@ -34,225 +34,226 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DocumentBuilderImpl extends AbstractBuilder implements
-		DocumentBuilder {
+        DocumentBuilder {
 
-	/**
-	 * Creates a new builder.
-	 */
-	public DocumentBuilderImpl() {
-		this(null);
-	}
+    /**
+     * Creates a new builder.
+     */
+    public DocumentBuilderImpl() {
+        this(null);
+    }
 
-	/**
-	 * Creates a new builder.
-	 * 
-	 * @param outerScope
-	 *            The outer document scope.
-	 */
-	public DocumentBuilderImpl(final AbstractBuilder outerScope) {
-		super(outerScope);
-	}
+    /**
+     * Creates a new builder.
+     * 
+     * @param outerScope
+     *            The outer document scope.
+     */
+    public DocumentBuilderImpl(final AbstractBuilder outerScope) {
+        super(outerScope);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addBinary(final String name, final byte subType,
-			final byte[] value) {
-		myElements.add(new BinaryElement(name, subType, value));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addBinary(final String name, final byte subType,
+            final byte[] value) {
+        myElements.add(new BinaryElement(name, subType, value));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addBinary(final String name, final byte[] value) {
-		myElements.add(new BinaryElement(name, (byte) 0, value));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addBinary(final String name, final byte[] value) {
+        myElements.add(new BinaryElement(name, (byte) 0, value));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addBoolean(final String name, final boolean value) {
-		myElements.add(new BooleanElement(name, value));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addBoolean(final String name, final boolean value) {
+        myElements.add(new BooleanElement(name, value));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Deprecated
-	public DocumentBuilder addDBPointer(final String name, String databaseName,
-			String collectionName, ObjectId id) {
-		myElements.add(new com.allanbank.mongodb.bson.element.DBPointerElement(
-				name, databaseName, collectionName, id));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Deprecated
+    public DocumentBuilder addDBPointer(final String name,
+            final String databaseName, final String collectionName,
+            final ObjectId id) {
+        myElements.add(new com.allanbank.mongodb.bson.element.DBPointerElement(
+                name, databaseName, collectionName, id));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addDouble(final String name, final double value) {
-		myElements.add(new DoubleElement(name, value));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addDouble(final String name, final double value) {
+        myElements.add(new DoubleElement(name, value));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addInteger(final String name, final int value) {
-		myElements.add(new IntegerElement(name, value));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addInteger(final String name, final int value) {
+        myElements.add(new IntegerElement(name, value));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addJavaScript(final String name, final String code) {
-		myElements.add(new JavaScriptElement(name, code));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addJavaScript(final String name, final String code) {
+        myElements.add(new JavaScriptElement(name, code));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addJavaScript(final String name, final String code,
-			final Document scope) {
-		myElements.add(new JavaScriptWithScopeElement(name, code, scope));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addJavaScript(final String name, final String code,
+            final Document scope) {
+        myElements.add(new JavaScriptWithScopeElement(name, code, scope));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addLong(final String name, final long value) {
-		myElements.add(new LongElement(name, value));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addLong(final String name, final long value) {
+        myElements.add(new LongElement(name, value));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addMaxKey(final String name) {
-		myElements.add(new MaxKeyElement(name));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addMaxKey(final String name) {
+        myElements.add(new MaxKeyElement(name));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addMinKey(final String name) {
-		myElements.add(new MinKeyElement(name));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addMinKey(final String name) {
+        myElements.add(new MinKeyElement(name));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addMongoTimestamp(final String name, final long value) {
-		myElements.add(new MongoTimestampElement(name, value));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addMongoTimestamp(final String name, final long value) {
+        myElements.add(new MongoTimestampElement(name, value));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addNull(final String name) {
-		myElements.add(new NullElement(name));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addNull(final String name) {
+        myElements.add(new NullElement(name));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addObjectId(final String name, final ObjectId id) {
-		myElements.add(new ObjectIdElement(name, id));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addObjectId(final String name, final ObjectId id) {
+        myElements.add(new ObjectIdElement(name, id));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addRegularExpression(final String name,
-			final String pattern, final String options) {
-		myElements.add(new RegularExpressionElement(name, pattern, options));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addRegularExpression(final String name,
+            final String pattern, final String options) {
+        myElements.add(new RegularExpressionElement(name, pattern, options));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addString(final String name, final String value) {
-		myElements.add(new StringElement(name, value));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addString(final String name, final String value) {
+        myElements.add(new StringElement(name, value));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addSymbol(final String name, final String symbol) {
-		myElements.add(new SymbolElement(name, symbol));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addSymbol(final String name, final String symbol) {
+        myElements.add(new SymbolElement(name, symbol));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder addTimestamp(final String name, final long timestamp) {
-		myElements.add(new TimestampElement(name, timestamp));
-		return this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addTimestamp(final String name, final long timestamp) {
+        myElements.add(new TimestampElement(name, timestamp));
+        return this;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Document get() {
-		return new RootDocument(subElements());
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Document get() {
+        return new RootDocument(subElements());
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DocumentBuilder push(final String name) {
-		return doPush(name);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder push(final String name) {
+        return doPush(name);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ArrayBuilder pushArray(final String name) {
-		return doPushArray(name);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder pushArray(final String name) {
+        return doPushArray(name);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * Overridden to return an {@link DocumentElement}.
-	 * </p>
-	 */
-	@Override
-	protected Element get(final String name) {
-		return new DocumentElement(name, subElements());
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return an {@link DocumentElement}.
+     * </p>
+     */
+    @Override
+    protected Element get(final String name) {
+        return new DocumentElement(name, subElements());
+    }
 }

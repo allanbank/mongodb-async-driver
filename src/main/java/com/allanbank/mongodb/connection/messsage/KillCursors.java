@@ -77,7 +77,8 @@ public class KillCursors extends AbstractMessage {
         boolean result = false;
         if (this == object) {
             result = true;
-        } else if ((object != null) && (getClass() == object.getClass())) {
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
             final KillCursors other = (KillCursors) object;
 
             result = super.equals(object)
@@ -103,8 +104,8 @@ public class KillCursors extends AbstractMessage {
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + super.hashCode();
-        result = 31 * result + Arrays.hashCode(myCursorIds);
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + Arrays.hashCode(myCursorIds);
         return result;
     }
 

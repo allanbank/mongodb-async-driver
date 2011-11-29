@@ -19,192 +19,195 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ObjectId {
 
-	/** The current process's machine id. */
-	public static final long MACHINE_ID;
+    /** The current process's machine id. */
+    public static final long MACHINE_ID;
 
-	/** The counter to add to the machine id. */
-	private static final AtomicLong COUNTER = new AtomicLong(0);
+    /** The counter to add to the machine id. */
+    private static final AtomicLong COUNTER = new AtomicLong(0);
 
-	static {
-		long value = 0;
-		final SecureRandom rand = new SecureRandom();
-		try {
-			boolean foundIface = true;
-			final MessageDigest md5 = MessageDigest.getInstance("MD5");
+    static {
+        long value = 0;
+        final SecureRandom rand = new SecureRandom();
+        try {
+            boolean foundIface = true;
+            final MessageDigest md5 = MessageDigest.getInstance("MD5");
 
-			try {
-				final Enumeration<NetworkInterface> ifaces = NetworkInterface
-						.getNetworkInterfaces();
-				while (ifaces.hasMoreElements()) {
-					try {
-						final NetworkInterface iface = ifaces.nextElement();
+            try {
+                final Enumeration<NetworkInterface> ifaces = NetworkInterface
+                        .getNetworkInterfaces();
+                while (ifaces.hasMoreElements()) {
+                    try {
+                        final NetworkInterface iface = ifaces.nextElement();
 
-						if (!iface.isLoopback()) {
-							md5.update(iface.getHardwareAddress());
-							foundIface = true;
-						}
-					} catch (final Throwable tryAnotherIface) {
-						// Noting to do. Try the next one.
-					}
-				}
-			} catch (final Throwable tryTheHostName) {
-				// Nothing to do here. Fall through.
-			}
+                        if (!iface.isLoopback()) {
+                            md5.update(iface.getHardwareAddress());
+                            foundIface = true;
+                        }
+                    }
+                    catch (final Throwable tryAnotherIface) {
+                        // Noting to do. Try the next one.
+                    }
+                }
+            }
+            catch (final Throwable tryTheHostName) {
+                // Nothing to do here. Fall through.
+            }
 
-			if (!foundIface) {
-				md5.update(InetAddress.getLocalHost().getHostName()
-						.getBytes("UTF8"));
-			}
+            if (!foundIface) {
+                md5.update(InetAddress.getLocalHost().getHostName()
+                        .getBytes("UTF8"));
+            }
 
-			final byte[] hash = md5.digest();
-			value += (hash[0] & 0xFF);
-			value <<= Byte.SIZE;
-			value += (hash[1] & 0xFF);
-			value <<= Byte.SIZE;
-			value += (hash[2] & 0xFF);
-			value <<= Byte.SIZE;
-		} catch (final Throwable t) {
-			// Degenerate to a random machine id.
-			for (int i = 0; i < 3; ++i) {
-				value += rand.nextInt(256);
-				value <<= Byte.SIZE;
-			}
-		}
+            final byte[] hash = md5.digest();
+            value += (hash[0] & 0xFF);
+            value <<= Byte.SIZE;
+            value += (hash[1] & 0xFF);
+            value <<= Byte.SIZE;
+            value += (hash[2] & 0xFF);
+            value <<= Byte.SIZE;
+        }
+        catch (final Throwable t) {
+            // Degenerate to a random machine id.
+            for (int i = 0; i < 3; ++i) {
+                value += rand.nextInt(256);
+                value <<= Byte.SIZE;
+            }
+        }
 
-		// Use a random value for the pid.
-		value += rand.nextInt(256);
-		value <<= Byte.SIZE;
-		value += rand.nextInt(256);
+        // Use a random value for the pid.
+        value += rand.nextInt(256);
+        value <<= Byte.SIZE;
+        value += rand.nextInt(256);
 
-		MACHINE_ID = (value << 24);
-	}
+        MACHINE_ID = (value << 24);
+    }
 
-	/**
-	 * Generates the current timestamp value. This is the number of
-	 * <b>seconds</b> since the Unix Epoch.
-	 * 
-	 * @return The unique object id value.
-	 */
-	private static int now() {
-		return (int) TimeUnit.MILLISECONDS
-				.toSeconds(System.currentTimeMillis());
-	}
+    /**
+     * Generates the current timestamp value. This is the number of
+     * <b>seconds</b> since the Unix Epoch.
+     * 
+     * @return The unique object id value.
+     */
+    private static int now() {
+        return (int) TimeUnit.MILLISECONDS
+                .toSeconds(System.currentTimeMillis());
+    }
 
-	/**
-	 * Generates the current timestamp value. This is the number of
-	 * <b>seconds</b> since the Unix Epoch.
-	 * 
-	 * @return The unique object id value.
-	 */
-	private static long processId() {
-		return MACHINE_ID + (COUNTER.incrementAndGet() & 0xFFFFFFL);
-	}
+    /**
+     * Generates the current timestamp value. This is the number of
+     * <b>seconds</b> since the Unix Epoch.
+     * 
+     * @return The unique object id value.
+     */
+    private static long processId() {
+        return MACHINE_ID + (COUNTER.incrementAndGet() & 0xFFFFFFL);
+    }
 
-	/** The BSON Object Id's machine identifier. */
-	private final long myMachineId;
+    /** The BSON Object Id's machine identifier. */
+    private final long myMachineId;
 
-	/** The BSON ObjectId's timestamp. */
-	private final int myTimestamp;
+    /** The BSON ObjectId's timestamp. */
+    private final int myTimestamp;
 
-	/**
-	 * Constructs a new {@link ObjectId}.
-	 */
-	public ObjectId() {
-		this(now(), processId());
-	}
+    /**
+     * Constructs a new {@link ObjectId}.
+     */
+    public ObjectId() {
+        this(now(), processId());
+    }
 
-	/**
-	 * Constructs a new {@link ObjectId}.
-	 * 
-	 * @param timestamp
-	 *            The BSON Object Id timestamp.
-	 * @param machineId
-	 *            The BSON Object Id machine id.
-	 */
-	public ObjectId(final int timestamp,
-			final long machineId) {
-		myTimestamp = timestamp;
-		myMachineId = machineId;
-	}
+    /**
+     * Constructs a new {@link ObjectId}.
+     * 
+     * @param timestamp
+     *            The BSON Object Id timestamp.
+     * @param machineId
+     *            The BSON Object Id machine id.
+     */
+    public ObjectId(final int timestamp, final long machineId) {
+        myTimestamp = timestamp;
+        myMachineId = machineId;
+    }
 
-	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(final Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			final ObjectId other = (ObjectId) object;
+    /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     * 
+     * @param object
+     *            The object to compare to.
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final ObjectId other = (ObjectId) object;
 
-			result = (myMachineId == other.myMachineId)
-					&& (myTimestamp == other.myTimestamp);
-		}
-		return result;
-	}
+            result = (myMachineId == other.myMachineId)
+                    && (myTimestamp == other.myTimestamp);
+        }
+        return result;
+    }
 
-	/**
-	 * The lower 8 bytes of the object id.
-	 * 
-	 * @return The lower 8 bytes of the object id.
-	 */
-	public long getMachineId() {
-		return myMachineId;
-	}
+    /**
+     * The lower 8 bytes of the object id.
+     * 
+     * @return The lower 8 bytes of the object id.
+     */
+    public long getMachineId() {
+        return myMachineId;
+    }
 
-	/**
-	 * The upper 4 bytes of the object id.
-	 * 
-	 * @return The upper 4 bytes of the object id.
-	 */
-	public int getTimestamp() {
-		return myTimestamp;
-	}
+    /**
+     * The upper 4 bytes of the object id.
+     * 
+     * @return The upper 4 bytes of the object id.
+     */
+    public int getTimestamp() {
+        return myTimestamp;
+    }
 
-	/**
-	 * Computes a reasonable hash code.
-	 * 
-	 * @return The hash code value.
-	 */
-	@Override
-	public int hashCode() {
-		int result = 1;
-		result = 31 * result + (int) (myMachineId & 0xFFFFFFFF);
-		result = 31 * result + (int) ((myMachineId >> 32) & 0xFFFFFFFF);
-		result = 31 * result + myTimestamp;
-		return result;
-	}
+    /**
+     * Computes a reasonable hash code.
+     * 
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = (31 * result) + (int) (myMachineId & 0xFFFFFFFF);
+        result = (31 * result) + (int) ((myMachineId >> 32) & 0xFFFFFFFF);
+        result = (31 * result) + myTimestamp;
+        return result;
+    }
 
-	/**
-	 * String form of the object.
-	 * 
-	 * @return A human readable form of the object.
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		final StringBuilder builder = new StringBuilder();
+    /**
+     * String form of the object.
+     * 
+     * @return A human readable form of the object.
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
 
-		builder.append("ObjectId(");
+        builder.append("ObjectId(");
 
-		String hex = Integer.toHexString(myTimestamp);
-		builder.append("00000000".substring(hex.length()));
-		builder.append(hex);
+        String hex = Integer.toHexString(myTimestamp);
+        builder.append("00000000".substring(hex.length()));
+        builder.append(hex);
 
-		hex = Long.toHexString(myMachineId);
-		builder.append("0000000000000000".substring(hex.length()));
-		builder.append(hex);
+        hex = Long.toHexString(myMachineId);
+        builder.append("0000000000000000".substring(hex.length()));
+        builder.append(hex);
 
-		builder.append(")");
+        builder.append(")");
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
 }

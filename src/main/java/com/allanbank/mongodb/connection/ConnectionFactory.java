@@ -26,12 +26,12 @@ import com.allanbank.mongodb.connection.socket.SocketConnection;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface ConnectionFactory {
-	/**
-	 * Creates a connection to the address provided.
-	 * 
-	 * @return The Connection to MongoDB.
-	 * @throws IOException
-	 *             On a failure connecting to the server.
-	 */
-	public Connection connect() throws IOException;
+    /**
+     * Creates a connection to the address provided.
+     * 
+     * @return The Connection to MongoDB.
+     * @throws IOException
+     *             On a failure connecting to the server.
+     */
+    public Connection connect() throws IOException;
 }

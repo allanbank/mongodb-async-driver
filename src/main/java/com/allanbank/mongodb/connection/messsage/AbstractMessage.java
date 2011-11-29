@@ -59,7 +59,8 @@ public abstract class AbstractMessage implements Message {
         boolean result = false;
         if (this == object) {
             result = true;
-        } else if ((object != null) && (getClass() == object.getClass())) {
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
             final AbstractMessage other = (AbstractMessage) object;
 
             result = myCollectionName.equals(other.myCollectionName)
@@ -94,8 +95,8 @@ public abstract class AbstractMessage implements Message {
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + myCollectionName.hashCode();
-        result = 31 * result + myDatabaseName.hashCode();
+        result = (31 * result) + myCollectionName.hashCode();
+        result = (31 * result) + myDatabaseName.hashCode();
         return result;
     }
 
@@ -110,7 +111,8 @@ public abstract class AbstractMessage implements Message {
         if (firstDot > 0) {
             myDatabaseName = name.substring(0, firstDot);
             myCollectionName = name.substring(firstDot + 1);
-        } else {
+        }
+        else {
             myDatabaseName = name;
         }
     }

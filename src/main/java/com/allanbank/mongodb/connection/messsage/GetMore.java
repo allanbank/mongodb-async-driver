@@ -85,7 +85,8 @@ public class GetMore extends AbstractMessage {
         boolean result = false;
         if (this == object) {
             result = true;
-        } else if ((object != null) && (getClass() == object.getClass())) {
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
             final GetMore other = (GetMore) object;
 
             result = super.equals(object) && (myCursorId == other.myCursorId)
@@ -120,10 +121,10 @@ public class GetMore extends AbstractMessage {
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + super.hashCode();
-        result = 31 * result + (int) (myCursorId >> Integer.SIZE);
-        result = 31 * result + (int) myCursorId;
-        result = 31 * result + myNumberToReturn;
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + (int) (myCursorId >> Integer.SIZE);
+        result = (31 * result) + (int) myCursorId;
+        result = (31 * result) + myNumberToReturn;
         return result;
     }
 

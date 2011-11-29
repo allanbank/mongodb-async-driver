@@ -15,74 +15,75 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class NullElement extends AbstractElement {
 
-	/** The BSON type for a binary. */
-	public static final ElementType TYPE = ElementType.NULL;
+    /** The BSON type for a binary. */
+    public static final ElementType TYPE = ElementType.NULL;
 
-	/**
-	 * Constructs a new {@link NullElement}.
-	 * 
-	 * @param name
-	 *            The name for the BSON null.
-	 */
-	public NullElement(final String name) {
-		super(TYPE, name);
-	}
+    /**
+     * Constructs a new {@link NullElement}.
+     * 
+     * @param name
+     *            The name for the BSON null.
+     */
+    public NullElement(final String name) {
+        super(TYPE, name);
+    }
 
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitNull} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(final Visitor visitor) {
-		visitor.visitNull(getName());
-	}
+    /**
+     * Accepts the visitor and calls the {@link Visitor#visitNull} method.
+     * 
+     * @see Element#accept(Visitor)
+     */
+    @Override
+    public void accept(final Visitor visitor) {
+        visitor.visitNull(getName());
+    }
 
-	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(final Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			result = super.equals(object);
-		}
-		return result;
-	}
+    /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     * 
+     * @param object
+     *            The object to compare to.
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            result = super.equals(object);
+        }
+        return result;
+    }
 
-	/**
-	 * Computes a reasonable hash code.
-	 * 
-	 * @return The hash code value.
-	 */
-	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
+    /**
+     * Computes a reasonable hash code.
+     * 
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
-	/**
-	 * String form of the object.
-	 * 
-	 * @return A human readable form of the object.
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		final StringBuilder builder = new StringBuilder();
+    /**
+     * String form of the object.
+     * 
+     * @return A human readable form of the object.
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
 
-		builder.append('"');
-		builder.append(getName());
-		builder.append("\" : null");
+        builder.append('"');
+        builder.append(getName());
+        builder.append("\" : null");
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
 }

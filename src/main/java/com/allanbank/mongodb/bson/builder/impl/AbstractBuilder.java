@@ -24,137 +24,137 @@ import com.allanbank.mongodb.bson.element.AbstractElement;
  */
 public abstract class AbstractBuilder implements Builder {
 
-	/** The outer scope to this builder. */
-	private final AbstractBuilder myOuterBuilder;
+    /** The list of elements in the builder. */
+    protected final List<Element> myElements;
 
-	/** The list of elements in the builder. */
-	protected final List<Element> myElements;
+    /** The outer scope to this builder. */
+    private final AbstractBuilder myOuterBuilder;
 
-	/**
-	 * Creates a new builder.
-	 * 
-	 * @param outerBuilder
-	 *            The outer scoped builder.
-	 */
-	public AbstractBuilder(final AbstractBuilder outerBuilder) {
-		super();
-		myOuterBuilder = outerBuilder;
-		myElements = new ArrayList<Element>(5);
-	}
+    /**
+     * Creates a new builder.
+     * 
+     * @param outerBuilder
+     *            The outer scoped builder.
+     */
+    public AbstractBuilder(final AbstractBuilder outerBuilder) {
+        super();
+        myOuterBuilder = outerBuilder;
+        myElements = new ArrayList<Element>(5);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Builder pop() {
-		return myOuterBuilder;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Builder pop() {
+        return myOuterBuilder;
+    }
 
-	/**
-	 * Pushes a context for constructing a sub-document.
-	 * 
-	 * @param name
-	 *            The name of the sub-document.
-	 * @return A {@link DocumentBuilder} for constructing the sub-document.
-	 */
+    /**
+     * Pushes a context for constructing a sub-document.
+     * 
+     * @param name
+     *            The name of the sub-document.
+     * @return A {@link DocumentBuilder} for constructing the sub-document.
+     */
 
-	protected DocumentBuilder doPush(final String name) {
-		final DocumentBuilderImpl pushed = new DocumentBuilderImpl(this);
-		myElements.add(new BuilderElement(name, pushed));
-		return pushed;
-	}
+    protected DocumentBuilder doPush(final String name) {
+        final DocumentBuilderImpl pushed = new DocumentBuilderImpl(this);
+        myElements.add(new BuilderElement(name, pushed));
+        return pushed;
+    }
 
-	/**
-	 * Pushes a context for constructing a sub-array.
-	 * 
-	 * @param name
-	 *            The name of the sub-array.
-	 * @return A {@link ArrayBuilder} for constructing the sub-array.
-	 */
-	protected ArrayBuilder doPushArray(final String name) {
-		final ArrayBuilderImpl pushed = new ArrayBuilderImpl(this);
-		myElements.add(new BuilderElement(name, pushed));
-		return pushed;
-	}
+    /**
+     * Pushes a context for constructing a sub-array.
+     * 
+     * @param name
+     *            The name of the sub-array.
+     * @return A {@link ArrayBuilder} for constructing the sub-array.
+     */
+    protected ArrayBuilder doPushArray(final String name) {
+        final ArrayBuilderImpl pushed = new ArrayBuilderImpl(this);
+        myElements.add(new BuilderElement(name, pushed));
+        return pushed;
+    }
 
-	/**
-	 * Constructs the final form of the element being constructed.
-	 * 
-	 * @param name
-	 *            The name of the element.
-	 * @return The Element constructed by the builder.
-	 */
-	protected abstract Element get(String name);
+    /**
+     * Constructs the final form of the element being constructed.
+     * 
+     * @param name
+     *            The name of the element.
+     * @return The Element constructed by the builder.
+     */
+    protected abstract Element get(String name);
 
-	/**
-	 * Renders the final form of the sub elements in the builder replacing all
-	 * {@link BuilderElement}s with the final element form.
-	 * 
-	 * @return The final sub element list.
-	 */
-	protected List<Element> subElements() {
-		final List<Element> elements = new ArrayList<Element>(myElements.size());
+    /**
+     * Renders the final form of the sub elements in the builder replacing all
+     * {@link BuilderElement}s with the final element form.
+     * 
+     * @return The final sub element list.
+     */
+    protected List<Element> subElements() {
+        final List<Element> elements = new ArrayList<Element>(myElements.size());
 
-		final Set<String> names = new HashSet<String>(myElements.size() << 1);
-		final Class<BuilderElement> builderElementClass = BuilderElement.class;
-		for (Element element : myElements) {
-			if (element.getClass() == builderElementClass) {
-				element = ((BuilderElement) element).get();
-			}
+        final Set<String> names = new HashSet<String>(myElements.size() << 1);
+        final Class<BuilderElement> builderElementClass = BuilderElement.class;
+        for (Element element : myElements) {
+            if (element.getClass() == builderElementClass) {
+                element = ((BuilderElement) element).get();
+            }
 
-			final String name = element.getName();
-			assert !names.contains(name) : name + " is not unique in  "
-					+ myElements;
+            final String name = element.getName();
+            assert !names.contains(name) : name + " is not unique in  "
+                    + myElements;
 
-			elements.add(element);
-			names.add(name);
-		}
+            elements.add(element);
+            names.add(name);
+        }
 
-		return elements;
-	}
+        return elements;
+    }
 
-	/**
-	 * A temporary Element to stand in for a element being constructed with a
-	 * builder.
-	 * <p>
-	 * <b>Note:</b> This class if final to allow the class comparison in
-	 * {@link AbstractBuilder#subElements()} method.
-	 * </p>
-	 */
-	public static final class BuilderElement extends AbstractElement {
+    /**
+     * A temporary Element to stand in for a element being constructed with a
+     * builder.
+     * <p>
+     * <b>Note:</b> This class if final to allow the class comparison in
+     * {@link AbstractBuilder}.subElements() method.
+     * </p>
+     */
+    public static final class BuilderElement extends AbstractElement {
 
-		/** The encapsulated builder. */
-		private final AbstractBuilder myBuilder;
+        /** The encapsulated builder. */
+        private final AbstractBuilder myBuilder;
 
-		/**
-		 * Creates a new {@link BuilderElement}.
-		 * 
-		 * @param name
-		 *            The name for the element to build.
-		 * @param builder
-		 *            The Builder doing the building.
-		 */
-		public BuilderElement(final String name, final AbstractBuilder builder) {
-			super(null, name);
-			myBuilder = builder;
-		}
+        /**
+         * Creates a new {@link BuilderElement}.
+         * 
+         * @param name
+         *            The name for the element to build.
+         * @param builder
+         *            The Builder doing the building.
+         */
+        public BuilderElement(final String name, final AbstractBuilder builder) {
+            super(null, name);
+            myBuilder = builder;
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void accept(final Visitor visitor) {
-			// No-op.
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void accept(final Visitor visitor) {
+            // No-op.
+        }
 
-		/**
-		 * Constructs the final form of the element being constructed by the
-		 * encapsulated builder.
-		 * 
-		 * @return The Element constructed by the encapsulated builder.
-		 */
-		public Element get() {
-			return myBuilder.get(getName());
-		}
-	}
+        /**
+         * Constructs the final form of the element being constructed by the
+         * encapsulated builder.
+         * 
+         * @return The Element constructed by the encapsulated builder.
+         */
+        public Element get() {
+            return myBuilder.get(getName());
+        }
+    }
 }

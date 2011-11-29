@@ -15,29 +15,29 @@ import com.allanbank.mongodb.bson.builder.impl.DocumentBuilderImpl;
  */
 public class BuilderFactory {
 
-	/**
-	 * Creates a new {@link DocumentBuilder}.
-	 * 
-	 * @return The root level document builder.
-	 */
-	public static DocumentBuilder start() {
-		return new DocumentBuilderImpl();
-	}
+    /**
+     * Creates a new {@link DocumentBuilder}.
+     * 
+     * @return The root level document builder.
+     */
+    public static DocumentBuilder start() {
+        return new DocumentBuilderImpl();
+    }
 
-	/**
-	 * Creates a new {@link ArrayBuilder}.
-	 * 
-	 * @return The root level array builder.
-	 */
-	public static ArrayBuilder startArray() {
-		return new ArrayBuilderImpl();
-	}
+    /**
+     * Creates a new {@link ArrayBuilder}.
+     * 
+     * @return The root level array builder.
+     */
+    public static ArrayBuilder startArray() {
+        return new ArrayBuilderImpl();
+    }
 
-	/**
-	 * Creates a new builder factory.
-	 */
-	private BuilderFactory() {
-		// Nothing to do.
-		super();
-	}
+    /**
+     * Creates a new builder factory.
+     */
+    private BuilderFactory() {
+        // Nothing to do.
+        super();
+    }
 }

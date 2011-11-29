@@ -22,45 +22,45 @@ import com.allanbank.mongodb.connection.state.ServerState;
  */
 public class ShardedConnectionFactory implements ConnectionFactory {
 
-	/** The state of the cluster. */
-	private final ClusterState myClusterState;
+    /** The factory to create proxied connections. */
+    protected final ProxiedConnectionFactory myConnectionFactory;
 
-	/** The factory to create proxied connections. */
-	protected final ProxiedConnectionFactory myConnectionFactory;
+    /** The state of the cluster. */
+    private final ClusterState myClusterState;
 
-	/** The MongoDB client configuration. */
-	private final MongoDbConfiguration myConfig;
+    /** The MongoDB client configuration. */
+    private final MongoDbConfiguration myConfig;
 
-	/**
-	 * Creates a new {@link ShardedConnectionFactory}.
-	 * 
-	 * @param factory
-	 *            The factory to create proxied connections.
-	 * @param config
-	 *            The initial configuration.
-	 */
-	public ShardedConnectionFactory(ProxiedConnectionFactory factory,
-			final MongoDbConfiguration config) {
-		myConnectionFactory = factory;
-		myConfig = config;
-		myClusterState = new ClusterState();
-		for (final InetSocketAddress address : config.getServers()) {
-			final ServerState state = myClusterState.add(address.toString());
+    /**
+     * Creates a new {@link ShardedConnectionFactory}.
+     * 
+     * @param factory
+     *            The factory to create proxied connections.
+     * @param config
+     *            The initial configuration.
+     */
+    public ShardedConnectionFactory(final ProxiedConnectionFactory factory,
+            final MongoDbConfiguration config) {
+        myConnectionFactory = factory;
+        myConfig = config;
+        myClusterState = new ClusterState();
+        for (final InetSocketAddress address : config.getServers()) {
+            final ServerState state = myClusterState.add(address.toString());
 
-			// In a sharded environment we assume that all of the mongos servers
-			// are writable.
-			myClusterState.markWritable(state);
-		}
-	}
+            // In a sharded environment we assume that all of the mongos servers
+            // are writable.
+            myClusterState.markWritable(state);
+        }
+    }
 
-	/**
-	 * Creates a new connection to the shared mongos servers.
-	 * 
-	 * @see ConnectionFactory#connect()
-	 */
-	@Override
-	public Connection connect() throws IOException {
-		return new ShardedConnection(myConnectionFactory, myClusterState,
-				myConfig);
-	}
+    /**
+     * Creates a new connection to the shared mongos servers.
+     * 
+     * @see ConnectionFactory#connect()
+     */
+    @Override
+    public Connection connect() throws IOException {
+        return new ShardedConnection(myConnectionFactory, myClusterState,
+                myConfig);
+    }
 }

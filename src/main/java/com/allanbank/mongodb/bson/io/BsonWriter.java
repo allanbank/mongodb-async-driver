@@ -18,53 +18,53 @@ import com.allanbank.mongodb.bson.Visitor;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BsonWriter extends FilterOutputStream {
-	/** The {@link Visitor} to write the BSON documents. */
-	private final WriteVisitor myVisitor;
+    /** The {@link Visitor} to write the BSON documents. */
+    private final WriteVisitor myVisitor;
 
-	/**
-	 * Creates a new {@link BsonWriter}.
-	 * 
-	 * @param output
-	 *            The stream to write to.
-	 */
-	public BsonWriter(final OutputStream output) {
-		super(output);
+    /**
+     * Creates a new {@link BsonWriter}.
+     * 
+     * @param output
+     *            The stream to write to.
+     */
+    public BsonWriter(final OutputStream output) {
+        super(output);
 
-		myVisitor = new WriteVisitor();
-	}
+        myVisitor = new WriteVisitor();
+    }
 
-	/**
-	 * Creates a new {@link BsonWriter}.
-	 * 
-	 * @param output
-	 *            The stream to write to.
-	 */
-	public BsonWriter(final RandomAccessOutputStream output) {
-		super(output);
+    /**
+     * Creates a new {@link BsonWriter}.
+     * 
+     * @param output
+     *            The stream to write to.
+     */
+    public BsonWriter(final RandomAccessOutputStream output) {
+        super(output);
 
-		myVisitor = new WriteVisitor(output);
-	}
+        myVisitor = new WriteVisitor(output);
+    }
 
-	/**
-	 * Writes the Document in BSON format to the underlying stream.
-	 * 
-	 * @param doc
-	 *            The document to write.
-	 * @return The number of bytes written for the document.
-	 * @throws IOException
-	 *             On a failure to write to the underlying document.
-	 */
-	public long write(final Document doc) throws IOException {
+    /**
+     * Writes the Document in BSON format to the underlying stream.
+     * 
+     * @param doc
+     *            The document to write.
+     * @return The number of bytes written for the document.
+     * @throws IOException
+     *             On a failure to write to the underlying document.
+     */
+    public long write(final Document doc) throws IOException {
 
-		doc.accept(myVisitor);
+        doc.accept(myVisitor);
 
-		final long position = myVisitor.getSize();
+        final long position = myVisitor.getSize();
 
-		if (out != myVisitor.getOutputBuffer()) {
-			myVisitor.writeTo(out);
-			myVisitor.reset();
-		}
+        if (out != myVisitor.getOutputBuffer()) {
+            myVisitor.writeTo(out);
+            myVisitor.reset();
+        }
 
-		return position;
-	}
+        return position;
+    }
 }

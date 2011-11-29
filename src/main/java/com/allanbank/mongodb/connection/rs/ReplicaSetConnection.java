@@ -19,39 +19,39 @@ import com.allanbank.mongodb.connection.state.ClusterState;
  */
 public class ReplicaSetConnection extends AbstractProxyConnection {
 
-	/** A connection to a Secondary Replica. */
-	private Connection mySecondaryConnection;
+    /** A connection to a Secondary Replica. */
+    private final Connection mySecondaryConnection;
 
-	/**
-	 * Creates a new {@link ReplicaSetConnection}.
-	 * 
-	 * @param factory
-	 *            The factory to create proxied connections.
-	 * @param clusterState
-	 *            The state of the cluster.
-	 * @param config
-	 *            The MongoDB client configuration.
-	 */
-	public ReplicaSetConnection(ProxiedConnectionFactory factory,
-			final ClusterState clusterState, final MongoDbConfiguration config) {
-		super(factory, clusterState, config);
-		mySecondaryConnection = null;
-	}
+    /**
+     * Creates a new {@link ReplicaSetConnection}.
+     * 
+     * @param factory
+     *            The factory to create proxied connections.
+     * @param clusterState
+     *            The state of the cluster.
+     * @param config
+     *            The MongoDB client configuration.
+     */
+    public ReplicaSetConnection(final ProxiedConnectionFactory factory,
+            final ClusterState clusterState, final MongoDbConfiguration config) {
+        super(factory, clusterState, config);
+        mySecondaryConnection = null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * Issues a { ismaster : 1 } command on the 'admin' database and updates the
-	 * cluster state with the results.
-	 * </p>
-	 * 
-	 * @return True if the connection is to the primary replica and false for a
-	 *         secondary replica.
-	 */
-	@Override
-	protected boolean verifyConnection(Connection connection) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Issues a { ismaster : 1 } command on the 'admin' database and updates the
+     * cluster state with the results.
+     * </p>
+     * 
+     * @return True if the connection is to the primary replica and false for a
+     *         secondary replica.
+     */
+    @Override
+    protected boolean verifyConnection(final Connection connection) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }

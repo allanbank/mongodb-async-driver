@@ -15,98 +15,99 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class SymbolElement extends AbstractElement {
 
-	/** The BSON type for a symbol. */
-	public static final ElementType TYPE = ElementType.SYMBOL;
+    /** The BSON type for a symbol. */
+    public static final ElementType TYPE = ElementType.SYMBOL;
 
-	/** The BSON string value. */
-	private final String mySymbol;
+    /** The BSON string value. */
+    private final String mySymbol;
 
-	/**
-	 * Constructs a new {@link SymbolElement}.
-	 * 
-	 * @param name
-	 *            The name for the BSON string.
-	 * @param symbol
-	 *            The BSON symbol value.
-	 */
-	public SymbolElement(final String name, final String symbol) {
-		super(TYPE, name);
+    /**
+     * Constructs a new {@link SymbolElement}.
+     * 
+     * @param name
+     *            The name for the BSON string.
+     * @param symbol
+     *            The BSON symbol value.
+     */
+    public SymbolElement(final String name, final String symbol) {
+        super(TYPE, name);
 
-		mySymbol = symbol;
-	}
+        mySymbol = symbol;
+    }
 
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitSymbol} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(final Visitor visitor) {
-		visitor.visitSymbol(getName(), getSymbol());
-	}
+    /**
+     * Accepts the visitor and calls the {@link Visitor#visitSymbol} method.
+     * 
+     * @see Element#accept(Visitor)
+     */
+    @Override
+    public void accept(final Visitor visitor) {
+        visitor.visitSymbol(getName(), getSymbol());
+    }
 
-	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(final Object object) {
-		boolean result = false;
-		if (this == object) {
-			result = true;
-		} else if ((object != null) && (getClass() == object.getClass())) {
-			final SymbolElement other = (SymbolElement) object;
+    /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     * 
+     * @param object
+     *            The object to compare to.
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final SymbolElement other = (SymbolElement) object;
 
-			result = super.equals(object)
-					&& nullSafeEquals(mySymbol, other.mySymbol);
-		}
-		return result;
-	}
+            result = super.equals(object)
+                    && nullSafeEquals(mySymbol, other.mySymbol);
+        }
+        return result;
+    }
 
-	/**
-	 * Returns the BSON symbol value.
-	 * 
-	 * @return The BSON symbol value.
-	 */
-	public String getSymbol() {
-		return mySymbol;
-	}
+    /**
+     * Returns the BSON symbol value.
+     * 
+     * @return The BSON symbol value.
+     */
+    public String getSymbol() {
+        return mySymbol;
+    }
 
-	/**
-	 * Computes a reasonable hash code.
-	 * 
-	 * @return The hash code value.
-	 */
-	@Override
-	public int hashCode() {
-		int result = 1;
-		result = 31 * result + super.hashCode();
-		result = 31 * result + ((mySymbol != null) ? mySymbol.hashCode() : 3);
-		return result;
-	}
+    /**
+     * Computes a reasonable hash code.
+     * 
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + ((mySymbol != null) ? mySymbol.hashCode() : 3);
+        return result;
+    }
 
-	/**
-	 * String form of the object.
-	 * 
-	 * @return A human readable form of the object.
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		final StringBuilder builder = new StringBuilder();
+    /**
+     * String form of the object.
+     * 
+     * @return A human readable form of the object.
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
 
-		builder.append('"');
-		builder.append(getName());
-		builder.append("\" : ");
-		builder.append(mySymbol);
-		builder.append("");
+        builder.append('"');
+        builder.append(getName());
+        builder.append("\" : ");
+        builder.append(mySymbol);
+        builder.append("");
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
 }

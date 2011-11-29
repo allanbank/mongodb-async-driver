@@ -95,7 +95,8 @@ public class Header {
         boolean result = false;
         if (this == object) {
             result = true;
-        } else if ((object != null) && (getClass() == object.getClass())) {
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
             final Header other = (Header) object;
 
             result = super.equals(object) && (myLength == other.myLength)
@@ -151,11 +152,11 @@ public class Header {
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + super.hashCode();
-        result = 31 * result + myLength;
-        result = 31 * result + myRequestId;
-        result = 31 * result + myResponseId;
-        result = 31 * result + myOperation.hashCode();
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + myLength;
+        result = (31 * result) + myRequestId;
+        result = (31 * result) + myResponseId;
+        result = (31 * result) + myOperation.hashCode();
         return result;
     }
 }

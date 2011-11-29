@@ -92,7 +92,8 @@ public class Delete extends AbstractMessage {
         boolean result = false;
         if (this == object) {
             result = true;
-        } else if ((object != null) && (getClass() == object.getClass())) {
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
             final Delete other = (Delete) object;
 
             result = super.equals(object)
@@ -119,9 +120,9 @@ public class Delete extends AbstractMessage {
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + super.hashCode();
-        result = 31 * result + (mySingleDelete ? 1 : 3);
-        result = 31 * result + myQuery.hashCode();
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + (mySingleDelete ? 1 : 3);
+        result = (31 * result) + myQuery.hashCode();
         return result;
     }
 

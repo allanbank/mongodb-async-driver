@@ -81,7 +81,7 @@ public class BsonInputStream extends FilterInputStream {
      */
     @Override
     public int read() throws IOException {
-        int read = in.read();
+        final int read = in.read();
         myBytesRead += 1;
         return read;
     }
@@ -93,8 +93,8 @@ public class BsonInputStream extends FilterInputStream {
      * </p>
      */
     @Override
-    public int read(byte b[]) throws IOException {
-        int read = in.read(b, 0, b.length);
+    public int read(final byte b[]) throws IOException {
+        final int read = in.read(b, 0, b.length);
         myBytesRead += read;
         return read;
     }
@@ -106,8 +106,9 @@ public class BsonInputStream extends FilterInputStream {
      * </p>
      */
     @Override
-    public int read(byte b[], int off, int len) throws IOException {
-        int read = in.read(b, off, len);
+    public int read(final byte b[], final int off, final int len)
+            throws IOException {
+        final int read = in.read(b, off, len);
         myBytesRead += read;
         return read;
     }
@@ -250,8 +251,8 @@ public class BsonInputStream extends FilterInputStream {
      * </p>
      */
     @Override
-    public long skip(long n) throws IOException {
-        long skipped = in.skip(n);
+    public long skip(final long n) throws IOException {
+        final long skipped = in.skip(n);
         myBytesRead += skipped;
         return skipped;
     }
@@ -312,7 +313,7 @@ public class BsonInputStream extends FilterInputStream {
         if (subType == 2) {
             final int anotherLength = readInt();
 
-            assert (anotherLength == length - 4) : "Binary Element Subtye 2 "
+            assert (anotherLength == (length - 4)) : "Binary Element Subtye 2 "
                     + "length should be outer length - 4.";
 
             length -= 4;
@@ -392,88 +393,87 @@ public class BsonInputStream extends FilterInputStream {
                     + Integer.toHexString(token & 0xFF) + ".");
         }
         switch (type) {
-            case ARRAY: {
-                return readArrayElement();
+        case ARRAY: {
+            return readArrayElement();
+        }
+        case BINARY: {
+            return readBinaryElement();
+        }
+        case DB_POINTER: {
+            final String name = readCString();
+            final String dbDotCollection = readString();
+            String db = dbDotCollection;
+            String collection = "";
+            final int firstDot = dbDotCollection.indexOf('.');
+            if (0 <= firstDot) {
+                db = dbDotCollection.substring(0, firstDot);
+                collection = dbDotCollection.substring(firstDot + 1);
             }
-            case BINARY: {
-                return readBinaryElement();
-            }
-            case DB_POINTER: {
-    			String name = readCString();
-    			String dbDotCollection = readString();
-    			String db = dbDotCollection;
-    			String collection = "";
-    			int firstDot = dbDotCollection.indexOf('.');
-    			if (0 <= firstDot) {
-    				db = dbDotCollection.substring(0, firstDot);
-    				collection = dbDotCollection.substring(firstDot + 1);
-    			}
-    			return new com.allanbank.mongodb.bson.element.DBPointerElement(
-    					name, db, collection, new ObjectId(
-    							EndianUtils.swap(readInt()),
-    							EndianUtils.swap(readLong())));
-            }
-            case DOCUMENT: {
-                return readDocumentElement();
-            }
-            case DOUBLE: {
-                return new DoubleElement(readCString(),
-                        Double.longBitsToDouble(readLong()));
-            }
-            case FALSE: {
-                return new BooleanElement(readCString(), false);
-            }
-            case INTEGER: {
-                return new IntegerElement(readCString(), readInt());
-            }
-            case JAVA_SCRIPT: {
-                return new JavaScriptElement(readCString(), readString());
-            }
-            case JAVA_SCRIPT_WITH_SCOPE: {
-                final String name = readCString();
+            return new com.allanbank.mongodb.bson.element.DBPointerElement(
+                    name, db, collection, new ObjectId(
+                            EndianUtils.swap(readInt()),
+                            EndianUtils.swap(readLong())));
+        }
+        case DOCUMENT: {
+            return readDocumentElement();
+        }
+        case DOUBLE: {
+            return new DoubleElement(readCString(),
+                    Double.longBitsToDouble(readLong()));
+        }
+        case FALSE: {
+            return new BooleanElement(readCString(), false);
+        }
+        case INTEGER: {
+            return new IntegerElement(readCString(), readInt());
+        }
+        case JAVA_SCRIPT: {
+            return new JavaScriptElement(readCString(), readString());
+        }
+        case JAVA_SCRIPT_WITH_SCOPE: {
+            final String name = readCString();
 
-                // Total length - not used.
-                readInt();
+            // Total length - not used.
+            readInt();
 
-                return new JavaScriptWithScopeElement(name, readString(),
-                        readDocument());
-            }
-            case LONG: {
-                return new LongElement(readCString(), readLong());
-            }
-            case MAX_KEY: {
-                return new MaxKeyElement(readCString());
-            }
-            case MIN_KEY: {
-                return new MinKeyElement(readCString());
-            }
-            case MONGO_TIMESTAMP: {
-                return new MongoTimestampElement(readCString(), readLong());
-            }
-            case NULL: {
-                return new NullElement(readCString());
-            }
-            case OBJECT_ID: {
-                return new ObjectIdElement(readCString(), new ObjectId(
-                        EndianUtils.swap(readInt()),
-                        EndianUtils.swap(readLong())));
-            }
-            case REGEX: {
-                return new RegularExpressionElement(readCString(),
-                        readCString(), readCString());
-            }
-            case STRING: {
-                return new StringElement(readCString(), readString());
-            }
-            case SYMBOL: {
-                return new SymbolElement(readCString(), readString());
-            }
-            case TRUE: {
-                return new BooleanElement(readCString(), true);
-            }
-            case UTC_TIMESTAMP: {
-                return new TimestampElement(readCString(), readLong());
-            }
+            return new JavaScriptWithScopeElement(name, readString(),
+                    readDocument());
+        }
+        case LONG: {
+            return new LongElement(readCString(), readLong());
+        }
+        case MAX_KEY: {
+            return new MaxKeyElement(readCString());
+        }
+        case MIN_KEY: {
+            return new MinKeyElement(readCString());
+        }
+        case MONGO_TIMESTAMP: {
+            return new MongoTimestampElement(readCString(), readLong());
+        }
+        case NULL: {
+            return new NullElement(readCString());
+        }
+        case OBJECT_ID: {
+            return new ObjectIdElement(readCString(), new ObjectId(
+                    EndianUtils.swap(readInt()), EndianUtils.swap(readLong())));
+        }
+        case REGEX: {
+            return new RegularExpressionElement(readCString(), readCString(),
+                    readCString());
+        }
+        case STRING: {
+            return new StringElement(readCString(), readString());
+        }
+        case SYMBOL: {
+            return new SymbolElement(readCString(), readString());
+        }
+        case TRUE: {
+            return new BooleanElement(readCString(), true);
+        }
+        case UTC_TIMESTAMP: {
+            return new TimestampElement(readCString(), readLong());
+        }
         }
 
         throw new StreamCorruptedException("Unknown element type: "

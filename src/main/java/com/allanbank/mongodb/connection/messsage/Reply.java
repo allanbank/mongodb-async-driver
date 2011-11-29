@@ -160,7 +160,8 @@ public class Reply extends AbstractMessage {
         boolean result = false;
         if (this == object) {
             result = true;
-        } else if ((object != null) && (getClass() == object.getClass())) {
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
             final Reply other = (Reply) object;
 
             result = super.equals(object)
@@ -224,16 +225,16 @@ public class Reply extends AbstractMessage {
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + super.hashCode();
-        result = 31 * result + (myAwaitCapable ? 1 : 3);
-        result = 31 * result + (myCursorNotFound ? 1 : 3);
-        result = 31 * result + (myQueryFailed ? 1 : 3);
-        result = 31 * result + (myShardConfigStale ? 1 : 3);
-        result = 31 * result + myResponseToId;
-        result = 31 * result + myCursorOffset;
-        result = 31 * result + (int) (myCursorId >> Integer.SIZE);
-        result = 31 * result + (int) myCursorId;
-        result = 31 * result + myResults.hashCode();
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + (myAwaitCapable ? 1 : 3);
+        result = (31 * result) + (myCursorNotFound ? 1 : 3);
+        result = (31 * result) + (myQueryFailed ? 1 : 3);
+        result = (31 * result) + (myShardConfigStale ? 1 : 3);
+        result = (31 * result) + myResponseToId;
+        result = (31 * result) + myCursorOffset;
+        result = (31 * result) + (int) (myCursorId >> Integer.SIZE);
+        result = (31 * result) + (int) myCursorId;
+        result = (31 * result) + myResults.hashCode();
         return result;
     }
 

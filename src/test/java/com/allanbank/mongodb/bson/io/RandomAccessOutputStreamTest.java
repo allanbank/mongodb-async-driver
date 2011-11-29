@@ -23,306 +23,306 @@ import org.junit.Test;
  */
 public class RandomAccessOutputStreamTest {
 
-	/** The stream being tested. */
-	private RandomAccessOutputStream myTestStream = null;
+    /** The stream being tested. */
+    private RandomAccessOutputStream myTestStream = null;
 
-	/**
-	 * Sets up the test stream.
-	 */
-	@Before
-	public void setUp() {
-		myTestStream = new RandomAccessOutputStream();
-	}
+    /**
+     * Sets up the test stream.
+     */
+    @Before
+    public void setUp() {
+        myTestStream = new RandomAccessOutputStream();
+    }
 
-	/**
-	 * Closes the test stream.
-	 */
-	@After
-	public void tearDown() {
-		myTestStream.close();
-		myTestStream = null;
-	}
+    /**
+     * Closes the test stream.
+     */
+    @After
+    public void tearDown() {
+        myTestStream.close();
+        myTestStream = null;
+    }
 
-	/**
-	 * Test method for {@link RandomAccessOutputStream#reset()}.
-	 * 
-	 * @throws IOException
-	 *             On a failure writing the test results.
-	 */
-	@Test
-	public void testReset() throws IOException {
-		// Use a ByteArrayOutputStream as an oracle.
-		final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+    /**
+     * Test method for {@link RandomAccessOutputStream#reset()}.
+     * 
+     * @throws IOException
+     *             On a failure writing the test results.
+     */
+    @Test
+    public void testReset() throws IOException {
+        // Use a ByteArrayOutputStream as an oracle.
+        final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 
-		final Random rand = new Random(System.currentTimeMillis());
+        final Random rand = new Random(System.currentTimeMillis());
 
-		// First 0-255.
-		for (int i = 0; i < 256; ++i) {
-			bOut.write(i);
-		}
-		// Now some random value.
-		for (int i = 0; i < 4096; ++i) {
-			final int value = rand.nextInt(256);
-			bOut.write(value);
-		}
+        // First 0-255.
+        for (int i = 0; i < 256; ++i) {
+            bOut.write(i);
+        }
+        // Now some random value.
+        for (int i = 0; i < 4096; ++i) {
+            final int value = rand.nextInt(256);
+            bOut.write(value);
+        }
 
-		final int offset = rand.nextInt(2048);
-		final int length = rand.nextInt(2048);
-		myTestStream.write(bOut.toByteArray(), offset, length);
+        final int offset = rand.nextInt(2048);
+        final int length = rand.nextInt(2048);
+        myTestStream.write(bOut.toByteArray(), offset, length);
 
-		final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
-		myTestStream.writeTo(finalOut);
-		assertArrayEquals(
-				"Byte arrays are not the same.",
-				Arrays.copyOfRange(bOut.toByteArray(), offset, offset + length),
-				finalOut.toByteArray());
+        final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
+        myTestStream.writeTo(finalOut);
+        assertArrayEquals(
+                "Byte arrays are not the same.",
+                Arrays.copyOfRange(bOut.toByteArray(), offset, offset + length),
+                finalOut.toByteArray());
 
-		// Reset and write the contents again.
-		myTestStream.reset();
-		finalOut.reset();
-		myTestStream.writeTo(finalOut);
-		assertArrayEquals("Byte arrays are not the same after reset.",
-				new byte[0], finalOut.toByteArray());
-	}
+        // Reset and write the contents again.
+        myTestStream.reset();
+        finalOut.reset();
+        myTestStream.writeTo(finalOut);
+        assertArrayEquals("Byte arrays are not the same after reset.",
+                new byte[0], finalOut.toByteArray());
+    }
 
-	/**
-	 * Test method for {@link RandomAccessOutputStream#writeAt(long, byte[])}.
-	 * 
-	 * @throws IOException
-	 *             On a failure writing the test results.
-	 */
-	@Test
-	public void testWriteAtLongByteArray() throws IOException {
-		// Use a ByteArrayOutputStream as an oracle.
-		final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-		final Random rand = new Random(System.currentTimeMillis());
+    /**
+     * Test method for {@link RandomAccessOutputStream#writeAt(long, byte[])}.
+     * 
+     * @throws IOException
+     *             On a failure writing the test results.
+     */
+    @Test
+    public void testWriteAtLongByteArray() throws IOException {
+        // Use a ByteArrayOutputStream as an oracle.
+        final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        final Random rand = new Random(System.currentTimeMillis());
 
-		// First fill the test stream with random data.
-		for (int i = 0; i < (4096 + 256); ++i) {
-			myTestStream.write(0);
-		}
+        // First fill the test stream with random data.
+        for (int i = 0; i < (4096 + 256); ++i) {
+            myTestStream.write(0);
+        }
 
-		// First 0-255.
-		for (int i = 0; i < 256; ++i) {
-			bOut.write(i);
-		}
+        // First 0-255.
+        for (int i = 0; i < 256; ++i) {
+            bOut.write(i);
+        }
 
-		// Now some random value.
-		for (int i = 0; i < 4096; ++i) {
-			final int value = rand.nextInt(256);
-			bOut.write(value);
-		}
+        // Now some random value.
+        for (int i = 0; i < 4096; ++i) {
+            final int value = rand.nextInt(256);
+            bOut.write(value);
+        }
 
-		// Now copy over a segment at a time.
-		final byte[] fullBuffer = bOut.toByteArray();
-		int toCopy = fullBuffer.length;
-		while (toCopy > 0) {
-			final int copy = rand.nextInt(toCopy) + 1;
-			final int start = fullBuffer.length - toCopy;
+        // Now copy over a segment at a time.
+        final byte[] fullBuffer = bOut.toByteArray();
+        int toCopy = fullBuffer.length;
+        while (toCopy > 0) {
+            final int copy = rand.nextInt(toCopy) + 1;
+            final int start = fullBuffer.length - toCopy;
 
-			myTestStream.writeAt(start,
-					Arrays.copyOfRange(fullBuffer, start, start + copy));
+            myTestStream.writeAt(start,
+                    Arrays.copyOfRange(fullBuffer, start, start + copy));
 
-			toCopy -= copy;
-		}
+            toCopy -= copy;
+        }
 
-		final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
-		myTestStream.writeTo(finalOut);
+        final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
+        myTestStream.writeTo(finalOut);
 
-		assertArrayEquals("Byte arrays are not the same.", bOut.toByteArray(),
-				finalOut.toByteArray());
-	}
+        assertArrayEquals("Byte arrays are not the same.", bOut.toByteArray(),
+                finalOut.toByteArray());
+    }
 
-	/**
-	 * Test method for
-	 * {@link RandomAccessOutputStream#writeAt(long, byte[], int, int)}.
-	 * 
-	 * @throws IOException
-	 *             On a failure writing the test results.
-	 */
-	@Test
-	public void testWriteAtLongByteArrayIntInt() throws IOException {
-		// Use a ByteArrayOutputStream as an oracle.
-		final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-		final Random rand = new Random(System.currentTimeMillis());
+    /**
+     * Test method for
+     * {@link RandomAccessOutputStream#writeAt(long, byte[], int, int)}.
+     * 
+     * @throws IOException
+     *             On a failure writing the test results.
+     */
+    @Test
+    public void testWriteAtLongByteArrayIntInt() throws IOException {
+        // Use a ByteArrayOutputStream as an oracle.
+        final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        final Random rand = new Random(System.currentTimeMillis());
 
-		// First fill the test stream with random data.
-		for (int i = 0; i < (16700 + 256); ++i) {
-			myTestStream.write(0);
-		}
+        // First fill the test stream with random data.
+        for (int i = 0; i < (16700 + 256); ++i) {
+            myTestStream.write(0);
+        }
 
-		// First 0-255.
-		for (int i = 0; i < 256; ++i) {
-			bOut.write(i);
-		}
+        // First 0-255.
+        for (int i = 0; i < 256; ++i) {
+            bOut.write(i);
+        }
 
-		// Now some random value.
-		for (int i = 0; i < 16700; ++i) {
-			final int value = rand.nextInt(256);
-			bOut.write(value);
-		}
+        // Now some random value.
+        for (int i = 0; i < 16700; ++i) {
+            final int value = rand.nextInt(256);
+            bOut.write(value);
+        }
 
-		// Now copy over a segment at a time.
-		final byte[] fullBuffer = bOut.toByteArray();
-		int toCopy = fullBuffer.length;
-		while (toCopy > 0) {
-			final int copy = rand.nextInt(toCopy) + 1;
-			final int start = fullBuffer.length - toCopy;
+        // Now copy over a segment at a time.
+        final byte[] fullBuffer = bOut.toByteArray();
+        int toCopy = fullBuffer.length;
+        while (toCopy > 0) {
+            final int copy = rand.nextInt(toCopy) + 1;
+            final int start = fullBuffer.length - toCopy;
 
-			myTestStream.writeAt(start, fullBuffer, start, copy);
+            myTestStream.writeAt(start, fullBuffer, start, copy);
 
-			toCopy -= copy;
-		}
+            toCopy -= copy;
+        }
 
-		final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
-		myTestStream.writeTo(finalOut);
+        final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
+        myTestStream.writeTo(finalOut);
 
-		assertArrayEquals("Byte arrays are not the same.", bOut.toByteArray(),
-				finalOut.toByteArray());
-	}
+        assertArrayEquals("Byte arrays are not the same.", bOut.toByteArray(),
+                finalOut.toByteArray());
+    }
 
-	/**
-	 * Test method for {@link RandomAccessOutputStream#writeAt(long, int)}.
-	 * 
-	 * @throws IOException
-	 *             On a failure writing the test results.
-	 */
-	@Test
-	public void testWriteAtLongInt() throws IOException {
-		// Use a ByteArrayOutputStream as an oracle.
-		final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-		final Random rand = new Random(System.currentTimeMillis());
+    /**
+     * Test method for {@link RandomAccessOutputStream#writeAt(long, int)}.
+     * 
+     * @throws IOException
+     *             On a failure writing the test results.
+     */
+    @Test
+    public void testWriteAtLongInt() throws IOException {
+        // Use a ByteArrayOutputStream as an oracle.
+        final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        final Random rand = new Random(System.currentTimeMillis());
 
-		// First fill the test stream with random data.
-		for (int i = 0; i < (4096 + 256); ++i) {
-			myTestStream.write(0);
-		}
+        // First fill the test stream with random data.
+        for (int i = 0; i < (4096 + 256); ++i) {
+            myTestStream.write(0);
+        }
 
-		// First 0-255.
-		for (int i = 0; i < 256; ++i) {
-			bOut.write(i);
-			myTestStream.writeAt(i, i);
-		}
+        // First 0-255.
+        for (int i = 0; i < 256; ++i) {
+            bOut.write(i);
+            myTestStream.writeAt(i, i);
+        }
 
-		// Now some random value.
-		for (int i = 0; i < 4096; ++i) {
-			final int value = rand.nextInt(256);
-			bOut.write(value);
-			myTestStream.writeAt(i + 256, value);
-		}
+        // Now some random value.
+        for (int i = 0; i < 4096; ++i) {
+            final int value = rand.nextInt(256);
+            bOut.write(value);
+            myTestStream.writeAt(i + 256, value);
+        }
 
-		final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
-		myTestStream.writeTo(finalOut);
+        final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
+        myTestStream.writeTo(finalOut);
 
-		assertArrayEquals("Byte arrays are not the same.", bOut.toByteArray(),
-				finalOut.toByteArray());
-	}
+        assertArrayEquals("Byte arrays are not the same.", bOut.toByteArray(),
+                finalOut.toByteArray());
+    }
 
-	/**
-	 * Test method for {@link RandomAccessOutputStream#write(byte[], int, int)}.
-	 * 
-	 * @throws IOException
-	 *             On a failure writing the test results.
-	 */
-	@Test
-	public void testWriteByteArray() throws IOException {
-		// Use a ByteArrayOutputStream as an oracle.
-		final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+    /**
+     * Test method for {@link RandomAccessOutputStream#write(byte[], int, int)}.
+     * 
+     * @throws IOException
+     *             On a failure writing the test results.
+     */
+    @Test
+    public void testWriteByteArray() throws IOException {
+        // Use a ByteArrayOutputStream as an oracle.
+        final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 
-		final Random rand = new Random(System.currentTimeMillis());
+        final Random rand = new Random(System.currentTimeMillis());
 
-		// First 0-255.
-		for (int i = 0; i < 256; ++i) {
-			bOut.write(i);
-		}
-		// Now some random value.
-		for (int i = 0; i < 4096; ++i) {
-			final int value = rand.nextInt(256);
-			bOut.write(value);
-		}
+        // First 0-255.
+        for (int i = 0; i < 256; ++i) {
+            bOut.write(i);
+        }
+        // Now some random value.
+        for (int i = 0; i < 4096; ++i) {
+            final int value = rand.nextInt(256);
+            bOut.write(value);
+        }
 
-		myTestStream.write(bOut.toByteArray());
+        myTestStream.write(bOut.toByteArray());
 
-		final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
-		myTestStream.writeTo(finalOut);
+        final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
+        myTestStream.writeTo(finalOut);
 
-		assertArrayEquals("Byte arrays are not the same.", bOut.toByteArray(),
-				finalOut.toByteArray());
-	}
+        assertArrayEquals("Byte arrays are not the same.", bOut.toByteArray(),
+                finalOut.toByteArray());
+    }
 
-	/**
-	 * Test method for {@link RandomAccessOutputStream#write(byte[], int, int)}.
-	 * 
-	 * @throws IOException
-	 *             On a failure writing the test results.
-	 */
-	@Test
-	public void testWriteByteArrayIntInt() throws IOException {
-		// Use a ByteArrayOutputStream as an oracle.
-		final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+    /**
+     * Test method for {@link RandomAccessOutputStream#write(byte[], int, int)}.
+     * 
+     * @throws IOException
+     *             On a failure writing the test results.
+     */
+    @Test
+    public void testWriteByteArrayIntInt() throws IOException {
+        // Use a ByteArrayOutputStream as an oracle.
+        final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 
-		final Random rand = new Random(System.currentTimeMillis());
+        final Random rand = new Random(System.currentTimeMillis());
 
-		// First 0-255.
-		for (int i = 0; i < 256; ++i) {
-			bOut.write(i);
-		}
-		// Now some random value.
-		for (int i = 0; i < 4096; ++i) {
-			final int value = rand.nextInt(256);
-			bOut.write(value);
-		}
+        // First 0-255.
+        for (int i = 0; i < 256; ++i) {
+            bOut.write(i);
+        }
+        // Now some random value.
+        for (int i = 0; i < 4096; ++i) {
+            final int value = rand.nextInt(256);
+            bOut.write(value);
+        }
 
-		final int offset = rand.nextInt(2048);
-		final int length = rand.nextInt(2048);
-		myTestStream.write(bOut.toByteArray(), offset, length);
+        final int offset = rand.nextInt(2048);
+        final int length = rand.nextInt(2048);
+        myTestStream.write(bOut.toByteArray(), offset, length);
 
-		final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
-		myTestStream.writeTo(finalOut);
+        final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
+        myTestStream.writeTo(finalOut);
 
-		assertArrayEquals(
-				"Byte arrays are not the same.",
-				Arrays.copyOfRange(bOut.toByteArray(), offset, offset + length),
-				finalOut.toByteArray());
-	}
+        assertArrayEquals(
+                "Byte arrays are not the same.",
+                Arrays.copyOfRange(bOut.toByteArray(), offset, offset + length),
+                finalOut.toByteArray());
+    }
 
-	/**
-	 * Test method for {@link RandomAccessOutputStream#write(int)}.
-	 * 
-	 * @throws IOException
-	 *             On a failure writing the test results.
-	 */
-	@Test
-	public void testWriteInt() throws IOException {
-		// Use a ByteArrayOutputStream as an oracle.
-		final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+    /**
+     * Test method for {@link RandomAccessOutputStream#write(int)}.
+     * 
+     * @throws IOException
+     *             On a failure writing the test results.
+     */
+    @Test
+    public void testWriteInt() throws IOException {
+        // Use a ByteArrayOutputStream as an oracle.
+        final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 
-		final Random rand = new Random(System.currentTimeMillis());
+        final Random rand = new Random(System.currentTimeMillis());
 
-		// First 0-255.
-		assertEquals("The position should start @ zero.", 0,
-				myTestStream.getPosition());
-		for (int i = 0; i < 256; ++i) {
-			bOut.write(i);
-			myTestStream.write(i);
-			assertEquals("The position is wrong.", i + 1,
-					myTestStream.getPosition());
-		}
-		assertEquals("The size is wrong.", 256, myTestStream.getSize());
+        // First 0-255.
+        assertEquals("The position should start @ zero.", 0,
+                myTestStream.getPosition());
+        for (int i = 0; i < 256; ++i) {
+            bOut.write(i);
+            myTestStream.write(i);
+            assertEquals("The position is wrong.", i + 1,
+                    myTestStream.getPosition());
+        }
+        assertEquals("The size is wrong.", 256, myTestStream.getSize());
 
-		// Now some random value.
-		for (int i = 0; i < 4096; ++i) {
-			final int value = rand.nextInt(256);
-			bOut.write(value);
-			myTestStream.write(value);
-			assertEquals("The position is wrong.", i + 256 + 1,
-					myTestStream.getPosition());
-		}
+        // Now some random value.
+        for (int i = 0; i < 4096; ++i) {
+            final int value = rand.nextInt(256);
+            bOut.write(value);
+            myTestStream.write(value);
+            assertEquals("The position is wrong.", i + 256 + 1,
+                    myTestStream.getPosition());
+        }
 
-		final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
-		myTestStream.writeTo(finalOut);
+        final ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
+        myTestStream.writeTo(finalOut);
 
-		assertArrayEquals("Byte arrays are not the same.", bOut.toByteArray(),
-				finalOut.toByteArray());
-	}
+        assertArrayEquals("Byte arrays are not the same.", bOut.toByteArray(),
+                finalOut.toByteArray());
+    }
 }

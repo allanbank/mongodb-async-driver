@@ -20,32 +20,32 @@ import com.allanbank.mongodb.connection.state.ClusterState;
  */
 public class ShardedConnection extends AbstractProxyConnection {
 
-	/**
-	 * Creates a new {@link ShardedConnection}.
-	 * 
-	 * @param factory
-	 *            The factory to create proxied connections.
-	 * @param clusterState
-	 *            The state of the cluster.
-	 * @param config
-	 *            The MongoDB client configuration.
-	 */
-	public ShardedConnection(ProxiedConnectionFactory factory,
-			final ClusterState clusterState, final MongoDbConfiguration config) {
-		super(factory, clusterState, config);
-	}
+    /**
+     * Creates a new {@link ShardedConnection}.
+     * 
+     * @param factory
+     *            The factory to create proxied connections.
+     * @param clusterState
+     *            The state of the cluster.
+     * @param config
+     *            The MongoDB client configuration.
+     */
+    public ShardedConnection(final ProxiedConnectionFactory factory,
+            final ClusterState clusterState, final MongoDbConfiguration config) {
+        super(factory, clusterState, config);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * Issues a { ismaster : 1 } command on the 'admin' database and verifies
-	 * that the response is from a mongos.
-	 * </p>
-	 */
-	@Override
-	protected boolean verifyConnection(Connection connection)
-			throws MongoDbException {
-		// TODO Auto-generated method stub
-		return true;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Issues a { ismaster : 1 } command on the 'admin' database and verifies
+     * that the response is from a mongos.
+     * </p>
+     */
+    @Override
+    protected boolean verifyConnection(final Connection connection)
+            throws MongoDbException {
+        // TODO Auto-generated method stub
+        return true;
+    }
 }

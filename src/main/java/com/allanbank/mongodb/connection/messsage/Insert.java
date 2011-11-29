@@ -60,7 +60,7 @@ public class Insert extends AbstractMessage {
             throws IOException {
 
         final long position = in.getBytesRead();
-        final long end = position + header.getLength() - Header.SIZE;
+        final long end = (position + header.getLength()) - Header.SIZE;
 
         final int flags = in.readInt();
         init(in.readCString());
@@ -109,7 +109,8 @@ public class Insert extends AbstractMessage {
         boolean result = false;
         if (this == object) {
             result = true;
-        } else if ((object != null) && (getClass() == object.getClass())) {
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
             final Insert other = (Insert) object;
 
             result = super.equals(object)
@@ -136,9 +137,9 @@ public class Insert extends AbstractMessage {
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + super.hashCode();
-        result = 31 * result + (myContinueOnError ? 1 : 3);
-        result = 31 * result + myDocuments.hashCode();
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + (myContinueOnError ? 1 : 3);
+        result = (31 * result) + myDocuments.hashCode();
         return result;
     }
 

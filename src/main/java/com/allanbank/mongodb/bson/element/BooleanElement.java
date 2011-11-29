@@ -15,77 +15,77 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class BooleanElement extends AbstractElement {
 
-	/**
-	 * Constructs a new {@link BooleanElement}.
-	 * 
-	 * @param name
-	 *            The name for the BSON boolean.
-	 * @param value
-	 *            The BSON boolean value.
-	 */
-	public BooleanElement(final String name, final boolean value) {
-		super(value ? ElementType.TRUE : ElementType.FALSE, name);
-	}
+    /**
+     * Constructs a new {@link BooleanElement}.
+     * 
+     * @param name
+     *            The name for the BSON boolean.
+     * @param value
+     *            The BSON boolean value.
+     */
+    public BooleanElement(final String name, final boolean value) {
+        super(value ? ElementType.TRUE : ElementType.FALSE, name);
+    }
 
-	/**
-	 * Accepts the visitor and calls the {@link Visitor#visitBoolean} method.
-	 * 
-	 * @see Element#accept(Visitor)
-	 */
-	@Override
-	public void accept(final Visitor visitor) {
-		visitor.visitBoolean(getName(), getValue());
-	}
+    /**
+     * Accepts the visitor and calls the {@link Visitor#visitBoolean} method.
+     * 
+     * @see Element#accept(Visitor)
+     */
+    @Override
+    public void accept(final Visitor visitor) {
+        visitor.visitBoolean(getName(), getValue());
+    }
 
-	/**
-	 * Determines if the passed object is of this same type as this object and
-	 * if so that its fields are equal.
-	 * 
-	 * @param object
-	 *            The object to compare to.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(final Object object) {
-		return super.equals(object);
-	}
+    /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     * 
+     * @param object
+     *            The object to compare to.
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        return super.equals(object);
+    }
 
-	/**
-	 * Returns the BSON boolean value.
-	 * 
-	 * @return The BSON boolean value.
-	 */
-	public boolean getValue() {
-		return (getType() == ElementType.TRUE);
-	}
+    /**
+     * Returns the BSON boolean value.
+     * 
+     * @return The BSON boolean value.
+     */
+    public boolean getValue() {
+        return (getType() == ElementType.TRUE);
+    }
 
-	/**
-	 * Computes a reasonable hash code.
-	 * 
-	 * @return The hash code value.
-	 */
-	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
+    /**
+     * Computes a reasonable hash code.
+     * 
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
-	/**
-	 * String form of the object.
-	 * 
-	 * @return A human readable form of the object.
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		final StringBuilder builder = new StringBuilder();
+    /**
+     * String form of the object.
+     * 
+     * @return A human readable form of the object.
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
 
-		builder.append('"');
-		builder.append(getName());
-		builder.append("\" : ");
-		builder.append(getValue());
+        builder.append('"');
+        builder.append(getName());
+        builder.append("\" : ");
+        builder.append(getValue());
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
 }
