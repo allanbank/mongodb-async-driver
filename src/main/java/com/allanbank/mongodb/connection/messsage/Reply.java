@@ -11,10 +11,13 @@ import java.util.List;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
 
 /**
- * Message received from the database in response to a query.
+ * Message received from the database in <a href=
+ * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPREPLY"
+ * >reply</a> to a query.
  * 
  * <pre>
  * <code>

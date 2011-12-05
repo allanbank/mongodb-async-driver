@@ -8,10 +8,13 @@ import java.io.IOException;
 
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
 
 /**
- * Message to get more documents from a cursor. The format of the message is:
+ * Message to <a href=
+ * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPGETMORE"
+ * >getmore</a> documents from a cursor. The format of the message is:
  * 
  * <pre>
  * <code>

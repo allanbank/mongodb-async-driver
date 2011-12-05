@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.connection.messsage;
 
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
 
 /**
@@ -108,7 +109,7 @@ public abstract class AbstractMessage implements Message {
      */
     protected void init(final String name) {
         final int firstDot = name.indexOf('.');
-        if (firstDot > 0) {
+        if (firstDot >= 0) {
             myDatabaseName = name.substring(0, firstDot);
             myCollectionName = name.substring(firstDot + 1);
         }

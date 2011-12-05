@@ -12,10 +12,13 @@ import java.util.List;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
 
 /**
- * Message to insert a set of documents into a collection.
+ * Message to <a href=
+ * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPINSERT"
+ * >insert</a> a set of documents into a collection.
  * 
  * <pre>
  * <code>

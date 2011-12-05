@@ -9,10 +9,13 @@ import java.io.IOException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
 
 /**
- * Message to apply an update to a document.
+ * Message to apply an <a href=
+ * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPUPDATE"
+ * >update</a> to a document.
  * 
  * <pre>
  * <code>

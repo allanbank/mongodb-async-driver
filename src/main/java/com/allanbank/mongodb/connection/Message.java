@@ -2,7 +2,7 @@
  * Copyright 2011, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
-package com.allanbank.mongodb.connection.messsage;
+package com.allanbank.mongodb.connection;
 
 import java.io.IOException;
 
@@ -17,8 +17,8 @@ import com.allanbank.mongodb.bson.io.BsonOutputStream;
 public interface Message {
 
     /**
-     * Writes the message from the stream. The message header is <b>not</b>
-     * written by this method.
+     * Writes the message from the stream. The message header <b>is</b> written
+     * by this method.
      * 
      * @param messageId
      *            The id to be assigned to the message.

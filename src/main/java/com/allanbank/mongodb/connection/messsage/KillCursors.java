@@ -9,11 +9,13 @@ import java.util.Arrays;
 
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
 
 /**
- * KillCursors provides message that a client no longer needs the cursors
- * listed.
+ * Message to <a href=
+ * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPKILLCURSORS"
+ * >killcursor</a>s that a client no longer needs.
  * 
  * <pre>
  * <code>

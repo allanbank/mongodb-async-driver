@@ -9,11 +9,14 @@ import java.io.IOException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
 
 /**
- * Message to read documents from the database matching a query. Also used to
- * issue commands to the database.
+ * Message to <a href=
+ * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPQUERY"
+ * >query</a> documents from the database matching a criteria. Also used to issue
+ * commands to the database.
  * 
  * <pre>
  * <code>

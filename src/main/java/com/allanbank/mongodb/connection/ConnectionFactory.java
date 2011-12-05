@@ -13,11 +13,11 @@ import com.allanbank.mongodb.connection.socket.SocketConnection;
 /**
  * Provides an abstraction for constructing a connection. At the lowest level a
  * connection to a MongoDB process is done through a {@link SocketConnection}
- * but there are several connection facades to inteligently connect to Replica
- * Sets and shard configurations.
+ * but there are several connection facades to intelligently connect to Replica
+ * Sets and Shard configurations.
  * <p>
  * The {@link BootstrapConnectionFactory} can be used to boot strap the
- * appropriate type of connection factory. It will use a single connections to a
+ * appropriate type of connection factory. It will use a single connection to a
  * MongoDB process to perform a series of commands to determine the server
  * configuration type (Sharded, Replica Set, Standalone) and the setup the
  * appropriate delegate connection factory.

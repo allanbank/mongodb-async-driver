@@ -13,6 +13,7 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.ServerState;
@@ -72,16 +73,29 @@ public abstract class AbstractProxyConnection implements Connection {
      * Forwards the call to the {@link Connection} returned from
      * {@link #ensureConnected()}.
      * </p>
-     * 
-     * @see Connection#delete(String, String, Document, boolean)
      */
     @Override
-    public void delete(final String dbName, final String collectionName,
-            final Document query, final boolean multiDelete)
-            throws MongoDbException {
+    public int send(Message... messages) throws MongoDbException {
         try {
-            ensureConnected()
-                    .delete(dbName, collectionName, query, multiDelete);
+            return ensureConnected().send(messages);
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the {@link Connection} returned from
+     * {@link #ensureConnected()}.
+     * </p>
+     */
+    @Override
+    public Message receive() throws MongoDbException {
+        try {
+            return ensureConnected().receive();
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -102,169 +116,6 @@ public abstract class AbstractProxyConnection implements Connection {
     public void flush() throws IOException {
         try {
             ensureConnected().flush();
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
-     * </p>
-     * 
-     * @see Connection#getLastError(String , boolean, boolean, int, int)
-     */
-    @Override
-    public int getLastError(final String dbName, final boolean fsync,
-            final boolean waitForJournal, final int w, final int wtimeout)
-            throws MongoDbException {
-        try {
-            return ensureConnected().getLastError(dbName, fsync,
-                    waitForJournal, w, wtimeout);
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
-     * </p>
-     * 
-     * @see Connection#getMore(String, String, long, int)
-     */
-    @Override
-    public int getMore(final String dbName, final String collectionName,
-            final long cursorId, final int numberToReturn)
-            throws MongoDbException {
-        try {
-            return ensureConnected().getMore(dbName, collectionName, cursorId,
-                    numberToReturn);
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
-     * </p>
-     * 
-     * @see Connection#insert(String, String, List, boolean)
-     */
-    @Override
-    public void insert(final String dbName, final String collectionName,
-            final List<Document> documents, final boolean keepGoing)
-            throws MongoDbException {
-        try {
-            ensureConnected().insert(dbName, collectionName, documents,
-                    keepGoing);
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
-     * </p>
-     * 
-     * @see Connection#killCursor(String, String, long)
-     */
-    @Override
-    public void killCursor(final String dbName, final String collectionName,
-            final long cursorId) throws MongoDbException {
-        try {
-            ensureConnected().killCursor(dbName, collectionName, cursorId);
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
-     * </p>
-     * 
-     * @see Connection#query(String, String, Document, Document, int, int,
-     *      boolean, boolean, boolean, boolean, boolean, boolean)
-     */
-    @Override
-    public int query(final String dbName, final String collectionName,
-            final Document query, final Document returnFields,
-            final int numberToReturn, final int numberToSkip,
-            final boolean tailable, final boolean slaveOk,
-            final boolean noCursorTimeout, final boolean awaitData,
-            final boolean exhaust, final boolean partial)
-            throws MongoDbException {
-        try {
-            return ensureConnected().query(dbName, collectionName, query,
-                    returnFields, numberToReturn, numberToSkip, tailable,
-                    slaveOk, noCursorTimeout, awaitData, exhaust, partial);
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
-     * </p>
-     * 
-     * @see Connection#read()
-     */
-    @Override
-    public Reply read() throws MongoDbException {
-        try {
-            return ensureConnected().read();
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
-     * </p>
-     * 
-     * @see Connection#update(String, String, Document, Document, boolean,
-     *      boolean)
-     */
-    @Override
-    public void update(final String dbName, final String collectionName,
-            final Document query, final Document update, final boolean upsert,
-            final boolean multiUpdate) throws MongoDbException {
-        try {
-            ensureConnected().update(dbName, collectionName, query, update,
-                    upsert, multiUpdate);
         }
         catch (final MongoDbException error) {
             onExceptin(error);
