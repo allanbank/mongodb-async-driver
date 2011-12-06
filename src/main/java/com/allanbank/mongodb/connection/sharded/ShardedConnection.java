@@ -5,9 +5,17 @@
 
 package com.allanbank.mongodb.connection.sharded;
 
+import java.util.List;
+
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.connection.Message;
+import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.messsage.ServerStatus;
 import com.allanbank.mongodb.connection.proxy.AbstractProxyConnection;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.state.ClusterState;
@@ -38,14 +46,46 @@ public class ShardedConnection extends AbstractProxyConnection {
     /**
      * {@inheritDoc}
      * <p>
-     * Issues a { ismaster : 1 } command on the 'admin' database and verifies
-     * that the response is from a mongos.
+     * Issues a { serverStatus : 1 } command on the 'admin' database and
+     * verifies that the response is from a mongos.
      * </p>
      */
     @Override
     protected boolean verifyConnection(final Connection connection)
             throws MongoDbException {
-        // TODO Auto-generated method stub
-        return true;
+        final int messageId = connection.send(new ServerStatus());
+        final Message replyMsg = connection.receive();
+        if (replyMsg instanceof Reply) {
+            final Reply reply = (Reply) replyMsg;
+            if (reply.getResponseToId() == messageId) {
+                final List<Document> results = reply.getResults();
+                if (!results.isEmpty()) {
+                    final Document doc = results.get(0);
+
+                    return isMongos(doc);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns true if the document contains a "process" element that is a
+     * string and contains the value "mongos".
+     * 
+     * @param doc
+     *            The document to validate.
+     * @return True if the document contains a "process" element that is a
+     *         string and contains the value "mongos".
+     */
+    private boolean isMongos(final Document doc) {
+
+        final Element processName = doc.get("process");
+        if (processName instanceof StringElement) {
+            return "mongos".equals(((StringElement) processName).getValue());
+        }
+
+        return false;
     }
 }

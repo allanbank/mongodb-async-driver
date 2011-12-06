@@ -23,6 +23,16 @@ public interface Connection extends Closeable, Flushable {
     public static final String COMMAND_COLLECTION = "$cmd";
 
     /**
+     * Receives a message from the connection. This method may block until a
+     * reply is received or an error occurs.
+     * 
+     * @return The message received or null if no message is received.
+     * @throws MongoDbException
+     *             On an error sending the message.
+     */
+    public Message receive() throws MongoDbException;
+
+    /**
      * Sends a message on the connection.
      * 
      * @param messages
@@ -35,14 +45,4 @@ public interface Connection extends Closeable, Flushable {
      *             On an error sending the message.
      */
     public int send(Message... messages) throws MongoDbException;
-
-    /**
-     * Receives a message from the connection. This method may block until a
-     * reply is received or an error occurs.
-     * 
-     * @return The message received or null if no message is received.
-     * @throws MongoDbException
-     *             On an error sending the message.
-     */
-    public Message receive() throws MongoDbException;
 }

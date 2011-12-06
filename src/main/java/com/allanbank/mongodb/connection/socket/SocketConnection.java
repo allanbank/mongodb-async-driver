@@ -38,6 +38,9 @@ public class SocketConnection implements Connection {
     public static final int HEADER_LENGTH = 16;
 
     /** The writer for BSON documents. Shares this objects {@link #myOutBuffer}. */
+    private final BsonInputStream myBsonIn;
+
+    /** The writer for BSON documents. Shares this objects {@link #myOutBuffer}. */
     private final BsonOutputStream myBsonOut;
 
     /** The buffered input stream. */
@@ -48,9 +51,6 @@ public class SocketConnection implements Connection {
 
     /** The buffered output stream. */
     private final BufferedOutputStream myOutput;
-
-    /** The writer for BSON documents. Shares this objects {@link #myOutBuffer}. */
-    private final BsonInputStream myBsonIn;
 
     /** The open socket. */
     private final Socket mySocket;
@@ -108,26 +108,6 @@ public class SocketConnection implements Connection {
      * {@inheritDoc}
      */
     @Override
-    public int send(Message... messages) throws MongoDbException {
-
-        try {
-            int messageId = -1;
-            for (Message message : messages) {
-                messageId = myNextId++;
-                message.write(messageId, myBsonOut);
-            }
-
-            return messageId;
-        }
-        catch (final IOException ioe) {
-            throw new MongoDbException(ioe);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Message receive() throws MongoDbException {
         try {
             final int length = myBsonIn.readInt();
@@ -135,14 +115,14 @@ public class SocketConnection implements Connection {
             final int responseId = myBsonIn.readInt();
             final int opCode = myBsonIn.readInt();
 
-            Operation op = Operation.fromCode(opCode);
+            final Operation op = Operation.fromCode(opCode);
             if (op == null) {
                 // Huh? Dazed and confused
                 throw new MongoDbException("Unexpected operation read '"
                         + opCode + "'.");
             }
 
-            Header header = new Header(length, requestId, responseId, op);
+            final Header header = new Header(length, requestId, responseId, op);
             Message message = null;
             switch (op) {
             case REPLY:
@@ -170,6 +150,26 @@ public class SocketConnection implements Connection {
             }
 
             return message;
+        }
+        catch (final IOException ioe) {
+            throw new MongoDbException(ioe);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int send(final Message... messages) throws MongoDbException {
+
+        try {
+            int messageId = -1;
+            for (final Message message : messages) {
+                messageId = myNextId++;
+                message.write(messageId, myBsonOut);
+            }
+
+            return messageId;
         }
         catch (final IOException ioe) {
             throw new MongoDbException(ioe);

@@ -15,8 +15,8 @@ import com.allanbank.mongodb.connection.Operation;
 /**
  * Message to <a href=
  * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPQUERY"
- * >query</a> documents from the database matching a criteria. Also used to issue
- * commands to the database.
+ * >query</a> documents from the database matching a criteria. Also used to
+ * issue commands to the database.
  * 
  * <pre>
  * <code>

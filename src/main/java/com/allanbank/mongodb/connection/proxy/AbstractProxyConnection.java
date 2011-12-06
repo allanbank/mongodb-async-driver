@@ -11,10 +11,8 @@ import java.util.List;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.ServerState;
 
@@ -25,6 +23,7 @@ import com.allanbank.mongodb.connection.state.ServerState;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractProxyConnection implements Connection {
+
     /** The state of the cluster. */
     protected final ClusterState myClusterState;
 
@@ -73,11 +72,13 @@ public abstract class AbstractProxyConnection implements Connection {
      * Forwards the call to the {@link Connection} returned from
      * {@link #ensureConnected()}.
      * </p>
+     * 
+     * @see java.io.Flushable#flush()
      */
     @Override
-    public int send(Message... messages) throws MongoDbException {
+    public void flush() throws IOException {
         try {
-            return ensureConnected().send(messages);
+            ensureConnected().flush();
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -109,13 +110,11 @@ public abstract class AbstractProxyConnection implements Connection {
      * Forwards the call to the {@link Connection} returned from
      * {@link #ensureConnected()}.
      * </p>
-     * 
-     * @see java.io.Flushable#flush()
      */
     @Override
-    public void flush() throws IOException {
+    public int send(final Message... messages) throws MongoDbException {
         try {
-            ensureConnected().flush();
+            return ensureConnected().send(messages);
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -144,6 +143,9 @@ public abstract class AbstractProxyConnection implements Connection {
                     connection = null;
 
                     return;
+                }
+                else if (keepConnection(connection)) {
+                    connection = null;
                 }
             }
             catch (final MongoDbException error) {
@@ -188,6 +190,18 @@ public abstract class AbstractProxyConnection implements Connection {
             connect();
         }
         return myProxiedConnection;
+    }
+
+    /**
+     * Extension point for classes to allow them to keep a connection open.
+     * 
+     * @param connection
+     *            The connection to possibly keep open.
+     * @return True if the derived class is keeping the connection for other
+     *         purposes.
+     */
+    protected boolean keepConnection(final Connection connection) {
+        return false;
     }
 
     /**
