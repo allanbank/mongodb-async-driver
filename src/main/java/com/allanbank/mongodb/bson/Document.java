@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson;
 
+import java.util.List;
+
 /**
  * Interface for a document.
  * 
@@ -40,4 +42,27 @@ public interface Document extends Iterable<Element> {
      *         element exists with the given name.
      */
     public Element get(String name);
+
+    /**
+     * Returns the elements matching the path of regular expressions.
+     * 
+     * @param E
+     *            The type of element to match.
+     * @param clazz
+     *            The class of elements to match.
+     * @param nameRegexs
+     *            The path of regular expressions.
+     * @return The elements matching the path of regular expressions.
+     */
+    public <E extends Element> List<E> queryPath(Class<E> clazz,
+            String... nameRegexs);
+
+    /**
+     * Returns the elements matching the path of regular expressions.
+     * 
+     * @param nameRegexs
+     *            The path of regular expressions.
+     * @return The elements matching the path of regular expressions.
+     */
+    public List<Element> queryPath(String... nameRegexs);
 }

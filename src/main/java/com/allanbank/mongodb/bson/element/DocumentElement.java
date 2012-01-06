@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
@@ -163,6 +165,51 @@ public class DocumentElement extends AbstractElement implements Document {
     @Override
     public Iterator<Element> iterator() {
         return getElements().iterator();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Searches this sub-elements for matching elements on the path and are of
+     * the right type.
+     * </p>
+     * 
+     * @see Element#queryPath
+     */
+    @Override
+    public <E extends Element> List<E> queryPath(final Class<E> clazz,
+            final String... nameRegexs) {
+        if (0 < nameRegexs.length) {
+            final List<E> elements = new ArrayList<E>();
+            final String nameRegex = nameRegexs[0];
+            final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
+                    nameRegexs.length);
+            try {
+                final Pattern pattern = Pattern.compile(nameRegex);
+                for (final Element element : myElements) {
+                    if (pattern.matcher(element.getName()).matches()) {
+                        elements.addAll(queryPath(clazz, subNameRegexs));
+                    }
+                }
+
+            }
+            catch (final PatternSyntaxException pse) {
+                // Assume a non-pattern?
+                for (final Element element : myElements) {
+                    if (nameRegex.equals(element.getName())) {
+                        elements.addAll(queryPath(clazz, subNameRegexs));
+                    }
+                }
+            }
+
+            return elements;
+        }
+
+        // End of the path -- are we the right type
+        if (clazz.isAssignableFrom(this.getClass())) {
+            return Collections.singletonList(clazz.cast(this));
+        }
+        return Collections.emptyList();
     }
 
     /**

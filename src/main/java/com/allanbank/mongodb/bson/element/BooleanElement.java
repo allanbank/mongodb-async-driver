@@ -15,6 +15,9 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class BooleanElement extends AbstractElement {
 
+    /** The boolean value */
+    private final boolean myValue;
+
     /**
      * Constructs a new {@link BooleanElement}.
      * 
@@ -24,7 +27,8 @@ public class BooleanElement extends AbstractElement {
      *            The BSON boolean value.
      */
     public BooleanElement(final String name, final boolean value) {
-        super(value ? ElementType.TRUE : ElementType.FALSE, name);
+        super(ElementType.BOOLEAN, name);
+        myValue = value;
     }
 
     /**
@@ -57,7 +61,7 @@ public class BooleanElement extends AbstractElement {
      * @return The BSON boolean value.
      */
     public boolean getValue() {
-        return (getType() == ElementType.TRUE);
+        return myValue;
     }
 
     /**
@@ -67,7 +71,7 @@ public class BooleanElement extends AbstractElement {
      */
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return super.hashCode() + (myValue ? 31 : 11);
     }
 
     /**

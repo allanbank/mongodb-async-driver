@@ -381,8 +381,8 @@ public class BsonReader extends FilterInputStream {
             return new DoubleElement(readCString(),
                     Double.longBitsToDouble(readLong()));
         }
-        case FALSE: {
-            return new BooleanElement(readCString(), false);
+        case BOOLEAN: {
+            return new BooleanElement(readCString(), (read() == 1));
         }
         case INTEGER: {
             return new IntegerElement(readCString(), readInt());
@@ -427,9 +427,6 @@ public class BsonReader extends FilterInputStream {
         }
         case SYMBOL: {
             return new SymbolElement(readCString(), readString());
-        }
-        case TRUE: {
-            return new BooleanElement(readCString(), true);
         }
         case UTC_TIMESTAMP: {
             return new TimestampElement(readCString(), readLong());

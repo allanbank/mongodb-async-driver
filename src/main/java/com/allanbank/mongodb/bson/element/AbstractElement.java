@@ -4,6 +4,9 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 
@@ -88,6 +91,40 @@ public abstract class AbstractElement implements Element {
         result = (31 * result) + ((myName == null) ? 0 : myName.hashCode());
         result = (31 * result) + ((myType == null) ? 0 : myType.hashCode());
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a singleton list if the nameRegexs is empty and this element's
+     * type is assignable to E. An empty list otherwise.
+     * </p>
+     * 
+     * @see Element#queryPath
+     */
+    @Override
+    public <E extends Element> List<E> queryPath(final Class<E> clazz,
+            final String... nameRegexs) {
+        if ((nameRegexs.length == 0) && clazz.isAssignableFrom(this.getClass())) {
+            // End of the path. Match this element.
+            return Collections.singletonList(clazz.cast(this));
+        }
+
+        return Collections.emptyList();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a singleton list if the nameRegexs is empty. An empty list
+     * otherwise.
+     * </p>
+     * 
+     * @see Element#queryPath
+     */
+    @Override
+    public List<Element> queryPath(final String... nameRegexs) {
+        return queryPath(Element.class, nameRegexs);
     }
 
     /**

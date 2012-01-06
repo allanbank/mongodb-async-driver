@@ -154,6 +154,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 
         mySize += 1;
         mySize += computeCStringSize(name);
+        mySize += 1;
     }
 
     /**

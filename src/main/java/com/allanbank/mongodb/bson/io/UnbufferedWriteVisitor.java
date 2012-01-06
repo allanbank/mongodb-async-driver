@@ -153,13 +153,9 @@ import com.allanbank.mongodb.bson.element.ObjectId;
     @Override
     public void visitBoolean(final String name, final boolean value) {
 
-        if (value) {
-            myOutput.writeByte(ElementType.TRUE.getToken());
-        }
-        else {
-            myOutput.writeByte(ElementType.FALSE.getToken());
-        }
+        myOutput.writeByte(ElementType.BOOLEAN.getToken());
         myOutput.writeCString(name);
+        myOutput.writeByte(value ? (byte) 0x01 : 0x00);
     }
 
     /**

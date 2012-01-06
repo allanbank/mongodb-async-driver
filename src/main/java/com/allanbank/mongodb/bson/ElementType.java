@@ -17,6 +17,9 @@ public enum ElementType {
     /** The BSON binary type. */
     BINARY((byte) 0x05),
 
+    /** The BSON boolean type. */
+    BOOLEAN((byte) 0x08),
+
     /**
      * The BSON DB Pointer type.
      * 
@@ -30,9 +33,6 @@ public enum ElementType {
 
     /** The BSON double type. */
     DOUBLE((byte) 0x01),
-
-    /** The BSON false type. */
-    FALSE((byte) 0x08),
 
     /** The BSON 32-bit singed integer type. */
     INTEGER((byte) 0x10),
@@ -59,7 +59,7 @@ public enum ElementType {
     NULL((byte) 0x0A),
 
     /** The BSON ObjectIdElement type. */
-    OBJECT_ID((byte) 0x06),
+    OBJECT_ID((byte) 0x07),
 
     /** The BSON regular expression type. */
     REGEX((byte) 0x0B),
@@ -69,9 +69,6 @@ public enum ElementType {
 
     /** The BSON Symbol type. */
     SYMBOL((byte) 0x0E),
-
-    /** The BSON true type. */
-    TRUE((byte) 0x07),
 
     /** The BSON UTC Timestamp type. */
     UTC_TIMESTAMP((byte) 0x09);
