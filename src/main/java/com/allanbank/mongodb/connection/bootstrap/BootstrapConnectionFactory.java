@@ -84,6 +84,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                 conn = new SocketConnection(addr, config);
 
                 final int messageId = conn.send(new ServerStatus());
+                conn.flush();
                 final Message replyMsg = conn.receive();
                 if (replyMsg instanceof Reply) {
                     final Reply reply = (Reply) replyMsg;
@@ -109,7 +110,6 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                         }
                     }
                 }
-
             }
             catch (final IOException ioe) {
                 // TODO - Log the failure of a bootstrap connection.
@@ -136,6 +136,25 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     @Override
     public Connection connect() throws IOException {
         return myDelegate.connect();
+    }
+
+    /**
+     * Returns the underlying delegate factory.
+     * 
+     * @return The underlying delegate factory.
+     */
+    protected ConnectionFactory getDelegate() {
+        return myDelegate;
+    }
+
+    /**
+     * Sets the underlying delegate factory.
+     * 
+     * @param delegate
+     *            The underlying delegate factory.
+     */
+    protected void setDelegate(final ConnectionFactory delegate) {
+        myDelegate = delegate;
     }
 
     /**

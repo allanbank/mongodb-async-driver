@@ -8,7 +8,6 @@ package com.allanbank.mongodb.connection.messsage;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.connection.Connection;
 
 /**
  * Provides a convenient mechanism for creating a <a href=
@@ -46,10 +45,7 @@ import com.allanbank.mongodb.connection.Connection;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class IsMaster extends Query {
-
-    /** The administration database name. */
-    private static final String ADMIN_DATABASE = "admin";
+public class IsMaster extends AdminCommand {
 
     /** The ismaster "query" document. */
     private static final Document IS_MASTER;
@@ -64,7 +60,6 @@ public class IsMaster extends Query {
      * Create a new IsMaster command.
      */
     public IsMaster() {
-        super(ADMIN_DATABASE, Connection.COMMAND_COLLECTION, IS_MASTER, null,
-                1, 0, false, false, false, false, false, false);
+        super(IS_MASTER);
     }
 }

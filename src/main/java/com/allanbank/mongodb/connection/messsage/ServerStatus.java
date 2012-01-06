@@ -8,7 +8,6 @@ package com.allanbank.mongodb.connection.messsage;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.connection.Connection;
 
 /**
  * Provides a convenient mechanism for creating a <a
@@ -91,10 +90,7 @@ import com.allanbank.mongodb.connection.Connection;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ServerStatus extends Query {
-
-    /** The administration database name. */
-    private static final String ADMIN_DATABASE = "admin";
+public class ServerStatus extends AdminCommand {
 
     /** The serverStatus "query" document. */
     private static final Document SERVER_STATUS;
@@ -109,7 +105,6 @@ public class ServerStatus extends Query {
      * Create a new ServerStatus command.
      */
     public ServerStatus() {
-        super(ADMIN_DATABASE, Connection.COMMAND_COLLECTION, SERVER_STATUS,
-                null, 1, 0, false, false, false, false, false, false);
+        super(SERVER_STATUS);
     }
 }
