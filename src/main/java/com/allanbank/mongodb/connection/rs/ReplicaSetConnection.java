@@ -7,7 +7,9 @@ package com.allanbank.mongodb.connection.rs;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
+import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
@@ -16,6 +18,7 @@ import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.messsage.IsMaster;
 import com.allanbank.mongodb.connection.messsage.Query;
@@ -79,7 +82,8 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      * </p>
      */
     @Override
-    public int send(final Message... messages) throws MongoDbException {
+    public void send(final Callback<Reply> reply, final Message... messages)
+            throws MongoDbException {
 
         boolean canUseSecondary = true;
         for (final Message message : messages) {
@@ -94,7 +98,7 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
         final Connection secondary = mySecondaryConnection;
         if (canUseSecondary && (secondary != null)) {
             try {
-                return secondary.send(messages);
+                secondary.send(reply, messages);
             }
             catch (final MongoDbException error) {
                 // Failed. Try the primary.
@@ -108,7 +112,19 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
             }
         }
 
-        return super.send(messages);
+        super.send(reply, messages);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the {@link Connection} returned from
+     * {@link #ensureConnected()}.
+     * </p>
+     */
+    @Override
+    public void send(final Message... messages) throws MongoDbException {
+        send(null, messages);
     }
 
     /**
@@ -138,53 +154,63 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      *         secondary replica.
      */
     @Override
-    protected boolean verifyConnection(final Connection connection) {
+    protected boolean verifyConnection(final Connection connection)
+            throws MongoDbException {
 
-        final int messageId = connection.send(new IsMaster());
-        final Message replyMsg = connection.receive();
-        if (replyMsg instanceof Reply) {
-            final Reply reply = (Reply) replyMsg;
-            if (reply.getResponseToId() == messageId) {
-                final List<Document> results = reply.getResults();
-                if (!results.isEmpty()) {
-                    final Document doc = results.get(0);
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        try {
 
-                    if (myConfig.isAutoDiscoverServers()) {
+            connection.send(future, new IsMaster());
 
-                        // Add all of the hosts to the state.
-                        final Element hosts = doc.get("hosts");
-                        if (hosts instanceof ArrayElement) {
-                            final ArrayElement hostsArray = (ArrayElement) hosts;
-                            for (final Element hostElement : hostsArray
-                                    .getEntries()) {
-                                if (hostElement instanceof StringElement) {
-                                    myClusterState
-                                            .add(((StringElement) hostElement)
-                                                    .getValue());
-                                }
+            final Reply reply = future.get();
+            final List<Document> results = reply.getResults();
+            if (!results.isEmpty()) {
+                final Document doc = results.get(0);
+
+                if (myConfig.isAutoDiscoverServers()) {
+
+                    // Add all of the hosts to the state.
+                    final Element hosts = doc.get("hosts");
+                    if (hosts instanceof ArrayElement) {
+                        final ArrayElement hostsArray = (ArrayElement) hosts;
+                        for (final Element hostElement : hostsArray
+                                .getEntries()) {
+                            if (hostElement instanceof StringElement) {
+                                myClusterState
+                                        .add(((StringElement) hostElement)
+                                                .getValue());
                             }
                         }
                     }
+                }
 
-                    // Get the name of the primary server.
-                    final Element primary = doc.get("primary");
-                    if (primary instanceof StringElement) {
-                        myClusterState.markWritable(myClusterState
-                                .get(((StringElement) primary).getValue()));
-                    }
+                // Get the name of the primary server.
+                final Element primary = doc.get("primary");
+                if (primary instanceof StringElement) {
+                    myClusterState.markWritable(myClusterState
+                            .get(((StringElement) primary).getValue()));
+                }
 
-                    // See if we are the primary.
-                    if (isPrimary(doc)) {
-                        return true;
-                    }
-                    // See if we can use this as a secondary connection.
-                    else if (mySecondaryConnection == null) {
-                        if (isSecondary(doc)) {
-                            mySecondaryConnection = connection;
-                        }
+                // See if we are the primary.
+                if (isPrimary(doc)) {
+                    return true;
+                }
+                // See if we can use this as a secondary connection.
+                else if (mySecondaryConnection == null) {
+                    if (isSecondary(doc)) {
+                        mySecondaryConnection = connection;
                     }
                 }
             }
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+        catch (final ExecutionException e) {
+            if (e.getCause() instanceof MongoDbException) {
+                throw (MongoDbException) e.getCause();
+            }
+            throw new MongoDbException(e.getCause());
         }
 
         return false;

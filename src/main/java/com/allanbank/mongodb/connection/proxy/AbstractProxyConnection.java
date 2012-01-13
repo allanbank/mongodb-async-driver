@@ -9,10 +9,12 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
+import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.ServerState;
 
@@ -94,9 +96,10 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public Message receive() throws MongoDbException {
+    public void send(final Callback<Reply> reply, final Message... messages)
+            throws MongoDbException {
         try {
-            return ensureConnected().receive();
+            ensureConnected().send(reply, messages);
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -112,14 +115,8 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public int send(final Message... messages) throws MongoDbException {
-        try {
-            return ensureConnected().send(messages);
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
+    public void send(final Message... messages) throws MongoDbException {
+        send(null, messages);
     }
 
     /**

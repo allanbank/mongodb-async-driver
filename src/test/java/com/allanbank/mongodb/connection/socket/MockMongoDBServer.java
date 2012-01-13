@@ -245,7 +245,9 @@ public class MockMongoDBServer extends Thread {
         synchronized (this) {
             while ((myRequests.size() < count) && (now < deadline)) {
                 try {
+                    // Wake up the receive thread.
                     notifyAll();
+
                     wait(deadline - now);
                 }
                 catch (final InterruptedException e) {
@@ -356,7 +358,7 @@ public class MockMongoDBServer extends Thread {
         try {
             synchronized (this) {
                 while (now < deadline) {
-                    wait(5000);
+                    wait(100);
                     now = deadline;
                 }
             }

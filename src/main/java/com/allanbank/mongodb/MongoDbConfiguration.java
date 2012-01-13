@@ -9,6 +9,8 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Contains the configuration for the connection(s) to the MongoDB servers.
@@ -38,6 +40,9 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     private int myConnectTimeout = 10000;
 
+    /** The factory for creating threads to handle connections. */
+    private ThreadFactory myFactory = null;
+
     /**
      * Determines the maximum number of connections to use.
      * <p>
@@ -59,14 +64,14 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * error. When the connection has this many pending connections additional
      * requests will block.
      * <p>
-     * Defaults to 100.
+     * Defaults to 1024.
      * </p>
      * <p>
      * <em>Note:</em> In the case of an connection error it is impossible to
      * determine which pending operations completed and which did not.
      * </p>
      */
-    private int myMaxPendingOperationsPerConnection = 100;
+    private int myMaxPendingOperationsPerConnection = 1024;
 
     /**
      * Determines how long to wait (in milliseconds) for a socket read to
@@ -97,6 +102,8 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     public MongoDbConfiguration() {
         super();
+
+        myFactory = Executors.defaultThreadFactory();
     }
 
     /**
@@ -235,6 +242,15 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the thread factory for managing connections.
+     * 
+     * @return The thread factory for managing connections.
+     */
+    public ThreadFactory getThreadFactory() {
+        return myFactory;
+    }
+
+    /**
      * Returns if additional servers are auto discovered or if connections are
      * limited to the ones manually configured.
      * <p>
@@ -342,6 +358,16 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
         if (servers != null) {
             myServers.addAll(servers);
         }
+    }
+
+    /**
+     * Sets the thread factory for managing connections to the new value.
+     * 
+     * @param factory
+     *            The thread factory for managing connections.
+     */
+    public void setThreadFactory(final ThreadFactory factory) {
+        myFactory = factory;
     }
 
     /**

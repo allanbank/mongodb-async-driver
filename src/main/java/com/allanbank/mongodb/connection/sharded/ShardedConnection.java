@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.connection.sharded;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
@@ -13,7 +14,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
-import com.allanbank.mongodb.connection.Message;
+import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.connection.messsage.ServerStatus;
 import com.allanbank.mongodb.connection.proxy.AbstractProxyConnection;
@@ -53,18 +54,28 @@ public class ShardedConnection extends AbstractProxyConnection {
     @Override
     protected boolean verifyConnection(final Connection connection)
             throws MongoDbException {
-        final int messageId = connection.send(new ServerStatus());
-        final Message replyMsg = connection.receive();
-        if (replyMsg instanceof Reply) {
-            final Reply reply = (Reply) replyMsg;
-            if (reply.getResponseToId() == messageId) {
-                final List<Document> results = reply.getResults();
-                if (!results.isEmpty()) {
-                    final Document doc = results.get(0);
 
-                    return isMongos(doc);
-                }
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+
+        try {
+            connection.send(future, new ServerStatus());
+
+            final Reply reply = future.get();
+            final List<Document> results = reply.getResults();
+            if (!results.isEmpty()) {
+                final Document doc = results.get(0);
+
+                return isMongos(doc);
             }
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+        catch (final ExecutionException e) {
+            if (e.getCause() instanceof MongoDbException) {
+                throw (MongoDbException) e.getCause();
+            }
+            throw new MongoDbException(e.getCause());
         }
 
         return false;

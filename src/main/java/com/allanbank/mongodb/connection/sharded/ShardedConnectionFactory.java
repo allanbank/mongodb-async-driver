@@ -8,15 +8,17 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
-import com.allanbank.mongodb.connection.Message;
+import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.messsage.Query;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
@@ -94,8 +96,11 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      * @param connection
      *            The connection to use to perform the query.
      * @return The ids for all of the mongos servers.
+     * @throws MongoDbException
+     *             On a failure querying for the servers.
      */
-    public List<String> findServers(final Connection connection) {
+    public List<String> findServers(final Connection connection)
+            throws MongoDbException {
         final List<String> results = new ArrayList<String>();
 
         // Create a query to pull all of the mongos servers out of the config
@@ -104,27 +109,35 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                 .start().get(), null, 1000, 0, false, false, false, false,
                 false, false);
 
-        // Send the request...
-        final int requestId = connection.send(query);
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        try {
+            // Send the request...
+            connection.send(future, query);
 
-        // Receive the response.
-        final Message replyMsg = connection.receive();
+            // Receive the response.
+            final Reply reply = future.get();
 
-        // Validate and pull out the response information.
-        if (replyMsg instanceof Reply) {
-            final Reply reply = (Reply) replyMsg;
-            if (reply.getResponseToId() == requestId) {
-                final List<Document> docs = reply.getResults();
-                for (final Document doc : docs) {
-                    final Element idElem = doc.get("_id");
-                    if (idElem instanceof StringElement) {
-                        final StringElement id = (StringElement) idElem;
+            // Validate and pull out the response information.
+            final List<Document> docs = reply.getResults();
+            for (final Document doc : docs) {
+                final Element idElem = doc.get("_id");
+                if (idElem instanceof StringElement) {
+                    final StringElement id = (StringElement) idElem;
 
-                        results.add(id.getValue());
-                    }
+                    results.add(id.getValue());
                 }
             }
         }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+        catch (final ExecutionException e) {
+            if (e.getCause() instanceof MongoDbException) {
+                throw (MongoDbException) e.getCause();
+            }
+            throw new MongoDbException(e.getCause());
+        }
+
         return results;
     }
 }

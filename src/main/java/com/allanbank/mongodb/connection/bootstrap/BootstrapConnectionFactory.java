@@ -7,6 +7,9 @@ package com.allanbank.mongodb.connection.bootstrap;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.bson.Document;
@@ -15,7 +18,7 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
-import com.allanbank.mongodb.connection.Message;
+import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.connection.messsage.ServerStatus;
 import com.allanbank.mongodb.connection.rs.ReplicaSetConnectionFactory;
@@ -31,6 +34,10 @@ import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BootstrapConnectionFactory implements ConnectionFactory {
+
+    /** The logger for the {@link SocketConnection}. */
+    protected static final Logger LOG = Logger
+            .getLogger(BootstrapConnectionFactory.class.getCanonicalName());
 
     /** The delegate connection factory post */
     private ConnectionFactory myDelegate = null;
@@ -78,41 +85,44 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      */
     public void bootstrap(final MongoDbConfiguration config) throws IOException {
         for (final InetSocketAddress addr : config.getServers()) {
-
             SocketConnection conn = null;
+            final FutureCallback<Reply> future = new FutureCallback<Reply>();
             try {
                 conn = new SocketConnection(addr, config);
+                conn.send(future, new ServerStatus());
+                final Reply reply = future.get();
+                final List<Document> results = reply.getResults();
+                if (!results.isEmpty()) {
+                    final Document doc = results.get(0);
 
-                final int messageId = conn.send(new ServerStatus());
-                conn.flush();
-                final Message replyMsg = conn.receive();
-                if (replyMsg instanceof Reply) {
-                    final Reply reply = (Reply) replyMsg;
-                    if (reply.getResponseToId() == messageId) {
-                        final List<Document> results = reply.getResults();
-                        if (!results.isEmpty()) {
-                            final Document doc = results.get(0);
-
-                            if (isMongos(doc)) {
-                                myDelegate = new ShardedConnectionFactory(
-                                        new SocketConnectionFactory(config),
-                                        config);
-                            }
-                            else if (isReplicationSet(doc)) {
-                                myDelegate = new ReplicaSetConnectionFactory(
-                                        new SocketConnectionFactory(config),
-                                        config);
-                            }
-                            else {
-                                myDelegate = new SocketConnectionFactory(config);
-                            }
-                            return;
-                        }
+                    if (isMongos(doc)) {
+                        LOG.info("Sharded bootstrap to " + addr + ".");
+                        myDelegate = new ShardedConnectionFactory(
+                                new SocketConnectionFactory(config), config);
                     }
+                    else if (isReplicationSet(doc)) {
+                        LOG.info("Replica-set bootstrap to " + addr + ".");
+                        myDelegate = new ReplicaSetConnectionFactory(
+                                new SocketConnectionFactory(config), config);
+                    }
+                    else {
+                        LOG.info("Simple MongoDB bootstrap to " + addr + ".");
+                        myDelegate = new SocketConnectionFactory(config);
+                    }
+                    return;
                 }
             }
             catch (final IOException ioe) {
-                // TODO - Log the failure of a bootstrap connection.
+                LOG.log(Level.WARNING, "I/O error during bootstrap to " + addr
+                        + ".", ioe);
+            }
+            catch (final InterruptedException e) {
+                LOG.log(Level.WARNING, "Interrupted during bootstrap to "
+                        + addr + ".", e);
+            }
+            catch (final ExecutionException e) {
+                LOG.log(Level.WARNING, "Error during bootstrap to " + addr
+                        + ".", e);
             }
             finally {
                 try {
@@ -121,7 +131,9 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                     }
                 }
                 catch (final IOException okay) {
-                    // TODO - Log the failure to close the bootstrap connection.
+                    LOG.log(Level.WARNING,
+                            "I/O error shutting down bootstrap connection to "
+                                    + addr + ".", okay);
                 }
             }
         }

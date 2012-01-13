@@ -7,7 +7,9 @@ package com.allanbank.mongodb.connection;
 import java.io.Closeable;
 import java.io.Flushable;
 
+import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.connection.messsage.Reply;
 
 /**
  * Provides the lowest level interface for interacting with a MongoDB server.
@@ -23,14 +25,19 @@ public interface Connection extends Closeable, Flushable {
     public static final String COMMAND_COLLECTION = "$cmd";
 
     /**
-     * Receives a message from the connection. This method may block until a
-     * reply is received or an error occurs.
+     * Sends a message on the connection.
      * 
-     * @return The message received or null if no message is received.
+     * @param reply
+     *            The callback to notify of responses to the messages.
+     * @param messages
+     *            The messages to send on the connection. The messages will be
+     *            sent one after the other and are guaranteed to be contiguous
+     *            and have sequential message ids.
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public Message receive() throws MongoDbException;
+    public void send(Callback<Reply> reply, Message... messages)
+            throws MongoDbException;
 
     /**
      * Sends a message on the connection.
@@ -39,10 +46,8 @@ public interface Connection extends Closeable, Flushable {
      *            The messages to send on the connection. The messages will be
      *            sent one after the other and are guaranteed to be contiguous
      *            and have sequential message ids.
-     * @return The request id assigned to the last message. Can be used to
-     *         correlate to a read response.
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public int send(Message... messages) throws MongoDbException;
+    public void send(Message... messages) throws MongoDbException;
 }

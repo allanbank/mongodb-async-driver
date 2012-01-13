@@ -6,8 +6,8 @@ package com.allanbank.mongodb.connection.socket;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,8 +18,11 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -27,12 +30,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
-import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.io.BsonReader;
 import com.allanbank.mongodb.bson.io.EndianUtils;
+import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
 import com.allanbank.mongodb.connection.messsage.Delete;
@@ -106,8 +109,9 @@ public class SocketConnectionTest {
     public void testClose() throws IOException {
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        myTestConnection = new SocketConnection(addr,
-                new MongoDbConfiguration());
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(addr, config);
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -132,8 +136,9 @@ public class SocketConnectionTest {
 
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        myTestConnection = new SocketConnection(addr,
-                new MongoDbConfiguration());
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(addr, config);
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -145,9 +150,10 @@ public class SocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
+        System.out.println("after2: " + new Date());
 
         final byte[] request = ourServer.getRequests().get(0);
 
@@ -205,7 +211,8 @@ public class SocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", true, false, 0, 0);
         myTestConnection.send(error);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -265,7 +272,8 @@ public class SocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", false, true, 0, 0);
         myTestConnection.send(error);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -327,7 +335,8 @@ public class SocketConnectionTest {
         final GetLastError error = new GetLastError("fo", false, false, 10,
                 1000);
         myTestConnection.send(error);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -381,7 +390,7 @@ public class SocketConnectionTest {
         final GetMore getMore = new GetMore("foo", "bar", 12345678901234L,
                 98765);
         myTestConnection.send(getMore);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -445,7 +454,8 @@ public class SocketConnectionTest {
 
         final Insert insert = new Insert("foo", "bar", multi, true);
         myTestConnection.send(insert);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -511,7 +521,8 @@ public class SocketConnectionTest {
         final Insert insert = new Insert("foo", "bar",
                 Collections.singletonList(doc), false);
         myTestConnection.send(insert);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -558,7 +569,8 @@ public class SocketConnectionTest {
 
         final KillCursors kill = new KillCursors(new long[] { 12345678901234L });
         myTestConnection.send(kill);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -615,7 +627,8 @@ public class SocketConnectionTest {
 
         final Delete delete = new Delete("foo", "bar", builder.get(), false);
         myTestConnection.send(delete);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -676,7 +689,8 @@ public class SocketConnectionTest {
         final Query query = new Query("foo", "bar", doc, null, 1234567,
                 7654321, false, false, false, false, false, false);
         myTestConnection.send(query);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -740,7 +754,8 @@ public class SocketConnectionTest {
         final Query query = new Query("foo", "bar", doc, null, 1234567,
                 7654321, false, false, false, true, false, false);
         myTestConnection.send(query);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -805,7 +820,8 @@ public class SocketConnectionTest {
         final Query query = new Query("foo", "bar", doc, null, 1234567,
                 7654321, false, false, false, false, true, false);
         myTestConnection.send(query);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -870,7 +886,8 @@ public class SocketConnectionTest {
         final Query query = new Query("foo", "bar", doc, null, 1234567,
                 7654321, false, false, true, false, false, false);
         myTestConnection.send(query);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -935,7 +952,8 @@ public class SocketConnectionTest {
         final Query query = new Query("foo", "bar", doc, null, 1234567,
                 7654321, false, false, false, false, false, true);
         myTestConnection.send(query);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -1000,7 +1018,8 @@ public class SocketConnectionTest {
         final Query query = new Query("foo", "bar", doc, null, 1234567,
                 7654321, false, true, false, false, false, false);
         myTestConnection.send(query);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -1065,7 +1084,8 @@ public class SocketConnectionTest {
         final Query query = new Query("foo", "bar", doc, null, 1234567,
                 7654321, true, false, false, false, false, false);
         myTestConnection.send(query);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -1130,7 +1150,8 @@ public class SocketConnectionTest {
         final Query query = new Query("foo", "bar", doc, doc, 7654321, 1234567,
                 false, false, false, false, false, false);
         myTestConnection.send(query);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -1174,9 +1195,16 @@ public class SocketConnectionTest {
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
+     * @throws ExecutionException
+     *             On a failure waiting for a reply.
+     * @throws InterruptedException
+     *             On a failure waiting for a reply.
+     * @throws TimeoutException
+     *             On a failure waiting for a reply.
      */
     @Test
-    public void testRead() throws IOException {
+    public void testRead() throws IOException, InterruptedException,
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1191,7 +1219,7 @@ public class SocketConnectionTest {
         final IntBuffer buff = byteBuff.asIntBuffer();
         buff.put(0, (7 * 4) + 8 + helloWorld.length);
         buff.put(1, 0);
-        buff.put(2, EndianUtils.swap(1234567));
+        buff.put(2, EndianUtils.swap(1));
         buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));
         buff.put(4, 0);
         buff.put(5, 0);
@@ -1211,15 +1239,17 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
-        myTestConnection.send(error);
-        myTestConnection.flush();
+        myTestConnection.send(future, error);
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
-        final Message reply = myTestConnection.receive();
+        final Message reply = future.get(60, TimeUnit.SECONDS);
 
-        final Reply expected = new Reply(1234567, 0, 0,
+        final Reply expected = new Reply(1, 0, 0,
                 Collections.singletonList(doc), false, false, false, false);
 
         assertEquals("Did not receive the expected reply.", expected, reply);
@@ -1230,9 +1260,14 @@ public class SocketConnectionTest {
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
+     * @throws ExecutionException
+     *             On a failure waiting for a reply.
+     * @throws InterruptedException
+     *             On a failure waiting for a reply.
      */
-    @Test(expected = MongoDbException.class)
-    public void testReadNonReply() throws IOException {
+    @Test
+    public void testReadNonReply() throws IOException, InterruptedException,
+            ExecutionException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1263,13 +1298,21 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
-        myTestConnection.send(error);
-        myTestConnection.flush();
+        myTestConnection.send(future, error);
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
-        myTestConnection.receive();
+        try {
+            future.get(1, TimeUnit.SECONDS);
+            fail("Should have timedout waiting for a reply.");
+        }
+        catch (final TimeoutException te) {
+            // Good.
+        }
     }
 
     /**
@@ -1277,9 +1320,16 @@ public class SocketConnectionTest {
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
+     * @throws TimeoutException
+     *             On a failure waiting for a reply.
+     * @throws ExecutionException
+     *             On a failure waiting for a reply.
+     * @throws InterruptedException
+     *             On a failure waiting for a reply.
      */
     @Test
-    public void testReadStuff() throws IOException {
+    public void testReadStuff() throws IOException, InterruptedException,
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1294,7 +1344,7 @@ public class SocketConnectionTest {
         final IntBuffer buff = byteBuff.asIntBuffer();
         buff.put(0, (7 * 4) + 8 + helloWorld.length);
         buff.put(1, 0);
-        buff.put(2, EndianUtils.swap(1234567));
+        buff.put(2, EndianUtils.swap(1));
         buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));
         buff.put(4, EndianUtils.swap(0xFF));
         buff.put(5, EndianUtils.swap(123456));
@@ -1314,15 +1364,17 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
-        myTestConnection.send(error);
-        myTestConnection.flush();
+        myTestConnection.send(future, error);
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
-        final Message reply = myTestConnection.receive();
+        final Message reply = future.get(60, TimeUnit.SECONDS);
 
-        final Reply expected = new Reply(1234567, 123456, 654321,
+        final Reply expected = new Reply(1, 123456, 654321,
                 Collections.singletonList(doc), true, true, true, true);
 
         assertEquals("Did not receive the expected reply.", expected, reply);
@@ -1357,10 +1409,8 @@ public class SocketConnectionTest {
 
         final Delete delete = new Delete("foo", "bar", doc, true);
         myTestConnection.send(delete);
-        assertFalse("Should not receive the request until flush.",
-                ourServer.waitForRequest(1, 100));
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
-        myTestConnection.flush();
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -1462,7 +1512,8 @@ public class SocketConnectionTest {
 
         final Update update = new Update("foo", "bar", doc, doc, false, false);
         myTestConnection.send(update);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -1529,7 +1580,8 @@ public class SocketConnectionTest {
 
         final Update update = new Update("foo", "bar", doc, doc, true, false);
         myTestConnection.send(update);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -1596,7 +1648,8 @@ public class SocketConnectionTest {
 
         final Update update = new Update("foo", "bar", doc, doc, false, true);
         myTestConnection.send(update);
-        myTestConnection.flush();
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
