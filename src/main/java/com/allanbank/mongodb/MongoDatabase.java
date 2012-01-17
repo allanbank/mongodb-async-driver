@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.connection.messsage.Reply;
 
 /**
  * Interface for interacting with a MongoDB database. Primarily used to
@@ -34,8 +33,11 @@ public interface MongoDatabase {
      * Drops the database.
      * 
      * @return True if the database was successfully dropped, false otherwise.
+     * @throws MongoDbException
+     *             On an error issuing the drop command or in running the
+     *             command
      */
-    public Future<Boolean> drop();
+    public boolean drop() throws MongoDbException;
 
     /**
      * Returns the MongoCollection with the specified name. This method does not
@@ -48,11 +50,72 @@ public interface MongoDatabase {
     public MongoCollection getCollection(String name);
 
     /**
+     * Returns the name of the database.
+     * 
+     * @return The name of the database.
+     */
+    public String getName();
+
+    /**
      * Returns the list of the collections contained within the database.
      * 
      * @return The list of the collections contained within the database.
+     * @throws MongoDbException
+     *             On an error listing the collections.
      */
-    public Future<List<String>> listCollections();
+    public List<String> listCollections() throws MongoDbException;
+
+    /**
+     * Runs an administrative command against the 'admin' database.
+     * 
+     * @param command
+     *            The name of the command to run.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Document runAdminCommand(String command) throws MongoDbException;
+
+    /**
+     * Runs an administrative command against the 'admin' database.
+     * 
+     * @param command
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Document runAdminCommand(String command, Document options)
+            throws MongoDbException;
+
+    /**
+     * Runs an administrative command against the 'admin' database.
+     * 
+     * @param commandName
+     *            The name of the command to run.
+     * @param commandValue
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Document runAdminCommand(String commandName, String commandValue,
+            Document options) throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param command
+     *            The name of the command to run.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Document runCommand(String command) throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -62,6 +125,113 @@ public interface MongoDatabase {
      * @param options
      *            Optional (may be null) options for the command.
      * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
      */
-    public Future<Reply> runCommand(String command, Document options);
+    public Document runCommand(String command, Document options)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param commandName
+     *            The name of the command to run.
+     * @param commandValue
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Document runCommand(String commandName, String commandValue,
+            Document options) throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link Callback} that will be notified of the command results.
+     * @param command
+     *            The name of the command to run.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(Callback<Document> reply, String command)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link Callback} that will be notified of the command results.
+     * @param command
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(Callback<Document> reply, String command,
+            Document options) throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link Callback} that will be notified of the command results.
+     * @param commandName
+     *            The name of the command to run.
+     * @param commandValue
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(Callback<Document> reply, String commandName,
+            String commandValue, Document options) throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param command
+     *            The name of the command to run.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Future<Document> runCommandAsync(String command)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param command
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Future<Document> runCommandAsync(String command, Document options)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param commandName
+     *            The name of the command to run.
+     * @param commandValue
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Future<Document> runCommandAsync(String commandName,
+            String commandValue, Document options) throws MongoDbException;
+
 }

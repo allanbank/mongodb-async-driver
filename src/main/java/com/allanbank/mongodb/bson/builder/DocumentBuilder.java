@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.bson.builder;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
@@ -13,6 +14,15 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface DocumentBuilder extends Builder {
+    /**
+     * Adds a pre-built element to the document.
+     * 
+     * @param element
+     *            The element to add.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(Element element);
+
     /**
      * Adds a binary element using sub-type zero (the default).
      * 

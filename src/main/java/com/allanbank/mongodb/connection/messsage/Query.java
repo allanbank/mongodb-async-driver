@@ -53,8 +53,8 @@ public class Query extends AbstractMessage {
     /** Flag bit for the partial results. */
     public static final int PARTIAL_FLAG_BIT = 0x80;
 
-    /** Flag bit for the slave OK. */
-    public static final int SLAVE_OK_FLAG_BIT = 0x04;
+    /** Flag bit for the replica OK. */
+    public static final int REPLICA_OK_FLAG_BIT = 0x04;
 
     /** Flag bit for the tailable cursors. */
     public static final int TAILABLE_CURSOR_FLAG_BIT = 0x02;
@@ -90,14 +90,14 @@ public class Query extends AbstractMessage {
      */
     private final Document myQuery;
 
-    /** Optional document containing the fields to be returned. */
-    private final Document myReturnFields;
-
     /**
-     * If true, then the query can be run against a slave which might be
+     * If true, then the query can be run against a replica which might be
      * slightly behind the primary.
      */
-    private final boolean mySlaveOk;
+    private final boolean myReplicaOk;
+
+    /** Optional document containing the fields to be returned. */
+    private final Document myReturnFields;
 
     /**
      * If true, then the cursor created should follow additional documents being
@@ -135,7 +135,7 @@ public class Query extends AbstractMessage {
         myExhaust = (flags & EXHAUST_FLAG_BIT) == EXHAUST_FLAG_BIT;
         myNoCursorTimeout = (flags & NO_CURSOR_TIMEOUT_FLAG_BIT) == NO_CURSOR_TIMEOUT_FLAG_BIT;
         myPartial = (flags & PARTIAL_FLAG_BIT) == PARTIAL_FLAG_BIT;
-        mySlaveOk = (flags & SLAVE_OK_FLAG_BIT) == SLAVE_OK_FLAG_BIT;
+        myReplicaOk = (flags & REPLICA_OK_FLAG_BIT) == REPLICA_OK_FLAG_BIT;
         myTailable = (flags & TAILABLE_CURSOR_FLAG_BIT) == TAILABLE_CURSOR_FLAG_BIT;
     }
 
@@ -159,9 +159,9 @@ public class Query extends AbstractMessage {
      * @param tailable
      *            If true, then the cursor created should follow additional
      *            documents being inserted.
-     * @param slaveOk
-     *            If true, then the query can be run against a slave which might
-     *            be slightly behind the primary.
+     * @param replicaOk
+     *            If true, then the query can be run against a replica which
+     *            might be slightly behind the primary.
      * @param noCursorTimeout
      *            If true, marks the cursor as not having a timeout.
      * @param awaitData
@@ -176,7 +176,7 @@ public class Query extends AbstractMessage {
     public Query(final String databaseName, final String collectionName,
             final Document query, final Document returnFields,
             final int numberToReturn, final int numberToSkip,
-            final boolean tailable, final boolean slaveOk,
+            final boolean tailable, final boolean replicaOk,
             final boolean noCursorTimeout, final boolean awaitData,
             final boolean exhaust, final boolean partial) {
         super(databaseName, collectionName);
@@ -186,7 +186,7 @@ public class Query extends AbstractMessage {
         myNumberToReturn = numberToReturn;
         myNumberToSkip = numberToSkip;
         myTailable = tailable;
-        mySlaveOk = slaveOk;
+        myReplicaOk = replicaOk;
         myNoCursorTimeout = noCursorTimeout;
         myAwaitData = awaitData;
         myExhaust = exhaust;
@@ -216,7 +216,7 @@ public class Query extends AbstractMessage {
                     && (myExhaust == other.myExhaust)
                     && (myNoCursorTimeout == other.myNoCursorTimeout)
                     && (myPartial == other.myPartial)
-                    && (mySlaveOk == other.mySlaveOk)
+                    && (myReplicaOk == other.myReplicaOk)
                     && (myTailable == other.myTailable)
                     && (myNumberToReturn == other.myNumberToReturn)
                     && (myNumberToSkip == other.myNumberToSkip)
@@ -281,7 +281,7 @@ public class Query extends AbstractMessage {
         result = (31 * result) + (myExhaust ? 1 : 3);
         result = (31 * result) + (myNoCursorTimeout ? 1 : 3);
         result = (31 * result) + (myPartial ? 1 : 3);
-        result = (31 * result) + (mySlaveOk ? 1 : 3);
+        result = (31 * result) + (myReplicaOk ? 1 : 3);
         result = (31 * result) + (myTailable ? 1 : 3);
         result = (31 * result) + myNumberToReturn;
         result = (31 * result) + myNumberToSkip;
@@ -330,14 +330,14 @@ public class Query extends AbstractMessage {
     }
 
     /**
-     * Returns true if the query can be run against a slave which might be
+     * Returns true if the query can be run against a replica which might be
      * slightly behind the primary.
      * 
-     * @return True if the query can be run against a slave which might be
+     * @return True if the query can be run against a replica which might be
      *         slightly behind the primary.
      */
-    public boolean isSlaveOk() {
-        return mySlaveOk;
+    public boolean isReplicaOk() {
+        return myReplicaOk;
     }
 
     /**
@@ -375,8 +375,8 @@ public class Query extends AbstractMessage {
         if (myPartial) {
             flags += PARTIAL_FLAG_BIT;
         }
-        if (mySlaveOk) {
-            flags += SLAVE_OK_FLAG_BIT;
+        if (myReplicaOk) {
+            flags += REPLICA_OK_FLAG_BIT;
         }
         if (myTailable) {
             flags += TAILABLE_CURSOR_FLAG_BIT;

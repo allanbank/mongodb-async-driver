@@ -88,7 +88,7 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
         boolean canUseSecondary = true;
         for (final Message message : messages) {
             if (message instanceof Query) {
-                canUseSecondary &= ((Query) message).isSlaveOk();
+                canUseSecondary &= ((Query) message).isReplicaOk();
             }
             else {
                 canUseSecondary = false;
@@ -235,7 +235,7 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
     }
 
     /**
-     * Returns true if the connection can be used for "slaveOk" queries.
+     * Returns true if the connection can be used for "replicaOk" queries.
      * 
      * @param isMasterReply
      *            The reply from an <tt>ismaster</tt> command.

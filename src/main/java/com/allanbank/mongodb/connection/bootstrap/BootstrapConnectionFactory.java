@@ -35,9 +35,12 @@ import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
  */
 public class BootstrapConnectionFactory implements ConnectionFactory {
 
-    /** The logger for the {@link SocketConnection}. */
+    /** The logger for the {@link BootstrapConnectionFactory}. */
     protected static final Logger LOG = Logger
             .getLogger(BootstrapConnectionFactory.class.getCanonicalName());
+
+    /** The configuration for the connections to be created. */
+    private final MongoDbConfiguration myConfig;
 
     /** The delegate connection factory post */
     private ConnectionFactory myDelegate = null;
@@ -48,12 +51,9 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * @param config
      *            The configuration to use in discovering the server
      *            configuration.
-     * @throws IOException
-     *             If the bootstrap fails.
      */
-    public BootstrapConnectionFactory(final MongoDbConfiguration config)
-            throws IOException {
-        bootstrap(config);
+    public BootstrapConnectionFactory(final MongoDbConfiguration config) {
+        myConfig = config;
     }
 
     /**
@@ -83,12 +83,12 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * @throws IOException
      *             If the bootstrap fails.
      */
-    public void bootstrap(final MongoDbConfiguration config) throws IOException {
-        for (final InetSocketAddress addr : config.getServers()) {
+    public void bootstrap() throws IOException {
+        for (final InetSocketAddress addr : myConfig.getServers()) {
             SocketConnection conn = null;
             final FutureCallback<Reply> future = new FutureCallback<Reply>();
             try {
-                conn = new SocketConnection(addr, config);
+                conn = new SocketConnection(addr, myConfig);
                 conn.send(future, new ServerStatus());
                 final Reply reply = future.get();
                 final List<Document> results = reply.getResults();
@@ -98,16 +98,16 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                     if (isMongos(doc)) {
                         LOG.info("Sharded bootstrap to " + addr + ".");
                         myDelegate = new ShardedConnectionFactory(
-                                new SocketConnectionFactory(config), config);
+                                new SocketConnectionFactory(myConfig), myConfig);
                     }
                     else if (isReplicationSet(doc)) {
                         LOG.info("Replica-set bootstrap to " + addr + ".");
                         myDelegate = new ReplicaSetConnectionFactory(
-                                new SocketConnectionFactory(config), config);
+                                new SocketConnectionFactory(myConfig), myConfig);
                     }
                     else {
                         LOG.info("Simple MongoDB bootstrap to " + addr + ".");
-                        myDelegate = new SocketConnectionFactory(config);
+                        myDelegate = new SocketConnectionFactory(myConfig);
                     }
                     return;
                 }
@@ -147,7 +147,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      */
     @Override
     public Connection connect() throws IOException {
-        return myDelegate.connect();
+        return getDelegate().connect();
     }
 
     /**
@@ -156,6 +156,15 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * @return The underlying delegate factory.
      */
     protected ConnectionFactory getDelegate() {
+        if (myDelegate == null) {
+            try {
+                bootstrap();
+            }
+            catch (IOException ioe) {
+                LOG.log(Level.WARNING,
+                        "Could not bootstrap connection factory.", ioe);
+            }
+        }
         return myDelegate;
     }
 

@@ -57,6 +57,15 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
+    public DocumentBuilder add(final Element element) {
+        myElements.add(element);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public DocumentBuilder addBinary(final String name, final byte subType,
             final byte[] value) {
         myElements.add(new BinaryElement(name, subType, value));

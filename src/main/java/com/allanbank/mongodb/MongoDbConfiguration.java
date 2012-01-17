@@ -40,6 +40,14 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     private int myConnectTimeout = 10000;
 
+    /**
+     * The default durability for write operations on the server.
+     * <p>
+     * Defaults to {@link Durability#NONE}.
+     * </p>
+     */
+    private Durability myDefaultDurability = Durability.NONE;
+
     /** The factory for creating threads to handle connections. */
     private ThreadFactory myFactory = null;
 
@@ -52,7 +60,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * <em>Note:</em> In the case of connecting to a replica set this setting
      * limits the number of connections to the primary server. The driver will
      * create single connections to the secondary servers if queries are issued
-     * with "slaveOk" set to true.
+     * with "replicaOk" set to true.
      * </p>
      */
     private int myMaxConnectionCount = 3;
@@ -61,7 +69,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * Determines the maximum number of pending operations to allow per
      * connection. The higher the value the more "asynchronous" the driver can
      * be but risks more operations being in an unknown state on a connection
-     * error. When the connection has this many pending connections additional
+     * error. When the connection has this many pending requests additional
      * requests will block.
      * <p>
      * Defaults to 1024.
@@ -181,6 +189,18 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the default durability for write operations on the server.
+     * <p>
+     * Defaults to {@link Durability#NONE}.
+     * </p>
+     * 
+     * @return The default durability for write operations on the server.
+     */
+    public Durability getDefaultDurability() {
+        return myDefaultDurability;
+    }
+
+    /**
      * Returns the maximum number of connections to use.
      * <p>
      * Defaults to 3.
@@ -189,7 +209,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * <em>Note:</em> In the case of connecting to a replica set this setting
      * limits the number of connections to the primary server. The driver will
      * create single connections to the secondary servers if queries are issued
-     * with "slaveOk" set to true.
+     * with "replicaOk" set to true.
      * </p>
      * 
      * @return The maximum connections to use.
@@ -304,6 +324,17 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Sets the default durability for write operations on the server to the new
+     * value.
+     * 
+     * @param defaultDurability
+     *            The default durability for write operations on the server.
+     */
+    public void setDefaultDurability(final Durability defaultDurability) {
+        myDefaultDurability = defaultDurability;
+    }
+
+    /**
      * Sets the maximum number of connections to use.
      * <p>
      * Defaults to 3.
@@ -312,7 +343,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * <em>Note:</em> In the case of connecting to a replica set this setting
      * limits the number of connections to the primary server. The driver will
      * create single connections to the secondary servers if queries are issued
-     * with "slaveOk" set to true.
+     * with "replicaOk" set to true.
      * </p>
      * 
      * @param maxConnectionCount

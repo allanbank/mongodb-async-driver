@@ -8,6 +8,7 @@ package com.allanbank.mongodb.connection.proxy;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
@@ -96,6 +97,60 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
+    public int getPendingMessageCount() {
+        try {
+            return ensureConnected().getPendingMessageCount();
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the {@link Connection} returned from
+     * {@link #ensureConnected()}.
+     * </p>
+     */
+    @Override
+    public int getToBeSentMessageCount() {
+        try {
+            return ensureConnected().getToBeSentMessageCount();
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the {@link Connection} returned from
+     * {@link #ensureConnected()}.
+     * </p>
+     */
+    @Override
+    public boolean isIdle() {
+        try {
+            return ensureConnected().isIdle();
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the {@link Connection} returned from
+     * {@link #ensureConnected()}.
+     * </p>
+     */
+    @Override
     public void send(final Callback<Reply> reply, final Message... messages)
             throws MongoDbException {
         try {
@@ -117,6 +172,24 @@ public abstract class AbstractProxyConnection implements Connection {
     @Override
     public void send(final Message... messages) throws MongoDbException {
         send(null, messages);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the {@link Connection} returned from
+     * {@link #ensureConnected()}.
+     * </p>
+     */
+    @Override
+    public void waitForIdle(final int timeout, final TimeUnit timeoutUnits) {
+        try {
+            ensureConnected().waitForIdle(timeout, timeoutUnits);
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
     }
 
     /**

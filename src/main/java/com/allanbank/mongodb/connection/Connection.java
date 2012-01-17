@@ -6,6 +6,7 @@ package com.allanbank.mongodb.connection;
 
 import java.io.Closeable;
 import java.io.Flushable;
+import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
@@ -23,6 +24,29 @@ public interface Connection extends Closeable, Flushable {
 
     /** The collection to use when issuing commands to the database. */
     public static final String COMMAND_COLLECTION = "$cmd";
+
+    /**
+     * Returns the number of messages that are pending responses from the
+     * server.
+     * 
+     * @return The number of messages pending responses from the server.
+     */
+    public int getPendingMessageCount();
+
+    /**
+     * Returns the number of messages that are pending to be sent to the server.
+     * 
+     * @return The number of messages pending to be sent to the server.
+     */
+    public int getToBeSentMessageCount();
+
+    /**
+     * Determines if the connection is idle.
+     * 
+     * @return True if the connection is waiting for messages to send and has no
+     *         outstanding messages to receive.
+     */
+    public boolean isIdle();
 
     /**
      * Sends a message on the connection.
@@ -50,4 +74,15 @@ public interface Connection extends Closeable, Flushable {
      *             On an error sending the message.
      */
     public void send(Message... messages) throws MongoDbException;
+
+    /**
+     * Waits for the connection to become idle.
+     * 
+     * @param timeout
+     *            The amount of time to wait for the connection to become idle.
+     * @param timeoutUnits
+     *            The units for the amount of time to wait for the connection to
+     *            become idle.
+     */
+    public void waitForIdle(int timeout, TimeUnit timeoutUnits);
 }

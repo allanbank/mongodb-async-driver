@@ -7,7 +7,6 @@ package com.allanbank.mongodb;
 
 import java.io.Closeable;
 import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * Interface to bootstrap into interactions with MongoDB.
@@ -29,7 +28,7 @@ public interface Mongo extends Closeable {
     /**
      * Returns a future for the list of database names.
      * 
-     * @return A {@link Future} for the list of available database names.
+     * @return A list of available database names.
      */
-    public Future<List<String>> listDatabases();
+    public List<String> listDatabases();
 }

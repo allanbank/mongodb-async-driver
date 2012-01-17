@@ -173,6 +173,33 @@ public class SocketConnection implements Connection {
      * {@inheritDoc}
      */
     @Override
+    public int getPendingMessageCount() {
+        return myPendingQueue.size();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getToBeSentMessageCount() {
+        return myToSendQueue.size();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * True if the send and pending queues are empty.
+     * </p>
+     */
+    @Override
+    public boolean isIdle() {
+        return myPendingQueue.isEmpty() && myToSendQueue.isEmpty();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public synchronized void send(final Callback<Reply> reply,
             final Message... messages) throws MongoDbException {
         try {
@@ -198,6 +225,31 @@ public class SocketConnection implements Connection {
         }
         catch (final InterruptedException e) {
             throw new MongoDbException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the {@link Connection} returned from
+     * {@link #ensureConnected()}.
+     * </p>
+     */
+    @Override
+    public void waitForIdle(final int timeout, final TimeUnit timeoutUnits) {
+        long now = System.currentTimeMillis();
+        final long deadline = now + timeoutUnits.toMillis(timeout);
+
+        while (!isIdle() && (now < deadline)) {
+            try {
+                // A slow spin loop.
+                TimeUnit.MILLISECONDS.sleep(10);
+            }
+            catch (final InterruptedException e) {
+                // Ignore.
+                e.hashCode();
+            }
+            now = System.currentTimeMillis();
         }
     }
 

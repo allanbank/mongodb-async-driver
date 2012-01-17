@@ -995,7 +995,7 @@ public class SocketConnectionTest {
      *             On a failure connecting to the Mock MongoDB server.
      */
     @Test
-    public void testQuerySlaveOk() throws IOException {
+    public void testQueryReplicaOk() throws IOException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
