@@ -100,7 +100,7 @@ public abstract class AbstractReplyCallback<F> implements Callback<Reply> {
         if (results.size() == 1) {
             final Document doc = results.get(0);
             final Element okElem = doc.get("ok");
-            final Element errorNumberElem = doc.get("errno");
+            final Element errorNumberElem = doc.get("code");
             final Element errorMessageElem = doc.get("errmsg");
             if ((okElem != null) && (errorMessageElem != null)) {
                 final int okValue = toInt(okElem);

@@ -11,6 +11,8 @@ package com.allanbank.mongodb;
  * <ul>
  * <li>The lowest durability ({@link #NONE}) has no guarantees that the data
  * will survive a catastrophic server failure.
+ * <li>The next level of durability ({@link #ackDurable(int)}) ensures that the
+ * data has been received by the server.
  * <li>The next level of durability ({@link #journalDurable(int)}) ensures that
  * the data is written to the server's journal before returning.
  * <li>Next level ({@link #fsyncDurable(int)}) is to ensure that the data has
@@ -28,7 +30,12 @@ package com.allanbank.mongodb;
 public class Durability {
 
     /** The durability that says no durability is required. */
-    public final static Durability NONE = new Durability(false, false, 0, 0);
+    public final static Durability NONE = new Durability(false, false, false,
+            0, 0);
+
+    /** The durability that says no durability is required. */
+    public final static Durability ACK = new Durability(true, false, false, 0,
+            0);
 
     /**
      * Creates an fsync() durability.
@@ -40,16 +47,7 @@ public class Durability {
      *         the server's disk.
      */
     public static Durability fsyncDurable(final int waitTimeoutMillis) {
-        return new Durability(true, false, 0, waitTimeoutMillis);
-    }
-
-    /**
-     * Returns the none value.
-     * 
-     * @return the none
-     */
-    public static Durability getNone() {
-        return NONE;
+        return new Durability(true, true, false, 0, waitTimeoutMillis);
     }
 
     /**
@@ -62,7 +60,7 @@ public class Durability {
      *         journal before returning.
      */
     public static Durability journalDurable(final int waitTimeoutMillis) {
-        return new Durability(false, true, 0, waitTimeoutMillis);
+        return new Durability(true, false, true, 0, waitTimeoutMillis);
     }
 
     /**
@@ -75,7 +73,7 @@ public class Durability {
      *         of server's replicas before returning.
      */
     public static Durability replicaDurable(final int waitTimeoutMillis) {
-        return new Durability(false, false, 1, waitTimeoutMillis);
+        return new Durability(true, false, false, 1, waitTimeoutMillis);
     }
 
     /**
@@ -91,8 +89,15 @@ public class Durability {
      */
     public static Durability replicaDurable(final int minimumReplicas,
             final int waitTimeoutMillis) {
-        return new Durability(false, false, minimumReplicas, waitTimeoutMillis);
+        return new Durability(true, false, false, minimumReplicas,
+                waitTimeoutMillis);
     }
+
+    /**
+     * True if the durability requires that the response wait for a reply from
+     * the server but no special server processing.
+     */
+    private final boolean myWaitForReply;
 
     /**
      * True if the durability requires that the response wait for an fsync() of
@@ -122,6 +127,8 @@ public class Durability {
     /**
      * Create a new Durability.
      * 
+     * @param waitForReply
+     *            True if the durability requires a reply from the server.
      * @param waitForFsync
      *            True if the durability requires that the response wait for an
      *            fsync() of the data to complete, false otherwise.
@@ -137,10 +144,11 @@ public class Durability {
      *            The number of milliseconds to wait for the durability
      *            requirements to be satisfied.
      */
-    private Durability(final boolean waitForFsync,
+    private Durability(final boolean waitForReply, final boolean waitForFsync,
             final boolean waitForJournal, final int waitForReplicas,
             final int waitTimeoutMillis) {
         super();
+        myWaitForReply = waitForReply;
         myWaitForFsync = waitForFsync;
         myWaitForJournal = waitForJournal;
         myWaitForReplicas = waitForReplicas;
@@ -233,6 +241,18 @@ public class Durability {
      */
     public boolean isWaitForJournal() {
         return myWaitForJournal;
+    }
+
+    /**
+     * Returns if the durability requires that the response wait for a reply
+     * from the server but potentially no special server processing.
+     * 
+     * @return True if the durability requires that the response wait for a
+     *         reply from the server but potentially no special server
+     *         processing.
+     */
+    public boolean isWaitForReply() {
+        return myWaitForReply;
     }
 
 }

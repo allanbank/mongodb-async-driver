@@ -9,6 +9,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.allanbank.mongodb.Callback;
 
@@ -27,13 +30,19 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      * Flag tracking if the user has cancelled the future. This does not stop
      * the MongoDB call.
      */
-    private boolean myCancelled = false;
+    private volatile boolean myCancelled = false;
+
+    /** Lock to handle conditioned waits. */
+    private final Lock myLock;
+
+    /** Condition to wait on for a result. */
+    private final Condition myNoResultCondition;
 
     /** The exception thrown by the call. */
-    private Throwable myThrown;
+    private volatile Throwable myThrown;
 
     /** The returned value for the callback. */
-    private V myValue = null;
+    private volatile V myValue = null;
 
     /**
      * Create a new FutureCallback.
@@ -42,6 +51,9 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
         myCancelled = false;
         myValue = null;
         myThrown = null;
+
+        myLock = new ReentrantLock();
+        myNoResultCondition = myLock.newCondition();
     }
 
     /**
@@ -54,9 +66,15 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      * @see Callback#callback
      */
     @Override
-    public synchronized void callback(final V result) {
-        myValue = result;
-        notifyAll();
+    public void callback(final V result) {
+        myLock.lock();
+        try {
+            myValue = result;
+            myNoResultCondition.signalAll();
+        }
+        finally {
+            myLock.unlock();
+        }
     }
 
     /**
@@ -71,10 +89,16 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      * @see Future#cancel(boolean)
      */
     @Override
-    public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
+    public boolean cancel(final boolean mayInterruptIfRunning) {
         if ((myValue == null) && (myThrown == null) && (myCancelled == false)) {
-            myCancelled = true;
-            notifyAll();
+            myLock.lock();
+            try {
+                myCancelled = true;
+                myNoResultCondition.signalAll();
+            }
+            finally {
+                myLock.unlock();
+            }
             return true;
         }
         return false;
@@ -90,9 +114,15 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      * @see Callback#exception
      */
     @Override
-    public synchronized void exception(final Throwable thrown) {
-        myThrown = thrown;
-        notifyAll();
+    public void exception(final Throwable thrown) {
+        myLock.lock();
+        try {
+            myThrown = thrown;
+            myNoResultCondition.signalAll();
+        }
+        finally {
+            myLock.unlock();
+        }
     }
 
     /**
@@ -104,9 +134,15 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      * @see Future#get()
      */
     @Override
-    public synchronized V get() throws InterruptedException, ExecutionException {
-        if (!isDone()) {
-            wait();
+    public V get() throws InterruptedException, ExecutionException {
+        myLock.lock();
+        try {
+            if (!isDone()) {
+                myNoResultCondition.await();
+            }
+        }
+        finally {
+            myLock.unlock();
         }
 
         if (myThrown != null) {
@@ -125,16 +161,27 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      * @see Future#get(long, TimeUnit)
      */
     @Override
-    public synchronized V get(final long timeout, final TimeUnit unit)
+    public V get(final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        if (!isDone()) {
-            unit.timedWait(this, timeout);
+        boolean done = false;
+        myLock.lock();
+        try {
+            if (!isDone()) {
+                myNoResultCondition.await(timeout, unit);
+                done = isDone();
+            }
+            else {
+                done = true;
+            }
+        }
+        finally {
+            myLock.unlock();
         }
 
         if (myThrown != null) {
             throw new ExecutionException(myThrown);
         }
-        if (!isDone()) {
+        if (!done) {
             throw new TimeoutException();
         }
 
@@ -150,7 +197,7 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      * @see Future#isCancelled()
      */
     @Override
-    public synchronized boolean isCancelled() {
+    public boolean isCancelled() {
         return myCancelled;
     }
 
@@ -164,7 +211,7 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      * @see Future#isDone()
      */
     @Override
-    public synchronized boolean isDone() {
+    public boolean isDone() {
         return ((myValue != null) || (myThrown != null) || (myCancelled == true));
     }
 }

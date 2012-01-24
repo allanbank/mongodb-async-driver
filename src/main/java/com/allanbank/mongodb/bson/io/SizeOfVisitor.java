@@ -4,8 +4,6 @@
  */
 package com.allanbank.mongodb.bson.io;
 
-import java.nio.charset.Charset;
-import java.util.IdentityHashMap;
 import java.util.List;
 
 import com.allanbank.mongodb.bson.Document;
@@ -20,11 +18,63 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 /* package */class SizeOfVisitor implements Visitor {
-    /** UTF-8 Character set for encoding strings. */
-    public final static Charset UTF8 = Charset.forName("UTF-8");
 
-    /** The cache of document sizes. */
-    private final IdentityHashMap<Object, Integer> myCachedSizes;
+    /**
+     * Computes the size of the encoded UTF8 String based on the table below.
+     * 
+     * <pre>
+     * #    Code Points      Bytes
+     * 1    U+0000..U+007F   1
+     * 
+     * 2    U+0080..U+07FF   2
+     * 
+     * 3    U+0800..U+0FFF   3
+     *      U+1000..U+FFFF
+     * 
+     * 4   U+10000..U+3FFFF  4
+     *     U+40000..U+FFFFF  4
+     *    U+100000..U10FFFF  4
+     * </pre>
+     * 
+     * @param string
+     *            The string to determine the length of.
+     * @return The length of the string encoded as UTF8.
+     */
+    public static int utf8Size(final String string) {
+        int length = 0;
+        final int strLength = string.length();
+        for (int i = 0; i < strLength; ++i) {
+            int c = string.charAt(i);
+            if (c < 0x0080) {
+                length += 1;
+            }
+            else if (c < 0x0800) {
+                length += 2;
+            }
+            else if (c < 0x1000) {
+                length += 3;
+            }
+            else {
+                // Have to worry about surrogate pairs.
+                if (Character.isHighSurrogate((char) c)
+                        && ((i + 1) < strLength)
+                        && Character.isLowSurrogate(string.charAt(i + 1))) {
+                    // Consume the second character too.
+                    i += 1;
+                    c = Character.toCodePoint((char) c, string.charAt(i));
+                }
+
+                if (c <= 0xFFFF) {
+                    length += 3;
+                }
+                else {
+                    length += 4;
+                }
+            }
+        }
+
+        return length;
+    }
 
     /** The computed size. */
     private int mySize;
@@ -33,7 +83,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * Creates a new SizeOfVisitor.
      */
     public SizeOfVisitor() {
-        myCachedSizes = new IdentityHashMap<Object, Integer>();
+        super();
     }
 
     /**
@@ -44,7 +94,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * @return The visitor's output buffer.
      */
     public int computeCStringSize(final String string) {
-        return UTF8.encode(string).limit() + 1;
+        return utf8Size(string) + 1;
     }
 
     /**
@@ -55,7 +105,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * @return The visitor's output buffer.
      */
     public int computeStringSize(final String string) {
-        return 4 + UTF8.encode(string).limit() + 1;
+        return 4 + utf8Size(string) + 1;
     }
 
     /**
@@ -74,7 +124,6 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     public void reset() {
         mySize = 0;
-        myCachedSizes.clear();
     }
 
     /**
@@ -90,15 +139,6 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     @Override
     public void visit(final List<Element> elements) {
-
-        final Integer cached = myCachedSizes.get(elements);
-        if (cached != null) {
-            mySize += cached.intValue();
-            return;
-        }
-
-        final int position = mySize;
-
         // int - 4
         // elements...
         // byte
@@ -108,8 +148,6 @@ import com.allanbank.mongodb.bson.element.ObjectId;
             element.accept(this);
         }
         mySize += 1;
-
-        myCachedSizes.put(elements, Integer.valueOf(mySize - position));
     }
 
     /**
@@ -322,5 +360,4 @@ import com.allanbank.mongodb.bson.element.ObjectId;
         mySize += computeCStringSize(name);
         mySize += 8;
     }
-
 }

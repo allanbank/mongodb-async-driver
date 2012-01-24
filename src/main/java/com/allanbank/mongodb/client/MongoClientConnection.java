@@ -215,7 +215,7 @@ public class MongoClientConnection implements Client, Closeable {
 
         // See if any of the connections are ready to close.
         final Connection toClose = myConnectionsToClose.peek();
-        if (toClose.isIdle()) {
+        if ((toClose != null) && toClose.isIdle()) {
             myConnectionsToClose.remove(toClose);
             close(toClose);
         }

@@ -86,7 +86,7 @@ public class BsonOutputStream {
     public int sizeOfCString(final String... strings) {
         int size = 0;
         for (final String string : strings) {
-            size += UTF8.encode(string).limit();
+            size += SizeOfVisitor.utf8Size(string);
         }
         return (size + 1);
     }
@@ -99,7 +99,7 @@ public class BsonOutputStream {
      * @return The size of the writing the <tt>string</tt> as a string.
      */
     public int sizeOfString(final String string) {
-        return 4 + UTF8.encode(string).limit() + 1;
+        return 4 + SizeOfVisitor.utf8Size(string) + 1;
     }
 
     /**
@@ -110,7 +110,7 @@ public class BsonOutputStream {
      */
     public void writeByte(final byte b) {
         try {
-            myOutput.write(b & 0xFF);
+            myOutput.write(b);
         }
         catch (final IOException ioe) {
             myError = ioe;
@@ -141,7 +141,7 @@ public class BsonOutputStream {
      */
     public void writeCString(final String... strings) {
         for (final String string : strings) {
-            writeBytes(string.getBytes(UTF8));
+            writeUtf8(string);
         }
         writeByte((byte) 0);
     }
@@ -174,10 +174,10 @@ public class BsonOutputStream {
      */
     public void writeInt(final int value) {
         try {
-            myOutput.write((byte) (value & 0xFF));
-            myOutput.write((byte) ((value >> 8) & 0xFF));
-            myOutput.write((byte) ((value >> 16) & 0xFF));
-            myOutput.write((byte) ((value >> 24) & 0xFF));
+            myOutput.write(value);
+            myOutput.write(value >> 8);
+            myOutput.write(value >> 16);
+            myOutput.write(value >> 24);
         }
         catch (final IOException ioe) {
             myError = ioe;
@@ -192,14 +192,14 @@ public class BsonOutputStream {
      */
     public void writeLong(final long value) {
         try {
-            myOutput.write((byte) (value & 0xFF));
-            myOutput.write((byte) ((value >> 8) & 0xFF));
-            myOutput.write((byte) ((value >> 16) & 0xFF));
-            myOutput.write((byte) ((value >> 24) & 0xFF));
-            myOutput.write((byte) ((value >> 32) & 0xFF));
-            myOutput.write((byte) ((value >> 40) & 0xFF));
-            myOutput.write((byte) ((value >> 48) & 0xFF));
-            myOutput.write((byte) ((value >> 56) & 0xFF));
+            myOutput.write((int) value);
+            myOutput.write((int) (value >> 8));
+            myOutput.write((int) (value >> 16));
+            myOutput.write((int) (value >> 24));
+            myOutput.write((int) (value >> 32));
+            myOutput.write((int) (value >> 40));
+            myOutput.write((int) (value >> 48));
+            myOutput.write((int) (value >> 56));
         }
         catch (final IOException ioe) {
             myError = ioe;
@@ -213,11 +213,40 @@ public class BsonOutputStream {
      *            The String to write.
      */
     public void writeString(final String string) {
-        final byte[] bytes = string.getBytes(UTF8);
-
-        writeInt(bytes.length + 1);
-        writeBytes(bytes);
+        writeInt(SizeOfVisitor.utf8Size(string) + 1);
+        writeUtf8(string);
         writeByte((byte) 0);
+    }
+
+    /**
+     * Writes The string as a UTF-8 string. This method handles the
+     * "normal/easy" cases and delegates to the full character set if things get
+     * complicated.
+     * 
+     * @param string
+     *            The string to encode.
+     */
+    protected void writeUtf8(final String string) {
+        final int strLength = string.length();
+        for (int i = 0; i < strLength; ++i) {
+            final int c = string.charAt(i);
+            if (c < 0x80) {
+                // 1 byte encoded / ASCII!
+                writeByte((byte) c);
+            }
+            else if (c < 0x800) {
+                // 2 byte encoded.
+                writeByte((byte) (0xc0 | (c >> 06)));
+                writeByte((byte) (0x80 | (c & 0x3f)));
+            }
+            else {
+                // Complicated beyond here. Surrogates and what not. Let the
+                // full charset handle it.
+                writeBytes(string.substring(i).getBytes(UTF8));
+                return;
+            }
+
+        }
     }
 
 }

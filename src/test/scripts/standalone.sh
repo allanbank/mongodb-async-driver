@@ -7,7 +7,7 @@
 #
 # mongod ervers on ports 27017
 
-tmpdir="${TMPDIR:-/tmp}"
+tmpdir="/dev/shm"
 dirname=standalone
 
 # stop
@@ -62,7 +62,7 @@ function start {
 	
 	port=27017
 	mongod --port ${port} --fork --dbpath "${dir}" \
-				--smallfiles --logpath ${dir}/mongod.log \
+				--logpath ${dir}/mongod.log \
 				>> ${dir}/mongod.out 2>&1
 	waitfor "${port}" "${dir}/mongod.log"
 }

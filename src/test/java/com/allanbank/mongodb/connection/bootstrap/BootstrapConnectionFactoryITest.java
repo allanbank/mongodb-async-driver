@@ -29,7 +29,7 @@ import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 
 /**
- * @author rjmoore
+ * Integration test for the {@link BootstrapConnectionFactory}.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */

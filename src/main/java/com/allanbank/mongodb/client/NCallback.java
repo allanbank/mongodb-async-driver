@@ -44,7 +44,7 @@ import com.allanbank.mongodb.error.ReplyException;
     @Override
     protected MongoDbException asError(final Reply reply) {
         MongoDbException error = super.asError(reply);
-        if (error != null) {
+        if (error == null) {
             final List<Document> results = reply.getResults();
             if (results.size() == 1) {
                 final Document doc = results.get(0);

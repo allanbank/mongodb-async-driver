@@ -120,9 +120,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         final Insert insertMessage = new Insert(getDatabaseName(), myName,
                 Arrays.asList(documents), continueOnError);
 
-        myClient.send(insertMessage, asGetLastError(durability), new NCallback(
-                results));
-        if (Durability.NONE.equals(durability)) {
+        if (Durability.NONE == durability) {
             myClient.send(insertMessage);
             results.callback(Integer.valueOf(-1));
         }
@@ -146,7 +144,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         final Update updateMessage = new Update(getDatabaseName(), myName,
                 query, update, multiUpdate, upsert);
 
-        if (Durability.NONE.equals(durability)) {
+        if (Durability.NONE == durability) {
             myClient.send(updateMessage);
             results.callback(Integer.valueOf(-1));
         }

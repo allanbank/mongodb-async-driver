@@ -32,6 +32,21 @@ import com.allanbank.mongodb.connection.messsage.GetLastError;
  */
 public abstract class AbstractMongoCollection implements MongoCollection {
 
+    /**
+     * The default for if a delete should only delete the first document it
+     * matches.
+     */
+    public static final boolean DELETE_SINGLE_DELETE_DEFAULT = false;
+
+    /** The default for if an insert should continue on an error. */
+    public static final boolean INSERT_CONTINUE_ON_ERROR_DEFAULT = false;
+
+    /** The default for doing a multiple-update on an update. */
+    public static final boolean UPDATE_MULTIUPDATE_DEFAULT = false;
+
+    /** The default for doing an upsert on an update. */
+    public static final boolean UPDATE_UPSERT_DEFAULT = false;
+
     /** The client for interacting with MongoDB. */
     protected final Client myClient;
 
@@ -74,8 +89,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public int delete(final Document query) throws MongoDbException {
         try {
-            return deleteAsync(query, false, getDefaultDurability()).get()
-                    .intValue();
+            return deleteAsync(query, DELETE_SINGLE_DELETE_DEFAULT,
+                    getDefaultDurability()).get().intValue();
         }
         catch (final InterruptedException e) {
             throw new MongoDbException(e);
@@ -157,7 +172,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public int delete(final Document query, final Durability durability)
             throws MongoDbException {
         try {
-            return deleteAsync(query, false, durability).get().intValue();
+            return deleteAsync(query, DELETE_SINGLE_DELETE_DEFAULT, durability)
+                    .get().intValue();
         }
         catch (final InterruptedException e) {
             throw new MongoDbException(e);
@@ -184,7 +200,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public void deleteAsync(final Callback<Integer> results,
             final Document query) throws MongoDbException {
-        deleteAsync(results, query, false, getDefaultDurability());
+        deleteAsync(results, query, DELETE_SINGLE_DELETE_DEFAULT,
+                getDefaultDurability());
     }
 
     /**
@@ -201,7 +218,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void deleteAsync(final Callback<Integer> results,
             final Document query, final boolean singleDelete)
             throws MongoDbException {
-        deleteAsync(results, query, false, getDefaultDurability());
+        deleteAsync(results, query, DELETE_SINGLE_DELETE_DEFAULT,
+                getDefaultDurability());
     }
 
     /**
@@ -232,7 +250,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void deleteAsync(final Callback<Integer> results,
             final Document query, final Durability durability)
             throws MongoDbException {
-        deleteAsync(results, query, false, durability);
+        deleteAsync(results, query, DELETE_SINGLE_DELETE_DEFAULT, durability);
     }
 
     /**
@@ -251,7 +269,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>();
 
-        deleteAsync(future, query, false, getDefaultDurability());
+        deleteAsync(future, query, DELETE_SINGLE_DELETE_DEFAULT,
+                getDefaultDurability());
 
         return future;
     }
@@ -309,7 +328,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final Durability durability) throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>();
 
-        deleteAsync(future, query, false, durability);
+        deleteAsync(future, query, DELETE_SINGLE_DELETE_DEFAULT, durability);
 
         return future;
     }
@@ -894,8 +913,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public int insert(final Document... documents) throws MongoDbException {
         try {
-            return insertAsync(false, getDefaultDurability(), documents).get()
-                    .intValue();
+            return insertAsync(INSERT_CONTINUE_ON_ERROR_DEFAULT,
+                    getDefaultDurability(), documents).get().intValue();
         }
         catch (final InterruptedException e) {
             throw new MongoDbException(e);
@@ -922,7 +941,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public int insert(final Durability durability, final Document... documents)
             throws MongoDbException {
         try {
-            return insertAsync(false, durability, documents).get().intValue();
+            return insertAsync(INSERT_CONTINUE_ON_ERROR_DEFAULT, durability,
+                    documents).get().intValue();
         }
         catch (final InterruptedException e) {
             throw new MongoDbException(e);
@@ -1027,7 +1047,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public void insertAsync(final Callback<Integer> results,
             final Document... documents) throws MongoDbException {
-        insertAsync(results, false, getDefaultDurability(), documents);
+        insertAsync(results, INSERT_CONTINUE_ON_ERROR_DEFAULT,
+                getDefaultDurability(), documents);
     }
 
     /**
@@ -1045,7 +1066,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void insertAsync(final Callback<Integer> results,
             final Durability durability, final Document... documents)
             throws MongoDbException {
-        insertAsync(results, false, durability, documents);
+        insertAsync(results, INSERT_CONTINUE_ON_ERROR_DEFAULT, durability,
+                documents);
     }
 
     /**
@@ -1065,7 +1087,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>();
 
-        insertAsync(future, false, getDefaultDurability(), documents);
+        insertAsync(future, INSERT_CONTINUE_ON_ERROR_DEFAULT,
+                getDefaultDurability(), documents);
 
         return future;
     }
@@ -1086,7 +1109,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final Document... documents) throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>();
 
-        insertAsync(future, false, durability, documents);
+        insertAsync(future, INSERT_CONTINUE_ON_ERROR_DEFAULT, durability,
+                documents);
 
         return future;
     }
@@ -1106,8 +1130,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public int update(final Document query, final Document update)
             throws MongoDbException {
         try {
-            return updateAsync(query, update, true, false,
-                    getDefaultDurability()).get().intValue();
+            return updateAsync(query, update, UPDATE_MULTIUPDATE_DEFAULT,
+                    UPDATE_UPSERT_DEFAULT, getDefaultDurability()).get()
+                    .intValue();
         }
         catch (final InterruptedException e) {
             throw new MongoDbException(e);
@@ -1192,8 +1217,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public int update(final Document query, final Document update,
             final Durability durability) throws MongoDbException {
         try {
-            return updateAsync(query, update, true, false, durability).get()
-                    .intValue();
+            return updateAsync(query, update, UPDATE_MULTIUPDATE_DEFAULT,
+                    UPDATE_UPSERT_DEFAULT, durability).get().intValue();
         }
         catch (final InterruptedException e) {
             throw new MongoDbException(e);
@@ -1222,7 +1247,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void updateAsync(final Callback<Integer> results,
             final Document query, final Document update)
             throws MongoDbException {
-        updateAsync(results, query, update, true, false, getDefaultDurability());
+        updateAsync(results, query, update, UPDATE_MULTIUPDATE_DEFAULT,
+                UPDATE_UPSERT_DEFAULT, getDefaultDurability());
     }
 
     /**
@@ -1276,7 +1302,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void updateAsync(final Callback<Integer> results,
             final Document query, final Document update,
             final Durability durability) throws MongoDbException {
-        updateAsync(results, query, update, true, false, durability);
+        updateAsync(results, query, update, UPDATE_MULTIUPDATE_DEFAULT,
+                UPDATE_UPSERT_DEFAULT, durability);
     }
 
     /**
@@ -1296,7 +1323,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final Document update) throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>();
 
-        updateAsync(future, query, update, true, false, getDefaultDurability());
+        updateAsync(future, query, update, UPDATE_MULTIUPDATE_DEFAULT,
+                UPDATE_UPSERT_DEFAULT, getDefaultDurability());
 
         return future;
     }
@@ -1364,7 +1392,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>();
 
-        updateAsync(future, query, update, true, false, durability);
+        updateAsync(future, query, update, UPDATE_MULTIUPDATE_DEFAULT,
+                UPDATE_UPSERT_DEFAULT, durability);
 
         return future;
     }

@@ -160,7 +160,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
             try {
                 bootstrap();
             }
-            catch (IOException ioe) {
+            catch (final IOException ioe) {
                 LOG.log(Level.WARNING,
                         "Could not bootstrap connection factory.", ioe);
             }
