@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.commands.FindAndModify;
@@ -269,6 +270,17 @@ public interface MongoCollection {
      *             On an error dropping the collection.
      */
     public boolean drop() throws MongoDbException;
+
+    /**
+     * Deletes the indexes matching the pattern specified.
+     * 
+     * @param namePattern
+     *            The pattern for the name of indexes to remove.
+     * @return If any indexes were removed.
+     * @throws MongoDbException
+     *             On an error deleting the indexes.
+     */
+    public boolean dropIndex(final Pattern namePattern) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection.

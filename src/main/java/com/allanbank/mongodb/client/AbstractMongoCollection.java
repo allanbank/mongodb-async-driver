@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
@@ -382,6 +383,17 @@ public abstract class AbstractMongoCollection implements MongoCollection {
 
         return future;
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>dropIndex</code> method that implementations
+     * must override.
+     * </p>
+     */
+    @Override
+    public abstract boolean dropIndex(final Pattern namePattern)
+            throws MongoDbException;
 
     /**
      * {@inheritDoc}

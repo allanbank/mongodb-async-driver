@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
@@ -135,6 +136,28 @@ public class MongoCollectionClient extends AbstractMongoCollection {
                 IntegerElement.class, "ok");
 
         return ((okElem.size() > 0) && (okElem.get(0).getValue() > 0));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to issue a { "deleteIndexes" : <collection_name>, name :
+     * <namePattern> } command.
+     * </p>
+     */
+    @Override
+    public boolean dropIndex(final Pattern namePattern) throws MongoDbException {
+
+        final DocumentBuilder options = BuilderFactory.start();
+        options.addRegularExpression("name", namePattern.pattern(), "");
+
+        final Document result = myDatabase.runCommand("deleteIndexes", myName,
+                options.get());
+        final List<IntegerElement> okElem = result.queryPath(
+                IntegerElement.class, "ok");
+
+        return ((okElem.size() > 0) && (okElem.get(0).getValue() > 0));
+
     }
 
     /**
