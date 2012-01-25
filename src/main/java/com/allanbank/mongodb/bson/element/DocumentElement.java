@@ -43,6 +43,24 @@ public class DocumentElement extends AbstractElement implements Document {
      * 
      * @param name
      *            The name for the BSON document.
+     * @param value
+     *            The document to copy elements from.
+     */
+    public DocumentElement(final String name, final Document value) {
+        super(TYPE, name);
+
+        final List<Element> elements = new ArrayList<Element>();
+        for (final Element element : value) {
+            elements.add(element);
+        }
+        myElements = Collections.unmodifiableList(elements);
+    }
+
+    /**
+     * Constructs a new {@link DocumentElement}.
+     * 
+     * @param name
+     *            The name for the BSON document.
      * @param elements
      *            The sub-elements for the document.
      */

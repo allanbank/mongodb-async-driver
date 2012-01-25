@@ -78,6 +78,18 @@ public interface DocumentBuilder extends Builder {
             String collectionName, ObjectId id);
 
     /**
+     * Adds a pre-built document element. Can also {@link #push(String)} a sub
+     * document.
+     * 
+     * @param name
+     *            The name of the element.
+     * @param value
+     *            The document value.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder addDocument(String name, Document value);
+
+    /**
      * Adds a double element.
      * 
      * @param name

@@ -107,6 +107,15 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
+    public DocumentBuilder addDocument(final String name, final Document value) {
+        myElements.add(new DocumentElement(name, value));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public DocumentBuilder addDouble(final String name, final double value) {
         myElements.add(new DoubleElement(name, value));
         return this;

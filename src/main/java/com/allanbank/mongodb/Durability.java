@@ -30,12 +30,12 @@ package com.allanbank.mongodb;
 public class Durability {
 
     /** The durability that says no durability is required. */
-    public final static Durability NONE = new Durability(false, false, false,
-            0, 0);
-
-    /** The durability that says no durability is required. */
     public final static Durability ACK = new Durability(true, false, false, 0,
             0);
+
+    /** The durability that says no durability is required. */
+    public final static Durability NONE = new Durability(false, false, false,
+            0, 0);
 
     /**
      * Creates an fsync() durability.
@@ -94,12 +94,6 @@ public class Durability {
     }
 
     /**
-     * True if the durability requires that the response wait for a reply from
-     * the server but no special server processing.
-     */
-    private final boolean myWaitForReply;
-
-    /**
      * True if the durability requires that the response wait for an fsync() of
      * the data to complete, false otherwise.
      */
@@ -117,6 +111,12 @@ public class Durability {
      * replicas of the data to wait for.
      */
     private final int myWaitForReplicas;
+
+    /**
+     * True if the durability requires that the response wait for a reply from
+     * the server but no special server processing.
+     */
+    private final boolean myWaitForReply;
 
     /**
      * The number of milliseconds to wait for the durability requirements to be

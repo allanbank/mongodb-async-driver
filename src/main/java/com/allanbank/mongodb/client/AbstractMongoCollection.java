@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.client;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -16,6 +17,8 @@ import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.commands.FindAndModify;
+import com.allanbank.mongodb.commands.MapReduce;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.messsage.GetLastError;
 
@@ -536,6 +539,63 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             }
             throw new MongoDbException(e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findAndModifyAsync(FindAndModify)}.
+     * </p>
+     * 
+     * @see #findAndModifyAsync(FindAndModify)
+     */
+    @Override
+    public Document findAndModify(final FindAndModify command)
+            throws MongoDbException {
+        try {
+            return findAndModifyAsync(command).get();
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+        catch (final ExecutionException e) {
+            if (e.getCause() instanceof MongoDbException) {
+                throw (MongoDbException) e.getCause();
+            }
+            throw new MongoDbException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>findAndModify</code> method that
+     * implementations must override.
+     * </p>
+     * 
+     * @see MongoCollection#findAndModifyAsync(Callback, FindAndModify)
+     */
+    @Override
+    public abstract void findAndModifyAsync(Callback<Document> results,
+            FindAndModify command) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #findAndModifyAsync(Callback, FindAndModify)}.
+     * </p>
+     * 
+     * @see #findAndModifyAsync(Callback, FindAndModify)
+     */
+    @Override
+    public Future<Document> findAndModifyAsync(final FindAndModify command)
+            throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>();
+
+        findAndModifyAsync(future, command);
+
+        return future;
     }
 
     /**
@@ -1111,6 +1171,62 @@ public abstract class AbstractMongoCollection implements MongoCollection {
 
         insertAsync(future, INSERT_CONTINUE_ON_ERROR_DEFAULT, durability,
                 documents);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #mapReduceAsync(MapReduce)}.
+     * </p>
+     * 
+     * @see #mapReduceAsync(MapReduce)
+     */
+    @Override
+    public List<Document> mapReduce(MapReduce command) throws MongoDbException {
+        try {
+            return mapReduceAsync(command).get();
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+        catch (final ExecutionException e) {
+            if (e.getCause() instanceof MongoDbException) {
+                throw (MongoDbException) e.getCause();
+            }
+            throw new MongoDbException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>mapReduce</code> method that implementations
+     * must override.
+     * </p>
+     * 
+     * @see MongoCollection#mapReduceAsync(Callback, MapReduce)
+     */
+    @Override
+    public abstract void mapReduceAsync(Callback<List<Document>> results,
+            MapReduce command) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #findAndModifyAsync(Callback, FindAndModify)}.
+     * </p>
+     * 
+     * @see #mapReduceAsync(Callback, MapReduce)
+     */
+    @Override
+    public Future<List<Document>> mapReduceAsync(MapReduce command)
+            throws MongoDbException {
+        final FutureCallback<List<Document>> future = new FutureCallback<List<Document>>();
+
+        mapReduceAsync(future, command);
 
         return future;
     }

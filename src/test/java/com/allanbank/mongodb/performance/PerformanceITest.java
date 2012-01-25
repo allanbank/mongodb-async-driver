@@ -193,10 +193,11 @@ public class PerformanceITest {
      * Test to measure the performance of performing a series of inserts into a
      * collection.
      */
-    @Test @Ignore
+    @Test
+    @Ignore
     public void testInsertRate() {
 
-        int maxCount = 1000000;
+        final int maxCount = 1000000;
         int count;
         double async = 0;
         double sync = 0;
@@ -204,14 +205,14 @@ public class PerformanceITest {
         double legacy = 0;
         Durability durability;
 
-        List<String> cases = new ArrayList<String>();
+        final List<String> cases = new ArrayList<String>();
         cases.add("none");
         cases.add("ack");
         cases.add("normal");
         cases.add("journal");
         cases.add("fsync");
 
-        List<String> runCases = new ArrayList<String>();
+        final List<String> runCases = new ArrayList<String>();
         runCases.addAll(cases);
         runCases.addAll(cases);
         runCases.addAll(cases);
@@ -221,7 +222,7 @@ public class PerformanceITest {
         runCases.addAll(cases);
         runCases.addAll(cases);
 
-        List<String> runOrder = new ArrayList<String>();
+        final List<String> runOrder = new ArrayList<String>();
         runOrder.add("async");
         runOrder.add("sync");
         runOrder.add("callback");
@@ -235,13 +236,13 @@ public class PerformanceITest {
                 "Callback");
 
         Collections.shuffle(runCases);
-        for (String runCase : runCases) {
+        for (final String runCase : runCases) {
             if ("none".equals(runCase)) {
                 count = maxCount;
                 durability = Durability.NONE;
 
                 Collections.shuffle(runOrder);
-                for (String toRun : runOrder) {
+                for (final String toRun : runOrder) {
                     cleanup();
                     if ("legacy".equals(toRun)) {
                         legacy = runSyncInsertRate(WriteConcern.NONE, count);
@@ -268,7 +269,7 @@ public class PerformanceITest {
                 durability = Durability.NONE;
 
                 Collections.shuffle(runOrder);
-                for (String toRun : runOrder) {
+                for (final String toRun : runOrder) {
                     cleanup();
                     if ("legacy".equals(toRun)) {
                         legacy = runSyncInsertRate(WriteConcern.NORMAL, count);
@@ -296,7 +297,7 @@ public class PerformanceITest {
                 durability = Durability.ACK;
 
                 Collections.shuffle(runOrder);
-                for (String toRun : runOrder) {
+                for (final String toRun : runOrder) {
                     cleanup();
                     if ("legacy".equals(toRun)) {
                         legacy = runSyncInsertRate(WriteConcern.SAFE, count);
@@ -324,7 +325,7 @@ public class PerformanceITest {
                 durability = Durability.journalDurable(1000);
 
                 Collections.shuffle(runOrder);
-                for (String toRun : runOrder) {
+                for (final String toRun : runOrder) {
                     cleanup();
                     if ("legacy".equals(toRun)) {
                         legacy = runSyncInsertRate(WriteConcern.JOURNAL_SAFE,
@@ -353,7 +354,7 @@ public class PerformanceITest {
                 durability = Durability.journalDurable(1000);
 
                 Collections.shuffle(runOrder);
-                for (String toRun : runOrder) {
+                for (final String toRun : runOrder) {
                     cleanup();
                     if ("legacy".equals(toRun)) {
                         legacy = runSyncInsertRate(WriteConcern.FSYNC_SAFE,
@@ -384,10 +385,11 @@ public class PerformanceITest {
      * Test to measure the performance of performing a series of pdateinserts
      * into a collection.
      */
-    @Test @Ignore
+    @Test
+    @Ignore
     public void testUpdateRate() {
 
-        int maxCount = 1000000;
+        final int maxCount = 1000000;
         int count;
         double async = 0;
         double sync = 0;
@@ -395,14 +397,14 @@ public class PerformanceITest {
         double legacy = 0;
         Durability durability;
 
-        List<String> cases = new ArrayList<String>();
+        final List<String> cases = new ArrayList<String>();
         cases.add("none");
         cases.add("normal");
         cases.add("ack");
         cases.add("journal");
         cases.add("fsync");
 
-        List<String> runCases = new ArrayList<String>();
+        final List<String> runCases = new ArrayList<String>();
         runCases.addAll(cases);
         runCases.addAll(cases);
         runCases.addAll(cases);
@@ -412,7 +414,7 @@ public class PerformanceITest {
         runCases.addAll(cases);
         runCases.addAll(cases);
 
-        List<String> runOrder = new ArrayList<String>();
+        final List<String> runOrder = new ArrayList<String>();
         runOrder.add("async");
         runOrder.add("sync");
         runOrder.add("callback");
@@ -426,13 +428,13 @@ public class PerformanceITest {
                 "Callback");
 
         Collections.shuffle(runCases);
-        for (String runCase : runCases) {
+        for (final String runCase : runCases) {
             if ("none".equals(runCase)) {
                 count = maxCount;
                 durability = Durability.NONE;
 
                 Collections.shuffle(runOrder);
-                for (String toRun : runOrder) {
+                for (final String toRun : runOrder) {
                     cleanup();
                     if ("legacy".equals(toRun)) {
                         legacy = runSyncUpdateRate(WriteConcern.NONE, count);
@@ -459,7 +461,7 @@ public class PerformanceITest {
                 durability = Durability.NONE;
 
                 Collections.shuffle(runOrder);
-                for (String toRun : runOrder) {
+                for (final String toRun : runOrder) {
                     cleanup();
                     if ("legacy".equals(toRun)) {
                         legacy = runSyncUpdateRate(WriteConcern.NORMAL, count);
@@ -487,7 +489,7 @@ public class PerformanceITest {
                 durability = Durability.ACK;
 
                 Collections.shuffle(runOrder);
-                for (String toRun : runOrder) {
+                for (final String toRun : runOrder) {
                     cleanup();
                     if ("legacy".equals(toRun)) {
                         legacy = runSyncUpdateRate(WriteConcern.SAFE, count);
@@ -515,7 +517,7 @@ public class PerformanceITest {
                 durability = Durability.journalDurable(1000);
 
                 Collections.shuffle(runOrder);
-                for (String toRun : runOrder) {
+                for (final String toRun : runOrder) {
                     cleanup();
                     if ("legacy".equals(toRun)) {
                         legacy = runSyncUpdateRate(WriteConcern.JOURNAL_SAFE,
@@ -544,7 +546,7 @@ public class PerformanceITest {
                 durability = Durability.journalDurable(1000);
 
                 Collections.shuffle(runOrder);
-                for (String toRun : runOrder) {
+                for (final String toRun : runOrder) {
                     cleanup();
                     if ("legacy".equals(toRun)) {
                         legacy = runSyncUpdateRate(WriteConcern.FSYNC_SAFE,

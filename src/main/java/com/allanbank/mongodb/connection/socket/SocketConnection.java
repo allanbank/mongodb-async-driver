@@ -223,7 +223,7 @@ public class SocketConnection implements Connection {
     public synchronized void send(final Callback<Reply> reply,
             final Message... messages) throws MongoDbException {
         try {
-            int last = messages.length - 1;
+            final int last = messages.length - 1;
             for (int i = 0; i < messages.length; ++i) {
                 if (i != last) {
                     myToSendQueue

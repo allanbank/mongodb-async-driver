@@ -15,7 +15,12 @@ import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.commands.FindAndModify;
+import com.allanbank.mongodb.commands.MapReduce;
+import com.allanbank.mongodb.connection.messsage.Command;
 import com.allanbank.mongodb.connection.messsage.Delete;
 import com.allanbank.mongodb.connection.messsage.Insert;
 import com.allanbank.mongodb.connection.messsage.Query;
@@ -83,6 +88,126 @@ public class MongoCollectionClient extends AbstractMongoCollection {
                 IntegerElement.class, "ok");
 
         return ((okElem.size() > 0) && (okElem.get(0).getValue() > 0));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to send an {@link Command} findAndModify message to the
+     * server.
+     * </p>
+     * 
+     * @see MongoCollection#findAndModifyAsync(Callback, FindAndModify)
+     */
+    @Override
+    public void findAndModifyAsync(final Callback<Document> results,
+            final FindAndModify command) throws MongoDbException {
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        builder.addString("findAndModify", getName());
+        if (command.getQuery() != null) {
+            builder.addDocument("query", command.getQuery());
+        }
+        if (command.getSort() != null) {
+            builder.addDocument("sort", command.getSort());
+        }
+        if (command.getUpdate() != null) {
+            builder.addDocument("update", command.getUpdate());
+        }
+        if (command.getFields() != null) {
+            builder.addDocument("fields", command.getFields());
+        }
+        if (command.isRemove()) {
+            builder.addBoolean("remove", true);
+        }
+        if (command.isReturnNew()) {
+            builder.addBoolean("new", true);
+        }
+        if (command.isUpsert()) {
+            builder.addBoolean("upsert", true);
+        }
+
+        final Command commandMsg = new Command(getDatabaseName(), builder.get());
+        myClient.send(commandMsg, new ReplyValueDocumentCallback(results));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>mapReduce</code> method that implementations
+     * must override.
+     * </p>
+     * 
+     * @see MongoCollection#mapReduceAsync(Callback, MapReduce)
+     */
+    @Override
+    public void mapReduceAsync(Callback<List<Document>> results,
+            MapReduce command) throws MongoDbException {
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        builder.addString("mapReduce", getName());
+        if (command.getMap() != null) {
+            builder.addJavaScript("map", command.getMap());
+        }
+        if (command.getReduce() != null) {
+            builder.addJavaScript("reduce", command.getReduce());
+        }
+        if (command.getFinalize() != null) {
+            builder.addJavaScript("finalize", command.getFinalize());
+        }
+        if (command.getQuery() != null) {
+            builder.addDocument("query", command.getQuery());
+        }
+        if (command.getSort() != null) {
+            builder.addDocument("sort", command.getSort());
+        }
+        if (command.getScope() != null) {
+            builder.addDocument("scope", command.getScope());
+        }
+        if (command.getLimit() != 0) {
+            builder.addInteger("limit", command.getLimit());
+        }
+        if (command.isKeepTemp()) {
+            builder.addBoolean("keeptemp", true);
+        }
+        if (command.isJsMode()) {
+            builder.addBoolean("jsMode", true);
+        }
+        if (command.isVerbose()) {
+            builder.addBoolean("verbose", true);
+        }
+
+        DocumentBuilder outputBuilder = builder.push("out");
+        switch (command.getOutputType()) {
+        case INLINE: {
+            outputBuilder.addInteger("inline", 1);
+            break;
+        }
+        case REPLACE: {
+            outputBuilder.addString("replace", command.getOutputName());
+            if (command.getOutputDatabase() != null) {
+                outputBuilder.addString("db", command.getOutputDatabase());
+            }
+            break;
+        }
+        case MERGE: {
+            outputBuilder.addString("merge", command.getOutputName());
+            if (command.getOutputDatabase() != null) {
+                outputBuilder.addString("db", command.getOutputDatabase());
+            }
+            break;
+        }
+        case REDUCE: {
+            outputBuilder.addString("reduce", command.getOutputName());
+            if (command.getOutputDatabase() != null) {
+                outputBuilder.addString("db", command.getOutputDatabase());
+            }
+            break;
+        }
+        }
+
+        final Command commandMsg = new Command(getDatabaseName(), builder.get());
+        myClient.send(commandMsg, new MapReduceReplyCallback(results));
     }
 
     /**

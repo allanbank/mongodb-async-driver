@@ -32,6 +32,11 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      */
     private volatile boolean myCancelled = false;
 
+    /**
+     * Flag tracking if the value has been set.
+     */
+    private volatile boolean mySet = false;
+
     /** Lock to handle conditioned waits. */
     private final Lock myLock;
 
@@ -70,6 +75,7 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
         myLock.lock();
         try {
             myValue = result;
+            mySet = true;
             myNoResultCondition.signalAll();
         }
         finally {
@@ -118,6 +124,7 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
         myLock.lock();
         try {
             myThrown = thrown;
+            mySet = true;
             myNoResultCondition.signalAll();
         }
         finally {
@@ -212,6 +219,6 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      */
     @Override
     public boolean isDone() {
-        return ((myValue != null) || (myThrown != null) || (myCancelled == true));
+        return (mySet || myCancelled);
     }
 }

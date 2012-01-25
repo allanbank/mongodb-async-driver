@@ -6,9 +6,12 @@
 package com.allanbank.mongodb;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.commands.FindAndModify;
+import com.allanbank.mongodb.commands.MapReduce;
 
 /**
  * Interface for interacting with a MongoDB collection.
@@ -386,6 +389,46 @@ public interface MongoCollection {
      */
     public Iterator<Document> find(Document query, final int numberToReturn,
             final int numberToSkip, boolean replicaOk) throws MongoDbException;
+
+    /**
+     * Invokes a findAndModify command on the server. The <tt>query</tt> is used
+     * to locate a document to apply a set of <tt>update</tt>s to.
+     * 
+     * @param command
+     *            The details of the find and modify request.
+     * @return The found document.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Document findAndModify(FindAndModify command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a findAndModify command on the server. The <tt>query</tt> is used
+     * to locate a document to apply a set of <tt>update</tt>s to.
+     * 
+     * @param results
+     *            Callback for the the found document.
+     * @param command
+     *            The details of the find and modify request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void findAndModifyAsync(Callback<Document> results,
+            FindAndModify command) throws MongoDbException;
+
+    /**
+     * Invokes a findAndModify command on the server. The <tt>query</tt> is used
+     * to locate a document to apply a set of <tt>update</tt>s to.
+     * 
+     * @param command
+     *            The details of the find and modify request.
+     * @return Future for the found document.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<Document> findAndModifyAsync(FindAndModify command)
+            throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection.
@@ -908,6 +951,45 @@ public interface MongoCollection {
      *             On an error updating the documents.
      */
     public int update(Document query, Document update) throws MongoDbException;
+
+    /**
+     * Invokes a mapReduce command on the server.
+     * 
+     * @param command
+     *            The details of the map/reduce request.
+     * @return The map/reduce results returned. Note this might be empty if the
+     *         output type is not inline.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public List<Document> mapReduce(MapReduce command) throws MongoDbException;
+
+    /**
+     * Invokes a mapReduce command on the server.
+     * 
+     * @param results
+     *            Callback for the map/reduce results returned. Note this might
+     *            be empty if the output type is not inline.
+     * @param command
+     *            The details of the map/reduce request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void mapReduceAsync(Callback<List<Document>> results,
+            MapReduce command) throws MongoDbException;
+
+    /**
+     * Invokes a mapReduce command on the server.
+     * 
+     * @param command
+     *            The details of the map/reduce request.
+     * @return Future for the map/reduce results returned. Note this might be
+     *         empty if the output type is not inline.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<List<Document>> mapReduceAsync(MapReduce command)
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
