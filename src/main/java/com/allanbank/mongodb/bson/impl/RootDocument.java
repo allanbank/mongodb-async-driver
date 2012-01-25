@@ -17,6 +17,8 @@ import java.util.regex.PatternSyntaxException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.bson.element.ObjectIdElement;
 
 /**
  * A root level document.
@@ -32,7 +34,13 @@ public class RootDocument implements Document {
     private Map<String, Element> myElementMap;
 
     /** The elements of the document. */
-    private final List<Element> myElements;
+    private List<Element> myElements;
+
+    /**
+     * Tracks if the _id field is known to exist in the document when
+     * constructed.
+     */
+    private final boolean myIdKnownPresent;
 
     /**
      * Constructs a new {@link RootDocument}.
@@ -48,6 +56,7 @@ public class RootDocument implements Document {
         else {
             myElements = Collections.emptyList();
         }
+        myIdKnownPresent = false;
     }
 
     /**
@@ -57,6 +66,18 @@ public class RootDocument implements Document {
      *            The elements for the BSON document.
      */
     public RootDocument(final List<Element> elements) {
+        this(elements, false);
+    }
+
+    /**
+     * Constructs a new {@link RootDocument}.
+     * 
+     * @param elements
+     *            The elements for the BSON document.
+     * @param idPresent
+     *            If true then there is an _id element in the list of elements.
+     */
+    public RootDocument(final List<Element> elements, final boolean idPresent) {
         if ((elements != null) && !elements.isEmpty()) {
             myElements = Collections.unmodifiableList(new ArrayList<Element>(
                     elements));
@@ -64,7 +85,7 @@ public class RootDocument implements Document {
         else {
             myElements = Collections.emptyList();
         }
-
+        myIdKnownPresent = idPresent;
     }
 
     /**
@@ -84,7 +105,8 @@ public class RootDocument implements Document {
      */
     @Override
     public boolean contains(final String name) {
-        return getElementMap().containsKey(name);
+        return (myIdKnownPresent && "_id".equals(name))
+                || getElementMap().containsKey(name);
     }
 
     /**
@@ -142,6 +164,28 @@ public class RootDocument implements Document {
         result = (31 * result)
                 + ((myElements == null) ? 0 : myElements.hashCode());
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to add an {@link ObjectIdElement} to the head of the document.
+     * </p>
+     * 
+     * @see com.allanbank.mongodb.bson.Document#injectId()
+     */
+    @Override
+    public synchronized void injectId() {
+        if (!contains("_id")) {
+            final List<Element> newElements = new ArrayList<Element>();
+            newElements.add(new ObjectIdElement("_id", new ObjectId()));
+            newElements.addAll(myElements);
+
+            if (myElementMap != null) {
+                myElementMap.put("_id", newElements.get(0));
+            }
+            myElements = newElements;
+        }
     }
 
     /**

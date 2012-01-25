@@ -32,16 +32,16 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
      */
     private volatile boolean myCancelled = false;
 
-    /**
-     * Flag tracking if the value has been set.
-     */
-    private volatile boolean mySet = false;
-
     /** Lock to handle conditioned waits. */
     private final Lock myLock;
 
     /** Condition to wait on for a result. */
     private final Condition myNoResultCondition;
+
+    /**
+     * Flag tracking if the value has been set.
+     */
+    private volatile boolean mySet = false;
 
     /** The exception thrown by the call. */
     private volatile Throwable myThrown;

@@ -44,6 +44,12 @@ public interface Document extends Iterable<Element> {
     public Element get(String name);
 
     /**
+     * Injects an element with the name _id as the first element in the
+     * document.
+     */
+    public void injectId();
+
+    /**
      * Returns the elements matching the path of regular expressions.
      * 
      * @param E

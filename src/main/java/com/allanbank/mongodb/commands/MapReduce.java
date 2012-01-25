@@ -41,18 +41,18 @@ public class MapReduce {
     private final String myMap;
 
     /**
-     * The name of the output collection if the output type is One of
-     * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
-     * {@link OutputType#REDUCE}.
-     */
-    private final String myOutputName;
-
-    /**
      * The name of the output database if the output type is One of
      * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
      * {@link OutputType#REDUCE}.
      */
     private final String myOutputDatabase;
+
+    /**
+     * The name of the output collection if the output type is One of
+     * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+     * {@link OutputType#REDUCE}.
+     */
+    private final String myOutputName;
 
     /** The handling for the output of the map/reduce. */
     private final OutputType myOutputType;
@@ -265,18 +265,18 @@ public class MapReduce {
         protected String myMap = null;
 
         /**
-         * The name of the output collection if the output type is One of
-         * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
-         * {@link OutputType#REDUCE}.
-         */
-        protected String myOutputName = null;
-
-        /**
          * The name of the output database if the output type is One of
          * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
          * {@link OutputType#REDUCE}.
          */
         protected String myOutputDatabase = null;
+
+        /**
+         * The name of the output collection if the output type is One of
+         * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+         * {@link OutputType#REDUCE}.
+         */
+        protected String myOutputName = null;
 
         /** The handling for the output of the map/reduce. */
         protected OutputType myOutputType = OutputType.INLINE;
@@ -381,22 +381,6 @@ public class MapReduce {
         }
 
         /**
-         * Sets the name of the output collection if the output type is One of
-         * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
-         * {@link OutputType#REDUCE}.
-         * 
-         * @param outputName
-         *            The name of the output collection if the output type is
-         *            One of {@link OutputType#REPLACE},
-         *            {@link OutputType#MERGE}, or {@link OutputType#REDUCE}.
-         * @return This builder for chaining method calls.
-         */
-        public Builder setOutputName(final String outputName) {
-            myOutputName = outputName;
-            return this;
-        }
-
-        /**
          * Sets the name of the output database if the output type is One of
          * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
          * {@link OutputType#REDUCE}.
@@ -409,6 +393,22 @@ public class MapReduce {
          */
         public Builder setOutputDatabase(final String outputDatabase) {
             myOutputDatabase = outputDatabase;
+            return this;
+        }
+
+        /**
+         * Sets the name of the output collection if the output type is One of
+         * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+         * {@link OutputType#REDUCE}.
+         * 
+         * @param outputName
+         *            The name of the output collection if the output type is
+         *            One of {@link OutputType#REPLACE},
+         *            {@link OutputType#MERGE}, or {@link OutputType#REDUCE}.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setOutputName(final String outputName) {
+            myOutputName = outputName;
             return this;
         }
 

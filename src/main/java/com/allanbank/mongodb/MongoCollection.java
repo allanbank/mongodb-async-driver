@@ -6,6 +6,7 @@
 package com.allanbank.mongodb;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -19,6 +20,51 @@ import com.allanbank.mongodb.commands.MapReduce;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface MongoCollection {
+    /**
+     * Creates an index with a generated name, across the keys specified
+     * allowing duplicate entries.
+     * 
+     * @param keys
+     *            The keys to use for the index.
+     * @throws MongoDbException
+     *             On a failure building the index.
+     */
+    public void createIndex(LinkedHashMap<String, Integer> keys)
+            throws MongoDbException;
+
+    /**
+     * Creates an index with a generated name, across the keys specified and if
+     * <tt>unique</tt> is true ensuring entries are unique.
+     * 
+     * @param keys
+     *            The keys to use for the index.
+     * @param unique
+     *            If true then the index created will enforce entries are
+     *            unique.
+     * @throws MongoDbException
+     *             On a failure building the index.
+     */
+    public void createIndex(LinkedHashMap<String, Integer> keys, boolean unique)
+            throws MongoDbException;
+
+    /**
+     * Creates an index with the specified name, across the keys specified and
+     * if <tt>unique</tt> is true ensuring entries are unique.
+     * 
+     * @param name
+     *            The name of the index. If <code>null</code> then a name is
+     *            generated based on the keys.
+     * @param keys
+     *            The keys to use for the index.
+     * @param unique
+     *            If true then the index created will enforce entries are
+     *            unique.
+     * @throws MongoDbException
+     *             On a failure building the index.
+     */
+    public void createIndex(String name, LinkedHashMap<String, Integer> keys,
+            boolean unique) throws MongoDbException;
+
     /**
      * Deletes a set of documents matching a query from the collection.
      * 
@@ -705,6 +751,42 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
+     * Finds a single matching document in the collection.
+     * 
+     * @param query
+     *            The query document.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public Document findOne(Document query) throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public void findOneAsync(Callback<Document> results, Document query)
+            throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * 
+     * @param query
+     *            The query document.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public Future<Document> findOneAsync(Document query)
+            throws MongoDbException;
+
+    /**
      * Returns the name of the database.
      * 
      * @return The name of the database.
@@ -937,22 +1019,6 @@ public interface MongoCollection {
             Document... documents) throws MongoDbException;
 
     /**
-     * Applies updates to a set of documents within the collection. The
-     * documents to update are selected by the <tt>query</tt> and the updates
-     * are describe by the <tt>update</tt> document.
-     * 
-     * @param query
-     *            The query to select the documents to update.
-     * @param update
-     *            The updates to apply to the selected documents.
-     * @return The number of documents updated. If the durability of the
-     *         operation is NONE then this will be -1.
-     * @throws MongoDbException
-     *             On an error updating the documents.
-     */
-    public int update(Document query, Document update) throws MongoDbException;
-
-    /**
      * Invokes a mapReduce command on the server.
      * 
      * @param command
@@ -990,6 +1056,22 @@ public interface MongoCollection {
      */
     public Future<List<Document>> mapReduceAsync(MapReduce command)
             throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @return The number of documents updated. If the durability of the
+     *         operation is NONE then this will be -1.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public int update(Document query, Document update) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The

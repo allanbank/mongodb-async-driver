@@ -7,7 +7,9 @@ package com.allanbank.mongodb.client;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
@@ -48,6 +50,51 @@ public class MongoCollectionClient extends AbstractMongoCollection {
     public MongoCollectionClient(final Client client,
             final MongoDatabase database, final String name) {
         super(client, database, name);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to insert the index document into the 'system.indexes'
+     * collection.
+     * </p>
+     */
+    @Override
+    public void createIndex(final String name,
+            final LinkedHashMap<String, Integer> keys, final boolean unique)
+            throws MongoDbException {
+
+        String indexName = name;
+        if ((name == null) || name.isEmpty()) {
+            final StringBuilder nameBuilder = new StringBuilder();
+            for (final Map.Entry<String, Integer> key : keys.entrySet()) {
+                if (nameBuilder.length() > 0) {
+                    nameBuilder.append('_');
+                }
+                nameBuilder.append(key.getKey().replace(' ', '_'));
+                nameBuilder.append(key.getValue().toString());
+            }
+            indexName = nameBuilder.toString();
+        }
+
+        final DocumentBuilder indexEntryBuilder = BuilderFactory.start();
+        indexEntryBuilder.addString("name", indexName);
+        indexEntryBuilder.addString("ns", getDatabaseName() + "." + getName());
+        if (unique) {
+            indexEntryBuilder.addBoolean("unique", unique);
+        }
+
+        final DocumentBuilder keyBuilder = indexEntryBuilder.push("key");
+        for (final Map.Entry<String, Integer> key : keys.entrySet()) {
+            keyBuilder.addInteger(key.getKey(), key.getValue().intValue());
+        }
+
+        final MongoCollection indexCollection = new MongoCollectionClient(
+                myClient, myDatabase, "system.indexes");
+        final Document indexDocument = indexEntryBuilder.get();
+        if (indexCollection.findOne(indexDocument) == null) {
+            indexCollection.insert(Durability.ACK, indexDocument);
+        }
     }
 
     /**
@@ -134,6 +181,78 @@ public class MongoCollectionClient extends AbstractMongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to send a {@link Query} message to the server.
+     * </p>
+     */
+    @Override
+    public void findAsync(final Callback<Iterator<Document>> results,
+            final Document query, final Document returnFields,
+            final int numberToReturn, final int numberToSkip,
+            final boolean replicaOk, final boolean partial)
+            throws MongoDbException {
+
+        final Query queryMessage = new Query(getDatabaseName(), myName, query,
+                returnFields, numberToReturn, numberToSkip,
+                false /* tailable */, replicaOk, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, partial);
+
+        myClient.send(queryMessage, new QueryCallback(myClient, queryMessage,
+                results));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to send a {@link Query} message to the server.
+     * </p>
+     * 
+     * @see MongoCollection#findOneAsync(Callback, Document)
+     */
+    @Override
+    public void findOneAsync(final Callback<Document> results,
+            final Document query) throws MongoDbException {
+        final Query queryMessage = new Query(getDatabaseName(), myName, query,
+                null, 1 /* numberToReturn */, 0 /* skip */,
+                false /* tailable */, false /* replicaOk */,
+                false /* noCursorTimeout */, false /* awaitData */,
+                false /* exhaust */, false /* partial */);
+
+        myClient.send(queryMessage, new QueryOneCallback(results));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to send an {@link Insert} message to the server.
+     * </p>
+     */
+    @Override
+    public void insertAsync(final Callback<Integer> results,
+            final boolean continueOnError, final Durability durability,
+            final Document... documents) throws MongoDbException {
+        final Insert insertMessage = new Insert(getDatabaseName(), myName,
+                Arrays.asList(documents), continueOnError);
+
+        // Make sure the documents have an _id.
+        for (final Document doc : documents) {
+            if (!doc.contains("_id")) {
+                doc.injectId();
+            }
+        }
+
+        if (Durability.NONE == durability) {
+            myClient.send(insertMessage);
+            results.callback(Integer.valueOf(-1));
+        }
+        else {
+            myClient.send(insertMessage, asGetLastError(durability),
+                    new NCallback(results));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * This is the canonical <code>mapReduce</code> method that implementations
      * must override.
      * </p>
@@ -141,8 +260,8 @@ public class MongoCollectionClient extends AbstractMongoCollection {
      * @see MongoCollection#mapReduceAsync(Callback, MapReduce)
      */
     @Override
-    public void mapReduceAsync(Callback<List<Document>> results,
-            MapReduce command) throws MongoDbException {
+    public void mapReduceAsync(final Callback<List<Document>> results,
+            final MapReduce command) throws MongoDbException {
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("mapReduce", getName());
@@ -177,7 +296,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
             builder.addBoolean("verbose", true);
         }
 
-        DocumentBuilder outputBuilder = builder.push("out");
+        final DocumentBuilder outputBuilder = builder.push("out");
         switch (command.getOutputType()) {
         case INLINE: {
             outputBuilder.addInteger("inline", 1);
@@ -208,51 +327,6 @@ public class MongoCollectionClient extends AbstractMongoCollection {
 
         final Command commandMsg = new Command(getDatabaseName(), builder.get());
         myClient.send(commandMsg, new MapReduceReplyCallback(results));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@link Query} message to the server.
-     * </p>
-     */
-    @Override
-    public void findAsync(final Callback<Iterator<Document>> results,
-            final Document query, final Document returnFields,
-            final int numberToReturn, final int numberToSkip,
-            final boolean replicaOk, final boolean partial)
-            throws MongoDbException {
-
-        final Query queryMessage = new Query(getDatabaseName(), myName, query,
-                returnFields, numberToReturn, numberToSkip,
-                false /* tailable */, replicaOk, false /* noCursorTimeout */,
-                false /* awaitData */, false /* exhaust */, partial);
-
-        myClient.send(queryMessage, new QueryCallback(myClient, queryMessage,
-                results));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send an {@link Insert} message to the server.
-     * </p>
-     */
-    @Override
-    public void insertAsync(final Callback<Integer> results,
-            final boolean continueOnError, final Durability durability,
-            final Document... documents) throws MongoDbException {
-        final Insert insertMessage = new Insert(getDatabaseName(), myName,
-                Arrays.asList(documents), continueOnError);
-
-        if (Durability.NONE == durability) {
-            myClient.send(insertMessage);
-            results.callback(Integer.valueOf(-1));
-        }
-        else {
-            myClient.send(insertMessage, asGetLastError(durability),
-                    new NCallback(results));
-        }
     }
 
     /**

@@ -36,7 +36,7 @@ public class DocumentElement extends AbstractElement implements Document {
     private Map<String, Element> myElementMap;
 
     /** The elements of the document. */
-    private final List<Element> myElements;
+    private List<Element> myElements;
 
     /**
      * Constructs a new {@link DocumentElement}.
@@ -173,6 +173,28 @@ public class DocumentElement extends AbstractElement implements Document {
         result = (31 * result)
                 + ((myElements == null) ? 0 : myElements.hashCode());
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to add an {@link ObjectIdElement} to the head of the document.
+     * </p>
+     * 
+     * @see com.allanbank.mongodb.bson.Document#injectId()
+     */
+    @Override
+    public synchronized void injectId() {
+        if (!contains("_id")) {
+            final List<Element> newElements = new ArrayList<Element>();
+            newElements.add(new ObjectIdElement("_id", new ObjectId()));
+            newElements.addAll(myElements);
+
+            if (myElementMap != null) {
+                myElementMap.put("_id", newElements.get(0));
+            }
+            myElements = newElements;
+        }
     }
 
     /**

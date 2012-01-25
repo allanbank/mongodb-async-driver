@@ -29,7 +29,7 @@ public class MapReduceReplyCallback extends
      * @param forwardCallback
      *            The callback to forward the result documents to.
      */
-    public MapReduceReplyCallback(Callback<List<Document>> forwardCallback) {
+    public MapReduceReplyCallback(final Callback<List<Document>> forwardCallback) {
         super(forwardCallback);
     }
 
@@ -42,7 +42,7 @@ public class MapReduceReplyCallback extends
      * @see com.allanbank.mongodb.client.AbstractReplyCallback#convert(com.allanbank.mongodb.connection.messsage.Reply)
      */
     @Override
-    protected List<Document> convert(Reply reply) throws MongoDbException {
+    protected List<Document> convert(final Reply reply) throws MongoDbException {
         List<Document> results = Collections.emptyList();
 
         final List<Document> replyDocs = reply.getResults();
@@ -52,7 +52,7 @@ public class MapReduceReplyCallback extends
                     DocumentElement.class, "results", ".*");
             if (!resultsElems.isEmpty()) {
                 results = new ArrayList<Document>();
-                for (DocumentElement resultElem : resultsElems) {
+                for (final DocumentElement resultElem : resultsElems) {
                     results.add(resultElem);
                 }
             }

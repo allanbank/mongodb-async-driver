@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.client;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -77,6 +78,52 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         myDatabase = database;
         myName = name;
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #createIndex(String, LinkedHashMap, boolean)} method with
+     * <code>false</code> for <tt>unique</tt>.
+     * </p>
+     * 
+     * @see #createIndex(LinkedHashMap, boolean)
+     */
+    @Override
+    public void createIndex(final LinkedHashMap<String, Integer> keys)
+            throws MongoDbException {
+        createIndex(keys, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #createIndex(String, LinkedHashMap, boolean)} method with
+     * <code>null</code> for the name.
+     * </p>
+     * 
+     * @see #createIndex(String, LinkedHashMap, boolean)
+     */
+    @Override
+    public void createIndex(final LinkedHashMap<String, Integer> keys,
+            final boolean unique) throws MongoDbException {
+        createIndex(null, keys, unique);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>createIndex</code> method that
+     * implementations must override.
+     * </p>
+     * 
+     * @see MongoCollection#createIndex(String, LinkedHashMap, boolean)
+     */
+    @Override
+    public abstract void createIndex(String name,
+            LinkedHashMap<String, Integer> keys, boolean unique)
+            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -884,6 +931,61 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findOneAsync(Document)}.
+     * </p>
+     * 
+     * @see #findOneAsync(Document)
+     */
+    @Override
+    public Document findOne(final Document query) throws MongoDbException {
+        try {
+            return findOneAsync(query).get();
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+        catch (final ExecutionException e) {
+            if (e.getCause() instanceof MongoDbException) {
+                throw (MongoDbException) e.getCause();
+            }
+            throw new MongoDbException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>findOne</code> method that implementations
+     * must override.
+     * </p>
+     * 
+     * @see MongoCollection#findOneAsync(Callback, Document)
+     */
+    @Override
+    public abstract void findOneAsync(Callback<Document> results, Document query)
+            throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findOneAsync(Callback, Document)}.
+     * </p>
+     * 
+     * @see #findOneAsync(Callback, Document)
+     */
+    @Override
+    public Future<Document> findOneAsync(final Document query)
+            throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>();
+
+        findOneAsync(future, query);
+
+        return future;
+    }
+
+    /**
      * Returns the name of the database.
      * 
      * @return The name of the database.
@@ -1184,7 +1286,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #mapReduceAsync(MapReduce)
      */
     @Override
-    public List<Document> mapReduce(MapReduce command) throws MongoDbException {
+    public List<Document> mapReduce(final MapReduce command)
+            throws MongoDbException {
         try {
             return mapReduceAsync(command).get();
         }
@@ -1222,7 +1325,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #mapReduceAsync(Callback, MapReduce)
      */
     @Override
-    public Future<List<Document>> mapReduceAsync(MapReduce command)
+    public Future<List<Document>> mapReduceAsync(final MapReduce command)
             throws MongoDbException {
         final FutureCallback<List<Document>> future = new FutureCallback<List<Document>>();
 

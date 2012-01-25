@@ -36,6 +36,9 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 public class DocumentBuilderImpl extends AbstractBuilder implements
         DocumentBuilder {
 
+    /** Tracks if an _id element is present. */
+    private boolean myIdPresent;
+
     /**
      * Creates a new builder.
      */
@@ -59,6 +62,9 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder add(final Element element) {
         myElements.add(element);
+        if ("_id".equals(element.getName())) {
+            myIdPresent = true;
+        }
         return this;
     }
 
@@ -68,8 +74,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder addBinary(final String name, final byte subType,
             final byte[] value) {
-        myElements.add(new BinaryElement(name, subType, value));
-        return this;
+        return add(new BinaryElement(name, subType, value));
     }
 
     /**
@@ -77,8 +82,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addBinary(final String name, final byte[] value) {
-        myElements.add(new BinaryElement(name, (byte) 0, value));
-        return this;
+        return add(new BinaryElement(name, (byte) 0, value));
     }
 
     /**
@@ -86,8 +90,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addBoolean(final String name, final boolean value) {
-        myElements.add(new BooleanElement(name, value));
-        return this;
+        return add(new BooleanElement(name, value));
     }
 
     /**
@@ -98,9 +101,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     public DocumentBuilder addDBPointer(final String name,
             final String databaseName, final String collectionName,
             final ObjectId id) {
-        myElements.add(new com.allanbank.mongodb.bson.element.DBPointerElement(
+        return add(new com.allanbank.mongodb.bson.element.DBPointerElement(
                 name, databaseName, collectionName, id));
-        return this;
     }
 
     /**
@@ -108,8 +110,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addDocument(final String name, final Document value) {
-        myElements.add(new DocumentElement(name, value));
-        return this;
+        return add(new DocumentElement(name, value));
     }
 
     /**
@@ -117,8 +118,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addDouble(final String name, final double value) {
-        myElements.add(new DoubleElement(name, value));
-        return this;
+        return add(new DoubleElement(name, value));
     }
 
     /**
@@ -126,8 +126,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addInteger(final String name, final int value) {
-        myElements.add(new IntegerElement(name, value));
-        return this;
+        return add(new IntegerElement(name, value));
     }
 
     /**
@@ -135,8 +134,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addJavaScript(final String name, final String code) {
-        myElements.add(new JavaScriptElement(name, code));
-        return this;
+        return add(new JavaScriptElement(name, code));
     }
 
     /**
@@ -145,8 +143,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder addJavaScript(final String name, final String code,
             final Document scope) {
-        myElements.add(new JavaScriptWithScopeElement(name, code, scope));
-        return this;
+        return add(new JavaScriptWithScopeElement(name, code, scope));
     }
 
     /**
@@ -154,8 +151,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addLong(final String name, final long value) {
-        myElements.add(new LongElement(name, value));
-        return this;
+        return add(new LongElement(name, value));
     }
 
     /**
@@ -163,8 +159,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addMaxKey(final String name) {
-        myElements.add(new MaxKeyElement(name));
-        return this;
+        return add(new MaxKeyElement(name));
     }
 
     /**
@@ -172,8 +167,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addMinKey(final String name) {
-        myElements.add(new MinKeyElement(name));
-        return this;
+        return add(new MinKeyElement(name));
     }
 
     /**
@@ -181,8 +175,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addMongoTimestamp(final String name, final long value) {
-        myElements.add(new MongoTimestampElement(name, value));
-        return this;
+        return add(new MongoTimestampElement(name, value));
     }
 
     /**
@@ -190,8 +183,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addNull(final String name) {
-        myElements.add(new NullElement(name));
-        return this;
+        return add(new NullElement(name));
     }
 
     /**
@@ -199,8 +191,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addObjectId(final String name, final ObjectId id) {
-        myElements.add(new ObjectIdElement(name, id));
-        return this;
+        return add(new ObjectIdElement(name, id));
     }
 
     /**
@@ -209,8 +200,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder addRegularExpression(final String name,
             final String pattern, final String options) {
-        myElements.add(new RegularExpressionElement(name, pattern, options));
-        return this;
+        return add(new RegularExpressionElement(name, pattern, options));
     }
 
     /**
@@ -218,8 +208,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addString(final String name, final String value) {
-        myElements.add(new StringElement(name, value));
-        return this;
+        return add(new StringElement(name, value));
     }
 
     /**
@@ -227,8 +216,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addSymbol(final String name, final String symbol) {
-        myElements.add(new SymbolElement(name, symbol));
-        return this;
+        return add(new SymbolElement(name, symbol));
     }
 
     /**
@@ -236,8 +224,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addTimestamp(final String name, final long timestamp) {
-        myElements.add(new TimestampElement(name, timestamp));
-        return this;
+        return add(new TimestampElement(name, timestamp));
     }
 
     /**
@@ -245,7 +232,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public Document get() {
-        return new RootDocument(subElements());
+        return new RootDocument(subElements(), myIdPresent);
     }
 
     /**
