@@ -11,8 +11,8 @@ package com.allanbank.mongodb;
  * <ul>
  * <li>The lowest durability ({@link #NONE}) has no guarantees that the data
  * will survive a catastrophic server failure.
- * <li>The next level of durability ({@link #ackDurable(int)}) ensures that the
- * data has been received by the server.
+ * <li>The next level of durability ({@link #ACK}) ensures that the data has
+ * been received by the server.
  * <li>The next level of durability ({@link #journalDurable(int)}) ensures that
  * the data is written to the server's journal before returning.
  * <li>Next level ({@link #fsyncDurable(int)}) is to ensure that the data has

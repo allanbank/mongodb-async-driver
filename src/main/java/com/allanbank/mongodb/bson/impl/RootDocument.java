@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -27,14 +28,17 @@ import com.allanbank.mongodb.bson.element.ObjectIdElement;
  */
 public class RootDocument implements Document {
 
+    /** The empty list of elements. */
+    public static final List<Element> EMPTY_ELEMENTS = Collections.emptyList();
+
     /**
      * Constructed when a user tries to access the elements of the document by
      * name.
      */
-    private Map<String, Element> myElementMap;
+    private final AtomicReference<Map<String, Element>> myElementMap;
 
     /** The elements of the document. */
-    private List<Element> myElements;
+    private final AtomicReference<List<Element>> myElements;
 
     /**
      * Tracks if the _id field is known to exist in the document when
@@ -49,12 +53,14 @@ public class RootDocument implements Document {
      *            The elements for the BSON document.
      */
     public RootDocument(final Element... elements) {
+        myElements = new AtomicReference<List<Element>>();
+        myElementMap = new AtomicReference<Map<String, Element>>();
         if (elements.length > 0) {
-            myElements = Collections.unmodifiableList(new ArrayList<Element>(
-                    Arrays.asList(elements)));
+            myElements.set(Collections.unmodifiableList(new ArrayList<Element>(
+                    Arrays.asList(elements))));
         }
         else {
-            myElements = Collections.emptyList();
+            myElements.set(EMPTY_ELEMENTS);
         }
         myIdKnownPresent = false;
     }
@@ -78,12 +84,14 @@ public class RootDocument implements Document {
      *            If true then there is an _id element in the list of elements.
      */
     public RootDocument(final List<Element> elements, final boolean idPresent) {
+        myElements = new AtomicReference<List<Element>>();
+        myElementMap = new AtomicReference<Map<String, Element>>();
         if ((elements != null) && !elements.isEmpty()) {
-            myElements = Collections.unmodifiableList(new ArrayList<Element>(
-                    elements));
+            myElements.set(Collections.unmodifiableList(new ArrayList<Element>(
+                    elements)));
         }
         else {
-            myElements = Collections.emptyList();
+            myElements.set(EMPTY_ELEMENTS);
         }
         myIdKnownPresent = idPresent;
     }
@@ -127,7 +135,7 @@ public class RootDocument implements Document {
         else if ((object != null) && (getClass() == object.getClass())) {
             final RootDocument other = (RootDocument) object;
 
-            result = myElements.equals(other.myElements);
+            result = myElements.get().equals(other.myElements.get());
         }
         return result;
     }
@@ -149,7 +157,7 @@ public class RootDocument implements Document {
      * @return The elements in the document.
      */
     public List<Element> getElements() {
-        return myElements;
+        return myElements.get();
     }
 
     /**
@@ -162,7 +170,7 @@ public class RootDocument implements Document {
         int result = 1;
         result = (31 * result) + super.hashCode();
         result = (31 * result)
-                + ((myElements == null) ? 0 : myElements.hashCode());
+                + ((myElements.get() == null) ? 0 : myElements.get().hashCode());
         return result;
     }
 
@@ -175,16 +183,17 @@ public class RootDocument implements Document {
      * @see com.allanbank.mongodb.bson.Document#injectId()
      */
     @Override
-    public synchronized void injectId() {
+    public void injectId() {
         if (!contains("_id")) {
+            final List<Element> old = myElements.get();
+
             final List<Element> newElements = new ArrayList<Element>();
             newElements.add(new ObjectIdElement("_id", new ObjectId()));
-            newElements.addAll(myElements);
+            newElements.addAll(old);
 
-            if (myElementMap != null) {
-                myElementMap.put("_id", newElements.get(0));
+            if (myElements.compareAndSet(old, newElements)) {
+                myElementMap.set(null);
             }
-            myElements = newElements;
         }
     }
 
@@ -205,19 +214,20 @@ public class RootDocument implements Document {
      * the right type.
      * </p>
      * 
-     * @see Document#queryPath(Visitor)
+     * @see Document#queryPath
      */
     @Override
     public <E extends Element> List<E> queryPath(final Class<E> clazz,
             final String... nameRegexs) {
         if (0 < nameRegexs.length) {
+            final List<Element> docElements = myElements.get();
             final List<E> elements = new ArrayList<E>();
             final String nameRegex = nameRegexs[0];
             final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
                     nameRegexs.length);
             try {
                 final Pattern pattern = Pattern.compile(nameRegex);
-                for (final Element element : myElements) {
+                for (final Element element : docElements) {
                     if (pattern.matcher(element.getName()).matches()) {
                         elements.addAll(queryPath(clazz, subNameRegexs));
                     }
@@ -226,7 +236,7 @@ public class RootDocument implements Document {
             }
             catch (final PatternSyntaxException pse) {
                 // Assume a non-pattern?
-                for (final Element element : myElements) {
+                for (final Element element : docElements) {
                     if (nameRegex.equals(element.getName())) {
                         elements.addAll(queryPath(clazz, subNameRegexs));
                     }
@@ -246,7 +256,7 @@ public class RootDocument implements Document {
      * Searches this sub-elements for matching elements on the path.
      * </p>
      * 
-     * @see Document#queryPath(Visitor)
+     * @see Document#queryPath
      */
     @Override
     public List<Element> queryPath(final String... nameRegexs) {
@@ -267,7 +277,7 @@ public class RootDocument implements Document {
         builder.append("{ ");
 
         boolean first = true;
-        for (final Element element : myElements) {
+        for (final Element element : myElements.get()) {
             if (!first) {
                 builder.append(",\n");
             }
@@ -287,17 +297,18 @@ public class RootDocument implements Document {
      */
     private Map<String, Element> getElementMap() {
         if (myElementMap == null) {
+            final List<Element> elements = myElements.get();
             final Map<String, Element> mapping = new HashMap<String, Element>(
-                    myElements.size() + myElements.size());
+                    elements.size() + elements.size());
 
-            for (final Element element : myElements) {
+            for (final Element element : elements) {
                 mapping.put(element.getName(), element);
             }
 
             // Swap the finished map into position.
-            myElementMap = mapping;
+            myElementMap.compareAndSet(null, mapping);
         }
 
-        return myElementMap;
+        return myElementMap.get();
     }
 }

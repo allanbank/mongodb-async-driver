@@ -187,7 +187,7 @@ public class MongoClientConnection implements Client, Closeable {
      * least messages.</li>
      * <ul>
      * 
-     * @return
+     * @return The found connection.
      */
     private Connection findConnection() {
         // Make sure we shrink connections when the max changes.

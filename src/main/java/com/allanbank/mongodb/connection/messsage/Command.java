@@ -22,8 +22,6 @@ public class Command extends Query {
      * 
      * @param databaseName
      *            The name of the database.
-     * @param collectionName
-     *            The name of the collection.
      * @param commandDocument
      *            The command document containing the command and options.
      */

@@ -101,8 +101,7 @@ public class BootstrapConnectionFactoryITest {
     }
 
     /**
-     * Test method for
-     * {@link BootstrapConnectionFactory#bootstrap(MongoDbConfiguration)} .
+     * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
      */
     @Test
     public void testBootstrapReplicaSet() {
@@ -134,8 +133,7 @@ public class BootstrapConnectionFactoryITest {
     }
 
     /**
-     * Test method for
-     * {@link BootstrapConnectionFactory#bootstrap(MongoDbConfiguration)} .
+     * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
      */
     @Test
     public void testBootstrapSharded() {
@@ -167,8 +165,7 @@ public class BootstrapConnectionFactoryITest {
     }
 
     /**
-     * Test method for
-     * {@link BootstrapConnectionFactory#bootstrap(MongoDbConfiguration)} .
+     * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
      */
     @Test
     public void testBootstrapStandalone() {

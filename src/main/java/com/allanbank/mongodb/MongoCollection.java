@@ -306,8 +306,6 @@ public interface MongoCollection {
      * findAsync(...).get()}
      * </p>
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param replicaOk
@@ -328,8 +326,6 @@ public interface MongoCollection {
      * findAsync(...).get()}
      * </p>
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param returnFields
@@ -349,8 +345,6 @@ public interface MongoCollection {
      * findAsync(...).get()}
      * </p>
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param returnFields
@@ -368,8 +362,6 @@ public interface MongoCollection {
     /**
      * Finds the set of documents matching the query document in the collection.
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param returnFields
@@ -403,8 +395,6 @@ public interface MongoCollection {
      * findAsync(...).get()}
      * </p>
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param numberToReturn
@@ -428,8 +418,6 @@ public interface MongoCollection {
      * findAsync(...).get()}
      * </p>
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param numberToReturn
@@ -638,8 +626,6 @@ public interface MongoCollection {
     /**
      * Finds the set of documents matching the query document in the collection.
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param replicaOk
@@ -655,8 +641,6 @@ public interface MongoCollection {
     /**
      * Finds the set of documents matching the query document in the collection.
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param returnFields
@@ -671,8 +655,6 @@ public interface MongoCollection {
     /**
      * Finds the set of documents matching the query document in the collection.
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param returnFields
@@ -690,8 +672,6 @@ public interface MongoCollection {
     /**
      * Finds the set of documents matching the query document in the collection.
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param returnFields
@@ -720,8 +700,6 @@ public interface MongoCollection {
     /**
      * Finds the set of documents matching the query document in the collection.
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param numberToReturn
@@ -741,8 +719,6 @@ public interface MongoCollection {
     /**
      * Finds the set of documents matching the query document in the collection.
      * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
      * @param numberToReturn

@@ -124,9 +124,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#getLastError(String, boolean, boolean, int, int)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -185,9 +183,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#getLastError(String, boolean, boolean, int, int)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -246,9 +242,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#getLastError(String, boolean, boolean, int, int)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -307,9 +301,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#getLastError(String, boolean, boolean, int, int)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -370,8 +362,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#getMore(String, String, long, int)} .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -424,8 +415,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#insert(String, String, List, boolean)} .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -491,8 +481,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#insert(String, String, List, boolean)} .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -551,8 +540,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for {@link SocketConnection#killCursor(String, String, long)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -600,8 +588,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#delete(String, String, Document, boolean)} .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -658,9 +645,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#query(String, String, Document, Document, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -723,9 +708,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#query(String, String, Document, Document, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -789,9 +772,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#query(String, String, Document, Document, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -855,9 +836,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#query(String, String, Document, Document, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -921,9 +900,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#query(String, String, Document, Document, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -987,9 +964,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#query(String, String, Document, Document, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1053,9 +1028,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#query(String, String, Document, Document, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1119,9 +1092,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#query(String, String, Document, Document, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1191,7 +1162,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for {@link SocketConnection#read()}.
+     * Test method for {@link SocketConnection}.
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1256,7 +1227,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for {@link SocketConnection#read()}.
+     * Test method for {@link SocketConnection}.
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1316,7 +1287,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for {@link SocketConnection#read()}.
+     * Test method for {@link SocketConnection}.
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1381,8 +1352,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#delete(String, String, Document, boolean)} .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1482,9 +1452,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#update(String, String, Document, Document, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1550,9 +1518,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#update(String, String, Document, Document, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1618,9 +1584,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#update(String, String, Document, Document, boolean, boolean)}
-     * .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.

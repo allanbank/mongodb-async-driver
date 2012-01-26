@@ -76,10 +76,6 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * connection factory is used.
      * </p>
      * 
-     * @param config
-     *            The configuration to use in discovering the server
-     *            configuration.
-     * 
      * @throws IOException
      *             If the bootstrap fails.
      */

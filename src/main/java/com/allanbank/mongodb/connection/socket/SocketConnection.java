@@ -61,10 +61,10 @@ public class SocketConnection implements Connection {
     /** The queue of messages to be sent. */
     protected final BlockingQueue<PendingMessage> myToSendQueue;
 
-    /** The writer for BSON documents. Shares this objects {@link #myOutBuffer}. */
+    /** The writer for BSON documents. Shares this objects {@link #myInput}. */
     private final BsonInputStream myBsonIn;
 
-    /** The writer for BSON documents. Shares this objects {@link #myOutBuffer}. */
+    /** The writer for BSON documents. Shares this objects {@link #myOutput}. */
     private final BsonOutputStream myBsonOut;
 
     /** The buffered input stream. */
@@ -259,8 +259,7 @@ public class SocketConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
+     * Waits for the connections pending queues to empty.
      * </p>
      */
     @Override

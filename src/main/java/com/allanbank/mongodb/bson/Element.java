@@ -39,7 +39,7 @@ public interface Element {
     /**
      * Returns the elements matching the path of regular expressions.
      * 
-     * @param E
+     * @param <E>
      *            The type of element to match.
      * @param clazz
      *            The class of elements to match.

@@ -394,7 +394,8 @@ public class MongoDatabaseClient implements MongoDatabase {
     /**
      * Returns a {@link MongoDatabase} interface to the 'admin' database.
      * 
-     * @return
+     * @return A reference to a {@link MongoDatabase} for interacting with the
+     *         'admin' database.
      */
     private MongoDatabase getAdminDatabase() {
         if (myAdminDatabase == null) {

@@ -43,8 +43,6 @@ public class MongoCollectionClient extends AbstractMongoCollection {
      *            The client for interacting with MongoDB.
      * @param database
      *            The database the collection is a part of.
-     * @param database
-     *            The database we interact with.
      * @param name
      *            The name of the collection we interact with.
      */
