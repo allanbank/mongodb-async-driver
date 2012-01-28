@@ -10,13 +10,14 @@ import java.net.InetSocketAddress;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.connection.ConnectionFactory;
 
 /**
  * Provides an interface for creating proxied connections.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface ProxiedConnectionFactory {
+public interface ProxiedConnectionFactory extends ConnectionFactory {
     /**
      * Creates a connection to the address provided.
      * 

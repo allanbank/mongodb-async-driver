@@ -84,6 +84,7 @@ public abstract class AbstractMessage implements Message {
      * 
      * @return The name of the database.
      */
+    @Override
     public String getDatabaseName() {
         return myDatabaseName;
     }

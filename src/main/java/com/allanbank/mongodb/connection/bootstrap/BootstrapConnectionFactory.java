@@ -19,8 +19,10 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.FutureCallback;
+import com.allanbank.mongodb.connection.auth.AuthenticationConnectionFactory;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.connection.messsage.ServerStatus;
+import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.rs.ReplicaSetConnectionFactory;
 import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnection;
@@ -91,19 +93,26 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                 if (!results.isEmpty()) {
                     final Document doc = results.get(0);
 
+                    ProxiedConnectionFactory factory = new SocketConnectionFactory(
+                            myConfig);
+                    if (myConfig.isAuthenticating()) {
+                        factory = new AuthenticationConnectionFactory(factory,
+                                myConfig);
+                    }
+
                     if (isMongos(doc)) {
                         LOG.info("Sharded bootstrap to " + addr + ".");
-                        myDelegate = new ShardedConnectionFactory(
-                                new SocketConnectionFactory(myConfig), myConfig);
+                        myDelegate = new ShardedConnectionFactory(factory,
+                                myConfig);
                     }
                     else if (isReplicationSet(doc)) {
                         LOG.info("Replica-set bootstrap to " + addr + ".");
-                        myDelegate = new ReplicaSetConnectionFactory(
-                                new SocketConnectionFactory(myConfig), myConfig);
+                        myDelegate = new ReplicaSetConnectionFactory(factory,
+                                myConfig);
                     }
                     else {
                         LOG.info("Simple MongoDB bootstrap to " + addr + ".");
-                        myDelegate = new SocketConnectionFactory(myConfig);
+                        myDelegate = factory;
                     }
                     return;
                 }

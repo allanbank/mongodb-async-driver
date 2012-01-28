@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.connection;
@@ -12,9 +12,16 @@ import com.allanbank.mongodb.bson.io.BsonOutputStream;
  * Common interface for all MongoDB messages read from and sent to a MongoDB
  * server.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface Message {
+
+    /**
+     * Returns the name of the database.
+     * 
+     * @return The name of the database.
+     */
+    public String getDatabaseName();
 
     /**
      * Writes the message from the stream. The message header <b>is</b> written

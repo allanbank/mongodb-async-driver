@@ -13,6 +13,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.bson.element.LongElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
@@ -187,6 +188,9 @@ public abstract class AbstractReplyCallback<F> implements Callback<Reply> {
     protected int toInt(final Element element) {
         if (element instanceof IntegerElement) {
             return ((IntegerElement) element).getValue();
+        }
+        else if (element instanceof LongElement) {
+            return (int) ((LongElement) element).getValue();
         }
         else if (element instanceof DoubleElement) {
             return (int) ((DoubleElement) element).getValue();

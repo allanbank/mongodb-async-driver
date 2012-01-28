@@ -302,7 +302,7 @@ public class DocumentElement extends AbstractElement implements Document {
      * @return The element name to element mapping.
      */
     private Map<String, Element> getElementMap() {
-        if (myElementMap == null) {
+        if (myElementMap.get() == null) {
             final List<Element> elements = myElements.get();
             final Map<String, Element> mapping = new HashMap<String, Element>(
                     elements.size() + elements.size());

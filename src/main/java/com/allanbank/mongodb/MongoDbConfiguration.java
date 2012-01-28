@@ -6,11 +6,16 @@ package com.allanbank.mongodb;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+
+import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**
  * Contains the configuration for the connection(s) to the MongoDB servers.
@@ -19,8 +24,30 @@ import java.util.concurrent.ThreadFactory;
  */
 public class MongoDbConfiguration implements Cloneable, Serializable {
 
+    /** The ASCII character encoding. */
+    public static final Charset UTF8 = Charset.forName("UTF-8");
+
+    /** Hex encoding characters. */
+    private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
+
     /** The serialization version for the class. */
     private static final long serialVersionUID = 2964127883934086509L;
+
+    /**
+     * Hex encodes a byte array.
+     * 
+     * @param buf
+     *            The bytes to encode.
+     * @return The hex encoded string.
+     */
+    public static String asHex(final byte[] buf) {
+        final char[] chars = new char[2 * buf.length];
+        for (int i = 0; i < buf.length; ++i) {
+            chars[2 * i] = HEX_CHARS[(buf[i] & 0xF0) >>> 4];
+            chars[(2 * i) + 1] = HEX_CHARS[buf[i] & 0x0F];
+        }
+        return new String(chars);
+    }
 
     /**
      * Determines if additional servers are auto discovered or if connections
@@ -81,6 +108,9 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     private int myMaxPendingOperationsPerConnection = 1024;
 
+    /** The password for authentication with the servers. */
+    private String myPasswordHash = null;
+
     /**
      * Determines how long to wait (in milliseconds) for a socket read to
      * complete.
@@ -95,6 +125,9 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * clone.
      */
     private ArrayList<InetSocketAddress> myServers = new ArrayList<InetSocketAddress>();
+
+    /** The username for authentication with the servers. */
+    private String myUsername = null;
 
     /**
      * Determines if the {@link java.net.Socket#setKeepAlive(boolean)
@@ -152,6 +185,33 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     public void addServer(final InetSocketAddress server) {
         myServers.add(server);
+    }
+
+    /**
+     * Sets up the instance to authenticate with the MongoDB servers. This
+     * should be done before using this configuration to instantiate a
+     * {@link Mongo} instance.
+     * 
+     * @param username
+     *            The username.
+     * @param password
+     *            the password.
+     * @throws MongoDbAuthenticationException
+     *             On a failure initializing the authentication information.
+     */
+    public void authenticate(final String username, final String password)
+            throws MongoDbAuthenticationException {
+        try {
+            final MessageDigest md5 = MessageDigest.getInstance("MD5");
+            final byte[] digest = md5.digest((username + ":mongo:" + password)
+                    .getBytes(UTF8));
+
+            myUsername = username;
+            myPasswordHash = asHex(digest);
+        }
+        catch (final NoSuchAlgorithmException e) {
+            throw new MongoDbAuthenticationException(e);
+        }
     }
 
     /**
@@ -241,6 +301,15 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Gets the password hash for authentication with the database.
+     * 
+     * @return The password hash for authentication with the database.
+     */
+    public String getPasswordHash() {
+        return myPasswordHash;
+    }
+
+    /**
      * Returns how long to wait (in milliseconds) for a socket read to complete.
      * <p>
      * Defaults to 60,000 ms.
@@ -268,6 +337,24 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     public ThreadFactory getThreadFactory() {
         return myFactory;
+    }
+
+    /**
+     * Gets the username for authenticating with the database.
+     * 
+     * @return The username for authenticating with the database.
+     */
+    public String getUsername() {
+        return myUsername;
+    }
+
+    /**
+     * Returns true if the connection is authenticating.
+     * 
+     * @return True if the connections should authenticate with the server.
+     */
+    public boolean isAuthenticating() {
+        return (myUsername != null) && (myPasswordHash != null);
     }
 
     /**

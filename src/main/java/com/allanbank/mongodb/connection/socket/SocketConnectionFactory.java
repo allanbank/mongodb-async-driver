@@ -20,8 +20,7 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class SocketConnectionFactory implements ConnectionFactory,
-        ProxiedConnectionFactory {
+public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /** The MongoDB client configuration. */
     private final MongoDbConfiguration myConfig;
