@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -32,7 +32,7 @@ import com.allanbank.mongodb.connection.messsage.Update;
 /**
  * Implementation of the {@link MongoCollection} interface.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoCollectionClient extends AbstractMongoCollection {
 
@@ -49,6 +49,36 @@ public class MongoCollectionClient extends AbstractMongoCollection {
     public MongoCollectionClient(final Client client,
             final MongoDatabase database, final String name) {
         super(client, database, name);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>count</code> method that implementations must
+     * override.
+     * </p>
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param query
+     *            The query document.
+     * @param replicaOk
+     *            If true, then the query can be run against a replica which
+     *            might be slightly behind the primary.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    @Override
+    public void countAsync(final Callback<Long> results, final Document query,
+            final boolean replicaOk) throws MongoDbException {
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        builder.addString("count", getName());
+        builder.addDocument("query", query);
+
+        final Command commandMsg = new Command(getDatabaseName(), builder.get());
+
+        myClient.send(commandMsg, new LongNCallback(results));
     }
 
     /**
@@ -103,19 +133,19 @@ public class MongoCollectionClient extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void deleteAsync(final Callback<Integer> results,
-            final Document query, final boolean singleDelete,
-            final Durability durability) throws MongoDbException {
+    public void deleteAsync(final Callback<Long> results, final Document query,
+            final boolean singleDelete, final Durability durability)
+            throws MongoDbException {
         final Delete deleteMessage = new Delete(getDatabaseName(), myName,
                 query, singleDelete);
 
         if (Durability.NONE.equals(durability)) {
             myClient.send(deleteMessage);
-            results.callback(Integer.valueOf(-1));
+            results.callback(Long.valueOf(-1));
         }
         else {
             myClient.send(deleteMessage, asGetLastError(durability),
-                    new NCallback(results));
+                    new LongNCallback(results));
         }
     }
 
@@ -267,7 +297,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         }
         else {
             myClient.send(insertMessage, asGetLastError(durability),
-                    new NCallback(results));
+                    new IntegerNCallback(results));
         }
     }
 
@@ -357,20 +387,20 @@ public class MongoCollectionClient extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void updateAsync(final Callback<Integer> results,
-            final Document query, final Document update,
-            final boolean multiUpdate, final boolean upsert,
-            final Durability durability) throws MongoDbException {
+    public void updateAsync(final Callback<Long> results, final Document query,
+            final Document update, final boolean multiUpdate,
+            final boolean upsert, final Durability durability)
+            throws MongoDbException {
         final Update updateMessage = new Update(getDatabaseName(), myName,
                 query, update, multiUpdate, upsert);
 
         if (Durability.NONE == durability) {
             myClient.send(updateMessage);
-            results.callback(Integer.valueOf(-1));
+            results.callback(Long.valueOf(-1));
         }
         else {
             myClient.send(updateMessage, asGetLastError(durability),
-                    new NCallback(results));
+                    new LongNCallback(results));
         }
     }
 }

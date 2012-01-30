@@ -20,11 +20,11 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
-import com.allanbank.mongodb.bson.element.LongElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
@@ -191,14 +191,8 @@ public class AuthenticatingConnection implements Connection {
      * @return The element's integer value or -1.
      */
     protected int toInt(final Element element) {
-        if (element instanceof IntegerElement) {
-            return ((IntegerElement) element).getValue();
-        }
-        else if (element instanceof LongElement) {
-            return (int) ((LongElement) element).getValue();
-        }
-        else if (element instanceof DoubleElement) {
-            return (int) ((DoubleElement) element).getValue();
+        if (element instanceof NumericElement) {
+            return ((NumericElement) element).getIntValue();
         }
 
         return -1;

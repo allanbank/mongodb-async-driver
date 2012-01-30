@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -11,9 +11,9 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
-import com.allanbank.mongodb.bson.element.LongElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
@@ -28,7 +28,7 @@ import com.allanbank.mongodb.error.ShardConfigStaleException;
  * @param <F>
  *            The type for the converted {@link Reply}.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractReplyCallback<F> implements Callback<Reply> {
 
@@ -186,14 +186,8 @@ public abstract class AbstractReplyCallback<F> implements Callback<Reply> {
      * @return The element's integer value or -1.
      */
     protected int toInt(final Element element) {
-        if (element instanceof IntegerElement) {
-            return ((IntegerElement) element).getValue();
-        }
-        else if (element instanceof LongElement) {
-            return (int) ((LongElement) element).getValue();
-        }
-        else if (element instanceof DoubleElement) {
-            return (int) ((DoubleElement) element).getValue();
+        if (element instanceof NumericElement) {
+            return ((NumericElement) element).getIntValue();
         }
 
         return -1;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -11,15 +11,18 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.NumericElement;
+import com.allanbank.mongodb.bson.element.DoubleElement;
+import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.error.ReplyException;
 
 /**
  * Callback to extract the 'n' field from the reply.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class NCallback extends AbstractReplyCallback<Integer> {
+/* package */class IntegerNCallback extends AbstractReplyCallback<Integer> {
 
     /**
      * Create a new NCallback.
@@ -27,7 +30,7 @@ import com.allanbank.mongodb.error.ReplyException;
      * @param results
      *            The callback to notify of the 'n' value.
      */
-    public NCallback(final Callback<Integer> results) {
+    public IntegerNCallback(final Callback<Integer> results) {
         super(results);
     }
 
@@ -76,5 +79,22 @@ import com.allanbank.mongodb.error.ReplyException;
         }
 
         return Integer.valueOf(-1);
+    }
+
+    /**
+     * Converts a {@link DoubleElement} or {@link IntegerElement} into an
+     * <tt>int</tt> value. If not a {@link DoubleElement} of
+     * {@link IntegerElement} then -1 is returned.
+     * 
+     * @param element
+     *            The element to convert.
+     * @return The element's integer value or -1.
+     */
+    protected long toLong(final Element element) {
+        if (element instanceof NumericElement) {
+            return ((NumericElement) element).getLongValue();
+        }
+
+        return -1;
     }
 }

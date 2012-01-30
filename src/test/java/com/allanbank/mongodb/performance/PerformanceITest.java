@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -42,7 +42,7 @@ import com.mongodb.WriteConcern;
 /**
  * Performance Test harness.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class PerformanceITest {
 
@@ -735,7 +735,7 @@ public class PerformanceITest {
      */
     protected double runAsyncUpdateRateUsingCallback(
             final Durability durability, final int count) {
-        final Callback<Integer> callback = new NoopCallback<Integer>();
+        final Callback<Long> callback = new NoopCallback<Long>();
 
         final ObjectId id = new ObjectId();
         DocumentBuilder builder = BuilderFactory.start();

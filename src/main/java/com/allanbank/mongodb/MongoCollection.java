@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -18,9 +18,102 @@ import com.allanbank.mongodb.commands.MapReduce;
 /**
  * Interface for interacting with a MongoDB collection.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface MongoCollection {
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * <p>
+     * This is equivalent to calling {@link #countAsync(Document)
+     * countAsync(...).get()}
+     * </p>
+     * 
+     * @param query
+     *            The query document.
+     * @return The number of matching documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public long count(Document query) throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param query
+     *            The query document.
+     * @param replicaOk
+     *            If true, then the query can be run against a replica which
+     *            might be slightly behind the primary.
+     * @return The number of matching documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public long count(Document query, boolean replicaOk)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param query
+     *            The query document.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void countAsync(Callback<Long> results, Document query)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param query
+     *            The query document.
+     * @param replicaOk
+     *            If true, then the query can be run against a replica which
+     *            might be slightly behind the primary.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void countAsync(Callback<Long> results, Document query,
+            boolean replicaOk) throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param query
+     *            The query document.
+     * @return A future that will be updated with the number of matching
+     *         documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<Long> countAsync(Document query) throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param query
+     *            The query document.
+     * @param replicaOk
+     *            If true, then the query can be run against a replica which
+     *            might be slightly behind the primary.
+     * @return A future that will be updated with the number of matching
+     *         documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<Long> countAsync(Document query, boolean replicaOk)
+            throws MongoDbException;
+
     /**
      * Creates an index with a generated name, across the keys specified
      * allowing duplicate entries.
@@ -76,7 +169,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public int delete(Document query) throws MongoDbException;
+    public long delete(Document query) throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -92,7 +185,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public int delete(Document query, boolean singleDelete)
+    public long delete(Document query, boolean singleDelete)
             throws MongoDbException;
 
     /**
@@ -111,7 +204,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public int delete(Document query, boolean singleDelete,
+    public long delete(Document query, boolean singleDelete,
             Durability durability) throws MongoDbException;
 
     /**
@@ -126,7 +219,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public int delete(Document query, Durability durability)
+    public long delete(Document query, Durability durability)
             throws MongoDbException;
 
     /**
@@ -140,7 +233,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public void deleteAsync(Callback<Integer> results, Document query)
+    public void deleteAsync(Callback<Long> results, Document query)
             throws MongoDbException;
 
     /**
@@ -158,7 +251,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public void deleteAsync(Callback<Integer> results, Document query,
+    public void deleteAsync(Callback<Long> results, Document query,
             boolean singleDelete) throws MongoDbException;
 
     /**
@@ -178,9 +271,9 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public void deleteAsync(final Callback<Integer> results,
-            final Document query, final boolean singleDelete,
-            final Durability durability) throws MongoDbException;
+    public void deleteAsync(final Callback<Long> results, final Document query,
+            final boolean singleDelete, final Durability durability)
+            throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -195,7 +288,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public void deleteAsync(Callback<Integer> results, Document query,
+    public void deleteAsync(Callback<Long> results, Document query,
             Durability durability) throws MongoDbException;
 
     /**
@@ -208,7 +301,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Integer> deleteAsync(Document query) throws MongoDbException;
+    public Future<Long> deleteAsync(Document query) throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -224,27 +317,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Integer> deleteAsync(final Document query,
-            boolean singleDelete) throws MongoDbException;
-
-    /**
-     * Deletes a set of documents matching a query from the collection.
-     * 
-     * @param query
-     *            Query to locate the documents to be deleted.
-     * @param singleDelete
-     *            If true then only a single document will be deleted. If
-     *            running in a sharded environment then this field must be false
-     *            or the query must contain the shard key.
-     * @param durability
-     *            The durability for the delete.
-     * @return Future that will be updated with the results of the delete. If
-     *         the durability of the operation is NONE then this will be -1.
-     * @throws MongoDbException
-     *             On an error deleting the documents.
-     */
-    public Future<Integer> deleteAsync(final Document query,
-            boolean singleDelete, Durability durability)
+    public Future<Long> deleteAsync(final Document query, boolean singleDelete)
             throws MongoDbException;
 
     /**
@@ -252,6 +325,10 @@ public interface MongoCollection {
      * 
      * @param query
      *            Query to locate the documents to be deleted.
+     * @param singleDelete
+     *            If true then only a single document will be deleted. If
+     *            running in a sharded environment then this field must be false
+     *            or the query must contain the shard key.
      * @param durability
      *            The durability for the delete.
      * @return Future that will be updated with the results of the delete. If
@@ -259,8 +336,23 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Integer> deleteAsync(final Document query,
+    public Future<Long> deleteAsync(final Document query, boolean singleDelete,
             Durability durability) throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param durability
+     *            The durability for the delete.
+     * @return Future that will be updated with the results of the delete. If
+     *         the durability of the operation is NONE then this will be -1.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public Future<Long> deleteAsync(final Document query, Durability durability)
+            throws MongoDbException;
 
     /**
      * Drops the collection from the database.
@@ -1059,7 +1151,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public int update(Document query, Document update) throws MongoDbException;
+    public long update(Document query, Document update) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -1081,7 +1173,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public int update(Document query, Document update,
+    public long update(Document query, Document update,
             final boolean multiUpdate, final boolean upsert)
             throws MongoDbException;
 
@@ -1107,7 +1199,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public int update(Document query, Document update,
+    public long update(Document query, Document update,
             final boolean multiUpdate, final boolean upsert,
             final Durability durability) throws MongoDbException;
 
@@ -1127,7 +1219,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public int update(Document query, Document update,
+    public long update(Document query, Document update,
             final Durability durability) throws MongoDbException;
 
     /**
@@ -1146,9 +1238,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public void updateAsync(final Callback<Integer> results,
-            final Document query, final Document update)
-            throws MongoDbException;
+    public void updateAsync(final Callback<Long> results, final Document query,
+            final Document update) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -1172,8 +1263,101 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public void updateAsync(final Callback<Integer> results,
-            final Document query, final Document update,
+    public void updateAsync(final Callback<Long> results, final Document query,
+            final Document update, final boolean multiUpdate,
+            final boolean upsert) throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param results
+     *            The {@link Callback} that will be notified of the number of
+     *            documents updated. If the durability of the operation is NONE
+     *            then this will be -1.
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @param multiUpdate
+     *            If true then the update is applied to all of the matching
+     *            documents, otherwise only the first document found is updated.
+     * @param upsert
+     *            If true then if no document is found then a new document is
+     *            created and updated, otherwise no operation is performed.
+     * @param durability
+     *            The durability for the update.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public void updateAsync(final Callback<Long> results, final Document query,
+            final Document update, final boolean multiUpdate,
+            final boolean upsert, final Durability durability)
+            throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param results
+     *            The {@link Callback} that will be notified of the number of
+     *            documents updated. If the durability of the operation is NONE
+     *            then this will be -1.
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @param durability
+     *            The durability for the update.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public void updateAsync(final Callback<Long> results, final Document query,
+            final Document update, final Durability durability)
+            throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @return A {@link Future} that will be updated with the number of
+     *         documents updated. If the durability of the operation is NONE
+     *         then this will be -1.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public Future<Long> updateAsync(Document query, Document update)
+            throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @param multiUpdate
+     *            If true then the update is applied to all of the matching
+     *            documents, otherwise only the first document found is updated.
+     * @param upsert
+     *            If true then if no document is found then a new document is
+     *            created and updated, otherwise no operation is performed.
+     * @return A {@link Future} that will be updated with the number of
+     *         documents updated. If the durability of the operation is NONE
+     *         then this will be -1.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public Future<Long> updateAsync(Document query, Document update,
             final boolean multiUpdate, final boolean upsert)
             throws MongoDbException;
 
@@ -1182,100 +1366,6 @@ public interface MongoCollection {
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
      * 
-     * @param results
-     *            The {@link Callback} that will be notified of the number of
-     *            documents updated. If the durability of the operation is NONE
-     *            then this will be -1.
-     * @param query
-     *            The query to select the documents to update.
-     * @param update
-     *            The updates to apply to the selected documents.
-     * @param multiUpdate
-     *            If true then the update is applied to all of the matching
-     *            documents, otherwise only the first document found is updated.
-     * @param upsert
-     *            If true then if no document is found then a new document is
-     *            created and updated, otherwise no operation is performed.
-     * @param durability
-     *            The durability for the update.
-     * @throws MongoDbException
-     *             On an error updating the documents.
-     */
-    public void updateAsync(final Callback<Integer> results,
-            final Document query, final Document update,
-            final boolean multiUpdate, final boolean upsert,
-            final Durability durability) throws MongoDbException;
-
-    /**
-     * Applies updates to a set of documents within the collection. The
-     * documents to update are selected by the <tt>query</tt> and the updates
-     * are describe by the <tt>update</tt> document.
-     * 
-     * @param results
-     *            The {@link Callback} that will be notified of the number of
-     *            documents updated. If the durability of the operation is NONE
-     *            then this will be -1.
-     * @param query
-     *            The query to select the documents to update.
-     * @param update
-     *            The updates to apply to the selected documents.
-     * @param durability
-     *            The durability for the update.
-     * @throws MongoDbException
-     *             On an error updating the documents.
-     */
-    public void updateAsync(final Callback<Integer> results,
-            final Document query, final Document update,
-            final Durability durability) throws MongoDbException;
-
-    /**
-     * Applies updates to a set of documents within the collection. The
-     * documents to update are selected by the <tt>query</tt> and the updates
-     * are describe by the <tt>update</tt> document.
-     * 
-     * @param query
-     *            The query to select the documents to update.
-     * @param update
-     *            The updates to apply to the selected documents.
-     * @return A {@link Future} that will be updated with the number of
-     *         documents updated. If the durability of the operation is NONE
-     *         then this will be -1.
-     * @throws MongoDbException
-     *             On an error updating the documents.
-     */
-    public Future<Integer> updateAsync(Document query, Document update)
-            throws MongoDbException;
-
-    /**
-     * Applies updates to a set of documents within the collection. The
-     * documents to update are selected by the <tt>query</tt> and the updates
-     * are describe by the <tt>update</tt> document.
-     * 
-     * @param query
-     *            The query to select the documents to update.
-     * @param update
-     *            The updates to apply to the selected documents.
-     * @param multiUpdate
-     *            If true then the update is applied to all of the matching
-     *            documents, otherwise only the first document found is updated.
-     * @param upsert
-     *            If true then if no document is found then a new document is
-     *            created and updated, otherwise no operation is performed.
-     * @return A {@link Future} that will be updated with the number of
-     *         documents updated. If the durability of the operation is NONE
-     *         then this will be -1.
-     * @throws MongoDbException
-     *             On an error updating the documents.
-     */
-    public Future<Integer> updateAsync(Document query, Document update,
-            final boolean multiUpdate, final boolean upsert)
-            throws MongoDbException;
-
-    /**
-     * Applies updates to a set of documents within the collection. The
-     * documents to update are selected by the <tt>query</tt> and the updates
-     * are describe by the <tt>update</tt> document.
-     * 
      * @param query
      *            The query to select the documents to update.
      * @param update
@@ -1294,7 +1384,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public Future<Integer> updateAsync(Document query, Document update,
+    public Future<Long> updateAsync(Document query, Document update,
             final boolean multiUpdate, final boolean upsert,
             final Durability durability) throws MongoDbException;
 
@@ -1315,6 +1405,6 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public Future<Integer> updateAsync(Document query, Document update,
+    public Future<Long> updateAsync(Document query, Document update,
             final Durability durability) throws MongoDbException;
 }

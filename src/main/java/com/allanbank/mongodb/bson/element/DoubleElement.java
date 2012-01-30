@@ -1,19 +1,20 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.element;
 
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
+import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
  * A wrapper for a BSON double.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class DoubleElement extends AbstractElement {
+public class DoubleElement extends AbstractElement implements NumericElement {
 
     /** The BSON type for a double. */
     public static final ElementType TYPE = ElementType.DOUBLE;
@@ -66,6 +67,39 @@ public class DoubleElement extends AbstractElement {
             result = (myValue == other.myValue) && super.equals(object);
         }
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the double value.
+     * </p>
+     */
+    @Override
+    public double getDoubleValue() {
+        return myValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to cast the double value to an integer.
+     * </p>
+     */
+    @Override
+    public int getIntValue() {
+        return (int) myValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to cast the double value to a long.
+     * </p>
+     */
+    @Override
+    public long getLongValue() {
+        return (long) myValue;
     }
 
     /**

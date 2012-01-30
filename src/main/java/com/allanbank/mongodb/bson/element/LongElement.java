@@ -1,19 +1,20 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.element;
 
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
+import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
  * A wrapper for a BSON (signed 64-bit) integer or long.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class LongElement extends AbstractElement {
+public class LongElement extends AbstractElement implements NumericElement {
 
     /** The BSON type for a long. */
     public static final ElementType TYPE = ElementType.LONG;
@@ -69,6 +70,39 @@ public class LongElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the value as a double.
+     * </p>
+     */
+    @Override
+    public double getDoubleValue() {
+        return myValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to cast the long value to an integer.
+     * </p>
+     */
+    @Override
+    public int getIntValue() {
+        return (int) myValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the value.
+     * </p>
+     */
+    @Override
+    public long getLongValue() {
+        return myValue;
+    }
+
+    /**
      * Returns the BSON long value.
      * 
      * @return The BSON long value.
@@ -109,4 +143,5 @@ public class LongElement extends AbstractElement {
 
         return builder.toString();
     }
+
 }

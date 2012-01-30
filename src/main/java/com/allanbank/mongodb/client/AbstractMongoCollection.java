@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -33,7 +33,7 @@ import com.allanbank.mongodb.connection.messsage.GetLastError;
  * methods for those uses cases that do not require an asynchronous interface.
  * </p>
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractMongoCollection implements MongoCollection {
 
@@ -45,6 +45,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
 
     /** The default for if an insert should continue on an error. */
     public static final boolean INSERT_CONTINUE_ON_ERROR_DEFAULT = false;
+
+    /** The default for using a replica on a query. */
+    public static final boolean REPLICA_OK_DEFAULT = false;
 
     /** The default for doing a multiple-update on an update. */
     public static final boolean UPDATE_MULTIUPDATE_DEFAULT = false;
@@ -78,6 +81,161 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         myClient = client;
         myDatabase = database;
         myName = name;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Document, boolean)} method with
+     * {@value #REPLICA_OK_DEFAULT} as the <tt>replicaOk</tt> argument.
+     * </p>
+     * 
+     * @param query
+     *            The query document.
+     * @return The number of matching documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    @Override
+    public long count(final Document query) throws MongoDbException {
+        try {
+            return countAsync(query, REPLICA_OK_DEFAULT).get().intValue();
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+        catch (final ExecutionException e) {
+            if (e.getCause() instanceof MongoDbException) {
+                throw (MongoDbException) e.getCause();
+            }
+            throw new MongoDbException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Document, boolean)} method.
+     * </p>
+     * 
+     * @param query
+     *            The query document.
+     * @param replicaOk
+     *            If true, then the query can be run against a replica which
+     *            might be slightly behind the primary.
+     * @return The number of matching documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    @Override
+    public long count(final Document query, final boolean replicaOk)
+            throws MongoDbException {
+        try {
+            return countAsync(query, replicaOk).get().intValue();
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+        catch (final ExecutionException e) {
+            if (e.getCause() instanceof MongoDbException) {
+                throw (MongoDbException) e.getCause();
+            }
+            throw new MongoDbException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Callback, Document, boolean)}
+     * method with {@value #REPLICA_OK_DEFAULT} as the <tt>replicaOk</tt>
+     * argument.
+     * </p>
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param query
+     *            The query document.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    @Override
+    public void countAsync(final Callback<Long> results, final Document query)
+            throws MongoDbException {
+        countAsync(results, query, REPLICA_OK_DEFAULT);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>count</code> method that implementations must
+     * override.
+     * </p>
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param query
+     *            The query document.
+     * @param replicaOk
+     *            If true, then the query can be run against a replica which
+     *            might be slightly behind the primary.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    @Override
+    public abstract void countAsync(Callback<Long> results, Document query,
+            boolean replicaOk) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Callback, Document, boolean)}
+     * method with {@value #REPLICA_OK_DEFAULT} as the <tt>replicaOk</tt>
+     * argument.
+     * </p>
+     * 
+     * @param query
+     *            The query document.
+     * @return A future that will be updated with the number of matching
+     *         documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    @Override
+    public Future<Long> countAsync(final Document query)
+            throws MongoDbException {
+        final FutureCallback<Long> future = new FutureCallback<Long>();
+
+        countAsync(future, query, REPLICA_OK_DEFAULT);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Callback, Document, boolean)}
+     * method.
+     * </p>
+     * 
+     * @param query
+     *            The query document.
+     * @param replicaOk
+     *            If true, then the query can be run against a replica which
+     *            might be slightly behind the primary.
+     * @return A future that will be updated with the number of matching
+     *         documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    @Override
+    public Future<Long> countAsync(final Document query, final boolean replicaOk)
+            throws MongoDbException {
+        final FutureCallback<Long> future = new FutureCallback<Long>();
+
+        countAsync(future, query, replicaOk);
+
+        return future;
     }
 
     /**
@@ -138,7 +296,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Document, boolean, Durability)
      */
     @Override
-    public int delete(final Document query) throws MongoDbException {
+    public long delete(final Document query) throws MongoDbException {
         try {
             return deleteAsync(query, DELETE_SINGLE_DELETE_DEFAULT,
                     getDefaultDurability()).get().intValue();
@@ -165,7 +323,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Document, boolean, Durability)
      */
     @Override
-    public int delete(final Document query, final boolean singleDelete)
+    public long delete(final Document query, final boolean singleDelete)
             throws MongoDbException {
         try {
             return deleteAsync(query, singleDelete, getDefaultDurability())
@@ -192,7 +350,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Document, boolean, Durability)
      */
     @Override
-    public int delete(final Document query, final boolean singleDelete,
+    public long delete(final Document query, final boolean singleDelete,
             final Durability durability) throws MongoDbException {
         try {
             return deleteAsync(query, singleDelete, getDefaultDurability())
@@ -220,7 +378,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Document, boolean, Durability)
      */
     @Override
-    public int delete(final Document query, final Durability durability)
+    public long delete(final Document query, final Durability durability)
             throws MongoDbException {
         try {
             return deleteAsync(query, DELETE_SINGLE_DELETE_DEFAULT, durability)
@@ -249,8 +407,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, Document, boolean, Durability)
      */
     @Override
-    public void deleteAsync(final Callback<Integer> results,
-            final Document query) throws MongoDbException {
+    public void deleteAsync(final Callback<Long> results, final Document query)
+            throws MongoDbException {
         deleteAsync(results, query, DELETE_SINGLE_DELETE_DEFAULT,
                 getDefaultDurability());
     }
@@ -266,9 +424,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, Document)
      */
     @Override
-    public void deleteAsync(final Callback<Integer> results,
-            final Document query, final boolean singleDelete)
-            throws MongoDbException {
+    public void deleteAsync(final Callback<Long> results, final Document query,
+            final boolean singleDelete) throws MongoDbException {
         deleteAsync(results, query, DELETE_SINGLE_DELETE_DEFAULT,
                 getDefaultDurability());
     }
@@ -283,7 +440,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, Document, boolean, Durability)
      */
     @Override
-    public abstract void deleteAsync(final Callback<Integer> results,
+    public abstract void deleteAsync(final Callback<Long> results,
             final Document query, final boolean singleDelete,
             final Durability durability) throws MongoDbException;
 
@@ -298,9 +455,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, Document, boolean)
      */
     @Override
-    public void deleteAsync(final Callback<Integer> results,
-            final Document query, final Durability durability)
-            throws MongoDbException {
+    public void deleteAsync(final Callback<Long> results, final Document query,
+            final Durability durability) throws MongoDbException {
         deleteAsync(results, query, DELETE_SINGLE_DELETE_DEFAULT, durability);
     }
 
@@ -316,9 +472,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, Document)
      */
     @Override
-    public Future<Integer> deleteAsync(final Document query)
+    public Future<Long> deleteAsync(final Document query)
             throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Long> future = new FutureCallback<Long>();
 
         deleteAsync(future, query, DELETE_SINGLE_DELETE_DEFAULT,
                 getDefaultDurability());
@@ -337,9 +493,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, Document)
      */
     @Override
-    public Future<Integer> deleteAsync(final Document query,
+    public Future<Long> deleteAsync(final Document query,
             final boolean singleDelete) throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Long> future = new FutureCallback<Long>();
 
         deleteAsync(future, query, singleDelete, getDefaultDurability());
 
@@ -355,10 +511,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, Document)
      */
     @Override
-    public Future<Integer> deleteAsync(final Document query,
+    public Future<Long> deleteAsync(final Document query,
             final boolean singleDelete, final Durability durability)
             throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Long> future = new FutureCallback<Long>();
 
         deleteAsync(future, query, singleDelete, durability);
 
@@ -375,9 +531,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, Document)
      */
     @Override
-    public Future<Integer> deleteAsync(final Document query,
+    public Future<Long> deleteAsync(final Document query,
             final Durability durability) throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Long> future = new FutureCallback<Long>();
 
         deleteAsync(future, query, DELETE_SINGLE_DELETE_DEFAULT, durability);
 
@@ -1358,7 +1514,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #updateAsync(Document, Document, boolean, boolean, Durability)
      */
     @Override
-    public int update(final Document query, final Document update)
+    public long update(final Document query, final Document update)
             throws MongoDbException {
         try {
             return updateAsync(query, update, UPDATE_MULTIUPDATE_DEFAULT,
@@ -1387,7 +1543,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #updateAsync(Document, Document, boolean, boolean, Durability)
      */
     @Override
-    public int update(final Document query, final Document update,
+    public long update(final Document query, final Document update,
             final boolean multiUpdate, final boolean upsert)
             throws MongoDbException {
         try {
@@ -1416,7 +1572,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #updateAsync(Document, Document, boolean, boolean, Durability)
      */
     @Override
-    public int update(final Document query, final Document update,
+    public long update(final Document query, final Document update,
             final boolean multiUpdate, final boolean upsert,
             final Durability durability) throws MongoDbException {
         try {
@@ -1445,7 +1601,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #updateAsync(Document, Document, boolean, boolean, Durability)
      */
     @Override
-    public int update(final Document query, final Document update,
+    public long update(final Document query, final Document update,
             final Durability durability) throws MongoDbException {
         try {
             return updateAsync(query, update, UPDATE_MULTIUPDATE_DEFAULT,
@@ -1475,9 +1631,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      Durability)
      */
     @Override
-    public void updateAsync(final Callback<Integer> results,
-            final Document query, final Document update)
-            throws MongoDbException {
+    public void updateAsync(final Callback<Long> results, final Document query,
+            final Document update) throws MongoDbException {
         updateAsync(results, query, update, UPDATE_MULTIUPDATE_DEFAULT,
                 UPDATE_UPSERT_DEFAULT, getDefaultDurability());
     }
@@ -1494,10 +1649,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      Durability)
      */
     @Override
-    public void updateAsync(final Callback<Integer> results,
-            final Document query, final Document update,
-            final boolean multiUpdate, final boolean upsert)
-            throws MongoDbException {
+    public void updateAsync(final Callback<Long> results, final Document query,
+            final Document update, final boolean multiUpdate,
+            final boolean upsert) throws MongoDbException {
         updateAsync(results, query, update, multiUpdate, upsert,
                 getDefaultDurability());
     }
@@ -1513,7 +1667,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      boolean, Durability)
      */
     @Override
-    public abstract void updateAsync(final Callback<Integer> results,
+    public abstract void updateAsync(final Callback<Long> results,
             final Document query, final Document update,
             final boolean multiUpdate, final boolean upsert,
             final Durability durability) throws MongoDbException;
@@ -1530,9 +1684,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      Durability)
      */
     @Override
-    public void updateAsync(final Callback<Integer> results,
-            final Document query, final Document update,
-            final Durability durability) throws MongoDbException {
+    public void updateAsync(final Callback<Long> results, final Document query,
+            final Document update, final Durability durability)
+            throws MongoDbException {
         updateAsync(results, query, update, UPDATE_MULTIUPDATE_DEFAULT,
                 UPDATE_UPSERT_DEFAULT, durability);
     }
@@ -1550,9 +1704,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      Durability)
      */
     @Override
-    public Future<Integer> updateAsync(final Document query,
-            final Document update) throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+    public Future<Long> updateAsync(final Document query, final Document update)
+            throws MongoDbException {
+        final FutureCallback<Long> future = new FutureCallback<Long>();
 
         updateAsync(future, query, update, UPDATE_MULTIUPDATE_DEFAULT,
                 UPDATE_UPSERT_DEFAULT, getDefaultDurability());
@@ -1572,10 +1726,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      Durability)
      */
     @Override
-    public Future<Integer> updateAsync(final Document query,
+    public Future<Long> updateAsync(final Document query,
             final Document update, final boolean multiUpdate,
             final boolean upsert) throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Long> future = new FutureCallback<Long>();
 
         updateAsync(future, query, update, multiUpdate, upsert,
                 getDefaultDurability());
@@ -1595,11 +1749,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      Durability)
      */
     @Override
-    public Future<Integer> updateAsync(final Document query,
+    public Future<Long> updateAsync(final Document query,
             final Document update, final boolean multiUpdate,
             final boolean upsert, final Durability durability)
             throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Long> future = new FutureCallback<Long>();
 
         updateAsync(future, query, update, multiUpdate, upsert, durability);
 
@@ -1618,10 +1772,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      Durability)
      */
     @Override
-    public Future<Integer> updateAsync(final Document query,
+    public Future<Long> updateAsync(final Document query,
             final Document update, final Durability durability)
             throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Long> future = new FutureCallback<Long>();
 
         updateAsync(future, query, update, UPDATE_MULTIUPDATE_DEFAULT,
                 UPDATE_UPSERT_DEFAULT, durability);

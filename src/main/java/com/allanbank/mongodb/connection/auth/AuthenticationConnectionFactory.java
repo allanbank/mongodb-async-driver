@@ -50,7 +50,7 @@ public class AuthenticationConnectionFactory implements
     }
 
     /**
-     * {@ineritDocs}
+     * {@inheritDoc}
      * <p>
      * Overriden to wrap the returned connection with an
      * {@link AuthenticatingConnection}.
