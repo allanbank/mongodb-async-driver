@@ -6,13 +6,13 @@
 package com.allanbank.mongodb.client;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
@@ -20,8 +20,11 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.commands.Distinct;
 import com.allanbank.mongodb.commands.FindAndModify;
+import com.allanbank.mongodb.commands.GroupBy;
 import com.allanbank.mongodb.commands.MapReduce;
 import com.allanbank.mongodb.connection.messsage.Command;
 import com.allanbank.mongodb.connection.messsage.Delete;
@@ -78,7 +81,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
 
         final Command commandMsg = new Command(getDatabaseName(), builder.get());
 
-        myClient.send(commandMsg, new LongNCallback(results));
+        myClient.send(commandMsg, new ReplyLongCallback(results));
     }
 
     /**
@@ -145,8 +148,33 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         }
         else {
             myClient.send(deleteMessage, asGetLastError(durability),
-                    new LongNCallback(results));
+                    new ReplyLongCallback(results));
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to construct a 'distinct' command and send it to the server.
+     * </p>
+     */
+    @Override
+    public void distinctAsync(final Callback<ArrayElement> results,
+            final Distinct command) throws MongoDbException {
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        builder.addString("distinct", getName());
+        if (command.getKey() != null) {
+            builder.addString("key", command.getKey());
+        }
+        if (command.getQuery() != null) {
+            builder.addDocument("query", command.getQuery());
+        }
+
+        final Command commandMsg = new Command(getDatabaseName(), builder.get());
+
+        myClient.send(commandMsg, new ReplyArrayCallback(results));
+
     }
 
     /**
@@ -226,7 +254,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         }
 
         final Command commandMsg = new Command(getDatabaseName(), builder.get());
-        myClient.send(commandMsg, new ReplyValueDocumentCallback(results));
+        myClient.send(commandMsg, new ReplyDocumentCallback(results));
     }
 
     /**
@@ -236,7 +264,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void findAsync(final Callback<Iterator<Document>> results,
+    public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Document query, final Document returnFields,
             final int numberToReturn, final int numberToSkip,
             final boolean replicaOk, final boolean partial)
@@ -274,6 +302,47 @@ public class MongoCollectionClient extends AbstractMongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to construct a group command and send it to the server.
+     * </p>
+     */
+    @Override
+    public void groupByAsync(final Callback<ArrayElement> results,
+            final GroupBy command) throws MongoDbException {
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        final DocumentBuilder groupDocBuilder = builder.push("group");
+
+        if (!command.getKeys().isEmpty()) {
+            final DocumentBuilder keysBuilder = groupDocBuilder.push("key");
+            for (final String key : command.getKeys()) {
+                keysBuilder.addBoolean(key, true);
+            }
+        }
+        if (command.getKeyFunction() != null) {
+            groupDocBuilder.addJavaScript("$keyf", command.getKeyFunction());
+        }
+        if (command.getInitialValue() != null) {
+            groupDocBuilder.addDocument("initial", command.getInitialValue());
+        }
+        if (command.getReduceFunction() != null) {
+            groupDocBuilder.addJavaScript("$reduce",
+                    command.getReduceFunction());
+        }
+        if (command.getFinalizeFunction() != null) {
+            groupDocBuilder.addJavaScript("$finalize",
+                    command.getFinalizeFunction());
+        }
+        if (command.getQuery() != null) {
+            groupDocBuilder.addDocument("cond", command.getQuery());
+        }
+
+        final Command commandMsg = new Command(getDatabaseName(), builder.get());
+        myClient.send(commandMsg, new ReplyArrayCallback("retval", results));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to send an {@link Insert} message to the server.
      * </p>
      */
@@ -297,15 +366,14 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         }
         else {
             myClient.send(insertMessage, asGetLastError(durability),
-                    new IntegerNCallback(results));
+                    new ReplyIntegerCallback(results));
         }
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * This is the canonical <code>mapReduce</code> method that implementations
-     * must override.
+     * Overridden to construct a mapReduce command and send it to the server.
      * </p>
      * 
      * @see MongoCollection#mapReduceAsync(Callback, MapReduce)
@@ -316,14 +384,14 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("mapReduce", getName());
-        if (command.getMap() != null) {
-            builder.addJavaScript("map", command.getMap());
+        if (command.getMapFunction() != null) {
+            builder.addJavaScript("map", command.getMapFunction());
         }
-        if (command.getReduce() != null) {
-            builder.addJavaScript("reduce", command.getReduce());
+        if (command.getReduceFunction() != null) {
+            builder.addJavaScript("reduce", command.getReduceFunction());
         }
-        if (command.getFinalize() != null) {
-            builder.addJavaScript("finalize", command.getFinalize());
+        if (command.getFinalizeFunction() != null) {
+            builder.addJavaScript("finalize", command.getFinalizeFunction());
         }
         if (command.getQuery() != null) {
             builder.addDocument("query", command.getQuery());
@@ -400,7 +468,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         }
         else {
             myClient.send(updateMessage, asGetLastError(durability),
-                    new LongNCallback(results));
+                    new ReplyLongCallback(results));
         }
     }
 }

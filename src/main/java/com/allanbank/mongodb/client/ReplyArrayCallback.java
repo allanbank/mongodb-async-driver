@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012, Allanbank Consulting, Inc. 
+ * Copyright 2011, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -10,23 +10,23 @@ import java.util.List;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.element.DocumentElement;
+import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.error.ReplyException;
 
 /**
  * Callback to expect and extract a single document from the reply and then
- * extract its contained document.
+ * extract its contained array.
  * 
- * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class ReplyDocumentCallback extends
-        AbstractReplyCallback<Document> {
+/* package */class ReplyArrayCallback extends
+        AbstractReplyCallback<ArrayElement> {
 
-    /** The default name for the reply's document to return. */
-    public static final String DEFAULT_NAME = "value";
+    /** The default name for the values array. */
+    public static final String DEFAULT_NAME = "values";
 
-    /** The name of the document in the reply document. */
+    /** The name of the array element in the reply document. */
     private final String myName;
 
     /**
@@ -35,7 +35,7 @@ import com.allanbank.mongodb.error.ReplyException;
      * @param results
      *            The callback to notify of the reply document.
      */
-    public ReplyDocumentCallback(final Callback<Document> results) {
+    public ReplyArrayCallback(final Callback<ArrayElement> results) {
         this(DEFAULT_NAME, results);
     }
 
@@ -43,12 +43,12 @@ import com.allanbank.mongodb.error.ReplyException;
      * Create a new ReplyDocumentCallback.
      * 
      * @param name
-     *            The name of the document in the reply document to extract.
+     *            The name of the array element in the reply document.
      * @param results
      *            The callback to notify of the reply document.
      */
-    public ReplyDocumentCallback(final String name,
-            final Callback<Document> results) {
+    public ReplyArrayCallback(final String name,
+            final Callback<ArrayElement> results) {
         super(results);
 
         myName = name;
@@ -75,9 +75,9 @@ import com.allanbank.mongodb.error.ReplyException;
                         "Should only be a single document in the reply.");
             }
             else if (reply.getResults().get(0)
-                    .queryPath(DocumentElement.class, myName).isEmpty()) {
+                    .queryPath(ArrayElement.class, myName).isEmpty()) {
                 error = new ReplyException(reply, "No '" + myName
-                        + "' document in the reply.");
+                        + "' array in the reply.");
             }
         }
         return error;
@@ -92,11 +92,10 @@ import com.allanbank.mongodb.error.ReplyException;
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override
-    protected Document convert(final Reply reply) throws MongoDbException {
+    protected ArrayElement convert(final Reply reply) throws MongoDbException {
         final List<Document> results = reply.getResults();
         if (results.size() == 1) {
-            return results.get(0).queryPath(DocumentElement.class, myName)
-                    .get(0);
+            return results.get(0).queryPath(ArrayElement.class, myName).get(0);
         }
 
         return null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -9,25 +9,36 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.messsage.GetMore;
+import com.allanbank.mongodb.connection.messsage.KillCursors;
 import com.allanbank.mongodb.connection.messsage.Query;
 import com.allanbank.mongodb.connection.messsage.Reply;
 
 /**
  * Iterator over the results of the MongoDB cursor.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoInterator implements Iterator<Document> {
+public class MongoInterator implements ClosableIterator<Document> {
+
+    /** The log for the iterator. */
+    private static final Logger LOG = Logger.getLogger(MongoInterator.class
+            .getName());
 
     /** The client for sending get_more requests to the server. */
     private final Client myClient;
 
     /** The iterator over the current set of documents. */
     private Iterator<Document> myCurrentIterator;
+
+    /** The original query. */
+    private long myCursorId = 0;
 
     /** The {@link Future} that will be updated with the next set of results. */
     private FutureCallback<Reply> myNextReply;
@@ -50,9 +61,53 @@ public class MongoInterator implements Iterator<Document> {
         myNextReply = new FutureCallback<Reply>();
         myNextReply.callback(reply);
 
+        myCursorId = 0;
         myClient = client;
         myOriginalQuery = originalQuery;
         myCurrentIterator = null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to close the iterator and send a {@link KillCursors} for the
+     * open cursor, if any.
+     * </p>
+     */
+    @Override
+    public void close() {
+        final long cursorId = myCursorId;
+        final Future<Reply> replyFuture = myNextReply;
+
+        myCurrentIterator = null;
+        myNextReply = null;
+        myCursorId = 0;
+
+        if (cursorId == 0) {
+            if (replyFuture != null) {
+                try {
+                    final Reply reply = replyFuture.get();
+
+                    if (reply.getCursorId() != 0) {
+                        myClient.send(new KillCursors(new long[] { reply
+                                .getCursorId() }));
+                    }
+                }
+                catch (final InterruptedException e) {
+                    LOG.log(Level.WARNING,
+                            "Intertrupted waiting for a query reply to close the cursor.",
+                            e);
+                }
+                catch (final ExecutionException e) {
+                    LOG.log(Level.WARNING,
+                            "Intertrupted waiting for a query reply to close the cursor.",
+                            e);
+                }
+            }
+        }
+        else {
+            myClient.send(new KillCursors(new long[] { cursorId }));
+        }
     }
 
     @Override
@@ -64,6 +119,17 @@ public class MongoInterator implements Iterator<Document> {
             loadDocuments();
         }
         return myCurrentIterator.hasNext();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return this iterator.
+     * </p>
+     */
+    @Override
+    public Iterator<Document> iterator() {
+        return this;
     }
 
     /**
@@ -117,12 +183,19 @@ public class MongoInterator implements Iterator<Document> {
                         reply.getCursorId(),
                         myOriginalQuery.getNumberToReturn());
 
+                myCursorId = reply.getCursorId();
                 myNextReply = new FutureCallback<Reply>();
                 myClient.send(getMore, myNextReply);
             }
             else {
                 // Exhausted the cursor.
                 myNextReply = null;
+
+                // Do we need to do this?
+                if (myCursorId != 0) {
+                    myClient.send(new KillCursors(new long[] { myCursorId }));
+                    myCursorId = 0;
+                }
             }
 
             myCurrentIterator = reply.getResults().iterator();

@@ -12,8 +12,6 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
-import com.allanbank.mongodb.bson.element.DoubleElement;
-import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
@@ -177,9 +175,8 @@ public abstract class AbstractReplyCallback<F> implements Callback<Reply> {
     protected abstract F convert(Reply reply) throws MongoDbException;
 
     /**
-     * Converts a {@link DoubleElement} or {@link IntegerElement} into an
-     * <tt>int</tt> value. If not a {@link DoubleElement} of
-     * {@link IntegerElement} then -1 is returned.
+     * Converts a {@link NumericElement}into an <tt>int</tt> value. If not a
+     * {@link NumericElement} then -1 is returned.
      * 
      * @param element
      *            The element to convert.

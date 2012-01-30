@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.client;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -13,13 +12,17 @@ import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.commands.Distinct;
 import com.allanbank.mongodb.commands.FindAndModify;
+import com.allanbank.mongodb.commands.GroupBy;
 import com.allanbank.mongodb.commands.MapReduce;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.messsage.GetLastError;
@@ -543,6 +546,56 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #distinctAsync(Distinct)}.
+     * </p>
+     */
+    @Override
+    public ArrayElement distinct(final Distinct command)
+            throws MongoDbException {
+        try {
+            return distinctAsync(command).get();
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+        catch (final ExecutionException e) {
+            if (e.getCause() instanceof MongoDbException) {
+                throw (MongoDbException) e.getCause();
+            }
+            throw new MongoDbException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>disitnct</code> method that implementations
+     * must override.
+     * </p>
+     */
+    @Override
+    public abstract void distinctAsync(Callback<ArrayElement> results,
+            Distinct command) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #distinctAsync(Callback, Distinct)}.
+     * </p>
+     */
+    @Override
+    public Future<ArrayElement> distinctAsync(final Distinct command)
+            throws MongoDbException {
+        final FutureCallback<ArrayElement> future = new FutureCallback<ArrayElement>();
+
+        distinctAsync(future, command);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * This is the canonical <code>dropIndex</code> method that implementations
      * must override.
      * </p>
@@ -564,7 +617,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Iterator<Document> find(final Document query)
+    public ClosableIterator<Document> find(final Document query)
             throws MongoDbException {
         try {
             return findAsync(query, null, 0, 0, false, false).get();
@@ -593,8 +646,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Iterator<Document> find(final Document query, final boolean replicaOk)
-            throws MongoDbException {
+    public ClosableIterator<Document> find(final Document query,
+            final boolean replicaOk) throws MongoDbException {
         try {
             return findAsync(query, null, 0, 0, false, false).get();
         }
@@ -621,7 +674,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Iterator<Document> find(final Document query,
+    public ClosableIterator<Document> find(final Document query,
             final Document returnFields) throws MongoDbException {
         try {
             return findAsync(query, returnFields, 0, 0, false, false).get();
@@ -649,7 +702,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Iterator<Document> find(final Document query,
+    public ClosableIterator<Document> find(final Document query,
             final Document returnFields, final boolean replicaOk)
             throws MongoDbException {
         try {
@@ -677,7 +730,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Iterator<Document> find(final Document query,
+    public ClosableIterator<Document> find(final Document query,
             final Document returnFields, final int numberToReturn,
             final int numberToSkip, final boolean replicaOk,
             final boolean partial) throws MongoDbException {
@@ -708,7 +761,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Iterator<Document> find(final Document query,
+    public ClosableIterator<Document> find(final Document query,
             final int numberToReturn, final int numberToSkip)
             throws MongoDbException {
         try {
@@ -738,7 +791,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Iterator<Document> find(final Document query,
+    public ClosableIterator<Document> find(final Document query,
             final int numberToReturn, final int numberToSkip,
             final boolean replicaOk) throws MongoDbException {
         try {
@@ -826,7 +879,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public void findAsync(final Callback<Iterator<Document>> results,
+    public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Document query) throws MongoDbException {
         findAsync(results, query, null, 0, 0, false, false);
     }
@@ -844,7 +897,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public void findAsync(final Callback<Iterator<Document>> results,
+    public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Document query, final boolean replicaOk)
             throws MongoDbException {
         findAsync(results, query, null, 0, 0, replicaOk, false);
@@ -862,7 +915,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public void findAsync(final Callback<Iterator<Document>> results,
+    public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Document query, final Document returnFields)
             throws MongoDbException {
         findAsync(results, query, returnFields, 0, 0, false, false);
@@ -880,7 +933,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public void findAsync(final Callback<Iterator<Document>> results,
+    public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Document query, final Document returnFields,
             final boolean replicaOk) throws MongoDbException {
         findAsync(results, query, returnFields, 0, 0, replicaOk, false);
@@ -897,7 +950,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      boolean, boolean)
      */
     @Override
-    public abstract void findAsync(final Callback<Iterator<Document>> results,
+    public abstract void findAsync(
+            final Callback<ClosableIterator<Document>> results,
             final Document query, final Document returnFields,
             final int numberToReturn, final int numberToSkip,
             final boolean replicaOk, final boolean partial)
@@ -915,7 +969,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public void findAsync(final Callback<Iterator<Document>> results,
+    public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Document query, final int numberToReturn,
             final int numberToSkip) throws MongoDbException {
         findAsync(results, query, null, numberToReturn, numberToSkip, false,
@@ -934,7 +988,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public void findAsync(final Callback<Iterator<Document>> results,
+    public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Document query, final int numberToReturn,
             final int numberToSkip, final boolean replicaOk)
             throws MongoDbException {
@@ -955,9 +1009,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Future<Iterator<Document>> findAsync(final Document query)
+    public Future<ClosableIterator<Document>> findAsync(final Document query)
             throws MongoDbException {
-        final FutureCallback<Iterator<Document>> future = new FutureCallback<Iterator<Document>>();
+        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
 
         findAsync(future, query, null, 0, 0, false, false);
 
@@ -977,9 +1031,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Future<Iterator<Document>> findAsync(final Document query,
+    public Future<ClosableIterator<Document>> findAsync(final Document query,
             final boolean replicaOk) throws MongoDbException {
-        final FutureCallback<Iterator<Document>> future = new FutureCallback<Iterator<Document>>();
+        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
 
         findAsync(future, query, null, 0, 0, replicaOk, false);
 
@@ -998,9 +1052,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Future<Iterator<Document>> findAsync(final Document query,
+    public Future<ClosableIterator<Document>> findAsync(final Document query,
             final Document returnFields) throws MongoDbException {
-        final FutureCallback<Iterator<Document>> future = new FutureCallback<Iterator<Document>>();
+        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
 
         findAsync(future, query, returnFields, 0, 0, false, false);
 
@@ -1019,10 +1073,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Future<Iterator<Document>> findAsync(final Document query,
+    public Future<ClosableIterator<Document>> findAsync(final Document query,
             final Document returnFields, final boolean replicaOk)
             throws MongoDbException {
-        final FutureCallback<Iterator<Document>> future = new FutureCallback<Iterator<Document>>();
+        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
 
         findAsync(future, query, returnFields, 0, 0, replicaOk, false);
 
@@ -1040,11 +1094,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Future<Iterator<Document>> findAsync(final Document query,
+    public Future<ClosableIterator<Document>> findAsync(final Document query,
             final Document returnFields, final int numberToReturn,
             final int numberToSkip, final boolean replicaOk,
             final boolean partial) throws MongoDbException {
-        final FutureCallback<Iterator<Document>> future = new FutureCallback<Iterator<Document>>();
+        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
 
         findAsync(future, query, returnFields, numberToReturn, numberToSkip,
                 replicaOk, partial);
@@ -1064,10 +1118,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Future<Iterator<Document>> findAsync(final Document query,
+    public Future<ClosableIterator<Document>> findAsync(final Document query,
             final int numberToReturn, final int numberToSkip)
             throws MongoDbException {
-        final FutureCallback<Iterator<Document>> future = new FutureCallback<Iterator<Document>>();
+        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
 
         findAsync(future, query, null, numberToReturn, numberToSkip, false,
                 false);
@@ -1087,10 +1141,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
      */
     @Override
-    public Future<Iterator<Document>> findAsync(final Document query,
+    public Future<ClosableIterator<Document>> findAsync(final Document query,
             final int numberToReturn, final int numberToSkip,
             final boolean replicaOk) throws MongoDbException {
-        final FutureCallback<Iterator<Document>> future = new FutureCallback<Iterator<Document>>();
+        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
 
         findAsync(future, query, null, numberToReturn, numberToSkip, replicaOk,
                 false);
@@ -1171,6 +1225,55 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public String getName() {
         return myName;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #groupByAsync(GroupBy)}.
+     * </p>
+     */
+    @Override
+    public ArrayElement groupBy(final GroupBy command) throws MongoDbException {
+        try {
+            return groupByAsync(command).get();
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+        catch (final ExecutionException e) {
+            if (e.getCause() instanceof MongoDbException) {
+                throw (MongoDbException) e.getCause();
+            }
+            throw new MongoDbException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>groupBy</code> method that implementations
+     * must override.
+     * </p>
+     */
+    @Override
+    public abstract void groupByAsync(Callback<ArrayElement> results,
+            GroupBy command) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #groupByAsync(Callback, GroupBy)}.
+     * </p>
+     */
+    @Override
+    public Future<ArrayElement> groupByAsync(final GroupBy command)
+            throws MongoDbException {
+        final FutureCallback<ArrayElement> future = new FutureCallback<ArrayElement>();
+
+        groupByAsync(future, command);
+
+        return future;
     }
 
     /**

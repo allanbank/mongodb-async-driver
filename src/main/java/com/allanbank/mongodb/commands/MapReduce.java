@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -12,7 +12,7 @@ import com.allanbank.mongodb.bson.Document;
  * Represents the state of a single {@link MongoCollection#mapReduce} command.
  * Objects of this class are created using the nested {@link Builder}.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MapReduce {
 
@@ -20,7 +20,7 @@ public class MapReduce {
      * The finalize function to apply to the final results of the reduce
      * function.
      */
-    private final String myFinalize;
+    private final String myFinalizeFunction;
 
     /**
      * If true limits the translation of the documents to an from
@@ -38,7 +38,7 @@ public class MapReduce {
     private final int myLimit;
 
     /** The map functions to apply to each selected document. */
-    private final String myMap;
+    private final String myMapFunction;
 
     /**
      * The name of the output database if the output type is One of
@@ -61,7 +61,7 @@ public class MapReduce {
     private final Document myQuery;
 
     /** The reduce function to apply to the emitted output of the map function. */
-    private final String myReduce;
+    private final String myReduceFunction;
 
     /** The scoped values to expose to the map/reduce/finalize functions. */
     private final Document myScope;
@@ -82,9 +82,9 @@ public class MapReduce {
      *            The builder to copy state from.
      */
     protected MapReduce(final Builder builder) {
-        myMap = builder.myMap;
-        myReduce = builder.myReduce;
-        myFinalize = builder.myFinalize;
+        myMapFunction = builder.myMapFunction;
+        myReduceFunction = builder.myReduceFunction;
+        myFinalizeFunction = builder.myFinalizeFunction;
         myQuery = builder.myQuery;
         mySort = builder.mySort;
         myScope = builder.myScope;
@@ -104,8 +104,8 @@ public class MapReduce {
      * @return The finalize function to apply to the final results of the reduce
      *         function.
      */
-    public String getFinalize() {
-        return myFinalize;
+    public String getFinalizeFunction() {
+        return myFinalizeFunction;
     }
 
     /**
@@ -124,8 +124,8 @@ public class MapReduce {
      * 
      * @return The map functions to apply to each selected document.
      */
-    public String getMap() {
-        return myMap;
+    public String getMapFunction() {
+        return myMapFunction;
     }
 
     /**
@@ -179,8 +179,8 @@ public class MapReduce {
      * @return The reduce function to apply to the emitted output of the map
      *         function.
      */
-    public String getReduce() {
-        return myReduce;
+    public String getReduceFunction() {
+        return myReduceFunction;
     }
 
     /**
@@ -244,7 +244,7 @@ public class MapReduce {
          * The finalize function to apply to the final results of the reduce
          * function.
          */
-        protected String myFinalize = null;
+        protected String myFinalizeFunction = null;
 
         /**
          * If true limits the translation of the documents to an from
@@ -262,7 +262,7 @@ public class MapReduce {
         protected int myLimit = 0;
 
         /** The map functions to apply to each selected document. */
-        protected String myMap = null;
+        protected String myMapFunction = null;
 
         /**
          * The name of the output database if the output type is One of
@@ -288,7 +288,7 @@ public class MapReduce {
          * The reduce function to apply to the emitted output of the map
          * function.
          */
-        protected String myReduce = null;
+        protected String myReduceFunction = null;
 
         /** The scoped values to expose to the map/reduce/finalize functions. */
         protected Document myScope = null;
@@ -321,8 +321,8 @@ public class MapReduce {
          *            reduce function.
          * @return This builder for chaining method calls.
          */
-        public Builder setFinalize(final String finalize) {
-            myFinalize = finalize;
+        public Builder setFinalizeFunction(final String finalize) {
+            myFinalizeFunction = finalize;
             return this;
         }
 
@@ -375,8 +375,8 @@ public class MapReduce {
          *            The map functions to apply to each selected document.
          * @return This builder for chaining method calls.
          */
-        public Builder setMap(final String map) {
-            myMap = map;
+        public Builder setMapFunction(final String map) {
+            myMapFunction = map;
             return this;
         }
 
@@ -446,8 +446,8 @@ public class MapReduce {
          *            map function.
          * @return This builder for chaining method calls.
          */
-        public Builder setReduce(final String reduce) {
-            myReduce = reduce;
+        public Builder setReduceFunction(final String reduce) {
+            myReduceFunction = reduce;
             return this;
         }
 

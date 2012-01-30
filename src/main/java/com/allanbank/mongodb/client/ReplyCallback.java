@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -10,18 +10,15 @@ import java.util.List;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.connection.messsage.Reply;
 import com.allanbank.mongodb.error.ReplyException;
 
 /**
- * Callback to expect and extract a single document from the reply and then
- * extract its contained "value" document.
+ * Callback to expect and extract a single document from the reply.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class ReplyValueDocumentCallback extends
-        AbstractReplyCallback<Document> {
+/* package */class ReplyCallback extends AbstractReplyCallback<Document> {
 
     /**
      * Create a new ReplyDocumentCallback.
@@ -29,7 +26,7 @@ import com.allanbank.mongodb.error.ReplyException;
      * @param results
      *            The callback to notify of the reply document.
      */
-    public ReplyValueDocumentCallback(final Callback<Document> results) {
+    public ReplyCallback(final Callback<Document> results) {
         super(results);
     }
 
@@ -53,11 +50,6 @@ import com.allanbank.mongodb.error.ReplyException;
                 error = new ReplyException(reply,
                         "Should only be a single document in the reply.");
             }
-            else if (reply.getResults().get(0)
-                    .queryPath(DocumentElement.class, "value").isEmpty()) {
-                error = new ReplyException(reply,
-                        "No value document in the reply.");
-            }
         }
         return error;
     }
@@ -74,8 +66,7 @@ import com.allanbank.mongodb.error.ReplyException;
     protected Document convert(final Reply reply) throws MongoDbException {
         final List<Document> results = reply.getResults();
         if (results.size() == 1) {
-            return results.get(0).queryPath(DocumentElement.class, "value")
-                    .get(0);
+            return results.get(0);
         }
 
         return null;

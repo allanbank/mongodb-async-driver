@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
@@ -28,7 +29,7 @@ import com.allanbank.mongodb.connection.messsage.Query;
 /**
  * Implementation of the {@link MongoDatabase} interface.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoDatabaseClient implements MongoDatabase {
 
@@ -109,7 +110,7 @@ public class MongoDatabaseClient implements MongoDatabase {
         final Query query = new Query(myName, "system.namespace", EMPTY_QUERY,
                 null, 10000, 0, false, true, false, false, false, false);
 
-        final FutureCallback<Iterator<Document>> iterFuture = new FutureCallback<Iterator<Document>>();
+        final FutureCallback<ClosableIterator<Document>> iterFuture = new FutureCallback<ClosableIterator<Document>>();
         final QueryCallback callback = new QueryCallback(myClient, query,
                 iterFuture);
 
@@ -304,7 +305,7 @@ public class MongoDatabaseClient implements MongoDatabase {
 
         final Command commandMessage = new Command(myName, builder.get());
 
-        myClient.send(commandMessage, new ReplyDocumentCallback(reply));
+        myClient.send(commandMessage, new ReplyCallback(reply));
     }
 
     /**
@@ -329,7 +330,7 @@ public class MongoDatabaseClient implements MongoDatabase {
 
         final Command commandMessage = new Command(myName, builder.get());
 
-        myClient.send(commandMessage, new ReplyDocumentCallback(reply));
+        myClient.send(commandMessage, new ReplyCallback(reply));
     }
 
     /**
