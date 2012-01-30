@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.builder;
@@ -11,7 +11,7 @@ import com.allanbank.mongodb.bson.builder.impl.DocumentBuilderImpl;
  * Helper class for getting started with a builder. The use of this class is
  * encouraged to avoid direct references to the builder implementations.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BuilderFactory {
 

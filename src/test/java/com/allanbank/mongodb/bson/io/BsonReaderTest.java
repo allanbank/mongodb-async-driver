@@ -23,6 +23,7 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
@@ -156,6 +157,7 @@ public class BsonReaderTest {
         final Document simple = builder.get();
 
         builder = BuilderFactory.start();
+        builder.add(new BooleanElement("_id", false));
         builder.addBinary("binary", new byte[20]);
         builder.addBinary("binary-2", (byte) 2, new byte[40]);
         builder.addBoolean("true", true);
@@ -163,6 +165,7 @@ public class BsonReaderTest {
         builder.addDBPointer("DBPointer", "db", "collection", new ObjectId(1,
                 2L));
         builder.addDouble("double", 4884.45345);
+        builder.addDocument("simple", simple);
         builder.addInteger("int", 123456);
         builder.addJavaScript("javascript", "function foo() { }");
         builder.addJavaScript("javascript_with_code", "function foo() { }",
