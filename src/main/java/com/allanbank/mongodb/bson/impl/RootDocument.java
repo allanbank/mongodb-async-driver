@@ -229,16 +229,15 @@ public class RootDocument implements Document {
                 final Pattern pattern = Pattern.compile(nameRegex);
                 for (final Element element : docElements) {
                     if (pattern.matcher(element.getName()).matches()) {
-                        elements.addAll(queryPath(clazz, subNameRegexs));
+                        elements.addAll(element.queryPath(clazz, subNameRegexs));
                     }
                 }
-
             }
             catch (final PatternSyntaxException pse) {
                 // Assume a non-pattern?
                 for (final Element element : docElements) {
                     if (nameRegex.equals(element.getName())) {
-                        elements.addAll(queryPath(clazz, subNameRegexs));
+                        elements.addAll(element.queryPath(clazz, subNameRegexs));
                     }
                 }
             }

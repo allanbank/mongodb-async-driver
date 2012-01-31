@@ -120,8 +120,7 @@ public class ArrayElement extends AbstractElement {
     public int hashCode() {
         int result = 1;
         result = (31 * result) + super.hashCode();
-        result = (31 * result)
-                + ((myEntries == null) ? 0 : myEntries.hashCode());
+        result = (31 * result) + myEntries.hashCode();
         return result;
     }
 
@@ -146,7 +145,7 @@ public class ArrayElement extends AbstractElement {
                 final Pattern pattern = Pattern.compile(nameRegex);
                 for (final Element element : myEntries) {
                     if (pattern.matcher(element.getName()).matches()) {
-                        elements.addAll(queryPath(clazz, subNameRegexs));
+                        elements.addAll(element.queryPath(clazz, subNameRegexs));
                     }
                 }
 
@@ -155,7 +154,7 @@ public class ArrayElement extends AbstractElement {
                 // Assume a non-pattern?
                 for (final Element element : myEntries) {
                     if (nameRegex.equals(element.getName())) {
-                        elements.addAll(queryPath(clazz, subNameRegexs));
+                        elements.addAll(element.queryPath(clazz, subNameRegexs));
                     }
                 }
             }

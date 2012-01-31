@@ -5,7 +5,6 @@
 package com.allanbank.mongodb.bson.builder.impl;
 
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
@@ -242,7 +241,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * </p>
      */
     @Override
-    protected Element get(final String name) {
+    public ArrayElement get(final String name) {
         return new ArrayElement(name, subElements());
     }
 

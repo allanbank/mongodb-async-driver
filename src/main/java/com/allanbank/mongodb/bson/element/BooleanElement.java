@@ -52,7 +52,16 @@ public class BooleanElement extends AbstractElement {
      */
     @Override
     public boolean equals(final Object object) {
-        return super.equals(object);
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final BooleanElement other = (BooleanElement) object;
+
+            result = super.equals(object) && (myValue == other.myValue);
+        }
+        return result;
     }
 
     /**
