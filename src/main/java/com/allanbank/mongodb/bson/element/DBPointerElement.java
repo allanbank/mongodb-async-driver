@@ -26,6 +26,33 @@ public class DBPointerElement extends AbstractElement {
     /** The name of the database containing the document. */
     private final String myDatabaseName;
 
+    /**
+     * Returns the collectionName value.
+     * 
+     * @return The collectionName value.
+     */
+    public String getCollectionName() {
+        return myCollectionName;
+    }
+
+    /**
+     * Returns the databaseName value.
+     * 
+     * @return The databaseName value.
+     */
+    public String getDatabaseName() {
+        return myDatabaseName;
+    }
+
+    /**
+     * Returns the id value.
+     * 
+     * @return The id value.
+     */
+    public ObjectId getId() {
+        return myId;
+    }
+
     /** The id for the document. */
     private final ObjectId myId;
 
@@ -80,9 +107,10 @@ public class DBPointerElement extends AbstractElement {
         else if ((object != null) && (getClass() == object.getClass())) {
             final DBPointerElement other = (DBPointerElement) object;
 
-            result = myDatabaseName.equals(other.myDatabaseName)
+            result = super.equals(object)
+                    && myDatabaseName.equals(other.myDatabaseName)
                     && myCollectionName.equals(other.myCollectionName)
-                    && myId.equals(other.myId) && super.equals(object);
+                    && myId.equals(other.myId);
         }
         return result;
     }

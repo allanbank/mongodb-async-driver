@@ -183,8 +183,7 @@ public class DocumentElement extends AbstractElement implements Document {
     public int hashCode() {
         int result = 1;
         result = (31 * result) + super.hashCode();
-        result = (31 * result)
-                + ((myElements.get() == null) ? 0 : myElements.get().hashCode());
+        result = (31 * result) + myElements.get().hashCode();
         return result;
     }
 
@@ -243,7 +242,7 @@ public class DocumentElement extends AbstractElement implements Document {
                 final Pattern pattern = Pattern.compile(nameRegex);
                 for (final Element element : docElements) {
                     if (pattern.matcher(element.getName()).matches()) {
-                        elements.addAll(queryPath(clazz, subNameRegexs));
+                        elements.addAll(element.queryPath(clazz, subNameRegexs));
                     }
                 }
 
@@ -252,7 +251,7 @@ public class DocumentElement extends AbstractElement implements Document {
                 // Assume a non-pattern?
                 for (final Element element : docElements) {
                     if (nameRegex.equals(element.getName())) {
-                        elements.addAll(queryPath(clazz, subNameRegexs));
+                        elements.addAll(element.queryPath(clazz, subNameRegexs));
                     }
                 }
             }
