@@ -168,9 +168,7 @@ public class RootDocument implements Document {
     @Override
     public int hashCode() {
         int result = 1;
-        result = (31 * result) + super.hashCode();
-        result = (31 * result)
-                + ((myElements.get() == null) ? 0 : myElements.get().hashCode());
+        result = (31 * result) + myElements.get().hashCode();
         return result;
     }
 

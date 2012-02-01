@@ -3,7 +3,7 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.bson.element;
+package com.allanbank.mongodb.bson.impl;
 
 import static junit.framework.Assert.assertEquals;
 import static org.easymock.EasyMock.createMock;
@@ -26,32 +26,35 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.impl.DocumentBuilderImpl;
+import com.allanbank.mongodb.bson.element.BooleanElement;
+import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.bson.element.ObjectIdElement;
 
 /**
- * DocumentElementTest provides tests for the {@link DocumentElement} class.
+ * RootDocumentTest provides tests for the {@link RootDocument}.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class DocumentElementTest {
+public class RootDocumentTest {
 
     /**
      * Test method for
-     * {@link DocumentElement#accept(com.allanbank.mongodb.bson.Visitor)}.
+     * {@link RootDocument#accept(com.allanbank.mongodb.bson.Visitor)}.
      */
     @Test
     public void testAccept() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
+        final RootDocument element = new RootDocument(subElement);
 
         final Visitor mockVisitor = createMock(Visitor.class);
 
-        mockVisitor.visitDocument("foo",
-                Collections.singletonList((Element) subElement));
+        mockVisitor.visit(Collections.singletonList((Element) subElement));
         expectLastCall();
 
         replay(mockVisitor);
@@ -62,73 +65,62 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for
-     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
-     * .
+     * Test method for {@link RootDocument#RootDocument(java.util.List)} .
      */
     @Test
     public void testConstructEmptyDocument() {
-        final DocumentElement element = new DocumentElement("foo");
+        final RootDocument element = new RootDocument();
 
         assertTrue(element.getElements().isEmpty());
     }
 
     /**
-     * Test method for
-     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
-     * .
+     * Test method for {@link RootDocument#RootDocument(java.util.List)} .
      */
     @Test
     public void testConstructEmptyDocumentList() {
-        final DocumentElement element = new DocumentElement("foo",
-                (List<Element>) null);
+        final RootDocument element = new RootDocument((List<Element>) null);
 
         assertTrue(element.getElements().isEmpty());
     }
 
     /**
-     * Test method for
-     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
-     * .
+     * Test method for {@link RootDocument#RootDocument(java.util.List)} .
      */
     @Test
     public void testConstructEmptyDocumentListEmpty() {
         final List<Element> elements = Collections.emptyList();
-        final DocumentElement element = new DocumentElement("foo", elements);
+        final RootDocument element = new RootDocument(elements);
 
         assertTrue(element.getElements().isEmpty());
     }
 
     /**
-     * Test method for
-     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
-     * .
+     * Test method for {@link RootDocument#RootDocument(java.util.List)} .
      */
     @Test
     public void testConstructor() {
         final List<Element> elements = Collections
                 .singletonList((Element) new BooleanElement("1", false));
-        final DocumentElement element = new DocumentElement("foo", elements);
+        final RootDocument element = new RootDocument(elements);
 
         assertEquals(elements, element.getElements());
-        assertEquals("foo", element.getName());
-        assertEquals(ElementType.DOCUMENT, element.getType());
     }
 
     /**
-     * Test method for {@link DocumentElement#contains(java.lang.String)}.
+     * Test method for {@link RootDocument#contains(java.lang.String)}.
      */
     @Test
     public void testContains() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
+        final RootDocument element = new RootDocument(subElement);
 
         assertTrue(element.contains("1"));
         assertFalse(element.contains("2"));
     }
 
     /**
-     * Test method for {@link DocumentElement#equals(java.lang.Object)}.
+     * Test method for {@link RootDocument#equals(java.lang.Object)}.
      */
     @SuppressWarnings("deprecation")
     @Test
@@ -136,14 +128,12 @@ public class DocumentElementTest {
         final Random rand = new Random(System.currentTimeMillis());
         final ElementType[] types = ElementType.values();
 
-        final List<Element> objs1 = new ArrayList<Element>();
-        final List<Element> objs2 = new ArrayList<Element>();
+        final List<Document> objs1 = new ArrayList<Document>();
+        final List<Document> objs2 = new ArrayList<Document>();
 
-        for (final String name : Arrays.asList("1", "2", "foo", "bar", "baz",
-                "2")) {
+        for (int i = 0; i < 10; ++i) {
             final DocumentBuilderImpl builder = new DocumentBuilderImpl();
-            for (final String elemName : Arrays.asList("1", "2", "foo", "bar",
-                    "baz")) {
+            for (final String elemName : Arrays.asList("1", "2", "bar", "baz")) {
                 final ElementType type = types[rand.nextInt(types.length)];
                 switch (type) {
                 case ARRAY:
@@ -158,7 +148,7 @@ public class DocumentElementTest {
                     builder.addBoolean(elemName, rand.nextBoolean());
                     break;
                 case DB_POINTER:
-                    builder.addDBPointer(elemName, "foo", "bar", new ObjectId());
+                    builder.addDBPointer(elemName, "bar", "baz", new ObjectId());
                     break;
                 case DOCUMENT:
                     builder.push(elemName).addBoolean("boolean",
@@ -212,16 +202,16 @@ public class DocumentElementTest {
                 }
             }
 
-            objs1.add(new DocumentElement(name, builder.get()));
-            objs2.add(new DocumentElement(name, builder.get()));
+            objs1.add(builder.get());
+            objs2.add(builder.get());
         }
 
         // Sanity check.
         assertEquals(objs1.size(), objs2.size());
 
         for (int i = 0; i < objs1.size(); ++i) {
-            final Element obj1 = objs1.get(i);
-            Element obj2 = objs2.get(i);
+            final Document obj1 = objs1.get(i);
+            Document obj2 = objs2.get(i);
 
             assertTrue(obj1.equals(obj1));
             assertNotSame(obj1, obj2);
@@ -238,41 +228,40 @@ public class DocumentElementTest {
 
             assertFalse(obj1.equals("foo"));
             assertFalse(obj1.equals(null));
-            assertFalse(obj1.equals(new BooleanElement(obj1.getName(), true)));
         }
     }
 
     /**
-     * Test method for {@link DocumentElement#get(java.lang.String)}.
+     * Test method for {@link RootDocument#get(java.lang.String)}.
      */
     @Test
     public void testGet() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
+        final RootDocument element = new RootDocument(subElement);
 
         assertSame(subElement, element.get("1"));
         assertNull(element.get("2"));
     }
 
     /**
-     * Test method for {@link DocumentElement#getElements()}.
+     * Test method for {@link RootDocument#getElements()}.
      */
     @Test
     public void testGetElements() {
         final Element subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
+        final RootDocument element = new RootDocument(subElement);
 
         assertEquals(Collections.singletonList(subElement),
                 element.getElements());
     }
 
     /**
-     * Test method for {@link DocumentElement#injectId()}.
+     * Test method for {@link RootDocument#injectId()}.
      */
     @Test
     public void testInjectId() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
+        final RootDocument element = new RootDocument(subElement);
 
         assertFalse(element.contains("_id"));
 
@@ -288,12 +277,36 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for {@link DocumentElement#iterator()}.
+     * Test method for {@link RootDocument#injectId()}.
+     */
+    @Test
+    public void testInjectIdWhenLiedTo() {
+        final Element subElement = new BooleanElement("1", false);
+        final RootDocument element = new RootDocument(
+                Collections.singletonList(subElement), true);
+
+        assertTrue(element.contains("_id"));
+        assertTrue(element.contains("1"));
+        assertFalse(element.contains("2"));
+
+        element.injectId();
+
+        assertTrue(element.contains("_id"));
+        assertNull(element.get("_id"));
+
+        element.injectId();
+
+        assertTrue(element.contains("_id"));
+        assertNull(element.get("_id"));
+    }
+
+    /**
+     * Test method for {@link RootDocument#iterator()}.
      */
     @Test
     public void testIterator() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
+        final RootDocument element = new RootDocument(subElement);
 
         final Iterator<Element> iter = element.iterator();
         assertNotNull(iter);
@@ -303,56 +316,37 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for {@link DocumentElement#queryPath}.
+     * Test method for {@link RootDocument#queryPath}.
      */
     @Test
     public void testQueryPathWithBadPatternPathMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("(", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
+        final RootDocument element = new RootDocument(subElement);
 
-        final List<Element> elements = element.queryPath(Element.class, "(");
+        final List<Element> elements = element.queryPath("(");
         assertEquals(1, elements.size());
         assertSame(subElement, elements.get(0));
     }
 
     /**
-     * Test method for {@link DocumentElement#queryPath}.
+     * Test method for {@link RootDocument#queryPath}.
      */
     @Test
     public void testQueryPathWithBadPatternPathNotMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
+        final RootDocument element = new RootDocument(subElement);
 
         final List<Element> elements = element.queryPath(Element.class, "(");
         assertEquals(0, elements.size());
     }
 
     /**
-     * Test method for {@link DocumentElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithEmptyPathMatchingType() {
-
-        final DocumentElement element = new DocumentElement("foo",
-                new BooleanElement("1", false));
-
-        final List<Element> elements = element.queryPath(Element.class);
-        assertEquals(1, elements.size());
-        assertSame(element, elements.get(0));
-
-        final List<DocumentElement> arrayElements = element
-                .queryPath(DocumentElement.class);
-        assertEquals(1, arrayElements.size());
-        assertSame(element, arrayElements.get(0));
-    }
-
-    /**
-     * Test method for {@link DocumentElement#queryPath}.
+     * Test method for {@link RootDocument#queryPath}.
      */
     @Test
     public void testQueryPathWithEmptyPathNonMatchingType() {
-        final DocumentElement element = new DocumentElement("foo",
-                new BooleanElement("1", false));
+        final RootDocument element = new RootDocument(new BooleanElement("1",
+                false));
 
         final List<BooleanElement> elements = element
                 .queryPath(BooleanElement.class);
@@ -360,12 +354,12 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for {@link DocumentElement#queryPath}.
+     * Test method for {@link RootDocument#queryPath}.
      */
     @Test
     public void testQueryPathWithPathMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
+        final RootDocument element = new RootDocument(subElement);
 
         List<Element> elements = element.queryPath(Element.class, "1");
         assertEquals(1, elements.size());
@@ -377,29 +371,28 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for {@link DocumentElement#queryPath}.
+     * Test method for {@link RootDocument#queryPath}.
      */
     @Test
     public void testQueryPathWithPathNotMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
+        final RootDocument element = new RootDocument(subElement);
 
         final List<Element> elements = element.queryPath(Element.class, "n.*");
         assertEquals(0, elements.size());
     }
 
     /**
-     * Test method for {@link DocumentElement#toString()}.
+     * Test method for {@link RootDocument#toString()}.
      */
     @Test
     public void testToString() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final BooleanElement subElement2 = new BooleanElement("2", false);
-        final DocumentElement element = new DocumentElement("foo", subElement,
-                subElement2);
+        final Element subElement = new BooleanElement("1", false);
+        final Element subElement2 = new BooleanElement("2", false);
+        final RootDocument element = new RootDocument(Arrays.asList(subElement,
+                subElement2));
 
-        assertEquals("\"foo\" : { \"1\" : false,\n\"2\" : false}\n",
-                element.toString());
+        assertEquals("{ \"1\" : false,\n\"2\" : false}\n", element.toString());
     }
 
 }
