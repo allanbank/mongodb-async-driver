@@ -220,6 +220,17 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Overridden to return an {@link ArrayElement}.
+     * </p>
+     */
+    @Override
+    public ArrayElement get(final String name) {
+        return new ArrayElement(name, subElements());
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public DocumentBuilder push() {
@@ -232,17 +243,6 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     @Override
     public ArrayBuilder pushArray() {
         return doPushArray(nextIndex());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return an {@link ArrayElement}.
-     * </p>
-     */
-    @Override
-    public ArrayElement get(final String name) {
-        return new ArrayElement(name, subElements());
     }
 
     /**

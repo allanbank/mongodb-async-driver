@@ -37,69 +37,25 @@ import com.allanbank.mongodb.bson.Visitor;
 public class BinaryElementTest {
 
     /**
-     * Test method for {@link BinaryElement#equals} and
-     * {@link BinaryElement#hashCode()}.
+     * Test method for
+     * {@link BinaryElement#accept(com.allanbank.mongodb.bson.Visitor)}.
      */
     @Test
-    public void testEqualsObject() {
-        Random rand = new Random(System.currentTimeMillis());
-
-        List<Element> objs1 = new ArrayList<Element>();
-        List<Element> objs2 = new ArrayList<Element>();
-
-        for (String name : Arrays.asList("1", "2", "foo", "bar", "baz", "2")) {
-            int count = rand.nextInt(50);
-            for (int i = 0; i < count; ++i) {
-                byte[] bytes = new byte[rand.nextInt(17)];
-                rand.nextBytes(bytes);
-
-                byte subType = (byte) rand.nextInt(128);
-
-                objs1.add(new BinaryElement(name, subType, bytes));
-                objs2.add(new BinaryElement(name, subType, bytes));
-            }
-        }
-
-        // Sanity check.
-        assertEquals(objs1.size(), objs2.size());
-
-        for (int i = 0; i < objs1.size(); ++i) {
-            Element obj1 = objs1.get(i);
-            Element obj2 = objs2.get(i);
-
-            assertTrue(obj1.equals(obj1));
-            assertNotSame(obj1, obj2);
-            assertEquals(obj1, obj2);
-
-            assertEquals(obj1.hashCode(), obj2.hashCode());
-
-            for (int j = i + 1; j < objs1.size(); ++j) {
-                obj2 = objs2.get(j);
-
-                assertFalse(obj1.equals(obj2));
-                assertFalse(obj1.hashCode() == obj2.hashCode());
-            }
-
-            assertFalse(obj1.equals("foo"));
-            assertFalse(obj1.equals(null));
-            assertFalse(obj1.equals(new BooleanElement(obj1.getName(), false)));
-        }
-    }
-
-    /**
-     * Test method for {@link BinaryElement#toString()}.
-     */
-    @Test
-    public void testToString() {
-        BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+    public void testAccept() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
                 new byte[] { 0x01, 0x02, 0x03 });
 
-        assertEquals("\"foo\" : (0x01) 0x010203", element.toString());
+        final Visitor mockVisitor = createMock(Visitor.class);
 
-        element = new BinaryElement("foo", (byte) 0x11, new byte[] { 0x31,
-                0x22, 0x13 });
+        mockVisitor.visitBinary(eq("foo"), eq((byte) 0x01),
+                aryEq(element.getValue()));
+        expectLastCall();
 
-        assertEquals("\"foo\" : (0x11) 0x312213", element.toString());
+        replay(mockVisitor);
+
+        element.accept(mockVisitor);
+
+        verify(mockVisitor);
     }
 
     /**
@@ -135,25 +91,54 @@ public class BinaryElementTest {
     }
 
     /**
-     * Test method for
-     * {@link BinaryElement#accept(com.allanbank.mongodb.bson.Visitor)}.
+     * Test method for {@link BinaryElement#equals} and
+     * {@link BinaryElement#hashCode()}.
      */
     @Test
-    public void testAccept() {
-        BinaryElement element = new BinaryElement("foo", (byte) 0x01,
-                new byte[] { 0x01, 0x02, 0x03 });
+    public void testEqualsObject() {
+        final Random rand = new Random(System.currentTimeMillis());
 
-        Visitor mockVisitor = createMock(Visitor.class);
+        final List<Element> objs1 = new ArrayList<Element>();
+        final List<Element> objs2 = new ArrayList<Element>();
 
-        mockVisitor.visitBinary(eq("foo"), eq((byte) 0x01),
-                aryEq(element.getValue()));
-        expectLastCall();
+        for (final String name : Arrays.asList("1", "2", "foo", "bar", "baz",
+                "2")) {
+            final int count = rand.nextInt(50);
+            for (int i = 0; i < count; ++i) {
+                final byte[] bytes = new byte[rand.nextInt(17)];
+                rand.nextBytes(bytes);
 
-        replay(mockVisitor);
+                final byte subType = (byte) rand.nextInt(128);
 
-        element.accept(mockVisitor);
+                objs1.add(new BinaryElement(name, subType, bytes));
+                objs2.add(new BinaryElement(name, subType, bytes));
+            }
+        }
 
-        verify(mockVisitor);
+        // Sanity check.
+        assertEquals(objs1.size(), objs2.size());
+
+        for (int i = 0; i < objs1.size(); ++i) {
+            final Element obj1 = objs1.get(i);
+            Element obj2 = objs2.get(i);
+
+            assertTrue(obj1.equals(obj1));
+            assertNotSame(obj1, obj2);
+            assertEquals(obj1, obj2);
+
+            assertEquals(obj1.hashCode(), obj2.hashCode());
+
+            for (int j = i + 1; j < objs1.size(); ++j) {
+                obj2 = objs2.get(j);
+
+                assertFalse(obj1.equals(obj2));
+                assertFalse(obj1.hashCode() == obj2.hashCode());
+            }
+
+            assertFalse(obj1.equals("foo"));
+            assertFalse(obj1.equals(null));
+            assertFalse(obj1.equals(new BooleanElement(obj1.getName(), false)));
+        }
     }
 
     /**
@@ -162,7 +147,7 @@ public class BinaryElementTest {
      */
     @Test
     public void testGetSubType() {
-        BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
                 new byte[] { 0x01, 0x02, 0x03 });
 
         assertEquals((byte) 0x01, element.getSubType());
@@ -174,27 +159,10 @@ public class BinaryElementTest {
      */
     @Test
     public void testQueryPathWithoutTypeMatch() {
-        BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
                 new byte[] { 0x01, 0x02, 0x03 });
 
-        List<Element> elements = element.queryPath();
-        assertEquals(1, elements.size());
-        assertSame(element, elements.get(0));
-    }
-
-    /**
-     * Test method for {@link BinaryElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithoutTypeNotMatch() {
-        BinaryElement element = new BinaryElement("foo", (byte) 0x01,
-                new byte[] { 0x01, 0x02, 0x03 });
-
-        List<BinaryElement> bElements = element.queryPath(BinaryElement.class);
-        assertEquals(1, bElements.size());
-        assertSame(element, bElements.get(0));
-
-        List<Element> elements = element.queryPath(Element.class);
+        final List<Element> elements = element.queryPath();
         assertEquals(1, elements.size());
         assertSame(element, elements.get(0));
     }
@@ -204,10 +172,10 @@ public class BinaryElementTest {
      */
     @Test
     public void testQueryPathWithoutTypeNoMatch() {
-        BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
                 new byte[] { 0x01, 0x02, 0x03 });
 
-        List<Element> elements = element.queryPath("anything");
+        final List<Element> elements = element.queryPath("anything");
         assertEquals(0, elements.size());
     }
 
@@ -215,15 +183,49 @@ public class BinaryElementTest {
      * Test method for {@link BinaryElement#queryPath}.
      */
     @Test
+    public void testQueryPathWithoutTypeNotMatch() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        final List<BinaryElement> bElements = element
+                .queryPath(BinaryElement.class);
+        assertEquals(1, bElements.size());
+        assertSame(element, bElements.get(0));
+
+        final List<Element> elements = element.queryPath(Element.class);
+        assertEquals(1, elements.size());
+        assertSame(element, elements.get(0));
+    }
+
+    /**
+     * Test method for {@link BinaryElement#queryPath}.
+     */
+    @Test
     public void testQueryPathWithTypeNotMatch() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        final List<Element> elements = element.queryPath(Element.class, "foo");
+        assertEquals(0, elements.size());
+
+        final List<BooleanElement> bElements = element
+                .queryPath(BooleanElement.class);
+        assertEquals(0, bElements.size());
+    }
+
+    /**
+     * Test method for {@link BinaryElement#toString()}.
+     */
+    @Test
+    public void testToString() {
         BinaryElement element = new BinaryElement("foo", (byte) 0x01,
                 new byte[] { 0x01, 0x02, 0x03 });
 
-        List<Element> elements = element.queryPath(Element.class, "foo");
-        assertEquals(0, elements.size());
+        assertEquals("\"foo\" : (0x01) 0x010203", element.toString());
 
-        List<BooleanElement> bElements = element
-                .queryPath(BooleanElement.class);
-        assertEquals(0, bElements.size());
+        element = new BinaryElement("foo", (byte) 0x11, new byte[] { 0x31,
+                0x22, 0x13 });
+
+        assertEquals("\"foo\" : (0x11) 0x312213", element.toString());
     }
 }

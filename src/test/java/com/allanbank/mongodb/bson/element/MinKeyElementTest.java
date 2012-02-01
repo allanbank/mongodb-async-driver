@@ -26,23 +26,23 @@ import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
- * BooleanElementTest provides tests for the {@link BooleanElement} class.
+ * MinKeyElementTest provides tests for the {@link MinKeyElement} class.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BooleanElementTest {
+public class MinKeyElementTest {
 
     /**
      * Test method for
-     * {@link BooleanElement#accept(com.allanbank.mongodb.bson.Visitor)} .
+     * {@link MinKeyElement#accept(com.allanbank.mongodb.bson.Visitor)} .
      */
     @Test
     public void testAccept() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final MinKeyElement element = new MinKeyElement("foo");
 
         final Visitor mockVisitor = createMock(Visitor.class);
 
-        mockVisitor.visitBoolean(eq("foo"), eq(false));
+        mockVisitor.visitMinKey(eq("foo"));
         expectLastCall();
 
         replay(mockVisitor);
@@ -53,20 +53,7 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for
-     * {@link BooleanElement#BooleanElement(java.lang.String, boolean)} .
-     */
-    @Test
-    public void testBooleanElement() {
-        final BooleanElement element = new BooleanElement("foo", false);
-
-        assertEquals("foo", element.getName());
-        assertEquals(false, element.getValue());
-        assertEquals(ElementType.BOOLEAN, element.getType());
-    }
-
-    /**
-     * Test method for {@link BooleanElement#equals(java.lang.Object)} .
+     * Test method for {@link MinKeyElement#equals(java.lang.Object)} .
      */
     @Test
     public void testEqualsObject() {
@@ -76,10 +63,8 @@ public class BooleanElementTest {
 
         for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
                 null)) {
-            objs1.add(new BooleanElement(name, false));
-            objs2.add(new BooleanElement(name, false));
-            objs1.add(new BooleanElement(name, true));
-            objs2.add(new BooleanElement(name, true));
+            objs1.add(new MinKeyElement(name));
+            objs2.add(new MinKeyElement(name));
         }
 
         // Sanity check.
@@ -109,13 +94,24 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for {@link BooleanElement#toString()}.
+     * Test method for {@link MinKeyElement#MinKeyElement(String)} .
+     */
+    @Test
+    public void testMinKeyElement() {
+        final MinKeyElement element = new MinKeyElement("foo");
+
+        assertEquals("foo", element.getName());
+        assertEquals(ElementType.MIN_KEY, element.getType());
+    }
+
+    /**
+     * Test method for {@link MinKeyElement#toString()}.
      */
     @Test
     public void testToString() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final MinKeyElement element = new MinKeyElement("foo");
 
-        assertEquals("\"foo\" : false", element.toString());
+        assertEquals("\"foo\" : /* MIN_KEY */ -9223372036854775808",
+                element.toString());
     }
-
 }

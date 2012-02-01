@@ -21,7 +21,7 @@ public class DocumentBuilderImplTest {
      */
     @Test
     public void testGetWithoutUniqueNames() {
-        DocumentBuilderImpl builder = new DocumentBuilderImpl();
+        final DocumentBuilderImpl builder = new DocumentBuilderImpl();
         builder.addBoolean("bool", true);
         builder.addBoolean("bool", true);
 
@@ -29,7 +29,7 @@ public class DocumentBuilderImplTest {
             builder.get();
             fail("Should not be able to create a document without unique names.");
         }
-        catch (AssertionError error) {
+        catch (final AssertionError error) {
             // good.
         }
     }

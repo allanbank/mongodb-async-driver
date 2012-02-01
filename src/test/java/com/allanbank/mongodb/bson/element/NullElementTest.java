@@ -26,23 +26,23 @@ import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
- * BooleanElementTest provides tests for the {@link BooleanElement} class.
+ * NullElementTest provides tests for the {@link NullElement} class.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BooleanElementTest {
+public class NullElementTest {
 
     /**
      * Test method for
-     * {@link BooleanElement#accept(com.allanbank.mongodb.bson.Visitor)} .
+     * {@link NullElement#accept(com.allanbank.mongodb.bson.Visitor)} .
      */
     @Test
     public void testAccept() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final NullElement element = new NullElement("foo");
 
         final Visitor mockVisitor = createMock(Visitor.class);
 
-        mockVisitor.visitBoolean(eq("foo"), eq(false));
+        mockVisitor.visitNull(eq("foo"));
         expectLastCall();
 
         replay(mockVisitor);
@@ -53,20 +53,7 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for
-     * {@link BooleanElement#BooleanElement(java.lang.String, boolean)} .
-     */
-    @Test
-    public void testBooleanElement() {
-        final BooleanElement element = new BooleanElement("foo", false);
-
-        assertEquals("foo", element.getName());
-        assertEquals(false, element.getValue());
-        assertEquals(ElementType.BOOLEAN, element.getType());
-    }
-
-    /**
-     * Test method for {@link BooleanElement#equals(java.lang.Object)} .
+     * Test method for {@link NullElement#equals(java.lang.Object)} .
      */
     @Test
     public void testEqualsObject() {
@@ -76,10 +63,8 @@ public class BooleanElementTest {
 
         for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
                 null)) {
-            objs1.add(new BooleanElement(name, false));
-            objs2.add(new BooleanElement(name, false));
-            objs1.add(new BooleanElement(name, true));
-            objs2.add(new BooleanElement(name, true));
+            objs1.add(new NullElement(name));
+            objs2.add(new NullElement(name));
         }
 
         // Sanity check.
@@ -109,13 +94,23 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for {@link BooleanElement#toString()}.
+     * Test method for {@link NullElement#NullElement(String)} .
+     */
+    @Test
+    public void testNullElement() {
+        final NullElement element = new NullElement("foo");
+
+        assertEquals("foo", element.getName());
+        assertEquals(ElementType.NULL, element.getType());
+    }
+
+    /**
+     * Test method for {@link NullElement#toString()}.
      */
     @Test
     public void testToString() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final NullElement element = new NullElement("foo");
 
-        assertEquals("\"foo\" : false", element.toString());
+        assertEquals("\"foo\" : null", element.toString());
     }
-
 }

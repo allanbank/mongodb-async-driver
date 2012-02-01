@@ -34,6 +34,9 @@ public class ObjectIdElement extends AbstractElement {
      */
     public ObjectIdElement(final String name, final ObjectId id) {
         super(TYPE, name);
+
+        assert (id != null) : "The Object id cannot be null.";
+
         myId = id;
     }
 
@@ -65,9 +68,18 @@ public class ObjectIdElement extends AbstractElement {
         else if ((object != null) && (getClass() == object.getClass())) {
             final ObjectIdElement other = (ObjectIdElement) object;
 
-            result = myId.equals(other.myId) && super.equals(object);
+            result = super.equals(object) && myId.equals(other.myId);
         }
         return result;
+    }
+
+    /**
+     * Returns the id value.
+     * 
+     * @return The id value.
+     */
+    public ObjectId getId() {
+        return myId;
     }
 
     /**
@@ -99,8 +111,6 @@ public class ObjectIdElement extends AbstractElement {
         builder.append("\" : ");
 
         builder.append(myId);
-
-        builder.append(")");
 
         return builder.toString();
     }

@@ -39,37 +39,6 @@ public class MinKeyElement extends AbstractElement {
     }
 
     /**
-     * Determines if the passed object is of this same type as this object and
-     * if so that its fields are equal.
-     * 
-     * @param object
-     *            The object to compare to.
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(final Object object) {
-        boolean result = false;
-        if (this == object) {
-            result = true;
-        }
-        else if ((object != null) && (getClass() == object.getClass())) {
-            result = super.equals(object);
-        }
-        return result;
-    }
-
-    /**
-     * Computes a reasonable hash code.
-     * 
-     * @return The hash code value.
-     */
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    /**
      * String form of the object.
      * 
      * @return A human readable form of the object.

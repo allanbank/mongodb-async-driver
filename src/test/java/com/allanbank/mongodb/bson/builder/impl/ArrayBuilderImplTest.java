@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.bson.builder.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -23,11 +23,11 @@ public class ArrayBuilderImplTest {
      */
     @Test
     public void testPushArray() {
-        ArrayBuilderImpl builder = new ArrayBuilderImpl();
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
 
         builder.pushArray();
 
-        ArrayElement element = (ArrayElement) builder.get("foo");
+        final ArrayElement element = builder.get("foo");
         assertTrue(element.getEntries().size() == 1);
         assertTrue(element.getEntries().get(0) instanceof ArrayElement);
         assertTrue(((ArrayElement) element.getEntries().get(0)).getEntries()

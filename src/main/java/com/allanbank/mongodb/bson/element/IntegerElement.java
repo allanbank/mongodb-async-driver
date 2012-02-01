@@ -64,7 +64,7 @@ public class IntegerElement extends AbstractElement implements NumericElement {
         else if ((object != null) && (getClass() == object.getClass())) {
             final IntegerElement other = (IntegerElement) object;
 
-            result = (myValue == other.myValue) && super.equals(object);
+            result = super.equals(object) && (myValue == other.myValue);
         }
         return result;
     }

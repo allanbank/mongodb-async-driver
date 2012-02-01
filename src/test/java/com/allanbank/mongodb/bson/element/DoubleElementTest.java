@@ -13,7 +13,6 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -27,26 +26,23 @@ import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
- * DBPointerElementTest provides tests for the {@link DBPointerElement}
+ * DoubleElementTest provides tests for the {@link DoubleElement} class.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-@SuppressWarnings("deprecation")
-public class DBPointerElementTest {
+public class DoubleElementTest {
 
     /**
      * Test method for
-     * {@link DBPointerElement#accept(com.allanbank.mongodb.bson.Visitor)}.
+     * {@link DoubleElement#accept(com.allanbank.mongodb.bson.Visitor)} .
      */
     @Test
     public void testAccept() {
-        final ObjectId id = new ObjectId();
-        final DBPointerElement element = new DBPointerElement("foo", "bar",
-                "baz", id);
+        final DoubleElement element = new DoubleElement("foo", 1.0101);
 
         final Visitor mockVisitor = createMock(Visitor.class);
 
-        mockVisitor.visitDBPointer(eq("foo"), eq("bar"), eq("baz"), eq(id));
+        mockVisitor.visitDouble(eq("foo"), eq(1.0101));
         expectLastCall();
 
         replay(mockVisitor);
@@ -58,47 +54,32 @@ public class DBPointerElementTest {
 
     /**
      * Test method for
-     * {@link DBPointerElement#DBPointerElement(java.lang.String, java.lang.String, java.lang.String, com.allanbank.mongodb.bson.element.ObjectId)}
-     * .
+     * {@link DoubleElement#DoubleElement(java.lang.String, double)} .
      */
     @Test
-    public void testDBPointerElement() {
-        final ObjectId id = new ObjectId();
-        final DBPointerElement element = new DBPointerElement("foo", "bar",
-                "baz", id);
+    public void testDoubleElement() {
+        final DoubleElement element = new DoubleElement("foo", 1.0101);
 
         assertEquals("foo", element.getName());
-        assertEquals("bar", element.getDatabaseName());
-        assertEquals("baz", element.getCollectionName());
-        assertSame(id, element.getId());
-        assertEquals(ElementType.DB_POINTER, element.getType());
+        assertEquals(1.0101, element.getValue(), 0.0001);
+        assertEquals(ElementType.DOUBLE, element.getType());
     }
 
     /**
-     * Test method for {@link DBPointerElement#equals(java.lang.Object)}.
+     * Test method for {@link DoubleElement#equals(java.lang.Object)} .
      */
     @Test
     public void testEqualsObject() {
+
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
         for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
                 null)) {
-            for (final String dbName : Arrays.asList("1", "foo", "bar", "baz",
-                    "2")) {
-                for (final String cName : Arrays.asList("1", "foo", "bar",
-                        "baz", "2")) {
-                    for (int i = 0; i < 5; ++i) {
-
-                        ObjectId id = new ObjectId();
-                        objs1.add(new DBPointerElement(name, dbName, cName, id));
-                        objs2.add(new DBPointerElement(name, dbName, cName, id));
-
-                        id = new ObjectId();
-                        objs1.add(new DBPointerElement(name, dbName, cName, id));
-                        objs2.add(new DBPointerElement(name, dbName, cName, id));
-                    }
-                }
+            for (int i = 0; i < 10; ++i) {
+                final double value = Math.random();
+                objs1.add(new DoubleElement(name, value));
+                objs2.add(new DoubleElement(name, value));
             }
         }
 
@@ -124,21 +105,57 @@ public class DBPointerElementTest {
 
             assertFalse(obj1.equals("foo"));
             assertFalse(obj1.equals(null));
-            assertFalse(obj1.equals(new BooleanElement(obj1.getName(), false)));
+            assertFalse(obj1.equals(new MaxKeyElement(obj1.getName())));
         }
     }
 
     /**
-     * Test method for {@link DBPointerElement#toString()}.
+     * Test method for {@link DoubleElement#getDoubleValue()} .
+     */
+    @Test
+    public void testGetDoubleValue() {
+        final DoubleElement element = new DoubleElement("foo", 1.0101);
+
+        assertEquals(1.0101, element.getDoubleValue(), 0.0001);
+    }
+
+    /**
+     * Test method for {@link DoubleElement#getIntValue()}.
+     */
+    @Test
+    public void testGetIntValue() {
+        final DoubleElement element = new DoubleElement("foo", 1.0101);
+
+        assertEquals(1, element.getIntValue());
+    }
+
+    /**
+     * Test method for {@link DoubleElement#getLongValue()}.
+     */
+    @Test
+    public void testGetLongValue() {
+        final DoubleElement element = new DoubleElement("foo", 1.0101);
+
+        assertEquals(1L, element.getLongValue());
+    }
+
+    /**
+     * Test method for {@link DoubleElement#getValue()}.
+     */
+    @Test
+    public void testGetValue() {
+        final DoubleElement element = new DoubleElement("foo", 1.0101);
+
+        assertEquals(1.0101, element.getValue(), 0.0001);
+    }
+
+    /**
+     * Test method for {@link DoubleElement#toString()}.
      */
     @Test
     public void testToString() {
-        final ObjectId id = new ObjectId();
-        final DBPointerElement element = new DBPointerElement("foo", "bar",
-                "baz", id);
+        final DoubleElement element = new DoubleElement("foo", 1.0101);
 
-        assertEquals("\"foo\" : DBPointer( \"bar.baz\", " + id + ")",
-                element.toString());
+        assertEquals("\"foo\" : 1.0101", element.toString());
     }
-
 }

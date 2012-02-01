@@ -178,10 +178,10 @@ public class ObjectId {
      */
     @Override
     public int hashCode() {
-        int result = 1;
-        result = (31 * result) + (int) (myMachineId & 0xFFFFFFFF);
-        result = (31 * result) + (int) ((myMachineId >> 32) & 0xFFFFFFFF);
-        result = (31 * result) + myTimestamp;
+        int result = 0;
+        result += (int) ((myMachineId >> 32) & 0xFFFFFFFF);
+        result += (int) (myMachineId & 0xFFFFFFFF);
+        result += myTimestamp;
         return result;
     }
 

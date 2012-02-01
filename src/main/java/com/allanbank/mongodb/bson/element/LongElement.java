@@ -64,7 +64,7 @@ public class LongElement extends AbstractElement implements NumericElement {
         else if ((object != null) && (getClass() == object.getClass())) {
             final LongElement other = (LongElement) object;
 
-            result = (myValue == other.myValue) && super.equals(object);
+            result = super.equals(object) && (myValue == other.myValue);
         }
         return result;
     }

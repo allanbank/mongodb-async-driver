@@ -63,7 +63,7 @@ public class TimestampElement extends AbstractElement {
         else if ((object != null) && (getClass() == object.getClass())) {
             final TimestampElement other = (TimestampElement) object;
 
-            result = (myTimestamp == other.myTimestamp) && super.equals(object);
+            result = super.equals(object) && (myTimestamp == other.myTimestamp);
         }
         return result;
     }

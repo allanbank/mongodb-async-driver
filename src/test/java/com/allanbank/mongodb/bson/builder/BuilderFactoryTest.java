@@ -5,7 +5,8 @@
 
 package com.allanbank.mongodb.bson.builder;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 

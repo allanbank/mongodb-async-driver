@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -26,23 +27,26 @@ import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
- * BooleanElementTest provides tests for the {@link BooleanElement} class.
+ * MongoTimestampElementTest provides tests for the
+ * {@link MongoTimestampElement} class.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BooleanElementTest {
+public class MongoTimestampElementTest {
 
     /**
      * Test method for
-     * {@link BooleanElement#accept(com.allanbank.mongodb.bson.Visitor)} .
+     * {@link MongoTimestampElement#accept(com.allanbank.mongodb.bson.Visitor)}
+     * .
      */
     @Test
     public void testAccept() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final MongoTimestampElement element = new MongoTimestampElement("foo",
+                1010101);
 
         final Visitor mockVisitor = createMock(Visitor.class);
 
-        mockVisitor.visitBoolean(eq("foo"), eq(false));
+        mockVisitor.visitMongoTimestamp(eq("foo"), eq(1010101L));
         expectLastCall();
 
         replay(mockVisitor);
@@ -53,33 +57,22 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for
-     * {@link BooleanElement#BooleanElement(java.lang.String, boolean)} .
-     */
-    @Test
-    public void testBooleanElement() {
-        final BooleanElement element = new BooleanElement("foo", false);
-
-        assertEquals("foo", element.getName());
-        assertEquals(false, element.getValue());
-        assertEquals(ElementType.BOOLEAN, element.getType());
-    }
-
-    /**
-     * Test method for {@link BooleanElement#equals(java.lang.Object)} .
+     * Test method for {@link MongoTimestampElement#equals(java.lang.Object)} .
      */
     @Test
     public void testEqualsObject() {
+        final Random random = new Random(System.currentTimeMillis());
 
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
         for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
                 null)) {
-            objs1.add(new BooleanElement(name, false));
-            objs2.add(new BooleanElement(name, false));
-            objs1.add(new BooleanElement(name, true));
-            objs2.add(new BooleanElement(name, true));
+            for (int i = 0; i < 10; ++i) {
+                final long value = random.nextLong();
+                objs1.add(new MongoTimestampElement(name, value));
+                objs2.add(new MongoTimestampElement(name, value));
+            }
         }
 
         // Sanity check.
@@ -109,13 +102,39 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for {@link BooleanElement#toString()}.
+     * Test method for {@link MongoTimestampElement#getTime()}.
+     */
+    @Test
+    public void testGetValue() {
+        final MongoTimestampElement element = new MongoTimestampElement("foo",
+                1010101);
+
+        assertEquals(1010101L, element.getTime());
+    }
+
+    /**
+     * Test method for
+     * {@link MongoTimestampElement#MongoTimestampElement(java.lang.String, Long)}
+     * .
+     */
+    @Test
+    public void testMongoTimestampElement() {
+        final MongoTimestampElement element = new MongoTimestampElement("foo",
+                1010101);
+
+        assertEquals("foo", element.getName());
+        assertEquals(1010101, element.getTime(), 0.0001);
+        assertEquals(ElementType.MONGO_TIMESTAMP, element.getType());
+    }
+
+    /**
+     * Test method for {@link MongoTimestampElement#toString()}.
      */
     @Test
     public void testToString() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final MongoTimestampElement element = new MongoTimestampElement("foo",
+                1010101);
 
-        assertEquals("\"foo\" : false", element.toString());
+        assertEquals("\"foo\" : 1010101", element.toString());
     }
-
 }

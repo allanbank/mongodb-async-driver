@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -26,23 +27,23 @@ import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
- * BooleanElementTest provides tests for the {@link BooleanElement} class.
+ * SymbolElementTest provides tests for the {@link SymbolElement} class.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BooleanElementTest {
+public class SymbolElementTest {
 
     /**
      * Test method for
-     * {@link BooleanElement#accept(com.allanbank.mongodb.bson.Visitor)} .
+     * {@link SymbolElement#accept(com.allanbank.mongodb.bson.Visitor)} .
      */
     @Test
     public void testAccept() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final SymbolElement element = new SymbolElement("foo", "string");
 
         final Visitor mockVisitor = createMock(Visitor.class);
 
-        mockVisitor.visitBoolean(eq("foo"), eq(false));
+        mockVisitor.visitSymbol(eq("foo"), eq("string"));
         expectLastCall();
 
         replay(mockVisitor);
@@ -53,33 +54,24 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for
-     * {@link BooleanElement#BooleanElement(java.lang.String, boolean)} .
-     */
-    @Test
-    public void testBooleanElement() {
-        final BooleanElement element = new BooleanElement("foo", false);
-
-        assertEquals("foo", element.getName());
-        assertEquals(false, element.getValue());
-        assertEquals(ElementType.BOOLEAN, element.getType());
-    }
-
-    /**
-     * Test method for {@link BooleanElement#equals(java.lang.Object)} .
+     * Test method for {@link SymbolElement#equals(java.lang.Object)} .
      */
     @Test
     public void testEqualsObject() {
+        final Random random = new Random(System.currentTimeMillis());
 
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
         for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
                 null)) {
-            objs1.add(new BooleanElement(name, false));
-            objs2.add(new BooleanElement(name, false));
-            objs1.add(new BooleanElement(name, true));
-            objs2.add(new BooleanElement(name, true));
+            for (int i = 0; i < 10; ++i) {
+                final String value = "" + random.nextLong();
+                objs1.add(new SymbolElement(name, value));
+                objs2.add(new SymbolElement(name, value));
+            }
+            objs1.add(new SymbolElement(name, null));
+            objs2.add(new SymbolElement(name, null));
         }
 
         // Sanity check.
@@ -109,13 +101,35 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for {@link BooleanElement#toString()}.
+     * Test method for {@link SymbolElement#getSymbol()}.
+     */
+    @Test
+    public void testGetValue() {
+        final SymbolElement element = new SymbolElement("foo", "string");
+
+        assertEquals("string", element.getSymbol());
+    }
+
+    /**
+     * Test method for
+     * {@link SymbolElement#SymbolElement(java.lang.String, String)} .
+     */
+    @Test
+    public void testSymbolElement() {
+        final SymbolElement element = new SymbolElement("foo", "string");
+
+        assertEquals("foo", element.getName());
+        assertEquals("string", element.getSymbol());
+        assertEquals(ElementType.SYMBOL, element.getType());
+    }
+
+    /**
+     * Test method for {@link SymbolElement#toString()}.
      */
     @Test
     public void testToString() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final SymbolElement element = new SymbolElement("foo", "string");
 
-        assertEquals("\"foo\" : false", element.toString());
+        assertEquals("\"foo\" : string", element.toString());
     }
-
 }

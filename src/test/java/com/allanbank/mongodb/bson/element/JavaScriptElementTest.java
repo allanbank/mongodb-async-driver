@@ -26,23 +26,24 @@ import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
- * BooleanElementTest provides tests for the {@link BooleanElement} class.
+ * JavaScriptElementTest provides tests for the {@link JavaScriptElement} class.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BooleanElementTest {
+public class JavaScriptElementTest {
 
     /**
      * Test method for
-     * {@link BooleanElement#accept(com.allanbank.mongodb.bson.Visitor)} .
+     * {@link JavaScriptElement#accept(com.allanbank.mongodb.bson.Visitor)} .
      */
     @Test
     public void testAccept() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final JavaScriptElement element = new JavaScriptElement("foo",
+                "func code() {}");
 
         final Visitor mockVisitor = createMock(Visitor.class);
 
-        mockVisitor.visitBoolean(eq("foo"), eq(false));
+        mockVisitor.visitJavaScript(eq("foo"), eq("func code() {}"));
         expectLastCall();
 
         replay(mockVisitor);
@@ -53,20 +54,7 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for
-     * {@link BooleanElement#BooleanElement(java.lang.String, boolean)} .
-     */
-    @Test
-    public void testBooleanElement() {
-        final BooleanElement element = new BooleanElement("foo", false);
-
-        assertEquals("foo", element.getName());
-        assertEquals(false, element.getValue());
-        assertEquals(ElementType.BOOLEAN, element.getType());
-    }
-
-    /**
-     * Test method for {@link BooleanElement#equals(java.lang.Object)} .
+     * Test method for {@link JavaScriptElement#equals(java.lang.Object)} .
      */
     @Test
     public void testEqualsObject() {
@@ -76,10 +64,11 @@ public class BooleanElementTest {
 
         for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
                 null)) {
-            objs1.add(new BooleanElement(name, false));
-            objs2.add(new BooleanElement(name, false));
-            objs1.add(new BooleanElement(name, true));
-            objs2.add(new BooleanElement(name, true));
+            for (final String code : Arrays.asList("1", "foo", "bar", "baz",
+                    "2", null)) {
+                objs1.add(new JavaScriptElement(name, code));
+                objs2.add(new JavaScriptElement(name, code));
+            }
         }
 
         // Sanity check.
@@ -109,13 +98,38 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for {@link BooleanElement#toString()}.
+     * Test method for {@link JavaScriptElement#getJavaScript()}.
+     */
+    @Test
+    public void testGetJavaScript() {
+        final JavaScriptElement element = new JavaScriptElement("foo",
+                "func code() {}");
+
+        assertEquals("func code() {}", element.getJavaScript());
+    }
+
+    /**
+     * Test method for
+     * {@link JavaScriptElement#JavaScriptElement(java.lang.String, String)} .
+     */
+    @Test
+    public void testJavaScriptElement() {
+        final JavaScriptElement element = new JavaScriptElement("foo",
+                "func code() {}");
+
+        assertEquals("foo", element.getName());
+        assertEquals("func code() {}", element.getJavaScript());
+        assertEquals(ElementType.JAVA_SCRIPT, element.getType());
+    }
+
+    /**
+     * Test method for {@link JavaScriptElement#toString()}.
      */
     @Test
     public void testToString() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final JavaScriptElement element = new JavaScriptElement("foo",
+                "func code() {}");
 
-        assertEquals("\"foo\" : false", element.toString());
+        assertEquals("\"foo\" : func code() {}", element.toString());
     }
-
 }

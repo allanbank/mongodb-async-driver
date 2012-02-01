@@ -66,7 +66,7 @@ public class MongoTimestampElement extends AbstractElement {
         else if ((object != null) && (getClass() == object.getClass())) {
             final MongoTimestampElement other = (MongoTimestampElement) object;
 
-            result = (myTimestamp == other.myTimestamp) && super.equals(object);
+            result = super.equals(object) && (myTimestamp == other.myTimestamp);
         }
         return result;
     }

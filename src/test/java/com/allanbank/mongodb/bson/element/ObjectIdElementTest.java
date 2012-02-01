@@ -26,23 +26,24 @@ import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
- * BooleanElementTest provides tests for the {@link BooleanElement} class.
+ * ObjectIdElementTest provides tests for the {@link ObjectIdElement} class.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BooleanElementTest {
+public class ObjectIdElementTest {
 
     /**
      * Test method for
-     * {@link BooleanElement#accept(com.allanbank.mongodb.bson.Visitor)} .
+     * {@link ObjectIdElement#accept(com.allanbank.mongodb.bson.Visitor)} .
      */
     @Test
     public void testAccept() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final ObjectIdElement element = new ObjectIdElement("foo",
+                new ObjectId());
 
         final Visitor mockVisitor = createMock(Visitor.class);
 
-        mockVisitor.visitBoolean(eq("foo"), eq(false));
+        mockVisitor.visitObjectId(eq("foo"), eq(element.getId()));
         expectLastCall();
 
         replay(mockVisitor);
@@ -54,19 +55,16 @@ public class BooleanElementTest {
 
     /**
      * Test method for
-     * {@link BooleanElement#BooleanElement(java.lang.String, boolean)} .
+     * {@link ObjectIdElement#ObjectIdElement(java.lang.String, ObjectId)} .
      */
-    @Test
-    public void testBooleanElement() {
-        final BooleanElement element = new BooleanElement("foo", false);
-
-        assertEquals("foo", element.getName());
-        assertEquals(false, element.getValue());
-        assertEquals(ElementType.BOOLEAN, element.getType());
+    @Test(expected = AssertionError.class)
+    @SuppressWarnings("unused")
+    public void testConstructorWithNullId() {
+        new ObjectIdElement("foo", null);
     }
 
     /**
-     * Test method for {@link BooleanElement#equals(java.lang.Object)} .
+     * Test method for {@link ObjectIdElement#equals(java.lang.Object)} .
      */
     @Test
     public void testEqualsObject() {
@@ -76,10 +74,12 @@ public class BooleanElementTest {
 
         for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
                 null)) {
-            objs1.add(new BooleanElement(name, false));
-            objs2.add(new BooleanElement(name, false));
-            objs1.add(new BooleanElement(name, true));
-            objs2.add(new BooleanElement(name, true));
+            for (int i = 0; i < 10; ++i) {
+                final ObjectId id = new ObjectId();
+
+                objs1.add(new ObjectIdElement(name, id));
+                objs2.add(new ObjectIdElement(name, id));
+            }
         }
 
         // Sanity check.
@@ -99,7 +99,8 @@ public class BooleanElementTest {
                 obj2 = objs2.get(j);
 
                 assertFalse(obj1.equals(obj2));
-                assertFalse(obj1.hashCode() == obj2.hashCode());
+                assertFalse("" + obj1 + " != " + obj2,
+                        obj1.hashCode() == obj2.hashCode());
             }
 
             assertFalse(obj1.equals("foo"));
@@ -109,13 +110,38 @@ public class BooleanElementTest {
     }
 
     /**
-     * Test method for {@link BooleanElement#toString()}.
+     * Test method for {@link ObjectIdElement#getId()}.
+     */
+    @Test
+    public void testGetValue() {
+        final ObjectId id = new ObjectId();
+        final ObjectIdElement element = new ObjectIdElement("foo", id);
+
+        assertEquals(id, element.getId());
+    }
+
+    /**
+     * Test method for
+     * {@link ObjectIdElement#ObjectIdElement(java.lang.String, ObjectId)} .
+     */
+    @Test
+    public void testObjectIdElement() {
+        final ObjectId id = new ObjectId();
+        final ObjectIdElement element = new ObjectIdElement("foo", id);
+
+        assertEquals("foo", element.getName());
+        assertEquals(id, element.getId());
+        assertEquals(ElementType.OBJECT_ID, element.getType());
+    }
+
+    /**
+     * Test method for {@link ObjectIdElement#toString()}.
      */
     @Test
     public void testToString() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        final ObjectIdElement element = new ObjectIdElement("foo",
+                new ObjectId());
 
-        assertEquals("\"foo\" : false", element.toString());
+        assertEquals("\"foo\" : " + element.getId(), element.toString());
     }
-
 }
