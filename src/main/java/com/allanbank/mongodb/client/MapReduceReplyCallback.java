@@ -53,7 +53,7 @@ public class MapReduceReplyCallback extends
             if (!resultsElems.isEmpty()) {
                 results = new ArrayList<Document>();
                 for (final DocumentElement resultElem : resultsElems) {
-                    results.add(resultElem);
+                    results.add(resultElem.getDocument());
                 }
             }
         }

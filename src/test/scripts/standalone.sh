@@ -63,6 +63,7 @@ function start {
 	port=27017
 	mongod --port ${port} --fork --dbpath "${dir}" \
 				--logpath ${dir}/mongod.log \
+				--nojournal \
 				>> ${dir}/mongod.out 2>&1
 	waitfor "${port}" "${dir}/mongod.log"
 }

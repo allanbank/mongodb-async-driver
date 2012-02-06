@@ -18,10 +18,10 @@ import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
-import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.commands.Distinct;
 import com.allanbank.mongodb.commands.FindAndModify;
 import com.allanbank.mongodb.commands.GroupBy;
@@ -37,7 +37,7 @@ import com.allanbank.mongodb.connection.messsage.Update;
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoCollectionClient extends AbstractMongoCollection {
+public class MongoCollectionImpl extends AbstractMongoCollection {
 
     /**
      * Create a new MongoDatabaseClient.
@@ -49,7 +49,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
      * @param name
      *            The name of the collection we interact with.
      */
-    public MongoCollectionClient(final Client client,
+    public MongoCollectionImpl(final Client client,
             final MongoDatabase database, final String name) {
         super(client, database, name);
     }
@@ -79,7 +79,8 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         builder.addString("count", getName());
         builder.addDocument("query", query);
 
-        final Command commandMsg = new Command(getDatabaseName(), builder.get());
+        final Command commandMsg = new Command(getDatabaseName(),
+                builder.get(), replicaOk);
 
         myClient.send(commandMsg, new ReplyLongCallback(results));
     }
@@ -99,10 +100,9 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         String indexName = name;
         if ((name == null) || name.isEmpty()) {
             final StringBuilder nameBuilder = new StringBuilder();
+            nameBuilder.append(myName.replace(' ', '_'));
             for (final Map.Entry<String, Integer> key : keys.entrySet()) {
-                if (nameBuilder.length() > 0) {
-                    nameBuilder.append('_');
-                }
+                nameBuilder.append('_');
                 nameBuilder.append(key.getKey().replace(' ', '_'));
                 nameBuilder.append(key.getValue().toString());
             }
@@ -121,7 +121,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
             keyBuilder.addInteger(key.getKey(), key.getValue().intValue());
         }
 
-        final MongoCollection indexCollection = new MongoCollectionClient(
+        final MongoCollection indexCollection = new MongoCollectionImpl(
                 myClient, myDatabase, "system.indexes");
         final Document indexDocument = indexEntryBuilder.get();
         if (indexCollection.findOne(indexDocument) == null) {
@@ -164,9 +164,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("distinct", getName());
-        if (command.getKey() != null) {
-            builder.addString("key", command.getKey());
-        }
+        builder.addString("key", command.getKey());
         if (command.getQuery() != null) {
             builder.addDocument("query", command.getQuery());
         }
@@ -188,10 +186,10 @@ public class MongoCollectionClient extends AbstractMongoCollection {
     @Override
     public boolean drop() {
         final Document result = myDatabase.runCommand("drop", myName, null);
-        final List<IntegerElement> okElem = result.queryPath(
-                IntegerElement.class, "ok");
+        final List<NumericElement> okElem = result.queryPath(
+                NumericElement.class, "ok");
 
-        return ((okElem.size() > 0) && (okElem.get(0).getValue() > 0));
+        return ((okElem.size() > 0) && (okElem.get(0).getIntValue() > 0));
     }
 
     /**
@@ -209,11 +207,10 @@ public class MongoCollectionClient extends AbstractMongoCollection {
 
         final Document result = myDatabase.runCommand("deleteIndexes", myName,
                 options.get());
-        final List<IntegerElement> okElem = result.queryPath(
-                IntegerElement.class, "ok");
+        final List<NumericElement> okElem = result.queryPath(
+                NumericElement.class, "ok");
 
-        return ((okElem.size() > 0) && (okElem.get(0).getValue() > 0));
-
+        return ((okElem.size() > 0) && (okElem.get(0).getIntValue() > 0));
     }
 
     /**
@@ -231,14 +228,10 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("findAndModify", getName());
-        if (command.getQuery() != null) {
-            builder.addDocument("query", command.getQuery());
-        }
+        builder.addDocument("query", command.getQuery());
+        builder.addDocument("update", command.getUpdate());
         if (command.getSort() != null) {
             builder.addDocument("sort", command.getSort());
-        }
-        if (command.getUpdate() != null) {
-            builder.addDocument("update", command.getUpdate());
         }
         if (command.getFields() != null) {
             builder.addDocument("fields", command.getFields());
@@ -312,6 +305,7 @@ public class MongoCollectionClient extends AbstractMongoCollection {
 
         final DocumentBuilder groupDocBuilder = builder.push("group");
 
+        groupDocBuilder.addString("ns", getName());
         if (!command.getKeys().isEmpty()) {
             final DocumentBuilder keysBuilder = groupDocBuilder.push("key");
             for (final String key : command.getKeys()) {
@@ -384,12 +378,8 @@ public class MongoCollectionClient extends AbstractMongoCollection {
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("mapReduce", getName());
-        if (command.getMapFunction() != null) {
-            builder.addJavaScript("map", command.getMapFunction());
-        }
-        if (command.getReduceFunction() != null) {
-            builder.addJavaScript("reduce", command.getReduceFunction());
-        }
+        builder.addJavaScript("map", command.getMapFunction());
+        builder.addJavaScript("reduce", command.getReduceFunction());
         if (command.getFinalizeFunction() != null) {
             builder.addJavaScript("finalize", command.getFinalizeFunction());
         }

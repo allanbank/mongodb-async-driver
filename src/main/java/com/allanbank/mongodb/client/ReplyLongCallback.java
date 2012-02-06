@@ -74,7 +74,7 @@ import com.allanbank.mongodb.error.ReplyException;
             if (results.size() == 1) {
                 final Document doc = results.get(0);
                 final Element nElem = doc.get(myName);
-                if (nElem instanceof NumericElement) {
+                if (!(nElem instanceof NumericElement)) {
                     error = new ReplyException(reply, "Missing '" + myName
                             + "' field in reply.");
                 }

@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,13 +19,20 @@ import com.allanbank.mongodb.bson.element.StringElement;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoClient implements Mongo {
+public class MongoImpl implements Mongo {
 
     /** The client to interact with MongoDB. */
-    private final MongoClientConnection myClient;
+    private final Client myClient;
 
-    /** The configuration for interacting with MongoDB. */
-    private final MongoDbConfiguration myConfig;
+    /**
+     * Create a new MongoClient.
+     * 
+     * @param client
+     *            The client interface for interacting with the database.
+     */
+    public MongoImpl(final Client client) {
+        myClient = client;
+    }
 
     /**
      * Create a new MongoClient.
@@ -34,14 +40,28 @@ public class MongoClient implements Mongo {
      * @param config
      *            The configuration for interacting with MongoDB.
      */
-    public MongoClient(final MongoDbConfiguration config) {
-        myConfig = config;
-        myClient = new MongoClientConnection(myConfig);
+    public MongoImpl(final MongoDbConfiguration config) {
+        this(new ClientImpl(config));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to close the underlying client.
+     * </p>
+     */
     @Override
-    public void close() throws IOException {
+    public void close() {
         myClient.close();
+    }
+
+    /**
+     * Returns the client value.
+     * 
+     * @return The client value.
+     */
+    public Client getClient() {
+        return myClient;
     }
 
     /**
@@ -54,7 +74,7 @@ public class MongoClient implements Mongo {
      */
     @Override
     public MongoDatabase getDatabase(final String name) {
-        return new MongoDatabaseClient(myClient, name);
+        return new MongoDatabaseImpl(myClient, name);
     }
 
     /**

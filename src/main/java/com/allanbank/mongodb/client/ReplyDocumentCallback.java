@@ -96,7 +96,7 @@ import com.allanbank.mongodb.error.ReplyException;
         final List<Document> results = reply.getResults();
         if (results.size() == 1) {
             return results.get(0).queryPath(DocumentElement.class, myName)
-                    .get(0);
+                    .get(0).getDocument();
         }
 
         return null;

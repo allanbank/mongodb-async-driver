@@ -31,14 +31,14 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
- * Tests for the BsonReader class.
+ * Tests for the BsonInputStream class.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BsonReaderTest {
+public class BsonInputStreamTest {
 
     /**
-     * Test method for {@link BsonReader#readDocument()}.
+     * Test method for {@link BsonInputStream#readDocument()}.
      * 
      * @throws IOException
      *             On a failure reading the test document.
@@ -54,7 +54,7 @@ public class BsonReaderTest {
 
         // Expected: { "BSON": ["awesome", 5.05, 1986] }
         final ByteArrayInputStream in = new ByteArrayInputStream(arrayDocument);
-        final BsonReader reader = new BsonReader(in);
+        final BsonInputStream reader = new BsonInputStream(in);
 
         final Document doc = reader.readDocument();
 
@@ -105,7 +105,7 @@ public class BsonReaderTest {
     }
 
     /**
-     * Test method for {@link BsonReader#readDocument()}.
+     * Test method for {@link BsonInputStream#readDocument()}.
      * 
      * @throws IOException
      *             On a failure reading the test document.
@@ -119,7 +119,7 @@ public class BsonReaderTest {
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
         final ByteArrayInputStream in = new ByteArrayInputStream(helloWorld);
-        final BsonReader reader = new BsonReader(in);
+        final BsonInputStream reader = new BsonInputStream(in);
 
         final Document doc = reader.readDocument();
 
@@ -143,7 +143,7 @@ public class BsonReaderTest {
     }
 
     /**
-     * Test method for {@link BsonReader#readDocument()}.
+     * Test method for {@link BsonInputStream#readDocument()}.
      * 
      * @throws IOException
      *             On a failure reading the test document.
@@ -211,22 +211,22 @@ public class BsonReaderTest {
         final Document doc = builder.get();
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final BsonWriter writer = new BsonWriter(out);
+        final BsonOutputStream writer = new BsonOutputStream(out);
 
-        writer.write(doc);
+        writer.writeDocument(doc);
 
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        BsonReader reader = new BsonReader(in);
+        BsonInputStream reader = new BsonInputStream(in);
         Document read = reader.readDocument();
 
         assertTrue("Should be a RootDocument.", read instanceof RootDocument);
         assertEquals("Should equal the orginal document.", doc, read);
 
         out.reset();
-        writer.write(doc);
+        writer.writeDocument(doc);
 
         in = new ByteArrayInputStream(out.toByteArray());
-        reader = new BsonReader(in);
+        reader = new BsonInputStream(in);
         read = reader.readDocument();
 
         assertTrue("Should be a RootDocument.", read instanceof RootDocument);

@@ -82,6 +82,11 @@ public class MapReduce {
      *            The builder to copy state from.
      */
     protected MapReduce(final Builder builder) {
+        assert (builder.myMapFunction != null) : "A mapReduce must have a map function.";
+        assert (builder.myReduceFunction != null) : "A mapReduce must have a reduce function.";
+
+        assert ((builder.myOutputType == OutputType.INLINE) || (builder.myOutputName != null)) : "A mapReduce output type must be INLINE or an output collection must be specified.";
+
         myMapFunction = builder.myMapFunction;
         myReduceFunction = builder.myReduceFunction;
         myFinalizeFunction = builder.myFinalizeFunction;

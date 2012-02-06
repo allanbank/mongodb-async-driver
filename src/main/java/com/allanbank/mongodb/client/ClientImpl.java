@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.Message;
@@ -28,15 +29,16 @@ import com.allanbank.mongodb.connection.messsage.Query;
 import com.allanbank.mongodb.connection.messsage.Reply;
 
 /**
- * @author rjmoore
+ * Implementation of the internal {@link Client} interface which all requests to
+ * the MongoDB servers pass.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoClientConnection implements Client, Closeable {
+public class ClientImpl implements Client {
 
-    /** The logger for the {@link MongoClientConnection}. */
-    protected static final Logger LOG = Logger
-            .getLogger(MongoClientConnection.class.getCanonicalName());
+    /** The logger for the {@link ClientImpl}. */
+    protected static final Logger LOG = Logger.getLogger(ClientImpl.class
+            .getCanonicalName());
 
     /** The configuration for interacting with MongoDB. */
     private final MongoDbConfiguration myConfig;
@@ -56,9 +58,22 @@ public class MongoClientConnection implements Client, Closeable {
      * @param config
      *            The configuration for interacting with MongoDB.
      */
-    public MongoClientConnection(final MongoDbConfiguration config) {
+    public ClientImpl(final MongoDbConfiguration config) {
+        this(config, new BootstrapConnectionFactory(config));
+    }
+
+    /**
+     * Create a new MongoClientConnection.
+     * 
+     * @param config
+     *            The configuration for interacting with MongoDB.
+     * @param connectionFactory
+     *            The source of connection for the client.
+     */
+    public ClientImpl(final MongoDbConfiguration config,
+            final ConnectionFactory connectionFactory) {
         myConfig = config;
-        myConnectionFactory = new BootstrapConnectionFactory(config);
+        myConnectionFactory = connectionFactory;
         myConnections = new LinkedBlockingQueue<Connection>();
         myConnectionsToClose = new LinkedBlockingQueue<Connection>();
     }
@@ -188,8 +203,10 @@ public class MongoClientConnection implements Client, Closeable {
      * <ul>
      * 
      * @return The found connection.
+     * @throws MongoDbException
+     *             On a failure to talk to the MongoDB servers.
      */
-    private Connection findConnection() {
+    private Connection findConnection() throws MongoDbException {
         // Make sure we shrink connections when the max changes.
         final int limit = Math.max(1, myConfig.getMaxConnectionCount());
         if (limit < myConnections.size()) {
@@ -197,9 +214,7 @@ public class MongoClientConnection implements Client, Closeable {
                 // Mark the connections as persona non grata.
                 while (limit < myConnections.size()) {
                     final Connection conn = myConnections.poll();
-                    if (conn != null) {
-                        myConnectionsToClose.add(conn);
-                    }
+                    myConnectionsToClose.add(conn);
                 }
             }
         }
@@ -220,6 +235,11 @@ public class MongoClientConnection implements Client, Closeable {
             close(toClose);
         }
 
+        if (conn == null) {
+            throw new MongoDbException(
+                    "Could not create a connection to the server.");
+        }
+
         return conn;
     }
 
@@ -230,8 +250,7 @@ public class MongoClientConnection implements Client, Closeable {
      */
     private Connection findIdleConnection() {
         for (final Connection conn : myConnections) {
-            if ((conn.getToBeSentMessageCount() == 0)
-                    && !myConnectionsToClose.contains(conn)) {
+            if (conn.getToBeSentMessageCount() == 0) {
                 return conn;
             }
         }
@@ -247,10 +266,8 @@ public class MongoClientConnection implements Client, Closeable {
     private Connection findMostIdleConnection() {
         final SortedMap<Integer, Connection> connections = new TreeMap<Integer, Connection>();
         for (final Connection conn : myConnections) {
-            if (!myConnectionsToClose.contains(conn)) {
-                connections.put(
-                        Integer.valueOf(conn.getToBeSentMessageCount()), conn);
-            }
+            connections.put(Integer.valueOf(conn.getToBeSentMessageCount()),
+                    conn);
         }
 
         if (!connections.isEmpty()) {

@@ -32,7 +32,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ObjectId;
-import com.allanbank.mongodb.client.MongoClient;
+import com.allanbank.mongodb.client.MongoImpl;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
@@ -140,7 +140,7 @@ public class PerformanceITest {
             config.setMaxConnectionCount(1);
             config.setMaxPendingOperationsPerConnection(4096);
 
-            myAsyncMongo = new MongoClient(config);
+            myAsyncMongo = new MongoImpl(config);
             myAsyncDb = myAsyncMongo.getDatabase("asyncTest");
             myAsyncCollection = myAsyncDb.getCollection("test");
 

@@ -31,7 +31,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * Creates a new {@link WriteVisitor}.
      */
     public WriteVisitor() {
-        myOutputBuffer = new RandomAccessOutputStream();
+        this(new RandomAccessOutputStream());
     }
 
     /**

@@ -50,6 +50,9 @@ public class FindAndModify {
      *            The builder to copy from.
      */
     protected FindAndModify(final Builder builder) {
+        assert (builder.myQuery != null) : "The findAndModify's query document cannot be null or empty.";
+        assert (builder.myUpdate != null) : "The findAndModify's update document cannot be null or empty.";
+
         myQuery = builder.myQuery;
         myUpdate = builder.myUpdate;
         mySort = builder.mySort;

@@ -26,8 +26,23 @@ public class Command extends Query {
      *            The command document containing the command and options.
      */
     public Command(final String databaseName, final Document commandDocument) {
+        this(databaseName, commandDocument, false);
+    }
+
+    /**
+     * Create a new Command.
+     * 
+     * @param databaseName
+     *            The name of the database.
+     * @param commandDocument
+     *            The command document containing the command and options.
+     * @param replicaOk
+     *            If the command can be run on a replica.
+     */
+    public Command(final String databaseName, final Document commandDocument,
+            final boolean replicaOk) {
         super(databaseName, COMMAND_COLLECTION, commandDocument, null, 1, 0,
-                false, false, false, false, false, false);
+                false, replicaOk, false, false, false, false);
     }
 
 }

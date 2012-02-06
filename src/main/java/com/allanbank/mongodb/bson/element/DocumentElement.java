@@ -19,6 +19,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * Wraps a single BSON document that may contain nested documents.
@@ -163,6 +164,15 @@ public class DocumentElement extends AbstractElement implements Document {
     @Override
     public Element get(final String name) {
         return getElementMap().get(name);
+    }
+
+    /**
+     * Returns the element's document.
+     * 
+     * @return The document contained within the element.
+     */
+    public Document getDocument() {
+        return new RootDocument(myElements.get());
     }
 
     /**

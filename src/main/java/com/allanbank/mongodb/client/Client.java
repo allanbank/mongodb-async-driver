@@ -8,6 +8,7 @@ package com.allanbank.mongodb.client;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.messsage.GetLastError;
 import com.allanbank.mongodb.connection.messsage.GetMore;
@@ -20,6 +21,11 @@ import com.allanbank.mongodb.connection.messsage.Reply;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface Client {
+    /**
+     * Closes the client.
+     */
+    public void close();
+
     /**
      * Returns the {@link Durability} from the {@link MongoDbConfiguration}.
      * 
@@ -34,16 +40,21 @@ public interface Client {
      *            The get more message to send.
      * @param callback
      *            The callback to receive the response to the get more.
+     * @throws MongoDbException
+     *             On a failure to communicate with the MongoDB servers.
      */
-    public void send(GetMore getMore, Callback<Reply> callback);
+    public void send(GetMore getMore, Callback<Reply> callback)
+            throws MongoDbException;
 
     /**
      * Sends a message.
      * 
      * @param message
      *            The message to send.
+     * @throws MongoDbException
+     *             On a failure to communicate with the MongoDB servers.
      */
-    public void send(Message message);
+    public void send(Message message) throws MongoDbException;
 
     /**
      * Sends a message followed by a getlasterror message.
@@ -54,9 +65,11 @@ public interface Client {
      *            The last error command.
      * @param callback
      *            The callback to receive the response to the getlasterror.
+     * @throws MongoDbException
+     *             On a failure to communicate with the MongoDB servers.
      */
     public void send(Message message, GetLastError lastError,
-            Callback<Reply> callback);
+            Callback<Reply> callback) throws MongoDbException;
 
     /**
      * Sends a query request.
@@ -65,6 +78,9 @@ public interface Client {
      *            The query to send.
      * @param callback
      *            The callback to receive the response to the query.
+     * @throws MongoDbException
+     *             On a failure to communicate with the MongoDB servers.
      */
-    public void send(Query query, Callback<Reply> callback);
+    public void send(Query query, Callback<Reply> callback)
+            throws MongoDbException;
 }

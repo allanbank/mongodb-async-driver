@@ -74,6 +74,7 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
+				--nojournal \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 
@@ -83,6 +84,7 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
+				--nojournal \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 	
@@ -91,6 +93,7 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
+				--nojournal \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 	
@@ -99,6 +102,7 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
+				--nojournal \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 						
@@ -107,6 +111,7 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
+				--nojournal \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 						

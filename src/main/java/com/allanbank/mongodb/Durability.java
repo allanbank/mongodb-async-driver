@@ -47,7 +47,7 @@ public class Durability {
      *         the server's disk.
      */
     public static Durability fsyncDurable(final int waitTimeoutMillis) {
-        return new Durability(true, true, false, 0, waitTimeoutMillis);
+        return new Durability(true, false, 0, waitTimeoutMillis);
     }
 
     /**
@@ -60,7 +60,7 @@ public class Durability {
      *         journal before returning.
      */
     public static Durability journalDurable(final int waitTimeoutMillis) {
-        return new Durability(true, false, true, 0, waitTimeoutMillis);
+        return new Durability(false, true, 0, waitTimeoutMillis);
     }
 
     /**
@@ -73,7 +73,7 @@ public class Durability {
      *         of server's replicas before returning.
      */
     public static Durability replicaDurable(final int waitTimeoutMillis) {
-        return new Durability(true, false, false, 1, waitTimeoutMillis);
+        return new Durability(false, false, 1, waitTimeoutMillis);
     }
 
     /**
@@ -89,8 +89,7 @@ public class Durability {
      */
     public static Durability replicaDurable(final int minimumReplicas,
             final int waitTimeoutMillis) {
-        return new Durability(true, false, false, minimumReplicas,
-                waitTimeoutMillis);
+        return new Durability(false, false, minimumReplicas, waitTimeoutMillis);
     }
 
     /**
@@ -127,6 +126,31 @@ public class Durability {
     /**
      * Create a new Durability.
      * 
+     * @param waitForFsync
+     *            True if the durability requires that the response wait for an
+     *            fsync() of the data to complete, false otherwise.
+     * @param waitForJournal
+     *            True if if the durability requires that the response wait for
+     *            the data to be written to the server's journal, false
+     *            otherwise.
+     * @param waitForReplicas
+     *            If the value is value greater than zero the durability
+     *            requires that the response wait for the data to be received by
+     *            a replica and the number of replicas of the data to wait for.
+     * @param waitTimeoutMillis
+     *            The number of milliseconds to wait for the durability
+     *            requirements to be satisfied.
+     */
+    protected Durability(final boolean waitForFsync,
+            final boolean waitForJournal, final int waitForReplicas,
+            final int waitTimeoutMillis) {
+        this(true, waitForFsync, waitForJournal, waitForReplicas,
+                waitTimeoutMillis);
+    }
+
+    /**
+     * Create a new Durability.
+     * 
      * @param waitForReply
      *            True if the durability requires a reply from the server.
      * @param waitForFsync
@@ -147,7 +171,6 @@ public class Durability {
     private Durability(final boolean waitForReply, final boolean waitForFsync,
             final boolean waitForJournal, final int waitForReplicas,
             final int waitTimeoutMillis) {
-        super();
         myWaitForReply = waitForReply;
         myWaitForFsync = waitForFsync;
         myWaitForJournal = waitForJournal;
@@ -173,7 +196,8 @@ public class Durability {
         else if ((object != null) && (getClass() == object.getClass())) {
             final Durability other = (Durability) object;
 
-            result = (myWaitForFsync == other.myWaitForFsync)
+            result = (myWaitForReply == other.myWaitForReply)
+                    && (myWaitForFsync == other.myWaitForFsync)
                     && (myWaitForJournal == other.myWaitForJournal)
                     && (myWaitForReplicas == other.myWaitForReplicas)
                     && (myWaitTimeoutMillis == other.myWaitTimeoutMillis);
@@ -213,7 +237,7 @@ public class Durability {
     @Override
     public int hashCode() {
         int result = 1;
-        result = (31 * result) + super.hashCode();
+        result = (31 * result) + (myWaitForReply ? 1 : 3);
         result = (31 * result) + (myWaitForFsync ? 1 : 3);
         result = (31 * result) + (myWaitForJournal ? 1 : 3);
         result = (31 * result) + myWaitForReplicas;

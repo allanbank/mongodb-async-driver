@@ -8,7 +8,6 @@ package com.allanbank.mongodb.client;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.Callback;
@@ -18,9 +17,9 @@ import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.messsage.Command;
@@ -31,16 +30,16 @@ import com.allanbank.mongodb.connection.messsage.Query;
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoDatabaseClient implements MongoDatabase {
+public class MongoDatabaseImpl extends AbstractMongo implements MongoDatabase {
 
     /** An empty query document. */
     public static final Document EMPTY_QUERY = BuilderFactory.start().get();
 
+    /** The client for interacting with MongoDB. */
+    protected final Client myClient;
+
     /** The 'admin' database. */
     private MongoDatabase myAdminDatabase;
-
-    /** The client for interacting with MongoDB. */
-    private final Client myClient;
 
     /** The name of the database we interact with. */
     private final String myName;
@@ -53,7 +52,7 @@ public class MongoDatabaseClient implements MongoDatabase {
      * @param name
      *            The name of the database we interact with.
      */
-    public MongoDatabaseClient(final Client client, final String name) {
+    public MongoDatabaseImpl(final Client client, final String name) {
         myClient = client;
         myName = name;
     }
@@ -69,23 +68,23 @@ public class MongoDatabaseClient implements MongoDatabase {
     @Override
     public boolean drop() {
         final Document result = runCommand("dropDatabase");
-        final List<IntegerElement> okElem = result.queryPath(
-                IntegerElement.class, "ok");
+        final List<NumericElement> okElem = result.queryPath(
+                NumericElement.class, "ok");
 
-        return ((okElem.size() > 0) && (okElem.get(0).getValue() > 0));
+        return ((okElem.size() > 0) && (okElem.get(0).getIntValue() > 0));
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to create a new {@link MongoCollectionClient}.
+     * Overridden to create a new {@link MongoCollectionImpl}.
      * </p>
      * 
      * @see MongoDatabase#getCollection(String)
      */
     @Override
     public MongoCollection getCollection(final String name) {
-        return new MongoCollectionClient(myClient, this, name);
+        return new MongoCollectionImpl(myClient, this, name);
     }
 
     /**
@@ -108,7 +107,7 @@ public class MongoDatabaseClient implements MongoDatabase {
     @Override
     public List<String> listCollections() {
         final Query query = new Query(myName, "system.namespace", EMPTY_QUERY,
-                null, 10000, 0, false, true, false, false, false, false);
+                null, 0, 0, false, true, false, false, false, false);
 
         final FutureCallback<ClosableIterator<Document>> iterFuture = new FutureCallback<ClosableIterator<Document>>();
         final QueryCallback callback = new QueryCallback(myClient, query,
@@ -116,33 +115,22 @@ public class MongoDatabaseClient implements MongoDatabase {
 
         myClient.send(query, callback);
 
-        try {
-            final List<String> names = new ArrayList<String>();
-            final Iterator<Document> iter = iterFuture.get();
-            while (iter.hasNext()) {
-                final Document collection = iter.next();
-                for (final StringElement nameElement : collection.queryPath(
-                        StringElement.class, "name")) {
-                    final String name = nameElement.getValue();
-                    if (name.indexOf(".oplog.$") < 0) {
-                        continue;
-                    }
-
-                    names.add(name);
+        final List<String> names = new ArrayList<String>();
+        final Iterator<Document> iter = unwrap(iterFuture);
+        while (iter.hasNext()) {
+            final Document collection = iter.next();
+            for (final StringElement nameElement : collection.queryPath(
+                    StringElement.class, "name")) {
+                final String name = nameElement.getValue();
+                if (name.contains(".oplog.$")) {
+                    continue;
                 }
-            }
 
-            return names;
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
+                names.add(name);
             }
-            throw new MongoDbException(e);
         }
+
+        return names;
     }
 
     /**
@@ -201,18 +189,7 @@ public class MongoDatabaseClient implements MongoDatabase {
      */
     @Override
     public Document runCommand(final String command) throws MongoDbException {
-        try {
-            return runCommandAsync(command, null).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return unwrap(runCommandAsync(command, null));
     }
 
     /**
@@ -226,18 +203,7 @@ public class MongoDatabaseClient implements MongoDatabase {
     @Override
     public Document runCommand(final String command, final Document options)
             throws MongoDbException {
-        try {
-            return runCommandAsync(command, options).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return unwrap(runCommandAsync(command, options));
     }
 
     /**
@@ -253,18 +219,7 @@ public class MongoDatabaseClient implements MongoDatabase {
     public Document runCommand(final String commandName,
             final String commandValue, final Document options)
             throws MongoDbException {
-        try {
-            return runCommandAsync(commandName, commandValue, options).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return unwrap(runCommandAsync(commandName, commandValue, options));
     }
 
     /**
@@ -404,7 +359,7 @@ public class MongoDatabaseClient implements MongoDatabase {
                 myAdminDatabase = this;
             }
             else {
-                myAdminDatabase = new MongoDatabaseClient(myClient, "admin");
+                myAdminDatabase = new MongoDatabaseImpl(myClient, "admin");
             }
         }
 

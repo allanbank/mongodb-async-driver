@@ -73,6 +73,7 @@ function start {
 	port=27019
 	mongod --configsvr --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
+				--nojournal \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 	
@@ -90,6 +91,7 @@ function start {
 	port=27018
 	mongod --shardsvr --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
+				--nojournal \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 	
@@ -97,6 +99,7 @@ function start {
 	port=27020
 	mongod --shardsvr --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
+				--nojournal \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 	
@@ -104,6 +107,7 @@ function start {
 	port=27021
 	mongod --shardsvr --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
+				--nojournal \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 						

@@ -7,7 +7,6 @@ package com.allanbank.mongodb.client;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
@@ -38,7 +37,8 @@ import com.allanbank.mongodb.connection.messsage.GetLastError;
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractMongoCollection implements MongoCollection {
+public abstract class AbstractMongoCollection extends AbstractMongo implements
+        MongoCollection {
 
     /**
      * The default for if a delete should only delete the first document it
@@ -89,7 +89,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #countAsync(Document, boolean)} method with
+     * Overridden to call the {@link #count(Document, boolean)} method with
      * {@value #REPLICA_OK_DEFAULT} as the <tt>replicaOk</tt> argument.
      * </p>
      * 
@@ -101,18 +101,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      */
     @Override
     public long count(final Document query) throws MongoDbException {
-        try {
-            return countAsync(query, REPLICA_OK_DEFAULT).get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return count(query, REPLICA_OK_DEFAULT);
     }
 
     /**
@@ -133,18 +122,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public long count(final Document query, final boolean replicaOk)
             throws MongoDbException {
-        try {
-            return countAsync(query, replicaOk).get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+
+        final Future<Long> future = countAsync(query, replicaOk);
+
+        return unwrap(future).longValue();
     }
 
     /**
@@ -290,57 +271,32 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #deleteAsync(Document, boolean, Durability)} method with false as
-     * the <tt>singleDelete</tt> argument and the
+     * Overridden to call the {@link #delete(Document, boolean, Durability)}
+     * method with false as the <tt>singleDelete</tt> argument and the
      * {@link #getDefaultDurability() default durability}.
      * </p>
      * 
-     * @see MongoCollection#deleteAsync(Document, boolean, Durability)
+     * @see #delete(Document, boolean, Durability)
      */
     @Override
     public long delete(final Document query) throws MongoDbException {
-        try {
-            return deleteAsync(query, DELETE_SINGLE_DELETE_DEFAULT,
-                    getDefaultDurability()).get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return delete(query, DELETE_SINGLE_DELETE_DEFAULT,
+                getDefaultDurability());
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #deleteAsync(Document, boolean, Durability)} method with the
-     * {@link #getDefaultDurability() default durability}.
+     * Overridden to call the {@link #delete(Document, boolean, Durability)}
+     * method with the {@link #getDefaultDurability() default durability}.
      * </p>
      * 
-     * @see MongoCollection#deleteAsync(Document, boolean, Durability)
+     * @see #delete(Document, boolean, Durability)
      */
     @Override
     public long delete(final Document query, final boolean singleDelete)
             throws MongoDbException {
-        try {
-            return deleteAsync(query, singleDelete, getDefaultDurability())
-                    .get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return delete(query, singleDelete, getDefaultDurability());
     }
 
     /**
@@ -350,24 +306,15 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@link #deleteAsync(Document, boolean, Durability)} method.
      * </p>
      * 
-     * @see MongoCollection#deleteAsync(Document, boolean, Durability)
+     * @see #deleteAsync(Document, boolean, Durability)
      */
     @Override
     public long delete(final Document query, final boolean singleDelete,
             final Durability durability) throws MongoDbException {
-        try {
-            return deleteAsync(query, singleDelete, getDefaultDurability())
-                    .get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+
+        final Future<Long> future = deleteAsync(query, singleDelete, durability);
+
+        return unwrap(future).longValue();
     }
 
     /**
@@ -378,24 +325,12 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * the <tt>singleDelete</tt> argument.
      * </p>
      * 
-     * @see MongoCollection#deleteAsync(Document, boolean, Durability)
+     * @see #delete(Document, boolean, Durability)
      */
     @Override
     public long delete(final Document query, final Durability durability)
             throws MongoDbException {
-        try {
-            return deleteAsync(query, DELETE_SINGLE_DELETE_DEFAULT, durability)
-                    .get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return delete(query, DELETE_SINGLE_DELETE_DEFAULT, durability);
     }
 
     /**
@@ -407,7 +342,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@link #getDefaultDurability() default durability}.
      * </p>
      * 
-     * @see MongoCollection#deleteAsync(Callback, Document, boolean, Durability)
+     * @see #deleteAsync(Callback, Document, boolean, Durability)
      */
     @Override
     public void deleteAsync(final Callback<Long> results, final Document query)
@@ -429,8 +364,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public void deleteAsync(final Callback<Long> results, final Document query,
             final boolean singleDelete) throws MongoDbException {
-        deleteAsync(results, query, DELETE_SINGLE_DELETE_DEFAULT,
-                getDefaultDurability());
+        deleteAsync(results, query, singleDelete, getDefaultDurability());
     }
 
     /**
@@ -552,18 +486,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public ArrayElement distinct(final Distinct command)
             throws MongoDbException {
-        try {
-            return distinctAsync(command).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return unwrap(distinctAsync(command));
     }
 
     /**
@@ -608,115 +531,71 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)} with
+     * {@link #find(Document, Document, int, int, boolean, boolean)} with
      * <code>null</code> for the <tt>returnFields</tt>, 0 for the
      * <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
      * <tt>replicaOk</tt> and <tt>partial</tt>.
      * </p>
      * 
-     * @see #findAsync(Document, Document, int, int, boolean, boolean)
+     * @see #find(Document, Document, int, int, boolean, boolean)
      */
     @Override
     public ClosableIterator<Document> find(final Document query)
             throws MongoDbException {
-        try {
-            return findAsync(query, null, 0, 0, false, false).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return find(query, null, 0, 0, false, false);
     }
 
     /**
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)} with
+     * {@link #find(Document, Document, int, int, boolean, boolean)} with
      * <code>null</code> for the <tt>returnFields</tt>, 0 for the
      * <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
-     * <tt>replicaOk</tt> and <tt>partial</tt>.
+     * <tt>partial</tt>.
      * </p>
      * 
-     * @see #findAsync(Document, Document, int, int, boolean, boolean)
+     * @see #find(Document, Document, int, int, boolean, boolean)
      */
     @Override
     public ClosableIterator<Document> find(final Document query,
             final boolean replicaOk) throws MongoDbException {
-        try {
-            return findAsync(query, null, 0, 0, false, false).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return find(query, null, 0, 0, replicaOk, false);
     }
 
     /**
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)} with 0
-     * for the <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
+     * {@link #find(Document, Document, int, int, boolean, boolean)} with 0 for
+     * the <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
      * <tt>replicaOk</tt> and <tt>partial</tt>.
      * </p>
      * 
-     * @see #findAsync(Document, Document, int, int, boolean, boolean)
+     * @see #find(Document, Document, int, int, boolean, boolean)
      */
     @Override
     public ClosableIterator<Document> find(final Document query,
             final Document returnFields) throws MongoDbException {
-        try {
-            return findAsync(query, returnFields, 0, 0, false, false).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return find(query, returnFields, 0, 0, false, false);
     }
 
     /**
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)} with 0
-     * for the <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
+     * {@link #find(Document, Document, int, int, boolean, boolean)} with 0 for
+     * the <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
      * <tt>partial</tt>.
      * </p>
      * 
-     * @see #findAsync(Document, Document, int, int, boolean, boolean)
+     * @see #find(Document, Document, int, int, boolean, boolean)
      */
     @Override
     public ClosableIterator<Document> find(final Document query,
             final Document returnFields, final boolean replicaOk)
             throws MongoDbException {
-        try {
-            return findAsync(query, returnFields, 0, 0, replicaOk, false).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return find(query, returnFields, 0, 0, replicaOk, false);
     }
 
     /**
@@ -734,79 +613,45 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final Document returnFields, final int numberToReturn,
             final int numberToSkip, final boolean replicaOk,
             final boolean partial) throws MongoDbException {
-        try {
-            return findAsync(query, returnFields, numberToReturn, numberToSkip,
-                    replicaOk, partial).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+
+        return unwrap(findAsync(query, returnFields, numberToReturn,
+                numberToSkip, replicaOk, partial));
     }
 
     /**
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)} with
+     * {@link #find(Document, Document, int, int, boolean, boolean)} with
      * <code>null</code> for the <tt>returnFields</tt>, and false for
      * <tt>replicaOk</tt> and <tt>partial</tt>.
      * </p>
      * 
-     * @see #findAsync(Document, Document, int, int, boolean, boolean)
+     * @see #find(Document, Document, int, int, boolean, boolean)
      */
     @Override
     public ClosableIterator<Document> find(final Document query,
             final int numberToReturn, final int numberToSkip)
             throws MongoDbException {
-        try {
-            return findAsync(query, null, numberToReturn, numberToSkip, false,
-                    false).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return find(query, null, numberToReturn, numberToSkip, false, false);
     }
 
     /**
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)} with
+     * {@link #find(Document, Document, int, int, boolean, boolean)} with
      * <code>null</code> for the <tt>returnFields</tt> and false for
      * <tt>partial</tt>.
      * </p>
      * 
-     * @see #findAsync(Document, Document, int, int, boolean, boolean)
+     * @see #find(Document, Document, int, int, boolean, boolean)
      */
     @Override
     public ClosableIterator<Document> find(final Document query,
             final int numberToReturn, final int numberToSkip,
             final boolean replicaOk) throws MongoDbException {
-        try {
-            return findAsync(query, null, numberToReturn, numberToSkip,
-                    replicaOk, false).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return find(query, null, numberToReturn, numberToSkip, replicaOk, false);
     }
 
     /**
@@ -820,18 +665,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public Document findAndModify(final FindAndModify command)
             throws MongoDbException {
-        try {
-            return findAndModifyAsync(command).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return unwrap(findAndModifyAsync(command));
     }
 
     /**
@@ -1162,18 +996,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      */
     @Override
     public Document findOne(final Document query) throws MongoDbException {
-        try {
-            return findOneAsync(query).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return unwrap(findOneAsync(query));
     }
 
     /**
@@ -1235,18 +1058,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      */
     @Override
     public ArrayElement groupBy(final GroupBy command) throws MongoDbException {
-        try {
-            return groupByAsync(command).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return unwrap(groupByAsync(command));
     }
 
     /**
@@ -1279,29 +1091,16 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #insertAsync(boolean, Durability, Document...)} method with the
-     * {@link #getDefaultDurability() default durability}.
+     * Overridden to call the {@link #insert(boolean, Durability, Document...)}
+     * method with the {@link #getDefaultDurability() default durability}.
      * </p>
      * 
-     * @see MongoCollection#insertAsync(boolean, Durability, Document[])
+     * @see #insert(boolean, Durability, Document[])
      */
     @Override
     public int insert(final boolean continueOnError,
             final Document... documents) throws MongoDbException {
-        try {
-            return insertAsync(continueOnError, getDefaultDurability(),
-                    documents).get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return insert(continueOnError, getDefaultDurability(), documents);
     }
 
     /**
@@ -1311,33 +1110,23 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@link #insertAsync(boolean, Durability, Document...)} method.
      * </p>
      * 
-     * @see MongoCollection#insertAsync(boolean, Durability, Document[])
+     * @see #insertAsync(boolean, Durability, Document[])
      */
     @Override
     public int insert(final boolean continueOnError,
             final Durability durability, final Document... documents)
             throws MongoDbException {
-        try {
-            return insertAsync(continueOnError, durability, documents).get()
-                    .intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        final Future<Integer> future = insertAsync(continueOnError, durability,
+                documents);
+
+        return unwrap(future).intValue();
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #insertAsync(boolean, Durability, Document...)} method with
-     * <tt>continueOnError</tt> set to false and the
+     * Overridden to call the {@link #insert(boolean, Durability, Document...)}
+     * method with <tt>continueOnError</tt> set to false and the
      * {@link #getDefaultDurability() default durability}.
      * </p>
      * 
@@ -1345,47 +1134,23 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      */
     @Override
     public int insert(final Document... documents) throws MongoDbException {
-        try {
-            return insertAsync(INSERT_CONTINUE_ON_ERROR_DEFAULT,
-                    getDefaultDurability(), documents).get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return insert(INSERT_CONTINUE_ON_ERROR_DEFAULT, getDefaultDurability(),
+                documents);
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #insertAsync(boolean, Durability, Document...)} method with
-     * <tt>continueOnError</tt> set to false.
+     * Overridden to call the {@link #insert(boolean, Durability, Document...)}
+     * method with <tt>continueOnError</tt> set to false.
      * </p>
      * 
-     * @see MongoCollection#insertAsync(boolean, Durability, Document[])
+     * @see #insert(boolean, Durability, Document[])
      */
     @Override
     public int insert(final Durability durability, final Document... documents)
             throws MongoDbException {
-        try {
-            return insertAsync(INSERT_CONTINUE_ON_ERROR_DEFAULT, durability,
-                    documents).get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return insert(INSERT_CONTINUE_ON_ERROR_DEFAULT, durability, documents);
     }
 
     /**
@@ -1559,18 +1324,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public List<Document> mapReduce(final MapReduce command)
             throws MongoDbException {
-        try {
-            return mapReduceAsync(command).get();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return unwrap(mapReduceAsync(command));
     }
 
     /**
@@ -1609,59 +1363,36 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #updateAsync(Document, Document, boolean, boolean, Durability)}
-     * method with multiUpdate set to true, upsert set to false, and using the
+     * {@link #update(Document, Document, boolean, boolean, Durability)} method
+     * with multiUpdate set to true, upsert set to false, and using the
      * {@link #getDefaultDurability() default durability}.
      * </p>
      * 
-     * @see #updateAsync(Document, Document, boolean, boolean, Durability)
+     * @see #update(Document, Document, boolean, boolean, Durability)
      */
     @Override
     public long update(final Document query, final Document update)
             throws MongoDbException {
-        try {
-            return updateAsync(query, update, UPDATE_MULTIUPDATE_DEFAULT,
-                    UPDATE_UPSERT_DEFAULT, getDefaultDurability()).get()
-                    .intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return update(query, update, UPDATE_MULTIUPDATE_DEFAULT,
+                UPDATE_UPSERT_DEFAULT, getDefaultDurability());
     }
 
     /**
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #updateAsync(Document, Document, boolean, boolean, Durability)}
-     * method with the {@link #getDefaultDurability() default durability}.
+     * {@link #update(Document, Document, boolean, boolean, Durability)} method
+     * with the {@link #getDefaultDurability() default durability}.
      * </p>
      * 
-     * @see #updateAsync(Document, Document, boolean, boolean, Durability)
+     * @see #update(Document, Document, boolean, boolean, Durability)
      */
     @Override
     public long update(final Document query, final Document update,
             final boolean multiUpdate, final boolean upsert)
             throws MongoDbException {
-        try {
-            return updateAsync(query, update, multiUpdate, upsert,
-                    getDefaultDurability()).get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return update(query, update, multiUpdate, upsert,
+                getDefaultDurability());
     }
 
     /**
@@ -1678,47 +1409,28 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public long update(final Document query, final Document update,
             final boolean multiUpdate, final boolean upsert,
             final Durability durability) throws MongoDbException {
-        try {
-            return updateAsync(query, update, multiUpdate, upsert, durability)
-                    .get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+
+        final Future<Long> future = updateAsync(query, update, multiUpdate,
+                upsert, durability);
+
+        return unwrap(future).longValue();
     }
 
     /**
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #updateAsync(Document, Document, boolean, boolean, Durability)}
-     * method with multiUpdate set to true, and upsert set to false.
+     * {@link #update(Document, Document, boolean, boolean, Durability)} method
+     * with multiUpdate set to true, and upsert set to false.
      * </p>
      * 
-     * @see #updateAsync(Document, Document, boolean, boolean, Durability)
+     * @see #update(Document, Document, boolean, boolean, Durability)
      */
     @Override
     public long update(final Document query, final Document update,
             final Durability durability) throws MongoDbException {
-        try {
-            return updateAsync(query, update, UPDATE_MULTIUPDATE_DEFAULT,
-                    UPDATE_UPSERT_DEFAULT, durability).get().intValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e);
-        }
+        return update(query, update, UPDATE_MULTIUPDATE_DEFAULT,
+                UPDATE_UPSERT_DEFAULT, durability);
     }
 
     /**

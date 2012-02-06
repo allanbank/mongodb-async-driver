@@ -50,6 +50,7 @@ public class ReplyException extends MongoDbException {
      */
     public ReplyException(final int okValue, final int errorNumber,
             final String errorMessage, final Message request, final Reply reply) {
+        super(errorMessage);
         myOkValue = okValue;
         myErrorNumber = errorNumber;
         myErrorMessage = errorMessage;
@@ -99,6 +100,7 @@ public class ReplyException extends MongoDbException {
      *            Reason for the error.
      */
     public ReplyException(final Reply reply, final String message) {
+        super(message);
         myOkValue = -1;
         myErrorNumber = -1;
         myErrorMessage = message;
