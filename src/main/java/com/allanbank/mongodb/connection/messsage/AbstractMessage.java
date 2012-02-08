@@ -58,10 +58,10 @@ public abstract class AbstractMessage implements Message {
     @Override
     public boolean equals(final Object object) {
         boolean result = false;
-        if (this == object) {
-            result = true;
-        }
-        else if ((object != null) && (getClass() == object.getClass())) {
+
+        // This should never return false as derived classes should have
+        // verified.
+        if ((object != null) && (getClass() == object.getClass())) {
             final AbstractMessage other = (AbstractMessage) object;
 
             result = myCollectionName.equals(other.myCollectionName)

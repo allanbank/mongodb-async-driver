@@ -278,11 +278,11 @@ public class Query extends AbstractMessage {
         int result = 1;
         result = (31 * result) + super.hashCode();
         result = (31 * result) + (myAwaitData ? 1 : 3);
-        result = (31 * result) + (myExhaust ? 1 : 3);
-        result = (31 * result) + (myNoCursorTimeout ? 1 : 3);
-        result = (31 * result) + (myPartial ? 1 : 3);
-        result = (31 * result) + (myReplicaOk ? 1 : 3);
-        result = (31 * result) + (myTailable ? 1 : 3);
+        result = (31 * result) + (myExhaust ? 1 : 7);
+        result = (31 * result) + (myNoCursorTimeout ? 1 : 11);
+        result = (31 * result) + (myPartial ? 1 : 13);
+        result = (31 * result) + (myReplicaOk ? 1 : 17);
+        result = (31 * result) + (myTailable ? 1 : 19);
         result = (31 * result) + myNumberToReturn;
         result = (31 * result) + myNumberToSkip;
         result = (31 * result) + myQuery.hashCode();

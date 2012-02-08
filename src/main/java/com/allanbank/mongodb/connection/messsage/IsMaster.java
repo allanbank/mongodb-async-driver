@@ -48,7 +48,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 public class IsMaster extends AdminCommand {
 
     /** The ismaster "query" document. */
-    private static final Document IS_MASTER;
+    public static final Document IS_MASTER;
 
     static {
         final DocumentBuilder builder = BuilderFactory.start();

@@ -15,7 +15,7 @@ import com.allanbank.mongodb.bson.Document;
 public class AdminCommand extends Command {
 
     /** The administration database name. */
-    private static final String ADMIN_DATABASE = "admin";
+    public static final String ADMIN_DATABASE = "admin";
 
     /**
      * Create a new Command.

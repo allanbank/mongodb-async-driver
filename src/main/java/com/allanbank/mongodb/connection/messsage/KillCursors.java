@@ -83,8 +83,8 @@ public class KillCursors extends AbstractMessage {
         else if ((object != null) && (getClass() == object.getClass())) {
             final KillCursors other = (KillCursors) object;
 
-            result = super.equals(object)
-                    && Arrays.equals(myCursorIds, other.myCursorIds);
+            // Base class fields are always the same ""."".
+            result = Arrays.equals(myCursorIds, other.myCursorIds);
         }
         return result;
     }

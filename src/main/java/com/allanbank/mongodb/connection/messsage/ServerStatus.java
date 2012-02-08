@@ -93,7 +93,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 public class ServerStatus extends AdminCommand {
 
     /** The serverStatus "query" document. */
-    private static final Document SERVER_STATUS;
+    public static final Document SERVER_STATUS;
 
     static {
         final DocumentBuilder builder = BuilderFactory.start();

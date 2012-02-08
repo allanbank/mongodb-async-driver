@@ -99,7 +99,7 @@ public class Header {
         else if ((object != null) && (getClass() == object.getClass())) {
             final Header other = (Header) object;
 
-            result = super.equals(object) && (myLength == other.myLength)
+            result = (myLength == other.myLength)
                     && (myOperation == other.myOperation)
                     && (myRequestId == other.myRequestId)
                     && (myResponseId == other.myResponseId);
@@ -152,7 +152,6 @@ public class Header {
     @Override
     public int hashCode() {
         int result = 1;
-        result = (31 * result) + super.hashCode();
         result = (31 * result) + myLength;
         result = (31 * result) + myRequestId;
         result = (31 * result) + myResponseId;

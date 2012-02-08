@@ -167,8 +167,8 @@ public class Reply extends AbstractMessage {
         else if ((object != null) && (getClass() == object.getClass())) {
             final Reply other = (Reply) object;
 
-            result = super.equals(object)
-                    && (myAwaitCapable == other.myAwaitCapable)
+            // Base class fields are always the same ""."".
+            result = (myAwaitCapable == other.myAwaitCapable)
                     && (myCursorNotFound == other.myCursorNotFound)
                     && (myQueryFailed == other.myQueryFailed)
                     && (myShardConfigStale == other.myShardConfigStale)
