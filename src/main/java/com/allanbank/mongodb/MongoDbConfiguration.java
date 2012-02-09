@@ -62,10 +62,10 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * Determines how long to wait (in milliseconds) for a socket connection to
      * complete.
      * <p>
-     * Defaults to 10,000 ms.
+     * Defaults to 0 or forever.
      * </p>
      */
-    private int myConnectTimeout = 10000;
+    private int myConnectTimeout = 0;
 
     /**
      * The default durability for write operations on the server.
@@ -115,10 +115,10 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * Determines how long to wait (in milliseconds) for a socket read to
      * complete.
      * <p>
-     * Defaults to 60,000 ms.
+     * Defaults to 0 or never.
      * </p>
      */
-    private int myReadTimeout = 60000;
+    private int myReadTimeout = 0;
 
     /**
      * The list of servers to initially attempt to connect to. Not final for
@@ -238,7 +238,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * Returns how long to wait (in milliseconds) for a socket connection to
      * complete.
      * <p>
-     * Defaults to 10,000 ms.
+     * Defaults to 0 or forever.
      * </p>
      * 
      * @return The time to wait (in milliseconds) for a socket connection to
@@ -285,7 +285,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * connection has this many pending connections additional requests will
      * block.
      * <p>
-     * Defaults to 100.
+     * Defaults to 1024.
      * </p>
      * <p>
      * <em>Note:</em> In the case of an connection error it is impossible to
@@ -312,7 +312,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     /**
      * Returns how long to wait (in milliseconds) for a socket read to complete.
      * <p>
-     * Defaults to 60,000 ms.
+     * Defaults to 0 or never.
      * </p>
      * 
      * @return The time to wait (in milliseconds) for a socket read to complete.
@@ -354,7 +354,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * @return True if the connections should authenticate with the server.
      */
     public boolean isAuthenticating() {
-        return (myUsername != null) && (myPasswordHash != null);
+        return (myPasswordHash != null);
     }
 
     /**

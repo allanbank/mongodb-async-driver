@@ -101,11 +101,10 @@ public class BinaryElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "2", "foo", "bar", "baz",
-                "2")) {
-            final int count = rand.nextInt(50);
+        for (final String name : Arrays.asList("1", "2", "foo", "bar", "baz")) {
+            final int count = rand.nextInt(50) + 10;
             for (int i = 0; i < count; ++i) {
-                final byte[] bytes = new byte[rand.nextInt(17)];
+                final byte[] bytes = new byte[rand.nextInt(17) + 5];
                 rand.nextBytes(bytes);
 
                 final byte subType = (byte) rand.nextInt(128);

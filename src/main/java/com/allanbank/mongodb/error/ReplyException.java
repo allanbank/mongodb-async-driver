@@ -19,9 +19,6 @@ public class ReplyException extends MongoDbException {
     /** The serialization version of the class. */
     private static final long serialVersionUID = -2597835377434607342L;
 
-    /** The value of the "errmsg" field in the reply document. */
-    private final String myErrorMessage;
-
     /** The value of the "errNo" field in the reply document. */
     private final int myErrorNumber;
 
@@ -53,7 +50,6 @@ public class ReplyException extends MongoDbException {
         super(errorMessage);
         myOkValue = okValue;
         myErrorNumber = errorNumber;
-        myErrorMessage = errorMessage;
         myRequest = request;
         myReply = reply;
     }
@@ -82,11 +78,10 @@ public class ReplyException extends MongoDbException {
      *            The reply that raised the exception.
      */
     public ReplyException(final Reply reply) {
-        super(reply.toString());
+        super();
 
         myOkValue = -1;
         myErrorNumber = -1;
-        myErrorMessage = reply.toString();
         myRequest = null;
         myReply = reply;
     }
@@ -103,7 +98,6 @@ public class ReplyException extends MongoDbException {
         super(message);
         myOkValue = -1;
         myErrorNumber = -1;
-        myErrorMessage = message;
         myRequest = null;
         myReply = reply;
     }
@@ -121,24 +115,8 @@ public class ReplyException extends MongoDbException {
 
         myOkValue = -1;
         myErrorNumber = -1;
-        if (cause != null) {
-            myErrorMessage = cause.getMessage();
-        }
-        else {
-            myErrorMessage = reply.toString();
-        }
         myRequest = null;
         myReply = reply;
-    }
-
-    /**
-     * Returns the value of the "errmsg" field in the reply document or the
-     * {@link Reply#toString()} result.
-     * 
-     * @return The value of the "errmsg" field in the reply document.
-     */
-    public String getErrorMessage() {
-        return myErrorMessage;
     }
 
     /**

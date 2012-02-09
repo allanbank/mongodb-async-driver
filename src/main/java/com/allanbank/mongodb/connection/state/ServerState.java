@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.connection.state;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * updated via a {@link ClusterState}.
  * </p>
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerState {
 
@@ -60,7 +60,8 @@ public class ServerState {
     /* package */ServerState(final String server) {
         myServer = parse(server);
         myWritable = new AtomicBoolean(false);
-        myAverageLatency = new AtomicLong(0);
+        myAverageLatency = new AtomicLong(
+                Double.doubleToLongBits(Double.MAX_VALUE));
     }
 
     /**
@@ -148,7 +149,7 @@ public class ServerState {
         String name = server;
         int port = DEFAULT_PORT;
 
-        final int colonIndex = server.indexOf(':');
+        final int colonIndex = server.lastIndexOf(':');
         if (colonIndex > 0) {
             final String portString = server.substring(colonIndex + 1);
             try {
