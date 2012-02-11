@@ -49,6 +49,9 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
         return new String(chars);
     }
 
+    /** If true then the user should be authenticated as an anministrative user. */
+    private boolean myAdminUser = false;
+
     /**
      * Determines if additional servers are auto discovered or if connections
      * are limited to the ones manually configured.
@@ -206,12 +209,31 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
             final byte[] digest = md5.digest((username + ":mongo:" + password)
                     .getBytes(UTF8));
 
+            myAdminUser = false;
             myUsername = username;
             myPasswordHash = asHex(digest);
         }
         catch (final NoSuchAlgorithmException e) {
             throw new MongoDbAuthenticationException(e);
         }
+    }
+
+    /**
+     * Sets up the instance to authenticate with the MongoDB servers. This
+     * should be done before using this configuration to instantiate a
+     * {@link Mongo} instance.
+     * 
+     * @param username
+     *            The username.
+     * @param password
+     *            the password.
+     * @throws MongoDbAuthenticationException
+     *             On a failure initializing the authentication information.
+     */
+    public void authenticateAsAdmin(final String username, final String password)
+            throws MongoDbAuthenticationException {
+        authenticate(username, password);
+        myAdminUser = true;
     }
 
     /**
@@ -346,6 +368,15 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     public String getUsername() {
         return myUsername;
+    }
+
+    /**
+     * Returns true if the user should authenticate as an administrative user.
+     * 
+     * @return True if the user should authenticate as an administrative user.
+     */
+    public boolean isAdminUser() {
+        return myAdminUser;
     }
 
     /**

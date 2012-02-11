@@ -64,13 +64,15 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}" \
 				--logpath ${dir}/mongod.log \
 				--nojournal \
+				"$@" \
 				>> ${dir}/mongod.out 2>&1
 	waitfor "${port}" "${dir}/mongod.log"
 }
 
 case "$1" in 
 	start) 
-		start
+	    shift;
+		start "$@"
 		;;
 	stop ) 
 		stop

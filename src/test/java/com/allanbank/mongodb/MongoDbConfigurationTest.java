@@ -132,6 +132,29 @@ public class MongoDbConfigurationTest {
         assertEquals("allanbank", config.getUsername());
         assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
                 config.getPasswordHash());
+        assertFalse(config.isAdminUser());
+    }
+
+    /**
+     * Test method for
+     * {@link MongoDbConfiguration#authenticateAsAdmin(String, String)} .
+     */
+    @Test
+    public void testAuthenticateAsAdmin() {
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+
+        assertFalse(config.isAuthenticating());
+        assertNull(config.getUsername());
+        assertNull(config.getPasswordHash());
+
+        config.authenticateAsAdmin("allanbank", "super_secret_password");
+
+        assertTrue(config.isAuthenticating());
+        assertEquals("allanbank", config.getUsername());
+        assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
+                config.getPasswordHash());
+        assertTrue(config.isAdminUser());
     }
 
     /**

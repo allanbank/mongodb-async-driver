@@ -208,9 +208,15 @@ public class AuthenticatingConnection implements Connection {
      */
     private void ensureAuthenticated(final Message message)
             throws MongoDbAuthenticationException {
-        final String name = message.getDatabaseName();
-        Boolean current = myAuthResponse.get(name);
+        final String name;
+        if (myConfig.isAdminUser()) {
+            name = "admin";
+        }
+        else {
+            name = message.getDatabaseName();
+        }
 
+        Boolean current = myAuthResponse.get(name);
         if (current == null) {
             try {
                 DocumentBuilder builder = BuilderFactory.start();

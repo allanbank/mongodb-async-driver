@@ -155,6 +155,9 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
         if (myThrown != null) {
             throw new ExecutionException(myThrown);
         }
+        if (myCancelled) {
+            throw new InterruptedException();
+        }
 
         return myValue;
     }
@@ -187,6 +190,9 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
 
         if (myThrown != null) {
             throw new ExecutionException(myThrown);
+        }
+        if (myCancelled) {
+            throw new InterruptedException();
         }
         if (!done) {
             throw new TimeoutException();
