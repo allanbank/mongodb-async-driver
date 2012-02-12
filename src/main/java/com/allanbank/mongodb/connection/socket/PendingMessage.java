@@ -7,7 +7,7 @@ package com.allanbank.mongodb.connection.socket;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * Container for a pending message. Before the message is sent the message id
@@ -22,7 +22,7 @@ public class PendingMessage {
     private final Message myMessage;
 
     /** The message id assigned to the sent message. */
-    private int myMessageId;
+    private final int myMessageId;
 
     /** The callback for the reply to the message. */
     private final Callback<Reply> myReplyCallback;
@@ -107,15 +107,4 @@ public class PendingMessage {
             myReplyCallback.callback(reply);
         }
     }
-
-    /**
-     * Sets the message id assigned to the sent message to the new value.
-     * 
-     * @param messageId
-     *            The message id assigned to the sent message.
-     */
-    public void setMessageId(final int messageId) {
-        myMessageId = messageId;
-    }
-
 }

@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.error;
 
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * Exception raised when a a request to a shard server is based on an invalid or

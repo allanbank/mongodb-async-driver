@@ -25,8 +25,8 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.connection.messsage.Command;
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.Command;
+import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * MongoImplTest provides tests for the {@link MongoImpl} class.

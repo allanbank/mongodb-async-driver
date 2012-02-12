@@ -15,10 +15,10 @@ import java.util.logging.Logger;
 import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.connection.FutureCallback;
-import com.allanbank.mongodb.connection.messsage.GetMore;
-import com.allanbank.mongodb.connection.messsage.KillCursors;
-import com.allanbank.mongodb.connection.messsage.Query;
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.GetMore;
+import com.allanbank.mongodb.connection.message.KillCursors;
+import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * Iterator over the results of the MongoDB cursor.

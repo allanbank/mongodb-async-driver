@@ -10,10 +10,10 @@ import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.messsage.GetLastError;
-import com.allanbank.mongodb.connection.messsage.GetMore;
-import com.allanbank.mongodb.connection.messsage.Query;
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.GetLastError;
+import com.allanbank.mongodb.connection.message.GetMore;
+import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * Unified client interface to MongoDB.

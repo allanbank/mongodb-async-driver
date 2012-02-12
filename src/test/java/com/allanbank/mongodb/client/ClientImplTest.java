@@ -27,12 +27,12 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.messsage.Command;
-import com.allanbank.mongodb.connection.messsage.GetLastError;
-import com.allanbank.mongodb.connection.messsage.GetMore;
-import com.allanbank.mongodb.connection.messsage.Query;
-import com.allanbank.mongodb.connection.messsage.Reply;
-import com.allanbank.mongodb.connection.messsage.Update;
+import com.allanbank.mongodb.connection.message.Command;
+import com.allanbank.mongodb.connection.message.GetLastError;
+import com.allanbank.mongodb.connection.message.GetMore;
+import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.message.Update;
 
 /**
  * ClientImplTest provides tests for the {@link ClientImpl} class.

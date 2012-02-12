@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.error;
 
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * Exception raised when a get_more request is issued for an unknown cursor.

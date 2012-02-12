@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * QueryFailedExceptionTest provides tests for the {@link QueryFailedException}

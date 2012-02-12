@@ -7,7 +7,7 @@ package com.allanbank.mongodb.error;
 
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * @author rjmoore

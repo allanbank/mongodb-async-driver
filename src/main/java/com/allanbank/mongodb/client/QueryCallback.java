@@ -9,8 +9,8 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.connection.messsage.Query;
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.error.ReplyException;
 
 /**

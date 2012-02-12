@@ -29,14 +29,14 @@ import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
-import com.allanbank.mongodb.connection.messsage.Delete;
-import com.allanbank.mongodb.connection.messsage.GetMore;
-import com.allanbank.mongodb.connection.messsage.Header;
-import com.allanbank.mongodb.connection.messsage.Insert;
-import com.allanbank.mongodb.connection.messsage.KillCursors;
-import com.allanbank.mongodb.connection.messsage.Query;
-import com.allanbank.mongodb.connection.messsage.Reply;
-import com.allanbank.mongodb.connection.messsage.Update;
+import com.allanbank.mongodb.connection.message.Delete;
+import com.allanbank.mongodb.connection.message.GetMore;
+import com.allanbank.mongodb.connection.message.Header;
+import com.allanbank.mongodb.connection.message.Insert;
+import com.allanbank.mongodb.connection.message.KillCursors;
+import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.message.Update;
 
 /**
  * Provides a blocking Socket based connection to a MongoDB server.

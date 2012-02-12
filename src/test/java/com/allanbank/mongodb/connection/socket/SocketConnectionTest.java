@@ -38,14 +38,14 @@ import com.allanbank.mongodb.bson.io.EndianUtils;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
-import com.allanbank.mongodb.connection.messsage.Delete;
-import com.allanbank.mongodb.connection.messsage.GetLastError;
-import com.allanbank.mongodb.connection.messsage.GetMore;
-import com.allanbank.mongodb.connection.messsage.Insert;
-import com.allanbank.mongodb.connection.messsage.KillCursors;
-import com.allanbank.mongodb.connection.messsage.Query;
-import com.allanbank.mongodb.connection.messsage.Reply;
-import com.allanbank.mongodb.connection.messsage.Update;
+import com.allanbank.mongodb.connection.message.Delete;
+import com.allanbank.mongodb.connection.message.GetLastError;
+import com.allanbank.mongodb.connection.message.GetMore;
+import com.allanbank.mongodb.connection.message.Insert;
+import com.allanbank.mongodb.connection.message.KillCursors;
+import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.message.Update;
 
 /**
  * SocketConnectionTest provides tests for the {@link SocketConnection} class.

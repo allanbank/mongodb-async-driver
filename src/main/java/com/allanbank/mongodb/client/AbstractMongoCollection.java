@@ -24,7 +24,7 @@ import com.allanbank.mongodb.commands.FindAndModify;
 import com.allanbank.mongodb.commands.GroupBy;
 import com.allanbank.mongodb.commands.MapReduce;
 import com.allanbank.mongodb.connection.FutureCallback;
-import com.allanbank.mongodb.connection.messsage.GetLastError;
+import com.allanbank.mongodb.connection.message.GetLastError;
 
 /**
  * Helper class for forward all methods to the canonical version (which is

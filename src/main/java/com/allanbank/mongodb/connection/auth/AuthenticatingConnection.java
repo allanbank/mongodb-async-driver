@@ -29,8 +29,8 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.messsage.Command;
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.Command;
+import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**

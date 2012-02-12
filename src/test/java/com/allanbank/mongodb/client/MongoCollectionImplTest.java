@@ -44,13 +44,13 @@ import com.allanbank.mongodb.commands.Distinct;
 import com.allanbank.mongodb.commands.FindAndModify;
 import com.allanbank.mongodb.commands.GroupBy;
 import com.allanbank.mongodb.commands.MapReduce;
-import com.allanbank.mongodb.connection.messsage.Command;
-import com.allanbank.mongodb.connection.messsage.Delete;
-import com.allanbank.mongodb.connection.messsage.GetLastError;
-import com.allanbank.mongodb.connection.messsage.Insert;
-import com.allanbank.mongodb.connection.messsage.Query;
-import com.allanbank.mongodb.connection.messsage.Reply;
-import com.allanbank.mongodb.connection.messsage.Update;
+import com.allanbank.mongodb.connection.message.Command;
+import com.allanbank.mongodb.connection.message.Delete;
+import com.allanbank.mongodb.connection.message.GetLastError;
+import com.allanbank.mongodb.connection.message.Insert;
+import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.message.Update;
 import com.allanbank.mongodb.error.ReplyException;
 
 /**

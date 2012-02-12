@@ -19,9 +19,9 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.connection.FutureCallback;
-import com.allanbank.mongodb.connection.messsage.Insert;
-import com.allanbank.mongodb.connection.messsage.Query;
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.Insert;
+import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.socket.SocketConnection;
 
 /**

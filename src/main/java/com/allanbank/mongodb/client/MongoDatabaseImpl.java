@@ -22,8 +22,8 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.FutureCallback;
-import com.allanbank.mongodb.connection.messsage.Command;
-import com.allanbank.mongodb.connection.messsage.Query;
+import com.allanbank.mongodb.connection.message.Command;
+import com.allanbank.mongodb.connection.message.Query;
 
 /**
  * Implementation of the {@link MongoDatabase} interface.

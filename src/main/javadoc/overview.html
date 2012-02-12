@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>MongoDB Asynchronous Java Driver</title>
+</head>
+<body>
+<h2>Motivation</h2>
+<p>
+The default MongoDB Java driver blocks the calling thread during the entire round trip 
+from the client to the MongoDB server and back.  This induces a latency of several to 10's of milliseconds
+per request.  For high transaction applications this latency is difficult to eliminate.  The easiest solution 
+to mitigate this overhead is to utilize multiple threads on the client and outbound connections to the servers.
+Each connection ties up resources on the MongoDB servers that could be utilized for caching data, etc.
+</p>
+<p>
+The MongoDB Asynchronous Java Driver operates at the core completely asynchronously using a message passing 
+model between the client threads and dedicated I/O threads.  To ensure thread safety for the objects passed 
+between the threads almost all BSON and other domain objects are immutable.
+<p>
+<h2>Usage</h2>
+<p>
+Most users will interact with the driver via the three primary interfaces: {@link com.allanbank.mongodb.Mongo}, 
+{@link com.allanbank.mongodb.MongoDatabase} and {@link com.allanbank.mongodb.MongoCollection}.  Interfaces 
+are provided to allow easier mocking in client tests.  The implementation of the <tt>Mongo</tt> interface is
+{@link com.allanbank.mongodb.client.MongoImpl}.
+</p>
+<p>
+A strongly typed, immutable BSON library is provided via the 
+<a href="bson/package-summary.html">com.allanbank.mongodb.bson</a> package.  It provides the building blocks
+for BSON documents sent to and retrieved from MongoDB.
+</p>
+
+</body>
+</html>

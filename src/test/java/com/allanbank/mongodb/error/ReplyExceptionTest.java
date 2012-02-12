@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.messsage.Reply;
+import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * ReplyExceptionTest provides tests for the {@link ReplyException}.
