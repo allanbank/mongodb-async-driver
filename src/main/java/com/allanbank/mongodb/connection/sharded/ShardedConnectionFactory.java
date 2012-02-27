@@ -56,7 +56,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         myConfig = config;
         myClusterState = new ClusterState();
         for (final InetSocketAddress address : config.getServers()) {
-            final ServerState state = myClusterState.add(address.toString());
+            final ServerState state = myClusterState.add(address.getAddress()
+                    .getHostName() + ":" + address.getPort());
 
             // In a sharded environment we assume that all of the mongos servers
             // are writable.

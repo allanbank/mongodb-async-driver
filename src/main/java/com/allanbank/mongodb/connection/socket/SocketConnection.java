@@ -14,6 +14,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -182,6 +183,17 @@ public class SocketConnection implements Connection {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to forward to the wrapped connection.
+     * </p>
+     */
+    @Override
+    public void drainPendingTo(final List<PendingMessage> pending) {
+        myToSendQueue.drainTo(pending);
+    }
+
+    /**
      * /** {@inheritDoc}
      */
     @Override
@@ -214,6 +226,17 @@ public class SocketConnection implements Connection {
     @Override
     public boolean isIdle() {
         return myPendingQueue.isEmpty() && myToSendQueue.isEmpty();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * True if the send and receive threads are running.
+     * </p>
+     */
+    @Override
+    public boolean isOpen() {
+        return myOpen.get();
     }
 
     /**
@@ -340,7 +363,18 @@ public class SocketConnection implements Connection {
             return message;
         }
         catch (final IOException ioe) {
-            throw new MongoDbException(ioe);
+            closeQuietly();
+            final MongoDbException error = new MongoDbException(ioe);
+
+            // Have to assume all of the requests have failed that are pending.
+            PendingMessage msg = myPendingQueue.poll();
+            while (msg != null) {
+                msg.raiseError(error);
+
+                msg = myPendingQueue.poll();
+            }
+
+            throw error;
         }
     }
 
@@ -432,6 +466,20 @@ public class SocketConnection implements Connection {
         catch (final InterruptedException e) {
             // Ignore.
             e.hashCode();
+        }
+    }
+
+    /**
+     * Closes the connection to the server without allowing an exception to be
+     * thrown.
+     */
+    private void closeQuietly() {
+        try {
+            close();
+        }
+        catch (final IOException e) {
+            LOG.log(Level.WARNING,
+                    "I/O exception trying to shutdown the connection.", e);
         }
     }
 

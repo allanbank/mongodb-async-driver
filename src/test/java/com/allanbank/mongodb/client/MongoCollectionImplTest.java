@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.regex.Pattern;
 
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -69,7 +68,7 @@ public class MongoCollectionImplTest {
     private MongoDatabase myMockDatabase = null;
 
     /** The instance under test. */
-    private MongoCollectionImpl myTestInstance = null;
+    private AbstractMongoCollection myTestInstance = null;
 
     /**
      * Creates the base set of objects for the test.
@@ -1051,8 +1050,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoCollectionImpl#dropIndex(java.util.regex.Pattern)} .
+     * Test method for {@link MongoCollectionImpl#dropIndex(String)} .
      */
     @Test
     public void testDropIndex() {
@@ -1062,7 +1060,7 @@ public class MongoCollectionImplTest {
                 .get();
         final Document missingOkResult = BuilderFactory.start().get();
         final Document options = BuilderFactory.start()
-                .addRegularExpression("name", "foo", "").get();
+                .addString("index", "foo").get();
 
         expect(myMockDatabase.runCommand("deleteIndexes", "test", options))
                 .andReturn(goodResult);
@@ -1073,9 +1071,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertTrue(myTestInstance.dropIndex(Pattern.compile("foo")));
-        assertFalse(myTestInstance.dropIndex(Pattern.compile("foo")));
-        assertFalse(myTestInstance.dropIndex(Pattern.compile("foo")));
+        assertTrue(myTestInstance.dropIndex("foo"));
+        assertFalse(myTestInstance.dropIndex("foo"));
+        assertFalse(myTestInstance.dropIndex("foo"));
 
         verify();
     }
@@ -2115,7 +2113,7 @@ public class MongoCollectionImplTest {
         group.addJavaScript("$keyf", request.getKeyFunction());
         group.addDocument("initial", request.getInitialValue());
         group.addJavaScript("$reduce", request.getReduceFunction());
-        group.addJavaScript("$finalize", request.getFinalizeFunction());
+        group.addJavaScript("finalize", request.getFinalizeFunction());
         group.addDocument("cond", request.getQuery());
 
         final Command message = new Command("test", expectedCommand.get());
@@ -2502,7 +2500,7 @@ public class MongoCollectionImplTest {
         value.addInteger("foo", 1);
 
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapReduce", "test");
+        expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
@@ -2537,7 +2535,7 @@ public class MongoCollectionImplTest {
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapReduce", "test");
+        expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
@@ -2577,7 +2575,7 @@ public class MongoCollectionImplTest {
         value.addInteger("foo", 1);
 
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapReduce", "test");
+        expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
@@ -2620,7 +2618,7 @@ public class MongoCollectionImplTest {
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapReduce", "test");
+        expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.addJavaScript("finalize", "finalize");
@@ -2663,7 +2661,7 @@ public class MongoCollectionImplTest {
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapReduce", "test");
+        expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("merge", "out");
@@ -2699,7 +2697,7 @@ public class MongoCollectionImplTest {
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapReduce", "test");
+        expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("merge", "out")
@@ -2735,7 +2733,7 @@ public class MongoCollectionImplTest {
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapReduce", "test");
+        expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("reduce", "out");
@@ -2771,7 +2769,7 @@ public class MongoCollectionImplTest {
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapReduce", "test");
+        expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("reduce", "out")
@@ -2807,7 +2805,7 @@ public class MongoCollectionImplTest {
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapReduce", "test");
+        expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("replace", "out");
@@ -2843,7 +2841,7 @@ public class MongoCollectionImplTest {
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapReduce", "test");
+        expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("replace", "out")

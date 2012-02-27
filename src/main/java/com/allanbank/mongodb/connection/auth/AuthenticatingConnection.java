@@ -31,6 +31,7 @@ import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.socket.PendingMessage;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**
@@ -88,6 +89,17 @@ public class AuthenticatingConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to forward to the wrapped connection.
+     * </p>
+     */
+    @Override
+    public void drainPendingTo(final List<PendingMessage> pending) {
+        myConnection.drainPendingTo(pending);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Flush the connection.
      * </p>
      */
@@ -118,6 +130,14 @@ public class AuthenticatingConnection implements Connection {
     @Override
     public boolean isIdle() {
         return myConnection.isIdle();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isOpen() {
+        return myConnection.isOpen();
     }
 
     /**

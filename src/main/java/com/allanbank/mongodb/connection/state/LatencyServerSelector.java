@@ -1,0 +1,69 @@
+/*
+ * Copyright 2012, Allanbank Consulting, Inc. 
+ *           All Rights Reserved
+ */
+
+package com.allanbank.mongodb.connection.state;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * LatencyServerSelector provides an implementation of the server selector that
+ * uses the server latencies to determine the server to select.
+ * 
+ * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ */
+public class LatencyServerSelector implements ServerSelector {
+
+    /** The cluster to choose from. */
+    private final ClusterState myCluster;
+
+    /** If true then only writable servers should be selected. */
+    private final boolean myWritableOnly;
+
+    /**
+     * Creates a new LatencyServerSelector.
+     * 
+     * @param cluster
+     *            The cluster to choose from.
+     * @param writableOnly
+     *            If true then only writable servers should be selected. If
+     *            false then any server (writable and not writable) may be
+     *            selected.
+     */
+    public LatencyServerSelector(final ClusterState cluster,
+            final boolean writableOnly) {
+        myCluster = cluster;
+        myWritableOnly = writableOnly;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to find the server with the lowest latency.
+     * </p>
+     */
+    @Override
+    public ServerState pickServer() {
+        List<ServerState> servers;
+        if (myWritableOnly) {
+            servers = myCluster.getWritableServers();
+        }
+        else {
+            servers = myCluster.getServers();
+        }
+
+        // If there are no servers then there is no one to pick.
+        if (servers.isEmpty()) {
+            return null;
+        }
+
+        // Copy to a list we know we can modify and sort.
+        servers = new ArrayList<ServerState>(servers);
+        Collections.sort(servers, new ServerLatencyComparator());
+
+        return servers.get(0);
+    }
+}

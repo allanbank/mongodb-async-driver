@@ -6,11 +6,13 @@ package com.allanbank.mongodb.connection;
 
 import java.io.Closeable;
 import java.io.Flushable;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.socket.PendingMessage;
 
 /**
  * Provides the lowest level interface for interacting with a MongoDB server.
@@ -24,6 +26,14 @@ public interface Connection extends Closeable, Flushable {
 
     /** The collection to use when issuing commands to the database. */
     public static final String COMMAND_COLLECTION = "$cmd";
+
+    /**
+     * Removes any pending messages into the specified list.
+     * 
+     * @param pending
+     *            The list to populate with the pending messages.
+     */
+    public void drainPendingTo(List<PendingMessage> pending);
 
     /**
      * Returns the number of messages that are pending responses from the
@@ -47,6 +57,13 @@ public interface Connection extends Closeable, Flushable {
      *         outstanding messages to receive.
      */
     public boolean isIdle();
+
+    /**
+     * Determines if the connection is open.
+     * 
+     * @return True if the connection is open and thinks it can send messages.
+     */
+    public boolean isOpen();
 
     /**
      * Sends a message on the connection.

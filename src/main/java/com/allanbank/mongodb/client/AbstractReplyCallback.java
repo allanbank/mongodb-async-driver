@@ -95,18 +95,41 @@ public abstract class AbstractReplyCallback<F> implements Callback<Reply> {
      * @return The exception created.
      */
     protected MongoDbException asError(final Reply reply) {
+        return asError(reply, false);
+    }
+
+    /**
+     * Creates an exception from the {@link Reply}.
+     * 
+     * @param reply
+     *            The raw reply.
+     * @param knownError
+     *            If true then the reply is assumed to be an error reply.
+     * @return The exception created.
+     */
+    protected MongoDbException asError(final Reply reply,
+            final boolean knownError) {
         final List<Document> results = reply.getResults();
         if (results.size() == 1) {
             final Document doc = results.get(0);
             final Element okElem = doc.get("ok");
             final Element errorNumberElem = doc.get("code");
-            final Element errorMessageElem = doc.get("errmsg");
-            if ((okElem != null) && (errorMessageElem != null)) {
+            Element errorMessageElem = doc.get("$err");
+            if (errorMessageElem == null) {
+                errorMessageElem = doc.get("errmsg");
+            }
+
+            if (okElem != null) {
                 final int okValue = toInt(okElem);
                 if (okValue != 1) {
                     return asError(reply, okValue, toInt(errorNumberElem),
                             asString(errorMessageElem));
                 }
+            }
+            else if (knownError) {
+                return asError(reply, -1, toInt(errorNumberElem),
+                        asString(errorMessageElem));
+
             }
         }
         return null;
@@ -200,13 +223,13 @@ public abstract class AbstractReplyCallback<F> implements Callback<Reply> {
      */
     protected void verify(final Reply reply) throws MongoDbException {
         if (reply.isCursorNotFound()) {
-            throw new CursorNotFoundException(reply, asError(reply));
+            throw new CursorNotFoundException(reply, asError(reply, true));
         }
         else if (reply.isQueryFailed()) {
-            throw new QueryFailedException(reply, asError(reply));
+            throw new QueryFailedException(reply, asError(reply, true));
         }
         else if (reply.isShardConfigStale()) {
-            throw new ShardConfigStaleException(reply, asError(reply));
+            throw new ShardConfigStaleException(reply, asError(reply, true));
         }
         else {
             checkForError(reply);

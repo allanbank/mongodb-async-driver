@@ -27,9 +27,6 @@ import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
-import com.allanbank.mongodb.connection.message.Command;
-import com.allanbank.mongodb.connection.message.Header;
-import com.allanbank.mongodb.connection.message.Update;
 
 /**
  * UpdateTest provides tests for the {@link Update} message.

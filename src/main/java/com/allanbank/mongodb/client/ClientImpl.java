@@ -7,6 +7,8 @@ package com.allanbank.mongodb.client;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
@@ -27,6 +29,8 @@ import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.GetMore;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.socket.PendingMessage;
+import com.allanbank.mongodb.error.CannotConnectException;
 
 /**
  * Implementation of the internal {@link Client} interface which all requests to
@@ -171,6 +175,29 @@ public class ClientImpl implements Client {
     }
 
     /**
+     * Cleans-up the dead connection by moving all of its messages to a
+     * different connection.
+     * 
+     * @param conn
+     */
+    private void cleanup(final Connection conn) {
+        myConnections.remove(conn);
+
+        final List<PendingMessage> pending = new ArrayList<PendingMessage>();
+        conn.drainPendingTo(pending);
+
+        for (final PendingMessage message : pending) {
+            try {
+                findConnection().send(message.getReplyCallback(),
+                        message.getMessage());
+            }
+            catch (final MongoDbException error) {
+                message.raiseError(error);
+            }
+        }
+    }
+
+    /**
      * Silently closes the connection.
      * 
      * @param conn
@@ -236,7 +263,7 @@ public class ClientImpl implements Client {
         }
 
         if (conn == null) {
-            throw new MongoDbException(
+            throw new CannotConnectException(
                     "Could not create a connection to the server.");
         }
 
@@ -250,7 +277,10 @@ public class ClientImpl implements Client {
      */
     private Connection findIdleConnection() {
         for (final Connection conn : myConnections) {
-            if (conn.getToBeSentMessageCount() == 0) {
+            if (!conn.isOpen()) {
+                cleanup(conn);
+            }
+            else if (conn.getToBeSentMessageCount() == 0) {
                 return conn;
             }
         }
@@ -266,8 +296,13 @@ public class ClientImpl implements Client {
     private Connection findMostIdleConnection() {
         final SortedMap<Integer, Connection> connections = new TreeMap<Integer, Connection>();
         for (final Connection conn : myConnections) {
-            connections.put(Integer.valueOf(conn.getToBeSentMessageCount()),
-                    conn);
+            if (conn.isOpen()) {
+                connections.put(
+                        Integer.valueOf(conn.getToBeSentMessageCount()), conn);
+            }
+            else {
+                cleanup(conn);
+            }
         }
 
         if (!connections.isEmpty()) {

@@ -48,6 +48,7 @@ public class MapReduceReplyCallback extends
         final List<Document> replyDocs = reply.getResults();
         if (replyDocs.size() == 1) {
             final Document doc = replyDocs.get(0);
+
             final List<DocumentElement> resultsElems = doc.queryPath(
                     DocumentElement.class, "results", ".*");
             if (!resultsElems.isEmpty()) {

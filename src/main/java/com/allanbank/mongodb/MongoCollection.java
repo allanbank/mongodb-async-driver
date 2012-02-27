@@ -8,7 +8,6 @@ package com.allanbank.mongodb;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.ArrayElement;
@@ -402,15 +401,27 @@ public interface MongoCollection {
     public boolean drop() throws MongoDbException;
 
     /**
-     * Deletes the indexes matching the pattern specified.
+     * Deletes the indexes matching the keys specified.
      * 
-     * @param namePattern
-     *            The pattern for the name of indexes to remove.
+     * @param keys
+     *            The keys for the index to be dropped.
      * @return If any indexes were removed.
      * @throws MongoDbException
      *             On an error deleting the indexes.
      */
-    public boolean dropIndex(final Pattern namePattern) throws MongoDbException;
+    public boolean dropIndex(LinkedHashMap<String, Integer> keys)
+            throws MongoDbException;
+
+    /**
+     * Deletes the indexes with the provided name.
+     * 
+     * @param name
+     *            The name of the index.
+     * @return If any indexes were removed.
+     * @throws MongoDbException
+     *             On an error deleting the indexes.
+     */
+    public boolean dropIndex(String name) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection.

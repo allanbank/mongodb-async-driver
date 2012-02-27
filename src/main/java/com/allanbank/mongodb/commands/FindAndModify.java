@@ -59,7 +59,7 @@ public class FindAndModify {
         myFields = builder.myFields;
         myUpsert = builder.myUpsert;
         myReturnNew = builder.myReturnNew;
-        myRemove = builder.myReturnNew;
+        myRemove = builder.myRemove;
     }
 
     /**

@@ -27,6 +27,9 @@ public class ServerTestDriverSupport {
     /** A test admin user name. */
     public static final String ADMIN_USER_NAME = "admin";
 
+    /** The default MongoDB port. */
+    public static final int DEFAULT_PORT = 27017;
+
     /** A test password. You really shouldn't use this as a password... */
     public static final String PASSWORD = "password";
 
@@ -137,7 +140,7 @@ public class ServerTestDriverSupport {
      * @param conn
      *            The connection to close.
      */
-    protected void close(final Closeable conn) {
+    protected static void close(final Closeable conn) {
         try {
             if (conn != null) {
                 conn.close();
@@ -151,7 +154,7 @@ public class ServerTestDriverSupport {
     /**
      * Starts a MongoDB instance running in a standalone mode.
      */
-    protected void startAuthenticated() {
+    protected static void startAuthenticated() {
         Mongo mongo = null;
         try {
             final ProcessBuilder builder = createBuilder();
@@ -216,7 +219,7 @@ public class ServerTestDriverSupport {
     /**
      * Starts a MongoDB instance running in a replica set mode.
      */
-    protected void startReplicaSet() {
+    protected static void startReplicaSet() {
         try {
             final ProcessBuilder builder = createBuilder();
             builder.command(REPLICA_SET_SCRIPT.getAbsolutePath(), "start");
@@ -238,7 +241,7 @@ public class ServerTestDriverSupport {
     /**
      * Starts a MongoDB instance running in a sharded mode.
      */
-    protected void startSharded() {
+    protected static void startSharded() {
         try {
             final ProcessBuilder builder = createBuilder();
             builder.command(SHARDED_SCRIPT.getAbsolutePath(), "start");
@@ -260,7 +263,7 @@ public class ServerTestDriverSupport {
     /**
      * Starts a MongoDB instance running in a standalone mode.
      */
-    protected void startStandAlone() {
+    protected static void startStandAlone() {
         try {
             final ProcessBuilder builder = createBuilder();
             builder.command(STAND_ALONE_SCRIPT.getAbsolutePath(), "start");

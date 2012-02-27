@@ -11,10 +11,6 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import com.allanbank.mongodb.connection.message.AdminCommand;
-import com.allanbank.mongodb.connection.message.Command;
-import com.allanbank.mongodb.connection.message.ServerStatus;
-
 /**
  * ServerStatusTest provides tests for the {@link ServerStatus} message.
  * 

@@ -16,6 +16,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.socket.PendingMessage;
 import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.ServerState;
 
@@ -66,6 +67,23 @@ public abstract class AbstractProxyConnection implements Connection {
         if (myProxiedConnection != null) {
             myProxiedConnection.close();
             myProxiedConnection = null;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to forward to the wrapped connection.
+     * </p>
+     */
+    @Override
+    public void drainPendingTo(final List<PendingMessage> pending) {
+        try {
+            ensureConnected().drainPendingTo(pending);
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
         }
     }
 
@@ -136,6 +154,24 @@ public abstract class AbstractProxyConnection implements Connection {
     public boolean isIdle() {
         try {
             return ensureConnected().isIdle();
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the {@link Connection} returned from
+     * {@link #ensureConnected()}.
+     * </p>
+     */
+    @Override
+    public boolean isOpen() {
+        try {
+            return ensureConnected().isOpen();
         }
         catch (final MongoDbException error) {
             onExceptin(error);

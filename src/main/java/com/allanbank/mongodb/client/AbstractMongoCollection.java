@@ -7,8 +7,8 @@ package com.allanbank.mongodb.client;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
-import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
@@ -519,13 +519,24 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
     /**
      * {@inheritDoc}
      * <p>
+     * To generate the name of the index and then drop it.
+     * </p>
+     */
+    @Override
+    public boolean dropIndex(final LinkedHashMap<String, Integer> keys)
+            throws MongoDbException {
+        return dropIndex(buildIndexName(keys));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * This is the canonical <code>dropIndex</code> method that implementations
      * must override.
      * </p>
      */
     @Override
-    public abstract boolean dropIndex(final Pattern namePattern)
-            throws MongoDbException;
+    public abstract boolean dropIndex(String name) throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -1609,6 +1620,26 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
         return new GetLastError(getDatabaseName(), durability.isWaitForFsync(),
                 durability.isWaitForJournal(), durability.getWaitForReplicas(),
                 durability.getWaitTimeoutMillis());
+    }
+
+    /**
+     * Generates a name for the index based on the keys.
+     * 
+     * @param keys
+     *            The keys for the index.
+     * @return The name for the index.
+     */
+    protected String buildIndexName(final LinkedHashMap<String, Integer> keys) {
+        String indexName;
+        final StringBuilder nameBuilder = new StringBuilder();
+        nameBuilder.append(myName.replace(' ', '_'));
+        for (final Map.Entry<String, Integer> key : keys.entrySet()) {
+            nameBuilder.append('_');
+            nameBuilder.append(key.getKey().replace(' ', '_'));
+            nameBuilder.append(key.getValue().toString());
+        }
+        indexName = nameBuilder.toString();
+        return indexName;
     }
 
     /**

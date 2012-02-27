@@ -50,7 +50,7 @@ public class MongoDbException extends RuntimeException {
      *            The exception causing the MongoDbException.
      */
     public MongoDbException(final Throwable cause) {
-        super(cause.getMessage(), cause);
+        super((cause == null) ? "" : cause.getMessage(), cause);
     }
 
 }

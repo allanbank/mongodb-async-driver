@@ -17,7 +17,6 @@ import java.util.Random;
 import org.junit.Test;
 
 import com.allanbank.mongodb.connection.Operation;
-import com.allanbank.mongodb.connection.message.Header;
 
 /**
  * HeaderTest provides tests for the {@link Header} class.

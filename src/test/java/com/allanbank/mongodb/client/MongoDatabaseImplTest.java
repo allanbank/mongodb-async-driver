@@ -16,7 +16,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -104,8 +103,9 @@ public class MongoDatabaseImplTest {
         final MongoCollection collection = myTestInstance.getCollection("foo");
         assertTrue(collection instanceof MongoCollectionImpl);
         assertSame(myTestInstance,
-                ((MongoCollectionImpl) collection).myDatabase);
-        assertSame(myMockClient, ((MongoCollectionImpl) collection).myClient);
+                ((AbstractMongoCollection) collection).myDatabase);
+        assertSame(myMockClient,
+                ((AbstractMongoCollection) collection).myClient);
         assertEquals("foo", collection.getName());
     }
 
@@ -116,11 +116,11 @@ public class MongoDatabaseImplTest {
     public void testListCollections() {
 
         final Document result1 = BuilderFactory.start()
-                .addString("name", "collection").get();
+                .addString("name", "test.collection").get();
         final Document result2 = BuilderFactory.start()
-                .addString("name", "1.oplog.$").get();
+                .addString("name", "test.1.oplog.$").get();
 
-        final Query query = new Query("test", "system.namespace",
+        final Query query = new Query("test", "system.namespaces",
                 BuilderFactory.start().get(), null, 0, 0, false, true, false,
                 false, false, false);
 
@@ -129,7 +129,7 @@ public class MongoDatabaseImplTest {
 
         replay();
 
-        assertEquals(Collections.singletonList("collection"),
+        assertEquals(Arrays.asList("collection", "1.oplog.$"),
                 myTestInstance.listCollections());
 
         verify();

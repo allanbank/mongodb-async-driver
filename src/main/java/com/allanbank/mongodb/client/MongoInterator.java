@@ -84,6 +84,7 @@ public class MongoInterator implements ClosableIterator<Document> {
         myCursorId = 0;
 
         if (cursorId == 0) {
+            // May not have processed any of the results yet...
             if (replyFuture != null) {
                 try {
                     final Reply reply = replyFuture.get();
@@ -171,31 +172,26 @@ public class MongoInterator implements ClosableIterator<Document> {
      */
     protected void loadDocuments() throws RuntimeException {
         try {
-            // First call.
+            // Pull the reply from the future. Hopefully it is already there!
             final Reply reply = myNextReply.get();
+            myCursorId = reply.getCursorId();
 
-            // Start the get_more while we iterate over the documents we
-            // have.
-            if (reply.getCursorId() != 0) {
+            // Pre-fetch the next set of documents while we iterate over the
+            // documents we just got.
+            if (myCursorId != 0) {
                 final GetMore getMore = new GetMore(
                         myOriginalQuery.getDatabaseName(),
-                        myOriginalQuery.getCollectionName(),
-                        reply.getCursorId(),
+                        myOriginalQuery.getCollectionName(), myCursorId,
                         myOriginalQuery.getNumberToReturn());
 
-                myCursorId = reply.getCursorId();
                 myNextReply = new FutureCallback<Reply>();
                 myClient.send(getMore, myNextReply);
             }
             else {
-                // Exhausted the cursor.
+                // Exhausted the cursor - no more results.
                 myNextReply = null;
 
-                // Do we need to do this?
-                if (myCursorId != 0) {
-                    myClient.send(new KillCursors(new long[] { myCursorId }));
-                    myCursorId = 0;
-                }
+                // Don't need to kill the cursor since we exhausted it.
             }
 
             myCurrentIterator = reply.getResults().iterator();

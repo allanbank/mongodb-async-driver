@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
@@ -99,14 +98,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         String indexName = name;
         if ((name == null) || name.isEmpty()) {
-            final StringBuilder nameBuilder = new StringBuilder();
-            nameBuilder.append(myName.replace(' ', '_'));
-            for (final Map.Entry<String, Integer> key : keys.entrySet()) {
-                nameBuilder.append('_');
-                nameBuilder.append(key.getKey().replace(' ', '_'));
-                nameBuilder.append(key.getValue().toString());
-            }
-            indexName = nameBuilder.toString();
+            indexName = buildIndexName(keys);
         }
 
         final DocumentBuilder indexEntryBuilder = BuilderFactory.start();
@@ -195,15 +187,15 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to issue a { "deleteIndexes" : <collection_name>, name :
-     * <namePattern> } command.
+     * Overridden to issue a { "deleteIndexes" : <collection_name>, index :
+     * <name> } command.
      * </p>
      */
     @Override
-    public boolean dropIndex(final Pattern namePattern) throws MongoDbException {
+    public boolean dropIndex(final String name) throws MongoDbException {
 
         final DocumentBuilder options = BuilderFactory.start();
-        options.addRegularExpression("name", namePattern.pattern(), "");
+        options.addString("index", name);
 
         final Document result = myDatabase.runCommand("deleteIndexes", myName,
                 options.get());
@@ -323,7 +315,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                     command.getReduceFunction());
         }
         if (command.getFinalizeFunction() != null) {
-            groupDocBuilder.addJavaScript("$finalize",
+            groupDocBuilder.addJavaScript("finalize",
                     command.getFinalizeFunction());
         }
         if (command.getQuery() != null) {
@@ -377,7 +369,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             final MapReduce command) throws MongoDbException {
         final DocumentBuilder builder = BuilderFactory.start();
 
-        builder.addString("mapReduce", getName());
+        builder.addString("mapreduce", getName());
         builder.addJavaScript("map", command.getMapFunction());
         builder.addJavaScript("reduce", command.getReduceFunction());
         if (command.getFinalizeFunction() != null) {

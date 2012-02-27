@@ -77,9 +77,17 @@ function start {
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 	
-	# A single mongos.
+	# A two mongos.
 	server=mongos
 	port=27017
+	mongos --port ${port} --fork \
+				--logpath ${dir}/${server}.log \
+				--configdb localhost:27019 \
+				>> ${dir}/${server}.out 2>&1
+	waitfor "${port}" "${dir}/${server}.log"
+
+	server=mongos_2
+	port=27016
 	mongos --port ${port} --fork \
 				--logpath ${dir}/${server}.log \
 				--configdb localhost:27019 \

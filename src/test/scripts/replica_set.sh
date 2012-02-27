@@ -53,6 +53,25 @@ function waitfor {
 	done
 }
 
+# waitfor
+#
+# Waits for a socket to open.
+function waitforPrimary {
+	log=$1
+	
+	let count=1
+	touch "${log}"
+	while ! grep -q -i "is now in state PRIMARY" "${log}" ; do
+		sleep 1
+		
+		if (( count > 60 )) ; then
+			return;
+		fi
+		let count=count+1
+	done
+}
+
+
 # start
 #
 # Starts the shard servers.
@@ -144,7 +163,9 @@ function start {
 		]
 	})
 END
-	mongo localhost:27018/admin ${dir}/config.js	
+	mongo localhost:27018/admin ${dir}/config.js
+	
+	waitforPrimary ${dir}/arbiter.log
 }
 
 case "$1" in 

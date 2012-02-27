@@ -106,7 +106,7 @@ public class MongoDatabaseImpl extends AbstractMongo implements MongoDatabase {
      */
     @Override
     public List<String> listCollections() {
-        final Query query = new Query(myName, "system.namespace", EMPTY_QUERY,
+        final Query query = new Query(myName, "system.namespaces", EMPTY_QUERY,
                 null, 0, 0, false, true, false, false, false, false);
 
         final FutureCallback<ClosableIterator<Document>> iterFuture = new FutureCallback<ClosableIterator<Document>>();
@@ -122,11 +122,11 @@ public class MongoDatabaseImpl extends AbstractMongo implements MongoDatabase {
             for (final StringElement nameElement : collection.queryPath(
                     StringElement.class, "name")) {
                 final String name = nameElement.getValue();
-                if (name.contains(".oplog.$")) {
+                if ((name.indexOf('$') >= 0) && (name.indexOf(".oplog.$") < 0)) {
                     continue;
                 }
 
-                names.add(name);
+                names.add(name.substring(myName.length() + 1));
             }
         }
 
@@ -260,7 +260,7 @@ public class MongoDatabaseImpl extends AbstractMongo implements MongoDatabase {
 
         final Command commandMessage = new Command(myName, builder.get());
 
-        myClient.send(commandMessage, new ReplyCallback(reply));
+        myClient.send(commandMessage, new ReplyCommandCallback(reply));
     }
 
     /**
