@@ -58,6 +58,23 @@ public abstract class AbstractProxyConnection implements Connection {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to forward to the wrapped connection.
+     * </p>
+     */
+    @Override
+    public void addPending(final List<PendingMessage> pending) {
+        try {
+            ensureConnected().addPending(pending);
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
+    }
+
+    /**
      * Closes the underlying connection.
      * 
      * @see Connection#close()
@@ -77,9 +94,9 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public void drainPendingTo(final List<PendingMessage> pending) {
+    public void drainPending(final List<PendingMessage> pending) {
         try {
-            ensureConnected().drainPendingTo(pending);
+            ensureConnected().drainPending(pending);
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -115,27 +132,9 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public int getPendingMessageCount() {
+    public int getPendingCount() {
         try {
-            return ensureConnected().getPendingMessageCount();
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
-     * </p>
-     */
-    @Override
-    public int getToBeSentMessageCount() {
-        try {
-            return ensureConnected().getToBeSentMessageCount();
+            return ensureConnected().getPendingCount();
         }
         catch (final MongoDbException error) {
             onExceptin(error);

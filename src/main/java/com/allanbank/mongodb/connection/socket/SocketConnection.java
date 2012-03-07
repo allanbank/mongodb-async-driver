@@ -156,6 +156,16 @@ public class SocketConnection implements Connection {
      * {@inheritDoc}
      */
     @Override
+    public void addPending(final List<PendingMessage> pending) {
+        for (final PendingMessage pend : pending) {
+            myToSendQueue.add(pend);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void close() throws IOException {
         myOpen.set(false);
 
@@ -184,12 +194,9 @@ public class SocketConnection implements Connection {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to forward to the wrapped connection.
-     * </p>
      */
     @Override
-    public void drainPendingTo(final List<PendingMessage> pending) {
+    public void drainPending(final List<PendingMessage> pending) {
         myToSendQueue.drainTo(pending);
     }
 
@@ -205,16 +212,8 @@ public class SocketConnection implements Connection {
      * {@inheritDoc}
      */
     @Override
-    public int getPendingMessageCount() {
-        return myPendingQueue.size();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getToBeSentMessageCount() {
-        return myToSendQueue.size();
+    public int getPendingCount() {
+        return myPendingQueue.size() + myToSendQueue.size();
     }
 
     /**

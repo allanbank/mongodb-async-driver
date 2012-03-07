@@ -46,6 +46,42 @@ public class ConnectionPinger implements Runnable, Closeable {
     protected static final Logger LOG = Logger.getLogger(ConnectionPinger.class
             .getCanonicalName());
 
+    /**
+     * Pings the server an suppresses all exceptions.
+     * 
+     * @param addr
+     *            The address of the server. Used for logging.
+     * @param conn
+     *            The connection to ping.
+     * @return True if the ping worked, false otherwise.
+     */
+    public static boolean ping(final InetSocketAddress addr,
+            final Connection conn) {
+        try {
+            final FutureCallback<Reply> future = new FutureCallback<Reply>();
+            conn.send(future, new ServerStatus());
+            future.get(10, TimeUnit.MINUTES);
+
+            return true;
+        }
+        catch (final MongoDbException e) {
+            LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
+        }
+        catch (final ExecutionException e) {
+            LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
+        }
+        catch (final TimeoutException e) {
+            LOG.log(Level.INFO, "'" + addr
+                    + "' might be a zombie - not receiving "
+                    + "a response to ping.", e);
+        }
+        catch (final InterruptedException e) {
+            LOG.log(Level.INFO, "Interrupted pinging '" + addr + "'.", e);
+        }
+
+        return false;
+    }
+
     /** The state of the cluster. */
     private final ClusterState myCluster;
 
@@ -144,40 +180,5 @@ public class ConnectionPinger implements Runnable, Closeable {
         catch (final InterruptedException ok) {
             LOG.info("Closing pinger on interrupt.");
         }
-    }
-
-    /**
-     * Pings the server an suppresses all exceptions.
-     * 
-     * @param addr
-     *            The address of the server. Used for logging.
-     * @param conn
-     *            The connection to ping.
-     * @return True if the ping worked, false otherwise.
-     */
-    public static boolean ping(InetSocketAddress addr, Connection conn) {
-        try {
-            final FutureCallback<Reply> future = new FutureCallback<Reply>();
-            conn.send(future, new ServerStatus());
-            future.get(10, TimeUnit.MINUTES);
-
-            return true;
-        }
-        catch (final MongoDbException e) {
-            LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
-        }
-        catch (final ExecutionException e) {
-            LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
-        }
-        catch (final TimeoutException e) {
-            LOG.log(Level.INFO, "'" + addr
-                    + "' might be a zombie - not receiving "
-                    + "a response to ping.", e);
-        }
-        catch (InterruptedException e) {
-            LOG.log(Level.INFO, "Interrupted pinging '" + addr + "'.", e);
-        }
-
-        return false;
     }
 }

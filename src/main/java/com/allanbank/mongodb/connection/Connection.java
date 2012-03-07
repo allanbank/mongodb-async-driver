@@ -28,12 +28,20 @@ public interface Connection extends Closeable, Flushable {
     public static final String COMMAND_COLLECTION = "$cmd";
 
     /**
-     * Removes any pending messages into the specified list.
+     * Adds the pending messages from the specified list.
+     * 
+     * @param pending
+     *            The list to populate the pending list with.
+     */
+    public void addPending(List<PendingMessage> pending);
+
+    /**
+     * Removes any to be sent pending messages into the specified list.
      * 
      * @param pending
      *            The list to populate with the pending messages.
      */
-    public void drainPendingTo(List<PendingMessage> pending);
+    public void drainPending(List<PendingMessage> pending);
 
     /**
      * Returns the number of messages that are pending responses from the
@@ -41,14 +49,7 @@ public interface Connection extends Closeable, Flushable {
      * 
      * @return The number of messages pending responses from the server.
      */
-    public int getPendingMessageCount();
-
-    /**
-     * Returns the number of messages that are pending to be sent to the server.
-     * 
-     * @return The number of messages pending to be sent to the server.
-     */
-    public int getToBeSentMessageCount();
+    public int getPendingCount();
 
     /**
      * Determines if the connection is idle.
@@ -102,4 +103,5 @@ public interface Connection extends Closeable, Flushable {
      *            become idle.
      */
     public void waitForIdle(int timeout, TimeUnit timeoutUnits);
+
 }

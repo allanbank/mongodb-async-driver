@@ -78,6 +78,17 @@ public class AuthenticatingConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to forward to the wrapped connection.
+     * </p>
+     */
+    @Override
+    public void addPending(final List<PendingMessage> pending) {
+        myConnection.addPending(pending);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Closes the connection.
      * </p>
      */
@@ -93,8 +104,8 @@ public class AuthenticatingConnection implements Connection {
      * </p>
      */
     @Override
-    public void drainPendingTo(final List<PendingMessage> pending) {
-        myConnection.drainPendingTo(pending);
+    public void drainPending(final List<PendingMessage> pending) {
+        myConnection.drainPending(pending);
     }
 
     /**
@@ -112,16 +123,8 @@ public class AuthenticatingConnection implements Connection {
      * {@inheritDoc}
      */
     @Override
-    public int getPendingMessageCount() {
-        return myConnection.getPendingMessageCount();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getToBeSentMessageCount() {
-        return myConnection.getToBeSentMessageCount();
+    public int getPendingCount() {
+        return myConnection.getPendingCount();
     }
 
     /**

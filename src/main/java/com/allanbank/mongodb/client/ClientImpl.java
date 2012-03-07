@@ -184,17 +184,8 @@ public class ClientImpl implements Client {
         myConnections.remove(conn);
 
         final List<PendingMessage> pending = new ArrayList<PendingMessage>();
-        conn.drainPendingTo(pending);
-
-        for (final PendingMessage message : pending) {
-            try {
-                findConnection().send(message.getReplyCallback(),
-                        message.getMessage());
-            }
-            catch (final MongoDbException error) {
-                message.raiseError(error);
-            }
-        }
+        conn.drainPending(pending);
+        findConnection().addPending(pending);
     }
 
     /**
@@ -280,7 +271,7 @@ public class ClientImpl implements Client {
             if (!conn.isOpen()) {
                 cleanup(conn);
             }
-            else if (conn.getToBeSentMessageCount() == 0) {
+            else if (conn.getPendingCount() == 0) {
                 return conn;
             }
         }
@@ -297,8 +288,7 @@ public class ClientImpl implements Client {
         final SortedMap<Integer, Connection> connections = new TreeMap<Integer, Connection>();
         for (final Connection conn : myConnections) {
             if (conn.isOpen()) {
-                connections.put(
-                        Integer.valueOf(conn.getToBeSentMessageCount()), conn);
+                connections.put(Integer.valueOf(conn.getPendingCount()), conn);
             }
             else {
                 cleanup(conn);

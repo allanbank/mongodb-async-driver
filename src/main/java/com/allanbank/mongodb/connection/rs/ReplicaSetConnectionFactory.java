@@ -90,9 +90,9 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                     // See if we can add the other servers also.
                     if (myConfig.isAutoDiscoverServers()) {
                         // Pull them all in.
-                        List<StringElement> hosts = doc.queryPath(
+                        final List<StringElement> hosts = doc.queryPath(
                                 StringElement.class, "hosts", ".*");
-                        for (StringElement host : hosts) {
+                        for (final StringElement host : hosts) {
                             myClusterState.add(host.getValue());
                         }
                     }

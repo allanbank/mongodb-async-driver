@@ -221,21 +221,21 @@ public class ClientImplTest {
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getToBeSentMessageCount()).andReturn(1);
+        expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2.send(message);
         expectLastCall();
 
         expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getToBeSentMessageCount()).andReturn(0);
+        expect(mockConnection2.getPendingCount()).andReturn(0);
         mockConnection2.send(message);
         expectLastCall();
         expect(mockConnection.isIdle()).andReturn(false);
 
         expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getToBeSentMessageCount()).andReturn(1);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getToBeSentMessageCount()).andReturn(1);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
         mockConnection2.send(message);
         expectLastCall();
         expect(mockConnection.isIdle()).andReturn(true);
@@ -276,21 +276,21 @@ public class ClientImplTest {
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getToBeSentMessageCount()).andReturn(1);
+        expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2.send(message);
         expectLastCall();
 
         expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getToBeSentMessageCount()).andReturn(0);
+        expect(mockConnection2.getPendingCount()).andReturn(0);
         mockConnection2.send(message);
         expectLastCall();
         expect(mockConnection.isIdle()).andReturn(false);
 
         expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getToBeSentMessageCount()).andReturn(1);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getToBeSentMessageCount()).andReturn(1);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
         mockConnection2.send(message);
         expectLastCall();
         expect(mockConnection.isIdle()).andReturn(true);
@@ -331,7 +331,7 @@ public class ClientImplTest {
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getToBeSentMessageCount()).andReturn(1);
+        expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2.send(message);
         expectLastCall();
@@ -391,7 +391,7 @@ public class ClientImplTest {
         mockConnection.send(message);
         expectLastCall();
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getToBeSentMessageCount()).andReturn(0);
+        expect(mockConnection.getPendingCount()).andReturn(0);
         mockConnection.send(message);
         expectLastCall();
 
@@ -424,21 +424,21 @@ public class ClientImplTest {
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getToBeSentMessageCount()).andReturn(1);
+        expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2.send(message);
         expectLastCall();
 
         // First pass for idle.
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getToBeSentMessageCount()).andReturn(2);
+        expect(mockConnection.getPendingCount()).andReturn(2);
         expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getToBeSentMessageCount()).andReturn(1);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
         // Now most idle.
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getToBeSentMessageCount()).andReturn(2);
+        expect(mockConnection.getPendingCount()).andReturn(2);
         expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getToBeSentMessageCount()).andReturn(1);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
         mockConnection2.send(message);
         expectLastCall();
 
