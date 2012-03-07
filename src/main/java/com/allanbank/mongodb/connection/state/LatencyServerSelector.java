@@ -42,11 +42,11 @@ public class LatencyServerSelector implements ServerSelector {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to find the server with the lowest latency.
+     * Overridden to order the servers with the lowest latency first.
      * </p>
      */
     @Override
-    public ServerState pickServer() {
+    public List<ServerState> pickServers() {
         List<ServerState> servers;
         if (myWritableOnly) {
             servers = myCluster.getWritableServers();
@@ -57,13 +57,13 @@ public class LatencyServerSelector implements ServerSelector {
 
         // If there are no servers then there is no one to pick.
         if (servers.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
 
         // Copy to a list we know we can modify and sort.
         servers = new ArrayList<ServerState>(servers);
         Collections.sort(servers, new ServerLatencyComparator());
 
-        return servers.get(0);
+        return servers;
     }
 }

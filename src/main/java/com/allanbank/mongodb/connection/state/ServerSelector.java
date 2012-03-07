@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.connection.state;
 
+import java.util.List;
+
 /**
  * ServerSelector provides a common interface for a methodology to select a
  * server.
@@ -18,5 +20,5 @@ public interface ServerSelector {
      * 
      * @return The selected server to try and connect to.
      */
-    public ServerState pickServer();
+    public List<ServerState> pickServers();
 }

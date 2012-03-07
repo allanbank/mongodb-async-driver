@@ -151,7 +151,6 @@ public class SocketConnectionTest {
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
-        System.out.println("after2: " + new Date());
 
         final byte[] request = ourServer.getRequests().get(0);
 

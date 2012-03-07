@@ -18,7 +18,6 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.FutureCallback;
-import com.allanbank.mongodb.connection.bootstrap.BootstrapConnectionFactory;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
@@ -33,7 +32,7 @@ import com.allanbank.mongodb.connection.state.ServerState;
  */
 public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
-    /** The logger for the {@link BootstrapConnectionFactory}. */
+    /** The logger for the {@link ReplicaSetConnectionFactory}. */
     protected static final Logger LOG = Logger
             .getLogger(ReplicaSetConnectionFactory.class.getCanonicalName());
 
@@ -87,6 +86,18 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                 if (!results.isEmpty()) {
                     final Document doc = results.get(0);
 
+                    // Replica Sets MUST connect to the primary server.
+                    // See if we can add the other servers also.
+                    if (myConfig.isAutoDiscoverServers()) {
+                        // Pull them all in.
+                        List<StringElement> hosts = doc.queryPath(
+                                StringElement.class, "hosts", ".*");
+                        for (StringElement host : hosts) {
+                            myClusterState.add(host.getValue());
+                        }
+                    }
+
+                    // Add and mark the primary as writable.
                     for (final StringElement primary : doc.queryPath(
                             StringElement.class, "primary")) {
 

@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.Reply;
@@ -114,33 +115,23 @@ public class ConnectionPinger implements Runnable, Closeable {
 
                         conn = myConnectionFactory.connect(addr, myConfig);
 
-                        final FutureCallback<Reply> future = new FutureCallback<Reply>();
                         final long start = System.nanoTime();
 
                         // Use a server status request to measure latency. It is
                         // a best case since it does not require any locks.
-                        conn.send(future, new ServerStatus());
-                        future.get(10, TimeUnit.MINUTES);
+                        if (ping(addr, conn)) {
+                            final long end = System.nanoTime();
 
-                        final long end = System.nanoTime();
-
-                        server.updateAverageLatency(TimeUnit.NANOSECONDS
-                                .toMillis(end - start));
+                            server.updateAverageLatency(TimeUnit.NANOSECONDS
+                                    .toMillis(end - start));
+                        }
                     }
                     catch (final IOException e) {
                         LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
                     }
-                    catch (final ExecutionException e) {
-                        LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
-                    }
-                    catch (final TimeoutException e) {
-                        LOG.log(Level.INFO, "'" + addr
-                                + "' might be a zombie - not receiving "
-                                + "a response to ping.", e);
-                    }
                     finally {
                         myPingThread.setName("MongoDB Pinger - Idle");
-                        close(conn);
+                        IOUtils.close(conn);
                     }
                 }
 
@@ -156,19 +147,37 @@ public class ConnectionPinger implements Runnable, Closeable {
     }
 
     /**
-     * Closes the connection and logs any error.
+     * Pings the server an suppresses all exceptions.
      * 
+     * @param addr
+     *            The address of the server. Used for logging.
      * @param conn
-     *            The connection to close.
+     *            The connection to ping.
+     * @return True if the ping worked, false otherwise.
      */
-    private void close(final Connection conn) {
-        if (conn != null) {
-            try {
-                conn.close();
-            }
-            catch (final IOException ignored) {
-                LOG.finest("I/O Exception closing connection.");
-            }
+    public static boolean ping(InetSocketAddress addr, Connection conn) {
+        try {
+            final FutureCallback<Reply> future = new FutureCallback<Reply>();
+            conn.send(future, new ServerStatus());
+            future.get(10, TimeUnit.MINUTES);
+
+            return true;
         }
+        catch (final MongoDbException e) {
+            LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
+        }
+        catch (final ExecutionException e) {
+            LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
+        }
+        catch (final TimeoutException e) {
+            LOG.log(Level.INFO, "'" + addr
+                    + "' might be a zombie - not receiving "
+                    + "a response to ping.", e);
+        }
+        catch (InterruptedException e) {
+            LOG.log(Level.INFO, "Interrupted pinging '" + addr + "'.", e);
+        }
+
+        return false;
     }
 }
