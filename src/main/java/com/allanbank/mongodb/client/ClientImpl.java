@@ -199,18 +199,18 @@ public class ClientImpl implements Client {
         // Look for the connection in the "active" set first.
         if (myConnections.contains(connection)) {
             // Attempt a reconnect.
-            LOG.log(Level.INFO, "Unexpected MongoDB Connection closed: "
-                    + connection + ". Will try to reconnect.");
+            LOG.info("Unexpected MongoDB Connection closed: " + connection
+                    + ". Will try to reconnect.");
             reconnect(connection);
         }
         else if (myConnectionsToClose.remove(connection)) {
-            LOG.log(Level.INFO, "MongoDB Connection closed: " + connection);
+            LOG.info("MongoDB Connection closed: " + connection);
+            connection.removePropertyChangeListener(myConnectionListener);
         }
         else {
-            LOG.log(Level.INFO, "Unknown MongoDB Connection closed: "
-                    + connection);
+            LOG.info("Unknown MongoDB Connection closed: " + connection);
+            connection.removePropertyChangeListener(myConnectionListener);
         }
-
     }
 
     /**
@@ -240,6 +240,8 @@ public class ClientImpl implements Client {
 
                 // Get the new connection in the rotation.
                 myConnections.remove(connection);
+                connection.removePropertyChangeListener(myConnectionListener);
+
                 myConnections.add(newConnection);
 
             }
@@ -276,6 +278,8 @@ public class ClientImpl implements Client {
         finally {
             myConnections.remove(conn);
             myConnectionsToClose.remove(conn);
+
+            conn.removePropertyChangeListener(myConnectionListener);
         }
     }
 
@@ -414,7 +418,13 @@ public class ClientImpl implements Client {
             wasReconnecting = (myActiveReconnects > 0);
             if (wasReconnecting) {
                 try {
-                    wait(myConfig.getReconnectTimeout());
+                    LOG.fine("Waiting for reconnect to MongoDB.");
+                    if (myConfig.getReconnectTimeout() <= 0) {
+                        wait();
+                    }
+                    else {
+                        wait(myConfig.getReconnectTimeout());
+                    }
                 }
                 catch (final InterruptedException e) {
                     // Ignored

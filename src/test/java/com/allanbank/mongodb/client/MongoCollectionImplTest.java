@@ -1187,53 +1187,6 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testFindWithAllOptions() throws Exception {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Find.Builder builder = new Find.Builder();
-        builder.setQuery(BuilderFactory.start().addInteger("foo", 1).get());
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
-                .get());
-        builder.setNumberToReturn(101010);
-        builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
-        builder.setReplicaOk(true);
-
-        final Find request = builder.build();
-
-        final Query message = new Query("test", "test", request.getQuery(),
-                request.getReturnFields(), request.getNumberToReturn(),
-                request.getNumberToSkip(), false, true, false, false, false,
-                true);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final Future<ClosableIterator<Document>> future = myTestInstance
-                .findAsync(request);
-        final ClosableIterator<Document> iter = future.get();
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for
      * {@link AbstractMongoCollection#findAsync(Callback, Document)} .
      */
     @Test
@@ -1268,7 +1221,7 @@ public class MongoCollectionImplTest {
         final Query message = new Query("test", "test", doc, null, 0, 0, false,
                 false, false, false, false, false);
 
-        Find.Builder findBuilder = new Find.Builder(doc);
+        final Find.Builder findBuilder = new Find.Builder(doc);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1334,7 +1287,7 @@ public class MongoCollectionImplTest {
         final Query message = new Query("test", "test", doc, null, 0, 0, false,
                 true, false, false, false, false);
 
-        Find.Builder findBuilder = new Find.Builder(doc);
+        final Find.Builder findBuilder = new Find.Builder(doc);
         findBuilder.setReplicaOk(true);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -1399,7 +1352,7 @@ public class MongoCollectionImplTest {
         final Query message = new Query("test", "test", doc, null, 0, 0, false,
                 true, false, false, false, false);
 
-        Find.Builder findBuilder = new Find.Builder(doc);
+        final Find.Builder findBuilder = new Find.Builder(doc);
         findBuilder.setReplicaOk(true);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -1495,6 +1448,53 @@ public class MongoCollectionImplTest {
         assertSame(replyDoc, myTestInstance.findOneAsync(doc).get());
 
         verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testFindWithAllOptions() throws Exception {
+        final Document result1 = BuilderFactory.start().get();
+        final Document result2 = BuilderFactory.start().get();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(BuilderFactory.start().addInteger("foo", 1).get());
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .get());
+        builder.setNumberToReturn(101010);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReplicaOk(true);
+
+        final Find request = builder.build();
+
+        final Query message = new Query("test", "test", request.getQuery(),
+                request.getReturnFields(), request.getNumberToReturn(),
+                request.getNumberToSkip(), false, true, false, false, false,
+                true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
+
+        replay();
+
+        final Future<ClosableIterator<Document>> future = myTestInstance
+                .findAsync(request);
+        final ClosableIterator<Document> iter = future.get();
+        assertTrue(iter.hasNext());
+        assertSame(result1, iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(result2, iter.next());
+        assertFalse(iter.hasNext());
+
+        verify();
     }
 
     /**

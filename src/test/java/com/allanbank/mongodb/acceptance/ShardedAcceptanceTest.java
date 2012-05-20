@@ -7,15 +7,14 @@ package com.allanbank.mongodb.acceptance;
 
 import static org.junit.Assert.assertEquals;
 
-import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.error.ConnectionLostException;
 
 /**
  * BasicAcceptanceTestCases performs acceptance tests for the driver against a
@@ -49,9 +48,9 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
      * Tests the handling of a mongos server getting shutdown.
      */
     @Test
-    @Ignore("Need to do validation.")
     public void testSuddenFailureHandling() {
         myConfig.setAutoDiscoverServers(true);
+        myConfig.setMaxConnectionCount(1);
 
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().get());
@@ -65,10 +64,24 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
             final Process kill = ourBuilder.start();
             kill.waitFor();
 
-            myConfig.addServer(new InetSocketAddress("127.0.0.1",
-                    DEFAULT_PORT - 1));
+            // Quick command that should then fail.
+            myMongo.listDatabases();
 
-            // Should switch to the other mongos.
+            // ... but its OK if it misses getting out before the Process dies.
+        }
+        catch (final ConnectionLostException cle) {
+            // Good.
+        }
+        catch (final Exception e) {
+            final AssertionError error = new AssertionError(e.getMessage());
+            error.initCause(e);
+            throw error;
+        }
+
+        try {
+            Thread.sleep(100);
+
+            // Should switch to the other shards.
             myMongo.listDatabases();
         }
         catch (final Exception e) {
@@ -78,6 +91,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
         }
         finally {
             // Make sure the server is restarted for the other tests.
+            // disconnect();
             startServer();
         }
     }

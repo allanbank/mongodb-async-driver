@@ -10,7 +10,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -165,19 +164,17 @@ public class ReplicaSetReconnectStrategy extends
             final ReplicaSetConnection oldConnection,
             final Map<InetSocketAddress, Future<Reply>> answers,
             final Map<InetSocketAddress, Connection> connections) {
-        Iterator<Map.Entry<InetSocketAddress, Future<Reply>>> iter;
-        iter = answers.entrySet().iterator();
-        while (iter.hasNext()) {
+        Map<InetSocketAddress, Future<Reply>> copy = new HashMap<InetSocketAddress, Future<Reply>>(
+                answers);
+        for (Map.Entry<InetSocketAddress, Future<Reply>> entry : copy
+                .entrySet()) {
 
-            Map.Entry<InetSocketAddress, Future<Reply>> entry;
-
-            entry = iter.next();
             final InetSocketAddress addr = entry.getKey();
             final Future<Reply> reply = entry.getValue();
 
             if (reply.isDone()) {
                 // Remove this reply.
-                iter.remove();
+                answers.remove(addr);
 
                 // Check the result.
                 final String putativePrimary = checkReply(reply, connections,

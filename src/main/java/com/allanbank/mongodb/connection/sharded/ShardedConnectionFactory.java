@@ -25,6 +25,8 @@ import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnection;
 import com.allanbank.mongodb.connection.state.ClusterState;
+import com.allanbank.mongodb.connection.state.LatencyServerSelector;
+import com.allanbank.mongodb.connection.state.ServerSelector;
 import com.allanbank.mongodb.connection.state.ServerState;
 
 /**
@@ -48,6 +50,9 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /** The MongoDB client configuration. */
     private final MongoDbConfiguration myConfig;
 
+    /** The slector for the mongos instance to use. */
+    private final ServerSelector mySelector;
+
     /**
      * Creates a new {@link ShardedConnectionFactory}.
      * 
@@ -61,6 +66,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         myConnectionFactory = factory;
         myConfig = config;
         myClusterState = new ClusterState();
+        mySelector = new LatencyServerSelector(myClusterState, true);
         for (final InetSocketAddress address : config.getServers()) {
             final ServerState state = myClusterState.add(address.getAddress()
                     .getHostName() + ":" + address.getPort());
@@ -69,6 +75,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
             // are writable.
             myClusterState.markWritable(state);
         }
+
+        bootstrap();
     }
 
     /**
@@ -118,7 +126,9 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                         if (idElem instanceof StringElement) {
                             final StringElement id = (StringElement) idElem;
 
-                            myClusterState.add(id.getValue());
+                            myClusterState.markWritable(myClusterState.add(id
+                                    .getValue()));
+                            LOG.fine("Adding shard mongos: " + id.getValue());
                         }
                     }
                 }
@@ -182,8 +192,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to return the delegates strategy but replace his state with
-     * our own.
+     * Overridden to return the delegates strategy but replace his state and
+     * selector with our own.
      * </p>
      */
     @Override
@@ -192,6 +202,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                 .getReconnectStrategy();
 
         delegates.setState(myClusterState);
+        delegates.setSelector(mySelector);
 
         return delegates;
     }

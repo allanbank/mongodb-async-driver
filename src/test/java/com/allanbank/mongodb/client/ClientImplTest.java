@@ -149,6 +149,9 @@ public class ClientImplTest {
         expect(mockConnection.isOpen()).andReturn(true);
         mockConnection.close();
         expectLastCall();
+        mockConnection
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
 
         replay(mockConnection);
 

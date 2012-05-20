@@ -8,6 +8,7 @@ package com.allanbank.mongodb.connection.state;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
@@ -20,6 +21,10 @@ import com.allanbank.mongodb.connection.Connection;
  */
 public class SimpleReconnectStrategy extends
         AbstractReconnectStrategy<Connection> {
+
+    /** The logger for the {@link SimpleReconnectStrategy}. */
+    protected static final Logger LOG = Logger
+            .getLogger(SimpleReconnectStrategy.class.getCanonicalName());
 
     /**
      * Creates a new SimpleReconnectStrategy.
@@ -47,6 +52,9 @@ public class SimpleReconnectStrategy extends
 
                 newConn = getConnectionFactory().connect(addr, getConfig());
                 if (isConnected(server, newConn)) {
+
+                    LOG.info("Reconnected to " + addr);
+
                     copyPending(newConn, oldConnection);
 
                     return newConn;

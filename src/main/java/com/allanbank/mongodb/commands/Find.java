@@ -14,12 +14,6 @@ import com.allanbank.mongodb.bson.Document;
  */
 public class Find {
 
-    /** The query document. */
-    private final Document myQuery;
-
-    /** The fields to be returned from the matching documents. */
-    private final Document myReturnFields;
-
     /**
      * The number of documents to be returned. The is not the results batch
      * size.
@@ -29,14 +23,20 @@ public class Find {
     /** The number of documents to skip before returning the first document. */
     private final int myNumberToSkip;
 
+    /** If true then an error in the query should return any partial results. */
+    private final boolean myPartialOk;
+
+    /** The query document. */
+    private final Document myQuery;
+
     /**
      * If true, then the query can be run against a replica which might be
      * slightly behind the primary.
      */
     private final boolean myReplicaOk;
 
-    /** If true then an error in the query should return any partial results. */
-    private final boolean myPartialOk;
+    /** The fields to be returned from the matching documents. */
+    private final Document myReturnFields;
 
     /**
      * Creates a new Find.
@@ -44,31 +44,13 @@ public class Find {
      * @param builder
      *            The builder to copy the query fields from.
      */
-    protected Find(Builder builder) {
+    protected Find(final Builder builder) {
         myQuery = builder.myQuery;
         myReturnFields = builder.myReturnFields;
         myNumberToReturn = builder.myNumberToReturn;
         myNumberToSkip = builder.myNumberToSkip;
         myPartialOk = builder.myPartialOk;
         myReplicaOk = builder.myReplicaOk;
-    }
-
-    /**
-     * Returns the query document.
-     * 
-     * @return The query document.
-     */
-    public Document getQuery() {
-        return myQuery;
-    }
-
-    /**
-     * Returns the fields to be returned from the matching documents.
-     * 
-     * @return The fields to be returned from the matching documents.
-     */
-    public Document getReturnFields() {
-        return myReturnFields;
     }
 
     /**
@@ -93,13 +75,21 @@ public class Find {
     }
 
     /**
-     * Returns the replica okay value. If true, then the query can be run
-     * against a replica which might be slightly behind the primary.
+     * Returns the query document.
      * 
-     * @return The replica okay value.
+     * @return The query document.
      */
-    public boolean isReplicaOk() {
-        return myReplicaOk;
+    public Document getQuery() {
+        return myQuery;
+    }
+
+    /**
+     * Returns the fields to be returned from the matching documents.
+     * 
+     * @return The fields to be returned from the matching documents.
+     */
+    public Document getReturnFields() {
+        return myReturnFields;
     }
 
     /**
@@ -114,17 +104,21 @@ public class Find {
     }
 
     /**
+     * Returns the replica okay value. If true, then the query can be run
+     * against a replica which might be slightly behind the primary.
+     * 
+     * @return The replica okay value.
+     */
+    public boolean isReplicaOk() {
+        return myReplicaOk;
+    }
+
+    /**
      * Helper for creating immutable {@link Find} queries.
      * 
      * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static final class Builder {
-        /** The query document. */
-        protected Document myQuery;
-
-        /** The fields to be returned from the matching documents. */
-        protected Document myReturnFields;
-
         /**
          * The number of documents to be returned. The is not the results batch
          * size.
@@ -135,15 +129,21 @@ public class Find {
         protected int myNumberToSkip;
 
         /**
+         * If true then an error in the query should return any partial results.
+         */
+        protected boolean myPartialOk;
+
+        /** The query document. */
+        protected Document myQuery;
+
+        /**
          * If true, then the query can be run against a replica which might be
          * slightly behind the primary.
          */
         protected boolean myReplicaOk;
 
-        /**
-         * If true then an error in the query should return any partial results.
-         */
-        protected boolean myPartialOk;
+        /** The fields to be returned from the matching documents. */
+        protected Document myReturnFields;
 
         /**
          * Creates a new Builder.
@@ -163,7 +163,7 @@ public class Find {
          * @param query
          *            The query document.
          */
-        public Builder(Document query) {
+        public Builder(final Document query) {
             this();
             myQuery = query;
         }
@@ -178,32 +178,6 @@ public class Find {
         }
 
         /**
-         * Sets the value of the query document to the new value.
-         * 
-         * @param query
-         *            The new value for the query document.
-         * @return This builder for chaining method calls.
-         */
-        public Builder setQuery(Document query) {
-            myQuery = query;
-            return this;
-        }
-
-        /**
-         * Sets the value of the fields to be returned from the matching
-         * documents to the new value.
-         * 
-         * @param returnFields
-         *            The new value for the fields to be returned from the
-         *            matching documents.
-         * @return This builder for chaining method calls.
-         */
-        public Builder setReturnFields(Document returnFields) {
-            myReturnFields = returnFields;
-            return this;
-        }
-
-        /**
          * Sets the value of the number of documents to be returned to the new
          * value. The is not the results batch size.
          * 
@@ -211,7 +185,7 @@ public class Find {
          *            The new value for the number of documents to be returned.
          * @return This builder for chaining method calls.
          */
-        public Builder setNumberToReturn(int numberToReturn) {
+        public Builder setNumberToReturn(final int numberToReturn) {
             myNumberToReturn = numberToReturn;
             return this;
         }
@@ -225,8 +199,33 @@ public class Find {
          *            returning the first document.
          * @return This builder for chaining method calls.
          */
-        public Builder setNumberToSkip(int numberToSkip) {
+        public Builder setNumberToSkip(final int numberToSkip) {
             myNumberToSkip = numberToSkip;
+            return this;
+        }
+
+        /**
+         * Sets the value of partial okay to the new value. If true then an
+         * error in the query should return any partial results.
+         * 
+         * @param partialOk
+         *            The new value for the partial okay.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setPartialOk(final boolean partialOk) {
+            myPartialOk = partialOk;
+            return this;
+        }
+
+        /**
+         * Sets the value of the query document to the new value.
+         * 
+         * @param query
+         *            The new value for the query document.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setQuery(final Document query) {
+            myQuery = query;
             return this;
         }
 
@@ -239,21 +238,22 @@ public class Find {
          *            The new value for the replica okay.
          * @return This builder for chaining method calls.
          */
-        public Builder setReplicaOk(boolean replicaOk) {
+        public Builder setReplicaOk(final boolean replicaOk) {
             myReplicaOk = replicaOk;
             return this;
         }
 
         /**
-         * Sets the value of partial okay to the new value. If true then an
-         * error in the query should return any partial results.
+         * Sets the value of the fields to be returned from the matching
+         * documents to the new value.
          * 
-         * @param partialOk
-         *            The new value for the partial okay.
+         * @param returnFields
+         *            The new value for the fields to be returned from the
+         *            matching documents.
          * @return This builder for chaining method calls.
          */
-        public Builder setPartialOk(boolean partialOk) {
-            myPartialOk = partialOk;
+        public Builder setReturnFields(final Document returnFields) {
+            myReturnFields = returnFields;
             return this;
         }
     }

@@ -31,6 +31,7 @@ import com.allanbank.mongodb.Mongo;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
@@ -116,6 +117,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         catch (final IOException e) {
             // Ignore. Trying to cleanup.
         }
+        catch (final MongoDbException e) {
+            // Ignore. Trying to cleanup.
+        }
         finally {
             myMongo = null;
             myDb = null;
@@ -173,8 +177,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
 
         // Now go find all of them by the covering index.
-        Find.Builder findBuilder = new Find.Builder(BuilderFactory.start()
-                .get());
+        final Find.Builder findBuilder = new Find.Builder(BuilderFactory
+                .start().get());
         findBuilder.setReturnFields(BuilderFactory.start()
                 .addBoolean("_id", false).addBoolean("foo", true)
                 .addBoolean("bar", true).get());
@@ -611,8 +615,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
 
         // Now go find all of them.
-        Find.Builder findBuilder = new Find.Builder(BuilderFactory.start()
-                .get());
+        final Find.Builder findBuilder = new Find.Builder(BuilderFactory
+                .start().get());
         findBuilder.setReturnFields(BuilderFactory.start()
                 .addBoolean("_id", true).get());
 
