@@ -43,6 +43,7 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.client.MongoImpl;
 import com.allanbank.mongodb.commands.Distinct;
+import com.allanbank.mongodb.commands.Find;
 import com.allanbank.mongodb.commands.FindAndModify;
 import com.allanbank.mongodb.commands.GroupBy;
 import com.allanbank.mongodb.commands.MapReduce;
@@ -172,10 +173,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
 
         // Now go find all of them by the covering index.
-        final ClosableIterator<Document> iter = myCollection.find(
-                BuilderFactory.start().get(), BuilderFactory.start()
-                        .addBoolean("_id", false).addBoolean("foo", true)
-                        .addBoolean("bar", true).get());
+        Find.Builder findBuilder = new Find.Builder(BuilderFactory.start()
+                .get());
+        findBuilder.setReturnFields(BuilderFactory.start()
+                .addBoolean("_id", false).addBoolean("foo", true)
+                .addBoolean("bar", true).get());
+        final ClosableIterator<Document> iter = myCollection.find(findBuilder
+                .build());
         int expectedId = 0;
         for (final Document found : iter) {
 
@@ -607,9 +611,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
 
         // Now go find all of them.
-        final ClosableIterator<Document> iter = myCollection.find(
-                BuilderFactory.start().get(), BuilderFactory.start()
-                        .addBoolean("_id", true).get());
+        Find.Builder findBuilder = new Find.Builder(BuilderFactory.start()
+                .get());
+        findBuilder.setReturnFields(BuilderFactory.start()
+                .addBoolean("_id", true).get());
+
+        final ClosableIterator<Document> iter = myCollection.find(findBuilder
+                .build());
         int expectedId = 0;
         for (final Document found : iter) {
 

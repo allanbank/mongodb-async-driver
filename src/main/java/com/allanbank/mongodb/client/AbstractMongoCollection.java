@@ -20,6 +20,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.commands.Distinct;
+import com.allanbank.mongodb.commands.Find;
 import com.allanbank.mongodb.commands.FindAndModify;
 import com.allanbank.mongodb.commands.GroupBy;
 import com.allanbank.mongodb.commands.MapReduce;
@@ -541,128 +542,29 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #find(Document, Document, int, int, boolean, boolean)} with
-     * <code>null</code> for the <tt>returnFields</tt>, 0 for the
-     * <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
-     * <tt>replicaOk</tt> and <tt>partial</tt>.
+     * Overridden to call the {@link #findAsync(Document)} method.
      * </p>
      * 
-     * @see #find(Document, Document, int, int, boolean, boolean)
+     * @see #findAsync(Document)
      */
     @Override
     public ClosableIterator<Document> find(final Document query)
             throws MongoDbException {
-        return find(query, null, 0, 0, false, false);
+        return unwrap(findAsync(query));
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #find(Document, Document, int, int, boolean, boolean)} with
-     * <code>null</code> for the <tt>returnFields</tt>, 0 for the
-     * <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
-     * <tt>partial</tt>.
+     * Overridden to call the {@link #findAsync(Find)} method.
      * </p>
      * 
-     * @see #find(Document, Document, int, int, boolean, boolean)
+     * @see #findAsync(Find)
      */
     @Override
-    public ClosableIterator<Document> find(final Document query,
-            final boolean replicaOk) throws MongoDbException {
-        return find(query, null, 0, 0, replicaOk, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #find(Document, Document, int, int, boolean, boolean)} with 0 for
-     * the <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
-     * <tt>replicaOk</tt> and <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #find(Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public ClosableIterator<Document> find(final Document query,
-            final Document returnFields) throws MongoDbException {
-        return find(query, returnFields, 0, 0, false, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #find(Document, Document, int, int, boolean, boolean)} with 0 for
-     * the <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
-     * <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #find(Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public ClosableIterator<Document> find(final Document query,
-            final Document returnFields, final boolean replicaOk)
+    public ClosableIterator<Document> find(final Find query)
             throws MongoDbException {
-        return find(query, returnFields, 0, 0, replicaOk, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)}
-     * method.
-     * </p>
-     * 
-     * @see #findAsync(Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public ClosableIterator<Document> find(final Document query,
-            final Document returnFields, final int numberToReturn,
-            final int numberToSkip, final boolean replicaOk,
-            final boolean partial) throws MongoDbException {
-
-        return unwrap(findAsync(query, returnFields, numberToReturn,
-                numberToSkip, replicaOk, partial));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #find(Document, Document, int, int, boolean, boolean)} with
-     * <code>null</code> for the <tt>returnFields</tt>, and false for
-     * <tt>replicaOk</tt> and <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #find(Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public ClosableIterator<Document> find(final Document query,
-            final int numberToReturn, final int numberToSkip)
-            throws MongoDbException {
-        return find(query, null, numberToReturn, numberToSkip, false, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #find(Document, Document, int, int, boolean, boolean)} with
-     * <code>null</code> for the <tt>returnFields</tt> and false for
-     * <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #find(Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public ClosableIterator<Document> find(final Document query,
-            final int numberToReturn, final int numberToSkip,
-            final boolean replicaOk) throws MongoDbException {
-        return find(query, null, numberToReturn, numberToSkip, replicaOk, false);
+        return unwrap(findAsync(query));
     }
 
     /**
@@ -714,74 +616,15 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with <code>null</code> for the <tt>returnFields</tt>, 0 for the
-     * <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
-     * <tt>replicaOk</tt> and <tt>partial</tt>.
+     * Overridden to call the {@link #findAsync(Callback, Find)}.
      * </p>
      * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
+     * @see #findAsync(Callback, Document)
      */
     @Override
     public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Document query) throws MongoDbException {
-        findAsync(results, query, null, 0, 0, false, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with <code>null</code> for the <tt>returnFields</tt>, 0 for the
-     * <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
-     * <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public void findAsync(final Callback<ClosableIterator<Document>> results,
-            final Document query, final boolean replicaOk)
-            throws MongoDbException {
-        findAsync(results, query, null, 0, 0, replicaOk, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with 0 for the <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and
-     * false for <tt>replicaOk</tt> and <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public void findAsync(final Callback<ClosableIterator<Document>> results,
-            final Document query, final Document returnFields)
-            throws MongoDbException {
-        findAsync(results, query, returnFields, 0, 0, false, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with <code>null</code> for the <tt>returnFields</tt>, numberToReturn</tt>
-     * and <tt>numberToSkip</tt>, and false for <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public void findAsync(final Callback<ClosableIterator<Document>> results,
-            final Document query, final Document returnFields,
-            final boolean replicaOk) throws MongoDbException {
-        findAsync(results, query, returnFields, 0, 0, replicaOk, false);
+        findAsync(results, new Find.Builder(query).build());
     }
 
     /**
@@ -791,74 +634,27 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
      * override.
      * </p>
      * 
-     * @see MongoCollection#findAsync(Callback, Document, Document, int, int,
-     *      boolean, boolean)
+     * @see MongoCollection#findAsync(Callback, Find)
      */
     @Override
     public abstract void findAsync(
-            final Callback<ClosableIterator<Document>> results,
-            final Document query, final Document returnFields,
-            final int numberToReturn, final int numberToSkip,
-            final boolean replicaOk, final boolean partial)
+            final Callback<ClosableIterator<Document>> results, final Find query)
             throws MongoDbException;
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with <code>null</code> for the <tt>returnFields</tt> and false for
-     * <tt>replicaOk</tt> and <tt>partial</tt>.
+     * Overridden to call the {@link #findAsync(Callback, Document)}.
      * </p>
      * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public void findAsync(final Callback<ClosableIterator<Document>> results,
-            final Document query, final int numberToReturn,
-            final int numberToSkip) throws MongoDbException {
-        findAsync(results, query, null, numberToReturn, numberToSkip, false,
-                false);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with <code>null</code> for the <tt>returnFields</tt> and false for
-     * <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public void findAsync(final Callback<ClosableIterator<Document>> results,
-            final Document query, final int numberToReturn,
-            final int numberToSkip, final boolean replicaOk)
-            throws MongoDbException {
-        findAsync(results, query, null, numberToReturn, numberToSkip,
-                replicaOk, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with <code>null</code> for the <tt>returnFields</tt>, 0 for the
-     * <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
-     * <tt>replicaOk</tt> and <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
+     * @see #findAsync(Callback, Document)
      */
     @Override
     public Future<ClosableIterator<Document>> findAsync(final Document query)
             throws MongoDbException {
         final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
 
-        findAsync(future, query, null, 0, 0, false, false);
+        findAsync(future, query);
 
         return future;
     }
@@ -866,133 +662,17 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with <code>null</code> for the <tt>returnFields</tt>, 0 for the
-     * <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and false for
-     * <tt>partial</tt>.
+     * Overridden to call the {@link #findAsync(Callback, Find)}.
      * </p>
      * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
+     * @see #findAsync(Callback, Find)
      */
     @Override
-    public Future<ClosableIterator<Document>> findAsync(final Document query,
-            final boolean replicaOk) throws MongoDbException {
-        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
-
-        findAsync(future, query, null, 0, 0, replicaOk, false);
-
-        return future;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with 0 for the <tt>numberToReturn</tt> and <tt>numberToSkip</tt>, and
-     * false for <tt>replicaOk</tt> and <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public Future<ClosableIterator<Document>> findAsync(final Document query,
-            final Document returnFields) throws MongoDbException {
-        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
-
-        findAsync(future, query, returnFields, 0, 0, false, false);
-
-        return future;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with <code>null</code> for the <tt>returnFields</tt>, and false for
-     * <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public Future<ClosableIterator<Document>> findAsync(final Document query,
-            final Document returnFields, final boolean replicaOk)
+    public Future<ClosableIterator<Document>> findAsync(final Find query)
             throws MongoDbException {
         final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
 
-        findAsync(future, query, returnFields, 0, 0, replicaOk, false);
-
-        return future;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * method.
-     * </p>
-     * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public Future<ClosableIterator<Document>> findAsync(final Document query,
-            final Document returnFields, final int numberToReturn,
-            final int numberToSkip, final boolean replicaOk,
-            final boolean partial) throws MongoDbException {
-        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
-
-        findAsync(future, query, returnFields, numberToReturn, numberToSkip,
-                replicaOk, partial);
-
-        return future;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with <code>null</code> for the <tt>returnFields</tt>, and false for
-     * <tt>replicaOk</tt> and <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public Future<ClosableIterator<Document>> findAsync(final Document query,
-            final int numberToReturn, final int numberToSkip)
-            throws MongoDbException {
-        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
-
-        findAsync(future, query, null, numberToReturn, numberToSkip, false,
-                false);
-
-        return future;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * with <code>null</code> for the <tt>returnFields</tt> and false for
-     * <tt>partial</tt>.
-     * </p>
-     * 
-     * @see #findAsync(Callback, Document, Document, int, int, boolean, boolean)
-     */
-    @Override
-    public Future<ClosableIterator<Document>> findAsync(final Document query,
-            final int numberToReturn, final int numberToSkip,
-            final boolean replicaOk) throws MongoDbException {
-        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
-
-        findAsync(future, query, null, numberToReturn, numberToSkip, replicaOk,
-                false);
+        findAsync(future, query);
 
         return future;
     }

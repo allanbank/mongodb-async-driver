@@ -40,6 +40,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.commands.Distinct;
+import com.allanbank.mongodb.commands.Find;
 import com.allanbank.mongodb.commands.FindAndModify;
 import com.allanbank.mongodb.commands.GroupBy;
 import com.allanbank.mongodb.commands.MapReduce;
@@ -1187,43 +1188,48 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
+     * 
+     * @throws Exception
+     *             On an error.
      */
     @Test
-    public void testFindAndModifyWithAllOptions() {
-        final FindAndModify.Builder builder = new FindAndModify.Builder();
+    public void testFindWithAllOptions() throws Exception {
+        final Document result1 = BuilderFactory.start().get();
+        final Document result2 = BuilderFactory.start().get();
+
+        final Find.Builder builder = new Find.Builder();
         builder.setQuery(BuilderFactory.start().addInteger("foo", 1).get());
-        builder.setFields(BuilderFactory.start().addInteger("foo", 2).get());
-        builder.setRemove(true);
-        builder.setReturnNew(true);
-        builder.setSort(BuilderFactory.start().addInteger("foo", 3).get());
-        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).get());
-        builder.setUpsert(true);
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .get());
+        builder.setNumberToReturn(101010);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReplicaOk(true);
 
-        final FindAndModify request = builder.build();
+        final Find request = builder.build();
 
-        final Callback<Document> mockCallback = createMock(Callback.class);
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("findAndModify", "test");
-        expectedCommand.addDocument("query", request.getQuery());
-        expectedCommand.addDocument("update", request.getUpdate());
-        expectedCommand.addDocument("sort", request.getSort());
-        expectedCommand.addDocument("fields", request.getFields());
-        expectedCommand.addBoolean("remove", true);
-        expectedCommand.addBoolean("new", true);
-        expectedCommand.addBoolean("upsert", true);
-
-        final Command message = new Command("test", expectedCommand.get());
+        final Query message = new Query("test", "test", request.getQuery(),
+                request.getReturnFields(), request.getNumberToReturn(),
+                request.getNumberToSkip(), false, true, false, false, false,
+                true);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message), anyObject(ReplyDocumentCallback.class));
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
         expectLastCall();
 
-        replay(mockCallback);
+        replay();
 
-        myTestInstance.findAndModifyAsync(mockCallback, request);
+        final Future<ClosableIterator<Document>> future = myTestInstance
+                .findAsync(request);
+        final ClosableIterator<Document> iter = future.get();
+        assertTrue(iter.hasNext());
+        assertSame(result1, iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(result2, iter.next());
+        assertFalse(iter.hasNext());
 
-        verify(mockCallback);
+        verify();
     }
 
     /**
@@ -1251,16 +1257,18 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Callback, Document, boolean)} .
+     * Test method for {@link AbstractMongoCollection#findAsync(Callback, Find)}
+     * .
      */
     @Test
-    public void testFindAsyncCallbackOfClosableIteratorOfDocumentDocumentBoolean() {
+    public void testFindAsyncCallbackOfClosableIteratorOfDocumentFind() {
         final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory.start().get();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, false,
-                true, false, false, false, false);
+                false, false, false, false, false);
+
+        Find.Builder findBuilder = new Find.Builder(doc);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1269,137 +1277,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCountCallback);
 
-        myTestInstance.findAsync(mockCountCallback, doc, true);
-
-        verify(mockCountCallback);
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Callback, Document, Document)} .
-     */
-    @Test
-    public void testFindAsyncCallbackOfClosableIteratorOfDocumentDocumentDocument() {
-        final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
-        final Document returnFields = BuilderFactory.start()
-                .addInteger("foo", 1).get();
-
-        final Query message = new Query("test", "test", doc, returnFields, 0,
-                0, false, false, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), anyObject(QueryCallback.class));
-        expectLastCall();
-
-        replay(mockCountCallback);
-
-        myTestInstance.findAsync(mockCountCallback, doc, returnFields);
-
-        verify(mockCountCallback);
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Callback, Document, Document, boolean)}
-     * .
-     */
-    @Test
-    public void testFindAsyncCallbackOfClosableIteratorOfDocumentDocumentDocumentBoolean() {
-        final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
-        final Document returnFields = BuilderFactory.start()
-                .addInteger("foo", 1).get();
-
-        final Query message = new Query("test", "test", doc, returnFields, 0,
-                0, false, true, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), anyObject(QueryCallback.class));
-        expectLastCall();
-
-        replay(mockCountCallback);
-
-        myTestInstance.findAsync(mockCountCallback, doc, returnFields, true);
-
-        verify(mockCountCallback);
-    }
-
-    /**
-     * Test method for
-     * {@link MongoCollectionImpl#findAsync(Callback, Document, Document, int, int, boolean, boolean)}
-     * .
-     */
-    @Test
-    public void testFindAsyncCallbackOfClosableIteratorOfDocumentDocumentDocumentIntIntBooleanBoolean() {
-        final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
-        final Document returnFields = BuilderFactory.start()
-                .addInteger("foo", 1).get();
-
-        final Query message = new Query("test", "test", doc, returnFields, 12,
-                13, false, true, false, false, false, true);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), anyObject(QueryCallback.class));
-        expectLastCall();
-
-        replay(mockCountCallback);
-
-        myTestInstance.findAsync(mockCountCallback, doc, returnFields, 12, 13,
-                true, true);
-
-        verify(mockCountCallback);
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Callback, Document, int, int)} .
-     */
-    @Test
-    public void testFindAsyncCallbackOfClosableIteratorOfDocumentDocumentIntInt() {
-        final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
-
-        final Query message = new Query("test", "test", doc, null, 12, 13,
-                false, false, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), anyObject(QueryCallback.class));
-        expectLastCall();
-
-        replay(mockCountCallback);
-
-        myTestInstance.findAsync(mockCountCallback, doc, 12, 13);
-
-        verify(mockCountCallback);
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Callback, Document, int, int, boolean)}
-     * .
-     */
-    @Test
-    public void testFindAsyncCallbackOfClosableIteratorOfDocumentDocumentIntIntBoolean() {
-        final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
-
-        final Query message = new Query("test", "test", doc, null, 12, 13,
-                false, true, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), anyObject(QueryCallback.class));
-        expectLastCall();
-
-        replay(mockCountCallback);
-
-        myTestInstance.findAsync(mockCountCallback, doc, 12, 13, true);
+        myTestInstance.findAsync(mockCountCallback, findBuilder.build());
 
         verify(mockCountCallback);
     }
@@ -1441,14 +1319,13 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Document, boolean)} .
+     * Test method for {@link AbstractMongoCollection#findAsync(Find)} .
      * 
      * @throws Exception
      *             On an error.
      */
     @Test
-    public void testFindAsyncDocumentBoolean() throws Exception {
+    public void testFindAsyncFind() throws Exception {
         final Document result1 = BuilderFactory.start().get();
         final Document result2 = BuilderFactory.start().get();
 
@@ -1457,43 +1334,8 @@ public class MongoCollectionImplTest {
         final Query message = new Query("test", "test", doc, null, 0, 0, false,
                 true, false, false, false, false);
 
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final Future<ClosableIterator<Document>> future = myTestInstance
-                .findAsync(doc, true);
-        final ClosableIterator<Document> iter = future.get();
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Document, Document)} .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testFindAsyncDocumentDocument() throws Exception {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Document doc = BuilderFactory.start().get();
-        final Document returnFields = BuilderFactory.start()
-                .addInteger("foo", 1).get();
-
-        final Query message = new Query("test", "test", doc, returnFields, 0,
-                0, false, false, false, false, false, false);
+        Find.Builder findBuilder = new Find.Builder(doc);
+        findBuilder.setReplicaOk(true);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1503,157 +1345,7 @@ public class MongoCollectionImplTest {
         replay();
 
         final Future<ClosableIterator<Document>> future = myTestInstance
-                .findAsync(doc, returnFields);
-        final ClosableIterator<Document> iter = future.get();
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Document, Document, boolean)} .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testFindAsyncDocumentDocumentBoolean() throws Exception {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Document doc = BuilderFactory.start().get();
-        final Document returnFields = BuilderFactory.start()
-                .addInteger("foo", 1).get();
-
-        final Query message = new Query("test", "test", doc, returnFields, 0,
-                0, false, true, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final Future<ClosableIterator<Document>> future = myTestInstance
-                .findAsync(doc, returnFields, true);
-        final ClosableIterator<Document> iter = future.get();
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Document, Document, int, int, boolean, boolean)}
-     * .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testFindAsyncDocumentDocumentIntIntBooleanBoolean()
-            throws Exception {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Document doc = BuilderFactory.start().get();
-        final Document returnFields = BuilderFactory.start()
-                .addInteger("foo", 1).get();
-
-        final Query message = new Query("test", "test", doc, returnFields, 12,
-                13, false, true, false, false, false, true);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final Future<ClosableIterator<Document>> future = myTestInstance
-                .findAsync(doc, returnFields, 12, 13, true, true);
-        final ClosableIterator<Document> iter = future.get();
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Document, int, int)} .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testFindAsyncDocumentIntInt() throws Exception {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Document doc = BuilderFactory.start().get();
-
-        final Query message = new Query("test", "test", doc, null, 12, 13,
-                false, false, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final Future<ClosableIterator<Document>> future = myTestInstance
-                .findAsync(doc, 12, 13);
-        final ClosableIterator<Document> iter = future.get();
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAsync(Document, int, int, boolean)} .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testFindAsyncDocumentIntIntBoolean() throws Exception {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Document doc = BuilderFactory.start().get();
-
-        final Query message = new Query("test", "test", doc, null, 12, 13,
-                false, true, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final Future<ClosableIterator<Document>> future = myTestInstance
-                .findAsync(doc, 12, 13, true);
+                .findAsync(findBuilder.build());
         final ClosableIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
@@ -1695,7 +1387,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#find(Document, boolean)} .
+     * Test method for {@link AbstractMongoCollection#find(Find)} .
      */
     @Test
     public void testFindDocumentBoolean() {
@@ -1707,38 +1399,8 @@ public class MongoCollectionImplTest {
         final Query message = new Query("test", "test", doc, null, 0, 0, false,
                 true, false, false, false, false);
 
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final ClosableIterator<Document> iter = myTestInstance.find(doc, true);
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for {@link AbstractMongoCollection#find(Document, Document)}
-     * .
-     */
-    @Test
-    public void testFindDocumentDocument() {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Document doc = BuilderFactory.start().get();
-        final Document returnFields = BuilderFactory.start()
-                .addInteger("foo", 1).get();
-
-        final Query message = new Query("test", "test", doc, returnFields, 0,
-                0, false, false, false, false, false, false);
+        Find.Builder findBuilder = new Find.Builder(doc);
+        findBuilder.setReplicaOk(true);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1747,141 +1409,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final ClosableIterator<Document> iter = myTestInstance.find(doc,
-                returnFields);
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#find(Document, Document, boolean)} .
-     */
-    @Test
-    public void testFindDocumentDocumentBoolean() {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Document doc = BuilderFactory.start().get();
-        final Document returnFields = BuilderFactory.start()
-                .addInteger("foo", 1).get();
-
-        final Query message = new Query("test", "test", doc, returnFields, 0,
-                0, false, true, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final ClosableIterator<Document> iter = myTestInstance.find(doc,
-                returnFields, true);
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#find(Document, Document, int, int, boolean, boolean)}
-     * .
-     */
-    @Test
-    public void testFindDocumentDocumentIntIntBooleanBoolean() {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Document doc = BuilderFactory.start().get();
-        final Document returnFields = BuilderFactory.start()
-                .addInteger("foo", 1).get();
-
-        final Query message = new Query("test", "test", doc, returnFields, 12,
-                13, false, true, false, false, false, true);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final ClosableIterator<Document> iter = myTestInstance.find(doc,
-                returnFields, 12, 13, true, true);
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for {@link AbstractMongoCollection#find(Document, int, int)}
-     * .
-     */
-    @Test
-    public void testFindDocumentIntInt() {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Document doc = BuilderFactory.start().get();
-
-        final Query message = new Query("test", "test", doc, null, 12, 13,
-                false, false, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final ClosableIterator<Document> iter = myTestInstance
-                .find(doc, 12, 13);
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#find(Document, int, int, boolean)} .
-     */
-    @Test
-    public void testFindDocumentIntIntBoolean() {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
-
-        final Document doc = BuilderFactory.start().get();
-
-        final Query message = new Query("test", "test", doc, null, 12, 13,
-                false, true, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(eq(message), callback(reply(result1, result2)));
-        expectLastCall();
-
-        replay();
-
-        final ClosableIterator<Document> iter = myTestInstance.find(doc, 12,
-                13, true);
+        final ClosableIterator<Document> iter = myTestInstance.find(findBuilder
+                .build());
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
         assertTrue(iter.hasNext());

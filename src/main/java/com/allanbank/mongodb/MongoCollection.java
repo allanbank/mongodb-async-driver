@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.commands.Distinct;
+import com.allanbank.mongodb.commands.Find;
 import com.allanbank.mongodb.commands.FindAndModify;
 import com.allanbank.mongodb.commands.GroupBy;
 import com.allanbank.mongodb.commands.MapReduce;
@@ -426,8 +427,7 @@ public interface MongoCollection {
     /**
      * Finds the set of documents matching the query document in the collection.
      * <p>
-     * This is equivalent to calling
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)
+     * This is equivalent to calling {@link #findAsync(Document)
      * findAsync(...).get()}
      * </p>
      * 
@@ -441,144 +441,19 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
-     * Finds the set of documents matching the query document in the collection.
+     * Finds the set of documents matching the query in the collection.
      * <p>
-     * This is equivalent to calling
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)
+     * This is equivalent to calling {@link #findAsync(Find)
      * findAsync(...).get()}
      * </p>
      * 
      * @param query
-     *            The query document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
+     *            The query details.
      * @return The ClosableIterator over the documents.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public ClosableIterator<Document> find(Document query, boolean replicaOk)
-            throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * <p>
-     * This is equivalent to calling
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)
-     * findAsync(...).get()}
-     * </p>
-     * 
-     * @param query
-     *            The query document.
-     * @param returnFields
-     *            The fields to be returned from the matching documents.
-     * @return The ClosableIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public ClosableIterator<Document> find(Document query, Document returnFields)
-            throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * <p>
-     * This is equivalent to calling
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)
-     * findAsync(...).get()}
-     * </p>
-     * 
-     * @param query
-     *            The query document.
-     * @param returnFields
-     *            The fields to be returned from the matching documents.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @return The ClosableIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public ClosableIterator<Document> find(Document query,
-            Document returnFields, boolean replicaOk) throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param query
-     *            The query document.
-     * @param returnFields
-     *            The fields to be returned from the matching documents.
-     * @param numberToReturn
-     *            The number of documents to be returned. The is not the results
-     *            batch size.
-     * @param numberToSkip
-     *            The number of documents to skip before returning the first
-     *            document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @param partial
-     *            If true then an error in the query should return any partial
-     *            results.
-     * @return The ClosableIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public ClosableIterator<Document> find(final Document query,
-            final Document returnFields, final int numberToReturn,
-            final int numberToSkip, final boolean replicaOk,
-            final boolean partial) throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * <p>
-     * This is equivalent to calling
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)
-     * findAsync(...).get()}
-     * </p>
-     * 
-     * @param query
-     *            The query document.
-     * @param numberToReturn
-     *            The number of documents to be returned. The is not the results
-     *            batch size.
-     * @param numberToSkip
-     *            The number of documents to skip before returning the first
-     *            document.
-     * @return The ClosableIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public ClosableIterator<Document> find(Document query,
-            final int numberToReturn, final int numberToSkip)
-            throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * <p>
-     * This is equivalent to calling
-     * {@link #findAsync(Document, Document, int, int, boolean, boolean)
-     * findAsync(...).get()}
-     * </p>
-     * 
-     * @param query
-     *            The query document.
-     * @param numberToReturn
-     *            The number of documents to be returned. The is not the results
-     *            batch size.
-     * @param numberToSkip
-     *            The number of documents to skip before returning the first
-     *            document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @return The ClosableIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public ClosableIterator<Document> find(Document query,
-            final int numberToReturn, final int numberToSkip, boolean replicaOk)
-            throws MongoDbException;
+    public ClosableIterator<Document> find(Find query) throws MongoDbException;
 
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
@@ -634,127 +509,17 @@ public interface MongoCollection {
             Document query) throws MongoDbException;
 
     /**
-     * Finds the set of documents matching the query document in the collection.
+     * Finds the set of documents matching the query in the collection.
      * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
-     *            The query document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
+     *            The query details.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
     public void findAsync(Callback<ClosableIterator<Document>> results,
-            Document query, boolean replicaOk) throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
-     * @param query
-     *            The query document.
-     * @param returnFields
-     *            The fields to be returned from the matching documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public void findAsync(Callback<ClosableIterator<Document>> results,
-            Document query, Document returnFields) throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
-     * @param query
-     *            The query document.
-     * @param returnFields
-     *            The fields to be returned from the matching documents.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public void findAsync(Callback<ClosableIterator<Document>> results,
-            Document query, Document returnFields, boolean replicaOk)
-            throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
-     * @param query
-     *            The query document.
-     * @param returnFields
-     *            The fields to be returned from the matching documents.
-     * @param numberToReturn
-     *            The number of documents to be returned. The is not the results
-     *            batch size.
-     * @param numberToSkip
-     *            The number of documents to skip before returning the first
-     *            document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @param partial
-     *            If true then an error in the query should return any partial
-     *            results.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public void findAsync(final Callback<ClosableIterator<Document>> results,
-            final Document query, final Document returnFields,
-            final int numberToReturn, final int numberToSkip,
-            final boolean replicaOk, final boolean partial)
-            throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
-     * @param query
-     *            The query document.
-     * @param numberToReturn
-     *            The number of documents to be returned. The is not the results
-     *            batch size.
-     * @param numberToSkip
-     *            The number of documents to skip before returning the first
-     *            document.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public void findAsync(Callback<ClosableIterator<Document>> results,
-            Document query, final int numberToReturn, final int numberToSkip)
-            throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
-     * @param query
-     *            The query document.
-     * @param numberToReturn
-     *            The number of documents to be returned. The is not the results
-     *            batch size.
-     * @param numberToSkip
-     *            The number of documents to skip before returning the first
-     *            document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public void findAsync(Callback<ClosableIterator<Document>> results,
-            Document query, final int numberToReturn, final int numberToSkip,
-            boolean replicaOk) throws MongoDbException;
+            Find query) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection.
@@ -769,118 +534,15 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
-     * Finds the set of documents matching the query document in the collection.
+     * Finds the set of documents matching the query in the collection.
      * 
      * @param query
-     *            The query document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
+     *            The query details.
      * @return A future for the ClosableIterator over the documents.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<ClosableIterator<Document>> findAsync(Document query,
-            boolean replicaOk) throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param query
-     *            The query document.
-     * @param returnFields
-     *            The fields to be returned from the matching documents.
-     * @return A future for the ClosableIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public Future<ClosableIterator<Document>> findAsync(Document query,
-            Document returnFields) throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param query
-     *            The query document.
-     * @param returnFields
-     *            The fields to be returned from the matching documents.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @return A future for the ClosableIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public Future<ClosableIterator<Document>> findAsync(Document query,
-            Document returnFields, boolean replicaOk) throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param query
-     *            The query document.
-     * @param returnFields
-     *            The fields to be returned from the matching documents.
-     * @param numberToReturn
-     *            The number of documents to be returned. The is not the results
-     *            batch size.
-     * @param numberToSkip
-     *            The number of documents to skip before returning the first
-     *            document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @param partial
-     *            If true then an error in the query should return any partial
-     *            results.
-     * @return A future for the ClosableIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public Future<ClosableIterator<Document>> findAsync(final Document query,
-            final Document returnFields, final int numberToReturn,
-            final int numberToSkip, final boolean replicaOk,
-            final boolean partial) throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param query
-     *            The query document.
-     * @param numberToReturn
-     *            The number of documents to be returned. The is not the results
-     *            batch size.
-     * @param numberToSkip
-     *            The number of documents to skip before returning the first
-     *            document.
-     * @return A future for the ClosableIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public Future<ClosableIterator<Document>> findAsync(Document query,
-            final int numberToReturn, final int numberToSkip)
-            throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query document in the collection.
-     * 
-     * @param query
-     *            The query document.
-     * @param numberToReturn
-     *            The number of documents to be returned. The is not the results
-     *            batch size.
-     * @param numberToSkip
-     *            The number of documents to skip before returning the first
-     *            document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @return A future for the ClosableIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public Future<ClosableIterator<Document>> findAsync(Document query,
-            final int numberToReturn, final int numberToSkip, boolean replicaOk)
+    public Future<ClosableIterator<Document>> findAsync(Find query)
             throws MongoDbException;
 
     /**

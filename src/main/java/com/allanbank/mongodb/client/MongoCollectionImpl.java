@@ -22,6 +22,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.commands.Distinct;
+import com.allanbank.mongodb.commands.Find;
 import com.allanbank.mongodb.commands.FindAndModify;
 import com.allanbank.mongodb.commands.GroupBy;
 import com.allanbank.mongodb.commands.MapReduce;
@@ -250,15 +251,14 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      */
     @Override
     public void findAsync(final Callback<ClosableIterator<Document>> results,
-            final Document query, final Document returnFields,
-            final int numberToReturn, final int numberToSkip,
-            final boolean replicaOk, final boolean partial)
-            throws MongoDbException {
+            final Find query) throws MongoDbException {
 
-        final Query queryMessage = new Query(getDatabaseName(), myName, query,
-                returnFields, numberToReturn, numberToSkip,
-                false /* tailable */, replicaOk, false /* noCursorTimeout */,
-                false /* awaitData */, false /* exhaust */, partial);
+        final Query queryMessage = new Query(getDatabaseName(), myName,
+                query.getQuery(), query.getReturnFields(),
+                query.getNumberToReturn(), query.getNumberToSkip(),
+                false /* tailable */, query.isReplicaOk(),
+                false /* noCursorTimeout */, false /* awaitData */,
+                false /* exhaust */, query.isPartialOk());
 
         myClient.send(queryMessage, new QueryCallback(myClient, queryMessage,
                 results));
