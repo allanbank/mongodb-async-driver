@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.connection.auth;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
@@ -31,7 +29,7 @@ import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Reply;
-import com.allanbank.mongodb.connection.socket.PendingMessage;
+import com.allanbank.mongodb.connection.proxy.AbstractProxyConnection;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**
@@ -40,7 +38,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class AuthenticatingConnection implements Connection {
+public class AuthenticatingConnection extends AbstractProxyConnection {
 
     /** Map containing the Futures for the reply to the authenticate requests. */
     private final ConcurrentMap<String, Future<Reply>> myAuthReplys;
@@ -50,12 +48,6 @@ public class AuthenticatingConnection implements Connection {
 
     /** Map containing the Futures for the reply to the get_nonce requests. */
     private final ConcurrentMap<String, Future<Reply>> myAuthTokens;
-
-    /** The configuration for the connection. */
-    private final MongoDbConfiguration myConfig;
-
-    /** The proxied connection. */
-    private final Connection myConnection;
 
     /**
      * Creates a new AuthenticatingConnection.
@@ -67,80 +59,10 @@ public class AuthenticatingConnection implements Connection {
      */
     public AuthenticatingConnection(final Connection connection,
             final MongoDbConfiguration config) {
-        myConnection = connection;
-        myConfig = config;
-
+        super(connection, null, null, config);
         myAuthTokens = new ConcurrentHashMap<String, Future<Reply>>();
         myAuthReplys = new ConcurrentHashMap<String, Future<Reply>>();
         myAuthResponse = new ConcurrentHashMap<String, Boolean>();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to forward to the wrapped connection.
-     * </p>
-     */
-    @Override
-    public void addPending(final List<PendingMessage> pending) {
-        myConnection.addPending(pending);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Closes the connection.
-     * </p>
-     */
-    @Override
-    public void close() throws IOException {
-        myConnection.close();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to forward to the wrapped connection.
-     * </p>
-     */
-    @Override
-    public void drainPending(final List<PendingMessage> pending) {
-        myConnection.drainPending(pending);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Flush the connection.
-     * </p>
-     */
-    @Override
-    public void flush() throws IOException {
-        myConnection.flush();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getPendingCount() {
-        return myConnection.getPendingCount();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isIdle() {
-        return myConnection.isIdle();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isOpen() {
-        return myConnection.isOpen();
     }
 
     /**
@@ -156,7 +78,7 @@ public class AuthenticatingConnection implements Connection {
         for (final Message message : messages) {
             ensureAuthenticated(message);
         }
-        myConnection.send(reply, messages);
+        super.send(reply, messages);
     }
 
     /**
@@ -171,15 +93,18 @@ public class AuthenticatingConnection implements Connection {
         for (final Message message : messages) {
             ensureAuthenticated(message);
         }
-        myConnection.send(messages);
+        super.send(messages);
     }
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Overridden to return the socket information.
+     * </p>
      */
     @Override
-    public void waitForIdle(final int timeout, final TimeUnit timeoutUnits) {
-        myConnection.waitForIdle(timeout, timeoutUnits);
+    public String toString() {
+        return "Auth(" + getProxiedConnection() + ")";
     }
 
     /**
@@ -249,7 +174,7 @@ public class AuthenticatingConnection implements Connection {
                 Future<Reply> alreadySent = myAuthTokens.putIfAbsent(name,
                         replyCallback);
                 if (alreadySent == null) {
-                    myConnection.send(replyCallback,
+                    getProxiedConnection().send(replyCallback,
                             new Command(name, builder.get()));
                     alreadySent = replyCallback;
                 }
@@ -280,7 +205,7 @@ public class AuthenticatingConnection implements Connection {
                 replyCallback = new FutureCallback<Reply>();
                 alreadySent = myAuthReplys.putIfAbsent(name, replyCallback);
                 if (alreadySent == null) {
-                    myConnection.send(replyCallback,
+                    getProxiedConnection().send(replyCallback,
                             new Command(name, builder.get()));
                     alreadySent = replyCallback;
                 }

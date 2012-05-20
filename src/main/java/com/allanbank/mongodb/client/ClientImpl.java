@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.client;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,13 +26,14 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.Message;
+import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.bootstrap.BootstrapConnectionFactory;
 import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.GetMore;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
-import com.allanbank.mongodb.connection.socket.PendingMessage;
 import com.allanbank.mongodb.error.CannotConnectException;
+import com.allanbank.mongodb.error.ConnectionLostException;
 
 /**
  * Implementation of the internal {@link Client} interface which all requests to
@@ -44,11 +47,17 @@ public class ClientImpl implements Client {
     protected static final Logger LOG = Logger.getLogger(ClientImpl.class
             .getCanonicalName());
 
+    /** Counter for the number of reconnects currently being attempted. */
+    private int myActiveReconnects;
+
     /** The configuration for interacting with MongoDB. */
     private final MongoDbConfiguration myConfig;
 
     /** Factory for creating connections to MongoDB. */
     private final ConnectionFactory myConnectionFactory;
+
+    /** The listener for changes to the state of connections. */
+    private final PropertyChangeListener myConnectionListener;
 
     /** The set of open connections. */
     private final BlockingQueue<Connection> myConnections;
@@ -80,6 +89,8 @@ public class ClientImpl implements Client {
         myConnectionFactory = connectionFactory;
         myConnections = new LinkedBlockingQueue<Connection>();
         myConnectionsToClose = new LinkedBlockingQueue<Connection>();
+        myConnectionListener = new ConnectionListener();
+        myActiveReconnects = 0;
     }
 
     /**
@@ -92,18 +103,21 @@ public class ClientImpl implements Client {
      */
     @Override
     public void close() {
-        // Mark all of the connections as persona non grata.
-        myConnections.drainTo(myConnectionsToClose);
+        for (Connection conn = myConnections.poll(); conn != null; conn = myConnections
+                .poll()) {
+            myConnectionsToClose.add(conn);
+            conn.shutdown();
+        }
 
-        // Work off the connections to close until they are all idle and then
-        // closed.
-        Connection conn = myConnectionsToClose.poll();
-        while (conn != null) {
-
-            conn.waitForIdle(myConfig.getReadTimeout(), TimeUnit.MILLISECONDS);
-            close(conn);
-
-            conn = myConnectionsToClose.poll();
+        // Work off the connections to close until they are all closed.
+        final List<Connection> conns = new ArrayList<Connection>(
+                myConnectionsToClose);
+        for (final Connection conn : conns) {
+            conn.waitForClosed(myConfig.getReadTimeout(), TimeUnit.MILLISECONDS);
+            if (conn.isOpen()) {
+                // Force the connection to close.
+                close(conn);
+            }
         }
     }
 
@@ -175,17 +189,74 @@ public class ClientImpl implements Client {
     }
 
     /**
-     * Cleans-up the dead connection by moving all of its messages to a
-     * different connection.
+     * Tries to reconnect previously open {@link Connection}s. If a connection
+     * was being closed then cleans up the remaining state.
      * 
-     * @param conn
+     * @param connection
+     *            The connection that was closed.
      */
-    private void cleanup(final Connection conn) {
-        myConnections.remove(conn);
+    protected void handleConnectionClosed(final Connection connection) {
+        // Look for the connection in the "active" set first.
+        if (myConnections.contains(connection)) {
+            // Attempt a reconnect.
+            LOG.log(Level.INFO, "Unexpected MongoDB Connection closed: "
+                    + connection + ". Will try to reconnect.");
+            reconnect(connection);
+        }
+        else if (myConnectionsToClose.remove(connection)) {
+            LOG.log(Level.INFO, "MongoDB Connection closed: " + connection);
+        }
+        else {
+            LOG.log(Level.INFO, "Unknown MongoDB Connection closed: "
+                    + connection);
+        }
 
-        final List<PendingMessage> pending = new ArrayList<PendingMessage>();
-        conn.drainPending(pending);
-        findConnection().addPending(pending);
+    }
+
+    /**
+     * Runs the reconnect logic for the connection.
+     * 
+     * @param connection
+     *            The connection to reconnect.
+     */
+    @SuppressWarnings("unchecked")
+    protected <C extends Connection> void reconnect(final Connection connection) {
+        final ReconnectStrategy<Connection> strategy = (ReconnectStrategy<Connection>) myConnectionFactory
+                .getReconnectStrategy();
+
+        try {
+            synchronized (this) {
+                myActiveReconnects += 1;
+            }
+
+            // Raise errors for all of the pending messages - there is no way to
+            // know their state of flight between here and the sever.
+            MongoDbException exception = new ConnectionLostException(
+                    "Connection lost to MongoDB: " + connection);
+            connection.raiseErrors(exception, false);
+
+            final Connection newConnection = strategy.reconnect(connection);
+            if (newConnection != null) {
+
+                // Get the new connection in the rotation.
+                myConnections.remove(connection);
+                myConnections.add(newConnection);
+
+            }
+            else {
+                // Reconnect failed.
+                // Raise errors for all of the to be sent and pending messages.
+                exception = new CannotConnectException(
+                        "Could not reconnect to MongoDB.");
+                connection.raiseErrors(exception, true);
+            }
+        }
+        finally {
+            synchronized (this) {
+                myActiveReconnects -= 1;
+                notifyAll();
+            }
+        }
     }
 
     /**
@@ -199,7 +270,12 @@ public class ClientImpl implements Client {
             conn.close();
         }
         catch (final IOException ioe) {
-            LOG.log(Level.WARNING, "Error closing connection to MongoDB.", ioe);
+            LOG.log(Level.WARNING, "Error closing connection to MongoDB: "
+                    + conn, ioe);
+        }
+        finally {
+            myConnections.remove(conn);
+            myConnectionsToClose.remove(conn);
         }
     }
 
@@ -233,6 +309,7 @@ public class ClientImpl implements Client {
                 while (limit < myConnections.size()) {
                     final Connection conn = myConnections.poll();
                     myConnectionsToClose.add(conn);
+                    conn.shutdown();
                 }
             }
         }
@@ -243,14 +320,10 @@ public class ClientImpl implements Client {
             conn = tryCreateConnection();
             if (conn == null) {
                 conn = findMostIdleConnection();
+                if (conn == null) {
+                    conn = waitForReconnect();
+                }
             }
-        }
-
-        // See if any of the connections are ready to close.
-        final Connection toClose = myConnectionsToClose.peek();
-        if ((toClose != null) && toClose.isIdle()) {
-            myConnectionsToClose.remove(toClose);
-            close(toClose);
         }
 
         if (conn == null) {
@@ -268,10 +341,7 @@ public class ClientImpl implements Client {
      */
     private Connection findIdleConnection() {
         for (final Connection conn : myConnections) {
-            if (!conn.isOpen()) {
-                cleanup(conn);
-            }
-            else if (conn.getPendingCount() == 0) {
+            if (conn.isOpen() && (conn.getPendingCount() == 0)) {
                 return conn;
             }
         }
@@ -289,9 +359,6 @@ public class ClientImpl implements Client {
         for (final Connection conn : myConnections) {
             if (conn.isOpen()) {
                 connections.put(Integer.valueOf(conn.getPendingCount()), conn);
-            }
-            else {
-                cleanup(conn);
             }
         }
 
@@ -314,7 +381,11 @@ public class ClientImpl implements Client {
                 if (myConnections.size() < limit) {
                     try {
                         final Connection conn = myConnectionFactory.connect();
+
                         myConnections.add(conn);
+
+                        // Add a listener for if the connection is closed.
+                        conn.addPropertyChangeListener(myConnectionListener);
 
                         return conn;
                     }
@@ -327,5 +398,64 @@ public class ClientImpl implements Client {
         }
 
         return null;
+    }
+
+    /**
+     * Checks if there is an active reconnect attempt on-going. If so waits for
+     * it to finish (with a timeout) and then searches for a connection again.
+     * 
+     * @return The connection found after waiting or <code>null</code> if there
+     *         was no active reconnect or there was still no connection.
+     */
+    private Connection waitForReconnect() {
+        Connection conn = null;
+        boolean wasReconnecting = false;
+        synchronized (this) {
+            wasReconnecting = (myActiveReconnects > 0);
+            if (wasReconnecting) {
+                try {
+                    wait(myConfig.getReconnectTimeout());
+                }
+                catch (final InterruptedException e) {
+                    // Ignored
+                }
+            }
+        }
+
+        if (wasReconnecting) {
+            // Look again now that we may have reconnected.
+            conn = findConnection();
+        }
+        return conn;
+    }
+
+    /**
+     * ConnectionListener provides the call back for events occurring on a
+     * connection.
+     * 
+     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected class ConnectionListener implements PropertyChangeListener {
+
+        /**
+         * Creates a new ConnectionListener.
+         */
+        public ConnectionListener() {
+            super();
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to try reconnecting a connection that has closed.
+         * </p>
+         */
+        @Override
+        public void propertyChange(final PropertyChangeEvent event) {
+            if (Connection.OPEN_PROP_NAME.equals(event.getPropertyName())
+                    && Boolean.FALSE.equals(event.getNewValue())) {
+                handleConnectionClosed((Connection) event.getSource());
+            }
+        }
     }
 }

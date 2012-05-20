@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb.connection;
 
+import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.util.List;
@@ -27,6 +28,9 @@ public interface Connection extends Closeable, Flushable {
     /** The collection to use when issuing commands to the database. */
     public static final String COMMAND_COLLECTION = "$cmd";
 
+    /** The property for if the connection is open or not. */
+    public static final String OPEN_PROP_NAME = "open";
+
     /**
      * Adds the pending messages from the specified list.
      * 
@@ -34,6 +38,15 @@ public interface Connection extends Closeable, Flushable {
      *            The list to populate the pending list with.
      */
     public void addPending(List<PendingMessage> pending);
+
+    /**
+     * Adds a {@link PropertyChangeListener} to this connection. Events are
+     * fired as the state of the connection changes.
+     * 
+     * @param listener
+     *            The listener for the change events.
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener);
 
     /**
      * Removes any to be sent pending messages into the specified list.
@@ -67,6 +80,26 @@ public interface Connection extends Closeable, Flushable {
     public boolean isOpen();
 
     /**
+     * Notifies the call backs for the pending and optionally the to be sent
+     * messages that there has been an external, unrecoverable error.
+     * 
+     * @param exception
+     *            The error condition.
+     * @param notifyToBeSent
+     *            If true then the to be sent message's callback are also
+     *            notified, otherwise just the pending messages are notified.
+     */
+    public void raiseErrors(MongoDbException exception, boolean notifyToBeSent);
+
+    /**
+     * Removes a {@link PropertyChangeListener} from this connection.
+     * 
+     * @param listener
+     *            The listener for the change events.
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener);
+
+    /**
      * Sends a message on the connection.
      * 
      * @param reply
@@ -94,6 +127,13 @@ public interface Connection extends Closeable, Flushable {
     public void send(Message... messages) throws MongoDbException;
 
     /**
+     * Notifies the connection that once all outstanding requests have been sent
+     * and all replies received the Connection should be closed. This method
+     * will return prior to the connection being closed.
+     */
+    public void shutdown();
+
+    /**
      * Waits for the connection to become idle.
      * 
      * @param timeout
@@ -102,6 +142,5 @@ public interface Connection extends Closeable, Flushable {
      *            The units for the amount of time to wait for the connection to
      *            become idle.
      */
-    public void waitForIdle(int timeout, TimeUnit timeoutUnits);
-
+    public void waitForClosed(int timeout, TimeUnit timeoutUnits);
 }

@@ -19,6 +19,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.FutureCallback;
+import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
@@ -156,7 +157,42 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      */
     @Override
     public Connection connect() throws IOException {
-        return new ShardedConnection(myConnectionFactory, myClusterState,
-                myConfig);
+        IOException lastError = null;
+        for (final ServerState primary : myClusterState.getWritableServers()) {
+            try {
+                final Connection primaryConn = myConnectionFactory.connect(
+                        primary.getServer(), myConfig);
+
+                return new ShardedConnection(primaryConn, myConnectionFactory,
+                        myClusterState, myConfig);
+            }
+            catch (final IOException e) {
+                lastError = e;
+            }
+        }
+
+        if (lastError != null) {
+            throw lastError;
+        }
+
+        throw new IOException(
+                "Could not determine a shard server to connect to.");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the delegates strategy but replace his state with
+     * our own.
+     * </p>
+     */
+    @Override
+    public ReconnectStrategy<? extends Connection> getReconnectStrategy() {
+        final ReconnectStrategy<? extends Connection> delegates = myConnectionFactory
+                .getReconnectStrategy();
+
+        delegates.setState(myClusterState);
+
+        return delegates;
     }
 }

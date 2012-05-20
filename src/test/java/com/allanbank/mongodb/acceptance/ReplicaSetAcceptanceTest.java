@@ -7,15 +7,18 @@ package com.allanbank.mongodb.acceptance;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.error.ConnectionLostException;
 
 /**
- * BasicAcceptanceTestCases provides TODO - Finish
+ * BasicAcceptanceTestCases provides acceptance test cases for when interacting
+ * with a replica set.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
@@ -41,7 +44,6 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
      * Tests recovery from a graceful step-down of a server.
      */
     @Test
-    @Ignore("Not recoverying yet.")
     public void testGracefulStepdownRecovery() {
         myConfig.setAutoDiscoverServers(true);
 
@@ -51,10 +53,30 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
 
         try {
+            // Need to give the primary time to discover the others are
+            // secondaries are around and are up to date. Otherwise he refuses
+            // to step down.
+            TimeUnit.SECONDS.sleep(20);
+
             // Stop the main shard.
-            ourBuilder.command("pkill", "-f", "27018");
-            final Process kill = ourBuilder.start();
-            kill.waitFor();
+            myMongo.getDatabase("admin").runAdminCommand("replSetStepDown");
+
+            // Quick command that should then fail.
+            myMongo.listDatabases();
+
+            // ... but its OK if it misses getting out before the Process dies.
+        }
+        catch (final ConnectionLostException cle) {
+            // Good.
+        }
+        catch (final Exception e) {
+            final AssertionError error = new AssertionError(e.getMessage());
+            error.initCause(e);
+            throw error;
+        }
+
+        try {
+            Thread.sleep(500);
 
             // Should switch to the other shards.
             myMongo.listDatabases();
@@ -66,6 +88,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         }
         finally {
             // Make sure the server is restarted for the other tests.
+            disconnect();
             startServer();
         }
     }
@@ -74,7 +97,6 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
      * Test recovery from a sudden server failure.
      */
     @Test
-    @Ignore("Not recoverying yet.")
     public void testSuddenFailureRecovery() {
         myConfig.setAutoDiscoverServers(true);
 
@@ -89,7 +111,24 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             final Process kill = ourBuilder.start();
             kill.waitFor();
 
-            // Should switch to the other shard.
+            // Quick command that should then fail.
+            myMongo.listDatabases();
+
+            // ... but its OK if it misses getting out before the Process dies.
+        }
+        catch (final ConnectionLostException cle) {
+            // Good.
+        }
+        catch (final Exception e) {
+            final AssertionError error = new AssertionError(e.getMessage());
+            error.initCause(e);
+            throw error;
+        }
+
+        try {
+            Thread.sleep(500);
+
+            // Should switch to the other shards.
             myMongo.listDatabases();
         }
         catch (final Exception e) {

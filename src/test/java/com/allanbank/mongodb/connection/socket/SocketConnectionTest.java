@@ -4,14 +4,17 @@
  */
 package com.allanbank.mongodb.connection.socket;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StreamCorruptedException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
@@ -29,6 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -1229,14 +1233,14 @@ public class SocketConnectionTest {
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
-     * @throws ExecutionException
+     * @throws TimeoutException
      *             On a failure waiting for a reply.
      * @throws InterruptedException
      *             On a failure waiting for a reply.
      */
     @Test
     public void testReadNonReply() throws IOException, InterruptedException,
-            ExecutionException {
+            TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1279,8 +1283,11 @@ public class SocketConnectionTest {
             future.get(1, TimeUnit.SECONDS);
             fail("Should have timedout waiting for a reply.");
         }
-        catch (final TimeoutException te) {
+        catch (final ExecutionException te) {
             // Good.
+            assertThat(te.getCause(), instanceOf(MongoDbException.class));
+            assertThat(te.getCause().getCause(),
+                    instanceOf(StreamCorruptedException.class));
         }
     }
 

@@ -124,6 +124,15 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     private int myReadTimeout = 0;
 
     /**
+     * Determines how long to wait (in milliseconds) for a broken connection to
+     * reconnect.
+     * <p>
+     * Defaults to 0 or forever.
+     * </p>
+     */
+    private int myReconnectTimeout = 0;
+
+    /**
      * The list of servers to initially attempt to connect to. Not final for
      * clone.
      */
@@ -344,6 +353,20 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns how long to wait (in milliseconds) for a broken connection to be
+     * reconnected.
+     * <p>
+     * Defaults to 0 or forever.
+     * </p>
+     * 
+     * @return The time to wait (in milliseconds) for a broken connection to be
+     *         reconnected.
+     */
+    public int getReconnectTimeout() {
+        return myReconnectTimeout;
+    }
+
+    /**
      * Returns the list of servers to initially attempt to connect to.
      * 
      * @return The list of servers to initially attempt to connect to.
@@ -494,6 +517,18 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     public void setReadTimeout(final int readTimeout) {
         myReadTimeout = readTimeout;
+    }
+
+    /**
+     * Sets how long to wait (in milliseconds) for a broken connection to
+     * reconnect.
+     * 
+     * @param connectTimeout
+     *            The time to wait (in milliseconds) for a broken connection to
+     *            reconnect.
+     */
+    public void setReconnectTimeout(final int connectTimeout) {
+        myReconnectTimeout = connectTimeout;
     }
 
     /**

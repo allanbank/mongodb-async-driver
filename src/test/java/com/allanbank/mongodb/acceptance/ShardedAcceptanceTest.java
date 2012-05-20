@@ -46,7 +46,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
     }
 
     /**
-     * Tests the graceful handling of a mongos server getting shutdown.
+     * Tests the handling of a mongos server getting shutdown.
      */
     @Test
     @Ignore("Need to do validation.")

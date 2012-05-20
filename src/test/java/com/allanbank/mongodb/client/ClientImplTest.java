@@ -5,12 +5,14 @@
 
 package com.allanbank.mongodb.client;
 
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -79,6 +81,7 @@ public class ClientImplTest {
      * @throws IOException
      *             on aa test failure.
      */
+    @SuppressWarnings("boxing")
     @Test
     public void testClose() throws IOException {
 
@@ -88,14 +91,62 @@ public class ClientImplTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
 
         mockConnection.send(message);
         expectLastCall();
 
-        mockConnection.waitForIdle(myConfig.getReadTimeout(),
+        mockConnection.shutdown();
+        expectLastCall();
+
+        mockConnection.waitForClosed(myConfig.getReadTimeout(),
                 TimeUnit.MILLISECONDS);
         expectLastCall();
 
+        expect(mockConnection.isOpen()).andReturn(false);
+
+        replay(mockConnection);
+
+        myTestInstance.close();
+        myTestInstance.send(message);
+        myTestInstance.close();
+
+        verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link ClientImpl#close()}.
+     * 
+     * @throws IOException
+     *             on aa test failure.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testCloseFails() throws IOException {
+
+        final Command message = new Command("testDb", BuilderFactory.start()
+                .get());
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        mockConnection.send(message);
+        expectLastCall();
+
+        mockConnection.shutdown();
+        expectLastCall();
+
+        mockConnection.waitForClosed(myConfig.getReadTimeout(),
+                TimeUnit.MILLISECONDS);
+        expectLastCall();
+
+        expect(mockConnection.isOpen()).andReturn(true);
         mockConnection.close();
         expectLastCall();
 
@@ -136,6 +187,9 @@ public class ClientImplTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
 
         mockConnection.send(callback, message);
         expectLastCall();
@@ -161,6 +215,9 @@ public class ClientImplTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
 
         mockConnection.send(message);
         expectLastCall();
@@ -217,20 +274,28 @@ public class ClientImplTest {
         final Connection mockConnection2 = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         mockConnection.send(message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
+        mockConnection2
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         mockConnection2.send(message);
+        expectLastCall();
+
+        mockConnection.shutdown();
         expectLastCall();
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(0);
         mockConnection2.send(message);
         expectLastCall();
-        expect(mockConnection.isIdle()).andReturn(false);
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
@@ -238,9 +303,6 @@ public class ClientImplTest {
         expect(mockConnection2.getPendingCount()).andReturn(1);
         mockConnection2.send(message);
         expectLastCall();
-        expect(mockConnection.isIdle()).andReturn(true);
-        mockConnection.close();
-        expectLastCall().andThrow(new IOException());
 
         replay(mockConnection, mockConnection2);
 
@@ -272,29 +334,34 @@ public class ClientImplTest {
         final Connection mockConnection2 = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         mockConnection.send(message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
+        mockConnection2
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         mockConnection2.send(message);
+        expectLastCall();
+
+        mockConnection.shutdown();
         expectLastCall();
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(0);
         mockConnection2.send(message);
         expectLastCall();
-        expect(mockConnection.isIdle()).andReturn(false);
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         mockConnection2.send(message);
-        expectLastCall();
-        expect(mockConnection.isIdle()).andReturn(true);
-        mockConnection.close();
         expectLastCall();
 
         replay(mockConnection, mockConnection2);
@@ -327,12 +394,18 @@ public class ClientImplTest {
         final Connection mockConnection2 = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         mockConnection.send(message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
+        mockConnection2
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         mockConnection2.send(message);
         expectLastCall();
 
@@ -362,6 +435,9 @@ public class ClientImplTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
 
         mockConnection.send(callback, message, lastError);
         expectLastCall();
@@ -387,6 +463,9 @@ public class ClientImplTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
 
         mockConnection.send(message);
         expectLastCall();
@@ -420,12 +499,18 @@ public class ClientImplTest {
         final Connection mockConnection2 = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         mockConnection.send(message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
+        mockConnection2
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         mockConnection2.send(message);
         expectLastCall();
 
@@ -466,6 +551,9 @@ public class ClientImplTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
 
         mockConnection.send(callback, message);
         expectLastCall();

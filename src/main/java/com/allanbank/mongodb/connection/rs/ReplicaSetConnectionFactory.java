@@ -18,11 +18,13 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.FutureCallback;
+import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnection;
 import com.allanbank.mongodb.connection.state.ClusterState;
+import com.allanbank.mongodb.connection.state.LatencyServerSelector;
 import com.allanbank.mongodb.connection.state.ServerState;
 
 /**
@@ -142,8 +144,45 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      */
     @Override
     public Connection connect() throws IOException {
-        return new ReplicaSetConnection(myConnectionFactory, myClusterState,
-                myConfig);
+
+        IOException lastError = null;
+        for (final ServerState primary : myClusterState.getWritableServers()) {
+            try {
+                final Connection primaryConn = myConnectionFactory.connect(
+                        primary.getServer(), myConfig);
+
+                return new ReplicaSetConnection(primaryConn,
+                        myConnectionFactory, myClusterState, myConfig);
+            }
+            catch (final IOException e) {
+                lastError = e;
+            }
+        }
+
+        if (lastError != null) {
+            throw lastError;
+        }
+
+        throw new IOException(
+                "Could not determine the primary server in the replica set.");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a replica set {@link ReconnectStrategy}.
+     * </p>
+     */
+    @Override
+    public ReconnectStrategy<?> getReconnectStrategy() {
+
+        final ReplicaSetReconnectStrategy strategy = new ReplicaSetReconnectStrategy();
+
+        strategy.setConfig(myConfig);
+        strategy.setConnectionFactory(myConnectionFactory);
+        strategy.setState(myClusterState);
+        strategy.setSelector(new LatencyServerSelector(myClusterState, false));
+
+        return strategy;
+    }
 }

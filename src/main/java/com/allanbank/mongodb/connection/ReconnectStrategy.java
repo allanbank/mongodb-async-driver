@@ -3,19 +3,23 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.connection.state;
+package com.allanbank.mongodb.connection;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
-import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.connection.state.ClusterState;
+import com.allanbank.mongodb.connection.state.ServerSelector;
 
 /**
  * ReconnectStrategy provides a common interface for a strategy for reconnecting
  * to a MongoDB server.
  * 
+ * @param <C>
+ *            The type of the connection.
+ * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface ReconnectStrategy {
+public interface ReconnectStrategy<C extends Connection> {
 
     /**
      * Sets the configuration to be used by the reconnection strategy.
@@ -60,5 +64,5 @@ public interface ReconnectStrategy {
      * @return The new connection to the server or null if a connection could
      *         not be created.
      */
-    Connection reconnect(Connection oldConnection);
+    C reconnect(C oldConnection);
 }

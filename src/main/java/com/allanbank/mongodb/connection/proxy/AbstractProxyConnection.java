@@ -5,8 +5,9 @@
 
 package com.allanbank.mongodb.connection.proxy;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -18,7 +19,6 @@ import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.socket.PendingMessage;
 import com.allanbank.mongodb.connection.state.ClusterState;
-import com.allanbank.mongodb.connection.state.ServerState;
 
 /**
  * A helper class for constructing connections that are really just proxies on
@@ -38,11 +38,13 @@ public abstract class AbstractProxyConnection implements Connection {
     protected final ProxiedConnectionFactory myConnectionFactory;
 
     /** The proxied connection. */
-    private Connection myProxiedConnection;
+    private final Connection myProxiedConnection;
 
     /**
      * Creates a AbstractProxyConnection.
      * 
+     * @param proxiedConnection
+     *            The connection to forward to.
      * @param factory
      *            The factory to create proxied connections.
      * @param clusterState
@@ -50,8 +52,10 @@ public abstract class AbstractProxyConnection implements Connection {
      * @param config
      *            The MongoDB client configuration.
      */
-    public AbstractProxyConnection(final ProxiedConnectionFactory factory,
+    public AbstractProxyConnection(final Connection proxiedConnection,
+            final ProxiedConnectionFactory factory,
             final ClusterState clusterState, final MongoDbConfiguration config) {
+        myProxiedConnection = proxiedConnection;
         myConnectionFactory = factory;
         myClusterState = clusterState;
         myConfig = config;
@@ -66,11 +70,32 @@ public abstract class AbstractProxyConnection implements Connection {
     @Override
     public void addPending(final List<PendingMessage> pending) {
         try {
-            ensureConnected().addPending(pending);
+            myProxiedConnection.addPending(pending);
         }
         catch (final MongoDbException error) {
             onExceptin(error);
             throw error;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to create a proxy connection if not already created and add
+     * the listener to that connection.
+     * </p>
+     */
+    @Override
+    public void addPropertyChangeListener(final PropertyChangeListener listener) {
+        try {
+            myProxiedConnection
+                    .addPropertyChangeListener(new ProxiedChangeListener(
+                            listener));
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            listener.propertyChange(new PropertyChangeEvent(this,
+                    OPEN_PROP_NAME, Boolean.TRUE, Boolean.FALSE));
         }
     }
 
@@ -81,10 +106,7 @@ public abstract class AbstractProxyConnection implements Connection {
      */
     @Override
     public void close() throws IOException {
-        if (myProxiedConnection != null) {
-            myProxiedConnection.close();
-            myProxiedConnection = null;
-        }
+        myProxiedConnection.close();
     }
 
     /**
@@ -96,7 +118,7 @@ public abstract class AbstractProxyConnection implements Connection {
     @Override
     public void drainPending(final List<PendingMessage> pending) {
         try {
-            ensureConnected().drainPending(pending);
+            myProxiedConnection.drainPending(pending);
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -107,8 +129,7 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
+     * Forwards the call to the proxied {@link Connection}.
      * </p>
      * 
      * @see java.io.Flushable#flush()
@@ -116,7 +137,7 @@ public abstract class AbstractProxyConnection implements Connection {
     @Override
     public void flush() throws IOException {
         try {
-            ensureConnected().flush();
+            myProxiedConnection.flush();
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -127,14 +148,13 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
+     * Forwards the call to the proxied {@link Connection}.
      * </p>
      */
     @Override
     public int getPendingCount() {
         try {
-            return ensureConnected().getPendingCount();
+            return myProxiedConnection.getPendingCount();
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -145,14 +165,13 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
+     * Forwards the call to the proxied {@link Connection}.
      * </p>
      */
     @Override
     public boolean isIdle() {
         try {
-            return ensureConnected().isIdle();
+            return myProxiedConnection.isIdle();
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -163,14 +182,13 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
+     * Forwards the call to the proxied {@link Connection}.
      * </p>
      */
     @Override
     public boolean isOpen() {
         try {
-            return ensureConnected().isOpen();
+            return myProxiedConnection.isOpen();
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -181,15 +199,41 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
+     * Forwards the call to the proxied {@link Connection}.
+     * </p>
+     */
+    @Override
+    public void raiseErrors(final MongoDbException exception,
+            final boolean notifyToBeSent) {
+        myProxiedConnection.raiseErrors(exception, notifyToBeSent);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to create a proxy connection if not already created and add
+     * the listener to that connection.
+     * </p>
+     */
+    @Override
+    public void removePropertyChangeListener(
+            final PropertyChangeListener listener) {
+        myProxiedConnection
+                .removePropertyChangeListener(new ProxiedChangeListener(
+                        listener));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the proxied {@link Connection}.
      * </p>
      */
     @Override
     public void send(final Callback<Reply> reply, final Message... messages)
             throws MongoDbException {
         try {
-            ensureConnected().send(reply, messages);
+            myProxiedConnection.send(reply, messages);
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -200,8 +244,7 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
+     * Forwards the call to the proxied {@link Connection}.
      * </p>
      */
     @Override
@@ -212,14 +255,24 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
+     * Forwards the call to the proxied {@link Connection}.
      * </p>
      */
     @Override
-    public void waitForIdle(final int timeout, final TimeUnit timeoutUnits) {
+    public void shutdown() {
+        myProxiedConnection.shutdown();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the proxied {@link Connection}.
+     * </p>
+     */
+    @Override
+    public void waitForClosed(final int timeout, final TimeUnit timeoutUnits) {
         try {
-            ensureConnected().waitForIdle(timeout, timeoutUnits);
+            myProxiedConnection.waitForClosed(timeout, timeoutUnits);
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -228,85 +281,12 @@ public abstract class AbstractProxyConnection implements Connection {
     }
 
     /**
-     * Connects to the cluster.
-     */
-    protected void connect() {
-        final List<ServerState> servers = myClusterState.getWritableServers();
-
-        // Shuffle the servers and try to connect to each until one works.
-        Exception last = null;
-        Collections.shuffle(servers);
-        for (final ServerState server : servers) {
-            Connection connection = null;
-            try {
-                connection = myConnectionFactory.connect(server.getServer(),
-                        myConfig);
-
-                if (verifyConnection(connection)) {
-
-                    myProxiedConnection = connection;
-                    connection = null;
-
-                    return;
-                }
-                else if (keepConnection(connection)) {
-                    connection = null;
-                }
-            }
-            catch (final MongoDbException error) {
-                last = error;
-            }
-            catch (final IOException error) {
-                last = error;
-            }
-            finally {
-                if (connection != null) {
-                    try {
-                        connection.close();
-                    }
-                    catch (final IOException ignored) {
-                        // Nothing.
-                    }
-                }
-            }
-        }
-
-        if (last != null) {
-            throw new MongoDbException("Could not connect to any server: "
-                    + servers, last);
-        }
-        throw new MongoDbException("Could not connect to any server: "
-                + servers);
-    }
-
-    /**
-     * Ensure that the proxied connection is cconnected and return the
-     * Connection to proxy the call to.
-     * <p>
-     * Checks if already connected. If not creates a new connection to a server.
-     * </p>
+     * Returns the proxiedConnection value.
      * 
-     * @return The {@link Connection} to forward a call to.
-     * @throws MongoDbException
-     *             On a failure establishing a connection.
+     * @return The proxiedConnection value.
      */
-    protected Connection ensureConnected() throws MongoDbException {
-        if (myProxiedConnection == null) {
-            connect();
-        }
+    protected Connection getProxiedConnection() {
         return myProxiedConnection;
-    }
-
-    /**
-     * Extension point for classes to allow them to keep a connection open.
-     * 
-     * @param connection
-     *            The connection to possibly keep open.
-     * @return True if the derived class is keeping the connection for other
-     *         purposes.
-     */
-    protected boolean keepConnection(final Connection connection) {
-        return false;
     }
 
     /**
@@ -324,21 +304,77 @@ public abstract class AbstractProxyConnection implements Connection {
             close();
         }
         catch (final IOException e) {
-            myProxiedConnection = null;
+            // ignore.
         }
     }
 
     /**
-     * Verifies that the connection is working. The connection passed is newly
-     * created and can safely be assumed to not have been used for any purposes
-     * or have any message sent of received.
+     * ProxiedChangeListener provides a change listener to modify the source of
+     * the event to the outer connection from the (inner) proxied connection.
      * 
-     * @param connection
-     *            The connection to verify.
-     * @return True if the connection has been verified.
-     * @throws MongoDbException
-     *             On a failure verifying the connection.
+     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected abstract boolean verifyConnection(Connection connection)
-            throws MongoDbException;
+    protected class ProxiedChangeListener implements PropertyChangeListener {
+
+        /** The delegate listener. */
+        private final PropertyChangeListener myDelegate;
+
+        /**
+         * Creates a new ProxiedChangeListener.
+         * 
+         * @param delegate
+         *            The delegate listener.
+         */
+        public ProxiedChangeListener(final PropertyChangeListener delegate) {
+            myDelegate = delegate;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to compare the nested delegate listeners.
+         * </p>
+         */
+        @Override
+        public boolean equals(final Object object) {
+            boolean result = false;
+            if (this == object) {
+                result = true;
+            }
+            else if ((object != null) && (getClass() == object.getClass())) {
+                final ProxiedChangeListener other = (ProxiedChangeListener) object;
+
+                result = myDelegate.equals(other.myDelegate);
+            }
+            return result;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to return the delegates hash code.
+         * </p>
+         */
+        @Override
+        public int hashCode() {
+            return ((myDelegate == null) ? 13 : myDelegate.hashCode());
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to change the source of the property change event to the
+         * outer connection instead of the inner connection.
+         * </p>
+         */
+        @Override
+        public void propertyChange(final PropertyChangeEvent event) {
+
+            final PropertyChangeEvent newEvent = new PropertyChangeEvent(
+                    AbstractProxyConnection.this, event.getPropertyName(),
+                    event.getOldValue(), event.getNewValue());
+            newEvent.setPropagationId(event.getPropagationId());
+            myDelegate.propertyChange(newEvent);
+        }
+    }
 }

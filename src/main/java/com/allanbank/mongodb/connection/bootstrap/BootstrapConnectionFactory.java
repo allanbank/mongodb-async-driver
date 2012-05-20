@@ -19,6 +19,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.FutureCallback;
+import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.auth.AuthenticationConnectionFactory;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.ServerStatus;
@@ -153,6 +154,17 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     @Override
     public Connection connect() throws IOException {
         return getDelegate().connect();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the delegates strategy.
+     * </p>
+     */
+    @Override
+    public ReconnectStrategy<? extends Connection> getReconnectStrategy() {
+        return getDelegate().getReconnectStrategy();
     }
 
     /**

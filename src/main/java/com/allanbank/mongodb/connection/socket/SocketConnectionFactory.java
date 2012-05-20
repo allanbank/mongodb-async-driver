@@ -13,7 +13,13 @@ import java.util.List;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
+import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.connection.state.ClusterState;
+import com.allanbank.mongodb.connection.state.LatencyServerSelector;
+import com.allanbank.mongodb.connection.state.ServerSelector;
+import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
 
 /**
  * {@link ConnectionFactory} to create direct socket connections to the servers.
@@ -25,6 +31,12 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     /** The MongoDB client configuration. */
     private final MongoDbConfiguration myConfig;
 
+    /** The server selector. */
+    private final ServerSelector myServerSelector;
+
+    /** The state of the cluster. */
+    private final ClusterState myState;
+
     /**
      * Creates a new {@link SocketConnectionFactory}.
      * 
@@ -34,6 +46,16 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     public SocketConnectionFactory(final MongoDbConfiguration config) {
         super();
         myConfig = config;
+        myState = new ClusterState();
+        myServerSelector = new LatencyServerSelector(myState, true);
+
+        // Add all of the servers as writable by default.
+        for (final InetSocketAddress address : config.getServers()) {
+            final ServerState state = myState.add(address.getAddress()
+                    .getHostName() + ":" + address.getPort());
+
+            myState.markWritable(state);
+        }
     }
 
     /**
@@ -84,4 +106,20 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         return new SocketConnection(address, myConfig);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a {@link SimpleReconnectStrategy}.
+     * </p>
+     */
+    @Override
+    public ReconnectStrategy<Connection> getReconnectStrategy() {
+        final SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
+        strategy.setConfig(myConfig);
+        strategy.setConnectionFactory(this);
+        strategy.setSelector(myServerSelector);
+        strategy.setState(myState);
+
+        return strategy;
+    }
 }

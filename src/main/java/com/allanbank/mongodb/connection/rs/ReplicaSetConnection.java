@@ -6,21 +6,14 @@
 package com.allanbank.mongodb.connection.rs;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.element.ArrayElement;
-import com.allanbank.mongodb.bson.element.BooleanElement;
-import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
-import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.AbstractProxyConnection;
@@ -35,12 +28,18 @@ import com.allanbank.mongodb.connection.state.ClusterState;
  */
 public class ReplicaSetConnection extends AbstractProxyConnection {
 
+    /** The logger for the {@link ReplicaSetConnectionFactory}. */
+    protected static final Logger LOG = Logger
+            .getLogger(ReplicaSetConnection.class.getCanonicalName());
+
     /** A connection to a Secondary Replica. */
     private Connection mySecondaryConnection;
 
     /**
      * Creates a new {@link ReplicaSetConnection}.
      * 
+     * @param proxiedConnection
+     *            The connection being proxied.
      * @param factory
      *            The factory to create proxied connections.
      * @param clusterState
@@ -48,9 +47,10 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      * @param config
      *            The MongoDB client configuration.
      */
-    public ReplicaSetConnection(final ProxiedConnectionFactory factory,
+    public ReplicaSetConnection(final Connection proxiedConnection,
+            final ProxiedConnectionFactory factory,
             final ClusterState clusterState, final MongoDbConfiguration config) {
-        super(factory, clusterState, config);
+        super(proxiedConnection, factory, clusterState, config);
         mySecondaryConnection = null;
     }
 
@@ -107,7 +107,9 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
                     secondary.close();
                 }
                 catch (final IOException ignore) {
-                    // TODO - Log the connection error to the secondary.
+                    LOG.log(Level.INFO,
+                            "Failure sending a request to the secondary, using primary.",
+                            ignore);
                 }
             }
         }
@@ -118,8 +120,8 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
     /**
      * {@inheritDoc}
      * <p>
-     * Forwards the call to the {@link Connection} returned from
-     * {@link #ensureConnected()}.
+     * Forwards the call to the {@link #send(Callback, Message...)} method with
+     * a <code>null</code> callback.
      * </p>
      */
     @Override
@@ -130,124 +132,31 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
     /**
      * {@inheritDoc}
      * <p>
-     * True if the connection is being used as the secondary connection.
+     * Overridden to return the socket information.
      * </p>
+     */
+    @Override
+    public String toString() {
+        return "ReplicaSet(" + getProxiedConnection() + ")";
+    }
+
+    /**
+     * Returns the current secondary connection.
+     * 
+     * @return The current secondary connection (which may be <code>null</code>
+     *         ).
+     */
+    protected Connection getSecondaryConnection() {
+        return mySecondaryConnection;
+    }
+
+    /**
+     * Sets the secondary connection to be used.
      * 
      * @param connection
-     *            The connection to possibly keep open.
-     * @return True if the derived class is keeping the connection for other
-     *         purposes.
+     *            The secondary connection to be used.
      */
-    @Override
-    protected boolean keepConnection(final Connection connection) {
-        return (connection == mySecondaryConnection);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Issues a { ismaster : 1 } command on the 'admin' database and updates the
-     * cluster state with the results.
-     * </p>
-     * 
-     * @return True if the connection is to the primary replica and false for a
-     *         secondary replica.
-     */
-    @Override
-    protected boolean verifyConnection(final Connection connection)
-            throws MongoDbException {
-
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
-        try {
-
-            connection.send(future, new IsMaster());
-
-            final Reply reply = future.get();
-            final List<Document> results = reply.getResults();
-            if (!results.isEmpty()) {
-                final Document doc = results.get(0);
-
-                if (myConfig.isAutoDiscoverServers()) {
-
-                    // Add all of the hosts to the state.
-                    final Element hosts = doc.get("hosts");
-                    if (hosts instanceof ArrayElement) {
-                        final ArrayElement hostsArray = (ArrayElement) hosts;
-                        for (final Element hostElement : hostsArray
-                                .getEntries()) {
-                            if (hostElement instanceof StringElement) {
-                                myClusterState
-                                        .add(((StringElement) hostElement)
-                                                .getValue());
-                            }
-                        }
-                    }
-                }
-
-                // Get the name of the primary server.
-                final Element primary = doc.get("primary");
-                if (primary instanceof StringElement) {
-                    myClusterState.markWritable(myClusterState
-                            .get(((StringElement) primary).getValue()));
-                }
-
-                // See if we are the primary.
-                if (isPrimary(doc)) {
-                    return true;
-                }
-                // See if we can use this as a secondary connection.
-                else if (mySecondaryConnection == null) {
-                    if (isSecondary(doc)) {
-                        mySecondaryConnection = connection;
-                    }
-                }
-            }
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-        catch (final ExecutionException e) {
-            if (e.getCause() instanceof MongoDbException) {
-                throw (MongoDbException) e.getCause();
-            }
-            throw new MongoDbException(e.getCause());
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns true if the connection is to the primary server in the replica
-     * set.
-     * 
-     * @param isMasterReply
-     *            The reply from an <tt>ismaster</tt> command.
-     * @return True if the reply indicates that the server is a
-     *         <tt>ismaster</tt>. e.g., the document contains a
-     *         <tt>ismaster</tt> boolean element set to true.
-     */
-    private boolean isPrimary(final Document isMasterReply) {
-        final Element isSecondaryFlag = isMasterReply.get("ismaster");
-        if (isSecondaryFlag instanceof BooleanElement) {
-            return ((BooleanElement) isSecondaryFlag).getValue();
-        }
-        return false;
-    }
-
-    /**
-     * Returns true if the connection can be used for "replicaOk" queries.
-     * 
-     * @param isMasterReply
-     *            The reply from an <tt>ismaster</tt> command.
-     * @return True if the reply indicates that the server is a
-     *         <tt>secondary</tt>. e.g., the document contains a
-     *         <tt>secondary</tt> boolean element set to true.
-     */
-    private boolean isSecondary(final Document isMasterReply) {
-        final Element isSecondaryFlag = isMasterReply.get("secondary");
-        if (isSecondaryFlag instanceof BooleanElement) {
-            return ((BooleanElement) isSecondaryFlag).getValue();
-        }
-        return false;
+    protected void setSecondaryConnection(final Connection connection) {
+        mySecondaryConnection = connection;
     }
 }

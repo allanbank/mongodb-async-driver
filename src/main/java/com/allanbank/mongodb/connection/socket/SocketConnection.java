@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.connection.socket;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.EOFException;
@@ -34,10 +36,12 @@ import com.allanbank.mongodb.connection.message.Delete;
 import com.allanbank.mongodb.connection.message.GetMore;
 import com.allanbank.mongodb.connection.message.Header;
 import com.allanbank.mongodb.connection.message.Insert;
+import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.KillCursors;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
+import com.allanbank.mongodb.connection.state.IOUtils;
 
 /**
  * Provides a blocking Socket based connection to a MongoDB server.
@@ -59,6 +63,9 @@ public class SocketConnection implements Connection {
     /** The queue of messages sent but waiting for a reply. */
     protected final BlockingQueue<PendingMessage> myPendingQueue;
 
+    /** Set to true when the connection should be gracefully closed. */
+    protected final AtomicBoolean myShutdown;
+
     /** The queue of messages to be sent. */
     protected final BlockingQueue<PendingMessage> myToSendQueue;
 
@@ -67,6 +74,9 @@ public class SocketConnection implements Connection {
 
     /** The writer for BSON documents. Shares this objects {@link #myOutput}. */
     private final BsonOutputStream myBsonOut;
+
+    /** Support for emitting property change events. */
+    private final PropertyChangeSupport myEventSupport;
 
     /** The buffered input stream. */
     private final BufferedInputStream myInput;
@@ -102,7 +112,9 @@ public class SocketConnection implements Connection {
             final MongoDbConfiguration config) throws SocketException,
             IOException {
 
+        myEventSupport = new PropertyChangeSupport(this);
         myOpen = new AtomicBoolean(false);
+        myShutdown = new AtomicBoolean(false);
 
         mySocket = new Socket();
 
@@ -164,32 +176,52 @@ public class SocketConnection implements Connection {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Overridden to add the listener to this connection.
+     * </p>
+     */
+    @Override
+    public void addPropertyChangeListener(final PropertyChangeListener listener) {
+        myEventSupport.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void close() throws IOException {
+        final boolean wasOpen = myOpen.get();
         myOpen.set(false);
 
         mySender.interrupt();
         myReceiver.interrupt();
 
         try {
-            mySender.join();
+            if (Thread.currentThread() != mySender) {
+                mySender.join();
+            }
         }
         catch (final InterruptedException ie) {
             // Ignore.
         }
         finally {
+            // Now that output is shutdown. Close up the socket. This
+            // Triggers the receiver to close.
             myOutput.close();
             myInput.close();
             mySocket.close();
         }
 
         try {
-            myReceiver.join();
+            if (Thread.currentThread() != myReceiver) {
+                myReceiver.join();
+            }
         }
         catch (final InterruptedException ie) {
             // Ignore.
         }
+
+        myEventSupport.firePropertyChange(OPEN_PROP_NAME, wasOpen, false);
     }
 
     /**
@@ -240,6 +272,44 @@ public class SocketConnection implements Connection {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Notifies the appropriate messages of the error.
+     * </p>
+     */
+    @Override
+    public void raiseErrors(final MongoDbException exception,
+            final boolean notifyToBeSent) {
+        if (notifyToBeSent) {
+            PendingMessage message = myToSendQueue.poll();
+            while (message != null) {
+                message.raiseError(exception);
+
+                message = myToSendQueue.poll();
+            }
+        }
+
+        PendingMessage message = myPendingQueue.poll();
+        while (message != null) {
+            message.raiseError(exception);
+
+            message = myPendingQueue.poll();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to remove the listener from this connection.
+     * </p>
+     */
+    @Override
+    public void removePropertyChangeListener(
+            final PropertyChangeListener listener) {
+        myEventSupport.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public synchronized void send(final Callback<Reply> reply,
@@ -281,11 +351,39 @@ public class SocketConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to mark the socket as shutting down and tickles the sender to
+     * make sure that happens as soon as possible.
+     * </p>
+     */
+    @Override
+    public void shutdown() {
+        myShutdown.set(true);
+        if (myToSendQueue.isEmpty() && isOpen()) {
+            // Force a message to wake the sender up.
+            send(new NoopCallback(), new IsMaster());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the socket information.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        return "MongoDB(" + mySocket.getLocalPort() + "-->"
+                + mySocket.getRemoteSocketAddress() + ")";
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Waits for the connections pending queues to empty.
      * </p>
      */
     @Override
-    public void waitForIdle(final int timeout, final TimeUnit timeoutUnits) {
+    public void waitForClosed(final int timeout, final TimeUnit timeoutUnits) {
         long now = System.currentTimeMillis();
         final long deadline = now + timeoutUnits.toMillis(timeout);
 
@@ -483,6 +581,35 @@ public class SocketConnection implements Connection {
     }
 
     /**
+     * NoopCallback provides a callback that does not look at the reply.
+     * 
+     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected final class NoopCallback implements Callback<Reply> {
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to do nothing.
+         * </p>
+         */
+        @Override
+        public void callback(final Reply result) {
+            // Noop.
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to do nothing.
+         * </p>
+         */
+        @Override
+        public void exception(final Throwable thrown) {
+            // Noop.
+        }
+    }
+
+    /**
      * Runnable to receive messages.
      * 
      * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
@@ -516,7 +643,15 @@ public class SocketConnection implements Connection {
                                     + replyId + "'.");
                         }
                     }
-                    else if (received != null) {
+                    else if (received == null) {
+                        // Check if we are shutdown. Note the send side makes
+                        // sure the last message gets a reply.
+                        if (myShutdown.get() && myToSendQueue.isEmpty()
+                                && myPendingQueue.isEmpty()) {
+                            IOUtils.close(SocketConnection.this);
+                        }
+                    }
+                    else {
                         LOG.warning("Received a non-Reply message: " + received);
                     }
                 }
@@ -560,6 +695,13 @@ public class SocketConnection implements Connection {
                     }
                     else {
                         message = myToSendQueue.take();
+                    }
+
+                    // If shutting down force a message that will send a reply.
+                    // and clear the pending queue.
+                    if (myShutdown.get() && (message == null)) {
+                        message = new PendingMessage(nextId(), new IsMaster(),
+                                new NoopCallback());
                     }
 
                     if (message != null) {

@@ -343,6 +343,20 @@ public class MongoDbConfigurationTest {
     }
 
     /**
+     * Test method for {@link MongoDbConfiguration#setReconnectTimeout(int)}.
+     */
+    @Test
+    public void testSetReconnectTimeout() {
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+
+        assertEquals(0, config.getReconnectTimeout());
+        config.setReconnectTimeout(30000);
+        assertEquals(30000, config.getReconnectTimeout());
+        config.setReconnectTimeout(0);
+        assertEquals(0, config.getReconnectTimeout());
+    }
+
+    /**
      * Test method for {@link MongoDbConfiguration#setServers(java.util.List)}.
      */
     @Test

@@ -53,7 +53,7 @@ function waitfor {
 	done
 }
 
-# waitfor
+# waitforPrimary
 #
 # Waits for a socket to open.
 function waitforPrimary {
@@ -71,6 +71,27 @@ function waitforPrimary {
 	done
 }
 
+# waitForSecondaries
+#
+# Waits for a socket to open.
+function waitForSecondaries {
+    let expect=$1
+	log=$2
+	
+	let count=1
+	touch "${log}"
+	let actual=$( grep -i "is now in state SECONDARY" "${log}" | wc -l )
+	while (( actual < expect )) ; do
+		sleep 1
+		
+		if (( count > 60 )) ; then
+			return;
+		fi
+		let count=count+1
+  	    
+  	    let actual=$( grep -i "is now in state SECONDARY" "${log}" | wc -l )
+	done
+}
 
 # start
 #
@@ -93,7 +114,7 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
-				--nojournal \
+				--nojournal --oplogSize 2 \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 
@@ -103,7 +124,7 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
-				--nojournal \
+				--nojournal --oplogSize 512 \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 	
@@ -112,7 +133,7 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
-				--nojournal \
+				--nojournal --oplogSize 512 \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 	
@@ -121,7 +142,7 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
-				--nojournal \
+				--nojournal --oplogSize 512 \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 						
@@ -130,7 +151,7 @@ function start {
 	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
-				--nojournal \
+				--nojournal --oplogSize 512 \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 						
@@ -166,6 +187,11 @@ END
 	mongo localhost:27018/admin ${dir}/config.js
 	
 	waitforPrimary ${dir}/arbiter.log
+	
+	# Wait for 4 secondaries.  All replicas are a secondary at some point in startup.
+	# Event the eventual primary.
+	waitForSecondaries 4 ${dir}/arbiter.log
+	
 }
 
 case "$1" in 

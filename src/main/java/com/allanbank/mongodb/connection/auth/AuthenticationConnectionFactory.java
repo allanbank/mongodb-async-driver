@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 
 /**
@@ -43,6 +44,13 @@ public class AuthenticationConnectionFactory implements
         myConfig = config;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a connection then ensures the connection is properly
+     * authenticated before reconnecting.
+     * </p>
+     */
     @Override
     public Connection connect() throws IOException {
         return new AuthenticatingConnection(
@@ -61,5 +69,21 @@ public class AuthenticationConnectionFactory implements
             final MongoDbConfiguration config) throws IOException {
         return new AuthenticatingConnection(myProxiedConnectionFactory.connect(
                 address, config), config);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the delegates strategy but replace his connection
+     * factory with our own.
+     * </p>
+     */
+    @Override
+    public ReconnectStrategy<? extends Connection> getReconnectStrategy() {
+        final ReconnectStrategy<? extends Connection> delegates = myProxiedConnectionFactory
+                .getReconnectStrategy();
+        delegates.setConnectionFactory(this);
+
+        return delegates;
     }
 }
