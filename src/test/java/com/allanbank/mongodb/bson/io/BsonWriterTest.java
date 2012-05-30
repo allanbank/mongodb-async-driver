@@ -43,9 +43,11 @@ public class BsonWriterTest {
         final BsonWriter writer = new BsonWriter(out);
 
         writer.write(builder.get());
-
+        
         assertArrayEquals("{ 'hello' : 'world' } not the expected bytes.",
                 helloWorld, out.toByteArray());
+
+        writer.close();
     }
 
     /**
@@ -78,6 +80,8 @@ public class BsonWriterTest {
         assertArrayEquals(
                 " { 'BSON': ['awesome', 5.05, 1986] } not the expected bytes.",
                 arrayDocument, out.toByteArray());
+        
+        writer.close();
     }
 
 }

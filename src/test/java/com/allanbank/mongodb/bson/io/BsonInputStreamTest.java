@@ -57,6 +57,7 @@ public class BsonInputStreamTest {
         final BsonInputStream reader = new BsonInputStream(in);
 
         final Document doc = reader.readDocument();
+        reader.close();
 
         assertTrue("Should be a RootDocument.", doc instanceof RootDocument);
         assertTrue("Should contain a 'hello' element.", doc.contains("BSON"));
@@ -122,6 +123,7 @@ public class BsonInputStreamTest {
         final BsonInputStream reader = new BsonInputStream(in);
 
         final Document doc = reader.readDocument();
+        reader.close();
 
         assertTrue("Should be a RootDocument.", doc instanceof RootDocument);
         assertTrue("Should contain a 'hello' element.", doc.contains("hello"));
@@ -218,6 +220,7 @@ public class BsonInputStreamTest {
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         BsonInputStream reader = new BsonInputStream(in);
         Document read = reader.readDocument();
+        reader.close();
 
         assertTrue("Should be a RootDocument.", read instanceof RootDocument);
         assertEquals("Should equal the orginal document.", doc, read);
@@ -228,6 +231,7 @@ public class BsonInputStreamTest {
         in = new ByteArrayInputStream(out.toByteArray());
         reader = new BsonInputStream(in);
         read = reader.readDocument();
+        reader.close();
 
         assertTrue("Should be a RootDocument.", read instanceof RootDocument);
         assertEquals("Should equal the orginal document.", doc, read);

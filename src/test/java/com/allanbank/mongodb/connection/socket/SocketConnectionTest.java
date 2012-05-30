@@ -180,6 +180,7 @@ public class SocketConnectionTest {
                 Arrays.copyOfRange(request, (7 * 4) + 8, request.length)));
 
         final Document sent = reader.readDocument();
+        reader.close();
 
         assertEquals("The sent command is not the expected command.", doc, sent);
     }
@@ -239,6 +240,7 @@ public class SocketConnectionTest {
                 Arrays.copyOfRange(request, (7 * 4) + 8, request.length)));
 
         final Document sent = reader.readDocument();
+        reader.close();
 
         assertEquals("The sent command is not the expected command.", doc, sent);
     }
@@ -298,6 +300,7 @@ public class SocketConnectionTest {
                 Arrays.copyOfRange(request, (7 * 4) + 8, request.length)));
 
         final Document sent = reader.readDocument();
+        reader.close();
 
         assertEquals("The sent command is not the expected command.", doc, sent);
     }
@@ -359,6 +362,7 @@ public class SocketConnectionTest {
                 Arrays.copyOfRange(request, (7 * 4) + 8, request.length)));
 
         final Document sent = reader.readDocument();
+        reader.close();
 
         assertEquals("The sent command is not the expected command.", doc, sent);
     }
