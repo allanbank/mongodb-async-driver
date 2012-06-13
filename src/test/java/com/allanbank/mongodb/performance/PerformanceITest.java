@@ -44,6 +44,7 @@ import com.mongodb.WriteConcern;
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Ignore
 public class PerformanceITest {
 
     /** A builder for executing background process scripts. */
@@ -121,11 +122,24 @@ public class PerformanceITest {
      */
     @After
     public void cleanup() {
+        if (myAsyncCollection != null) {
+            // Make sure the collection exists.
+            myAsyncCollection.insert(Durability.ACK, BuilderFactory.start()
+                    .get());
+            myAsyncCollection.delete(BuilderFactory.start().get(),
+                    Durability.ACK);
+        }
         if (myAsyncDb != null) {
-            myAsyncDb.drop();
+            myAsyncDb.runCommand("repairDatabase");
+        }
+
+        if (mySyncCollection != null) {
+            mySyncCollection.insert(new BasicDBObject(), WriteConcern.SAFE);
+            mySyncCollection.remove(new BasicDBObject(), WriteConcern.SAFE);
         }
         if (mySyncDb != null) {
-            mySyncDb.dropDatabase();
+            mySyncDb.command(new BasicDBObject("repairDatabase", Integer
+                    .valueOf(1)));
         }
     }
 
@@ -138,7 +152,7 @@ public class PerformanceITest {
             final MongoDbConfiguration config = new MongoDbConfiguration(
                     new InetSocketAddress("127.0.0.1", 27017));
             config.setMaxConnectionCount(1);
-            config.setMaxPendingOperationsPerConnection(4096);
+            config.setMaxPendingOperationsPerConnection(10 * 1024);
 
             myAsyncMongo = new MongoImpl(config);
             myAsyncDb = myAsyncMongo.getDatabase("asyncTest");
@@ -194,7 +208,6 @@ public class PerformanceITest {
      * collection.
      */
     @Test
-    @Ignore
     public void testInsertRate() {
 
         final int maxCount = 1000000;
@@ -213,11 +226,6 @@ public class PerformanceITest {
         cases.add("fsync");
 
         final List<String> runCases = new ArrayList<String>();
-        runCases.addAll(cases);
-        runCases.addAll(cases);
-        runCases.addAll(cases);
-        runCases.addAll(cases);
-        runCases.addAll(cases);
         runCases.addAll(cases);
         runCases.addAll(cases);
         runCases.addAll(cases);
@@ -386,7 +394,6 @@ public class PerformanceITest {
      * into a collection.
      */
     @Test
-    @Ignore
     public void testUpdateRate() {
 
         final int maxCount = 1000000;
@@ -405,11 +412,6 @@ public class PerformanceITest {
         cases.add("fsync");
 
         final List<String> runCases = new ArrayList<String>();
-        runCases.addAll(cases);
-        runCases.addAll(cases);
-        runCases.addAll(cases);
-        runCases.addAll(cases);
-        runCases.addAll(cases);
         runCases.addAll(cases);
         runCases.addAll(cases);
         runCases.addAll(cases);

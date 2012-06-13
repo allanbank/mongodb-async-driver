@@ -7,7 +7,7 @@
 #
 # mongod ervers on ports 27017
 
-tmpdir="/dev/shm"
+tmpdir="${TMPDIR:-/tmp}"
 dirname=standalone
 
 # stop
@@ -44,7 +44,7 @@ function waitfor {
 	while ! grep -q -i "waiting for connections on port ${port}" "${log}" ; do
 		sleep 1
 		
-		if (( count > 10 )) ; then
+		if (( count > 60 )) ; then
 			return;
 		fi
 		let count=count+1
@@ -67,6 +67,9 @@ function start {
 				"$@" \
 				>> ${dir}/mongod.out 2>&1
 	waitfor "${port}" "${dir}/mongod.log"
+	
+	# Let things calm down.
+	sleep 1	
 }
 
 case "$1" in 

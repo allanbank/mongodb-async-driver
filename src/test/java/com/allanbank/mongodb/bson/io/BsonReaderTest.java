@@ -123,7 +123,7 @@ public class BsonReaderTest {
         final BsonReader reader = new BsonReader(in);
 
         final Document doc = reader.readDocument();
-reader.close();
+        reader.close();
 
         assertTrue("Should be a RootDocument.", doc instanceof RootDocument);
         assertTrue("Should contain a 'hello' element.", doc.contains("hello"));
@@ -221,7 +221,7 @@ reader.close();
         BsonReader reader = new BsonReader(in);
         Document read = reader.readDocument();
         reader.close();
-        
+
         assertTrue("Should be a RootDocument.", read instanceof RootDocument);
         assertEquals("Should equal the orginal document.", doc, read);
 
@@ -233,7 +233,7 @@ reader.close();
         read = reader.readDocument();
         reader.close();
         writer.close();
-        
+
         assertTrue("Should be a RootDocument.", read instanceof RootDocument);
         assertEquals("Should equal the orginal document.", doc, read);
     }

@@ -21,6 +21,7 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.commands.Distinct;
 import com.allanbank.mongodb.commands.Find;
 import com.allanbank.mongodb.commands.FindAndModify;
@@ -341,8 +342,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         // Make sure the documents have an _id.
         for (final Document doc : documents) {
-            if (!doc.contains("_id")) {
-                doc.injectId();
+            if (!doc.contains("_id") && (doc instanceof RootDocument)) {
+                ((RootDocument) doc).injectId();
             }
         }
 

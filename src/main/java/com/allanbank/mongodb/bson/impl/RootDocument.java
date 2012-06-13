@@ -173,14 +173,8 @@ public class RootDocument implements Document {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to add an {@link ObjectIdElement} to the head of the document.
-     * </p>
-     * 
-     * @see com.allanbank.mongodb.bson.Document#injectId()
+     * Adds an {@link ObjectIdElement} to the head of the document.
      */
-    @Override
     public void injectId() {
         if (!contains("_id")) {
             final List<Element> old = myElements.get();

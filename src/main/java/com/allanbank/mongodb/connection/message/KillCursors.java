@@ -130,8 +130,8 @@ public class KillCursors extends AbstractMessage {
         writeHeader(out, messageId, 0, Operation.KILL_CURSORS, size);
         out.writeInt(0);
         out.writeInt(myCursorIds.length);
-        for (int i = 0; i < myCursorIds.length; ++i) {
-            out.writeLong(myCursorIds[i]);
+        for (final long myCursorId : myCursorIds) {
+            out.writeLong(myCursorId);
         }
     }
 }

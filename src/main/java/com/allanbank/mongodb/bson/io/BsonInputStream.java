@@ -54,6 +54,9 @@ public class BsonInputStream extends FilterInputStream {
     /** Tracks the number of bytes that have been read by the stream. */
     private long myBytesRead = 0;
 
+    /** The builder for strings in the stream. */
+    private final StringBuilder myStringBuilder;
+
     /**
      * Creates a BSON document reader.
      * 
@@ -62,6 +65,7 @@ public class BsonInputStream extends FilterInputStream {
      */
     public BsonInputStream(final InputStream input) {
         super(input);
+        myStringBuilder = new StringBuilder(64);
     }
 
     /**
@@ -131,28 +135,52 @@ public class BsonInputStream extends FilterInputStream {
      * @throws IOException
      *             On a failure reading the integer.
      */
+    @SuppressWarnings("null")
     public String readCString() throws EOFException, IOException {
+
+        myStringBuilder.setLength(0);
 
         // Don't know how big the cstring is so have to
         // read a little, decode a little, read a little, ...
-        final CharsetDecoder decoder = UTF8.newDecoder();
-        final ByteBuffer bytesIn = ByteBuffer.allocate(64);
-        final CharBuffer charBuffer = CharBuffer.allocate(64);
-        final StringBuilder builder = new StringBuilder(64);
+        CharsetDecoder decoder = null;
+        ByteBuffer bytesIn = null;
+        CharBuffer charBuffer = null;
 
         int read = read();
         while (read > 0) {
-            bytesIn.put((byte) read);
+            if (bytesIn == null) {
+                if (read < 0x80) {
+                    // 1 byte encoded / ASCII!
+                    myStringBuilder.append((char) read);
+                }
+                // else if (read < 0x800) {
+                // // 2 byte encoded.
+                // writeByte((byte) (0xc0 | (c >> 06)));
+                // writeByte((byte) (0x80 | (c & 0x3f)));
+                // }
+                else {
+                    // Complicated beyond here. Surrogates and what not. Let the
+                    // full charset handle it.
+                    decoder = UTF8.newDecoder();
+                    bytesIn = ByteBuffer.allocate(64);
+                    charBuffer = CharBuffer.allocate(64);
+                    bytesIn = ByteBuffer.allocate(64);
+                    bytesIn.put((byte) read);
+                }
+            }
+            else {
+                bytesIn.put((byte) read);
 
-            if (!bytesIn.hasRemaining()) {
+                if (!bytesIn.hasRemaining()) {
 
-                bytesIn.flip();
-                decoder.decode(bytesIn, charBuffer, false);
-                charBuffer.flip();
-                builder.append(charBuffer);
+                    bytesIn.flip();
+                    decoder.decode(bytesIn, charBuffer, false);
+                    charBuffer.flip();
+                    myStringBuilder.append(charBuffer);
 
-                charBuffer.clear();
-                bytesIn.compact();
+                    charBuffer.clear();
+                    bytesIn.compact();
+                }
             }
 
             read = read();
@@ -163,12 +191,14 @@ public class BsonInputStream extends FilterInputStream {
         }
 
         // Last decode.
-        bytesIn.flip();
-        decoder.decode(bytesIn, charBuffer, true);
-        charBuffer.flip();
-        builder.append(charBuffer);
+        if (bytesIn != null) {
+            bytesIn.flip();
+            decoder.decode(bytesIn, charBuffer, true);
+            charBuffer.flip();
+            myStringBuilder.append(charBuffer);
+        }
 
-        return builder.toString();
+        return myStringBuilder.toString();
     }
 
     /**
@@ -346,7 +376,7 @@ public class BsonInputStream extends FilterInputStream {
         // The total length of the document. Not used.
         readInt();
 
-        return new DocumentElement(name, readElements());
+        return new DocumentElement(name, readElements(), true);
     }
 
     /**

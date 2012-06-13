@@ -6,6 +6,8 @@ package com.allanbank.mongodb.bson;
 
 import java.util.List;
 
+import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
@@ -19,6 +21,11 @@ public interface Visitor {
 
     /**
      * Visit the root document.
+     * <p>
+     * Implementations of {@link Document} may see a significant performance
+     * enhancement if they ensure that the list of elements is the same list.
+     * (Identify check instead of {@link Object#equals(Object)}.
+     * </p>
      * 
      * @param elements
      *            The sub elements of the document.
@@ -27,6 +34,11 @@ public interface Visitor {
 
     /**
      * Visits an array of elements.
+     * <p>
+     * The {@link ArrayElement} implementation ensures that the list of elements
+     * is always the same list. Visitors may use this fact to cache intermediate
+     * results.
+     * </p>
      * 
      * @param name
      *            The name of the element.
@@ -74,6 +86,11 @@ public interface Visitor {
 
     /**
      * Visits a sub-document element.
+     * <p>
+     * The {@link DocumentElement} implementation ensures that the list of
+     * elements is always the same list. Visitors may use this fact to cache
+     * intermediate results.
+     * </p>
      * 
      * @param name
      *            The name of the element.

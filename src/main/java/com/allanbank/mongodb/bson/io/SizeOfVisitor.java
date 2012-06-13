@@ -14,76 +14,41 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 /**
  * A visitor to determine the size of the documents it visits. Intermediate
  * document sizes are cached for faster access later.
+ * <p>
+ * Caching is accomplished via a simple singly linked list of the cached
+ * documents. This works since the document will be written in the same in-order
+ * traversal of the document tree that this visitor follows. As each level of
+ * the tree is written this visitor should have {@link #rewind()} called to set
+ * the size back to zero and also remove the head from the document cache list.
+ * If the next document written is the expected in-order traversal there is a
+ * cache hit and the size is simply read from the cache's head node. Rinse,
+ * repeat.
+ * </p>
+ * <p>
+ * A custom list {@link CachedSizeNode node type} is used instead of a generic
+ * linked list to remove the overhead of extra object allocations for the node
+ * and the value.
+ * </p>
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 /* package */class SizeOfVisitor implements Visitor {
 
-    /**
-     * Computes the size of the encoded UTF8 String based on the table below.
-     * 
-     * <pre>
-     * #    Code Points      Bytes
-     * 1    U+0000..U+007F   1
-     * 
-     * 2    U+0080..U+07FF   2
-     * 
-     * 3    U+0800..U+0FFF   3
-     *      U+1000..U+FFFF
-     * 
-     * 4   U+10000..U+3FFFF  4
-     *     U+40000..U+FFFFF  4
-     *    U+100000..U10FFFF  4
-     * </pre>
-     * 
-     * @param string
-     *            The string to determine the length of.
-     * @return The length of the string encoded as UTF8.
-     */
-    public static int utf8Size(final String string) {
-        int length = 0;
-        final int strLength = string.length();
-        for (int i = 0; i < strLength; ++i) {
-            int c = string.charAt(i);
-            if (c < 0x0080) {
-                length += 1;
-            }
-            else if (c < 0x0800) {
-                length += 2;
-            }
-            else if (c < 0x1000) {
-                length += 3;
-            }
-            else {
-                // Have to worry about surrogate pairs.
-                if (Character.isHighSurrogate((char) c)
-                        && ((i + 1) < strLength)
-                        && Character.isLowSurrogate(string.charAt(i + 1))) {
-                    // Consume the second character too.
-                    i += 1;
-                    c = Character.toCodePoint((char) c, string.charAt(i));
-                }
-
-                if (c <= 0xFFFF) {
-                    length += 3;
-                }
-                else {
-                    length += 4;
-                }
-            }
-        }
-
-        return length;
-    }
+    /** The head of the list of cached sizes. */
+    private CachedSizeNode myHead = CachedSizeNode.NULL;
 
     /** The computed size. */
     private int mySize;
+
+    /** The tail of the list of cached sizes. */
+    private CachedSizeNode myTail = CachedSizeNode.NULL;
 
     /**
      * Creates a new SizeOfVisitor.
      */
     public SizeOfVisitor() {
         super();
+        mySize = 0;
     }
 
     /**
@@ -124,6 +89,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     public void reset() {
         mySize = 0;
+        myHead = myTail = CachedSizeNode.NULL;
     }
 
     /**
@@ -132,6 +98,65 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     public void rewind() {
         mySize = 0;
+        myHead = myHead.myNext;
+    }
+
+    /**
+     * Computes the size of the encoded UTF8 String based on the table below.
+     * 
+     * <pre>
+     * #    Code Points      Bytes
+     * 1    U+0000..U+007F   1
+     * 
+     * 2    U+0080..U+07FF   2
+     * 
+     * 3    U+0800..U+0FFF   3
+     *      U+1000..U+FFFF
+     * 
+     * 4   U+10000..U+3FFFF  4
+     *     U+40000..U+FFFFF  4
+     *    U+100000..U10FFFF  4
+     * </pre>
+     * 
+     * @param string
+     *            The string to determine the length of.
+     * @return The length of the string encoded as UTF8.
+     */
+    public int utf8Size(final String string) {
+
+        int length = 0;
+        final int strLength = string.length();
+        for (int i = 0; i < strLength; ++i) {
+            int c = string.charAt(i);
+            if (c < 0x0080) {
+                length += 1;
+            }
+            else if (c < 0x0800) {
+                length += 2;
+            }
+            else if (c < 0x1000) {
+                length += 3;
+            }
+            else {
+                // Have to worry about surrogate pairs.
+                if (Character.isHighSurrogate((char) c)
+                        && ((i + 1) < strLength)
+                        && Character.isLowSurrogate(string.charAt(i + 1))) {
+                    // Consume the second character too.
+                    i += 1;
+                    c = Character.toCodePoint((char) c, string.charAt(i));
+                }
+
+                if (c <= 0xFFFF) {
+                    length += 3;
+                }
+                else {
+                    length += 4;
+                }
+            }
+        }
+
+        return length;
     }
 
     /**
@@ -139,15 +164,33 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     @Override
     public void visit(final List<Element> elements) {
-        // int - 4
-        // elements...
-        // byte
 
-        mySize += 4;
-        for (final Element element : elements) {
-            element.accept(this);
+        if (myHead.myElements == elements) {
+            mySize += myHead.mySize;
         }
-        mySize += 1;
+        else {
+            // int - 4
+            // elements...
+            // byte
+
+            final CachedSizeNode mine = new CachedSizeNode(elements);
+            if (myHead == CachedSizeNode.NULL) {
+                myHead = myTail = mine;
+            }
+            else {
+                myTail.setNext(mine);
+                myTail = mine;
+            }
+
+            final int beforeSize = mySize;
+            mySize += 4;
+            for (final Element element : elements) {
+                element.accept(this);
+            }
+            mySize += 1;
+
+            mine.setSize(mySize - beforeSize);
+        }
     }
 
     /**
@@ -359,5 +402,88 @@ import com.allanbank.mongodb.bson.element.ObjectId;
         mySize += 1;
         mySize += computeCStringSize(name);
         mySize += 8;
+    }
+
+    /**
+     * CachedSizeNode provides a node in a singly linked list that forms the
+     * cache for the sizes of lists of elements.
+     * 
+     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected static final class CachedSizeNode {
+        /** A self referencing terminal node. */
+        protected static final CachedSizeNode NULL;
+        static {
+            NULL = new CachedSizeNode(null);
+            NULL.setNext(NULL);
+        }
+
+        /** The elements we are caching the size of. */
+        protected List<Element> myElements;
+
+        /** The next node in the singly linked list. */
+        protected CachedSizeNode myNext;
+
+        /** The cached size. */
+        protected int mySize;
+
+        /**
+         * Creates a new CachedSizeNode.
+         * 
+         * @param elements
+         *            The elements to cache the size of.
+         */
+        public CachedSizeNode(final List<Element> elements) {
+            myElements = elements;
+            mySize = 0;
+            myNext = NULL;
+        }
+
+        /**
+         * Returns the elements value.
+         * 
+         * @return The elements value.
+         */
+        public List<Element> getElements() {
+            return myElements;
+        }
+
+        /**
+         * Returns the next value.
+         * 
+         * @return The next value.
+         */
+        public CachedSizeNode getNext() {
+            return myNext;
+        }
+
+        /**
+         * Returns the size value.
+         * 
+         * @return The size value.
+         */
+        public int getSize() {
+            return mySize;
+        }
+
+        /**
+         * Sets the value of next to the new value.
+         * 
+         * @param next
+         *            The new value for the next.
+         */
+        public void setNext(final CachedSizeNode next) {
+            myNext = next;
+        }
+
+        /**
+         * Sets the value of size to the new value.
+         * 
+         * @param size
+         *            The new value for the size.
+         */
+        public void setSize(final int size) {
+            mySize = size;
+        }
     }
 }

@@ -86,7 +86,7 @@ public class BsonOutputStream {
     public int sizeOfCString(final String... strings) {
         int size = 0;
         for (final String string : strings) {
-            size += SizeOfVisitor.utf8Size(string);
+            size += myWriteVisitor.utf8Size(string);
         }
         return (size + 1);
     }
@@ -99,7 +99,7 @@ public class BsonOutputStream {
      * @return The size of the writing the <tt>string</tt> as a string.
      */
     public int sizeOfString(final String string) {
-        return 4 + SizeOfVisitor.utf8Size(string) + 1;
+        return 4 + myWriteVisitor.utf8Size(string) + 1;
     }
 
     /**
@@ -213,13 +213,13 @@ public class BsonOutputStream {
      *            The String to write.
      */
     public void writeString(final String string) {
-        writeInt(SizeOfVisitor.utf8Size(string) + 1);
+        writeInt(myWriteVisitor.utf8Size(string) + 1);
         writeUtf8(string);
         writeByte((byte) 0);
     }
 
     /**
-     * Writes The string as a UTF-8 string. This method handles the
+     * Writes the string as a UTF-8 string. This method handles the
      * "normal/easy" cases and delegates to the full character set if things get
      * complicated.
      * 

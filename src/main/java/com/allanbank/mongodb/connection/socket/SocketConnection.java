@@ -711,10 +711,10 @@ public class SocketConnection implements Connection {
                         // assume an empty pending queue means that there is no
                         // message for the reply.
                         if (message.getReplyCallback() != null) {
-                            if( ! myPendingQueue.offer(message) ) {
+                            if (!myPendingQueue.offer(message)) {
                                 // Push what we have out before blocking.
                                 flush();
-                                myPendingQueue.put(message);                                
+                                myPendingQueue.put(message);
                             }
                         }
                         doSend(message);

@@ -123,6 +123,9 @@ function start {
 	mongo localhost:27017/admin -eval "db.runCommand( { addshard : \"localhost:27018\" } );"
 	mongo localhost:27017/admin -eval "db.runCommand( { addshard : \"localhost:27020\" } );"
 	mongo localhost:27017/admin -eval "db.runCommand( { addshard : \"localhost:27021\" } );"
+	
+	# Let things calm down.
+	sleep 1	
 }
 
 case "$1" in 

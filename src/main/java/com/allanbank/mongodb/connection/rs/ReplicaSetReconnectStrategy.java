@@ -164,9 +164,9 @@ public class ReplicaSetReconnectStrategy extends
             final ReplicaSetConnection oldConnection,
             final Map<InetSocketAddress, Future<Reply>> answers,
             final Map<InetSocketAddress, Connection> connections) {
-        Map<InetSocketAddress, Future<Reply>> copy = new HashMap<InetSocketAddress, Future<Reply>>(
+        final Map<InetSocketAddress, Future<Reply>> copy = new HashMap<InetSocketAddress, Future<Reply>>(
                 answers);
-        for (Map.Entry<InetSocketAddress, Future<Reply>> entry : copy
+        for (final Map.Entry<InetSocketAddress, Future<Reply>> entry : copy
                 .entrySet()) {
 
             final InetSocketAddress addr = entry.getKey();

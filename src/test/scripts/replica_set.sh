@@ -191,7 +191,9 @@ END
 	# Wait for 4 secondaries.  All replicas are a secondary at some point in startup.
 	# Event the eventual primary.
 	waitForSecondaries 4 ${dir}/arbiter.log
-	
+
+	# Let things calm down.
+	sleep 1	
 }
 
 case "$1" in 

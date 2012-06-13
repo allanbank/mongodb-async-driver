@@ -83,13 +83,75 @@ public enum ElementType {
      *         it is not found.
      */
     public static ElementType valueOf(final byte token) {
-        for (final ElementType type : values()) {
-            if (token == type.getToken()) {
-                return type;
-            }
+        switch (token) {
+        case 0x01: {
+            return DOUBLE;
         }
+        case 0x02: {
+            return STRING;
+        }
+        case 0x03: {
+            return DOCUMENT;
+        }
+        case 0x04: {
+            return ARRAY;
+        }
+        case 0x05: {
+            return BINARY;
+        }
+        // 0x06 not used.
+        case 0x07: {
+            return OBJECT_ID;
+        }
+        case 0x08: {
+            return BOOLEAN;
+        }
+        case 0x09: {
+            return UTC_TIMESTAMP;
+        }
+        case 0x0A: {
+            return NULL;
+        }
+        case 0x0B: {
+            return REGEX;
+        }
+        case 0x0C: {
+            return DB_POINTER;
+        }
+        case 0x0D: {
+            return JAVA_SCRIPT;
+        }
+        case 0x0E: {
+            return SYMBOL;
+        }
+        case 0x0F: {
+            return JAVA_SCRIPT_WITH_SCOPE;
+        }
+        case 0x10: {
+            return INTEGER;
+        }
+        case 0x11: {
+            return MONGO_TIMESTAMP;
+        }
+        case 0x12: {
+            return LONG;
+        }
+        case 0x7F: {
+            return MAX_KEY;
+        }
+        case (byte) 0xFF: {
+            return MIN_KEY;
+        }
+        default: {
+            for (final ElementType type : values()) {
+                if (token == type.getToken()) {
+                    return type;
+                }
+            }
 
-        return null;
+            return null;
+        }
+        }
     }
 
     /** The token for the BSON type. */

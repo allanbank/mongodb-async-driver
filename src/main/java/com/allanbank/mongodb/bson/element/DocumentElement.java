@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -38,10 +37,10 @@ public class DocumentElement extends AbstractElement implements Document {
      * Constructed when a user tries to access the elements of the document by
      * name.
      */
-    private final AtomicReference<Map<String, Element>> myElementMap;
+    private Map<String, Element> myElementMap;
 
     /** The elements of the document. */
-    private final AtomicReference<List<Element>> myElements;
+    private final List<Element> myElements;
 
     /**
      * Constructs a new {@link DocumentElement}.
@@ -54,14 +53,11 @@ public class DocumentElement extends AbstractElement implements Document {
     public DocumentElement(final String name, final Document value) {
         super(TYPE, name);
 
-        myElements = new AtomicReference<List<Element>>();
-        myElementMap = new AtomicReference<Map<String, Element>>();
-
         final List<Element> elements = new ArrayList<Element>();
         for (final Element element : value) {
             elements.add(element);
         }
-        myElements.set(Collections.unmodifiableList(elements));
+        myElements = Collections.unmodifiableList(elements);
     }
 
     /**
@@ -75,15 +71,12 @@ public class DocumentElement extends AbstractElement implements Document {
     public DocumentElement(final String name, final Element... elements) {
         super(TYPE, name);
 
-        myElements = new AtomicReference<List<Element>>();
-        myElementMap = new AtomicReference<Map<String, Element>>();
-
         if (elements.length > 0) {
-            myElements.set(Collections.unmodifiableList(new ArrayList<Element>(
-                    Arrays.asList(elements))));
+            myElements = Collections.unmodifiableList(new ArrayList<Element>(
+                    Arrays.asList(elements)));
         }
         else {
-            myElements.set(EMPTY_ELEMENTS);
+            myElements = EMPTY_ELEMENTS;
         }
     }
 
@@ -96,17 +89,36 @@ public class DocumentElement extends AbstractElement implements Document {
      *            The sub-elements for the document.
      */
     public DocumentElement(final String name, final List<Element> elements) {
+        this(name, elements, false);
+    }
+
+    /**
+     * Constructs a new {@link DocumentElement}.
+     * 
+     * @param name
+     *            The name for the BSON document.
+     * @param elements
+     *            The sub-elements for the document.
+     * @param takeOwnership
+     *            If true this element takes ownership of the list to avoid a
+     *            copy of the list.
+     */
+    public DocumentElement(final String name, final List<Element> elements,
+            final boolean takeOwnership) {
+
         super(TYPE, name);
 
-        myElements = new AtomicReference<List<Element>>();
-        myElementMap = new AtomicReference<Map<String, Element>>();
-
         if ((elements != null) && !elements.isEmpty()) {
-            myElements.set(Collections.unmodifiableList(new ArrayList<Element>(
-                    elements)));
+            if (takeOwnership) {
+                myElements = Collections.unmodifiableList(elements);
+            }
+            else {
+                myElements = Collections
+                        .unmodifiableList(new ArrayList<Element>(elements));
+            }
         }
         else {
-            myElements.set(EMPTY_ELEMENTS);
+            myElements = EMPTY_ELEMENTS;
         }
 
     }
@@ -150,7 +162,7 @@ public class DocumentElement extends AbstractElement implements Document {
             final DocumentElement other = (DocumentElement) object;
 
             result = super.equals(object)
-                    && myElements.get().equals(other.myElements.get());
+                    && myElements.equals(other.myElements);
         }
         return result;
     }
@@ -172,7 +184,7 @@ public class DocumentElement extends AbstractElement implements Document {
      * @return The document contained within the element.
      */
     public Document getDocument() {
-        return new RootDocument(myElements.get());
+        return new RootDocument(myElements);
     }
 
     /**
@@ -181,7 +193,7 @@ public class DocumentElement extends AbstractElement implements Document {
      * @return The elements in the document.
      */
     public List<Element> getElements() {
-        return myElements.get();
+        return myElements;
     }
 
     /**
@@ -193,31 +205,8 @@ public class DocumentElement extends AbstractElement implements Document {
     public int hashCode() {
         int result = 1;
         result = (31 * result) + super.hashCode();
-        result = (31 * result) + myElements.get().hashCode();
+        result = (31 * result) + myElements.hashCode();
         return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to add an {@link ObjectIdElement} to the head of the document.
-     * </p>
-     * 
-     * @see com.allanbank.mongodb.bson.Document#injectId()
-     */
-    @Override
-    public void injectId() {
-        if (!contains("_id")) {
-            final List<Element> old = myElements.get();
-
-            final List<Element> newElements = new ArrayList<Element>();
-            newElements.add(new ObjectIdElement("_id", new ObjectId()));
-            newElements.addAll(old);
-
-            if (myElements.compareAndSet(old, newElements)) {
-                myElementMap.set(null);
-            }
-        }
     }
 
     /**
@@ -243,7 +232,7 @@ public class DocumentElement extends AbstractElement implements Document {
     public <E extends Element> List<E> queryPath(final Class<E> clazz,
             final String... nameRegexs) {
         if (0 < nameRegexs.length) {
-            final List<Element> docElements = myElements.get();
+            final List<Element> docElements = myElements;
             final List<E> elements = new ArrayList<E>();
             final String nameRegex = nameRegexs[0];
             final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
@@ -292,7 +281,7 @@ public class DocumentElement extends AbstractElement implements Document {
         builder.append("\" : { ");
 
         boolean first = true;
-        for (final Element element : myElements.get()) {
+        for (final Element element : myElements) {
             if (!first) {
                 builder.append(",\n");
             }
@@ -311,8 +300,8 @@ public class DocumentElement extends AbstractElement implements Document {
      * @return The element name to element mapping.
      */
     private Map<String, Element> getElementMap() {
-        if (myElementMap.get() == null) {
-            final List<Element> elements = myElements.get();
+        if (myElementMap == null) {
+            final List<Element> elements = myElements;
             final Map<String, Element> mapping = new HashMap<String, Element>(
                     elements.size() + elements.size());
 
@@ -321,9 +310,9 @@ public class DocumentElement extends AbstractElement implements Document {
             }
 
             // Swap the finished map into position.
-            myElementMap.set(mapping);
+            myElementMap = mapping;
         }
 
-        return myElementMap.get();
+        return myElementMap;
     }
 }

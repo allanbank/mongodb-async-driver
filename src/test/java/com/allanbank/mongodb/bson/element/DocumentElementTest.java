@@ -267,27 +267,6 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for {@link DocumentElement#injectId()}.
-     */
-    @Test
-    public void testInjectId() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
-
-        assertFalse(element.contains("_id"));
-
-        element.injectId();
-
-        assertTrue(element.contains("_id"));
-        assertTrue(element.get("_id") instanceof ObjectIdElement);
-
-        element.injectId();
-
-        assertTrue(element.contains("_id"));
-        assertTrue(element.get("_id") instanceof ObjectIdElement);
-    }
-
-    /**
      * Test method for {@link DocumentElement#iterator()}.
      */
     @Test

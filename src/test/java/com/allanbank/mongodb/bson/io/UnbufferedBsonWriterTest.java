@@ -105,7 +105,7 @@ public class UnbufferedBsonWriterTest {
 
         assertTrue("Should be a RootDocument.", read instanceof RootDocument);
         assertEquals("Should equal the orginal document.", doc, read);
-        
+
         reader.close();
     }
 

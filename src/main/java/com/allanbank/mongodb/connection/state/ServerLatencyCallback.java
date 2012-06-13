@@ -11,7 +11,8 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.connection.message.Reply;
 
 /**
- * ServerLatencyCallback provides TODO - Finish
+ * ServerLatencyCallback provides a special callback to measure the latency of
+ * requests to a server.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */

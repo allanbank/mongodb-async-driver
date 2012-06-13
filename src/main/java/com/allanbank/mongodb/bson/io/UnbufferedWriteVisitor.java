@@ -96,6 +96,18 @@ import com.allanbank.mongodb.bson.element.ObjectId;
     }
 
     /**
+     * Computes the size of the encoded UTF8 String.
+     * 
+     * @param string
+     *            The string to determine the length of.
+     * @return The length of the string encoded as UTF8.
+     * @see SizeOfVisitor#utf8Size(String)
+     */
+    public int utf8Size(final String string) {
+        return mySizeVisitor.utf8Size(string);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

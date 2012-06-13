@@ -24,6 +24,17 @@ import com.allanbank.mongodb.bson.element.AbstractElement;
  */
 public abstract class AbstractBuilder implements Builder {
 
+    /** If true then assertions have been enabled for the class. */
+    protected static final boolean ASSERTIONS_ENABLED;
+
+    /** The class used for intermediate sub-builders in the elements list. */
+    protected static final Class<BuilderElement> BUILDER_ELEMENT_CLASS;
+
+    static {
+        BUILDER_ELEMENT_CLASS = BuilderElement.class;
+        ASSERTIONS_ENABLED = AbstractBuilder.class.desiredAssertionStatus();
+    }
+
     /** The list of elements in the builder. */
     protected final List<Element> myElements;
 
@@ -48,6 +59,14 @@ public abstract class AbstractBuilder implements Builder {
     @Override
     public Builder pop() {
         return myOuterBuilder;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reset() {
+        myElements.clear();
     }
 
     /**
@@ -95,19 +114,23 @@ public abstract class AbstractBuilder implements Builder {
     protected List<Element> subElements() {
         final List<Element> elements = new ArrayList<Element>(myElements.size());
 
-        final Set<String> names = new HashSet<String>(myElements.size() << 1);
-        final Class<BuilderElement> builderElementClass = BuilderElement.class;
+        Set<String> names = null;
         for (Element element : myElements) {
-            if (element.getClass() == builderElementClass) {
+            if (element.getClass() == BUILDER_ELEMENT_CLASS) {
                 element = ((BuilderElement) element).get();
             }
 
-            final String name = element.getName();
-            assert !names.contains(name) : name + " is not unique in  "
-                    + myElements;
+            if (ASSERTIONS_ENABLED) {
+                if (names == null) {
+                    names = new HashSet<String>(myElements.size() << 1);
+                }
+                final String name = element.getName();
+                if (!names.add(name)) {
+                    assert false : name + " is not unique in  " + myElements;
+                }
+            }
 
             elements.add(element);
-            names.add(name);
         }
 
         return elements;

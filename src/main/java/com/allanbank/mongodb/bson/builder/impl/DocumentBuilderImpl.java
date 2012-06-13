@@ -259,6 +259,6 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     protected Element get(final String name) {
-        return new DocumentElement(name, subElements());
+        return new DocumentElement(name, subElements(), true);
     }
 }

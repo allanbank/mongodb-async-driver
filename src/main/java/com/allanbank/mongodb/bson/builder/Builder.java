@@ -18,4 +18,9 @@ public interface Builder {
      * @return The outer scoped builder.
      */
     public Builder pop();
+
+    /**
+     * Resets the builder back to an empty state.
+     */
+    public void reset();
 }
