@@ -19,7 +19,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
@@ -44,7 +43,6 @@ import com.mongodb.WriteConcern;
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-@Ignore
 public class PerformanceITest {
 
     /** A builder for executing background process scripts. */

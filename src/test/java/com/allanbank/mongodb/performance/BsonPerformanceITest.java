@@ -23,7 +23,6 @@ import org.bson.BasicBSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
@@ -39,7 +38,6 @@ import com.allanbank.mongodb.bson.io.BsonWriter;
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-@Ignore
 public class BsonPerformanceITest {
 
     /** The format for the data in the report. */
