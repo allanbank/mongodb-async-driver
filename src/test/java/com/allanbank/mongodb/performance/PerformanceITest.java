@@ -51,6 +51,10 @@ public class PerformanceITest {
     /** The directory containing the scripts. */
     private static final File SCRIPT_DIR = new File("src/test/scripts");
 
+    /** The URI to use to connect to the server. */
+    private static InetSocketAddress ourMongoServerUri = new InetSocketAddress(
+            "127.0.0.1", 27017);
+
     /**
      * Starts the MongoDB server for the test.
      * 
@@ -63,11 +67,29 @@ public class PerformanceITest {
     public static void startServer() throws IOException, InterruptedException {
         ourBuilder = new ProcessBuilder();
         ourBuilder.directory(SCRIPT_DIR);
-        ourBuilder.command(
-                new File(SCRIPT_DIR, "standalone.sh").getAbsolutePath(),
-                "start");
-        final Process start = ourBuilder.start();
-        start.waitFor();
+
+        String uri = System.getProperty("mongodb.server.uri");
+        if (uri == null) {
+            uri = System.getenv("mongodb.server.uri");
+        }
+
+        if (uri == null) {
+            ourBuilder.command(
+                    new File(SCRIPT_DIR, "standalone.sh").getAbsolutePath(),
+                    "start");
+            final Process start = ourBuilder.start();
+            start.waitFor();
+        }
+        else {
+            int colon = uri.indexOf(':');
+            if (colon >= 0) {
+                ourMongoServerUri = new InetSocketAddress(uri.substring(0,
+                        colon), Integer.parseInt(uri.substring(colon + 1)));
+            }
+            else {
+                ourMongoServerUri = new InetSocketAddress(uri, 27017);
+            }
+        }
     }
 
     /**
@@ -148,7 +170,7 @@ public class PerformanceITest {
     public void setUp() {
         try {
             final MongoDbConfiguration config = new MongoDbConfiguration(
-                    new InetSocketAddress("127.0.0.1", 27017));
+                    ourMongoServerUri);
             config.setMaxConnectionCount(1);
             config.setMaxPendingOperationsPerConnection(10 * 1024);
 
@@ -159,7 +181,9 @@ public class PerformanceITest {
             final MongoOptions options = new MongoOptions();
             options.connectionsPerHost = 1;
 
-            mySyncMongo = new com.mongodb.Mongo("127.0.0.1:27017", options);
+            mySyncMongo = new com.mongodb.Mongo(
+                    ourMongoServerUri.getHostString() + ":"
+                            + ourMongoServerUri.getPort(), options);
             mySyncDb = mySyncMongo.getDB("syncTest");
             mySyncCollection = mySyncDb.getCollection("test");
         }
@@ -220,14 +244,14 @@ public class PerformanceITest {
         cases.add("none");
         cases.add("ack");
         cases.add("normal");
-        cases.add("journal");
-        cases.add("fsync");
 
         final List<String> runCases = new ArrayList<String>();
         runCases.addAll(cases);
         runCases.addAll(cases);
         runCases.addAll(cases);
-
+        runCases.add("journal");
+        runCases.add("fsync");
+        
         final List<String> runOrder = new ArrayList<String>();
         runOrder.add("async");
         runOrder.add("sync");
@@ -327,7 +351,7 @@ public class PerformanceITest {
                         Double.valueOf(callback * 1000.0));
             }
             else if ("journal".equals(runCase)) {
-                count = (maxCount / 10);
+                count = (maxCount / 20);
                 durability = Durability.journalDurable(1000);
 
                 Collections.shuffle(runOrder);
@@ -356,7 +380,7 @@ public class PerformanceITest {
                         Double.valueOf(callback * 1000.0));
             }
             else if ("fsync".equals(runCase)) {
-                count = maxCount / 10;
+                count = maxCount / 20;
                 durability = Durability.journalDurable(1000);
 
                 Collections.shuffle(runOrder);
@@ -406,13 +430,13 @@ public class PerformanceITest {
         cases.add("none");
         cases.add("normal");
         cases.add("ack");
-        cases.add("journal");
-        cases.add("fsync");
 
         final List<String> runCases = new ArrayList<String>();
         runCases.addAll(cases);
         runCases.addAll(cases);
         runCases.addAll(cases);
+        runCases.add("journal");
+        runCases.add("fsync");
 
         final List<String> runOrder = new ArrayList<String>();
         runOrder.add("async");
