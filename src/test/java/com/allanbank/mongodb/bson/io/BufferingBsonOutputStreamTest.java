@@ -16,14 +16,14 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
- * Tests for the {@link BsonWriter} class.
+ * Tests for the {@link BufferingBsonOutputStream} class.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BsonWriterTest {
+public class BufferingBsonOutputStreamTest {
 
     /**
-     * Test method for {@link BsonWriter#write}.
+     * Test method for {@link BufferingBsonOutputStream#write}.
      * 
      * @throws IOException
      *             On a failure reading the test document.
@@ -40,7 +40,8 @@ public class BsonWriterTest {
         builder.addString("hello", "world");
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final BsonWriter writer = new BsonWriter(out);
+        final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
+                out);
 
         writer.write(builder.get());
 
@@ -51,7 +52,7 @@ public class BsonWriterTest {
     }
 
     /**
-     * Test method for {@link BsonWriter#write}.
+     * Test method for {@link BufferingBsonOutputStream#write}.
      * 
      * @throws IOException
      *             On a failure reading the test document.
@@ -73,7 +74,8 @@ public class BsonWriterTest {
         aBuilder.addInteger(1986);
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final BsonWriter writer = new BsonWriter(out);
+        final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
+                out);
 
         writer.write(builder.get());
 

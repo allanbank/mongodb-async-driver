@@ -12,37 +12,37 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Visitor;
 
 /**
- * {@link BsonWriter} provides a class to write BSON documents based on the <a
- * href="http://bsonspec.org/">BSON specification</a>.
+ * {@link BufferingBsonOutputStream} provides a class to write BSON documents
+ * based on the <a href="http://bsonspec.org/">BSON specification</a>.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BsonWriter extends FilterOutputStream {
+public class BufferingBsonOutputStream extends FilterOutputStream {
     /** The {@link Visitor} to write the BSON documents. */
-    private final WriteVisitor myVisitor;
+    private final BufferingWriteVisitor myVisitor;
 
     /**
-     * Creates a new {@link BsonWriter}.
+     * Creates a new {@link BufferingBsonOutputStream}.
      * 
      * @param output
      *            The stream to write to.
      */
-    public BsonWriter(final OutputStream output) {
+    public BufferingBsonOutputStream(final OutputStream output) {
         super(output);
 
-        myVisitor = new WriteVisitor();
+        myVisitor = new BufferingWriteVisitor();
     }
 
     /**
-     * Creates a new {@link BsonWriter}.
+     * Creates a new {@link BufferingBsonOutputStream}.
      * 
      * @param output
      *            The stream to write to.
      */
-    public BsonWriter(final RandomAccessOutputStream output) {
+    public BufferingBsonOutputStream(final RandomAccessOutputStream output) {
         super(output);
 
-        myVisitor = new WriteVisitor(output);
+        myVisitor = new BufferingWriteVisitor(output);
     }
 
     /**

@@ -48,12 +48,12 @@ public class PerformanceITest {
     /** A builder for executing background process scripts. */
     private static ProcessBuilder ourBuilder = null;
 
-    /** The directory containing the scripts. */
-    private static final File SCRIPT_DIR = new File("src/test/scripts");
-
     /** The URI to use to connect to the server. */
     private static InetSocketAddress ourMongoServerUri = new InetSocketAddress(
             "127.0.0.1", 27017);
+
+    /** The directory containing the scripts. */
+    private static final File SCRIPT_DIR = new File("src/test/scripts");
 
     /**
      * Starts the MongoDB server for the test.
@@ -81,7 +81,7 @@ public class PerformanceITest {
             start.waitFor();
         }
         else {
-            int colon = uri.indexOf(':');
+            final int colon = uri.indexOf(':');
             if (colon >= 0) {
                 ourMongoServerUri = new InetSocketAddress(uri.substring(0,
                         colon), Integer.parseInt(uri.substring(colon + 1)));
@@ -251,7 +251,7 @@ public class PerformanceITest {
         runCases.addAll(cases);
         runCases.add("journal");
         runCases.add("fsync");
-        
+
         final List<String> runOrder = new ArrayList<String>();
         runOrder.add("async");
         runOrder.add("sync");

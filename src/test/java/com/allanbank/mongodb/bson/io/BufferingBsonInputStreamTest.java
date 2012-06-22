@@ -31,14 +31,14 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
- * Tests for the BsonReader class.
+ * Tests for the BufferingBsonInputStream class.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BsonReaderTest {
+public class BufferingBsonInputStreamTest {
 
     /**
-     * Test method for {@link BsonReader#readDocument()}.
+     * Test method for {@link BufferingBsonInputStream#readDocument()}.
      * 
      * @throws IOException
      *             On a failure reading the test document.
@@ -54,7 +54,7 @@ public class BsonReaderTest {
 
         // Expected: { "BSON": ["awesome", 5.05, 1986] }
         final ByteArrayInputStream in = new ByteArrayInputStream(arrayDocument);
-        final BsonReader reader = new BsonReader(in);
+        final BufferingBsonInputStream reader = new BufferingBsonInputStream(in);
 
         final Document doc = reader.readDocument();
         reader.close();
@@ -106,7 +106,7 @@ public class BsonReaderTest {
     }
 
     /**
-     * Test method for {@link BsonReader#readDocument()}.
+     * Test method for {@link BufferingBsonInputStream#readDocument()}.
      * 
      * @throws IOException
      *             On a failure reading the test document.
@@ -120,7 +120,7 @@ public class BsonReaderTest {
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
         final ByteArrayInputStream in = new ByteArrayInputStream(helloWorld);
-        final BsonReader reader = new BsonReader(in);
+        final BufferingBsonInputStream reader = new BufferingBsonInputStream(in);
 
         final Document doc = reader.readDocument();
         reader.close();
@@ -145,7 +145,7 @@ public class BsonReaderTest {
     }
 
     /**
-     * Test method for {@link BsonReader#readDocument()}.
+     * Test method for {@link BufferingBsonInputStream#readDocument()}.
      * 
      * @throws IOException
      *             On a failure reading the test document.
@@ -213,12 +213,13 @@ public class BsonReaderTest {
         final Document doc = builder.get();
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final BsonWriter writer = new BsonWriter(out);
+        final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
+                out);
 
         writer.write(doc);
 
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        BsonReader reader = new BsonReader(in);
+        BufferingBsonInputStream reader = new BufferingBsonInputStream(in);
         Document read = reader.readDocument();
         reader.close();
 
@@ -229,7 +230,7 @@ public class BsonReaderTest {
         writer.write(doc);
 
         in = new ByteArrayInputStream(out.toByteArray());
-        reader = new BsonReader(in);
+        reader = new BufferingBsonInputStream(in);
         read = reader.readDocument();
         reader.close();
         writer.close();

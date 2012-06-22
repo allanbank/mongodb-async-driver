@@ -41,12 +41,12 @@ import com.allanbank.mongodb.bson.element.TimestampElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
- * {@link BsonReader} provides a class to read BSON documents based on the <a
- * href="http://bsonspec.org/">BSON specification</a>.
+ * {@link BufferingBsonInputStream} provides a class to read BSON documents
+ * based on the <a href="http://bsonspec.org/">BSON specification</a>.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BsonReader extends FilterInputStream {
+public class BufferingBsonInputStream extends FilterInputStream {
 
     /** (U) UTF-8 Character set for encoding strings. */
     public final static Charset UTF8 = Charset.forName("UTF-8");
@@ -60,7 +60,7 @@ public class BsonReader extends FilterInputStream {
      * @param input
      *            the underlying stream to read from.
      */
-    public BsonReader(final InputStream input) {
+    public BufferingBsonInputStream(final InputStream input) {
         super(input);
         myStringBuilder = new StringBuilder(64);
     }

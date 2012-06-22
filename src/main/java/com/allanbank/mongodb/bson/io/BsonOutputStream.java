@@ -27,7 +27,7 @@ public class BsonOutputStream {
     protected final OutputStream myOutput;
 
     /** The visitor for writing BSON documents. */
-    protected final UnbufferedWriteVisitor myWriteVisitor;
+    protected final WriteVisitor myWriteVisitor;
 
     /**
      * Creates a new {@link BsonOutputStream}.
@@ -37,7 +37,7 @@ public class BsonOutputStream {
      */
     public BsonOutputStream(final OutputStream output) {
         myOutput = output;
-        myWriteVisitor = new UnbufferedWriteVisitor(this);
+        myWriteVisitor = new WriteVisitor(this);
     }
 
     /**

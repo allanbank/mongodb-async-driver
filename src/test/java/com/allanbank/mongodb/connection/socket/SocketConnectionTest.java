@@ -36,7 +36,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.bson.io.BsonReader;
+import com.allanbank.mongodb.bson.io.BufferingBsonInputStream;
 import com.allanbank.mongodb.bson.io.EndianUtils;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
@@ -176,8 +176,9 @@ public class SocketConnectionTest {
         assertEquals("Number to return not expected.", 1,
                 EndianUtils.swap(asInts.get(8)));
 
-        final BsonReader reader = new BsonReader(new ByteArrayInputStream(
-                Arrays.copyOfRange(request, (7 * 4) + 8, request.length)));
+        final BufferingBsonInputStream reader = new BufferingBsonInputStream(
+                new ByteArrayInputStream(Arrays.copyOfRange(request,
+                        (7 * 4) + 8, request.length)));
 
         final Document sent = reader.readDocument();
         reader.close();
@@ -236,8 +237,9 @@ public class SocketConnectionTest {
         assertEquals("Number to return not expected.", 1,
                 EndianUtils.swap(asInts.get(8)));
 
-        final BsonReader reader = new BsonReader(new ByteArrayInputStream(
-                Arrays.copyOfRange(request, (7 * 4) + 8, request.length)));
+        final BufferingBsonInputStream reader = new BufferingBsonInputStream(
+                new ByteArrayInputStream(Arrays.copyOfRange(request,
+                        (7 * 4) + 8, request.length)));
 
         final Document sent = reader.readDocument();
         reader.close();
@@ -296,8 +298,9 @@ public class SocketConnectionTest {
         assertEquals("Number to return not expected.", 1,
                 EndianUtils.swap(asInts.get(8)));
 
-        final BsonReader reader = new BsonReader(new ByteArrayInputStream(
-                Arrays.copyOfRange(request, (7 * 4) + 8, request.length)));
+        final BufferingBsonInputStream reader = new BufferingBsonInputStream(
+                new ByteArrayInputStream(Arrays.copyOfRange(request,
+                        (7 * 4) + 8, request.length)));
 
         final Document sent = reader.readDocument();
         reader.close();
@@ -358,8 +361,9 @@ public class SocketConnectionTest {
         assertEquals("Number to return not expected.", 1,
                 EndianUtils.swap(asInts.get(8)));
 
-        final BsonReader reader = new BsonReader(new ByteArrayInputStream(
-                Arrays.copyOfRange(request, (7 * 4) + 8, request.length)));
+        final BufferingBsonInputStream reader = new BufferingBsonInputStream(
+                new ByteArrayInputStream(Arrays.copyOfRange(request,
+                        (7 * 4) + 8, request.length)));
 
         final Document sent = reader.readDocument();
         reader.close();

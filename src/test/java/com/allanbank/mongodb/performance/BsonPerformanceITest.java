@@ -30,8 +30,8 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
-import com.allanbank.mongodb.bson.io.BsonReader;
-import com.allanbank.mongodb.bson.io.BsonWriter;
+import com.allanbank.mongodb.bson.io.BufferingBsonInputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 
 /**
  * BsonPerformanceITest provides performance tests for BSON reads and writes.
@@ -126,7 +126,7 @@ public class BsonPerformanceITest {
     @BeforeClass
     public static void setUpClass() {
         System.out.printf(LABEL_FORMAT, "OP (\u00B5s/op)", "Legacy", "BStream",
-                "BWriter");
+                "BufferedBStream");
     }
 
     /** The source of random value for the documents. */
@@ -194,7 +194,8 @@ public class BsonPerformanceITest {
 
             double legacy = doLegacyRead(docBytes.clone(), (level << 1));
             double bstream = doBStreamRead(docBytes.clone(), (level << 1));
-            double bwrite = doBReaderRead(docBytes.clone(), (level << 1));
+            double bwrite = doBufferedBStreamRead(docBytes.clone(),
+                    (level << 1));
 
             System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
                     Double.valueOf(bstream), Double.valueOf(bwrite));
@@ -204,7 +205,7 @@ public class BsonPerformanceITest {
 
             legacy = doLegacyLargeDocWrite(level);
             bstream = doBStreamLargeDocWrite(level);
-            bwrite = doBWriteLargeDocWrite(level);
+            bwrite = doBufferedBStreamLargeDocWrite(level);
 
             System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
                     Double.valueOf(bstream), Double.valueOf(bwrite));
@@ -227,7 +228,7 @@ public class BsonPerformanceITest {
         final byte[] docBytes = ourMediumDocBytes;
         final double legacy = doLegacyRead(docBytes.clone());
         final double bstream = doBStreamRead(docBytes.clone());
-        final double bwrite = doBReaderRead(docBytes.clone());
+        final double bwrite = doBufferedBStreamRead(docBytes.clone());
 
         System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
                 Double.valueOf(bstream), Double.valueOf(bwrite));
@@ -272,7 +273,7 @@ public class BsonPerformanceITest {
 
         final double legacy = doLegacyMediumDocWrite();
         final double bstream = doBStreamMediumDocWrite();
-        final double bwrite = doBWriteMediumDocWrite();
+        final double bwrite = doBufferedBStreamMediumDocWrite();
 
         System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
                 Double.valueOf(bstream), Double.valueOf(bwrite));
@@ -294,7 +295,7 @@ public class BsonPerformanceITest {
         final byte[] docBytes = ourMicroDocBytes;
         final double legacy = doLegacyRead(docBytes.clone());
         final double bstream = doBStreamRead(docBytes.clone());
-        final double bwrite = doBReaderRead(docBytes.clone());
+        final double bwrite = doBufferedBStreamRead(docBytes.clone());
 
         System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
                 Double.valueOf(bstream), Double.valueOf(bwrite));
@@ -316,7 +317,7 @@ public class BsonPerformanceITest {
 
         final double legacy = doLegacyMicroDocWrite();
         final double bstream = doBStreamMicroDocWrite();
-        final double bwrite = doBWriteMicroDocWrite();
+        final double bwrite = doBufferedBStreamMicroDocWrite();
 
         System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
                 Double.valueOf(bstream), Double.valueOf(bwrite));
@@ -338,7 +339,7 @@ public class BsonPerformanceITest {
         final byte[] docBytes = ourSmallDocBytes;
         final double legacy = doLegacyRead(docBytes.clone());
         final double bstream = doBStreamRead(docBytes.clone());
-        final double bwrite = doBReaderRead(docBytes.clone());
+        final double bwrite = doBufferedBStreamRead(docBytes.clone());
 
         System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
                 Double.valueOf(bstream), Double.valueOf(bwrite));
@@ -361,57 +362,10 @@ public class BsonPerformanceITest {
 
         final double legacy = doLegacySmallDocWrite();
         final double bstream = doBStreamSmallDocWrite();
-        final double bwrite = doBWriteSmallDocWrite();
+        final double bwrite = doBufferedBStreamSmallDocWrite();
 
         System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
                 Double.valueOf(bstream), Double.valueOf(bwrite));
-    }
-
-    /**
-     * Reads documents via a {@link BsonInputStream}.
-     * 
-     * @param bytes
-     *            The bytes for the document to read.
-     * @return The time to read each document in microseconds.
-     */
-    protected double doBReaderRead(final byte[] bytes) {
-        return doBReaderRead(bytes, 1);
-    }
-
-    /**
-     * Reads documents via a {@link BsonInputStream}.
-     * 
-     * @param bytes
-     *            The bytes for the document to read.
-     * @param divisor
-     *            The divisor for the number of {@link #ITERATIONS}.
-     * @return The time to read each document in microseconds.
-     */
-    protected double doBReaderRead(final byte[] bytes, final int divisor) {
-
-        final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-        final BsonReader bin = new BsonReader(in);
-        try {
-            final int iterations = ITERATIONS / divisor;
-            final long startTime = System.nanoTime();
-            for (int i = 0; i < iterations; ++i) {
-                in.reset();
-
-                bin.readDocument();
-            }
-
-            final long endTime = System.nanoTime();
-            final double delta = ((double) (endTime - startTime))
-                    / TimeUnit.MICROSECONDS.toNanos(1);
-            return (delta / iterations);
-        }
-        catch (final IOException error) {
-            fail(error.getMessage());
-            return -1;
-        }
-        finally {
-            close(bin);
-        }
     }
 
     /**
@@ -629,16 +583,17 @@ public class BsonPerformanceITest {
     }
 
     /**
-     * Writes large documents to a {@link BsonWriter}.
+     * Writes large documents to a {@link BufferingBsonOutputStream}.
      * 
      * @param levels
      *            The number of levels to create in the tree.
      * @return The time to write each document in microseconds.
      * @see #testLargeDocumentReadWritePerformance()
      */
-    protected double doBWriteLargeDocWrite(final int levels) {
+    protected double doBufferedBStreamLargeDocWrite(final int levels) {
         final DocumentBuilder builder = BuilderFactory.start();
-        final BsonWriter bwriter = new BsonWriter(new DevNullOutputStream());
+        final BufferingBsonOutputStream bwriter = new BufferingBsonOutputStream(
+                new DevNullOutputStream());
         try {
             final int iterations = ITERATIONS / (levels << 1);
 
@@ -667,14 +622,15 @@ public class BsonPerformanceITest {
     }
 
     /**
-     * Writes medium documents to a {@link BsonWriter}.
+     * Writes medium documents to a {@link BufferingBsonOutputStream}.
      * 
      * @return The time to write each document in microseconds.
      * @see #testMediumDocumentWritePerformance()
      */
-    protected double doBWriteMediumDocWrite() {
+    protected double doBufferedBStreamMediumDocWrite() {
         final DocumentBuilder builder = BuilderFactory.start();
-        final BsonWriter bwriter = new BsonWriter(new DevNullOutputStream());
+        final BufferingBsonOutputStream bwriter = new BufferingBsonOutputStream(
+                new DevNullOutputStream());
         try {
             final long startTime = System.nanoTime();
 
@@ -736,14 +692,15 @@ public class BsonPerformanceITest {
     }
 
     /**
-     * Writes micro documents to a {@link BsonWriter}.
+     * Writes micro documents to a {@link BufferingBsonOutputStream}.
      * 
      * @return The time to write each document in microseconds.
      * @see #testMicroDocumentWritePerformance()
      */
-    protected double doBWriteMicroDocWrite() {
+    protected double doBufferedBStreamMicroDocWrite() {
         final DocumentBuilder builder = BuilderFactory.start();
-        final BsonWriter bwriter = new BsonWriter(new DevNullOutputStream());
+        final BufferingBsonOutputStream bwriter = new BufferingBsonOutputStream(
+                new DevNullOutputStream());
         try {
             final long startTime = System.nanoTime();
 
@@ -769,14 +726,62 @@ public class BsonPerformanceITest {
     }
 
     /**
-     * Writes small documents to a {@link BsonWriter}.
+     * Reads documents via a {@link BsonInputStream}.
+     * 
+     * @param bytes
+     *            The bytes for the document to read.
+     * @return The time to read each document in microseconds.
+     */
+    protected double doBufferedBStreamRead(final byte[] bytes) {
+        return doBufferedBStreamRead(bytes, 1);
+    }
+
+    /**
+     * Reads documents via a {@link BsonInputStream}.
+     * 
+     * @param bytes
+     *            The bytes for the document to read.
+     * @param divisor
+     *            The divisor for the number of {@link #ITERATIONS}.
+     * @return The time to read each document in microseconds.
+     */
+    protected double doBufferedBStreamRead(final byte[] bytes, final int divisor) {
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+        final BufferingBsonInputStream bin = new BufferingBsonInputStream(in);
+        try {
+            final int iterations = ITERATIONS / divisor;
+            final long startTime = System.nanoTime();
+            for (int i = 0; i < iterations; ++i) {
+                in.reset();
+
+                bin.readDocument();
+            }
+
+            final long endTime = System.nanoTime();
+            final double delta = ((double) (endTime - startTime))
+                    / TimeUnit.MICROSECONDS.toNanos(1);
+            return (delta / iterations);
+        }
+        catch (final IOException error) {
+            fail(error.getMessage());
+            return -1;
+        }
+        finally {
+            close(bin);
+        }
+    }
+
+    /**
+     * Writes small documents to a {@link BufferingBsonOutputStream}.
      * 
      * @return The time to write each document in microseconds.
      * @see #testSmallDocumentWritePerformance()
      */
-    protected double doBWriteSmallDocWrite() {
+    protected double doBufferedBStreamSmallDocWrite() {
         final DocumentBuilder builder = BuilderFactory.start();
-        final BsonWriter bwriter = new BsonWriter(new DevNullOutputStream());
+        final BufferingBsonOutputStream bwriter = new BufferingBsonOutputStream(
+                new DevNullOutputStream());
         try {
             final long startTime = System.nanoTime();
 
