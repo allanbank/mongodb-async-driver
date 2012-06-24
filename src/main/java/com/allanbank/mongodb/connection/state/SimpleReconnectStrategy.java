@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * SimpleReconnectStrategy provides a reconnection strategy to simply attempt to

@@ -29,8 +29,8 @@ import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.state.AbstractReconnectStrategy;
 import com.allanbank.mongodb.connection.state.ClusterState;
-import com.allanbank.mongodb.connection.state.IOUtils;
 import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * ReplicaSetReconnectStrategy provides a {@link ReconnectStrategy} designed for

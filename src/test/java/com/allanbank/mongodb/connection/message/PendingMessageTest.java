@@ -3,7 +3,7 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.connection.socket;
+package com.allanbank.mongodb.connection.message;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -22,7 +22,6 @@ import org.junit.Test;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * PendingMessageTest provides tests for the {@link PendingMessage} class.

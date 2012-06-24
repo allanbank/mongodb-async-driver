@@ -24,13 +24,14 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.util.FutureUtils;
 
 /**
  * Implementation of the {@link MongoDatabase} interface.
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoDatabaseImpl extends AbstractMongo implements MongoDatabase {
+public class MongoDatabaseImpl implements MongoDatabase {
 
     /** An empty query document. */
     public static final Document EMPTY_QUERY = BuilderFactory.start().get();
@@ -116,7 +117,7 @@ public class MongoDatabaseImpl extends AbstractMongo implements MongoDatabase {
         myClient.send(query, callback);
 
         final List<String> names = new ArrayList<String>();
-        final Iterator<Document> iter = unwrap(iterFuture);
+        final Iterator<Document> iter = FutureUtils.unwrap(iterFuture);
         while (iter.hasNext()) {
             final Document collection = iter.next();
             for (final StringElement nameElement : collection.queryPath(
@@ -189,7 +190,7 @@ public class MongoDatabaseImpl extends AbstractMongo implements MongoDatabase {
      */
     @Override
     public Document runCommand(final String command) throws MongoDbException {
-        return unwrap(runCommandAsync(command, null));
+        return FutureUtils.unwrap(runCommandAsync(command, null));
     }
 
     /**
@@ -203,7 +204,7 @@ public class MongoDatabaseImpl extends AbstractMongo implements MongoDatabase {
     @Override
     public Document runCommand(final String command, final Document options)
             throws MongoDbException {
-        return unwrap(runCommandAsync(command, options));
+        return FutureUtils.unwrap(runCommandAsync(command, options));
     }
 
     /**
@@ -219,7 +220,8 @@ public class MongoDatabaseImpl extends AbstractMongo implements MongoDatabase {
     public Document runCommand(final String commandName,
             final String commandValue, final Document options)
             throws MongoDbException {
-        return unwrap(runCommandAsync(commandName, commandValue, options));
+        return FutureUtils.unwrap(runCommandAsync(commandName, commandValue,
+                options));
     }
 
     /**

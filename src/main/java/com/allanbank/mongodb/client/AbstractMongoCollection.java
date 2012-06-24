@@ -26,6 +26,7 @@ import com.allanbank.mongodb.commands.GroupBy;
 import com.allanbank.mongodb.commands.MapReduce;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.GetLastError;
+import com.allanbank.mongodb.util.FutureUtils;
 
 /**
  * Helper class for forward all methods to the canonical version (which is
@@ -38,8 +39,7 @@ import com.allanbank.mongodb.connection.message.GetLastError;
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractMongoCollection extends AbstractMongo implements
-        MongoCollection {
+public abstract class AbstractMongoCollection implements MongoCollection {
 
     /**
      * The default for if a delete should only delete the first document it
@@ -126,7 +126,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
 
         final Future<Long> future = countAsync(query, replicaOk);
 
-        return unwrap(future).longValue();
+        return FutureUtils.unwrap(future).longValue();
     }
 
     /**
@@ -315,7 +315,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
 
         final Future<Long> future = deleteAsync(query, singleDelete, durability);
 
-        return unwrap(future).longValue();
+        return FutureUtils.unwrap(future).longValue();
     }
 
     /**
@@ -487,7 +487,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
     @Override
     public ArrayElement distinct(final Distinct command)
             throws MongoDbException {
-        return unwrap(distinctAsync(command));
+        return FutureUtils.unwrap(distinctAsync(command));
     }
 
     /**
@@ -550,7 +550,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
     @Override
     public ClosableIterator<Document> find(final Document query)
             throws MongoDbException {
-        return unwrap(findAsync(query));
+        return FutureUtils.unwrap(findAsync(query));
     }
 
     /**
@@ -564,7 +564,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
     @Override
     public ClosableIterator<Document> find(final Find query)
             throws MongoDbException {
-        return unwrap(findAsync(query));
+        return FutureUtils.unwrap(findAsync(query));
     }
 
     /**
@@ -578,7 +578,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
     @Override
     public Document findAndModify(final FindAndModify command)
             throws MongoDbException {
-        return unwrap(findAndModifyAsync(command));
+        return FutureUtils.unwrap(findAndModifyAsync(command));
     }
 
     /**
@@ -687,7 +687,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
      */
     @Override
     public Document findOne(final Document query) throws MongoDbException {
-        return unwrap(findOneAsync(query));
+        return FutureUtils.unwrap(findOneAsync(query));
     }
 
     /**
@@ -749,7 +749,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
      */
     @Override
     public ArrayElement groupBy(final GroupBy command) throws MongoDbException {
-        return unwrap(groupByAsync(command));
+        return FutureUtils.unwrap(groupByAsync(command));
     }
 
     /**
@@ -810,7 +810,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
         final Future<Integer> future = insertAsync(continueOnError, durability,
                 documents);
 
-        return unwrap(future).intValue();
+        return FutureUtils.unwrap(future).intValue();
     }
 
     /**
@@ -1015,7 +1015,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
     @Override
     public List<Document> mapReduce(final MapReduce command)
             throws MongoDbException {
-        return unwrap(mapReduceAsync(command));
+        return FutureUtils.unwrap(mapReduceAsync(command));
     }
 
     /**
@@ -1104,7 +1104,7 @@ public abstract class AbstractMongoCollection extends AbstractMongo implements
         final Future<Long> future = updateAsync(query, update, multiUpdate,
                 upsert, durability);
 
-        return unwrap(future).longValue();
+        return FutureUtils.unwrap(future).longValue();
     }
 
     /**

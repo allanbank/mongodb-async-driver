@@ -3,11 +3,10 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.connection.socket;
+package com.allanbank.mongodb.connection.message;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * Container for a pending message. Before the message is sent the message id

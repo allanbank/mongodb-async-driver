@@ -6,8 +6,8 @@ import java.util.List;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
+import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.socket.PendingMessage;
 
 /**
  * AbstractReconnectStrategy provides a base class for reconnection strategies.

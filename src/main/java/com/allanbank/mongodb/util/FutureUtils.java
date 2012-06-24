@@ -2,7 +2,7 @@
  * Copyright 2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
-package com.allanbank.mongodb.client;
+package com.allanbank.mongodb.util;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -10,11 +10,11 @@ import java.util.concurrent.Future;
 import com.allanbank.mongodb.MongoDbException;
 
 /**
- * AbstractMongo provides common methods for all MongoDB client classes.
+ * FutureUtils provides helper methods for dealing with {@link Future}s.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class AbstractMongo {
+public final class FutureUtils {
 
     /**
      * Unwraps the contents of the Future.
@@ -27,7 +27,7 @@ public class AbstractMongo {
      * @throws MongoDbException
      *             On an error from the Future.
      */
-    protected <T> T unwrap(final Future<T> future) {
+    public static <T> T unwrap(final Future<T> future) {
         try {
             return future.get();
         }

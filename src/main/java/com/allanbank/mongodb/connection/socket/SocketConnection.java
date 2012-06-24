@@ -38,10 +38,11 @@ import com.allanbank.mongodb.connection.message.Header;
 import com.allanbank.mongodb.connection.message.Insert;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.KillCursors;
+import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
-import com.allanbank.mongodb.connection.state.IOUtils;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * Provides a blocking Socket based connection to a MongoDB server.

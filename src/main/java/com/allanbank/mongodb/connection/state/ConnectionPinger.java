@@ -21,6 +21,7 @@ import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.ServerStatus;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * ConnectionPinger pings each of the connections in the cluster and updates the

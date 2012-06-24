@@ -3,11 +3,13 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.connection.state;
+package com.allanbank.mongodb.util;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.logging.Logger;
+
+import com.allanbank.mongodb.connection.state.ConnectionPinger;
 
 /**
  * IOUtils provides helper methods for dealing with I/O operations.
