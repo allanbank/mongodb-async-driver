@@ -7,7 +7,8 @@ package com.allanbank.mongodb.bson;
 import java.util.List;
 
 /**
- * A base class for the basic BSON types.
+ * A common interface for the basic BSON types used to construct Documents and
+ * arrays.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
