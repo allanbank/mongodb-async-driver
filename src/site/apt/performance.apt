@@ -1,0 +1,104 @@
+Performance
+
+  The performance of driver is central to the reason for its existence.  A series of benchmarks have been 
+created to measure the performance of the Asynchronous driver relative to the 10gen supported (legacy) driver.
+These benchmarks are divided into insert and update benchmarks.
+
+  The Asynchronous driver provides three modes for almost all methods of the MongoCollection interface.
+ 
+  [Callback] The user provides an implementation of an interface that is notified once the response to a message is received.
+
+  [Async] The user is provided with a Future that is updated with the results of the request.
+
+  [Sync] The result of the operation is returned to the user via normal method call semantics.
+
+  []
+
+  {{Figure_1}} shows the relative performance of the legacy driver's vs. the Asynchronous
+driver when inserting documents with only a sequential _id integer value.  
+
+[images/MongoDbPerfInsert_2012_06_15.jpg] Figure 1 - Relative Performance of the 10gen (legacy) and Asynchronous drivers Inserting documents.
+
+  {Figure 1} - Relative Performance of the 10gen (legacy) and Asynchronous drivers Updating documents.   Note log scale on X axis.
+
+  {{Figure_2}} shows the relative performance of the legacy driver's \vs. the Asynchronous
+driver when updating a single document's non-indexed 'c' long field.  The update's query is based on the _id field of the document.  
+
+[images/MongoDbPerfUpdate_2012_06_15.jpg] Figure 2 - Relative Performance of the 10gen (legacy) and Asynchronous drivers Updating documents.
+
+  {Figure 2} - Relative Performance of the 10gen (legacy) and Asynchronous drivers Updating documents.   Note log scale on X axis.
+
+Test Environment
+
+  The test client was run on a Dell XPS 15z laptop with a Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz and 8GB 
+of memory running Fedora 16.  JDK 1.7.0_02 was used. The tests operate completely internally and repeat each read/write 1,000,000 times.
+
+  The MongoDB server was a standalone mongod running on a separate machine but both machines are connected to 
+the same 1Gb/s switch. Average ping times between the machines is 0.25 ms.  The mongod process was started using
+the following command line:
+
++---------------
+   mongod --port 27017 --fork --dbpath /dev/shm/mongod/ --logpath /dev/shm/mongod/mongod.log --nojournal
++---------------
+ 
+  The server has a Intel(R) Pentium (R) D CPU 3.00GHz with 8GB of memory running Fedora 16.
+
+
+Test Results
+
+  The raw performance data is provided below for completeness.
+  
+*----------------------:----------*----------*----------*-----------* 
+| <<Inserts (µs/insert)>>  | <<Legacy>>   | <<Sync>>     | <<Async>>    | <<Callback>> 
+*----------------------:----------:----------:----------:-----------: 
+| NONE                 | 30.14396 | 30.09069 | 30.18226 |   30.040 
+*----------------------:----------:----------:----------:-----------: 
+| NORMAL/NONE          | 29.77719 | 29.33256 | 29.87396 |   29.523 
+*----------------------:----------:----------:----------:-----------: 
+| SAFE/ACK             | 443.43309 | 431.82929 | 62.03153 |   60.781 
+*----------------------:----------:----------:----------:-----------: 
+| NORMAL/NONE          | 29.82686 | 29.75217 | 29.74483 |   29.549 
+*----------------------:----------:----------:----------:-----------: 
+| NONE                 | 29.81450 | 29.74520 | 30.25778 |   29.570 
+*----------------------:----------:----------:----------:-----------: 
+| SAFE/ACK             | 441.74393 | 429.77630 | 61.89749 |   63.078 
+*----------------------:----------:----------:----------:-----------: 
+| FSYNC                | 493.95659 | 434.28747 | 69.92491 |   58.741 
+*----------------------:----------:----------:----------:-----------: 
+| SAFE/ACK             | 439.72183 | 430.36161 | 62.23338 |   61.545 
+*----------------------:----------:----------:----------:-----------: 
+| NONE                 | 29.69500 | 30.00977 | 30.56778 |   29.519 
+*----------------------:----------:----------:----------:-----------: 
+| JOURNAL              | 445.76530 | 438.63472 | 66.27903 |   59.022 
+*----------------------:----------:----------:----------:-----------: 
+| NORMAL/NONE          | 29.89505 | 29.65441 | 29.88284 |   30.100 
+*----------------------:----------:----------:----------:-----------: 
+Raw Performance Data Collected from Insert performance benchmark.
+  
+*----------------------:----------*----------*----------*-----------* 
+| <<Updates (µs/update)>>  | <<Legacy>>   | <<Sync>>     | <<Async>>    | <<Callback>> 
+*----------------------:----------:----------:----------:-----------: 
+| NONE                 | 28.89520 | 29.68883 | 29.16362 |   28.572 
+*----------------------:----------:----------:----------:-----------: 
+| NORMAL/NONE          | 29.80916 | 30.15702 | 29.97922 |   29.319 
+*----------------------:----------:----------:----------:-----------: 
+| NONE                 | 30.03531 | 29.68337 | 30.15311 |   30.224 
+*----------------------:----------:----------:----------:-----------: 
+| NORMAL/NONE          | 30.83136 | 28.45079 | 28.83074 |   29.736 
+*----------------------:----------:----------:----------:-----------: 
+| NORMAL/NONE          | 29.43810 | 28.33966 | 30.01289 |   28.674 
+*----------------------:----------:----------:----------:-----------: 
+| SAFE/ACK             | 441.44859 | 427.87640 | 63.15390 |   63.341 
+*----------------------:----------:----------:----------:-----------: 
+| JOURNAL              | 441.80478 | 431.00427 | 67.17481 |   62.675 
+*----------------------:----------:----------:----------:-----------: 
+| SAFE/ACK             | 439.92330 | 426.44947 | 65.45139 |   59.137 
+*----------------------:----------:----------:----------:-----------: 
+| FSYNC                | 508.57057 | 427.55701 | 61.67412 |   60.221 
+*----------------------:----------:----------:----------:-----------: 
+| SAFE/ACK             | 441.27380 | 427.32076 | 62.53276 |   59.208 
+*----------------------:----------:----------:----------:-----------: 
+| NONE                 | 29.50800 | 28.66867 | 28.87825 |   29.629 
+*----------------------:----------:----------:----------:-----------: 
+Raw Performance Data Collected from Update performance benchmark.
+   

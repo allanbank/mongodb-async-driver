@@ -72,10 +72,10 @@ public class MongoTimestampElement extends AbstractElement {
     }
 
     /**
-     * Returns the BSON timestamp value as 4 byte increment and 4 byte
+     * Returns the BSON Mongo timestamp value as 4 byte increment and 4 byte
      * timestamp.
      * 
-     * @return The BSON timestamp value as 4 byte increment and 4 byte
+     * @return The BSON Mongo timestamp value as 4 byte increment and 4 byte
      *         timestamp.
      */
     public long getTime() {
@@ -91,8 +91,8 @@ public class MongoTimestampElement extends AbstractElement {
     public int hashCode() {
         int result = 1;
         result = (31 * result) + super.hashCode();
-        result = (31 * result) + (int) (myTimestamp & 0xFFFFFFFF);
         result = (31 * result) + (int) ((myTimestamp >> 32) & 0xFFFFFFFF);
+        result = (31 * result) + (int) (myTimestamp & 0xFFFFFFFF);
         return result;
     }
 

@@ -61,7 +61,7 @@ public class Distinct {
      * 
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static final class Builder {
+    public static class Builder {
 
         /** The name of the key to collect distinct values for. */
         protected String myKey;

@@ -46,11 +46,13 @@ public class ObjectId {
                     }
                     catch (final Throwable tryAnotherIface) {
                         // Noting to do. Try the next one.
+                        tryAnotherIface.hashCode(); // PMD - Shhhh.
                     }
                 }
             }
             catch (final Throwable tryTheHostName) {
                 // Nothing to do here. Fall through.
+                tryTheHostName.hashCode(); // PMD - Shhhh.
             }
 
             if (!foundIface) {

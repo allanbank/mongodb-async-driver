@@ -42,4 +42,11 @@ public final class FutureUtils {
         }
     }
 
+    /**
+     * Stop creation of a new FutureUtils.
+     */
+    private FutureUtils() {
+        // Nothing.
+    }
+
 }

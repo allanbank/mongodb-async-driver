@@ -114,7 +114,7 @@ public class MongoTimestampElementTest {
 
     /**
      * Test method for
-     * {@link MongoTimestampElement#MongoTimestampElement(java.lang.String, Long)}
+     * {@link MongoTimestampElement#MongoTimestampElement(java.lang.String, long)}
      * .
      */
     @Test

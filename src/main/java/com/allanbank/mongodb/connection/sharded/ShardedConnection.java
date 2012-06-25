@@ -8,8 +8,6 @@ package com.allanbank.mongodb.connection.sharded;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.proxy.AbstractProxyConnection;
-import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.state.ClusterState;
 
 /**
  * Provides a {@link Connection} implementation for connecting to a sharded
@@ -23,17 +21,12 @@ public class ShardedConnection extends AbstractProxyConnection {
      * 
      * @param proxiedConnection
      *            The connection being proxied.
-     * @param factory
-     *            The factory to create proxied connections.
-     * @param clusterState
-     *            The state of the cluster.
      * @param config
      *            The MongoDB client configuration.
      */
     public ShardedConnection(final Connection proxiedConnection,
-            final ProxiedConnectionFactory factory,
-            final ClusterState clusterState, final MongoDbConfiguration config) {
-        super(proxiedConnection, factory, clusterState, config);
+            final MongoDbConfiguration config) {
+        super(proxiedConnection, config);
     }
 
     /**

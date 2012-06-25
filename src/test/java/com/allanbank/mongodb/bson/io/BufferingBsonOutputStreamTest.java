@@ -5,15 +5,22 @@
 package com.allanbank.mongodb.bson.io;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.BooleanElement;
+import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * Tests for the {@link BufferingBsonOutputStream} class.
@@ -21,6 +28,101 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BufferingBsonOutputStreamTest {
+
+    /**
+     * Test method for {@link BufferingBsonOutputStream#write(Document)}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testReadWriteCompleteDocument() throws IOException {
+        DocumentBuilder builder = BuilderFactory.start();
+
+        builder.addBoolean("true", true);
+        final Document simple = builder.get();
+
+        builder = BuilderFactory.start();
+        builder.add(new BooleanElement("_id", false));
+        builder.addBinary("binary", new byte[20]);
+        builder.addBinary("binary-2", (byte) 2, new byte[40]);
+        builder.addBoolean("true", true);
+        builder.addBoolean("false", false);
+        builder.addDBPointer("DBPointer", "db", "collection", new ObjectId(1,
+                2L));
+        builder.addDouble(
+                "double_with_a_really_long_name_to_force_reading_over_multiple_decodes",
+                4884.45345);
+        builder.addDocument("simple", simple);
+        builder.addInteger("int", 123456);
+        builder.addJavaScript("javascript", "function foo() { }");
+        builder.addJavaScript("javascript_with_code", "function foo() { }",
+                simple);
+        builder.addLong("long", 1234567890L);
+        builder.addMaxKey("max");
+        builder.addMinKey("min");
+        builder.addMongoTimestamp("mongo-time", System.currentTimeMillis());
+        builder.addNull("null");
+        builder.addObjectId("object-id",
+                new ObjectId((int) System.currentTimeMillis() / 1000, 1234L));
+        builder.addRegularExpression("regex", ".*", "");
+        builder.addString("string", "string\u0090\ufffe");
+        builder.addSymbol("symbol", "symbol");
+        builder.addTimestamp("timestamp", System.currentTimeMillis());
+        builder.push("sub-doc").addBoolean("true", true).pop();
+
+        final ArrayBuilder aBuilder = builder.pushArray("array");
+        aBuilder.addBinary(new byte[20]);
+        aBuilder.addBinary((byte) 2, new byte[40]);
+        aBuilder.addBoolean(true);
+        aBuilder.addBoolean(false);
+        aBuilder.addDBPointer("db", "collection", new ObjectId(1, 2L));
+        aBuilder.addDouble(4884.45345);
+        aBuilder.addInteger(123456);
+        aBuilder.addJavaScript("function foo() { }");
+        aBuilder.addJavaScript("function foo() { }", simple);
+        aBuilder.addLong(1234567890L);
+        aBuilder.addMaxKey();
+        aBuilder.addMinKey();
+        aBuilder.addMongoTimestamp(System.currentTimeMillis());
+        aBuilder.addNull();
+        aBuilder.addObjectId(new ObjectId(
+                (int) System.currentTimeMillis() / 1000, 1234L));
+        aBuilder.addRegularExpression(".*", "");
+        aBuilder.addString("string");
+        aBuilder.addSymbol("symbol");
+        aBuilder.addTimestamp(System.currentTimeMillis());
+        aBuilder.push().addBoolean("true", true).pop();
+
+        final Document doc = builder.get();
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
+                out);
+
+        writer.write(doc);
+
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        BsonInputStream reader = new BsonInputStream(in);
+        Document read = reader.readDocument();
+        reader.close();
+
+        assertTrue("Should be a RootDocument.", read instanceof RootDocument);
+        assertEquals("Should equal the orginal document.", doc, read);
+
+        out.reset();
+        writer.write(doc);
+
+        in = new ByteArrayInputStream(out.toByteArray());
+        reader = new BsonInputStream(in);
+        read = reader.readDocument();
+        reader.close();
+        writer.close();
+
+        assertTrue("Should be a RootDocument.", read instanceof RootDocument);
+        assertEquals("Should equal the orginal document.", doc, read);
+    }
 
     /**
      * Test method for {@link BufferingBsonOutputStream#write}.
@@ -85,5 +187,4 @@ public class BufferingBsonOutputStreamTest {
 
         writer.close();
     }
-
 }

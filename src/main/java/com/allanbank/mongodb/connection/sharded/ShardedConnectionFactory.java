@@ -133,16 +133,18 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                     }
                 }
                 catch (final IOException ioe) {
-                    LOG.log(Level.WARNING, "I/O error during bootstrap to "
-                            + addr + ".", ioe);
+                    LOG.log(Level.WARNING,
+                            "I/O error during sharded bootstrap to " + addr
+                                    + ".", ioe);
                 }
                 catch (final InterruptedException e) {
-                    LOG.log(Level.WARNING, "Interrupted during bootstrap to "
-                            + addr + ".", e);
+                    LOG.log(Level.WARNING,
+                            "Interrupted during sharded bootstrap to " + addr
+                                    + ".", e);
                 }
                 catch (final ExecutionException e) {
-                    LOG.log(Level.WARNING, "Error during bootstrap to " + addr
-                            + ".", e);
+                    LOG.log(Level.WARNING, "Error during sharded bootstrap to "
+                            + addr + ".", e);
                 }
                 finally {
                     try {
@@ -152,7 +154,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                     }
                     catch (final IOException okay) {
                         LOG.log(Level.WARNING,
-                                "I/O error shutting down bootstrap connection to "
+                                "I/O error shutting down sharded bootstrap connection to "
                                         + addr + ".", okay);
                     }
                 }
@@ -173,8 +175,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                 final Connection primaryConn = myConnectionFactory.connect(
                         primary.getServer(), myConfig);
 
-                return new ShardedConnection(primaryConn, myConnectionFactory,
-                        myClusterState, myConfig);
+                return new ShardedConnection(primaryConn, myConfig);
             }
             catch (final IOException e) {
                 lastError = e;

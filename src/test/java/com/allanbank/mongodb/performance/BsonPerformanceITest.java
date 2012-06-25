@@ -30,7 +30,6 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
-import com.allanbank.mongodb.bson.io.BufferingBsonInputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 
 /**
@@ -194,21 +193,18 @@ public class BsonPerformanceITest {
 
             double legacy = doLegacyRead(docBytes.clone(), (level << 1));
             double bstream = doBStreamRead(docBytes.clone(), (level << 1));
-            double bwrite = doBufferedBStreamRead(docBytes.clone(),
-                    (level << 1));
 
             System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
-                    Double.valueOf(bstream), Double.valueOf(bwrite));
+                    Double.valueOf(bstream), Double.valueOf(-1));
 
             // Now write it.
             label = "Write BSON " + level + " Level Tree";
 
             legacy = doLegacyLargeDocWrite(level);
             bstream = doBStreamLargeDocWrite(level);
-            bwrite = doBufferedBStreamLargeDocWrite(level);
 
             System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
-                    Double.valueOf(bstream), Double.valueOf(bwrite));
+                    Double.valueOf(bstream), Double.valueOf(-1));
         }
     }
 
@@ -228,10 +224,9 @@ public class BsonPerformanceITest {
         final byte[] docBytes = ourMediumDocBytes;
         final double legacy = doLegacyRead(docBytes.clone());
         final double bstream = doBStreamRead(docBytes.clone());
-        final double bwrite = doBufferedBStreamRead(docBytes.clone());
 
         System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
-                Double.valueOf(bstream), Double.valueOf(bwrite));
+                Double.valueOf(bstream), Double.valueOf(-1));
     }
 
     /**
@@ -295,10 +290,9 @@ public class BsonPerformanceITest {
         final byte[] docBytes = ourMicroDocBytes;
         final double legacy = doLegacyRead(docBytes.clone());
         final double bstream = doBStreamRead(docBytes.clone());
-        final double bwrite = doBufferedBStreamRead(docBytes.clone());
 
         System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
-                Double.valueOf(bstream), Double.valueOf(bwrite));
+                Double.valueOf(bstream), Double.valueOf(-1));
     }
 
     /**
@@ -339,10 +333,9 @@ public class BsonPerformanceITest {
         final byte[] docBytes = ourSmallDocBytes;
         final double legacy = doLegacyRead(docBytes.clone());
         final double bstream = doBStreamRead(docBytes.clone());
-        final double bwrite = doBufferedBStreamRead(docBytes.clone());
 
         System.out.printf(DATA_FORMAT, label, Double.valueOf(legacy),
-                Double.valueOf(bstream), Double.valueOf(bwrite));
+                Double.valueOf(bstream), Double.valueOf(-1));
     }
 
     /**
@@ -722,53 +715,6 @@ public class BsonPerformanceITest {
         }
         finally {
             close(bwriter);
-        }
-    }
-
-    /**
-     * Reads documents via a {@link BsonInputStream}.
-     * 
-     * @param bytes
-     *            The bytes for the document to read.
-     * @return The time to read each document in microseconds.
-     */
-    protected double doBufferedBStreamRead(final byte[] bytes) {
-        return doBufferedBStreamRead(bytes, 1);
-    }
-
-    /**
-     * Reads documents via a {@link BsonInputStream}.
-     * 
-     * @param bytes
-     *            The bytes for the document to read.
-     * @param divisor
-     *            The divisor for the number of {@link #ITERATIONS}.
-     * @return The time to read each document in microseconds.
-     */
-    protected double doBufferedBStreamRead(final byte[] bytes, final int divisor) {
-
-        final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-        final BufferingBsonInputStream bin = new BufferingBsonInputStream(in);
-        try {
-            final int iterations = ITERATIONS / divisor;
-            final long startTime = System.nanoTime();
-            for (int i = 0; i < iterations; ++i) {
-                in.reset();
-
-                bin.readDocument();
-            }
-
-            final long endTime = System.nanoTime();
-            final double delta = ((double) (endTime - startTime))
-                    / TimeUnit.MICROSECONDS.toNanos(1);
-            return (delta / iterations);
-        }
-        catch (final IOException error) {
-            fail(error.getMessage());
-            return -1;
-        }
-        finally {
-            close(bin);
         }
     }
 

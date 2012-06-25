@@ -79,7 +79,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     private Durability myDefaultDurability = Durability.NONE;
 
     /** The factory for creating threads to handle connections. */
-    private ThreadFactory myFactory = null;
+    private transient ThreadFactory myFactory = null;
 
     /**
      * Determines the maximum number of connections to use.

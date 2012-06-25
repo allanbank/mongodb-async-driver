@@ -118,7 +118,7 @@ public class Find {
      * 
      * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static final class Builder {
+    public static class Builder {
         /**
          * The number of documents to be returned. The is not the results batch
          * size.

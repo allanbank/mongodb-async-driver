@@ -110,7 +110,7 @@ public class TimestampElementTest {
 
     /**
      * Test method for
-     * {@link TimestampElement#TimestampElement(java.lang.String, Long)} .
+     * {@link TimestampElement#TimestampElement(java.lang.String, long)} .
      */
     @Test
     public void testTimestampElement() {

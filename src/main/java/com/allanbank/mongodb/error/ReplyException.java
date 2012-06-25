@@ -26,10 +26,10 @@ public class ReplyException extends MongoDbException {
     private final int myOkValue;
 
     /** The reply. */
-    private final Reply myReply;
+    private transient final Reply myReply;
 
     /** The original request message, if known. */
-    private final Message myRequest;
+    private transient final Message myRequest;
 
     /**
      * Create a new ReplyException.

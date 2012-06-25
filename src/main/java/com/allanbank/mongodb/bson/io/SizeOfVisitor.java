@@ -412,20 +412,20 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     protected static final class CachedSizeNode {
         /** A self referencing terminal node. */
-        protected static final CachedSizeNode NULL;
+        /* package */static final CachedSizeNode NULL;
         static {
             NULL = new CachedSizeNode(null);
             NULL.setNext(NULL);
         }
 
         /** The elements we are caching the size of. */
-        protected List<Element> myElements;
+        /* package */List<Element> myElements;
 
         /** The next node in the singly linked list. */
-        protected CachedSizeNode myNext;
+        /* package */CachedSizeNode myNext;
 
         /** The cached size. */
-        protected int mySize;
+        /* package */int mySize;
 
         /**
          * Creates a new CachedSizeNode.

@@ -244,7 +244,7 @@ public class MapReduce {
      * 
      * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static final class Builder {
+    public static class Builder {
         /**
          * The finalize function to apply to the final results of the reduce
          * function.

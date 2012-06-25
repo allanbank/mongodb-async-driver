@@ -59,7 +59,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
      */
     public AuthenticatingConnection(final Connection connection,
             final MongoDbConfiguration config) {
-        super(connection, null, null, config);
+        super(connection, config);
         myAuthTokens = new ConcurrentHashMap<String, Future<Reply>>();
         myAuthReplys = new ConcurrentHashMap<String, Future<Reply>>();
         myAuthResponse = new ConcurrentHashMap<String, Boolean>();

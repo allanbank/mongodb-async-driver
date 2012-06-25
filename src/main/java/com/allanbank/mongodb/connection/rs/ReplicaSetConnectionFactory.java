@@ -111,16 +111,18 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                 }
             }
             catch (final IOException ioe) {
-                LOG.log(Level.WARNING, "I/O error during bootstrap to " + addr
-                        + ".", ioe);
+                LOG.log(Level.WARNING,
+                        "I/O error during replica-set bootstrap to " + addr
+                                + ".", ioe);
             }
             catch (final InterruptedException e) {
-                LOG.log(Level.WARNING, "Interrupted during bootstrap to "
-                        + addr + ".", e);
+                LOG.log(Level.WARNING,
+                        "Interrupted during replica-set bootstrap to " + addr
+                                + ".", e);
             }
             catch (final ExecutionException e) {
-                LOG.log(Level.WARNING, "Error during bootstrap to " + addr
-                        + ".", e);
+                LOG.log(Level.WARNING, "Error during replica-set bootstrap to "
+                        + addr + ".", e);
             }
             finally {
                 try {
@@ -130,7 +132,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                 }
                 catch (final IOException okay) {
                     LOG.log(Level.WARNING,
-                            "I/O error shutting down bootstrap connection to "
+                            "I/O error shutting down replica-set bootstrap connection to "
                                     + addr + ".", okay);
                 }
             }
@@ -151,8 +153,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                 final Connection primaryConn = myConnectionFactory.connect(
                         primary.getServer(), myConfig);
 
-                return new ReplicaSetConnection(primaryConn,
-                        myConnectionFactory, myClusterState, myConfig);
+                return new ReplicaSetConnection(primaryConn, myConfig);
             }
             catch (final IOException e) {
                 lastError = e;

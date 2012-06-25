@@ -158,6 +158,8 @@ public class ServerState {
             }
             catch (final NumberFormatException nfe) {
                 // Not a port after the colon. Move on.
+                port = DEFAULT_PORT;
+
             }
         }
 

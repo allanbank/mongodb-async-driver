@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb;
 
+import java.io.Serializable;
+
 /**
  * Represents the required durability of writes (inserts, updates, and deletes)
  * on the server.
@@ -27,7 +29,7 @@ package com.allanbank.mongodb;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Durability {
+public class Durability implements Serializable {
 
     /** The durability that says no durability is required. */
     public final static Durability ACK = new Durability(true, false, false, 0,
@@ -36,6 +38,9 @@ public class Durability {
     /** The durability that says no durability is required. */
     public final static Durability NONE = new Durability(false, false, false,
             0, 0);
+
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -6474266523435876385L;
 
     /**
      * Creates an fsync() durability.
@@ -279,4 +284,24 @@ public class Durability {
         return myWaitForReply;
     }
 
+    /**
+     * Hook into serialization to replace this object if the local {@link #ACK}
+     * or {@link #NONE} instance.
+     * 
+     * @return Either the {@link #ACK} or {@link #NONE} instance if
+     *         <tt>this</tt> instance equals one of those instances otherwise
+     *         <tt>this</tt> instance.
+     */
+    private Object readResolve() {
+        if (this.equals(ACK)) {
+            return ACK;
+        }
+        else if (this.equals(NONE)) {
+            return NONE;
+        }
+        else {
+            return this;
+        }
+
+    }
 }

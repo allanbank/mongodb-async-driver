@@ -131,7 +131,7 @@ public class GroupBy {
      * 
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static final class Builder {
+    public static class Builder {
 
         /** The finalizer function to run for each group. */
         protected String myFinalizeFunction;

@@ -162,7 +162,6 @@ public class BsonInputStream extends FilterInputStream {
                     // Complicated beyond here. Surrogates and what not. Let the
                     // full charset handle it.
                     decoder = UTF8.newDecoder();
-                    bytesIn = ByteBuffer.allocate(64);
                     charBuffer = CharBuffer.allocate(64);
                     bytesIn = ByteBuffer.allocate(64);
                     bytesIn.put((byte) read);

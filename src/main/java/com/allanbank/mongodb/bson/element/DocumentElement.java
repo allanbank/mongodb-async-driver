@@ -231,15 +231,17 @@ public class DocumentElement extends AbstractElement implements Document {
     @Override
     public <E extends Element> List<E> queryPath(final Class<E> clazz,
             final String... nameRegexs) {
+        List<E> elements = Collections.emptyList();
+
         if (0 < nameRegexs.length) {
-            final List<Element> docElements = myElements;
-            final List<E> elements = new ArrayList<E>();
             final String nameRegex = nameRegexs[0];
             final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
                     nameRegexs.length);
+
+            elements = new ArrayList<E>();
             try {
                 final Pattern pattern = Pattern.compile(nameRegex);
-                for (final Element element : docElements) {
+                for (final Element element : myElements) {
                     if (pattern.matcher(element.getName()).matches()) {
                         elements.addAll(element.queryPath(clazz, subNameRegexs));
                     }
@@ -248,27 +250,26 @@ public class DocumentElement extends AbstractElement implements Document {
             }
             catch (final PatternSyntaxException pse) {
                 // Assume a non-pattern?
-                for (final Element element : docElements) {
+                for (final Element element : myElements) {
                     if (nameRegex.equals(element.getName())) {
                         elements.addAll(element.queryPath(clazz, subNameRegexs));
                     }
                 }
             }
-
-            return elements;
         }
-
-        // End of the path -- are we the right type
-        if (clazz.isAssignableFrom(this.getClass())) {
-            return Collections.singletonList(clazz.cast(this));
+        else {
+            // End of the path -- are we the right type/element?
+            if (clazz.isAssignableFrom(this.getClass())) {
+                elements = Collections.singletonList(clazz.cast(this));
+            }
         }
-        return Collections.emptyList();
+        return elements;
     }
 
     /**
-     * String form of the object.
+     * String form of the {@link DocumentElement}.
      * 
-     * @return A human readable form of the object.
+     * @return A human readable form of the {@link DocumentElement}.
      * 
      * @see java.lang.Object#toString()
      */

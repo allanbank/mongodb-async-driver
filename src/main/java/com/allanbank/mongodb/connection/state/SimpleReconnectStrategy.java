@@ -68,7 +68,9 @@ public class SimpleReconnectStrategy extends
                 newConn = null;
             }
             catch (final IOException error) {
-                IOUtils.close(newConn);
+                // Connection failed.
+                // Try the next one.
+                error.hashCode(); // PMD - Shhhh.
             }
         }
 

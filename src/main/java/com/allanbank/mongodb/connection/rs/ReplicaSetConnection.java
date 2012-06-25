@@ -17,8 +17,6 @@ import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.AbstractProxyConnection;
-import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.state.ClusterState;
 
 /**
  * Provides a {@link Connection} implementation for connecting to a replica-set
@@ -40,17 +38,12 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      * 
      * @param proxiedConnection
      *            The connection being proxied.
-     * @param factory
-     *            The factory to create proxied connections.
-     * @param clusterState
-     *            The state of the cluster.
      * @param config
      *            The MongoDB client configuration.
      */
     public ReplicaSetConnection(final Connection proxiedConnection,
-            final ProxiedConnectionFactory factory,
-            final ClusterState clusterState, final MongoDbConfiguration config) {
-        super(proxiedConnection, factory, clusterState, config);
+            final MongoDbConfiguration config) {
+        super(proxiedConnection, config);
         mySecondaryConnection = null;
     }
 

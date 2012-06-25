@@ -139,8 +139,7 @@ public class IntegerElementTest {
     }
 
     /**
-     * Test method for
-     * {@link IntegerElement#IntegerElement(java.lang.String, Integer)} .
+     * Test method for {@link IntegerElement#IntegerElement(String, int)} .
      */
     @Test
     public void testIntegerElement() {

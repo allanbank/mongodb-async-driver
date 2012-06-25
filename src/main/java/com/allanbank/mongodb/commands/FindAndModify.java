@@ -134,7 +134,7 @@ public class FindAndModify {
      * 
      * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static final class Builder {
+    public static class Builder {
         /** Retrieve a subset of fields from the matched document. */
         protected Document myFields = null;
 

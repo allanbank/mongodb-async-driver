@@ -586,7 +586,7 @@ public class SocketConnection implements Connection {
      * 
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected final class NoopCallback implements Callback<Reply> {
+    protected static final class NoopCallback implements Callback<Reply> {
         /**
          * {@inheritDoc}
          * <p>
@@ -711,12 +711,11 @@ public class SocketConnection implements Connection {
                         // message is sent to ensure the receive thread can
                         // assume an empty pending queue means that there is no
                         // message for the reply.
-                        if (message.getReplyCallback() != null) {
-                            if (!myPendingQueue.offer(message)) {
-                                // Push what we have out before blocking.
-                                flush();
-                                myPendingQueue.put(message);
-                            }
+                        if ((message.getReplyCallback() != null)
+                                && !myPendingQueue.offer(message)) {
+                            // Push what we have out before blocking.
+                            flush();
+                            myPendingQueue.put(message);
                         }
                         doSend(message);
                     }

@@ -1,0 +1,57 @@
+MongoDB Asynchronous Java Driver
+
+  The MongoDB Asynchronous Java Driver provides a high performance alternative to the
+10gen provided Java driver.  The driver has been created to ensure maximum utilization of
+resources on the client, in the network, and on the server.
+
+  The driver is designed for use in highly threaded applications and makes extensive use of 
+immutable objects to remove as much thread contention as possible.  In support of this goal the 
+driver provides a high performance, thread safe, strongly typed BSON implementation.
+
+Motivation
+
+  The 10gen supported Java driver request model is to maintain a set of open connections 
+and when a processing thread sends a request it:
+
+    [[1]] Checks a connection out of the pool of open connections.
+
+    [[2]] Writes the request to the connection.
+
+    [[3]] Reads the response from the connection.
+
+    [[4]] Returns the connection to the pool of open connections.
+
+  This synchronous checkout/request/response/checkin means that each request must wait for the complete  
+round trip time for the request, processing and response.  For many applications the
+latency induced can be simply overcome by using more connections.  For either highly distributed
+or high performance applications the connection explosion that occurs induces performance and 
+scheduler issues on the MongoDB servers that limits the utility of this approach.
+
+  Rather than try to force a more asynchronous model on the 10gen driver the MongoDB Asynchronous 
+Java Driver instead creates a completely new driver that at its very core is asynchronous.  The
+interface to the driver still provides synchronous methods but they are implemented using the 
+asynchronous variants of the methods.
+
+Thread Model
+
+  For each physical sockets connection a pair of threads is created.  The first is responsible for
+pushing requests to the server.  The second is responsible for reading the replies to the requests
+and matching them with the appropriate request callback (if any).  This simple reader/writer model
+provides for simplicity of programming and has been shown to perform as well if not better than 
+using Java's NIO package for using a single thread across multiple connections.
+
+Performance
+
+  Performance for the driver's {{{./bson_performance.html}BSON library}} and 
+{{{./performance.html}overall}} performance have been benchmarked against the 10gen supported
+driver.
+  
+Testing
+
+  The driver has an extensive set of {{{./surefire-report.html}unit}}, integration and acceptance tests.  
+The unit tests alone provide line and branch coverage for well over 75% of the driver's source.  In addition 
+several integration tests have been created to ensure that the driver's interpretation of various MongoDb provided 
+documentation is correct.  For these tests a local MongoDB instance in the appropriate configuration is started as 
+part of the test.  Lastly, the acceptable tests exercise both the interfaces provided by the driver but also the 
+interaction of the driver with the various MongoDB applications and configurations.  Similar to the integration
+tests the acceptance tests start various configurations of MongoDB as part of the test.

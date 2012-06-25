@@ -139,7 +139,7 @@ public class LongElementTest {
     }
 
     /**
-     * Test method for {@link LongElement#LongElement(java.lang.String, Long)} .
+     * Test method for {@link LongElement#LongElement(java.lang.String, long)} .
      */
     @Test
     public void testLongElement() {

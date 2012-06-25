@@ -144,7 +144,7 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
     public V get() throws InterruptedException, ExecutionException {
         myLock.lock();
         try {
-            if (!isDone()) {
+            while (!isDone()) {
                 myNoResultCondition.await();
             }
         }
@@ -176,12 +176,11 @@ public class FutureCallback<V> implements Future<V>, Callback<V> {
         boolean done = false;
         myLock.lock();
         try {
-            if (!isDone()) {
-                myNoResultCondition.await(timeout, unit);
+            done = isDone();
+            long remaining = unit.toNanos(timeout);
+            while (!done && (remaining >= 0)) {
+                remaining = myNoResultCondition.awaitNanos(remaining);
                 done = isDone();
-            }
-            else {
-                done = true;
             }
         }
         finally {

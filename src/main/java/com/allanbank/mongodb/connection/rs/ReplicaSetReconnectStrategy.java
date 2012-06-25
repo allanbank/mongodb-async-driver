@@ -195,8 +195,7 @@ public class ReplicaSetReconnectStrategy extends
                     final Connection primaryConn = connections.remove(server
                             .getServer());
                     final ReplicaSetConnection newRsConn = new ReplicaSetConnection(
-                            primaryConn, getConnectionFactory(), getState(),
-                            getConfig());
+                            primaryConn, getConfig());
 
                     // See if we have a suitable secondary server connection.
                     final List<ServerState> servers = getSelector()

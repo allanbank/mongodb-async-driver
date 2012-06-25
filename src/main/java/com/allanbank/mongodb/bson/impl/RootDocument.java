@@ -211,12 +211,14 @@ public class RootDocument implements Document {
     @Override
     public <E extends Element> List<E> queryPath(final Class<E> clazz,
             final String... nameRegexs) {
+        List<E> elements = Collections.emptyList();
         if (0 < nameRegexs.length) {
             final List<Element> docElements = myElements.get();
-            final List<E> elements = new ArrayList<E>();
             final String nameRegex = nameRegexs[0];
             final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
                     nameRegexs.length);
+
+            elements = new ArrayList<E>();
             try {
                 final Pattern pattern = Pattern.compile(nameRegex);
                 for (final Element element : docElements) {
@@ -233,12 +235,10 @@ public class RootDocument implements Document {
                     }
                 }
             }
-
-            return elements;
         }
 
         // End of the path but we are a document?
-        return Collections.emptyList();
+        return elements;
     }
 
     /**

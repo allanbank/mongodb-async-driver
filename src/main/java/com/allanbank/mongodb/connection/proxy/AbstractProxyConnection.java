@@ -18,7 +18,7 @@ import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Reply;
-import com.allanbank.mongodb.connection.state.ClusterState;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * A helper class for constructing connections that are really just proxies on
@@ -28,14 +28,8 @@ import com.allanbank.mongodb.connection.state.ClusterState;
  */
 public abstract class AbstractProxyConnection implements Connection {
 
-    /** The state of the cluster. */
-    protected final ClusterState myClusterState;
-
     /** The MongoDB client configuration. */
     protected final MongoDbConfiguration myConfig;
-
-    /** The factory to create proxied connections. */
-    protected final ProxiedConnectionFactory myConnectionFactory;
 
     /** The proxied connection. */
     private final Connection myProxiedConnection;
@@ -45,19 +39,12 @@ public abstract class AbstractProxyConnection implements Connection {
      * 
      * @param proxiedConnection
      *            The connection to forward to.
-     * @param factory
-     *            The factory to create proxied connections.
-     * @param clusterState
-     *            The state of the cluster.
      * @param config
      *            The MongoDB client configuration.
      */
     public AbstractProxyConnection(final Connection proxiedConnection,
-            final ProxiedConnectionFactory factory,
-            final ClusterState clusterState, final MongoDbConfiguration config) {
+            final MongoDbConfiguration config) {
         myProxiedConnection = proxiedConnection;
-        myConnectionFactory = factory;
-        myClusterState = clusterState;
         myConfig = config;
     }
 
@@ -300,12 +287,8 @@ public abstract class AbstractProxyConnection implements Connection {
      *            The thrown exception.
      */
     protected void onExceptin(final MongoDbException exception) {
-        try {
-            close();
-        }
-        catch (final IOException e) {
-            // ignore.
-        }
+        // Close without fear of an exception.
+        IOUtils.close(this);
     }
 
     /**

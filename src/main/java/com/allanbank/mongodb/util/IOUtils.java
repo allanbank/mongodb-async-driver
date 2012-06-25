@@ -19,7 +19,7 @@ import com.allanbank.mongodb.connection.state.ConnectionPinger;
 public final class IOUtils {
 
     /** The logger for the {@link ConnectionPinger}. */
-    protected static final Logger LOG = Logger.getLogger(IOUtils.class
+    private static final Logger LOG = Logger.getLogger(IOUtils.class
             .getCanonicalName());
 
     /**
@@ -38,5 +38,12 @@ public final class IOUtils {
                         + closeable.getClass().getSimpleName());
             }
         }
+    }
+
+    /**
+     * Stop creation of a new IOUtils.
+     */
+    private IOUtils() {
+        // Nothing.
     }
 }
