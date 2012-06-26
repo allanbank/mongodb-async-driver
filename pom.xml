@@ -7,6 +7,7 @@
 	<name>mongodb-async-driver</name>
 	<description>Asynchronous driver for connecting to MongoDB from Java.</description>
 
+	<url>http://www.allanbank.com/mongodb-async-driver/</url>
 	<organization>
 		<name>Allanbank Consulting, Inc.</name>
 		<url>http://www.allanbank.com/</url>
@@ -39,10 +40,32 @@
 			<timezone>America/New_York</timezone>
 		</developer>
 	</developers>
-
+	<scm>
+		<url>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</url>
+		<connection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</connection>
+		<tag>master</tag>
+		<developerConnection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</developerConnection>
+	</scm>
+	<distributionManagement>
+		<repository>
+			<id>allanbank_ftp</id>
+			<name>Allanbank Website</name>
+			<url>ftp://www.allanbank.com/public_html/repo/</url>
+		</repository>
+		<site>
+			<id>allanbank_ftp</id>
+			<name>Allanbank Website</name>
+			<url>ftp://www.allanbank.com/public_html/mongodb-async-driver/</url>
+		</site>
+	</distributionManagement>
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<skipPerformanceTests>true</skipPerformanceTests>
+		
+		<!-- For Site builds that cannot use .'s in portoerties. -->
+		<projectArtifactId>${project.artifactId}</projectArtifactId>
+		<projectVersion>${project.version}</projectVersion>
 	</properties>
 
 	<dependencies>
@@ -52,14 +75,12 @@
 			<version>3.0</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
@@ -150,6 +171,13 @@
 				</executions>
 			</plugin>
 		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
+				<version>2.2</version>
+			</extension>
+		</extensions>
 	</build>
 
 	<reporting>
@@ -228,11 +256,4 @@
 				<version>2.5.1</version> </plugin> -->
 		</plugins>
 	</reporting>
-	<url>http://www.allanbank.com/mongodb-async-driver/</url>
-	<scm>
-		<url>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</url>
-		<connection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</connection>
-		<tag>master</tag>
-		<developerConnection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</developerConnection>
-	</scm>
 </project>

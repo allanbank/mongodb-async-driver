@@ -32,6 +32,13 @@ Java Driver instead creates a completely new driver that at its very core is asy
 interface to the driver still provides synchronous methods but they are implemented using the 
 asynchronous variants of the methods.
 
+Download
+
+  [Jar] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}.jar}${projectArtifactId}-${projectVersion}.jar}}
+  
+  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}-javadoc.jar}${projectArtifactId}-${projectVersion}-javadoc.jar}}
+  
+
 Thread Model
 
   For each physical sockets connection a pair of threads is created.  The first is responsible for
