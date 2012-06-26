@@ -230,4 +230,10 @@
 		</plugins>
 	</reporting>
 	<url>http://www.allanbank.com/mongodb-async-driver/</url>
+	<scm>
+		<url>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</url>
+		<connection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</connection>
+		<tag>master</tag>
+		<developerConnection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</developerConnection>
+	</scm>
 </project>

@@ -3,5 +3,6 @@
 */.settings/
 */bin/
 /target
-
+.settings
+TODO.txt
 
