@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.allanbank</groupId>
 	<artifactId>mongodb-async-driver</artifactId>
-	<version>0.9.1-SNAPSHOT</version>
+	<version>0.9.1</version>
 
 	<name>mongodb-async-driver</name>
 	<description>Asynchronous driver for connecting to MongoDB from Java.</description>
@@ -201,7 +200,7 @@
 						<tag>
 							<name>copyright</name>
 							<placement>a</placement>
-							<head>Copyright &#169;:</head>
+							<head>Copyright ©:</head>
 						</tag>
 					</tags>
 				</configuration>
@@ -233,7 +232,7 @@
 	<scm>
 		<url>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</url>
 		<connection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</connection>
-		<tag>master</tag>
+		<tag>rel_0.9.1</tag>
 		<developerConnection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</developerConnection>
 	</scm>
 </project>
