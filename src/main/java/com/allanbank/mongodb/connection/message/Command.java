@@ -41,8 +41,12 @@ public class Command extends Query {
      */
     public Command(final String databaseName, final Document commandDocument,
             final boolean replicaOk) {
-        super(databaseName, COMMAND_COLLECTION, commandDocument, null, 1, 0,
-                false, replicaOk, false, false, false, false);
+        super(databaseName, COMMAND_COLLECTION, commandDocument,
+        /* fields= */null,
+        /* batchSize= */1, /* limit= */1, /* numberToSkip= */0,
+        /* tailable= */false, replicaOk,
+        /* noCursorTimeout= */false, /* awaitData= */false,
+        /* exhaust= */false, /* partial= */false);
     }
 
 }

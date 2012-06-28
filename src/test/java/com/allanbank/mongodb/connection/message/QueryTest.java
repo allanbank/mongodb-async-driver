@@ -53,29 +53,39 @@ public class QueryTest {
                 for (final Document query : Arrays.asList(doc1, doc2, doc3)) {
                     for (final Document returnFields : Arrays.asList(null,
                             doc1, doc2, doc3)) {
-                        for (final int numberToReturn : Arrays.asList(-1, 3, 8,
-                                0xFF)) {
-                            for (final int numberToSkip : Arrays.asList(0, 1,
-                                    2, 0xFFF)) {
-                                final boolean tailable = random.nextBoolean();
-                                final boolean replicaOk = random.nextBoolean();
-                                final boolean noCursorTimeout = random
-                                        .nextBoolean();
-                                final boolean awaitData = random.nextBoolean();
-                                final boolean exhaust = random.nextBoolean();
-                                final boolean partial = random.nextBoolean();
+                        for (final int batchSize : Arrays
+                                .asList(-1, 3, 8, 0xFF)) {
+                            for (final int limit : Arrays
+                                    .asList(-1, 3, 8, 0xFF)) {
+                                for (final int numberToSkip : Arrays.asList(0,
+                                        1, 2, 0xFFF)) {
+                                    final boolean tailable = random
+                                            .nextBoolean();
+                                    final boolean replicaOk = random
+                                            .nextBoolean();
+                                    final boolean noCursorTimeout = random
+                                            .nextBoolean();
+                                    final boolean awaitData = random
+                                            .nextBoolean();
+                                    final boolean exhaust = random
+                                            .nextBoolean();
+                                    final boolean partial = random
+                                            .nextBoolean();
 
-                                objs1.add(new Query(databaseName,
-                                        collectionName, query, returnFields,
-                                        numberToReturn, numberToSkip, tailable,
-                                        replicaOk, noCursorTimeout, awaitData,
-                                        exhaust, partial));
-                                objs2.add(new Query(databaseName,
-                                        collectionName, query, returnFields,
-                                        numberToReturn, numberToSkip, tailable,
-                                        replicaOk, noCursorTimeout, awaitData,
-                                        exhaust, partial));
+                                    objs1.add(new Query(databaseName,
+                                            collectionName, query,
+                                            returnFields, batchSize, limit,
+                                            numberToSkip, tailable, replicaOk,
+                                            noCursorTimeout, awaitData,
+                                            exhaust, partial));
+                                    objs2.add(new Query(databaseName,
+                                            collectionName, query,
+                                            returnFields, batchSize, limit,
+                                            numberToSkip, tailable, replicaOk,
+                                            noCursorTimeout, awaitData,
+                                            exhaust, partial));
 
+                                }
                             }
                         }
                     }
@@ -110,6 +120,282 @@ public class QueryTest {
     }
 
     /**
+     * Test method for number to return determination logic.
+     */
+    @Test
+    public void testNumberToReturnWhenBatchAndBiggerLimit() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = doc1;
+        final Document returnFields = doc2;
+        final int numberToSkip = random.nextInt();
+        final boolean tailable = random.nextBoolean();
+        final boolean replicaOk = random.nextBoolean();
+        final boolean noCursorTimeout = random.nextBoolean();
+        final boolean awaitData = random.nextBoolean();
+        final boolean exhaust = random.nextBoolean();
+        final boolean partial = random.nextBoolean();
+
+        final int batchSize = 5;
+        final int limit = 10;
+
+        final Query message = new Query(databaseName, collectionName, query,
+                returnFields, batchSize, limit, numberToSkip, tailable,
+                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+
+        assertEquals(databaseName, message.getDatabaseName());
+        assertEquals(collectionName, message.getCollectionName());
+        assertEquals(numberToSkip, message.getNumberToSkip());
+        assertEquals(query, message.getQuery());
+        assertEquals(returnFields, message.getReturnFields());
+        assertEquals(awaitData, message.isAwaitData());
+        assertEquals(exhaust, message.isExhaust());
+        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
+        assertEquals(partial, message.isPartial());
+        assertEquals(replicaOk, message.isReplicaOk());
+        assertEquals(tailable, message.isTailable());
+
+        assertEquals(batchSize, message.getBatchSize());
+        assertEquals(limit, message.getLimit());
+        assertEquals(5, message.getNumberToReturn());
+
+    }
+
+    /**
+     * Test method for number to return determination logic.
+     */
+    @Test
+    public void testNumberToReturnWhenBatchAndNoLimit() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = doc1;
+        final Document returnFields = doc2;
+        final int numberToSkip = random.nextInt();
+        final boolean tailable = random.nextBoolean();
+        final boolean replicaOk = random.nextBoolean();
+        final boolean noCursorTimeout = random.nextBoolean();
+        final boolean awaitData = random.nextBoolean();
+        final boolean exhaust = random.nextBoolean();
+        final boolean partial = random.nextBoolean();
+
+        final int batchSize = 9394;
+        final int limit = -1;
+
+        final Query message = new Query(databaseName, collectionName, query,
+                returnFields, batchSize, limit, numberToSkip, tailable,
+                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+
+        assertEquals(databaseName, message.getDatabaseName());
+        assertEquals(collectionName, message.getCollectionName());
+        assertEquals(numberToSkip, message.getNumberToSkip());
+        assertEquals(query, message.getQuery());
+        assertEquals(returnFields, message.getReturnFields());
+        assertEquals(awaitData, message.isAwaitData());
+        assertEquals(exhaust, message.isExhaust());
+        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
+        assertEquals(partial, message.isPartial());
+        assertEquals(replicaOk, message.isReplicaOk());
+        assertEquals(tailable, message.isTailable());
+
+        assertEquals(batchSize, message.getBatchSize());
+        assertEquals(limit, message.getLimit());
+        assertEquals(batchSize, message.getNumberToReturn());
+
+    }
+
+    /**
+     * Test method for number to return determination logic.
+     */
+    @Test
+    public void testNumberToReturnWhenBatchAndSmallerLimit() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = doc1;
+        final Document returnFields = doc2;
+        final int numberToSkip = random.nextInt();
+        final boolean tailable = random.nextBoolean();
+        final boolean replicaOk = random.nextBoolean();
+        final boolean noCursorTimeout = random.nextBoolean();
+        final boolean awaitData = random.nextBoolean();
+        final boolean exhaust = random.nextBoolean();
+        final boolean partial = random.nextBoolean();
+
+        final int batchSize = 5;
+        final int limit = 4;
+
+        final Query message = new Query(databaseName, collectionName, query,
+                returnFields, batchSize, limit, numberToSkip, tailable,
+                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+
+        assertEquals(databaseName, message.getDatabaseName());
+        assertEquals(collectionName, message.getCollectionName());
+        assertEquals(numberToSkip, message.getNumberToSkip());
+        assertEquals(query, message.getQuery());
+        assertEquals(returnFields, message.getReturnFields());
+        assertEquals(awaitData, message.isAwaitData());
+        assertEquals(exhaust, message.isExhaust());
+        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
+        assertEquals(partial, message.isPartial());
+        assertEquals(replicaOk, message.isReplicaOk());
+        assertEquals(tailable, message.isTailable());
+
+        assertEquals(batchSize, message.getBatchSize());
+        assertEquals(limit, message.getLimit());
+        assertEquals(-4, message.getNumberToReturn());
+
+    }
+
+    /**
+     * Test method for number to return determination logic.
+     */
+    @Test
+    public void testNumberToReturnWhenNoBatchAndBiggishLimit() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = doc1;
+        final Document returnFields = doc2;
+        final int numberToSkip = random.nextInt();
+        final boolean tailable = random.nextBoolean();
+        final boolean replicaOk = random.nextBoolean();
+        final boolean noCursorTimeout = random.nextBoolean();
+        final boolean awaitData = random.nextBoolean();
+        final boolean exhaust = random.nextBoolean();
+        final boolean partial = random.nextBoolean();
+
+        final int batchSize = 0;
+        final int limit = 1000;
+
+        final Query message = new Query(databaseName, collectionName, query,
+                returnFields, batchSize, limit, numberToSkip, tailable,
+                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+
+        assertEquals(databaseName, message.getDatabaseName());
+        assertEquals(collectionName, message.getCollectionName());
+        assertEquals(numberToSkip, message.getNumberToSkip());
+        assertEquals(query, message.getQuery());
+        assertEquals(returnFields, message.getReturnFields());
+        assertEquals(awaitData, message.isAwaitData());
+        assertEquals(exhaust, message.isExhaust());
+        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
+        assertEquals(partial, message.isPartial());
+        assertEquals(replicaOk, message.isReplicaOk());
+        assertEquals(tailable, message.isTailable());
+
+        assertEquals(batchSize, message.getBatchSize());
+        assertEquals(limit, message.getLimit());
+        assertEquals(0, message.getNumberToReturn());
+
+    }
+
+    /**
+     * Test method for number to return determination logic.
+     */
+    @Test
+    public void testNumberToReturnWhenNoBatchAndNoLimit() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = doc1;
+        final Document returnFields = doc2;
+        final int numberToSkip = random.nextInt();
+        final boolean tailable = random.nextBoolean();
+        final boolean replicaOk = random.nextBoolean();
+        final boolean noCursorTimeout = random.nextBoolean();
+        final boolean awaitData = random.nextBoolean();
+        final boolean exhaust = random.nextBoolean();
+        final boolean partial = random.nextBoolean();
+
+        final int batchSize = 0;
+        final int limit = 0;
+
+        final Query message = new Query(databaseName, collectionName, query,
+                returnFields, batchSize, limit, numberToSkip, tailable,
+                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+
+        assertEquals(databaseName, message.getDatabaseName());
+        assertEquals(collectionName, message.getCollectionName());
+        assertEquals(numberToSkip, message.getNumberToSkip());
+        assertEquals(query, message.getQuery());
+        assertEquals(returnFields, message.getReturnFields());
+        assertEquals(awaitData, message.isAwaitData());
+        assertEquals(exhaust, message.isExhaust());
+        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
+        assertEquals(partial, message.isPartial());
+        assertEquals(replicaOk, message.isReplicaOk());
+        assertEquals(tailable, message.isTailable());
+
+        assertEquals(batchSize, message.getBatchSize());
+        assertEquals(limit, message.getLimit());
+        assertEquals(0, message.getNumberToReturn());
+
+    }
+
+    /**
+     * Test method for number to return determination logic.
+     */
+    @Test
+    public void testNumberToReturnWhenNoBatchAndSmallishLimit() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = doc1;
+        final Document returnFields = doc2;
+        final int numberToSkip = random.nextInt();
+        final boolean tailable = random.nextBoolean();
+        final boolean replicaOk = random.nextBoolean();
+        final boolean noCursorTimeout = random.nextBoolean();
+        final boolean awaitData = random.nextBoolean();
+        final boolean exhaust = random.nextBoolean();
+        final boolean partial = random.nextBoolean();
+
+        final int batchSize = 0;
+        final int limit = 5;
+
+        final Query message = new Query(databaseName, collectionName, query,
+                returnFields, batchSize, limit, numberToSkip, tailable,
+                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+
+        assertEquals(databaseName, message.getDatabaseName());
+        assertEquals(collectionName, message.getCollectionName());
+        assertEquals(numberToSkip, message.getNumberToSkip());
+        assertEquals(query, message.getQuery());
+        assertEquals(returnFields, message.getReturnFields());
+        assertEquals(awaitData, message.isAwaitData());
+        assertEquals(exhaust, message.isExhaust());
+        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
+        assertEquals(partial, message.isPartial());
+        assertEquals(replicaOk, message.isReplicaOk());
+        assertEquals(tailable, message.isTailable());
+
+        assertEquals(batchSize, message.getBatchSize());
+        assertEquals(limit, message.getLimit());
+        assertEquals(0, message.getNumberToReturn());
+
+    }
+
+    /**
      * Test method for {@link Query#Query(Header,BsonInputStream)}.
      * 
      * @throws IOException
@@ -130,23 +416,30 @@ public class QueryTest {
                 for (final Document query : Arrays.asList(doc1, doc2, doc3)) {
                     for (final Document returnFields : Arrays.asList(doc1,
                             doc2, doc3, null)) {
-                        for (final int numberToReturn : Arrays.asList(-1, 3, 8,
-                                0xFF)) {
-                            for (final int numberToSkip : Arrays.asList(0, 1,
-                                    2, 0xFFF)) {
-                                final boolean tailable = random.nextBoolean();
-                                final boolean replicaOk = random.nextBoolean();
-                                final boolean noCursorTimeout = random
-                                        .nextBoolean();
-                                final boolean awaitData = random.nextBoolean();
-                                final boolean exhaust = random.nextBoolean();
-                                final boolean partial = random.nextBoolean();
+                        for (final int batchSize : Arrays.asList(0)) {
+                            for (final int limit : Arrays.asList(0)) {
+                                for (final int numberToSkip : Arrays.asList(0,
+                                        1, 2, 0xFFF)) {
+                                    final boolean tailable = random
+                                            .nextBoolean();
+                                    final boolean replicaOk = random
+                                            .nextBoolean();
+                                    final boolean noCursorTimeout = random
+                                            .nextBoolean();
+                                    final boolean awaitData = random
+                                            .nextBoolean();
+                                    final boolean exhaust = random
+                                            .nextBoolean();
+                                    final boolean partial = random
+                                            .nextBoolean();
 
-                                objs1.add(new Query(databaseName,
-                                        collectionName, query, returnFields,
-                                        numberToReturn, numberToSkip, tailable,
-                                        replicaOk, noCursorTimeout, awaitData,
-                                        exhaust, partial));
+                                    objs1.add(new Query(databaseName,
+                                            collectionName, query,
+                                            returnFields, batchSize, limit,
+                                            numberToSkip, tailable, replicaOk,
+                                            noCursorTimeout, awaitData,
+                                            exhaust, partial));
+                                }
                             }
                         }
                     }
@@ -180,7 +473,7 @@ public class QueryTest {
 
     /**
      * Test method for
-     * {@link Query#Query(String, String, Document, Document, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
+     * {@link Query#Query(String, String, Document, Document, int, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
      * .
      */
     @Test
@@ -193,7 +486,8 @@ public class QueryTest {
         final String collectionName = "collection";
         final Document query = doc1;
         final Document returnFields = doc2;
-        final int numberToReturn = random.nextInt();
+        final int batchSize = random.nextInt();
+        final int limit = random.nextInt();
         final int numberToSkip = random.nextInt();
         final boolean tailable = random.nextBoolean();
         final boolean replicaOk = random.nextBoolean();
@@ -203,12 +497,13 @@ public class QueryTest {
         final boolean partial = random.nextBoolean();
 
         final Query message = new Query(databaseName, collectionName, query,
-                returnFields, numberToReturn, numberToSkip, tailable,
+                returnFields, batchSize, limit, numberToSkip, tailable,
                 replicaOk, noCursorTimeout, awaitData, exhaust, partial);
 
         assertEquals(databaseName, message.getDatabaseName());
         assertEquals(collectionName, message.getCollectionName());
-        assertEquals(numberToReturn, message.getNumberToReturn());
+        assertEquals(batchSize, message.getBatchSize());
+        assertEquals(limit, message.getLimit());
         assertEquals(numberToSkip, message.getNumberToSkip());
         assertEquals(query, message.getQuery());
         assertEquals(returnFields, message.getReturnFields());

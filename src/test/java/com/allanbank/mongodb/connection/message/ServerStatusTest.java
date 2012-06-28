@@ -29,7 +29,7 @@ public class ServerStatusTest {
                 serverStatus.getDatabaseName());
         assertEquals(Command.COMMAND_COLLECTION,
                 serverStatus.getCollectionName());
-        assertEquals(1, serverStatus.getNumberToReturn());
+        assertEquals(-1, serverStatus.getNumberToReturn());
         assertEquals(0, serverStatus.getNumberToSkip());
         assertEquals(ServerStatus.SERVER_STATUS, serverStatus.getQuery());
         assertNull(serverStatus.getReturnFields());

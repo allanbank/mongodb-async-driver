@@ -65,13 +65,19 @@ public class Query extends AbstractMessage {
      */
     private final boolean myAwaitData;
 
+    /** The number of documents to be returned in each batch. */
+    private final int myBatchSize;
+
     /** If true, all results should be returned in multiple results. */
     private final boolean myExhaust;
+
+    /** The maximum number of documents to be returned. */
+    private final int myLimit;
 
     /** If true, marks the cursor as not having a timeout. */
     private final boolean myNoCursorTimeout;
 
-    /** The number of documents to be returned. */
+    /** The number of documents to be returned in the first batch. */
     private final int myNumberToReturn;
 
     /**
@@ -137,6 +143,9 @@ public class Query extends AbstractMessage {
         myPartial = (flags & PARTIAL_FLAG_BIT) == PARTIAL_FLAG_BIT;
         myReplicaOk = (flags & REPLICA_OK_FLAG_BIT) == REPLICA_OK_FLAG_BIT;
         myTailable = (flags & TAILABLE_CURSOR_FLAG_BIT) == TAILABLE_CURSOR_FLAG_BIT;
+
+        myLimit = 0;
+        myBatchSize = 0;
     }
 
     /**
@@ -151,8 +160,10 @@ public class Query extends AbstractMessage {
      *            documents from the collection.
      * @param returnFields
      *            Optional document containing the fields to be returned.
-     * @param numberToReturn
-     *            The number of documents to be returned.
+     * @param batchSize
+     *            The number of documents to be returned in each batch.
+     * @param limit
+     *            The limit on the number of documents to return.
      * @param numberToSkip
      *            The number of documents to skip before starting to return
      *            documents.
@@ -175,7 +186,7 @@ public class Query extends AbstractMessage {
      */
     public Query(final String databaseName, final String collectionName,
             final Document query, final Document returnFields,
-            final int numberToReturn, final int numberToSkip,
+            final int batchSize, final int limit, final int numberToSkip,
             final boolean tailable, final boolean replicaOk,
             final boolean noCursorTimeout, final boolean awaitData,
             final boolean exhaust, final boolean partial) {
@@ -183,7 +194,8 @@ public class Query extends AbstractMessage {
 
         myQuery = query;
         myReturnFields = returnFields;
-        myNumberToReturn = numberToReturn;
+        myLimit = limit;
+        myBatchSize = batchSize;
         myNumberToSkip = numberToSkip;
         myTailable = tailable;
         myReplicaOk = replicaOk;
@@ -191,6 +203,18 @@ public class Query extends AbstractMessage {
         myAwaitData = awaitData;
         myExhaust = exhaust;
         myPartial = partial;
+
+        if (isBatchSizeSet()) {
+            if (isLimitSet() && (myLimit <= myBatchSize)) {
+                myNumberToReturn = -myLimit;
+            }
+            else {
+                myNumberToReturn = myBatchSize;
+            }
+        }
+        else {
+            myNumberToReturn = 0;
+        }
     }
 
     /**
@@ -218,6 +242,8 @@ public class Query extends AbstractMessage {
                     && (myPartial == other.myPartial)
                     && (myReplicaOk == other.myReplicaOk)
                     && (myTailable == other.myTailable)
+                    && (myBatchSize == other.myBatchSize)
+                    && (myLimit == other.myLimit)
                     && (myNumberToReturn == other.myNumberToReturn)
                     && (myNumberToSkip == other.myNumberToSkip)
                     && myQuery.equals(other.myQuery)
@@ -225,6 +251,24 @@ public class Query extends AbstractMessage {
                             .equals(other.myReturnFields)));
         }
         return result;
+    }
+
+    /**
+     * Returns the number of documents to be returned in each batch of results.
+     * 
+     * @return The number of documents to be returned in each batch of results.
+     */
+    public int getBatchSize() {
+        return myBatchSize;
+    }
+
+    /**
+     * Returns the total number of documents to be returned.
+     * 
+     * @return The total number of documents to be returned.
+     */
+    public int getLimit() {
+        return myLimit;
     }
 
     /**
@@ -283,6 +327,8 @@ public class Query extends AbstractMessage {
         result = (31 * result) + (myPartial ? 1 : 13);
         result = (31 * result) + (myReplicaOk ? 1 : 17);
         result = (31 * result) + (myTailable ? 1 : 19);
+        result = (31 * result) + myBatchSize;
+        result = (31 * result) + myLimit;
         result = (31 * result) + myNumberToReturn;
         result = (31 * result) + myNumberToSkip;
         result = (31 * result) + myQuery.hashCode();
@@ -303,12 +349,30 @@ public class Query extends AbstractMessage {
     }
 
     /**
+     * Returns true if the batch size is greater than zero.
+     * 
+     * @return True if the batch size is greater than zero.
+     */
+    public boolean isBatchSizeSet() {
+        return 0 < myBatchSize;
+    }
+
+    /**
      * Returns true if all results should be returned in multiple results.
      * 
      * @return True if all results should be returned in multiple results.
      */
     public boolean isExhaust() {
         return myExhaust;
+    }
+
+    /**
+     * Returns true if the limit is greater than zero.
+     * 
+     * @return True if the limit is greater than zero.
+     */
+    public boolean isLimitSet() {
+        return 0 < myLimit;
     }
 
     /**

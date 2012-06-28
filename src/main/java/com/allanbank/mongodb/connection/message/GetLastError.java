@@ -80,7 +80,10 @@ public class GetLastError extends Query {
     public GetLastError(final String dbName, final boolean fsync,
             final boolean waitForJournal, final int w, final int wtimeout) {
         super(dbName, Connection.COMMAND_COLLECTION, createQuery(fsync,
-                waitForJournal, w, wtimeout), null, 1, 0, false, false, false,
-                false, false, false);
+                waitForJournal, w, wtimeout), /* fields= */null,
+        /* batchSize= */1, /* limit= */1, /* numberToSkip= */0,
+        /* tailable= */false, /* replicaOk= */false,
+        /* noCursorTimeout= */false, /* awaitData= */false,
+        /* exhaust= */false, /* partial= */false);
     }
 }

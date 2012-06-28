@@ -27,7 +27,7 @@ public class IsMasterTest {
 
         assertEquals(AdminCommand.ADMIN_DATABASE, isMaster.getDatabaseName());
         assertEquals(Command.COMMAND_COLLECTION, isMaster.getCollectionName());
-        assertEquals(1, isMaster.getNumberToReturn());
+        assertEquals(-1, isMaster.getNumberToReturn());
         assertEquals(0, isMaster.getNumberToSkip());
         assertEquals(IsMaster.IS_MASTER, isMaster.getQuery());
         assertNull(isMaster.getReturnFields());

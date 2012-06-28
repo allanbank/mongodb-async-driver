@@ -80,7 +80,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     }
 
     /**
-     * Finds the primary member of the replica set.
+     * Finds the mongos servers.
      * <p>
      * Performs a find on the <tt>config</tt> database's <tt>mongos</tt>
      * collection to return the id for all of the mongos servers in the cluster.
@@ -105,8 +105,10 @@ public class ShardedConnectionFactory implements ConnectionFactory {
             // Create a query to pull all of the mongos servers out of the
             // config database.
             final Query query = new Query("config", "mongos", BuilderFactory
-                    .start().get(), null, 1000, 0, false, false, false, false,
-                    false, false);
+                    .start().get(), /* fields= */null, /* batchSize= */0,
+            /* limit= */0, /* numberToSkip= */0, /* tailable= */false,
+            /* replicaOk= */false, /* noCursorTimeout= */false,
+            /* awaitData= */false, /* exhaust= */false, /* partial= */false);
 
             for (final InetSocketAddress addr : myConfig.getServers()) {
                 SocketConnection conn = null;

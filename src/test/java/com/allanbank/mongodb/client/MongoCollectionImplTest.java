@@ -335,7 +335,7 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* numberToReturn */,
+                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
                 0 /* skip */, false /* tailable */, false /* replicaOk */,
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);
@@ -371,7 +371,7 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* numberToReturn */,
+                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
                 0 /* skip */, false /* tailable */, false /* replicaOk */,
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);
@@ -415,7 +415,7 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* numberToReturn */,
+                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
                 0 /* skip */, false /* tailable */, false /* replicaOk */,
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);
@@ -452,7 +452,7 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* numberToReturn */,
+                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
                 0 /* skip */, false /* tailable */, false /* replicaOk */,
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);
@@ -488,7 +488,7 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* numberToReturn */,
+                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
                 0 /* skip */, false /* tailable */, false /* replicaOk */,
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);
@@ -524,7 +524,7 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* numberToReturn */,
+                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
                 0 /* skip */, false /* tailable */, false /* replicaOk */,
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);
@@ -1194,8 +1194,8 @@ public class MongoCollectionImplTest {
         final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory.start().get();
 
-        final Query message = new Query("test", "test", doc, null, 0, 0, false,
-                false, false, false, false, false);
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, false, false, false, false, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1218,8 +1218,8 @@ public class MongoCollectionImplTest {
         final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory.start().get();
 
-        final Query message = new Query("test", "test", doc, null, 0, 0, false,
-                false, false, false, false, false);
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, false, false, false, false, false);
 
         final Find.Builder findBuilder = new Find.Builder(doc);
 
@@ -1249,8 +1249,8 @@ public class MongoCollectionImplTest {
 
         final Document doc = BuilderFactory.start().get();
 
-        final Query message = new Query("test", "test", doc, null, 0, 0, false,
-                false, false, false, false, false);
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, false, false, false, false, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1284,8 +1284,8 @@ public class MongoCollectionImplTest {
 
         final Document doc = BuilderFactory.start().get();
 
-        final Query message = new Query("test", "test", doc, null, 0, 0, false,
-                true, false, false, false, false);
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, true, false, false, false, false);
 
         final Find.Builder findBuilder = new Find.Builder(doc);
         findBuilder.setReplicaOk(true);
@@ -1319,8 +1319,8 @@ public class MongoCollectionImplTest {
 
         final Document doc = BuilderFactory.start().get();
 
-        final Query message = new Query("test", "test", doc, null, 0, 0, false,
-                false, false, false, false, false);
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, false, false, false, false, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1349,8 +1349,8 @@ public class MongoCollectionImplTest {
 
         final Document doc = BuilderFactory.start().get();
 
-        final Query message = new Query("test", "test", doc, null, 0, 0, false,
-                true, false, false, false, false);
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, true, false, false, false, false);
 
         final Find.Builder findBuilder = new Find.Builder(doc);
         findBuilder.setReplicaOk(true);
@@ -1383,8 +1383,8 @@ public class MongoCollectionImplTest {
         final Document replyDoc = BuilderFactory.start().addInteger("foo", 2)
                 .get();
 
-        final Query message = new Query("test", "test", doc, null, 1, 0, false,
-                false, false, false, false, false);
+        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
+                false, false, false, false, false, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1407,8 +1407,8 @@ public class MongoCollectionImplTest {
         final Callback<Document> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory.start().get();
 
-        final Query message = new Query("test", "test", doc, null, 1, 0, false,
-                false, false, false, false, false);
+        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
+                false, false, false, false, false, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1435,8 +1435,8 @@ public class MongoCollectionImplTest {
         final Document replyDoc = BuilderFactory.start().addInteger("foo", 2)
                 .get();
 
-        final Query message = new Query("test", "test", doc, null, 1, 0, false,
-                false, false, false, false, false);
+        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
+                false, false, false, false, false, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1466,7 +1466,8 @@ public class MongoCollectionImplTest {
         builder.setQuery(BuilderFactory.start().addInteger("foo", 1).get());
         builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
                 .get());
-        builder.setNumberToReturn(101010);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
         builder.setNumberToSkip(123456);
         builder.setPartialOk(true);
         builder.setReplicaOk(true);
@@ -1474,9 +1475,9 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final Query message = new Query("test", "test", request.getQuery(),
-                request.getReturnFields(), request.getNumberToReturn(),
-                request.getNumberToSkip(), false, true, false, false, false,
-                true);
+                request.getReturnFields(), request.getBatchSize(),
+                request.getLimit(), request.getNumberToSkip(), false, true,
+                false, false, false, true);
 
         expect(myMockDatabase.getName()).andReturn("test");
 

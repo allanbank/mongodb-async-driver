@@ -108,7 +108,11 @@ public class MongoDatabaseImpl implements MongoDatabase {
     @Override
     public List<String> listCollections() {
         final Query query = new Query(myName, "system.namespaces", EMPTY_QUERY,
-                null, 0, 0, false, true, false, false, false, false);
+        /* fields= */null,
+        /* batchSize= */0, /* limit= */0, /* numberToSkip= */0,
+        /* tailable= */false, /* replicaOk= */true,
+        /* noCursorTimeout= */false, /* awaitData= */false,
+        /* exhaust= */false, /* partial= */false);
 
         final FutureCallback<ClosableIterator<Document>> iterFuture = new FutureCallback<ClosableIterator<Document>>();
         final QueryCallback callback = new QueryCallback(myClient, query,

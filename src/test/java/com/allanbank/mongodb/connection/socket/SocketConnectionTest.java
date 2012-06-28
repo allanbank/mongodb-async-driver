@@ -173,7 +173,7 @@ public class SocketConnectionTest {
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Number to skip not expected.", 0,
                 EndianUtils.swap(asInts.get(7)));
-        assertEquals("Number to return not expected.", 1,
+        assertEquals("Number to return not expected.", -1,
                 EndianUtils.swap(asInts.get(8)));
 
         final BsonInputStream reader = new BsonInputStream(
@@ -234,7 +234,7 @@ public class SocketConnectionTest {
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Number to skip not expected.", 0,
                 EndianUtils.swap(asInts.get(7)));
-        assertEquals("Number to return not expected.", 1,
+        assertEquals("Number to return not expected.", -1,
                 EndianUtils.swap(asInts.get(8)));
 
         final BsonInputStream reader = new BsonInputStream(
@@ -295,7 +295,7 @@ public class SocketConnectionTest {
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Number to skip not expected.", 0,
                 EndianUtils.swap(asInts.get(7)));
-        assertEquals("Number to return not expected.", 1,
+        assertEquals("Number to return not expected.", -1,
                 EndianUtils.swap(asInts.get(8)));
 
         final BsonInputStream reader = new BsonInputStream(
@@ -358,7 +358,7 @@ public class SocketConnectionTest {
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Number to skip not expected.", 0,
                 EndianUtils.swap(asInts.get(7)));
-        assertEquals("Number to return not expected.", 1,
+        assertEquals("Number to return not expected.", -1,
                 EndianUtils.swap(asInts.get(8)));
 
         final BsonInputStream reader = new BsonInputStream(
@@ -681,7 +681,7 @@ public class SocketConnectionTest {
 
         final Document doc = builder.get();
 
-        final Query query = new Query("foo", "bar", doc, null, 1234567,
+        final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, false, false, false, false, false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
@@ -744,7 +744,7 @@ public class SocketConnectionTest {
 
         final Document doc = builder.get();
 
-        final Query query = new Query("foo", "bar", doc, null, 1234567,
+        final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, false, false, true, false, false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
@@ -808,7 +808,7 @@ public class SocketConnectionTest {
 
         final Document doc = builder.get();
 
-        final Query query = new Query("foo", "bar", doc, null, 1234567,
+        final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, false, false, false, true, false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
@@ -872,7 +872,7 @@ public class SocketConnectionTest {
 
         final Document doc = builder.get();
 
-        final Query query = new Query("foo", "bar", doc, null, 1234567,
+        final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, false, true, false, false, false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
@@ -936,7 +936,7 @@ public class SocketConnectionTest {
 
         final Document doc = builder.get();
 
-        final Query query = new Query("foo", "bar", doc, null, 1234567,
+        final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, false, false, false, false, true);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
@@ -1000,7 +1000,7 @@ public class SocketConnectionTest {
 
         final Document doc = builder.get();
 
-        final Query query = new Query("foo", "bar", doc, null, 1234567,
+        final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, true, false, false, false, false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
@@ -1064,7 +1064,7 @@ public class SocketConnectionTest {
 
         final Document doc = builder.get();
 
-        final Query query = new Query("foo", "bar", doc, null, 1234567,
+        final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, true, false, false, false, false, false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
@@ -1128,8 +1128,8 @@ public class SocketConnectionTest {
 
         final Document doc = builder.get();
 
-        final Query query = new Query("foo", "bar", doc, doc, 7654321, 1234567,
-                false, false, false, false, false, false);
+        final Query query = new Query("foo", "bar", doc, doc, 7654321, 0,
+                1234567, false, false, false, false, false, false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 

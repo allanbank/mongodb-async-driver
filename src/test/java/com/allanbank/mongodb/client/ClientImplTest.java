@@ -547,8 +547,8 @@ public class ClientImplTest {
      */
     @Test
     public void testSendQueryCallbackOfReply() throws IOException {
-        final Query message = new Query("db", "coll", null, null, 0, 0, false,
-                false, false, false, false, false);
+        final Query message = new Query("db", "coll", null, null, 0, 0, 0,
+                false, false, false, false, false, false);
         final Callback<Reply> callback = createMock(Callback.class);
 
         final Connection mockConnection = createMock(Connection.class);

@@ -256,10 +256,10 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final Query queryMessage = new Query(getDatabaseName(), myName,
                 query.getQuery(), query.getReturnFields(),
-                query.getNumberToReturn(), query.getNumberToSkip(),
-                false /* tailable */, query.isReplicaOk(),
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, query.isPartialOk());
+                query.getBatchSize(), query.getLimit(),
+                query.getNumberToSkip(), false /* tailable */,
+                query.isReplicaOk(), false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, query.isPartialOk());
 
         myClient.send(queryMessage, new QueryCallback(myClient, queryMessage,
                 results));
@@ -277,7 +277,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     public void findOneAsync(final Callback<Document> results,
             final Document query) throws MongoDbException {
         final Query queryMessage = new Query(getDatabaseName(), myName, query,
-                null, 1 /* numberToReturn */, 0 /* skip */,
+                null, 1 /* batchSize */, 1 /* limit */, 0 /* skip */,
                 false /* tailable */, false /* replicaOk */,
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);

@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.client;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -25,11 +26,14 @@ import com.allanbank.mongodb.connection.message.Reply;
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoInterator implements ClosableIterator<Document> {
+public class MongoIterator implements ClosableIterator<Document> {
 
     /** The log for the iterator. */
-    private static final Logger LOG = Logger.getLogger(MongoInterator.class
+    private static final Logger LOG = Logger.getLogger(MongoIterator.class
             .getName());
+
+    /** The size of batches that are requested from the servers. */
+    private int myBatchSize = 0;
 
     /** The client for sending get_more requests to the server. */
     private final Client myClient;
@@ -39,6 +43,12 @@ public class MongoInterator implements ClosableIterator<Document> {
 
     /** The original query. */
     private long myCursorId = 0;
+
+    /**
+     * The maximum number of document to return from the cursor. Zero or
+     * negative means all.
+     */
+    private int myLimit = 0;
 
     /** The {@link Future} that will be updated with the next set of results. */
     private FutureCallback<Reply> myNextReply;
@@ -56,7 +66,7 @@ public class MongoInterator implements ClosableIterator<Document> {
      * @param reply
      *            The initial results of the query that are available.
      */
-    public MongoInterator(final Query originalQuery, final Client client,
+    public MongoIterator(final Query originalQuery, final Client client,
             final Reply reply) {
         myNextReply = new FutureCallback<Reply>();
         myNextReply.callback(reply);
@@ -65,6 +75,8 @@ public class MongoInterator implements ClosableIterator<Document> {
         myClient = client;
         myOriginalQuery = originalQuery;
         myCurrentIterator = null;
+        myBatchSize = originalQuery.getBatchSize();
+        myLimit = originalQuery.getLimit();
     }
 
     /**
@@ -111,6 +123,24 @@ public class MongoInterator implements ClosableIterator<Document> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to get the batch size from the original query or set
+     * explicitly.
+     * </p>
+     */
+    @Override
+    public int getBatchSize() {
+        return myBatchSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return true if there are more documents.
+     * </p>
+     */
     @Override
     public boolean hasNext() {
         if (myCurrentIterator == null) {
@@ -150,6 +180,18 @@ public class MongoInterator implements ClosableIterator<Document> {
     }
 
     /**
+     * Computes the size for the next batch of documents to get.
+     * 
+     * @return The returnNex
+     */
+    public int nextBatchSize() {
+        if ((0 < myLimit) && (myLimit <= myBatchSize)) {
+            return -myLimit;
+        }
+        return myBatchSize;
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to throw and {@link UnsupportedOperationException}.
@@ -161,6 +203,17 @@ public class MongoInterator implements ClosableIterator<Document> {
     public void remove() {
         throw new UnsupportedOperationException(
                 "Cannot remove a document via a MongoDB iterator.");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to set the batch size.
+     * </p>
+     */
+    @Override
+    public void setBatchSize(final int batchSize) {
+        myBatchSize = batchSize;
     }
 
     /**
@@ -176,13 +229,31 @@ public class MongoInterator implements ClosableIterator<Document> {
             final Reply reply = myNextReply.get();
             myCursorId = reply.getCursorId();
 
+            // Setup and iterator over the documents and adjust the limit
+            // for the documents we have. Do this before the fetch again
+            // so the nextBatchSize() has the updated limit.
+            final List<Document> docs = reply.getResults();
+            myCurrentIterator = docs.iterator();
+            if (0 < myLimit) {
+                // Check if we have too many docs.
+                if (myLimit <= docs.size()) {
+                    myCurrentIterator = docs.subList(0, myLimit).iterator();
+                    if (myCursorId != 0) {
+                        // Kill the cursor.
+                        myClient.send(new KillCursors(new long[] { myCursorId }));
+                        myCursorId = 0;
+                    }
+                }
+                myLimit -= docs.size();
+            }
+
             // Pre-fetch the next set of documents while we iterate over the
             // documents we just got.
             if (myCursorId != 0) {
                 final GetMore getMore = new GetMore(
                         myOriginalQuery.getDatabaseName(),
                         myOriginalQuery.getCollectionName(), myCursorId,
-                        myOriginalQuery.getNumberToReturn());
+                        nextBatchSize());
 
                 myNextReply = new FutureCallback<Reply>();
                 myClient.send(getMore, myNextReply);
@@ -194,7 +265,6 @@ public class MongoInterator implements ClosableIterator<Document> {
                 // Don't need to kill the cursor since we exhausted it.
             }
 
-            myCurrentIterator = reply.getResults().iterator();
         }
         catch (final InterruptedException e) {
             throw new RuntimeException(e);

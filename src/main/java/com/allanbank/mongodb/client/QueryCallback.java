@@ -15,7 +15,7 @@ import com.allanbank.mongodb.error.ReplyException;
 
 /**
  * Callback to convert a {@link Query} {@link Reply} into a
- * {@link MongoInterator}.
+ * {@link MongoIterator}.
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
@@ -66,7 +66,7 @@ import com.allanbank.mongodb.error.ReplyException;
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to construct a {@link MongoInterator} around the reply.
+     * Overridden to construct a {@link MongoIterator} around the reply.
      * </p>
      * 
      * @see AbstractReplyCallback#convert(Reply)
@@ -74,6 +74,6 @@ import com.allanbank.mongodb.error.ReplyException;
     @Override
     protected ClosableIterator<Document> convert(final Reply reply)
             throws MongoDbException {
-        return new MongoInterator(myQueryMessage, myClient, reply);
+        return new MongoIterator(myQueryMessage, myClient, reply);
     }
 }

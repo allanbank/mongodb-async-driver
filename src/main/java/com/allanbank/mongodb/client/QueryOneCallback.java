@@ -13,7 +13,7 @@ import com.allanbank.mongodb.connection.message.Reply;
 
 /**
  * Callback to convert a {@link Query} {@link Reply} into a
- * {@link MongoInterator}.
+ * {@link MongoIterator}.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
@@ -34,7 +34,7 @@ import com.allanbank.mongodb.connection.message.Reply;
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to construct a {@link MongoInterator} around the reply.
+     * Overridden to construct a {@link MongoIterator} around the reply.
      * </p>
      * 
      * @see AbstractReplyCallback#convert(Reply)

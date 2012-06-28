@@ -14,11 +14,11 @@ import com.allanbank.mongodb.bson.Document;
  */
 public class Find {
 
-    /**
-     * The number of documents to be returned. The is not the results batch
-     * size.
-     */
-    private final int myNumberToReturn;
+    /** The number of documents to be returned in each batch of results. */
+    private final int myBatchSize;
+
+    /** The total number of documents to be returned. */
+    private final int myLimit;
 
     /** The number of documents to skip before returning the first document. */
     private final int myNumberToSkip;
@@ -47,20 +47,29 @@ public class Find {
     protected Find(final Builder builder) {
         myQuery = builder.myQuery;
         myReturnFields = builder.myReturnFields;
-        myNumberToReturn = builder.myNumberToReturn;
+        myBatchSize = builder.myBatchSize;
+        myLimit = builder.myLimit;
         myNumberToSkip = builder.myNumberToSkip;
         myPartialOk = builder.myPartialOk;
         myReplicaOk = builder.myReplicaOk;
     }
 
     /**
-     * Returns the number of documents to be returned. The is not the results
-     * batch size.
+     * Returns the number of documents to be returned in each batch of results.
      * 
-     * @return The number of documents to be returned.
+     * @return The number of documents to be returned in each batch of results.
      */
-    public int getNumberToReturn() {
-        return myNumberToReturn;
+    public int getBatchSize() {
+        return myBatchSize;
+    }
+
+    /**
+     * Returns the total number of documents to be returned.
+     * 
+     * @return The total number of documents to be returned.
+     */
+    public int getLimit() {
+        return myLimit;
     }
 
     /**
@@ -119,11 +128,11 @@ public class Find {
      * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {
-        /**
-         * The number of documents to be returned. The is not the results batch
-         * size.
-         */
-        protected int myNumberToReturn;
+        /** The number of documents to be returned in each batch of results. */
+        protected int myBatchSize;
+
+        /** The total number of documents to be returned. */
+        protected int myLimit;
 
         /** The number of documents to skip before returning the first document. */
         protected int myNumberToSkip;
@@ -151,7 +160,8 @@ public class Find {
         public Builder() {
             myQuery = null;
             myReturnFields = null;
-            myNumberToReturn = 0;
+            myBatchSize = 0;
+            myLimit = 0;
             myNumberToSkip = 0;
             myPartialOk = false;
             myReplicaOk = false;
@@ -178,15 +188,29 @@ public class Find {
         }
 
         /**
-         * Sets the value of the number of documents to be returned to the new
-         * value. The is not the results batch size.
+         * Sets the value of the number of documents to be returned in each
+         * batch.
          * 
-         * @param numberToReturn
-         *            The new value for the number of documents to be returned.
+         * @param batchSize
+         *            The new value for the number of documents to be returned
+         *            in each batch.
          * @return This builder for chaining method calls.
          */
-        public Builder setNumberToReturn(final int numberToReturn) {
-            myNumberToReturn = numberToReturn;
+        public Builder setBatchSize(final int batchSize) {
+            myBatchSize = batchSize;
+            return this;
+        }
+
+        /**
+         * Sets the value of the total number of documents to be returned.
+         * 
+         * @param limit
+         *            The new value for the total number of documents to be
+         *            returned.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setLimit(final int limit) {
+            myLimit = limit;
             return this;
         }
 

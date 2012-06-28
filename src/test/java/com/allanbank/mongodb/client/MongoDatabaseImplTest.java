@@ -121,8 +121,8 @@ public class MongoDatabaseImplTest {
                 .addString("name", "test.1.oplog.$").get();
 
         final Query query = new Query("test", "system.namespaces",
-                BuilderFactory.start().get(), null, 0, 0, false, true, false,
-                false, false, false);
+                BuilderFactory.start().get(), null, 0, 0, 0, false, true,
+                false, false, false, false);
 
         myMockClient.send(eq(query), callback(reply(result1, result2)));
         expectLastCall();

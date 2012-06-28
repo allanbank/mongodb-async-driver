@@ -68,7 +68,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             authConn.send(reply,
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
                             false), new Query(USER_DB, "bar", BuilderFactory
-                            .start().get(), null, 1, 0, false, false, false,
+                            .start().get(), null, 1, 1, 0, false, false, false,
                             false, false, false));
             final Reply r = reply.get();
 
@@ -109,7 +109,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             authConn.send(reply,
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
                             false), new Query(USER_DB, "bar", BuilderFactory
-                            .start().get(), null, 1, 0, false, false, false,
+                            .start().get(), null, 1, 1, 0, false, false, false,
                             false, false, false));
             final Reply r = reply.get();
 

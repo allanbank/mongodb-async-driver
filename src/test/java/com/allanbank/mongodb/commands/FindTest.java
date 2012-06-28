@@ -36,7 +36,8 @@ public class FindTest {
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(query);
         builder.setReturnFields(fields);
-        builder.setNumberToReturn(101010);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
         builder.setNumberToSkip(123456);
         builder.setPartialOk(true);
         builder.setReplicaOk(true);
@@ -44,7 +45,8 @@ public class FindTest {
         Find request = builder.build();
         assertSame(query, request.getQuery());
         assertSame(fields, request.getReturnFields());
-        assertEquals(101010, request.getNumberToReturn());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
         assertTrue(request.isPartialOk());
         assertTrue(request.isReplicaOk());
@@ -54,7 +56,8 @@ public class FindTest {
         request = builder.build();
         assertSame(query, request.getQuery());
         assertSame(fields, request.getReturnFields());
-        assertEquals(101010, request.getNumberToReturn());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
         assertTrue(request.isPartialOk());
         assertFalse(request.isReplicaOk());
@@ -72,7 +75,8 @@ public class FindTest {
         final Find request = builder.build();
         assertSame(query, request.getQuery());
         assertNull(request.getReturnFields());
-        assertEquals(0, request.getNumberToReturn());
+        assertEquals(0, request.getBatchSize());
+        assertEquals(0, request.getLimit());
         assertEquals(0, request.getNumberToSkip());
         assertFalse(request.isPartialOk());
         assertFalse(request.isReplicaOk());
