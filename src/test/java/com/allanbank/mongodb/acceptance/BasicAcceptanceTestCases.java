@@ -619,18 +619,60 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 .start().get());
         findBuilder.setReturnFields(BuilderFactory.start()
                 .addBoolean("_id", true).get());
+        // Fetch a lot.
+        findBuilder.setBatchSize(10);
 
         final ClosableIterator<Document> iter = myCollection.find(findBuilder
                 .build());
-        int expectedId = 0;
+        int count = 0;
         for (final Document found : iter) {
 
             assertNotNull(found);
 
-            expectedId += 1;
+            count += 1;
         }
 
-        assertEquals(LARGE_COLLECTION_COUNT, expectedId);
+        assertEquals(LARGE_COLLECTION_COUNT, count);
+    }
+
+    /**
+     * Verifies that the MongoDB iteration over a large collection works as
+     * expected.
+     */
+    @Test
+    public void testMultiFetchIteratorWithLimit() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            builder.addInteger("_id", i);
+
+            myCollection.insert(builder.get());
+        }
+
+        // Now go find all of them.
+        final Find.Builder findBuilder = new Find.Builder(BuilderFactory
+                .start().get());
+        findBuilder.setReturnFields(BuilderFactory.start()
+                .addBoolean("_id", true).get());
+        // Fetch a lot.
+        findBuilder.setBatchSize(10);
+        findBuilder.setLimit(123);
+
+        final ClosableIterator<Document> iter = myCollection.find(findBuilder
+                .build());
+        int count = 0;
+        for (final Document found : iter) {
+
+            assertNotNull(found);
+
+            count += 1;
+        }
+
+        assertEquals(findBuilder.build().getLimit(), count);
     }
 
     /**
