@@ -511,6 +511,46 @@ public class MongoDbConfigurationTest {
      * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
      * .
      */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testMongoUriIllegalValue() {
+        new MongoDbConfiguration("mongo://foo?w=foo");
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testMongoUriNoPassword() {
+        new MongoDbConfiguration("mongo://user@foo");
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testMongoUriNoServer() {
+        new MongoDbConfiguration("mongodb:///");
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testMongoUriNull() {
+        new MongoDbConfiguration((String) null);
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
     @Test
     public void testMongoUriTwoServers() {
         final InetSocketAddress addr1 = new InetSocketAddress("foo",
@@ -561,6 +601,16 @@ public class MongoDbConfigurationTest {
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testMongoUriWrongPrefix() {
+        new MongoDbConfiguration("mongo://foo");
     }
 
     /**
