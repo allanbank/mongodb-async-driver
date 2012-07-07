@@ -9,9 +9,8 @@
  *
  * <h2>Usage</h2>
  * <p>
- * Most users should not need to directly use the classes within this package except to 
- * construct a {@link com.allanbank.mongodb.client.MongoImpl} instance with a
- * {@link com.allanbank.mongodb.MongoDbConfiguration}.</p>
+ * Most users should not need to directly use the classes within this package.
+ * </p>
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */

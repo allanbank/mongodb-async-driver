@@ -12,8 +12,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.logging.Logger;
 
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
@@ -24,11 +26,24 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
  */
 public class MongoDbConfiguration implements Cloneable, Serializable {
 
+    /** The name of the administration database. */
+    public static final String ADMIN_DB_NAME = "admin";
+
+    /** The default MongoDB port. */
+    public static final int DEFAULT_PORT = 27017;
+
+    /** The prefix for a MongoDB URI. */
+    public static final String MONGODB_URI_PREFIX = "mongodb://";
+
     /** The ASCII character encoding. */
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
     /** Hex encoding characters. */
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
+
+    /** The logger for the {@link MongoDbConfiguration}. */
+    private static final Logger LOG = Logger
+            .getLogger(MongoDbConfiguration.class.getCanonicalName());
 
     /** The serialization version for the class. */
     private static final long serialVersionUID = 2964127883934086509L;
@@ -47,6 +62,35 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
             chars[(2 * i) + 1] = HEX_CHARS[buf[i] & 0x0F];
         }
         return new String(chars);
+    }
+
+    /**
+     * Parse the name into a {@link InetSocketAddress}. If a port component is
+     * not provided then port 27017 is assumed.
+     * 
+     * @param server
+     *            The server[:port] string.
+     * @return The {@link InetSocketAddress} parsed from the server string.
+     */
+    public static InetSocketAddress parseAddress(final String server) {
+        String name = server;
+        int port = DEFAULT_PORT;
+
+        final int colonIndex = server.lastIndexOf(':');
+        if (colonIndex > 0) {
+            final String portString = server.substring(colonIndex + 1);
+            try {
+                port = Integer.parseInt(portString);
+                name = server.substring(0, colonIndex);
+            }
+            catch (final NumberFormatException nfe) {
+                // Not a port after the colon. Move on.
+                port = DEFAULT_PORT;
+
+            }
+        }
+
+        return new InetSocketAddress(name, port);
     }
 
     /** If true then the user should be authenticated as an anministrative user. */
@@ -190,6 +234,217 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Creates a new {@link MongoDbConfiguration} instance using a MongoDB style
+     * URL to initialize its state. Further configuration is possible once the
+     * {@link MongoDbConfiguration} has been instantiated.
+     * 
+     * @param mongoDbUri
+     *            The configuration for the connection to MongoDB expressed as a
+     *            MongoDB URL.
+     * @throws IllegalArgumentException
+     *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
+     *             style URL.
+     * 
+     * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
+     *      Connections</a>
+     */
+    public MongoDbConfiguration(final String mongoDbUri)
+            throws IllegalArgumentException {
+        if (mongoDbUri == null) {
+            throw new IllegalArgumentException(
+                    "The MongoDB URI cannot be null.");
+        }
+        else if (!mongoDbUri.toLowerCase().startsWith(MONGODB_URI_PREFIX)) {
+            throw new IllegalArgumentException(
+                    "The MongoDB URI must start with '" + MONGODB_URI_PREFIX
+                            + "'.");
+        }
+
+        String remaining = mongoDbUri.substring(MONGODB_URI_PREFIX.length());
+        String userNamePassword;
+        String hosts;
+        String options;
+        String database;
+
+        int position = remaining.indexOf('@');
+        if (position >= 0) {
+            userNamePassword = remaining.substring(0, position);
+            remaining = remaining.substring(position + 1);
+        }
+        else {
+            userNamePassword = "";
+        }
+
+        position = remaining.indexOf('/');
+        if (position >= 0) {
+            hosts = remaining.substring(0, position);
+            remaining = remaining.substring(position + 1);
+
+            position = remaining.indexOf('?');
+            if (position >= 0) {
+                database = remaining.substring(0, position);
+                options = remaining.substring(position + 1);
+            }
+            else {
+                database = remaining;
+                options = "";
+            }
+        }
+        else {
+            database = ADMIN_DB_NAME;
+            position = remaining.indexOf('?');
+            if (position >= 0) {
+                hosts = remaining.substring(0, position);
+                options = remaining.substring(position + 1);
+            }
+            else {
+                hosts = remaining;
+                options = "";
+            }
+        }
+
+        // Update the configuration with the values.
+        StringTokenizer tokenizer = new StringTokenizer(hosts, ",");
+        while (tokenizer.hasMoreTokens()) {
+            final String host = tokenizer.nextToken();
+            addServer(host);
+        }
+        if (myServers.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Must provide at least 1 host to connect to.");
+        }
+
+        if (!userNamePassword.isEmpty()) {
+            position = userNamePassword.indexOf(':');
+            if (position >= 0) {
+                if (database.equals(ADMIN_DB_NAME)) {
+                    authenticateAsAdmin(
+                            userNamePassword.substring(0, position),
+                            userNamePassword.substring(position + 1));
+                }
+                else {
+                    authenticate(userNamePassword.substring(0, position),
+                            userNamePassword.substring(position + 1));
+                }
+            }
+            else {
+                throw new IllegalArgumentException(
+                        "The password for the user '" + userNamePassword
+                                + "' must be provided.");
+            }
+        }
+
+        boolean safe = false;
+        int w = -1;
+        boolean fsync = false;
+        boolean journal = false;
+        int wtimeout = 0;
+
+        tokenizer = new StringTokenizer(options, "?;");
+        while (tokenizer.hasMoreTokens()) {
+            String property;
+            String value;
+
+            final String propertyAndValue = tokenizer.nextToken();
+            position = propertyAndValue.indexOf('=');
+            if (position >= 0) {
+                property = propertyAndValue.substring(0, position);
+                value = propertyAndValue.substring(position + 1);
+            }
+            else {
+                property = propertyAndValue;
+                value = Boolean.TRUE.toString();
+            }
+
+            try {
+                if ("replicaSet".equalsIgnoreCase(property)) {
+                    LOG.info("Not validating the replica set name is '" + value
+                            + "'.");
+                }
+                else if ("slaveOk".equalsIgnoreCase(property)) {
+                    LOG.info("Not able to set the default slave OK value to '"
+                            + value + "'.");
+                }
+                else if ("safe".equalsIgnoreCase(property)) {
+                    safe = Boolean.parseBoolean(value);
+                }
+                else if ("w".equalsIgnoreCase(property)) {
+                    safe = true;
+                    w = Integer.parseInt(value);
+                }
+                else if ("wtimeout".equalsIgnoreCase(property)) {
+                    safe = true;
+                    wtimeout = Integer.parseInt(value);
+                    if (w < 1) {
+                        w = 1;
+                    }
+                }
+                else if ("fsync".equalsIgnoreCase(property)) {
+                    fsync = Boolean.parseBoolean(value);
+                    if (fsync) {
+                        safe = true;
+                    }
+                }
+                else if ("journal".equalsIgnoreCase(property)) {
+                    journal = Boolean.parseBoolean(value);
+                    if (journal) {
+                        safe = true;
+                    }
+                }
+                else if ("connectTimeoutMS".equalsIgnoreCase(property)) {
+                    myConnectTimeout = Integer.parseInt(value);
+                }
+                else if ("socketTimeoutMS".equalsIgnoreCase(property)) {
+                    myReadTimeout = Integer.parseInt(value);
+                }
+
+                // Extensions
+                else if ("autoDiscoverServers".equalsIgnoreCase(property)) {
+                    myAutoDiscoverServers = Boolean.parseBoolean(value);
+                }
+                else if ("maxConnectionCount".equalsIgnoreCase(property)) {
+                    myMaxConnectionCount = Integer.parseInt(value);
+                }
+                else if ("maxPendingOperationsPerConnection"
+                        .equalsIgnoreCase(property)) {
+                    myMaxPendingOperationsPerConnection = Integer
+                            .parseInt(value);
+                }
+                else if ("reconnectTimeoutMS".equalsIgnoreCase(property)) {
+                    myReconnectTimeout = Integer.parseInt(value);
+                }
+                else if ("useSoKeepalive".equalsIgnoreCase(property)) {
+                    myUsingSoKeepalive = Boolean.parseBoolean(value);
+                }
+            }
+            catch (final NumberFormatException nfe) {
+                throw new IllegalArgumentException("The '" + property
+                        + "' parameter must have a numeric value not '" + value
+                        + "'.", nfe);
+            }
+        }
+
+        // Figure out the intended durability.
+        if (safe) {
+            if (fsync) {
+                myDefaultDurability = Durability.fsyncDurable(wtimeout);
+            }
+            else if (journal) {
+                myDefaultDurability = Durability.journalDurable(wtimeout);
+            }
+            else if (w > 0) {
+                myDefaultDurability = Durability.replicaDurable(w, wtimeout);
+            }
+            else {
+                myDefaultDurability = Durability.ACK;
+            }
+        }
+        else {
+            myDefaultDurability = Durability.NONE;
+        }
+    }
+
+    /**
      * Adds a server to initially attempt to connect to.
      * 
      * @param server
@@ -197,6 +452,16 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     public void addServer(final InetSocketAddress server) {
         myServers.add(server);
+    }
+
+    /**
+     * Adds a server to initially attempt to connect to.
+     * 
+     * @param server
+     *            The server to add.
+     */
+    public void addServer(final String server) {
+        addServer(parseAddress(server));
     }
 
     /**
@@ -567,5 +832,4 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     public void setUsingSoKeepalive(final boolean usingSoKeepalive) {
         myUsingSoKeepalive = usingSoKeepalive;
     }
-
 }

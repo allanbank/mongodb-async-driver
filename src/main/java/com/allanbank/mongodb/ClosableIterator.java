@@ -9,6 +9,10 @@ import java.util.Iterator;
 
 /**
  * ClosableIterator provides an interface for an iterator that can be closed.
+ * <p>
+ * In addition the batch size for the next request for documents from the cursor
+ * can be set.
+ * </p>
  * 
  * @param <T>
  *            The type of elements being iterated over.

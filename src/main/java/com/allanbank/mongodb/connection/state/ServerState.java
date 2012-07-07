@@ -8,6 +8,8 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.allanbank.mongodb.MongoDbConfiguration;
+
 /**
  * Tracks the state of a single server. Currently two factors are tracked:
  * <ul>
@@ -30,7 +32,7 @@ public class ServerState {
     public static final double DECAY_SAMPLES = 1000.0D;
 
     /** The default MongoDB port. */
-    public static final int DEFAULT_PORT = 27017;
+    public static final int DEFAULT_PORT = MongoDbConfiguration.DEFAULT_PORT;
 
     static {
         DECAY_ALPHA = (2.0D / (DECAY_SAMPLES + 1));
@@ -58,7 +60,7 @@ public class ServerState {
      *            The server being tracked.
      */
     /* package */ServerState(final String server) {
-        myServer = parse(server);
+        myServer = MongoDbConfiguration.parseAddress(server);
         myWritable = new AtomicBoolean(false);
         myAverageLatency = new AtomicLong(
                 Double.doubleToLongBits(Double.MAX_VALUE));
@@ -135,35 +137,6 @@ public class ServerState {
                     + ((1.0D - DECAY_ALPHA) * oldAverage);
             myAverageLatency.set(Double.doubleToLongBits(newAverage));
         }
-    }
-
-    /**
-     * Parse the name into a {@link InetSocketAddress}. If a port component is
-     * not provided then port 27017 is assumed.
-     * 
-     * @param server
-     *            The server[:port] string.
-     * @return The {@link InetSocketAddress} parsed from the server string.
-     */
-    protected InetSocketAddress parse(final String server) {
-        String name = server;
-        int port = DEFAULT_PORT;
-
-        final int colonIndex = server.lastIndexOf(':');
-        if (colonIndex > 0) {
-            final String portString = server.substring(colonIndex + 1);
-            try {
-                port = Integer.parseInt(portString);
-                name = server.substring(0, colonIndex);
-            }
-            catch (final NumberFormatException nfe) {
-                // Not a port after the colon. Move on.
-                port = DEFAULT_PORT;
-
-            }
-        }
-
-        return new InetSocketAddress(name, port);
     }
 
     /**

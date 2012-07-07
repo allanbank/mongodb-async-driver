@@ -18,7 +18,7 @@ import com.allanbank.mongodb.bson.Document;
  */
 public interface MongoDatabase {
     /** The name of the administration database. */
-    public static final String ADMIN_NAME = "admin";
+    public static final String ADMIN_NAME = MongoDbConfiguration.ADMIN_DB_NAME;
 
     /** The name of the configuration database for a sharded configuration. */
     public static final String CONFIG_NAME = "config";

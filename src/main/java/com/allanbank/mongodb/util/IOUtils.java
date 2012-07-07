@@ -9,8 +9,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.connection.state.ConnectionPinger;
-
 /**
  * IOUtils provides helper methods for dealing with I/O operations.
  * 
@@ -18,7 +16,7 @@ import com.allanbank.mongodb.connection.state.ConnectionPinger;
  */
 public final class IOUtils {
 
-    /** The logger for the {@link ConnectionPinger}. */
+    /** The logger for the {@link IOUtils}. */
     private static final Logger LOG = Logger.getLogger(IOUtils.class
             .getCanonicalName());
 
