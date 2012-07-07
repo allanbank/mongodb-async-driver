@@ -250,6 +250,8 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     public MongoDbConfiguration(final String mongoDbUri)
             throws IllegalArgumentException {
+        this();
+
         if (mongoDbUri == null) {
             throw new IllegalArgumentException(
                     "The MongoDB URI cannot be null.");
@@ -317,7 +319,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
         if (!userNamePassword.isEmpty()) {
             position = userNamePassword.indexOf(':');
             if (position >= 0) {
-                if (database.equals(ADMIN_DB_NAME)) {
+                if (database.isEmpty() || database.equals(ADMIN_DB_NAME)) {
                     authenticateAsAdmin(
                             userNamePassword.substring(0, position),
                             userNamePassword.substring(position + 1));
@@ -340,7 +342,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
         boolean journal = false;
         int wtimeout = 0;
 
-        tokenizer = new StringTokenizer(options, "?;");
+        tokenizer = new StringTokenizer(options, "?;&");
         while (tokenizer.hasMoreTokens()) {
             String property;
             String value;
@@ -382,12 +384,14 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
                 else if ("fsync".equalsIgnoreCase(property)) {
                     fsync = Boolean.parseBoolean(value);
                     if (fsync) {
+                        journal = false;
                         safe = true;
                     }
                 }
                 else if ("journal".equalsIgnoreCase(property)) {
                     journal = Boolean.parseBoolean(value);
                     if (journal) {
+                        fsync = false;
                         safe = true;
                     }
                 }
@@ -415,6 +419,10 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
                 }
                 else if ("useSoKeepalive".equalsIgnoreCase(property)) {
                     myUsingSoKeepalive = Boolean.parseBoolean(value);
+                }
+                else {
+                    LOG.info("Unknown property '" + property + "' and value '"
+                            + value + "'.");
                 }
             }
             catch (final NumberFormatException nfe) {

@@ -100,4 +100,15 @@ public class MongoImpl implements Mongo {
 
         return names;
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the clients configuration.
+     * </p>
+     */
+    @Override
+    public MongoDbConfiguration getConfig() {
+        return myClient.getConfig();
+    }
 }

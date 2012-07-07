@@ -31,4 +31,11 @@ public interface Mongo extends Closeable {
      * @return A list of available database names.
      */
     public List<String> listDatabases();
+
+    /**
+     * Returns the configuration being used by the logical MongoDB connection.
+     * 
+     * @return The configuration being used by the logical MongoDB connection.
+     */
+    public MongoDbConfiguration getConfig();
 }

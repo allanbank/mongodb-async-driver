@@ -34,6 +34,13 @@ public interface Client {
     public Durability getDefaultDurability();
 
     /**
+     * Returns the configuration being used by the logical MongoDB connection.
+     * 
+     * @return The configuration being used by the logical MongoDB connection.
+     */
+    public MongoDbConfiguration getConfig();
+
+    /**
      * Sends a get more request.
      * 
      * @param getMore

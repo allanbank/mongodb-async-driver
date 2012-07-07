@@ -124,6 +124,18 @@ public class ClientImpl implements Client {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the configuration used when the client was
+     * constructed.
+     * </p>
+     */
+    @Override
+    public MongoDbConfiguration getConfig() {
+        return myConfig;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return the configurations default durability.
      * </p>
      * 
