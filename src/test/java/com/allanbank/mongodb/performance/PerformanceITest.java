@@ -27,11 +27,11 @@ import com.allanbank.mongodb.Mongo;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoFactory;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ObjectId;
-import com.allanbank.mongodb.client.MongoImpl;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
@@ -174,7 +174,7 @@ public class PerformanceITest {
             config.setMaxConnectionCount(1);
             config.setMaxPendingOperationsPerConnection(10 * 1024);
 
-            myAsyncMongo = new MongoImpl(config);
+            myAsyncMongo = MongoFactory.create(config);
             myAsyncDb = myAsyncMongo.getDatabase("asyncTest");
             myAsyncCollection = myAsyncDb.getCollection("test");
 

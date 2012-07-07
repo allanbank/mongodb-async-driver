@@ -14,7 +14,6 @@ import org.junit.AfterClass;
 
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.client.MongoImpl;
 
 /**
  * AbstractServerTestDriver provides common methods for starting and stopping
@@ -171,7 +170,7 @@ public class ServerTestDriverSupport {
             final MongoDbConfiguration config = new MongoDbConfiguration();
             config.addServer(new InetSocketAddress("127.0.0.1", 27017));
 
-            mongo = new MongoImpl(config);
+            mongo = MongoFactory.create(config);
             MongoDatabase db = mongo.getDatabase("admin");
             MongoCollection collection = db.getCollection("system.users");
 
@@ -187,7 +186,7 @@ public class ServerTestDriverSupport {
 
             // Start a new connection authenticating as the admin user to add
             // the non-admin user...
-            mongo = new MongoImpl(adminConfig);
+            mongo = MongoFactory.create(adminConfig);
             db = mongo.getDatabase(USER_DB);
             collection = db.getCollection("system.users");
 

@@ -32,6 +32,7 @@ import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoFactory;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
@@ -42,7 +43,6 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.client.MongoImpl;
 import com.allanbank.mongodb.commands.Distinct;
 import com.allanbank.mongodb.commands.Find;
 import com.allanbank.mongodb.commands.FindAndModify;
@@ -95,7 +95,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig = new MongoDbConfiguration();
         myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
 
-        myMongo = new MongoImpl(myConfig);
+        myMongo = MongoFactory.create(myConfig);
         myDb = myMongo.getDatabase(TEST_DB_NAME);
         myCollection = myDb.getCollection(TEST_COLLECTION_NAME);
     }
