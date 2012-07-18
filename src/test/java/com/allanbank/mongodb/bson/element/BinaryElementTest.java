@@ -60,6 +60,27 @@ public class BinaryElementTest {
 
     /**
      * Test method for
+     * {@link BinaryElement#BinaryElement(java.lang.String, byte[])}.
+     */
+    @Test
+    public void testBinaryElementAltConstructor() {
+        BinaryElement element = new BinaryElement("foo", new byte[] { 0x01,
+                0x02, 0x03 });
+
+        assertEquals("foo", element.getName());
+        assertEquals(BinaryElement.DEFAULT_SUB_TYPE, element.getSubType());
+        assertArrayEquals(new byte[] { 0x01, 0x02, 0x03 }, element.getValue());
+        assertEquals(ElementType.BINARY, element.getType());
+
+        element = new BinaryElement("foo", new byte[0]);
+        assertEquals("foo", element.getName());
+        assertEquals(BinaryElement.DEFAULT_SUB_TYPE, element.getSubType());
+        assertArrayEquals(new byte[0], element.getValue());
+        assertEquals(ElementType.BINARY, element.getType());
+    }
+
+    /**
+     * Test method for
      * {@link BinaryElement#BinaryElement(java.lang.String, byte, byte[])}.
      */
     @Test

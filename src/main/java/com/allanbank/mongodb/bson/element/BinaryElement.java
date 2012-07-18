@@ -17,6 +17,9 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class BinaryElement extends AbstractElement {
 
+    /** The sub type used when no sub type is specified. */
+    public static final byte DEFAULT_SUB_TYPE = 0;
+
     /** The BSON type for a binary. */
     public static final ElementType TYPE = ElementType.BINARY;
 
@@ -25,6 +28,21 @@ public class BinaryElement extends AbstractElement {
 
     /** The BSON binary value. */
     private final byte[] myValue;
+
+    /**
+     * Constructs a new {@link BinaryElement}. Uses the
+     * {@link #DEFAULT_SUB_TYPE}.
+     * 
+     * @param name
+     *            The name for the BSON binary.
+     * @param value
+     *            The BSON binary value.
+     * @throws IllegalArgumentException
+     *             If the <code>value</code> is null.
+     */
+    public BinaryElement(final String name, final byte[] value) {
+        this(name, DEFAULT_SUB_TYPE, value);
+    }
 
     /**
      * Constructs a new {@link BinaryElement}.

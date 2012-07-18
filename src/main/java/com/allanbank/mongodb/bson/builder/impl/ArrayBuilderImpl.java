@@ -64,7 +64,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      */
     @Override
     public ArrayBuilder addBinary(final byte[] value) {
-        myElements.add(new BinaryElement(nextIndex(), (byte) 0, value));
+        myElements.add(new BinaryElement(nextIndex(), value));
         return this;
     }
 

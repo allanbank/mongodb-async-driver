@@ -82,7 +82,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addBinary(final String name, final byte[] value) {
-        return add(new BinaryElement(name, (byte) 0, value));
+        return add(new BinaryElement(name, value));
     }
 
     /**
