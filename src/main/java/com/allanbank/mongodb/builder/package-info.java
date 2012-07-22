@@ -28,7 +28,7 @@
  *           );
  * </code>
  * </pre>
- * <blockquote>
+ * </blockquote>
  * </p>
  * <p>
  * Each of the commands classes is immutable but has an inner static Builder class that can be used to
