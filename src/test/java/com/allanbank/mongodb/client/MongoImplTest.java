@@ -8,8 +8,10 @@ package com.allanbank.mongodb.client;
 import static com.allanbank.mongodb.AnswerCallback.callback;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -19,6 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Mongo;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.bson.Document;
@@ -87,6 +90,23 @@ public class MongoImplTest {
         final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
         assertTrue(impl.getClient() instanceof ClientImpl);
         impl.close();
+    }
+
+    /**
+     * Test method for
+     * {@link com.allanbank.mongodb.client.MongoImpl#asSerializedMongo()} .
+     */
+    @Test
+    public void testAsSerializedMongo() {
+        final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
+        assertThat(impl.getClient(), instanceOf(ClientImpl.class));
+        impl.close();
+
+        Mongo serial = impl.asSerializedMongo();
+        assertThat(serial, instanceOf(MongoImpl.class));
+        MongoImpl serialImpl = (MongoImpl) serial;
+        assertThat(serialImpl.getClient(), instanceOf(SerialClientImpl.class));
+
     }
 
     /**

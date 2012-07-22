@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -39,7 +39,7 @@ import com.allanbank.mongodb.error.ConnectionLostException;
  * Implementation of the internal {@link Client} interface which all requests to
  * the MongoDB servers pass.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClientImpl implements Client {
 
@@ -66,7 +66,7 @@ public class ClientImpl implements Client {
     private final BlockingQueue<Connection> myConnectionsToClose;
 
     /**
-     * Create a new MongoClientConnection.
+     * Create a new ClientImpl.
      * 
      * @param config
      *            The configuration for interacting with MongoDB.
@@ -76,7 +76,7 @@ public class ClientImpl implements Client {
     }
 
     /**
-     * Create a new MongoClientConnection.
+     * Create a new ClientImpl.
      * 
      * @param config
      *            The configuration for interacting with MongoDB.
@@ -316,7 +316,7 @@ public class ClientImpl implements Client {
      * @throws MongoDbException
      *             On a failure to talk to the MongoDB servers.
      */
-    private Connection findConnection() throws MongoDbException {
+    protected Connection findConnection() throws MongoDbException {
         // Make sure we shrink connections when the max changes.
         final int limit = Math.max(1, myConfig.getMaxConnectionCount());
         if (limit < myConnections.size()) {

@@ -38,4 +38,22 @@ public interface Mongo extends Closeable {
      * @return A list of available database names.
      */
     public List<String> listDatabases();
+
+    /**
+     * Returns a Mongo instance that shares connections with this Mongo instance
+     * but serializes all of its requests on a single connection.
+     * <p>
+     * While the returned Mongo instance is thread safe it is intended to be
+     * used by a single logical thread to ensure requests issued to the MongoDB
+     * server are guaranteed to be processed in the same order they are
+     * requested.
+     * </p>
+     * <p>
+     * Creation of the serial instance is lightweight with minimal object
+     * allocation and no server interaction.
+     * </p>
+     * 
+     * @return A list of available database names.
+     */
+    public Mongo asSerializedMongo();
 }

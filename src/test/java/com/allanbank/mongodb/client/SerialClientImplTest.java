@@ -14,7 +14,6 @@ import static org.junit.Assert.fail;
 
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -42,7 +41,7 @@ import com.allanbank.mongodb.connection.message.Update;
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("unchecked")
-public class ClientImplTest {
+public class SerialClientImplTest {
 
     /** The active configuration. */
     private MongoDbConfiguration myConfig;
@@ -51,7 +50,10 @@ public class ClientImplTest {
     private ConnectionFactory myMockConnectionFactory;
 
     /** The instance under test. */
-    private ClientImpl myTestInstance;
+    private ClientImpl myClient;
+
+    /** The instance under test. */
+    private SerialClientImpl myTestInstance;
 
     /**
      * Creates the base set of objects for the test.
@@ -61,7 +63,8 @@ public class ClientImplTest {
         myMockConnectionFactory = EasyMock.createMock(ConnectionFactory.class);
 
         myConfig = new MongoDbConfiguration();
-        myTestInstance = new ClientImpl(myConfig, myMockConnectionFactory);
+        myClient = new ClientImpl(myConfig, myMockConnectionFactory);
+        myTestInstance = new SerialClientImpl(myClient);
     }
 
     /**
@@ -72,11 +75,12 @@ public class ClientImplTest {
         myMockConnectionFactory = null;
 
         myConfig = null;
+        myClient = null;
         myTestInstance = null;
     }
 
     /**
-     * Test method for {@link ClientImpl#getConfig()}.
+     * Test method for {@link SerialClientImpl#getConfig()}.
      */
     @Test
     public void testGetConfig() {
@@ -84,7 +88,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#close()}.
+     * Test method for {@link SerialClientImpl#close()}.
      * 
      * @throws IOException
      *             on aa test failure.
@@ -106,72 +110,23 @@ public class ClientImplTest {
         mockConnection.send(message);
         expectLastCall();
 
-        mockConnection.shutdown();
-        expectLastCall();
-
-        mockConnection.waitForClosed(myConfig.getReadTimeout(),
-                TimeUnit.MILLISECONDS);
-        expectLastCall();
-
-        expect(mockConnection.isOpen()).andReturn(false);
-
-        replay(mockConnection);
-
-        myTestInstance.close();
-        myTestInstance.send(message);
-        myTestInstance.close();
-
-        verify(mockConnection);
-    }
-
-    /**
-     * Test method for {@link ClientImpl#close()}.
-     * 
-     * @throws IOException
-     *             on aa test failure.
-     */
-    @SuppressWarnings("boxing")
-    @Test
-    public void testCloseFails() throws IOException {
-
-        final Command message = new Command("testDb", BuilderFactory.start()
-                .build());
-
-        final Connection mockConnection = createMock(Connection.class);
-
-        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
-        mockConnection
-                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
-        expectLastCall();
+        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.getPendingCount()).andReturn(0);
 
         mockConnection.send(message);
         expectLastCall();
 
-        mockConnection.shutdown();
-        expectLastCall();
-
-        mockConnection.waitForClosed(myConfig.getReadTimeout(),
-                TimeUnit.MILLISECONDS);
-        expectLastCall();
-
-        expect(mockConnection.isOpen()).andReturn(true);
-        mockConnection.close();
-        expectLastCall();
-        mockConnection
-                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
-        expectLastCall();
-
         replay(mockConnection);
 
-        myTestInstance.close();
         myTestInstance.send(message);
         myTestInstance.close();
+        myTestInstance.send(message);
 
         verify(mockConnection);
     }
 
     /**
-     * Test method for {@link ClientImpl#getDefaultDurability()}.
+     * Test method for {@link SerialClientImpl#getDefaultDurability()}.
      */
     @Test
     public void testGetDefaultDurability() {
@@ -183,7 +138,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(GetMore, Callback)} .
+     * Test method for {@link SerialClientImpl#send(GetMore, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -213,7 +168,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send(Message)} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -241,7 +196,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send(Message)} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -269,74 +224,14 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send(Message)} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
      */
     @SuppressWarnings("boxing")
     @Test
-    public void testSendMessageClosesFirstWhenMaxShrinks() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
-
-        myConfig.setMaxConnectionCount(2);
-
-        final Connection mockConnection = createMock(Connection.class);
-        final Connection mockConnection2 = createMock(Connection.class);
-
-        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
-        mockConnection
-                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
-        expectLastCall();
-        mockConnection.send(message);
-        expectLastCall();
-
-        expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getPendingCount()).andReturn(1);
-        expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
-        mockConnection2
-                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
-        expectLastCall();
-        mockConnection2.send(message);
-        expectLastCall();
-
-        mockConnection.shutdown();
-        expectLastCall();
-
-        expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(0);
-        mockConnection2.send(message);
-        expectLastCall();
-
-        expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(1);
-        expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(1);
-        mockConnection2.send(message);
-        expectLastCall();
-
-        replay(mockConnection, mockConnection2);
-
-        myConfig.setMaxConnectionCount(2);
-        myTestInstance.send(message);
-        myTestInstance.send(message);
-        myConfig.setMaxConnectionCount(1);
-        myTestInstance.send(message);
-        myTestInstance.send(message);
-
-        verify(mockConnection, mockConnection2);
-    }
-
-    /**
-     * Test method for {@link ClientImpl#send(Message)} .
-     * 
-     * @throws IOException
-     *             On a failure setting up the test.
-     */
-    @SuppressWarnings("boxing")
-    @Test
-    public void testSendMessageClosesFirstWhenMaxShrinksAndCloseFails()
+    public void testSendMessageCreatesSecondConnectionOnClosed()
             throws IOException {
         final Message message = new Command("db", BuilderFactory.start()
                 .build());
@@ -353,69 +248,8 @@ public class ClientImplTest {
         mockConnection.send(message);
         expectLastCall();
 
-        expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getPendingCount()).andReturn(1);
-        expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
-        mockConnection2
-                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
-        expectLastCall();
-        mockConnection2.send(message);
-        expectLastCall();
-
-        mockConnection.shutdown();
-        expectLastCall();
-
-        expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(0);
-        mockConnection2.send(message);
-        expectLastCall();
-
-        expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(1);
-        expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(1);
-        mockConnection2.send(message);
-        expectLastCall();
-
-        replay(mockConnection, mockConnection2);
-
-        myConfig.setMaxConnectionCount(2);
-        myTestInstance.send(message);
-        myTestInstance.send(message);
-        myConfig.setMaxConnectionCount(1);
-        myTestInstance.send(message);
-        myTestInstance.send(message);
-
-        verify(mockConnection, mockConnection2);
-    }
-
-    /**
-     * Test method for {@link ClientImpl#send(Message)} .
-     * 
-     * @throws IOException
-     *             On a failure setting up the test.
-     */
-    @SuppressWarnings("boxing")
-    @Test
-    public void testSendMessageCreatesSecondConnectionOnPending()
-            throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
-
-        myConfig.setMaxConnectionCount(2);
-
-        final Connection mockConnection = createMock(Connection.class);
-        final Connection mockConnection2 = createMock(Connection.class);
-
-        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
-        mockConnection
-                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
-        expectLastCall();
-        mockConnection.send(message);
-        expectLastCall();
-
-        expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getPendingCount()).andReturn(1);
+        expect(mockConnection.isOpen()).andReturn(false);
+        expect(mockConnection.isOpen()).andReturn(false);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -432,8 +266,8 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message, GetLastError, Callback)}
-     * .
+     * Test method for
+     * {@link SerialClientImpl#send(Message, GetLastError, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -464,7 +298,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send(Message)} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -485,7 +319,6 @@ public class ClientImplTest {
         mockConnection.send(message);
         expectLastCall();
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getPendingCount()).andReturn(0);
         mockConnection.send(message);
         expectLastCall();
 
@@ -498,7 +331,46 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send(Message)} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the test.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testSendMessageClosedExisting() throws IOException {
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        mockConnection.send(message);
+        expectLastCall();
+
+        expect(mockConnection.isOpen()).andReturn(false);
+        expect(mockConnection.isOpen()).andReturn(false);
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        mockConnection.send(message);
+        expectLastCall();
+
+        replay(mockConnection);
+
+        myTestInstance.send(message);
+        myTestInstance.send(message);
+
+        verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link SerialClientImpl#send(Message)} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -512,7 +384,6 @@ public class ClientImplTest {
         myConfig.setMaxConnectionCount(2);
 
         final Connection mockConnection = createMock(Connection.class);
-        final Connection mockConnection2 = createMock(Connection.class);
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
@@ -522,38 +393,25 @@ public class ClientImplTest {
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getPendingCount()).andReturn(1);
-        expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
-        mockConnection2
-                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
-        expectLastCall();
-        mockConnection2.send(message);
+        mockConnection.send(message);
         expectLastCall();
 
         // First pass for idle.
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getPendingCount()).andReturn(2);
-        expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(1);
-        // Now most idle.
-        expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getPendingCount()).andReturn(2);
-        expect(mockConnection2.isOpen()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(1);
-        mockConnection2.send(message);
+        mockConnection.send(message);
         expectLastCall();
 
-        replay(mockConnection, mockConnection2);
+        replay(mockConnection);
 
         myTestInstance.send(message);
         myTestInstance.send(message);
         myTestInstance.send(message);
 
-        verify(mockConnection, mockConnection2);
+        verify(mockConnection);
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Query, Callback)} .
+     * Test method for {@link SerialClientImpl#send(Query, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
