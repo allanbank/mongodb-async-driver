@@ -19,19 +19,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
-import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.bootstrap.BootstrapConnectionFactory;
-import com.allanbank.mongodb.connection.message.GetLastError;
-import com.allanbank.mongodb.connection.message.GetMore;
-import com.allanbank.mongodb.connection.message.Query;
-import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.error.ConnectionLostException;
 
@@ -41,7 +35,7 @@ import com.allanbank.mongodb.error.ConnectionLostException;
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ClientImpl implements Client {
+public class ClientImpl extends AbstractClient {
 
     /** The logger for the {@link ClientImpl}. */
     protected static final Logger LOG = Logger.getLogger(ClientImpl.class
@@ -147,57 +141,59 @@ public class ClientImpl implements Client {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to locate the .
-     * </p>
+     * Tries to locate a connection that can quickly dispatch the message to a
+     * MongoDB server. The basic metrics for determining if a connection is idle
+     * is to look at the number of messages waiting to be sent. The basic logic
+     * for finding a connection is:
+     * <ol>
+     * <li>Scan the list of connection looking for an idle connection. If one is
+     * found use it.</li>
+     * <li>If there are no idle connections determine the maximum number of
+     * allowed connections and if there are fewer that the maximum allowed then
+     * take the connection creation lock, create a new connection, use it, and
+     * add to the set of available connections and release the lock.</li>
+     * <li>If there are is still not a connection idle then sort the connections
+     * based on a snapshot of pending messages and use the connection with the
+     * least messages.</li>
+     * <ul>
      * 
-     * @see Client#send(GetMore,Callback)
+     * @return The found connection.
+     * @throws MongoDbException
+     *             On a failure to talk to the MongoDB servers.
      */
     @Override
-    public void send(final GetMore getMore, final Callback<Reply> callback) {
-        findConnection().send(callback, getMore);
-    }
+    protected Connection findConnection() throws MongoDbException {
+        // Make sure we shrink connections when the max changes.
+        final int limit = Math.max(1, myConfig.getMaxConnectionCount());
+        if (limit < myConnections.size()) {
+            synchronized (myConnectionFactory) {
+                // Mark the connections as persona non grata.
+                while (limit < myConnections.size()) {
+                    final Connection conn = myConnections.poll();
+                    myConnectionsToClose.add(conn);
+                    conn.shutdown();
+                }
+            }
+        }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send the {@link Message} to MongoDB.
-     * </p>
-     * 
-     * @see Client#send(Message)
-     */
-    @Override
-    public void send(final Message message) {
-        findConnection().send(message);
-    }
+        // Locate a connection to use.
+        Connection conn = findIdleConnection();
+        if (conn == null) {
+            conn = tryCreateConnection();
+            if (conn == null) {
+                conn = findMostIdleConnection();
+                if (conn == null) {
+                    conn = waitForReconnect();
+                }
+            }
+        }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send the {@link Message} and {@link GetLastError} to
-     * MongoDB.
-     * </p>
-     * 
-     * @see Client#send(Message, GetLastError, Callback)
-     */
-    @Override
-    public void send(final Message message, final GetLastError lastError,
-            final Callback<Reply> callback) {
-        findConnection().send(callback, message, lastError);
-    }
+        if (conn == null) {
+            throw new CannotConnectException(
+                    "Could not create a connection to the server.");
+        }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send the {@link Query} to MongoDB.
-     * </p>
-     * 
-     * @see Client#send(Query, Callback)
-     */
-    @Override
-    public void send(final Query query, final Callback<Reply> callback) {
-        findConnection().send(callback, query);
+        return conn;
     }
 
     /**
@@ -293,61 +289,6 @@ public class ClientImpl implements Client {
 
             conn.removePropertyChangeListener(myConnectionListener);
         }
-    }
-
-    /**
-     * Tries to locate a connection that can quickly dispatch the message to a
-     * MongoDB server. The basic metrics for determining if a connection is idle
-     * is to look at the number of messages waiting to be sent. The basic logic
-     * for finding a connection is:
-     * <ol>
-     * <li>Scan the list of connection looking for an idle connection. If one is
-     * found use it.</li>
-     * <li>If there are no idle connections determine the maximum number of
-     * allowed connections and if there are fewer that the maximum allowed then
-     * take the connection creation lock, create a new connection, use it, and
-     * add to the set of available connections and release the lock.</li>
-     * <li>If there are is still not a connection idle then sort the connections
-     * based on a snapshot of pending messages and use the connection with the
-     * least messages.</li>
-     * <ul>
-     * 
-     * @return The found connection.
-     * @throws MongoDbException
-     *             On a failure to talk to the MongoDB servers.
-     */
-    protected Connection findConnection() throws MongoDbException {
-        // Make sure we shrink connections when the max changes.
-        final int limit = Math.max(1, myConfig.getMaxConnectionCount());
-        if (limit < myConnections.size()) {
-            synchronized (myConnectionFactory) {
-                // Mark the connections as persona non grata.
-                while (limit < myConnections.size()) {
-                    final Connection conn = myConnections.poll();
-                    myConnectionsToClose.add(conn);
-                    conn.shutdown();
-                }
-            }
-        }
-
-        // Locate a connection to use.
-        Connection conn = findIdleConnection();
-        if (conn == null) {
-            conn = tryCreateConnection();
-            if (conn == null) {
-                conn = findMostIdleConnection();
-                if (conn == null) {
-                    conn = waitForReconnect();
-                }
-            }
-        }
-
-        if (conn == null) {
-            throw new CannotConnectException(
-                    "Could not create a connection to the server.");
-        }
-
-        return conn;
     }
 
     /**

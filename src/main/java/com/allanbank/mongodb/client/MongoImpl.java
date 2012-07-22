@@ -47,6 +47,21 @@ public class MongoImpl implements Mongo {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to create a new Mongo instance around a SerialClientImpl.
+     * </p>
+     */
+    @Override
+    public Mongo asSerializedMongo() {
+        if (myClient instanceof SerialClientImpl) {
+            return this;
+        }
+
+        return new MongoImpl(new SerialClientImpl((ClientImpl) myClient));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to close the underlying client.
      * </p>
      */
@@ -86,21 +101,6 @@ public class MongoImpl implements Mongo {
     @Override
     public MongoDatabase getDatabase(final String name) {
         return new MongoDatabaseImpl(myClient, name);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to create a new Mongo instance around a SerialClientImpl.
-     * </p>
-     */
-    @Override
-    public Mongo asSerializedMongo() {
-        if (myClient instanceof SerialClientImpl) {
-            return this;
-        }
-
-        return new MongoImpl(new SerialClientImpl((ClientImpl) myClient));
     }
 
     /**
