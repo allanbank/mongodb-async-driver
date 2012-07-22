@@ -22,11 +22,11 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
-import com.allanbank.mongodb.commands.Distinct;
-import com.allanbank.mongodb.commands.Find;
-import com.allanbank.mongodb.commands.FindAndModify;
-import com.allanbank.mongodb.commands.GroupBy;
-import com.allanbank.mongodb.commands.MapReduce;
+import com.allanbank.mongodb.builder.Distinct;
+import com.allanbank.mongodb.builder.Find;
+import com.allanbank.mongodb.builder.FindAndModify;
+import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Delete;
 import com.allanbank.mongodb.connection.message.Insert;
@@ -81,7 +81,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         builder.addDocument("query", query);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.get(), replicaOk);
+                builder.build(), replicaOk);
 
         myClient.send(commandMsg, new ReplyLongCallback(results));
     }
@@ -117,7 +117,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final MongoCollection indexCollection = new MongoCollectionImpl(
                 myClient, myDatabase, "system.indexes");
-        final Document indexDocument = indexEntryBuilder.get();
+        final Document indexDocument = indexEntryBuilder.build();
         if (indexCollection.findOne(indexDocument) == null) {
             indexCollection.insert(Durability.ACK, indexDocument);
         }
@@ -163,7 +163,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             builder.addDocument("query", command.getQuery());
         }
 
-        final Command commandMsg = new Command(getDatabaseName(), builder.get());
+        final Command commandMsg = new Command(getDatabaseName(),
+                builder.build());
 
         myClient.send(commandMsg, new ReplyArrayCallback(results));
 
@@ -200,7 +201,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         options.addString("index", name);
 
         final Document result = myDatabase.runCommand("deleteIndexes", myName,
-                options.get());
+                options.build());
         final List<NumericElement> okElem = result.queryPath(
                 NumericElement.class, "ok");
 
@@ -240,7 +241,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             builder.addBoolean("upsert", true);
         }
 
-        final Command commandMsg = new Command(getDatabaseName(), builder.get());
+        final Command commandMsg = new Command(getDatabaseName(),
+                builder.build());
         myClient.send(commandMsg, new ReplyDocumentCallback(results));
     }
 
@@ -323,7 +325,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             groupDocBuilder.addDocument("cond", command.getQuery());
         }
 
-        final Command commandMsg = new Command(getDatabaseName(), builder.get());
+        final Command commandMsg = new Command(getDatabaseName(),
+                builder.build());
         myClient.send(commandMsg, new ReplyArrayCallback("retval", results));
     }
 
@@ -427,7 +430,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
         }
 
-        final Command commandMsg = new Command(getDatabaseName(), builder.get());
+        final Command commandMsg = new Command(getDatabaseName(),
+                builder.build());
         myClient.send(commandMsg, new MapReduceReplyCallback(results));
     }
 

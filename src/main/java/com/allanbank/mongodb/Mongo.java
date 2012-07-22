@@ -16,6 +16,13 @@ import java.util.List;
 public interface Mongo extends Closeable {
 
     /**
+     * Returns the configuration being used by the logical MongoDB connection.
+     * 
+     * @return The configuration being used by the logical MongoDB connection.
+     */
+    public MongoDbConfiguration getConfig();
+
+    /**
      * Returns the MongoDatabase with the specified name. This method does not
      * validate that the database already exists in the MongoDB instance.
      * 
@@ -31,11 +38,4 @@ public interface Mongo extends Closeable {
      * @return A list of available database names.
      */
     public List<String> listDatabases();
-
-    /**
-     * Returns the configuration being used by the logical MongoDB connection.
-     * 
-     * @return The configuration being used by the logical MongoDB connection.
-     */
-    public MongoDbConfiguration getConfig();
 }

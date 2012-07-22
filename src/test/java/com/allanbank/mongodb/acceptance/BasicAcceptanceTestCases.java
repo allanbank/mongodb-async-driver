@@ -43,11 +43,11 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.commands.Distinct;
-import com.allanbank.mongodb.commands.Find;
-import com.allanbank.mongodb.commands.FindAndModify;
-import com.allanbank.mongodb.commands.GroupBy;
-import com.allanbank.mongodb.commands.MapReduce;
+import com.allanbank.mongodb.builder.Distinct;
+import com.allanbank.mongodb.builder.Find;
+import com.allanbank.mongodb.builder.FindAndModify;
+import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.MapReduce;
 
 /**
  * BasicAcceptanceTestCases provides the base tests for the interactions with
@@ -107,7 +107,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     public void disconnect() {
         try {
             if (myCollection != null) {
-                myCollection.delete(BuilderFactory.start().get(),
+                myCollection.delete(BuilderFactory.start().build(),
                         Durability.ACK);
             }
             if (myMongo != null) {
@@ -143,10 +143,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("_id", i);
 
-            myCollection.insert(builder.get());
+            myCollection.insert(builder.build());
 
             assertEquals(i + 1,
-                    myCollection.count(BuilderFactory.start().get()));
+                    myCollection.count(BuilderFactory.start().build()));
         }
     }
 
@@ -173,15 +173,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             builder.addInteger("foo", 0);
             builder.addInteger("bar", i);
 
-            myCollection.insert(builder.get());
+            myCollection.insert(builder.build());
         }
 
         // Now go find all of them by the covering index.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
-                .start().get());
+                .start().build());
         findBuilder.setReturnFields(BuilderFactory.start()
                 .addBoolean("_id", false).addBoolean("foo", true)
-                .addBoolean("bar", true).get());
+                .addBoolean("bar", true).build());
         final ClosableIterator<Document> iter = myCollection.find(findBuilder
                 .build());
         int expectedId = 0;
@@ -215,17 +215,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("_id", i);
 
-            myCollection.insert(builder.get());
+            myCollection.insert(builder.build());
         }
 
         assertEquals(SMALL_COLLECTION_COUNT,
-                myCollection.count(BuilderFactory.start().get()));
+                myCollection.count(BuilderFactory.start().build()));
 
         myConfig.setDefaultDurability(Durability.ACK);
         assertEquals(SMALL_COLLECTION_COUNT,
-                myCollection.delete(BuilderFactory.start().get()));
+                myCollection.delete(BuilderFactory.start().build()));
 
-        assertEquals(0, myCollection.count(BuilderFactory.start().get()));
+        assertEquals(0, myCollection.count(BuilderFactory.start().build()));
 
     }
 
@@ -256,7 +256,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addString("zip-code", "99701");
 
-        myCollection.insert(Durability.ACK, doc1.get(), doc2.get(), doc3.get());
+        myCollection.insert(Durability.ACK, doc1.build(), doc2.build(),
+                doc3.build());
 
         final Set<String> expected = new HashSet<String>();
         expected.add("10010");
@@ -281,7 +282,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testDropCollection() {
         // Make sure the collection/db exist.
-        myCollection.insert(BuilderFactory.start().get());
+        myCollection.insert(BuilderFactory.start().build());
 
         assertTrue(myDb.listCollections().contains(TEST_COLLECTION_NAME));
 
@@ -296,7 +297,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testDropDatabase() {
         // Make sure the collection/db exist.
-        myCollection.insert(BuilderFactory.start().get());
+        myCollection.insert(BuilderFactory.start().build());
 
         assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
 
@@ -318,13 +319,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         Document found = myDb.getCollection("system.indexes").findOne(
                 BuilderFactory.start()
-                        .addRegularExpression("name", ".*foo.*", "").get());
+                        .addRegularExpression("name", ".*foo.*", "").build());
         assertNotNull(found);
 
         myCollection.dropIndex(keys);
         found = myDb.getCollection("system.indexes").findOne(
                 BuilderFactory.start()
-                        .addRegularExpression("name", ".*foo.*", "").get());
+                        .addRegularExpression("name", ".*foo.*", "").build());
         assertNull(found);
     }
 
@@ -337,7 +338,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc.addInteger("_id", 0);
         doc.addInteger("i", 0);
 
-        myCollection.insert(doc.get());
+        myCollection.insert(doc.build());
 
         final DocumentBuilder query = BuilderFactory.start();
         query.addInteger("_id", 0);
@@ -346,8 +347,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         update.push("$inc").addInteger("i", 1);
 
         final FindAndModify.Builder builder = new FindAndModify.Builder();
-        builder.setQuery(query.get());
-        builder.setUpdate(update.get());
+        builder.setQuery(query.build());
+        builder.setUpdate(update.build());
         builder.setReturnNew(true);
 
         final Document newDoc = myCollection.findAndModify(builder.build());
@@ -397,7 +398,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc.addDouble("response_time", 0.05);
         doc.addString("http_action", "GET /display/DOCS/Aggregation");
 
-        myCollection.insert(Durability.ACK, doc.get());
+        myCollection.insert(Durability.ACK, doc.build());
 
         final DocumentBuilder query = BuilderFactory.start();
         query.push("invoked_at.d").addString("$gte", "2009-11")
@@ -406,8 +407,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(Collections.singleton("http_action"));
         builder.setInitialValue(BuilderFactory.start().addInteger("count", 0)
-                .addDouble("total_time", 0.0).get());
-        builder.setQuery(query.get());
+                .addDouble("total_time", 0.0).build());
+        builder.setQuery(query.build());
         builder.setReduceFunction("function(doc, out){ out.count++; out.total_time+=doc.response_time }");
         builder.setFinalizeFunction("function(out){ out.avg_time = out.total_time / out.count }");
 
@@ -444,7 +445,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("_id", i);
 
-            myCollection.insert(builder.get());
+            myCollection.insert(builder.build());
         }
 
         // Now go find each one.
@@ -452,7 +453,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("_id", i);
 
-            final Document found = myCollection.findOne(builder.get());
+            final Document found = myCollection.findOne(builder.build());
             assertNotNull(found);
             assertTrue(found.contains("_id"));
             assertEquals(new IntegerElement("_id", i), found.get("_id"));
@@ -466,7 +467,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testListCollections() {
         // Make sure the collection/db exist.
-        myCollection.insert(Durability.ACK, BuilderFactory.start().get());
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
         final Collection<String> names = myDb.listCollections();
 
@@ -480,7 +481,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testListDatabases() {
         // Make sure the collection/db exist.
-        myCollection.insert(BuilderFactory.start().get());
+        myCollection.insert(BuilderFactory.start().build());
 
         assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
     }
@@ -555,7 +556,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc4.pushArray("tags");
 
         myConfig.setDefaultDurability(Durability.ACK);
-        mr.insert(doc1.get(), doc2.get(), doc3.get(), doc4.get());
+        mr.insert(doc1.build(), doc2.build(), doc3.build(), doc4.build());
 
         final MapReduce.Builder mrBuilder = new MapReduce.Builder();
         mrBuilder.setMapFunction("function() { " + "this.tags.forEach( "
@@ -583,13 +584,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         expected3.push("value").addDouble("count", 1);
 
         final Set<Document> expected = new HashSet<Document>();
-        expected.add(expected1.get());
-        expected.add(expected2.get());
-        expected.add(expected3.get());
+        expected.add(expected1.build());
+        expected.add(expected2.build());
+        expected.add(expected3.build());
 
         final Set<Document> actual = new HashSet<Document>();
         final MongoCollection out = myDb.getCollection("myoutput");
-        for (final Document doc : out.find(BuilderFactory.start().get())) {
+        for (final Document doc : out.find(BuilderFactory.start().build())) {
             actual.add(doc);
         }
 
@@ -611,14 +612,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("_id", i);
 
-            myCollection.insert(builder.get());
+            myCollection.insert(builder.build());
         }
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
-                .start().get());
+                .start().build());
         findBuilder.setReturnFields(BuilderFactory.start()
-                .addBoolean("_id", true).get());
+                .addBoolean("_id", true).build());
         // Fetch a lot.
         findBuilder.setBatchSize(10);
 
@@ -650,14 +651,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("_id", i);
 
-            myCollection.insert(builder.get());
+            myCollection.insert(builder.build());
         }
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
-                .start().get());
+                .start().build());
         findBuilder.setReturnFields(BuilderFactory.start()
-                .addBoolean("_id", true).get());
+                .addBoolean("_id", true).build());
         // Fetch a lot.
         findBuilder.setBatchSize(10);
         findBuilder.setLimit(123);
@@ -691,7 +692,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             builder.addInteger("_id", i);
             builder.addInteger("i", i);
 
-            myCollection.insert(builder.get());
+            myCollection.insert(builder.build());
         }
 
         // Decrement each documents id.
@@ -701,7 +702,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("_id", i);
 
-            myCollection.update(builder.get(), update.get());
+            myCollection.update(builder.build(), update.build());
         }
 
         // Now go find each one.
@@ -709,7 +710,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("_id", i);
 
-            final Document found = myCollection.findOne(builder.get());
+            final Document found = myCollection.findOne(builder.build());
             assertNotNull("" + i, found);
             assertTrue(found.contains("i"));
             assertEquals(new IntegerElement("i", i + 1), found.get("i"));

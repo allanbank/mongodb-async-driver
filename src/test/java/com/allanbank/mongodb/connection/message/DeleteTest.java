@@ -42,10 +42,10 @@ public class DeleteTest {
      */
     @Test
     public void testDeleteBsonInputStream() throws IOException {
-        final Document doc1 = BuilderFactory.start().get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
-        final Document doc3 = BuilderFactory.start().addInteger("1", 2).get();
-        final Document doc4 = BuilderFactory.start().addInteger("1", 3).get();
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
 
         for (final String db : Arrays.asList("n1", "n2", "n3", "n4")) {
             for (final String collection : Arrays
@@ -86,10 +86,10 @@ public class DeleteTest {
      */
     @Test
     public void testEqualsObject() {
-        final Document doc1 = BuilderFactory.start().get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
-        final Document doc3 = BuilderFactory.start().addInteger("1", 2).get();
-        final Document doc4 = BuilderFactory.start().addInteger("1", 3).get();
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
 
         final List<Message> objs1 = new ArrayList<Message>();
         final List<Message> objs2 = new ArrayList<Message>();
@@ -140,7 +140,7 @@ public class DeleteTest {
      */
     @Test
     public void testGetQuery() {
-        final Document doc = BuilderFactory.start().addInteger("1", 1).get();
+        final Document doc = BuilderFactory.start().addInteger("1", 1).build();
 
         final Delete message = new Delete("db", "collection", doc, true);
 
@@ -156,7 +156,7 @@ public class DeleteTest {
      */
     @Test
     public void testIsSingleDelete() {
-        final Document doc = BuilderFactory.start().addInteger("1", 1).get();
+        final Document doc = BuilderFactory.start().addInteger("1", 1).build();
         final Delete message = new Delete("db", "collection", doc, false);
 
         assertEquals(false, message.isSingleDelete());

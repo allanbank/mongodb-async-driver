@@ -3,7 +3,7 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.commands;
+package com.allanbank.mongodb.builder;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -28,14 +28,18 @@ public class FindAndModifyTest {
      */
     @Test
     public void testFindAndModify() {
-        final Document query = BuilderFactory.start().get();
+        final Document query = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 3)
-                .get();
-        final Document sort = BuilderFactory.start().addInteger("foo", 3).get();
+                .build();
+        final Document sort = BuilderFactory.start().addInteger("foo", 3)
+                .build();
+        final Document fields = BuilderFactory.start().addBoolean("foo", true)
+                .build();
 
         final FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.setQuery(query);
         builder.setUpdate(update);
+        builder.setFields(fields);
         builder.setRemove(true);
         builder.setReturnNew(true);
         builder.setSort(sort);
@@ -45,6 +49,7 @@ public class FindAndModifyTest {
         assertSame(query, request.getQuery());
         assertSame(update, request.getUpdate());
         assertSame(sort, request.getSort());
+        assertSame(fields, request.getFields());
         assertTrue(request.isRemove());
         assertTrue(request.isReturnNew());
         assertTrue(request.isUpsert());
@@ -55,9 +60,9 @@ public class FindAndModifyTest {
      */
     @Test
     public void testFindAndModifyMinimal() {
-        final Document query = BuilderFactory.start().get();
+        final Document query = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 3)
-                .get();
+                .build();
 
         final FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.setQuery(query);
@@ -78,7 +83,7 @@ public class FindAndModifyTest {
     @Test
     public void testFindAndModifyNoQuery() {
         final Document update = BuilderFactory.start().addInteger("foo", 3)
-                .get();
+                .build();
 
         final FindAndModify.Builder builder = new FindAndModify.Builder();
 
@@ -98,7 +103,7 @@ public class FindAndModifyTest {
      */
     @Test
     public void testFindAndModifyNoUpdate() {
-        final Document query = BuilderFactory.start().get();
+        final Document query = BuilderFactory.start().build();
 
         final FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.setQuery(query);

@@ -86,7 +86,7 @@ public class ClientImplTest {
     public void testClose() throws IOException {
 
         final Command message = new Command("testDb", BuilderFactory.start()
-                .get());
+                .build());
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -127,7 +127,7 @@ public class ClientImplTest {
     public void testCloseFails() throws IOException {
 
         final Command message = new Command("testDb", BuilderFactory.start()
-                .get());
+                .build());
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -269,7 +269,8 @@ public class ClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessageClosesFirstWhenMaxShrinks() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start().get());
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
 
         myConfig.setMaxConnectionCount(2);
 
@@ -329,7 +330,8 @@ public class ClientImplTest {
     @Test
     public void testSendMessageClosesFirstWhenMaxShrinksAndCloseFails()
             throws IOException {
-        final Message message = new Command("db", BuilderFactory.start().get());
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
 
         myConfig.setMaxConnectionCount(2);
 
@@ -389,7 +391,8 @@ public class ClientImplTest {
     @Test
     public void testSendMessageCreatesSecondConnectionOnPending()
             throws IOException {
-        final Message message = new Command("db", BuilderFactory.start().get());
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
 
         myConfig.setMaxConnectionCount(2);
 
@@ -461,7 +464,8 @@ public class ClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessagePicksIdleExisting() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start().get());
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -494,7 +498,8 @@ public class ClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessagePicksMostIdleWhenAllPending() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start().get());
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
 
         myConfig.setMaxConnectionCount(2);
 

@@ -145,8 +145,8 @@ public class PerformanceITest {
         if (myAsyncCollection != null) {
             // Make sure the collection exists.
             myAsyncCollection.insert(Durability.ACK, BuilderFactory.start()
-                    .get());
-            myAsyncCollection.delete(BuilderFactory.start().get(),
+                    .build());
+            myAsyncCollection.delete(BuilderFactory.start().build(),
                     Durability.ACK);
         }
         if (myAsyncDb != null) {
@@ -617,7 +617,7 @@ public class PerformanceITest {
                 builder.addInteger("_id", i);
 
                 results[i] = myAsyncCollection.insertAsync(durability,
-                        builder.get());
+                        builder.build());
             }
             for (int i = 0; i < count; ++i) {
                 results[i].get();
@@ -658,7 +658,7 @@ public class PerformanceITest {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("_id", i);
 
-            myAsyncCollection.insertAsync(noop, durability, builder.get());
+            myAsyncCollection.insertAsync(noop, durability, builder.build());
         }
 
         final long endTime = System.nanoTime();
@@ -684,7 +684,7 @@ public class PerformanceITest {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("_id", i);
 
-            myAsyncCollection.insert(durability, builder.get());
+            myAsyncCollection.insert(durability, builder.build());
         }
 
         final long endTime = System.nanoTime();
@@ -712,15 +712,15 @@ public class PerformanceITest {
             DocumentBuilder builder = BuilderFactory.start();
             builder.addObjectId("_id", id);
             builder.addLong("c", 0);
-            myAsyncCollection.insert(durability, builder.get());
+            myAsyncCollection.insert(durability, builder.build());
 
             builder = BuilderFactory.start();
             builder.addObjectId("_id", id);
-            final Document query = builder.get();
+            final Document query = builder.build();
 
             builder = BuilderFactory.start();
             builder.push("$inc").addLong("c", 1);
-            final Document update = builder.get();
+            final Document update = builder.build();
 
             final long startTime = System.nanoTime();
             for (int i = 0; i < count; ++i) {
@@ -765,15 +765,15 @@ public class PerformanceITest {
         DocumentBuilder builder = BuilderFactory.start();
         builder.addObjectId("_id", id);
         builder.addLong("c", 0);
-        myAsyncCollection.insert(durability, builder.get());
+        myAsyncCollection.insert(durability, builder.build());
 
         builder = BuilderFactory.start();
         builder.addObjectId("_id", id);
-        final Document query = builder.get();
+        final Document query = builder.build();
 
         builder = BuilderFactory.start();
         builder.push("$inc").addLong("c", 1);
-        final Document update = builder.get();
+        final Document update = builder.build();
 
         final long startTime = System.nanoTime();
         for (int i = 0; i < count; ++i) {
@@ -801,15 +801,15 @@ public class PerformanceITest {
         DocumentBuilder builder = BuilderFactory.start();
         builder.addObjectId("_id", id);
         builder.addLong("c", 0);
-        myAsyncCollection.insert(durability, builder.get());
+        myAsyncCollection.insert(durability, builder.build());
 
         builder = BuilderFactory.start();
         builder.addObjectId("_id", id);
-        final Document query = builder.get();
+        final Document query = builder.build();
 
         builder = BuilderFactory.start();
         builder.push("$inc").addLong("c", 1);
-        final Document update = builder.get();
+        final Document update = builder.build();
 
         final long startTime = System.nanoTime();
         for (int i = 0; i < count; ++i) {

@@ -11,7 +11,7 @@ import java.util.List;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface Document extends Iterable<Element> {
+public interface Document extends Iterable<Element>, DocumentAssignable {
 
     /**
      * Accepts the visitor and calls the appropriate method on the visitor based

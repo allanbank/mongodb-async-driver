@@ -3,7 +3,7 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.commands;
+package com.allanbank.mongodb.builder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,9 +29,9 @@ public class FindTest {
      */
     @Test
     public void testFind() {
-        final Document query = BuilderFactory.start().get();
+        final Document query = BuilderFactory.start().build();
         final Document fields = BuilderFactory.start().addInteger("foo", 3)
-                .get();
+                .build();
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(query);
@@ -68,7 +68,7 @@ public class FindTest {
      */
     @Test
     public void testFindMinimal() {
-        final Document query = BuilderFactory.start().get();
+        final Document query = BuilderFactory.start().build();
 
         final Find.Builder builder = new Find.Builder(query);
 

@@ -3,7 +3,7 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.commands;
+package com.allanbank.mongodb.builder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -68,9 +68,9 @@ public class GroupByTest {
      */
     @Test
     public void testGroupByWithFunction() {
-        final Document initial = BuilderFactory.start().get();
+        final Document initial = BuilderFactory.start().build();
         final Document query = BuilderFactory.start().addBoolean("foo", true)
-                .get();
+                .build();
 
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeyFunction("function f() {}");
@@ -93,9 +93,9 @@ public class GroupByTest {
      */
     @Test
     public void testGroupByWithKeys() {
-        final Document initial = BuilderFactory.start().get();
+        final Document initial = BuilderFactory.start().build();
         final Document query = BuilderFactory.start().addBoolean("foo", true)
-                .get();
+                .build();
         final Set<String> keys = new HashSet<String>();
         keys.add("k1");
         keys.add("k2");

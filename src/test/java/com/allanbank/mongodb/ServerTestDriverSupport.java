@@ -179,7 +179,7 @@ public class ServerTestDriverSupport {
             docBuilder.addString("pwd", adminConfig.getPasswordHash());
             docBuilder.addBoolean("readOnly", false);
 
-            collection.insert(Durability.ACK, docBuilder.get());
+            collection.insert(Durability.ACK, docBuilder.build());
 
             // Shutdown the connection.
             close(mongo);
@@ -198,7 +198,7 @@ public class ServerTestDriverSupport {
             docBuilder.addString("pwd", config.getPasswordHash());
             docBuilder.addBoolean("readOnly", false);
 
-            collection.insert(Durability.ACK, docBuilder.get());
+            collection.insert(Durability.ACK, docBuilder.build());
         }
         catch (final IOException ioe) {
             final AssertionError error = new AssertionError(ioe.getMessage());

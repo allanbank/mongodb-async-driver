@@ -17,7 +17,7 @@ import org.junit.Test;
 public class DocumentBuilderImplTest {
 
     /**
-     * Test method for {@link DocumentBuilderImpl#get()} .
+     * Test method for {@link DocumentBuilderImpl#build()} .
      */
     @Test
     public void testGetWithoutUniqueNames() {
@@ -26,7 +26,7 @@ public class DocumentBuilderImplTest {
         builder.addBoolean("bool", true);
 
         try {
-            builder.get();
+            builder.build();
             fail("Should not be able to create a document without unique names.");
         }
         catch (final AssertionError error) {

@@ -41,10 +41,10 @@ public class ReplyTest {
     public void testEqualsObject() {
         final Random random = new Random(System.currentTimeMillis());
 
-        final Document doc1 = BuilderFactory.start().get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
-        final Document doc3 = BuilderFactory.start().addInteger("1", 2).get();
-        final Document doc4 = BuilderFactory.start().addInteger("1", 3).get();
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
 
         final List<Document>[] docs = new List[4];
         docs[0] = new ArrayList<Document>();
@@ -130,10 +130,10 @@ public class ReplyTest {
     public void testReplyHeaderBsonInputStream() throws IOException {
         final Random random = new Random(System.currentTimeMillis());
 
-        final Document doc1 = BuilderFactory.start().get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
-        final Document doc3 = BuilderFactory.start().addInteger("1", 2).get();
-        final Document doc4 = BuilderFactory.start().addInteger("1", 3).get();
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
 
         final List<Document>[] docs = new List[4];
         docs[0] = new ArrayList<Document>();
@@ -207,10 +207,10 @@ public class ReplyTest {
     @Test
     public void testReplyIntLongIntListOfDocumentBooleanBooleanBooleanBoolean() {
         final Random random = new Random(System.currentTimeMillis());
-        final Document doc1 = BuilderFactory.start().get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
-        final Document doc3 = BuilderFactory.start().addInteger("1", 2).get();
-        final Document doc4 = BuilderFactory.start().addInteger("1", 3).get();
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
 
         final List<Document> docs = new ArrayList<Document>();
         docs.add(doc1);

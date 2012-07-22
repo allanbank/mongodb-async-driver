@@ -5,7 +5,9 @@
 
 package com.allanbank.mongodb;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 import java.util.Collections;
 
@@ -23,9 +25,9 @@ public class MongoFactoryTest {
      */
     @Test
     public void testCreateMongoDbConfiguration() {
-        MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoDbConfiguration config = new MongoDbConfiguration();
 
-        Mongo mongo = MongoFactory.create(config);
+        final Mongo mongo = MongoFactory.create(config);
 
         assertSame(config, mongo.getConfig());
     }
@@ -36,8 +38,8 @@ public class MongoFactoryTest {
     @Test
     public void testCreateString() {
 
-        Mongo mongo = MongoFactory.create("mongodb://localhost");
-        MongoDbConfiguration config = mongo.getConfig();
+        final Mongo mongo = MongoFactory.create("mongodb://localhost");
+        final MongoDbConfiguration config = mongo.getConfig();
 
         assertNotNull(config);
         assertEquals(Collections.singletonList(MongoDbConfiguration

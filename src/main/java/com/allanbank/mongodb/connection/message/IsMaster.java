@@ -53,7 +53,7 @@ public class IsMaster extends AdminCommand {
     static {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addInteger("ismaster", 1);
-        IS_MASTER = builder.get();
+        IS_MASTER = builder.build();
     }
 
     /**

@@ -116,9 +116,9 @@ public class MongoImplTest {
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addInteger("listDatabases", 1);
 
-        final Command message = new Command("admin", commandDoc.get());
+        final Command message = new Command("admin", commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply.get())));
+        myMockClient.send(eq(message), callback(reply(reply.build())));
         expectLastCall();
 
         replay();

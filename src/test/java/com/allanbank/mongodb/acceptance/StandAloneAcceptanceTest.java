@@ -51,7 +51,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
     @Test
     public void testReconnectHandling() {
         // Make sure the collection/db exist and we are connected.
-        myCollection.insert(BuilderFactory.start().get());
+        myCollection.insert(BuilderFactory.start().build());
 
         assertEquals(Arrays.asList(TEST_DB_NAME, "local"),
                 myMongo.listDatabases());
@@ -76,7 +76,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
     @Test
     public void testSuddenFailureHandling() {
         // Make sure the collection/db exist and we are connected.
-        myCollection.insert(BuilderFactory.start().get());
+        myCollection.insert(BuilderFactory.start().build());
 
         assertEquals(Arrays.asList(TEST_DB_NAME, "local"),
                 myMongo.listDatabases());

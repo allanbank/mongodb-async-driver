@@ -175,7 +175,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                         replyCallback);
                 if (alreadySent == null) {
                     getProxiedConnection().send(replyCallback,
-                            new Command(name, builder.get()));
+                            new Command(name, builder.build()));
                     alreadySent = replyCallback;
                 }
 
@@ -206,7 +206,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                 alreadySent = myAuthReplys.putIfAbsent(name, replyCallback);
                 if (alreadySent == null) {
                     getProxiedConnection().send(replyCallback,
-                            new Command(name, builder.get()));
+                            new Command(name, builder.build()));
                     alreadySent = replyCallback;
                 }
 

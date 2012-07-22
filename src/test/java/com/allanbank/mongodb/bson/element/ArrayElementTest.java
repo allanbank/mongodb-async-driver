@@ -134,7 +134,7 @@ public class ArrayElementTest {
                     break;
                 case JAVA_SCRIPT_WITH_SCOPE:
                     builder.addJavaScript("function bar() {}", BuilderFactory
-                            .start().get());
+                            .start().build());
                     break;
                 case LONG:
                     builder.addLong(rand.nextLong());
@@ -170,8 +170,8 @@ public class ArrayElementTest {
                 }
             }
 
-            objs1.add(builder.get(name));
-            objs2.add(builder.get(name));
+            objs1.add(builder.build(name));
+            objs2.add(builder.build(name));
         }
 
         // Sanity check.

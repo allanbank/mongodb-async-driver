@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.bson.builder;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
@@ -59,6 +60,15 @@ public interface ArrayBuilder extends Builder {
     @Deprecated
     public ArrayBuilder addDBPointer(String databaseName,
             String collectionName, ObjectId id);
+
+    /**
+     * Adds a pre-constructed document to the array.
+     * 
+     * @param document
+     *            The document to add to the array.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder addDocument(Document document);
 
     /**
      * Adds a double element.
@@ -185,6 +195,13 @@ public interface ArrayBuilder extends Builder {
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder addTimestamp(long timestamp);
+
+    /**
+     * Returns the array of {@link Element}s being constructed.
+     * 
+     * @return The constructed array of {@link Element}.
+     */
+    public Element[] build();
 
     /**
      * Pushes a context for constructing a sub-document.

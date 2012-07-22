@@ -41,7 +41,7 @@ public class BufferingBsonOutputStreamTest {
         DocumentBuilder builder = BuilderFactory.start();
 
         builder.addBoolean("true", true);
-        final Document simple = builder.get();
+        final Document simple = builder.build();
 
         builder = BuilderFactory.start();
         builder.add(new BooleanElement("_id", false));
@@ -95,7 +95,7 @@ public class BufferingBsonOutputStreamTest {
         aBuilder.addTimestamp(System.currentTimeMillis());
         aBuilder.push().addBoolean("true", true).pop();
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
@@ -145,7 +145,7 @@ public class BufferingBsonOutputStreamTest {
         final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
                 out);
 
-        writer.write(builder.get());
+        writer.write(builder.build());
 
         assertArrayEquals("{ 'hello' : 'world' } not the expected bytes.",
                 helloWorld, out.toByteArray());
@@ -179,7 +179,7 @@ public class BufferingBsonOutputStreamTest {
         final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
                 out);
 
-        writer.write(builder.get());
+        writer.write(builder.build());
 
         assertArrayEquals(
                 " { 'BSON': ['awesome', 5.05, 1986] } not the expected bytes.",

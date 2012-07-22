@@ -105,7 +105,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
             // Create a query to pull all of the mongos servers out of the
             // config database.
             final Query query = new Query("config", "mongos", BuilderFactory
-                    .start().get(), /* fields= */null, /* batchSize= */0,
+                    .start().build(), /* fields= */null, /* batchSize= */0,
             /* limit= */0, /* numberToSkip= */0, /* tailable= */false,
             /* replicaOk= */false, /* noCursorTimeout= */false,
             /* awaitData= */false, /* exhaust= */false, /* partial= */false);

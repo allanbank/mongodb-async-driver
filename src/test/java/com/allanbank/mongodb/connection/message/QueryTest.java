@@ -45,9 +45,9 @@ public class QueryTest {
         final List<Message> objs1 = new ArrayList<Message>();
         final List<Message> objs2 = new ArrayList<Message>();
 
-        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
-        final Document doc3 = BuilderFactory.start().addInteger("1", 2).get();
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
         for (final String databaseName : Arrays.asList("n1", "n2", "n3")) {
             for (final String collectionName : Arrays.asList("c1", "c2", "c3")) {
                 for (final Document query : Arrays.asList(doc1, doc2, doc3)) {
@@ -126,8 +126,8 @@ public class QueryTest {
     public void testNumberToReturnWhenBatchAndBiggerLimit() {
         final Random random = new Random(System.currentTimeMillis());
 
-        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
         final String databaseName = "db";
         final String collectionName = "collection";
         final Document query = doc1;
@@ -172,8 +172,8 @@ public class QueryTest {
     public void testNumberToReturnWhenBatchAndNoLimit() {
         final Random random = new Random(System.currentTimeMillis());
 
-        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
         final String databaseName = "db";
         final String collectionName = "collection";
         final Document query = doc1;
@@ -218,8 +218,8 @@ public class QueryTest {
     public void testNumberToReturnWhenBatchAndSmallerLimit() {
         final Random random = new Random(System.currentTimeMillis());
 
-        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
         final String databaseName = "db";
         final String collectionName = "collection";
         final Document query = doc1;
@@ -264,8 +264,8 @@ public class QueryTest {
     public void testNumberToReturnWhenNoBatchAndBiggishLimit() {
         final Random random = new Random(System.currentTimeMillis());
 
-        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
         final String databaseName = "db";
         final String collectionName = "collection";
         final Document query = doc1;
@@ -310,8 +310,8 @@ public class QueryTest {
     public void testNumberToReturnWhenNoBatchAndNoLimit() {
         final Random random = new Random(System.currentTimeMillis());
 
-        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
         final String databaseName = "db";
         final String collectionName = "collection";
         final Document query = doc1;
@@ -356,8 +356,8 @@ public class QueryTest {
     public void testNumberToReturnWhenNoBatchAndSmallishLimit() {
         final Random random = new Random(System.currentTimeMillis());
 
-        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
         final String databaseName = "db";
         final String collectionName = "collection";
         final Document query = doc1;
@@ -408,9 +408,9 @@ public class QueryTest {
 
         final List<Message> objs1 = new ArrayList<Message>();
 
-        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
-        final Document doc3 = BuilderFactory.start().addInteger("1", 2).get();
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
         for (final String databaseName : Arrays.asList("n1", "n2", "n3")) {
             for (final String collectionName : Arrays.asList("c1", "c2", "c3")) {
                 for (final Document query : Arrays.asList(doc1, doc2, doc3)) {
@@ -480,8 +480,8 @@ public class QueryTest {
     public void testQueryStringStringDocumentDocumentIntIntBooleanBooleanBooleanBooleanBooleanBoolean() {
         final Random random = new Random(System.currentTimeMillis());
 
-        final Document doc1 = BuilderFactory.start().addInteger("1", 0).get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
         final String databaseName = "db";
         final String collectionName = "collection";
         final Document query = doc1;

@@ -384,7 +384,7 @@ public class BsonPerformanceITest {
 
                 addLevel(builder, 1, levels);
 
-                bout.writeDocument(builder.get());
+                bout.writeDocument(builder.build());
             }
 
             final long endTime = System.nanoTime();
@@ -451,7 +451,7 @@ public class BsonPerformanceITest {
                     aBuilder.addString("mongo");
                 }
 
-                bout.writeDocument(builder.get());
+                bout.writeDocument(builder.build());
             }
 
             final long endTime = System.nanoTime();
@@ -482,7 +482,7 @@ public class BsonPerformanceITest {
                 builder.reset();
                 builder.addInteger("_id", myRandom.nextInt());
 
-                bout.writeDocument(builder.get());
+                bout.writeDocument(builder.build());
             }
 
             final long endTime = System.nanoTime();
@@ -561,7 +561,7 @@ public class BsonPerformanceITest {
                 builder.addInteger("_id", myRandom.nextInt());
                 builder.addString("v", SMALL_VALUE);
 
-                bout.writeDocument(builder.get());
+                bout.writeDocument(builder.build());
             }
 
             final long endTime = System.nanoTime();
@@ -597,7 +597,7 @@ public class BsonPerformanceITest {
 
                 addLevel(builder, 1, levels);
 
-                bwriter.write(builder.get());
+                bwriter.write(builder.build());
             }
 
             final long endTime = System.nanoTime();
@@ -667,7 +667,7 @@ public class BsonPerformanceITest {
                     aBuilder.addString("mongo");
                 }
 
-                bwriter.write(builder.get());
+                bwriter.write(builder.build());
             }
 
             final long endTime = System.nanoTime();
@@ -701,7 +701,7 @@ public class BsonPerformanceITest {
                 builder.reset();
                 builder.addInteger("_id", myRandom.nextInt());
 
-                bwriter.write(builder.get());
+                bwriter.write(builder.build());
             }
 
             final long endTime = System.nanoTime();
@@ -736,7 +736,7 @@ public class BsonPerformanceITest {
                 builder.addInteger("_id", myRandom.nextInt());
                 builder.addString("v", SMALL_VALUE);
 
-                bwriter.write(builder.get());
+                bwriter.write(builder.build());
             }
 
             final long endTime = System.nanoTime();

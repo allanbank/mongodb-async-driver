@@ -111,6 +111,51 @@ public class RegularExpressionElement extends AbstractElement {
     }
 
     /**
+     * Converts the {@link Pattern#flags() pattern flags} into a options value.
+     * <p>
+     * Note that the {@link #VERBOSE} and {@link #LOCALE_DEPENDENT} do not have
+     * {@link Pattern} equivalent flags.
+     * </p>
+     * <p>
+     * <blockquote>
+     * 
+     * <pre>
+     * {@link Pattern#CASE_INSENSITIVE} ==> {@link #CASE_INSENSITIVE}
+     * {@link Pattern#MULTILINE} ==> {@link #MULTILINE}
+     * {@link Pattern#DOTALL} ==> {@link #DOT_ALL}
+     * {@link Pattern#UNICODE_CHARACTER_CLASS} ==> {@link #UNICODE}
+     * </pre>
+     * 
+     * </blockquote>
+     * 
+     * @param pattern
+     *            The pattern to extract the options from.
+     * @return The options integer value.
+     */
+    private static int optionsAsInt(final Pattern pattern) {
+        int optInt = 0;
+
+        if (pattern != null) {
+            final int flags = pattern.flags();
+            if ((flags & Pattern.CASE_INSENSITIVE) == Pattern.CASE_INSENSITIVE) {
+                optInt |= CASE_INSENSITIVE;
+            }
+
+            if ((flags & Pattern.MULTILINE) == Pattern.MULTILINE) {
+                optInt |= MULTILINE;
+            }
+            if ((flags & Pattern.DOTALL) == Pattern.DOTALL) {
+                optInt |= DOT_ALL;
+            }
+            if ((flags & Pattern.UNICODE_CHARACTER_CLASS) == Pattern.UNICODE_CHARACTER_CLASS) {
+                optInt |= UNICODE;
+            }
+        }
+
+        return optInt;
+    }
+
+    /**
      * Converts the options string into a options value.
      * 
      * @param options
@@ -158,56 +203,23 @@ public class RegularExpressionElement extends AbstractElement {
         return optInt;
     }
 
-    /**
-     * Converts the {@link Pattern#flags() pattern flags} into a options value.
-     * <p>
-     * Note that the {@link #VERBOSE} and {@link #LOCALE_DEPENDENT} do not have
-     * {@link Pattern} equivalent flags.
-     * </p>
-     * <p>
-     * <blockquote>
-     * 
-     * <pre>
-     * {@link Pattern#CASE_INSENSITIVE} ==> {@link #CASE_INSENSITIVE}
-     * {@link Pattern#MULTILINE} ==> {@link #MULTILINE}
-     * {@link Pattern#DOTALL} ==> {@link #DOT_ALL}
-     * {@link Pattern#UNICODE_CHARACTER_CLASS} ==> {@link #UNICODE}
-     * </pre>
-     * 
-     * </blockquote>
-     * 
-     * @param pattern
-     *            The pattern to extract the options from.
-     * @return The options integer value.
-     */
-    private static int optionsAsInt(final Pattern pattern) {
-        int optInt = 0;
-
-        if (pattern != null) {
-            int flags = pattern.flags();
-            if ((flags & Pattern.CASE_INSENSITIVE) == Pattern.CASE_INSENSITIVE) {
-                optInt |= CASE_INSENSITIVE;
-            }
-
-            if ((flags & Pattern.MULTILINE) == Pattern.MULTILINE) {
-                optInt |= MULTILINE;
-            }
-            if ((flags & Pattern.DOTALL) == Pattern.DOTALL) {
-                optInt |= DOT_ALL;
-            }
-            if ((flags & Pattern.UNICODE_CHARACTER_CLASS) == Pattern.UNICODE_CHARACTER_CLASS) {
-                optInt |= UNICODE;
-            }
-        }
-
-        return optInt;
-    }
-
     /** The BSON regular expression options. */
     private final int myOptions;
 
     /** The BSON regular expression pattern. */
     private final String myPattern;
+
+    /**
+     * Constructs a new {@link RegularExpressionElement}.
+     * 
+     * @param name
+     *            The name for the BSON string.
+     * @param pattern
+     *            The regular expression {@link Pattern}.
+     */
+    public RegularExpressionElement(final String name, final Pattern pattern) {
+        this(name, pattern.pattern(), optionsAsInt(pattern));
+    }
 
     /**
      * Constructs a new {@link RegularExpressionElement}.
@@ -240,18 +252,6 @@ public class RegularExpressionElement extends AbstractElement {
     public RegularExpressionElement(final String name, final String pattern,
             final String options) {
         this(name, pattern, optionsAsInt(options));
-    }
-
-    /**
-     * Constructs a new {@link RegularExpressionElement}.
-     * 
-     * @param name
-     *            The name for the BSON string.
-     * @param pattern
-     *            The regular expression {@link Pattern}.
-     */
-    public RegularExpressionElement(final String name, final Pattern pattern) {
-        this(name, pattern.pattern(), optionsAsInt(pattern));
     }
 
     /**

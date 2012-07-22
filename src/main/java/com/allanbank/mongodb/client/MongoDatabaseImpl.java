@@ -34,7 +34,7 @@ import com.allanbank.mongodb.util.FutureUtils;
 public class MongoDatabaseImpl implements MongoDatabase {
 
     /** An empty query document. */
-    public static final Document EMPTY_QUERY = BuilderFactory.start().get();
+    public static final Document EMPTY_QUERY = BuilderFactory.start().build();
 
     /** The client for interacting with MongoDB. */
     protected final Client myClient;
@@ -264,7 +264,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
             }
         }
 
-        final Command commandMessage = new Command(myName, builder.get());
+        final Command commandMessage = new Command(myName, builder.build());
 
         myClient.send(commandMessage, new ReplyCommandCallback(reply));
     }
@@ -289,7 +289,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
             }
         }
 
-        final Command commandMessage = new Command(myName, builder.get());
+        final Command commandMessage = new Command(myName, builder.build());
 
         myClient.send(commandMessage, new ReplyCallback(reply));
     }

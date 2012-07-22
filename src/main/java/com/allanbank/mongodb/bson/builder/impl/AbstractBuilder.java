@@ -70,6 +70,15 @@ public abstract class AbstractBuilder implements Builder {
     }
 
     /**
+     * Constructs the final form of the element being constructed.
+     * 
+     * @param name
+     *            The name of the element.
+     * @return The Element constructed by the builder.
+     */
+    protected abstract Element build(String name);
+
+    /**
      * Pushes a context for constructing a sub-document.
      * 
      * @param name
@@ -97,15 +106,6 @@ public abstract class AbstractBuilder implements Builder {
     }
 
     /**
-     * Constructs the final form of the element being constructed.
-     * 
-     * @param name
-     *            The name of the element.
-     * @return The Element constructed by the builder.
-     */
-    protected abstract Element get(String name);
-
-    /**
      * Renders the final form of the sub elements in the builder replacing all
      * {@link BuilderElement}s with the final element form.
      * 
@@ -117,7 +117,7 @@ public abstract class AbstractBuilder implements Builder {
         Set<String> names = null;
         for (Element element : myElements) {
             if (element.getClass() == BUILDER_ELEMENT_CLASS) {
-                element = ((BuilderElement) element).get();
+                element = ((BuilderElement) element).build();
             }
 
             if (ASSERTIONS_ENABLED) {
@@ -176,8 +176,8 @@ public abstract class AbstractBuilder implements Builder {
          * 
          * @return The Element constructed by the encapsulated builder.
          */
-        public Element get() {
-            return myBuilder.get(getName());
+        public Element build() {
+            return myBuilder.build(getName());
         }
     }
 }

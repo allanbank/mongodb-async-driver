@@ -3,7 +3,7 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.commands;
+package com.allanbank.mongodb.builder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -27,7 +27,7 @@ public class DistinctTest {
      */
     @Test
     public void testDistinct() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("foo");
@@ -43,7 +43,7 @@ public class DistinctTest {
      */
     @Test()
     public void testDistinctEmptyKey() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("");
@@ -63,7 +63,7 @@ public class DistinctTest {
      */
     @Test()
     public void testDistinctNoKey() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setQuery(doc);

@@ -6,6 +6,7 @@ package com.allanbank.mongodb.bson.element;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,6 +42,27 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /** The elements of the document. */
     private final List<Element> myElements;
+
+    /**
+     * Constructs a new {@link DocumentElement}.
+     * 
+     * @param name
+     *            The name for the BSON document.
+     * @param elements
+     *            The sub-elements for the document.
+     */
+    public DocumentElement(final String name, final Collection<Element> elements) {
+
+        super(TYPE, name);
+
+        if ((elements != null) && !elements.isEmpty()) {
+            myElements = Collections.unmodifiableList(new ArrayList<Element>(
+                    elements));
+        }
+        else {
+            myElements = EMPTY_ELEMENTS;
+        }
+    }
 
     /**
      * Constructs a new {@link DocumentElement}.
@@ -131,6 +153,17 @@ public class DocumentElement extends AbstractElement implements Document {
     @Override
     public void accept(final Visitor visitor) {
         visitor.visitDocument(getName(), getElements());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns this element.
+     * </p>
+     */
+    @Override
+    public Document asDocument() {
+        return this;
     }
 
     /**

@@ -4,7 +4,10 @@
  */
 package com.allanbank.mongodb.bson.builder;
 
+import java.util.regex.Pattern;
+
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
@@ -13,7 +16,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface DocumentBuilder extends Builder {
+public interface DocumentBuilder extends Builder, DocumentAssignable {
     /**
      * Adds a pre-built element to the document.
      * 
@@ -203,6 +206,17 @@ public interface DocumentBuilder extends Builder {
      *            The name of the element.
      * @param pattern
      *            The pattern for the regular expression.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder addRegularExpression(String name, Pattern pattern);
+
+    /**
+     * Adds a regular expression element.
+     * 
+     * @param name
+     *            The name of the element.
+     * @param pattern
+     *            The pattern for the regular expression.
      * @param options
      *            The regular expression options. See the BSON specification for
      *            details.
@@ -250,7 +264,7 @@ public interface DocumentBuilder extends Builder {
      * 
      * @return The constructed {@link Document}.
      */
-    public Document get();
+    public Document build();
 
     /**
      * Pushes a context for constructing a sub-document.

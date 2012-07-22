@@ -11,11 +11,11 @@ import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.ArrayElement;
-import com.allanbank.mongodb.commands.Distinct;
-import com.allanbank.mongodb.commands.Find;
-import com.allanbank.mongodb.commands.FindAndModify;
-import com.allanbank.mongodb.commands.GroupBy;
-import com.allanbank.mongodb.commands.MapReduce;
+import com.allanbank.mongodb.builder.Distinct;
+import com.allanbank.mongodb.builder.Find;
+import com.allanbank.mongodb.builder.FindAndModify;
+import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.MapReduce;
 
 /**
  * Interface for interacting with a MongoDB collection.

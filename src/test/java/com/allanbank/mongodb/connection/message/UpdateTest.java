@@ -40,10 +40,10 @@ public class UpdateTest {
      */
     @Test
     public void testEqualsObject() {
-        final Document doc1 = BuilderFactory.start().get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
-        final Document doc3 = BuilderFactory.start().addInteger("1", 2).get();
-        final Document doc4 = BuilderFactory.start().addInteger("1", 3).get();
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
 
         final List<Message> objs1 = new ArrayList<Message>();
         final List<Message> objs2 = new ArrayList<Message>();
@@ -107,10 +107,10 @@ public class UpdateTest {
      */
     @Test
     public void testUpdateBsonInputStream() throws IOException {
-        final Document doc1 = BuilderFactory.start().get();
-        final Document doc2 = BuilderFactory.start().addInteger("1", 1).get();
-        final Document doc3 = BuilderFactory.start().addInteger("1", 2).get();
-        final Document doc4 = BuilderFactory.start().addInteger("1", 3).get();
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
 
         final List<Message> objs1 = new ArrayList<Message>();
 
@@ -171,8 +171,8 @@ public class UpdateTest {
 
         final String databaseName = "db";
         final String collectionName = "collection";
-        final Document query = BuilderFactory.start().get();
-        final Document update = BuilderFactory.start().get();
+        final Document query = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().build();
         final boolean multiUpdate = random.nextBoolean();
         final boolean upsert = random.nextBoolean();
         final Update message = new Update(databaseName, collectionName, query,

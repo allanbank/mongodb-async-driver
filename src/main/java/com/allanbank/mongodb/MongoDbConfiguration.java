@@ -256,7 +256,8 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
             throw new IllegalArgumentException(
                     "The MongoDB URI cannot be null.");
         }
-        else if (!mongoDbUri.toLowerCase().startsWith(MONGODB_URI_PREFIX)) {
+        else if (!mongoDbUri.substring(0, MONGODB_URI_PREFIX.length())
+                .equalsIgnoreCase(MONGODB_URI_PREFIX)) {
             throw new IllegalArgumentException(
                     "The MongoDB URI must start with '" + MONGODB_URI_PREFIX
                             + "'.");

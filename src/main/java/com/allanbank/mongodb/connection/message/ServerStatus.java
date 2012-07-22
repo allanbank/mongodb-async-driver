@@ -98,7 +98,7 @@ public class ServerStatus extends AdminCommand {
     static {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addInteger("serverStatus", 1);
-        SERVER_STATUS = builder.get();
+        SERVER_STATUS = builder.build();
     }
 
     /**

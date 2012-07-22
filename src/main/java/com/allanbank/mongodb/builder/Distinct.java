@@ -3,7 +3,7 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.commands;
+package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.bson.Document;
 

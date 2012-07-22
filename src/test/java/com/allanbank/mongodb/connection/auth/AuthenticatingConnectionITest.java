@@ -58,7 +58,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         AuthenticatingConnection authConn = null;
         try {
             final Document doc = BuilderFactory.start()
-                    .addObjectId("_id", new ObjectId()).get();
+                    .addObjectId("_id", new ObjectId()).build();
 
             socketConn = new SocketConnection(new InetSocketAddress(
                     "127.0.0.1", 27017), config);
@@ -68,8 +68,8 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             authConn.send(reply,
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
                             false), new Query(USER_DB, "bar", BuilderFactory
-                            .start().get(), null, 1, 1, 0, false, false, false,
-                            false, false, false));
+                            .start().build(), null, 1, 1, 0, false, false,
+                            false, false, false, false));
             final Reply r = reply.get();
 
             assertEquals(1, r.getResults().size());
@@ -99,7 +99,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         AuthenticatingConnection authConn = null;
         try {
             final Document doc = BuilderFactory.start()
-                    .addObjectId("_id", new ObjectId()).get();
+                    .addObjectId("_id", new ObjectId()).build();
 
             socketConn = new SocketConnection(new InetSocketAddress(
                     "127.0.0.1", 27017), config);
@@ -109,8 +109,8 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             authConn.send(reply,
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
                             false), new Query(USER_DB, "bar", BuilderFactory
-                            .start().get(), null, 1, 1, 0, false, false, false,
-                            false, false, false));
+                            .start().build(), null, 1, 1, 0, false, false,
+                            false, false, false, false));
             final Reply r = reply.get();
 
             assertEquals(1, r.getResults().size());

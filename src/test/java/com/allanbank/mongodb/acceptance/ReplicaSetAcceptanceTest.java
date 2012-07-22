@@ -48,7 +48,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig.setAutoDiscoverServers(true);
 
         // Make sure the collection/db exist and we are connected.
-        myCollection.insert(BuilderFactory.start().get());
+        myCollection.insert(BuilderFactory.start().build());
 
         assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
 
@@ -101,7 +101,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig.setAutoDiscoverServers(true);
 
         // Make sure the collection/db exist and we are connected.
-        myCollection.insert(BuilderFactory.start().get());
+        myCollection.insert(BuilderFactory.start().build());
 
         assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
 

@@ -27,11 +27,32 @@ public class ArrayBuilderImplTest {
 
         builder.pushArray();
 
-        final ArrayElement element = builder.get("foo");
+        final ArrayElement element = builder.build("foo");
         assertTrue(element.getEntries().size() == 1);
         assertTrue(element.getEntries().get(0) instanceof ArrayElement);
         assertTrue(((ArrayElement) element.getEntries().get(0)).getEntries()
                 .size() == 0);
+    }
+
+    /**
+     * Test method for {@link ArrayBuilderImpl#reset()}.
+     */
+    @Test
+    public void testReset() {
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        builder.pushArray();
+
+        ArrayElement element = builder.build("foo");
+        assertTrue(element.getEntries().size() == 1);
+        assertTrue(element.getEntries().get(0) instanceof ArrayElement);
+        assertTrue(((ArrayElement) element.getEntries().get(0)).getEntries()
+                .size() == 0);
+
+        builder.reset();
+
+        element = builder.build("foo");
+        assertTrue(element.getEntries().size() == 0);
     }
 
 }

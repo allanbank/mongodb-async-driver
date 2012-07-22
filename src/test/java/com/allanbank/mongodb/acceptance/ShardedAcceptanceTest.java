@@ -53,7 +53,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig.setMaxConnectionCount(1);
 
         // Make sure the collection/db exist and we are connected.
-        myCollection.insert(BuilderFactory.start().get());
+        myCollection.insert(BuilderFactory.start().build());
 
         assertEquals(Arrays.asList(TEST_DB_NAME, "config"),
                 myMongo.listDatabases());

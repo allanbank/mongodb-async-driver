@@ -87,7 +87,7 @@ public class GetMoreTest {
             assertFalse(obj1.equals("foo"));
             assertFalse(obj1.equals(null));
             assertFalse(obj1.equals(new Command(obj1.getDatabaseName(),
-                    BuilderFactory.start().get())));
+                    BuilderFactory.start().build())));
         }
     }
 

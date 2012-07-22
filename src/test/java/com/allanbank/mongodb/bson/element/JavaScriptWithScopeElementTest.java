@@ -37,11 +37,11 @@ public class JavaScriptWithScopeElementTest {
 
     /** A sample scope document. */
     public static final Document SCOPE_1 = BuilderFactory.start()
-            .addBoolean("f", true).get();
+            .addBoolean("f", true).build();
 
     /** A sample scope document. */
     public static final Document SCOPE_2 = BuilderFactory.start()
-            .addBoolean("f", false).get();
+            .addBoolean("f", false).build();
 
     /**
      * Test method for

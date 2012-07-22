@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -75,6 +76,31 @@ public class DocumentElementTest {
 
     /**
      * Test method for
+     * {@link DocumentElement#DocumentElement(String, Collection)} .
+     */
+    @Test
+    public void testConstructEmptyDocumentCollection() {
+        final DocumentElement element = new DocumentElement("foo",
+                (Collection<Element>) null);
+
+        assertTrue(element.getElements().isEmpty());
+    }
+
+    /**
+     * Test method for
+     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
+     * .
+     */
+    @Test
+    public void testConstructEmptyDocumentCollectionEmpty() {
+        final Collection<Element> elements = Collections.emptyList();
+        final DocumentElement element = new DocumentElement("foo", elements);
+
+        assertTrue(element.getElements().isEmpty());
+    }
+
+    /**
+     * Test method for
      * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
      * .
      */
@@ -107,6 +133,22 @@ public class DocumentElementTest {
     @Test
     public void testConstructor() {
         final List<Element> elements = Collections
+                .singletonList((Element) new BooleanElement("1", false));
+        final DocumentElement element = new DocumentElement("foo", elements);
+
+        assertEquals(elements, element.getElements());
+        assertEquals("foo", element.getName());
+        assertEquals(ElementType.DOCUMENT, element.getType());
+    }
+
+    /**
+     * Test method for
+     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.Collection)}
+     * .
+     */
+    @Test
+    public void testConstructorWithCollection() {
+        final Collection<Element> elements = Collections
                 .singletonList((Element) new BooleanElement("1", false));
         final DocumentElement element = new DocumentElement("foo", elements);
 
@@ -175,7 +217,7 @@ public class DocumentElementTest {
                     break;
                 case JAVA_SCRIPT_WITH_SCOPE:
                     builder.addJavaScript(elemName, "function bar() {}",
-                            BuilderFactory.start().get());
+                            BuilderFactory.start().build());
                     break;
                 case LONG:
                     builder.addLong(elemName, rand.nextLong());
@@ -212,8 +254,8 @@ public class DocumentElementTest {
                 }
             }
 
-            objs1.add(new DocumentElement(name, builder.get()));
-            objs2.add(new DocumentElement(name, builder.get()));
+            objs1.add(new DocumentElement(name, builder.build()));
+            objs2.add(new DocumentElement(name, builder.build()));
         }
 
         // Sanity check.

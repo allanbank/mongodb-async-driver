@@ -42,7 +42,7 @@ public class BsonOutputStreamTest {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream writer = new BsonOutputStream(out);
 
-        writer.writeDocument(builder.get());
+        writer.writeDocument(builder.build());
 
         assertArrayEquals("{ 'hello' : 'world' } not the expected bytes.",
                 helloWorld, out.toByteArray());
@@ -73,7 +73,7 @@ public class BsonOutputStreamTest {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream writer = new BsonOutputStream(out);
 
-        writer.writeDocument(builder.get());
+        writer.writeDocument(builder.build());
 
         assertArrayEquals(
                 " { 'BSON': ['awesome', 5.05, 1986] } not the expected bytes.",

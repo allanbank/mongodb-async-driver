@@ -30,21 +30,6 @@ public class BinaryElement extends AbstractElement {
     private final byte[] myValue;
 
     /**
-     * Constructs a new {@link BinaryElement}. Uses the
-     * {@link #DEFAULT_SUB_TYPE}.
-     * 
-     * @param name
-     *            The name for the BSON binary.
-     * @param value
-     *            The BSON binary value.
-     * @throws IllegalArgumentException
-     *             If the <code>value</code> is null.
-     */
-    public BinaryElement(final String name, final byte[] value) {
-        this(name, DEFAULT_SUB_TYPE, value);
-    }
-
-    /**
      * Constructs a new {@link BinaryElement}.
      * 
      * @param name
@@ -68,6 +53,21 @@ public class BinaryElement extends AbstractElement {
                     "Binary element value cannot be null.  Add a "
                             + "null element instead.");
         }
+    }
+
+    /**
+     * Constructs a new {@link BinaryElement}. Uses the
+     * {@link #DEFAULT_SUB_TYPE}.
+     * 
+     * @param name
+     *            The name for the BSON binary.
+     * @param value
+     *            The BSON binary value.
+     * @throws IllegalArgumentException
+     *             If the <code>value</code> is null.
+     */
+    public BinaryElement(final String name, final byte[] value) {
+        this(name, DEFAULT_SUB_TYPE, value);
     }
 
     /**

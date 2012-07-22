@@ -71,13 +71,13 @@ public class MongoDatabaseImplTest {
     @Test
     public void testDrop() {
         final Document goodResult = BuilderFactory.start().addDouble("ok", 1.0)
-                .get();
+                .build();
         final Document badResult = BuilderFactory.start().addLong("ok", 0)
-                .get();
-        final Document missingOkResult = BuilderFactory.start().get();
+                .build();
+        final Document missingOkResult = BuilderFactory.start().build();
 
         final Command command = new Command("test", BuilderFactory.start()
-                .addInteger("dropDatabase", 1).get());
+                .addInteger("dropDatabase", 1).build());
 
         myMockClient.send(eq(command), callback(reply(goodResult)));
         expectLastCall();
@@ -116,12 +116,12 @@ public class MongoDatabaseImplTest {
     public void testListCollections() {
 
         final Document result1 = BuilderFactory.start()
-                .addString("name", "test.collection").get();
+                .addString("name", "test.collection").build();
         final Document result2 = BuilderFactory.start()
-                .addString("name", "test.1.oplog.$").get();
+                .addString("name", "test.1.oplog.$").build();
 
         final Query query = new Query("test", "system.namespaces",
-                BuilderFactory.start().get(), null, 0, 0, 0, false, true,
+                BuilderFactory.start().build(), null, 0, 0, 0, false, true,
                 false, false, false, false);
 
         myMockClient.send(eq(query), callback(reply(result1, result2)));
@@ -142,12 +142,12 @@ public class MongoDatabaseImplTest {
     public void testRunAdminCommandString() {
         myTestInstance = new MongoDatabaseImpl(myMockClient, "admin");
 
-        final Document reply = BuilderFactory.start().get();
+        final Document reply = BuilderFactory.start().build();
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addInteger("command", 1);
 
-        final Command message = new Command("admin", commandDoc.get());
+        final Command message = new Command("admin", commandDoc.build());
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
@@ -165,7 +165,7 @@ public class MongoDatabaseImplTest {
      */
     @Test
     public void testRunAdminCommandStringDocument() {
-        final Document reply = BuilderFactory.start().get();
+        final Document reply = BuilderFactory.start().build();
 
         final DocumentBuilder options = BuilderFactory.start();
         options.addBoolean("option1", true);
@@ -174,7 +174,7 @@ public class MongoDatabaseImplTest {
         commandDoc.addInteger("command", 1);
         commandDoc.addBoolean("option1", true);
 
-        final Command message = new Command("admin", commandDoc.get());
+        final Command message = new Command("admin", commandDoc.build());
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
@@ -184,9 +184,9 @@ public class MongoDatabaseImplTest {
         replay();
 
         assertSame(reply,
-                myTestInstance.runAdminCommand("command", options.get()));
+                myTestInstance.runAdminCommand("command", options.build()));
         assertSame(reply,
-                myTestInstance.runAdminCommand("command", options.get()));
+                myTestInstance.runAdminCommand("command", options.build()));
 
         verify();
     }
@@ -197,12 +197,12 @@ public class MongoDatabaseImplTest {
      */
     @Test
     public void testRunAdminCommandStringStringDocument() {
-        final Document reply = BuilderFactory.start().get();
+        final Document reply = BuilderFactory.start().build();
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addString("command", "name");
 
-        final Command message = new Command("admin", commandDoc.get());
+        final Command message = new Command("admin", commandDoc.build());
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
@@ -226,7 +226,7 @@ public class MongoDatabaseImplTest {
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addInteger("command", 1);
 
-        final Command message = new Command("test", commandDoc.get());
+        final Command message = new Command("test", commandDoc.build());
 
         myMockClient.send(eq(message), anyObject(ReplyCallback.class));
         expectLastCall();
@@ -255,14 +255,15 @@ public class MongoDatabaseImplTest {
         commandDoc.addInteger("command", 1);
         commandDoc.addBoolean("option1", true);
 
-        final Command message = new Command("test", commandDoc.get());
+        final Command message = new Command("test", commandDoc.build());
 
         myMockClient.send(eq(message), anyObject(ReplyCallback.class));
         expectLastCall();
 
         replay(mockCallback);
 
-        myTestInstance.runCommandAsync(mockCallback, "command", options.get());
+        myTestInstance
+                .runCommandAsync(mockCallback, "command", options.build());
 
         verify(mockCallback);
     }
@@ -284,7 +285,7 @@ public class MongoDatabaseImplTest {
         commandDoc.addString("command", "name");
         commandDoc.addBoolean("option1", true);
 
-        final Command message = new Command("test", commandDoc.get());
+        final Command message = new Command("test", commandDoc.build());
 
         myMockClient.send(eq(message), anyObject(ReplyCallback.class));
         expectLastCall();
@@ -292,7 +293,7 @@ public class MongoDatabaseImplTest {
         replay(mockCallback);
 
         myTestInstance.runCommandAsync(mockCallback, "command", "name",
-                options.get());
+                options.build());
 
         verify(mockCallback);
     }
@@ -306,12 +307,12 @@ public class MongoDatabaseImplTest {
     @Test
     public void testRunCommandAsyncString() throws Exception {
 
-        final Document reply = BuilderFactory.start().get();
+        final Document reply = BuilderFactory.start().build();
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addInteger("command", 1);
 
-        final Command message = new Command("test", commandDoc.get());
+        final Command message = new Command("test", commandDoc.build());
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
@@ -332,7 +333,7 @@ public class MongoDatabaseImplTest {
      */
     @Test
     public void testRunCommandAsyncStringDocument() throws Exception {
-        final Document reply = BuilderFactory.start().get();
+        final Document reply = BuilderFactory.start().build();
 
         final DocumentBuilder options = BuilderFactory.start();
         options.addBoolean("option1", true);
@@ -341,7 +342,7 @@ public class MongoDatabaseImplTest {
         commandDoc.addInteger("command", 1);
         commandDoc.addBoolean("option1", true);
 
-        final Command message = new Command("test", commandDoc.get());
+        final Command message = new Command("test", commandDoc.build());
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
@@ -349,7 +350,8 @@ public class MongoDatabaseImplTest {
         replay();
 
         assertSame(reply,
-                myTestInstance.runCommandAsync("command", options.get()).get());
+                myTestInstance.runCommandAsync("command", options.build())
+                        .get());
 
         verify();
     }
@@ -366,23 +368,23 @@ public class MongoDatabaseImplTest {
         final DocumentBuilder options = BuilderFactory.start();
         options.addBoolean("option1", true);
 
-        final Document reply = BuilderFactory.start().get();
+        final Document reply = BuilderFactory.start().build();
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addString("command", "name");
         commandDoc.addBoolean("option1", true);
 
-        final Command message = new Command("test", commandDoc.get());
+        final Command message = new Command("test", commandDoc.build());
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
 
         replay();
 
-        assertSame(reply,
-                myTestInstance
-                        .runCommandAsync("command", "name", options.get())
-                        .get());
+        assertSame(
+                reply,
+                myTestInstance.runCommandAsync("command", "name",
+                        options.build()).get());
 
         verify();
     }
@@ -392,12 +394,12 @@ public class MongoDatabaseImplTest {
      */
     @Test
     public void testRunCommandString() {
-        final Document reply = BuilderFactory.start().get();
+        final Document reply = BuilderFactory.start().build();
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addInteger("command", 1);
 
-        final Command message = new Command("test", commandDoc.get());
+        final Command message = new Command("test", commandDoc.build());
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
@@ -414,7 +416,7 @@ public class MongoDatabaseImplTest {
      */
     @Test
     public void testRunCommandStringDocument() {
-        final Document reply = BuilderFactory.start().get();
+        final Document reply = BuilderFactory.start().build();
 
         final DocumentBuilder options = BuilderFactory.start();
         options.addBoolean("option1", true);
@@ -424,14 +426,14 @@ public class MongoDatabaseImplTest {
         commandDoc.addBoolean("option1", true);
 
         final Command message = new Command(myTestInstance.getName(),
-                commandDoc.get());
+                commandDoc.build());
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
 
         replay();
 
-        assertSame(reply, myTestInstance.runCommand("command", options.get()));
+        assertSame(reply, myTestInstance.runCommand("command", options.build()));
 
         verify();
     }
@@ -445,13 +447,13 @@ public class MongoDatabaseImplTest {
         final DocumentBuilder options = BuilderFactory.start();
         options.addBoolean("option1", true);
 
-        final Document reply = BuilderFactory.start().get();
+        final Document reply = BuilderFactory.start().build();
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addString("command", "name");
         commandDoc.addBoolean("option1", true);
 
-        final Command message = new Command("test", commandDoc.get());
+        final Command message = new Command("test", commandDoc.build());
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
@@ -459,7 +461,7 @@ public class MongoDatabaseImplTest {
         replay();
 
         assertSame(reply,
-                myTestInstance.runCommand("command", "name", options.get()));
+                myTestInstance.runCommand("command", "name", options.build()));
 
         verify();
     }

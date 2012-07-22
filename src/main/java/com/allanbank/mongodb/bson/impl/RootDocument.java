@@ -107,6 +107,17 @@ public class RootDocument implements Document {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns this document.
+     * </p>
+     */
+    @Override
+    public Document asDocument() {
+        return this;
+    }
+
+    /**
      * Returns true if the document contains an element with the specified name.
      * 
      * @see Document#contains(String)

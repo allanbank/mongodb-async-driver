@@ -165,7 +165,7 @@ public class RootDocumentTest {
                     break;
                 case JAVA_SCRIPT_WITH_SCOPE:
                     builder.addJavaScript(elemName, "function bar() {}",
-                            BuilderFactory.start().get());
+                            BuilderFactory.start().build());
                     break;
                 case LONG:
                     builder.addLong(elemName, rand.nextLong());
@@ -202,8 +202,8 @@ public class RootDocumentTest {
                 }
             }
 
-            objs1.add(builder.get());
-            objs2.add(builder.get());
+            objs1.add(builder.build());
+            objs2.add(builder.build());
         }
 
         // Sanity check.

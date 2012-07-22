@@ -39,11 +39,11 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
-import com.allanbank.mongodb.commands.Distinct;
-import com.allanbank.mongodb.commands.Find;
-import com.allanbank.mongodb.commands.FindAndModify;
-import com.allanbank.mongodb.commands.GroupBy;
-import com.allanbank.mongodb.commands.MapReduce;
+import com.allanbank.mongodb.builder.Distinct;
+import com.allanbank.mongodb.builder.Find;
+import com.allanbank.mongodb.builder.FindAndModify;
+import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Delete;
 import com.allanbank.mongodb.connection.message.GetLastError;
@@ -101,12 +101,12 @@ public class MongoCollectionImplTest {
     @Test
     public void testCountAsyncCallbackOfLongDocument() {
         final Callback<Long> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                .addString("count", "test").addDocument("query", doc).get(),
+                .addString("count", "test").addDocument("query", doc).build(),
                 false)), anyObject(ReplyLongCallback.class));
         expectLastCall();
 
@@ -125,12 +125,12 @@ public class MongoCollectionImplTest {
     public void testCountAsyncCallbackOfLongDocumentBoolean() {
 
         final Callback<Long> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                .addString("count", "test").addDocument("query", doc).get(),
+                .addString("count", "test").addDocument("query", doc).build(),
                 true)), anyObject(ReplyLongCallback.class));
         expectLastCall();
 
@@ -146,12 +146,12 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testCountAsyncDocument() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                .addString("count", "test").addDocument("query", doc).get(),
+                .addString("count", "test").addDocument("query", doc).build(),
                 false)), anyObject(ReplyLongCallback.class));
         expectLastCall();
 
@@ -172,13 +172,13 @@ public class MongoCollectionImplTest {
     @Test
     public void testCountAsyncDocumentBoolean() throws Exception {
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
-        final Document doc = BuilderFactory.start().get();
+                .build();
+        final Document doc = BuilderFactory.start().build();
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                .addString("count", "test").addDocument("query", doc).get(),
+                .addString("count", "test").addDocument("query", doc).build(),
                 true)), callback(reply(replyDoc)));
         expectLastCall();
 
@@ -196,13 +196,13 @@ public class MongoCollectionImplTest {
     @Test
     public void testCountDocument() {
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
-        final Document doc = BuilderFactory.start().get();
+                .build();
+        final Document doc = BuilderFactory.start().build();
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                .addString("count", "test").addDocument("query", doc).get(),
+                .addString("count", "test").addDocument("query", doc).build(),
                 false)), callback(reply(replyDoc)));
         expectLastCall();
 
@@ -220,13 +220,13 @@ public class MongoCollectionImplTest {
     @Test
     public void testCountDocumentBoolean() {
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
-        final Document doc = BuilderFactory.start().get();
+                .build();
+        final Document doc = BuilderFactory.start().build();
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                .addString("count", "test").addDocument("query", doc).get(),
+                .addString("count", "test").addDocument("query", doc).build(),
                 true)), callback(reply(replyDoc)));
         expectLastCall();
 
@@ -243,12 +243,12 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testCountDocumentBooleanOnInterrupt() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                .addString("count", "test").addDocument("query", doc).get(),
+                .addString("count", "test").addDocument("query", doc).build(),
                 true)), callback(Reply.class));
         expectLastCall();
 
@@ -270,12 +270,12 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testCountDocumentBooleanOnIOError() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                .addString("count", "test").addDocument("query", doc).get(),
+                .addString("count", "test").addDocument("query", doc).build(),
                 true)), callback(Reply.class, new IOException()));
         expectLastCall();
 
@@ -298,13 +298,13 @@ public class MongoCollectionImplTest {
     @Test
     public void testCountDocumentBooleanOnMongoError() {
         final Document replyDoc = BuilderFactory.start().addInteger("X", 1)
-                .get();
-        final Document doc = BuilderFactory.start().get();
+                .build();
+        final Document doc = BuilderFactory.start().build();
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                .addString("count", "test").addDocument("query", doc).get(),
+                .addString("count", "test").addDocument("query", doc).build(),
                 true)), callback(reply(replyDoc)));
         expectLastCall();
 
@@ -335,15 +335,15 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
-                0 /* skip */, false /* tailable */, false /* replicaOk */,
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, false /* partial */);
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                false /* replicaOk */, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
         myMockClient.send(eq(queryMessage),
-                callback(reply(indexDocBuilder.get())));
+                callback(reply(indexDocBuilder.build())));
         expectLastCall();
 
         replay();
@@ -371,15 +371,15 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
-                0 /* skip */, false /* tailable */, false /* replicaOk */,
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, false /* partial */);
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                false /* replicaOk */, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
         myMockClient.send(eq(queryMessage),
-                callback(reply(indexDocBuilder.get())));
+                callback(reply(indexDocBuilder.build())));
         expectLastCall();
 
         replay();
@@ -407,7 +407,7 @@ public class MongoCollectionImplTest {
                 expectedDur.getWaitTimeoutMillis());
 
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
         indexDocBuilder.addString("name", "name");
@@ -415,10 +415,10 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
-                0 /* skip */, false /* tailable */, false /* replicaOk */,
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, false /* partial */);
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                false /* replicaOk */, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(4);
 
@@ -452,15 +452,15 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
-                0 /* skip */, false /* tailable */, false /* replicaOk */,
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, false /* partial */);
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                false /* replicaOk */, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
         myMockClient.send(eq(queryMessage),
-                callback(reply(indexDocBuilder.get())));
+                callback(reply(indexDocBuilder.build())));
         expectLastCall();
 
         replay();
@@ -488,15 +488,15 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
-                0 /* skip */, false /* tailable */, false /* replicaOk */,
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, false /* partial */);
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                false /* replicaOk */, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
         myMockClient.send(eq(queryMessage),
-                callback(reply(indexDocBuilder.get())));
+                callback(reply(indexDocBuilder.build())));
         expectLastCall();
 
         replay();
@@ -524,15 +524,15 @@ public class MongoCollectionImplTest {
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
         final Query queryMessage = new Query("test", "system.indexes",
-                indexDocBuilder.get(), null, 1 /* batchSize */, 1 /* limit */,
-                0 /* skip */, false /* tailable */, false /* replicaOk */,
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, false /* partial */);
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                false /* replicaOk */, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
         myMockClient.send(eq(queryMessage),
-                callback(reply(indexDocBuilder.get())));
+                callback(reply(indexDocBuilder.build())));
         expectLastCall();
 
         replay();
@@ -550,7 +550,7 @@ public class MongoCollectionImplTest {
     public void testDeleteAsyncCallbackOfLongDocument() {
 
         final Callback<Long> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Delete message = new Delete("test", "test", doc, false);
 
@@ -580,7 +580,7 @@ public class MongoCollectionImplTest {
     public void testDeleteAsyncCallbackOfLongDocumentBoolean() {
 
         final Callback<Long> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
@@ -610,7 +610,7 @@ public class MongoCollectionImplTest {
     public void testDeleteAsyncCallbackOfLongDocumentBooleanDurability() {
 
         final Callback<Long> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
@@ -639,7 +639,7 @@ public class MongoCollectionImplTest {
     public void testDeleteAsyncCallbackOfLongDocumentDurability() {
 
         final Callback<Long> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Delete message = new Delete("test", "test", doc, false);
 
@@ -667,9 +667,9 @@ public class MongoCollectionImplTest {
     @Test
     public void testDeleteAsyncDocument() throws Exception {
 
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Delete message = new Delete("test", "test", doc, false);
         final GetLastError getLastError = new GetLastError("test", false,
@@ -699,9 +699,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testDeleteAsyncDocumentBoolean() throws Exception {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
@@ -733,9 +733,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testDeleteAsyncDocumentBooleanDurability() throws Exception {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
@@ -764,7 +764,7 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testDeleteAsyncDocumentDurability() throws Exception {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Delete message = new Delete("test", "test", doc, false);
 
@@ -786,9 +786,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testDeleteDocument() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Delete message = new Delete("test", "test", doc, false);
         final GetLastError getLastError = new GetLastError("test", false,
@@ -815,9 +815,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testDeleteDocumentBoolean() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
@@ -844,9 +844,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testDeleteDocumentBooleanDurability() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
@@ -871,7 +871,7 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testDeleteDocumentDurability() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Delete message = new Delete("test", "test", doc, false);
 
@@ -894,7 +894,7 @@ public class MongoCollectionImplTest {
     public void testDistinct() {
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("foo");
-        builder.setQuery(BuilderFactory.start().get());
+        builder.setQuery(BuilderFactory.start().build());
 
         final Distinct request = builder.build();
 
@@ -907,16 +907,16 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("key", "foo");
         expectedCommand.addDocument("query", request.getQuery());
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message), callback(reply(result.get())));
+        myMockClient.send(eq(message), callback(reply(result.build())));
         expectLastCall();
 
         replay();
 
-        assertEquals(result.get().queryPath(ArrayElement.class, "values")
+        assertEquals(result.build().queryPath(ArrayElement.class, "values")
                 .get(0), myTestInstance.distinct(request));
 
         verify();
@@ -930,7 +930,7 @@ public class MongoCollectionImplTest {
     public void testDistinctAsyncCallbackOfArrayElementDistinct() {
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("foo");
-        builder.setQuery(BuilderFactory.start().get());
+        builder.setQuery(BuilderFactory.start().build());
 
         final Distinct request = builder.build();
 
@@ -940,7 +940,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("key", "foo");
         expectedCommand.addDocument("query", request.getQuery());
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -964,7 +964,7 @@ public class MongoCollectionImplTest {
     public void testDistinctAsyncDistinct() throws Exception {
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("foo");
-        builder.setQuery(BuilderFactory.start().get());
+        builder.setQuery(BuilderFactory.start().build());
 
         final Distinct request = builder.build();
 
@@ -977,16 +977,16 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("key", "foo");
         expectedCommand.addDocument("query", request.getQuery());
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message), callback(reply(result.get())));
+        myMockClient.send(eq(message), callback(reply(result.build())));
         expectLastCall();
 
         replay();
 
-        assertEquals(result.get().queryPath(ArrayElement.class, "values")
+        assertEquals(result.build().queryPath(ArrayElement.class, "values")
                 .get(0), myTestInstance.distinctAsync(request).get());
 
         verify();
@@ -1008,7 +1008,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("distinct", "test");
         expectedCommand.addString("key", "foo");
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1029,10 +1029,10 @@ public class MongoCollectionImplTest {
     public void testDrop() {
 
         final Document goodResult = BuilderFactory.start().addDouble("ok", 1.0)
-                .get();
+                .build();
         final Document badResult = BuilderFactory.start().addLong("ok", 0)
-                .get();
-        final Document missingOkResult = BuilderFactory.start().get();
+                .build();
+        final Document missingOkResult = BuilderFactory.start().build();
 
         expect(myMockDatabase.runCommand("drop", "test", null)).andReturn(
                 goodResult);
@@ -1056,12 +1056,12 @@ public class MongoCollectionImplTest {
     @Test
     public void testDropIndex() {
         final Document goodResult = BuilderFactory.start().addDouble("ok", 1.0)
-                .get();
+                .build();
         final Document badResult = BuilderFactory.start().addLong("ok", 0)
-                .get();
-        final Document missingOkResult = BuilderFactory.start().get();
+                .build();
+        final Document missingOkResult = BuilderFactory.start().build();
         final Document options = BuilderFactory.start()
-                .addString("index", "foo").get();
+                .addString("index", "foo").build();
 
         expect(myMockDatabase.runCommand("deleteIndexes", "test", options))
                 .andReturn(goodResult);
@@ -1086,8 +1086,8 @@ public class MongoCollectionImplTest {
     @Test
     public void testFindAndModify() {
         final FindAndModify.Builder builder = new FindAndModify.Builder();
-        builder.setQuery(BuilderFactory.start().get());
-        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).get());
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
 
         final FindAndModify request = builder.build();
 
@@ -1100,16 +1100,16 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.addDocument("update", request.getUpdate());
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message), callback(reply(result.get())));
+        myMockClient.send(eq(message), callback(reply(result.build())));
         expectLastCall();
 
         replay();
 
-        assertEquals(value.get(), myTestInstance.findAndModify(request));
+        assertEquals(value.build(), myTestInstance.findAndModify(request));
 
         verify();
     }
@@ -1121,8 +1121,8 @@ public class MongoCollectionImplTest {
     @Test
     public void testFindAndModifyAsyncCallbackOfDocumentFindAndModify() {
         final FindAndModify.Builder builder = new FindAndModify.Builder();
-        builder.setQuery(BuilderFactory.start().get());
-        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).get());
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
 
         final FindAndModify request = builder.build();
 
@@ -1132,7 +1132,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.addDocument("update", request.getUpdate());
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1156,8 +1156,8 @@ public class MongoCollectionImplTest {
     @Test
     public void testFindAndModifyAsyncFindAndModify() throws Exception {
         final FindAndModify.Builder builder = new FindAndModify.Builder();
-        builder.setQuery(BuilderFactory.start().get());
-        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).get());
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
 
         final FindAndModify request = builder.build();
 
@@ -1170,16 +1170,16 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.addDocument("update", request.getUpdate());
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message), callback(reply(result.get())));
+        myMockClient.send(eq(message), callback(reply(result.build())));
         expectLastCall();
 
         replay();
 
-        assertEquals(value.get(), myTestInstance.findAndModifyAsync(request)
+        assertEquals(value.build(), myTestInstance.findAndModifyAsync(request)
                 .get());
 
         verify();
@@ -1192,7 +1192,7 @@ public class MongoCollectionImplTest {
     @Test
     public void testFindAsyncCallbackOfClosableIteratorOfDocumentDocument() {
         final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
                 false, false, false, false, false, false);
@@ -1216,7 +1216,7 @@ public class MongoCollectionImplTest {
     @Test
     public void testFindAsyncCallbackOfClosableIteratorOfDocumentFind() {
         final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
                 false, false, false, false, false, false);
@@ -1244,10 +1244,10 @@ public class MongoCollectionImplTest {
     @Test
     public void testFindAsyncDocument() throws Exception {
 
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
 
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
                 false, false, false, false, false, false);
@@ -1279,10 +1279,10 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testFindAsyncFind() throws Exception {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
 
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
                 false, true, false, false, false, false);
@@ -1314,10 +1314,10 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testFindDocument() {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
 
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
                 false, false, false, false, false, false);
@@ -1344,10 +1344,10 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testFindDocumentBoolean() {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
 
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
                 false, true, false, false, false, false);
@@ -1379,9 +1379,9 @@ public class MongoCollectionImplTest {
     @Test
     public void testFindOne() {
         final Callback<Document> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("foo", 2)
-                .get();
+                .build();
 
         final Query message = new Query("test", "test", doc, null, 1, 1, 0,
                 false, false, false, false, false, false);
@@ -1405,7 +1405,7 @@ public class MongoCollectionImplTest {
     @Test
     public void testFindOneAsyncCallbackOfDocumentDocument() {
         final Callback<Document> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 1, 1, 0,
                 false, false, false, false, false, false);
@@ -1431,9 +1431,9 @@ public class MongoCollectionImplTest {
     @Test
     public void testFindOneAsyncDocument() throws Exception {
         final Callback<Document> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("foo", 2)
-                .get();
+                .build();
 
         final Query message = new Query("test", "test", doc, null, 1, 1, 0,
                 false, false, false, false, false, false);
@@ -1459,13 +1459,13 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testFindWithAllOptions() throws Exception {
-        final Document result1 = BuilderFactory.start().get();
-        final Document result2 = BuilderFactory.start().get();
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
 
         final Find.Builder builder = new Find.Builder();
-        builder.setQuery(BuilderFactory.start().addInteger("foo", 1).get());
+        builder.setQuery(BuilderFactory.start().addInteger("foo", 1).build());
         builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
-                .get());
+                .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -1538,16 +1538,16 @@ public class MongoCollectionImplTest {
         group.addString("ns", "test");
         group.push("key").addBoolean("foo", true);
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message), callback(reply(result.get())));
+        myMockClient.send(eq(message), callback(reply(result.build())));
         expectLastCall();
 
         replay();
 
-        assertEquals(result.get().queryPath(ArrayElement.class, "retval")
+        assertEquals(result.build().queryPath(ArrayElement.class, "retval")
                 .get(0), myTestInstance.groupBy(request));
 
         verify();
@@ -1570,7 +1570,7 @@ public class MongoCollectionImplTest {
         group.addString("ns", "test");
         group.push("key").addBoolean("foo", true);
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1606,16 +1606,16 @@ public class MongoCollectionImplTest {
         group.addString("ns", "test");
         group.push("key").addBoolean("foo", true);
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message), callback(reply(result.get())));
+        myMockClient.send(eq(message), callback(reply(result.build())));
         expectLastCall();
 
         replay();
 
-        assertEquals(result.get().queryPath(ArrayElement.class, "retval")
+        assertEquals(result.build().queryPath(ArrayElement.class, "retval")
                 .get(0), myTestInstance.groupByAsync(request).get());
 
         verify();
@@ -1630,8 +1630,8 @@ public class MongoCollectionImplTest {
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeyFunction("function f() {}");
         builder.setFinalizeFunction("finalize");
-        builder.setInitialValue(BuilderFactory.start().get());
-        builder.setQuery(BuilderFactory.start().addBoolean("foo", true).get());
+        builder.setInitialValue(BuilderFactory.start().build());
+        builder.setQuery(BuilderFactory.start().addBoolean("foo", true).build());
         builder.setReduceFunction("reduce");
 
         final GroupBy request = builder.build();
@@ -1646,7 +1646,7 @@ public class MongoCollectionImplTest {
         group.addJavaScript("finalize", request.getFinalizeFunction());
         group.addDocument("cond", request.getQuery());
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -1670,9 +1670,9 @@ public class MongoCollectionImplTest {
     @Test
     public void testInsertAsyncBooleanDocumentArray() throws Exception {
         final Document doc = BuilderFactory.start().addBoolean("_id", true)
-                .get();
+                .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
@@ -1705,9 +1705,9 @@ public class MongoCollectionImplTest {
     @Test
     public void testInsertAsyncBooleanDurabilityDocumentArray()
             throws Exception {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
@@ -1736,7 +1736,7 @@ public class MongoCollectionImplTest {
     @Test
     public void testInsertAsyncCallbackOfIntegerBooleanDocumentArray() {
         final Callback<Integer> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
@@ -1765,7 +1765,7 @@ public class MongoCollectionImplTest {
     @Test
     public void testInsertAsyncCallbackOfIntegerBooleanDurabilityDocumentArray() {
         final Callback<Integer> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
@@ -1793,7 +1793,7 @@ public class MongoCollectionImplTest {
     @Test
     public void testInsertAsyncCallbackOfIntegerDocumentArray() {
         final Callback<Integer> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
@@ -1822,7 +1822,7 @@ public class MongoCollectionImplTest {
     @Test
     public void testInsertAsyncCallbackOfIntegerDurabilityDocumentArray() {
         final Callback<Integer> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
@@ -1850,7 +1850,7 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testInsertAsyncDocumentArray() throws Exception {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
@@ -1877,9 +1877,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testInsertAsyncDurabilityDocumentArray() throws Exception {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
@@ -1906,9 +1906,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testInsertBooleanDocumentArray() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
-                .get();
+                .build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
@@ -1935,9 +1935,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testInsertBooleanDurabilityDocumentArray() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
-                .get();
+                .build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
@@ -1962,9 +1962,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testInsertDocumentArray() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
-                .get();
+                .build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
@@ -1991,9 +1991,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testInsertDurabilityDocumentArray() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
-                .get();
+                .build();
 
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
@@ -2035,16 +2035,16 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message), callback(reply(result.get())));
+        myMockClient.send(eq(message), callback(reply(result.build())));
         expectLastCall();
 
         replay();
 
-        assertEquals(Collections.singletonList(value.get()),
+        assertEquals(Collections.singletonList(value.build()),
                 myTestInstance.mapReduce(request));
 
         verify();
@@ -2070,7 +2070,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -2110,16 +2110,16 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message), callback(reply(result.get())));
+        myMockClient.send(eq(message), callback(reply(result.build())));
         expectLastCall();
 
         replay();
 
-        assertEquals(Collections.singletonList(value.get()), myTestInstance
+        assertEquals(Collections.singletonList(value.build()), myTestInstance
                 .mapReduceAsync(request).get());
 
         verify();
@@ -2139,9 +2139,9 @@ public class MongoCollectionImplTest {
         builder.setJsMode(true);
         builder.setKeepTemp(true);
         builder.setLimit(10);
-        builder.setQuery(BuilderFactory.start().addInteger("foo", 12).get());
-        builder.setScope(BuilderFactory.start().addInteger("foo", 13).get());
-        builder.setSort(BuilderFactory.start().addInteger("foo", 14).get());
+        builder.setQuery(BuilderFactory.start().addInteger("foo", 12).build());
+        builder.setScope(BuilderFactory.start().addInteger("foo", 13).build());
+        builder.setSort(BuilderFactory.start().addInteger("foo", 14).build());
         builder.setVerbose(true);
 
         final MapReduce request = builder.build();
@@ -2161,7 +2161,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addBoolean("verbose", true);
         expectedCommand.push("out").addInteger("inline", 1);
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -2196,7 +2196,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("merge", "out");
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -2233,7 +2233,7 @@ public class MongoCollectionImplTest {
         expectedCommand.push("out").addString("merge", "out")
                 .addString("db", "out_db");
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -2268,7 +2268,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("reduce", "out");
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -2305,7 +2305,7 @@ public class MongoCollectionImplTest {
         expectedCommand.push("out").addString("reduce", "out")
                 .addString("db", "out_db");
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -2340,7 +2340,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("replace", "out");
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -2377,7 +2377,7 @@ public class MongoCollectionImplTest {
         expectedCommand.push("out").addString("replace", "out")
                 .addString("db", "out_db");
 
-        final Command message = new Command("test", expectedCommand.get());
+        final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -2399,9 +2399,9 @@ public class MongoCollectionImplTest {
     @Test
     public void testUpdateAsyncCallbackOfLongDocumentDocument() {
         final Callback<Long> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, false,
                 false);
@@ -2430,9 +2430,9 @@ public class MongoCollectionImplTest {
     @Test
     public void testUpdateAsyncCallbackOfLongDocumentDocumentBooleanBoolean() {
         final Callback<Long> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, true,
                 true);
@@ -2462,9 +2462,9 @@ public class MongoCollectionImplTest {
     public void testUpdateAsyncCallbackOfLongDocumentDocumentBooleanBooleanDurability() {
 
         final Callback<Long> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, true,
                 true);
@@ -2493,9 +2493,9 @@ public class MongoCollectionImplTest {
     @Test
     public void testUpdateAsyncCallbackOfLongDocumentDocumentDurability() {
         final Callback<Long> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, false,
                 false);
@@ -2525,9 +2525,9 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testUpdateAsyncDocumentDocument() throws Exception {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, false,
                 false);
@@ -2557,11 +2557,11 @@ public class MongoCollectionImplTest {
     @Test
     public void testUpdateAsyncDocumentDocumentBooleanBoolean()
             throws Exception {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, true,
                 true);
@@ -2595,11 +2595,11 @@ public class MongoCollectionImplTest {
     public void testUpdateAsyncDocumentDocumentBooleanBooleanDurability()
             throws Exception {
 
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, true,
                 true);
@@ -2632,11 +2632,11 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testUpdateAsyncDocumentDocumentDurability() throws Exception {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, false,
                 false);
@@ -2663,11 +2663,11 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testUpdateDocumentDocument() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, false,
                 false);
@@ -2695,11 +2695,11 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testUpdateDocumentDocumentBooleanBoolean() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, true,
                 true);
@@ -2727,11 +2727,11 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testUpdateDocumentDocumentBooleanBooleanDurability() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, true,
                 true);
@@ -2758,11 +2758,11 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testUpdateDocumentDocumentDurability() {
-        final Document doc = BuilderFactory.start().get();
+        final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .get();
+                .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
-                .get();
+                .build();
 
         final Update message = new Update("test", "test", doc, update, false,
                 false);

@@ -147,7 +147,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addInteger("getlasterror", 1);
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error);
@@ -207,7 +207,7 @@ public class SocketConnectionTest {
         builder.addInteger("getlasterror", 1);
         builder.addBoolean("fsync", true);
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final GetLastError error = new GetLastError("fo", true, false, 0, 0);
         myTestConnection.send(error);
@@ -268,7 +268,7 @@ public class SocketConnectionTest {
         builder.addInteger("getlasterror", 1);
         builder.addBoolean("j", true);
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final GetLastError error = new GetLastError("fo", false, true, 0, 0);
         myTestConnection.send(error);
@@ -330,7 +330,7 @@ public class SocketConnectionTest {
         builder.addInteger("w", 10);
         builder.addInteger("wtimeout", 1000);
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final GetLastError error = new GetLastError("fo", false, false, 10,
                 1000);
@@ -449,7 +449,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
         final List<Document> multi = Arrays.asList(doc, doc);
 
         final Insert insert = new Insert("foo", "bar", multi, true);
@@ -515,7 +515,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Insert insert = new Insert("foo", "bar",
                 Collections.singletonList(doc), false);
@@ -622,7 +622,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Delete delete = new Delete("foo", "bar", builder.get(), false);
+        final Delete delete = new Delete("foo", "bar", builder.build(), false);
         myTestConnection.send(delete);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
@@ -679,7 +679,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, false, false, false, false, false);
@@ -742,7 +742,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, false, false, true, false, false);
@@ -806,7 +806,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, false, false, false, true, false);
@@ -870,7 +870,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, false, true, false, false, false);
@@ -934,7 +934,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, false, false, false, false, true);
@@ -998,7 +998,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, false, true, false, false, false, false);
@@ -1062,7 +1062,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
                 7654321, true, false, false, false, false, false);
@@ -1126,7 +1126,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, doc, 7654321, 0,
                 1234567, false, false, false, false, false, false);
@@ -1194,7 +1194,7 @@ public class SocketConnectionTest {
 
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
         final IntBuffer buff = byteBuff.asIntBuffer();
@@ -1322,7 +1322,7 @@ public class SocketConnectionTest {
 
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
         final IntBuffer buff = byteBuff.asIntBuffer();
@@ -1388,7 +1388,7 @@ public class SocketConnectionTest {
 
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Delete delete = new Delete("foo", "bar", doc, true);
         myTestConnection.send(delete);
@@ -1489,7 +1489,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Update update = new Update("foo", "bar", doc, doc, false, false);
         myTestConnection.send(update);
@@ -1555,7 +1555,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Update update = new Update("foo", "bar", doc, doc, true, false);
         myTestConnection.send(update);
@@ -1621,7 +1621,7 @@ public class SocketConnectionTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("hello", "world");
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final Update update = new Update("foo", "bar", doc, doc, false, true);
         myTestConnection.send(update);

@@ -4,12 +4,16 @@
  */
 package com.allanbank.mongodb.bson.builder.impl;
 
+import java.util.List;
+
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BinaryElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
+import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.JavaScriptElement;
@@ -86,6 +90,15 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
             final String collectionName, final ObjectId id) {
         myElements.add(new com.allanbank.mongodb.bson.element.DBPointerElement(
                 nextIndex(), databaseName, collectionName, id));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder addDocument(final Document document) {
+        myElements.add(new DocumentElement(nextIndex(), document));
         return this;
     }
 
@@ -221,11 +234,23 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return an array of the built elements.
+     * </p>
+     */
+    @Override
+    public Element[] build() {
+        final List<Element> elements = subElements();
+        return elements.toArray(new Element[elements.size()]);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return an {@link ArrayElement}.
      * </p>
      */
     @Override
-    public ArrayElement get(final String name) {
+    public ArrayElement build(final String name) {
         return new ArrayElement(name, subElements());
     }
 

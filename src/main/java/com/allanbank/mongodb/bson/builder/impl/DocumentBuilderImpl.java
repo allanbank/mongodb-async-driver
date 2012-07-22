@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.builder.impl;
 
+import java.util.regex.Pattern;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
@@ -199,6 +201,15 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addRegularExpression(final String name,
+            final Pattern pattern) {
+        return add(new RegularExpressionElement(name, pattern));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addRegularExpression(final String name,
             final String pattern, final String options) {
         return add(new RegularExpressionElement(name, pattern, options));
     }
@@ -229,9 +240,22 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Returns the result of {@link #build()}.
+     * </p>
+     * 
+     * @see #build()
      */
     @Override
-    public Document get() {
+    public Document asDocument() {
+        return build();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Document build() {
         return new RootDocument(subElements(), myIdPresent);
     }
 
@@ -258,7 +282,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * </p>
      */
     @Override
-    protected Element get(final String name) {
+    protected Element build(final String name) {
         return new DocumentElement(name, subElements(), true);
     }
 }

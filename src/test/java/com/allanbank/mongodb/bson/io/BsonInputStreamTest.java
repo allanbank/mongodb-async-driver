@@ -156,7 +156,7 @@ public class BsonInputStreamTest {
         DocumentBuilder builder = BuilderFactory.start();
 
         builder.addBoolean("true", true);
-        final Document simple = builder.get();
+        final Document simple = builder.build();
 
         builder = BuilderFactory.start();
         builder.add(new BooleanElement("_id", false));
@@ -210,7 +210,7 @@ public class BsonInputStreamTest {
         aBuilder.addTimestamp(System.currentTimeMillis());
         aBuilder.push().addBoolean("true", true).pop();
 
-        final Document doc = builder.get();
+        final Document doc = builder.build();
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream writer = new BsonOutputStream(out);

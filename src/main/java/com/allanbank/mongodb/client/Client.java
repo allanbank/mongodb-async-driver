@@ -27,18 +27,18 @@ public interface Client {
     public void close();
 
     /**
-     * Returns the {@link Durability} from the {@link MongoDbConfiguration}.
-     * 
-     * @return The default durability from the {@link MongoDbConfiguration}.
-     */
-    public Durability getDefaultDurability();
-
-    /**
      * Returns the configuration being used by the logical MongoDB connection.
      * 
      * @return The configuration being used by the logical MongoDB connection.
      */
     public MongoDbConfiguration getConfig();
+
+    /**
+     * Returns the {@link Durability} from the {@link MongoDbConfiguration}.
+     * 
+     * @return The default durability from the {@link MongoDbConfiguration}.
+     */
+    public Durability getDefaultDurability();
 
     /**
      * Sends a get more request.

@@ -3,7 +3,7 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.commands;
+package com.allanbank.mongodb.builder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,11 +29,11 @@ public class MapReduceTest {
      */
     @Test
     public void testMapReduce() {
-        final Document query = BuilderFactory.start().get();
+        final Document query = BuilderFactory.start().build();
         final Document scope = BuilderFactory.start().addBoolean("foo", true)
-                .get();
+                .build();
         final Document sort = BuilderFactory.start().addBoolean("foo", false)
-                .get();
+                .build();
 
         final MapReduce.Builder builder = new MapReduce.Builder();
         builder.setMapFunction("map");
@@ -134,11 +134,11 @@ public class MapReduceTest {
      */
     @Test
     public void testMapReduceOutputDb() {
-        final Document query = BuilderFactory.start().get();
+        final Document query = BuilderFactory.start().build();
         final Document scope = BuilderFactory.start().addBoolean("foo", true)
-                .get();
+                .build();
         final Document sort = BuilderFactory.start().addBoolean("foo", false)
-                .get();
+                .build();
 
         final MapReduce.Builder builder = new MapReduce.Builder();
         builder.setMapFunction("map");
@@ -176,11 +176,11 @@ public class MapReduceTest {
      */
     @Test
     public void testMapReduceOutputDbEmptyCollection() {
-        final Document query = BuilderFactory.start().get();
+        final Document query = BuilderFactory.start().build();
         final Document scope = BuilderFactory.start().addBoolean("foo", true)
-                .get();
+                .build();
         final Document sort = BuilderFactory.start().addBoolean("foo", false)
-                .get();
+                .build();
 
         final MapReduce.Builder builder = new MapReduce.Builder();
         builder.setMapFunction("map");
@@ -212,11 +212,11 @@ public class MapReduceTest {
      */
     @Test
     public void testMapReduceOutputDbNoCollection() {
-        final Document query = BuilderFactory.start().get();
+        final Document query = BuilderFactory.start().build();
         final Document scope = BuilderFactory.start().addBoolean("foo", true)
-                .get();
+                .build();
         final Document sort = BuilderFactory.start().addBoolean("foo", false)
-                .get();
+                .build();
 
         final MapReduce.Builder builder = new MapReduce.Builder();
         builder.setMapFunction("map");

@@ -57,7 +57,7 @@ public class GetLastError extends Query {
         if (wtimeout > 0) {
             builder.addInteger("wtimeout", wtimeout);
         }
-        return builder.get();
+        return builder.build();
     }
 
     /**

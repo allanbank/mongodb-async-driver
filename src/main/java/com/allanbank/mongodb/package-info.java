@@ -21,8 +21,9 @@
  * {@link com.allanbank.mongodb.connection.message.Reply}(s) from the server into a more user friendly format.
  * </p>
  * <p>
- * To facilitate constructing the more complex commands to the MongoDB servers a set of support classes are 
- * provided in the <a href="commands/package-summary.html">com.allanbank.mongodb.commands</a> package.
+ * To facilitate constructing queries and the more complex commands to the MongoDB servers a set 
+ * of support classes are provided in the <a href="builder/package-summary.html">com.allanbank.mongodb.builder</a> 
+ * package.
  * </p>
  * <p>
  * Exceptions (all inheriting from {@link com.allanbank.mongodb.MongoDbException} are located in the 
