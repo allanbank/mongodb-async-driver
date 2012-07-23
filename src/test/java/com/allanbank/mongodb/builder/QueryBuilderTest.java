@@ -30,9 +30,8 @@ public class QueryBuilderTest {
      * Test method for {@link QueryBuilder#and(DocumentAssignable[])} .
      */
     @Test
-    public void testAndWithMultipleEntryLastNoCriteria() {
-        final Document doc = and(where("x").equals(23), where("y").equals(23),
-                where("z"));
+    public void testAndWithMultipleEntry() {
+        final Document doc = and(where("x").equals(23), where("y").equals(23));
 
         final DocumentBuilder expected = BuilderFactory.start();
         final ArrayBuilder ab = expected.pushArray(LogicalOperator.AND
@@ -47,8 +46,9 @@ public class QueryBuilderTest {
      * Test method for {@link QueryBuilder#and(DocumentAssignable[])} .
      */
     @Test
-    public void testAndWithMultipleEntry() {
-        final Document doc = and(where("x").equals(23), where("y").equals(23));
+    public void testAndWithMultipleEntryLastNoCriteria() {
+        final Document doc = and(where("x").equals(23), where("y").equals(23),
+                where("z"));
 
         final DocumentBuilder expected = BuilderFactory.start();
         final ArrayBuilder ab = expected.pushArray(LogicalOperator.AND
@@ -216,23 +216,6 @@ public class QueryBuilderTest {
      * Test method for {@link QueryBuilder#or(DocumentAssignable[])} .
      */
     @Test
-    public void testOrOneWithoutCriteria() {
-        final Document doc = or(where("x").equals(23), where("y").equals(23),
-                where("z"));
-
-        final DocumentBuilder expected = BuilderFactory.start();
-        final ArrayBuilder ab = expected.pushArray(LogicalOperator.OR
-                .getToken());
-        ab.push().addInteger("x", 23);
-        ab.push().addInteger("y", 23);
-
-        assertEquals(expected.build(), doc);
-    }
-
-    /**
-     * Test method for {@link QueryBuilder#or(DocumentAssignable[])} .
-     */
-    @Test
     public void testOrNoEntries() {
         final Document doc = or();
 
@@ -250,6 +233,23 @@ public class QueryBuilderTest {
 
         final DocumentBuilder expected = BuilderFactory.start();
         expected.addInteger("x", 23);
+
+        assertEquals(expected.build(), doc);
+    }
+
+    /**
+     * Test method for {@link QueryBuilder#or(DocumentAssignable[])} .
+     */
+    @Test
+    public void testOrOneWithoutCriteria() {
+        final Document doc = or(where("x").equals(23), where("y").equals(23),
+                where("z"));
+
+        final DocumentBuilder expected = BuilderFactory.start();
+        final ArrayBuilder ab = expected.pushArray(LogicalOperator.OR
+                .getToken());
+        ab.push().addInteger("x", 23);
+        ab.push().addInteger("y", 23);
 
         assertEquals(expected.build(), doc);
     }

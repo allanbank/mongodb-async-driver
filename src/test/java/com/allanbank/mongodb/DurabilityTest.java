@@ -7,8 +7,15 @@ package com.allanbank.mongodb;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,14 +48,21 @@ public class DurabilityTest {
                 Boolean.FALSE)) {
             for (final Boolean waitForJournal : Arrays.asList(Boolean.TRUE,
                     Boolean.FALSE)) {
-                for (final Integer waitForReplicas : Arrays.asList(1, 2, 3, 4,
-                        10, 100, -1)) {
-                    for (final Integer waitTimeoutMillis : Arrays.asList(1, 2,
-                            3, 4, 10, 100, -1)) {
+                for (final Integer waitTimeoutMillis : Arrays.asList(1, 2, 3,
+                        4, 10, 100, -1)) {
+                    for (final Integer waitForReplicas : Arrays.asList(1, 2, 3,
+                            4, 10, 100, -1)) {
                         objs1.add(new Durability(waitForFsync, waitForJournal,
                                 waitForReplicas, waitTimeoutMillis));
                         objs2.add(new Durability(waitForFsync, waitForJournal,
                                 waitForReplicas, waitTimeoutMillis));
+                    }
+
+                    for (final String mode : Arrays.asList("a", "b")) {
+                        objs1.add(new Durability(waitForFsync, waitForJournal,
+                                mode, waitTimeoutMillis));
+                        objs2.add(new Durability(waitForFsync, waitForJournal,
+                                mode, waitTimeoutMillis));
                     }
                 }
             }
@@ -94,6 +108,7 @@ public class DurabilityTest {
         assertTrue(durability.isWaitForReply());
         assertEquals(wait, durability.getWaitTimeoutMillis());
         assertEquals(0, durability.getWaitForReplicas());
+        assertNull(durability.getWaitForReplicasByMode());
     }
 
     /**
@@ -112,6 +127,78 @@ public class DurabilityTest {
         assertTrue(durability.isWaitForReply());
         assertEquals(wait, durability.getWaitTimeoutMillis());
         assertEquals(0, durability.getWaitForReplicas());
+        assertNull(durability.getWaitForReplicasByMode());
+    }
+
+    /**
+     * Test method for {@link com.allanbank.mongodb.Durability#readResolve} .
+     * 
+     * @throws IOException
+     *             On a failure.
+     * @throws ClassNotFoundException
+     *             On a failure.
+     */
+    @Test
+    public void testReadResolve() throws IOException, ClassNotFoundException {
+        for (final Durability d : Arrays
+                .asList(Durability.ACK, Durability.NONE)) {
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final ObjectOutputStream oout = new ObjectOutputStream(out);
+            oout.writeObject(d);
+            oout.close();
+
+            final ByteArrayInputStream in = new ByteArrayInputStream(
+                    out.toByteArray());
+            final ObjectInputStream oin = new ObjectInputStream(in);
+
+            assertSame(d, oin.readObject());
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link com.allanbank.mongodb.Durability#replicaDurable(boolean, int, int)}
+     * .
+     */
+    @Test
+    public void testReplicaDurableBooleanIntInt() {
+        final Random random = new Random(System.currentTimeMillis());
+        final boolean journal = random.nextBoolean();
+        final int wait = random.nextInt(100000);
+        final int replicaCount = random.nextInt(10000);
+
+        final Durability durability = Durability.replicaDurable(journal,
+                replicaCount, wait);
+
+        assertFalse(durability.isWaitForFsync());
+        assertEquals(journal, durability.isWaitForJournal());
+        assertTrue(durability.isWaitForReply());
+        assertEquals(wait, durability.getWaitTimeoutMillis());
+        assertEquals(replicaCount, durability.getWaitForReplicas());
+        assertNull(durability.getWaitForReplicasByMode());
+    }
+
+    /**
+     * Test method for
+     * {@link com.allanbank.mongodb.Durability#replicaDurable(boolean, String, int)}
+     * .
+     */
+    @Test
+    public void testReplicaDurableBooleanStringInt() {
+        final Random random = new Random(System.currentTimeMillis());
+        final boolean journal = random.nextBoolean();
+        final int wait = random.nextInt(100000);
+        final String tag = String.valueOf(random.nextInt(10000));
+
+        final Durability durability = Durability.replicaDurable(journal, tag,
+                wait);
+
+        assertFalse(durability.isWaitForFsync());
+        assertEquals(journal, durability.isWaitForJournal());
+        assertTrue(durability.isWaitForReply());
+        assertEquals(wait, durability.getWaitTimeoutMillis());
+        assertEquals(0, durability.getWaitForReplicas());
+        assertEquals(tag, durability.getWaitForReplicasByMode());
     }
 
     /**
@@ -130,6 +217,8 @@ public class DurabilityTest {
         assertTrue(durability.isWaitForReply());
         assertEquals(wait, durability.getWaitTimeoutMillis());
         assertEquals(1, durability.getWaitForReplicas());
+        assertNull(durability.getWaitForReplicasByMode());
+        assertNull(durability.getWaitForReplicasByMode());
     }
 
     /**
@@ -150,5 +239,26 @@ public class DurabilityTest {
         assertTrue(durability.isWaitForReply());
         assertEquals(wait, durability.getWaitTimeoutMillis());
         assertEquals(replicaCount, durability.getWaitForReplicas());
+        assertNull(durability.getWaitForReplicasByMode());
+    }
+
+    /**
+     * Test method for
+     * {@link com.allanbank.mongodb.Durability#replicaDurable(String, int)}.
+     */
+    @Test
+    public void testReplicaDurableStringInt() {
+        final Random random = new Random(System.currentTimeMillis());
+        final int wait = random.nextInt(100000);
+        final String tag = String.valueOf(random.nextInt(10000));
+
+        final Durability durability = Durability.replicaDurable(tag, wait);
+
+        assertFalse(durability.isWaitForFsync());
+        assertFalse(durability.isWaitForJournal());
+        assertTrue(durability.isWaitForReply());
+        assertEquals(wait, durability.getWaitTimeoutMillis());
+        assertEquals(0, durability.getWaitForReplicas());
+        assertEquals(tag, durability.getWaitForReplicasByMode());
     }
 }

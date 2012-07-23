@@ -65,6 +65,23 @@ public class MongoImplTest {
     }
 
     /**
+     * Test method for
+     * {@link com.allanbank.mongodb.client.MongoImpl#asSerializedMongo()} .
+     */
+    @Test
+    public void testAsSerializedMongo() {
+        final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
+        assertThat(impl.getClient(), instanceOf(ClientImpl.class));
+        impl.close();
+
+        final Mongo serial = impl.asSerializedMongo();
+        assertThat(serial, instanceOf(MongoImpl.class));
+        final MongoImpl serialImpl = (MongoImpl) serial;
+        assertThat(serialImpl.getClient(), instanceOf(SerialClientImpl.class));
+
+    }
+
+    /**
      * Test method for {@link com.allanbank.mongodb.client.MongoImpl#close()}.
      */
     @Test
@@ -90,23 +107,6 @@ public class MongoImplTest {
         final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
         assertTrue(impl.getClient() instanceof ClientImpl);
         impl.close();
-    }
-
-    /**
-     * Test method for
-     * {@link com.allanbank.mongodb.client.MongoImpl#asSerializedMongo()} .
-     */
-    @Test
-    public void testAsSerializedMongo() {
-        final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
-        assertThat(impl.getClient(), instanceOf(ClientImpl.class));
-        impl.close();
-
-        Mongo serial = impl.asSerializedMongo();
-        assertThat(serial, instanceOf(MongoImpl.class));
-        MongoImpl serialImpl = (MongoImpl) serial;
-        assertThat(serialImpl.getClient(), instanceOf(SerialClientImpl.class));
-
     }
 
     /**

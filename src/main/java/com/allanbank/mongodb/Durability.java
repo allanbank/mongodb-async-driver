@@ -21,11 +21,16 @@ import java.io.Serializable;
  * been fsync()'d to the server's disk.
  * <li>For the highest level of durability ({@link #replicaDurable(int)}), the
  * server ensure that the data has been received by 1 to
- * {@link #replicaDurable(int, int) N} replicas in the replica set.</li>
+ * {@link #replicaDurable(int, int) N} replicas in the replica set. Fine grain
+ * control can be achieved by specifying a {@link #replicaDurable(String, int)
+ * replication mode} instead of a count.</li>
  * </ul>
  * <p>
  * Generally, increasing the level of durability decreases performance.
  * </p>
+ * 
+ * @see <a href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
+ *      Center Awareness</a>
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
@@ -33,11 +38,17 @@ public class Durability implements Serializable {
 
     /** The durability that says no durability is required. */
     public final static Durability ACK = new Durability(true, false, false, 0,
-            0);
+            null, 0);
+
+    /**
+     * Built in replication mode indicating that more than 50% of the MongoDB
+     * replica set servers have received a write.
+     */
+    public final static String MAJORITY_MODE = "majority";
 
     /** The durability that says no durability is required. */
     public final static Durability NONE = new Durability(false, false, false,
-            0, 0);
+            0, null, 0);
 
     /** Serialization version for the class. */
     private static final long serialVersionUID = -6474266523435876385L;
@@ -66,6 +77,48 @@ public class Durability implements Serializable {
      */
     public static Durability journalDurable(final int waitTimeoutMillis) {
         return new Durability(false, true, 0, waitTimeoutMillis);
+    }
+
+    /**
+     * Creates a multiple replica durability.
+     * 
+     * @param ensureJournaled
+     *            If true then ensure that the write has been committed to the
+     *            journal in addition to replicated.
+     * @param minimumReplicas
+     *            The minimum number of replicas to wait for.
+     * @param waitTimeoutMillis
+     *            The number of milliseconds to wait for the durability
+     *            requirements to be satisfied.
+     * @return A durability that will ensure the data is written to at least
+     *         <tt>minimumReplicas</tt> of server's replicas before returning.
+     */
+    public static Durability replicaDurable(final boolean ensureJournaled,
+            final int minimumReplicas, final int waitTimeoutMillis) {
+        return new Durability(false, ensureJournaled, minimumReplicas,
+                waitTimeoutMillis);
+    }
+
+    /**
+     * Creates a multiple replica durability.
+     * 
+     * @param ensureJournaled
+     *            If true then ensure that the write has been committed to the
+     *            journal in addition to replicated.
+     * @param waitForReplicasByMode
+     *            If the value is non-<code>null</code> then wait for the
+     *            specified replication mode configured on the server. A
+     *            built-in mode of {@link #MAJORITY_MODE} is also supported.
+     * @param waitTimeoutMillis
+     *            The number of milliseconds to wait for the durability
+     *            requirements to be satisfied.
+     * @return A durability that will ensure the data is written to at least
+     *         <tt>minimumReplicas</tt> of server's replicas before returning.
+     */
+    public static Durability replicaDurable(final boolean ensureJournaled,
+            final String waitForReplicasByMode, final int waitTimeoutMillis) {
+        return new Durability(false, ensureJournaled, waitForReplicasByMode,
+                waitTimeoutMillis);
     }
 
     /**
@@ -98,6 +151,25 @@ public class Durability implements Serializable {
     }
 
     /**
+     * Creates a multiple replica durability.
+     * 
+     * @param waitForReplicasByMode
+     *            If the value is non-<code>null</code> then wait for the
+     *            specified replication mode configured on the server. A
+     *            built-in mode of {@link #MAJORITY_MODE} is also supported.
+     * @param waitTimeoutMillis
+     *            The number of milliseconds to wait for the durability
+     *            requirements to be satisfied.
+     * @return A durability that will ensure the data is written to at least
+     *         <tt>minimumReplicas</tt> of server's replicas before returning.
+     */
+    public static Durability replicaDurable(final String waitForReplicasByMode,
+            final int waitTimeoutMillis) {
+        return new Durability(false, false, waitForReplicasByMode,
+                waitTimeoutMillis);
+    }
+
+    /**
      * True if the durability requires that the response wait for an fsync() of
      * the data to complete, false otherwise.
      */
@@ -115,6 +187,17 @@ public class Durability implements Serializable {
      * replicas of the data to wait for.
      */
     private final int myWaitForReplicas;
+
+    /**
+     * If the value is non-<code>null</code> then wait for the specified
+     * replication mode configured on the server. A built-in mode of
+     * {@link #MAJORITY_MODE} is also supported.
+     * 
+     * @see <a
+     *      href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
+     *      Center Awareness</a>
+     */
+    private final String myWaitForReplicasByMode;
 
     /**
      * True if the durability requires that the response wait for a reply from
@@ -149,7 +232,32 @@ public class Durability implements Serializable {
     protected Durability(final boolean waitForFsync,
             final boolean waitForJournal, final int waitForReplicas,
             final int waitTimeoutMillis) {
-        this(true, waitForFsync, waitForJournal, waitForReplicas,
+        this(true, waitForFsync, waitForJournal, waitForReplicas, null,
+                waitTimeoutMillis);
+    }
+
+    /**
+     * Create a new Durability.
+     * 
+     * @param waitForFsync
+     *            True if the durability requires that the response wait for an
+     *            fsync() of the data to complete, false otherwise.
+     * @param waitForJournal
+     *            True if if the durability requires that the response wait for
+     *            the data to be written to the server's journal, false
+     *            otherwise.
+     * @param waitForReplicasByMode
+     *            If the value is non-<code>null</code> then wait for the
+     *            specified replication mode configured on the server. A
+     *            built-in mode of {@link #MAJORITY_MODE} is also supported.
+     * @param waitTimeoutMillis
+     *            The number of milliseconds to wait for the durability
+     *            requirements to be satisfied.
+     */
+    protected Durability(final boolean waitForFsync,
+            final boolean waitForJournal, final String waitForReplicasByMode,
+            final int waitTimeoutMillis) {
+        this(true, waitForFsync, waitForJournal, 0, waitForReplicasByMode,
                 waitTimeoutMillis);
     }
 
@@ -169,18 +277,23 @@ public class Durability implements Serializable {
      *            If the value is value greater than zero the durability
      *            requires that the response wait for the data to be received by
      *            a replica and the number of replicas of the data to wait for.
+     * @param waitForReplicasByMode
+     *            If the value is non-<code>null</code> then wait for the
+     *            specified replication mode configured on the server. A
+     *            built-in mode of {@link #MAJORITY_MODE} is also supported.
      * @param waitTimeoutMillis
      *            The number of milliseconds to wait for the durability
      *            requirements to be satisfied.
      */
     private Durability(final boolean waitForReply, final boolean waitForFsync,
             final boolean waitForJournal, final int waitForReplicas,
-            final int waitTimeoutMillis) {
+            final String waitForReplicasByMode, final int waitTimeoutMillis) {
         myWaitForReply = waitForReply;
         myWaitForFsync = waitForFsync;
         myWaitForJournal = waitForJournal;
         myWaitForReplicas = waitForReplicas;
         myWaitTimeoutMillis = waitTimeoutMillis;
+        myWaitForReplicasByMode = waitForReplicasByMode;
     }
 
     /**
@@ -205,7 +318,9 @@ public class Durability implements Serializable {
                     && (myWaitForFsync == other.myWaitForFsync)
                     && (myWaitForJournal == other.myWaitForJournal)
                     && (myWaitForReplicas == other.myWaitForReplicas)
-                    && (myWaitTimeoutMillis == other.myWaitTimeoutMillis);
+                    && (myWaitTimeoutMillis == other.myWaitTimeoutMillis)
+                    && nullSafeEquals(myWaitForReplicasByMode,
+                            other.myWaitForReplicasByMode);
         }
         return result;
     }
@@ -221,6 +336,21 @@ public class Durability implements Serializable {
      */
     public int getWaitForReplicas() {
         return myWaitForReplicas;
+    }
+
+    /**
+     * If the value is non-<code>null</code> then wait for the specified
+     * replication mode configured on the server. A built-in mode of
+     * {@link #MAJORITY_MODE} is also supported.
+     * 
+     * @return If the value is non-null then wait for the specified replication
+     *         mode configured on the server.
+     * @see <a
+     *      href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
+     *      Center Awareness</a>
+     */
+    public String getWaitForReplicasByMode() {
+        return myWaitForReplicasByMode;
     }
 
     /**
@@ -245,6 +375,9 @@ public class Durability implements Serializable {
         result = (31 * result) + (myWaitForReply ? 1 : 3);
         result = (31 * result) + (myWaitForFsync ? 1 : 3);
         result = (31 * result) + (myWaitForJournal ? 1 : 3);
+        result = (31 * result)
+                + ((myWaitForReplicasByMode != null) ? myWaitForReplicasByMode
+                        .hashCode() : 3);
         result = (31 * result) + myWaitForReplicas;
         result = (31 * result) + myWaitTimeoutMillis;
         return result;
@@ -285,6 +418,20 @@ public class Durability implements Serializable {
     }
 
     /**
+     * Does a null safe equals comparison.
+     * 
+     * @param rhs
+     *            The right-hand-side of the comparison.
+     * @param lhs
+     *            The left-hand-side of the comparison.
+     * @return True if the rhs equals the lhs. Note: nullSafeEquals(null, null)
+     *         returns true.
+     */
+    protected boolean nullSafeEquals(final Object rhs, final Object lhs) {
+        return (rhs == lhs) || ((rhs != null) && rhs.equals(lhs));
+    }
+
+    /**
      * Hook into serialization to replace this object if the local {@link #ACK}
      * or {@link #NONE} instance.
      * 
@@ -302,6 +449,5 @@ public class Durability implements Serializable {
         else {
             return this;
         }
-
     }
 }

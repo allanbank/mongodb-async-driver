@@ -76,14 +76,6 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#getConfig()}.
-     */
-    @Test
-    public void testGetConfig() {
-        assertSame(myConfig, myTestInstance.getConfig());
-    }
-
-    /**
      * Test method for {@link ClientImpl#close()}.
      * 
      * @throws IOException
@@ -168,6 +160,14 @@ public class ClientImplTest {
         myTestInstance.close();
 
         verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link ClientImpl#getConfig()}.
+     */
+    @Test
+    public void testGetConfig() {
+        assertSame(myConfig, myTestInstance.getConfig());
     }
 
     /**

@@ -1297,9 +1297,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @return The {@link GetLastError} command.
      */
     protected GetLastError asGetLastError(final Durability durability) {
-        return new GetLastError(getDatabaseName(), durability.isWaitForFsync(),
-                durability.isWaitForJournal(), durability.getWaitForReplicas(),
-                durability.getWaitTimeoutMillis());
+        return new GetLastError(getDatabaseName(), durability);
     }
 
     /**

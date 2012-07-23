@@ -43,14 +43,14 @@ import com.allanbank.mongodb.connection.message.Update;
 @SuppressWarnings("unchecked")
 public class SerialClientImplTest {
 
+    /** The instance under test. */
+    private ClientImpl myClient;
+
     /** The active configuration. */
     private MongoDbConfiguration myConfig;
 
     /** A mock connection factory. */
     private ConnectionFactory myMockConnectionFactory;
-
-    /** The instance under test. */
-    private ClientImpl myClient;
 
     /** The instance under test. */
     private SerialClientImpl myTestInstance;
@@ -77,14 +77,6 @@ public class SerialClientImplTest {
         myConfig = null;
         myClient = null;
         myTestInstance = null;
-    }
-
-    /**
-     * Test method for {@link SerialClientImpl#getConfig()}.
-     */
-    @Test
-    public void testGetConfig() {
-        assertSame(myConfig, myTestInstance.getConfig());
     }
 
     /**
@@ -123,6 +115,14 @@ public class SerialClientImplTest {
         myTestInstance.send(message);
 
         verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link SerialClientImpl#getConfig()}.
+     */
+    @Test
+    public void testGetConfig() {
+        assertSame(myConfig, myTestInstance.getConfig());
     }
 
     /**
@@ -231,6 +231,45 @@ public class SerialClientImplTest {
      */
     @SuppressWarnings("boxing")
     @Test
+    public void testSendMessageClosedExisting() throws IOException {
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        mockConnection.send(message);
+        expectLastCall();
+
+        expect(mockConnection.isOpen()).andReturn(false);
+        expect(mockConnection.isOpen()).andReturn(false);
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        mockConnection.send(message);
+        expectLastCall();
+
+        replay(mockConnection);
+
+        myTestInstance.send(message);
+        myTestInstance.send(message);
+
+        verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link SerialClientImpl#send(Message)} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the test.
+     */
+    @SuppressWarnings("boxing")
+    @Test
     public void testSendMessageCreatesSecondConnectionOnClosed()
             throws IOException {
         final Message message = new Command("db", BuilderFactory.start()
@@ -319,45 +358,6 @@ public class SerialClientImplTest {
         mockConnection.send(message);
         expectLastCall();
         expect(mockConnection.isOpen()).andReturn(true);
-        mockConnection.send(message);
-        expectLastCall();
-
-        replay(mockConnection);
-
-        myTestInstance.send(message);
-        myTestInstance.send(message);
-
-        verify(mockConnection);
-    }
-
-    /**
-     * Test method for {@link SerialClientImpl#send(Message)} .
-     * 
-     * @throws IOException
-     *             On a failure setting up the test.
-     */
-    @SuppressWarnings("boxing")
-    @Test
-    public void testSendMessageClosedExisting() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
-
-        final Connection mockConnection = createMock(Connection.class);
-
-        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
-        mockConnection
-                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
-        expectLastCall();
-        mockConnection.send(message);
-        expectLastCall();
-
-        expect(mockConnection.isOpen()).andReturn(false);
-        expect(mockConnection.isOpen()).andReturn(false);
-        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
-        mockConnection
-                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
-        expectLastCall();
-
         mockConnection.send(message);
         expectLastCall();
 
