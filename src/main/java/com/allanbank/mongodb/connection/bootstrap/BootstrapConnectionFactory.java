@@ -28,6 +28,7 @@ import com.allanbank.mongodb.connection.rs.ReplicaSetConnectionFactory;
 import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnection;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * Provides the ability to bootstrap into the appropriate
@@ -78,11 +79,8 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * If neither a Sharded or Replication Set is being used then a plain socket
      * connection factory is used.
      * </p>
-     * 
-     * @throws IOException
-     *             If the bootstrap fails.
      */
-    public void bootstrap() throws IOException {
+    public void bootstrap() {
         for (final InetSocketAddress addr : myConfig.getServers()) {
             SocketConnection conn = null;
             final FutureCallback<Reply> future = new FutureCallback<Reply>();
@@ -90,6 +88,10 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                 conn = new SocketConnection(addr, myConfig);
                 conn.send(future, new ServerStatus());
                 final Reply reply = future.get();
+
+                // Close the connection now that we have the reply.
+                IOUtils.close(conn);
+
                 final List<Document> results = reply.getResults();
                 if (!results.isEmpty()) {
                     final Document doc = results.get(0);
@@ -131,16 +133,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                         + ".", e);
             }
             finally {
-                try {
-                    if (conn != null) {
-                        conn.close();
-                    }
-                }
-                catch (final IOException okay) {
-                    LOG.log(Level.WARNING,
-                            "I/O error shutting down bootstrap connection to "
-                                    + addr + ".", okay);
-                }
+                IOUtils.close(conn);
             }
         }
     }
@@ -174,12 +167,10 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      */
     protected ConnectionFactory getDelegate() {
         if (myDelegate == null) {
-            try {
-                bootstrap();
-            }
-            catch (final IOException ioe) {
+            bootstrap();
+            if (myDelegate == null) {
                 LOG.log(Level.WARNING,
-                        "Could not bootstrap connection factory.", ioe);
+                        "Could not bootstrap connection factory.");
             }
         }
         return myDelegate;

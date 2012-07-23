@@ -58,7 +58,7 @@ import com.allanbank.mongodb.connection.message.Update;
 public class SocketConnectionTest {
 
     /** A Mock MongoDB server to connect to. */
-    private static MockMongoDBServer ourServer;
+    private static MockSocketServer ourServer;
 
     /**
      * Starts a Mock MongoDB server.
@@ -68,7 +68,7 @@ public class SocketConnectionTest {
      */
     @BeforeClass
     public static void setUpBeforeClass() throws IOException {
-        ourServer = new MockMongoDBServer();
+        ourServer = new MockSocketServer();
         ourServer.start();
     }
 

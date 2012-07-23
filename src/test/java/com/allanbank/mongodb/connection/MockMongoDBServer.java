@@ -3,19 +3,35 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.connection.socket;
+package com.allanbank.mongodb.connection;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.allanbank.mongodb.bson.io.EndianUtils;
+import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.bson.io.BsonInputStream;
+import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.connection.message.Delete;
+import com.allanbank.mongodb.connection.message.GetMore;
+import com.allanbank.mongodb.connection.message.Header;
+import com.allanbank.mongodb.connection.message.Insert;
+import com.allanbank.mongodb.connection.message.KillCursors;
+import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.message.Update;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * Provides a simple single threaded socket server to act as a MongoDB server in
@@ -32,16 +48,19 @@ public class MockMongoDBServer extends Thread {
     private boolean myClientConnected = false;
 
     /** The replies to send when a message is received. */
-    private final List<byte[]> myReplies = new ArrayList<byte[]>();
+    private final List<Reply> myReplies = new ArrayList<Reply>();
 
     /** The requests received. */
-    private final List<byte[]> myRequests = new ArrayList<byte[]>();
+    private final List<Message> myRequests = new ArrayList<Message>();
 
     /** Set to false to stop the server. */
     private boolean myRunning;
 
+    /** The thread acting as the server. */
+    private Thread myRunningThread;
+
     /** The server socket we are listening on. */
-    private final ServerSocketChannel myServerSocket;
+    private final ServerSocket myServerSocket;
 
     /**
      * Creates a new MockMongoDBServer.
@@ -52,10 +71,9 @@ public class MockMongoDBServer extends Thread {
     public MockMongoDBServer() throws IOException {
         super("MockMongoDBServer");
 
-        myServerSocket = ServerSocketChannel.open();
-        myServerSocket.socket().bind(
-                new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 0));
-        myServerSocket.configureBlocking(false);
+        myServerSocket = new ServerSocket();
+        myServerSocket.bind(new InetSocketAddress(InetAddress
+                .getByName("127.0.0.1"), 0));
 
         myRunning = false;
     }
@@ -75,6 +93,10 @@ public class MockMongoDBServer extends Thread {
      *             On a failure closing the server socket.
      */
     public void close() throws IOException {
+        myRunning = false;
+        if (myRunningThread != null) {
+            myRunningThread.interrupt();
+        }
         myServerSocket.close();
     }
 
@@ -84,8 +106,8 @@ public class MockMongoDBServer extends Thread {
      * @return The address for the server.
      */
     public InetSocketAddress getInetSocketAddress() {
-        return new InetSocketAddress(myServerSocket.socket().getInetAddress(),
-                myServerSocket.socket().getLocalPort());
+        return new InetSocketAddress(myServerSocket.getInetAddress(),
+                myServerSocket.getLocalPort());
     }
 
     /**
@@ -93,7 +115,7 @@ public class MockMongoDBServer extends Thread {
      * 
      * @return the replies to return.
      */
-    public List<byte[]> getReplies() {
+    public List<Reply> getReplies() {
         return Collections.unmodifiableList(myReplies);
     }
 
@@ -102,7 +124,7 @@ public class MockMongoDBServer extends Thread {
      * 
      * @return the requests received.
      */
-    public List<byte[]> getRequests() {
+    public List<Message> getRequests() {
         return Collections.unmodifiableList(myRequests);
     }
 
@@ -121,13 +143,20 @@ public class MockMongoDBServer extends Thread {
      */
     @Override
     public void run() {
-        SocketChannel clientSocket = null;
+        Socket clientSocket = null;
+
+        myRunningThread = Thread.currentThread();
         myRunning = true;
         try {
             while (myRunning) {
                 clientSocket = myServerSocket.accept();
                 if (clientSocket != null) {
                     try {
+                        synchronized (this) {
+                            myClientConnected = true;
+                            notifyAll();
+                        }
+
                         handleClient(clientSocket);
                     }
                     finally {
@@ -135,9 +164,6 @@ public class MockMongoDBServer extends Thread {
                             myClientConnected = false;
                             notifyAll();
                         }
-
-                        clientSocket.close();
-                        clientSocket = null;
                     }
                 }
                 else {
@@ -147,6 +173,7 @@ public class MockMongoDBServer extends Thread {
         }
         catch (final IOException error) {
             // Exit.
+            error.printStackTrace();
         }
     }
 
@@ -156,10 +183,23 @@ public class MockMongoDBServer extends Thread {
      * @param replies
      *            the replies to send
      */
-    public void setReplies(final List<byte[]> replies) {
+    public void setReplies(final List<Reply> replies) {
         myReplies.clear();
         if (replies != null) {
             myReplies.addAll(replies);
+        }
+    }
+
+    /**
+     * Sets the replies to return after each message is received.
+     * 
+     * @param replies
+     *            the replies to send
+     */
+    public void setReplies(final Reply... replies) {
+        myReplies.clear();
+        if (replies != null) {
+            myReplies.addAll(Arrays.asList(replies));
         }
     }
 
@@ -269,88 +309,133 @@ public class MockMongoDBServer extends Thread {
      * @throws IOException
      *             On a connection error.
      */
-    protected void handleClient(final SocketChannel clientSocket)
-            throws IOException {
-        // Use non-blocking mode so we can pickup when to stop running.
-        clientSocket.configureBlocking(false);
+    protected void handleClient(final Socket clientSocket) throws IOException {
+        InputStream in = null;
+        BufferedInputStream buffIn = null;
+        BsonInputStream bin = null;
 
-        ByteBuffer header = ByteBuffer.allocate(SocketConnection.HEADER_LENGTH);
-        ByteBuffer body = null;
-        int read = 0;
-        while (myRunning) {
-            read = 0;
-            if (clientSocket.isConnectionPending()) {
-                clientSocket.finishConnect();
-            }
+        OutputStream out = null;
+        BufferedOutputStream buffOut = null;
+        BsonOutputStream bout = null;
 
-            if (clientSocket.isConnected()) {
+        int count = 1;
+        try {
+            in = clientSocket.getInputStream();
+            buffIn = new BufferedInputStream(in);
+            bin = new BsonInputStream(buffIn);
+
+            out = clientSocket.getOutputStream();
+            buffOut = new BufferedOutputStream(out);
+            bout = new BsonOutputStream(buffOut);
+
+            while (myRunning) {
+                final Header header = readHeader(bin);
+                final Message msg = readMessage(header, bin);
+
                 synchronized (this) {
-                    myClientConnected = true;
+                    myRequests.add(msg);
                     notifyAll();
                 }
-                if (header.hasRemaining()) {
-                    read = clientSocket.read(header);
-                }
-                else {
-                    if (body == null) {
 
-                        // First 4 bytes are the message length.
-                        final ByteBuffer dup = header.duplicate();
-                        dup.flip();
-                        final int length = EndianUtils.swap(dup.asIntBuffer()
-                                .get(0));
-                        body = ByteBuffer.allocate(length
-                                - SocketConnection.HEADER_LENGTH);
-                    }
+                if (!myReplies.isEmpty()) {
+                    final Reply reply = myReplies.remove(0);
+                    final Reply fixed = new Reply(header.getRequestId(),
+                            reply.getCursorId(), reply.getCursorOffset(),
+                            reply.getResults(), reply.isAwaitCapable(),
+                            reply.isCursorNotFound(), reply.isQueryFailed(),
+                            reply.isShardConfigStale());
 
-                    if (body.hasRemaining()) {
-                        read = clientSocket.read(body);
-                    }
-                    else {
-                        // Finished a message.
-                        header.flip();
-                        body.flip();
+                    fixed.write(count++, bout);
 
-                        // Make sure backed by an array.
-                        final ByteBuffer completeMessage = ByteBuffer
-                                .wrap(new byte[header.capacity()
-                                        + body.capacity()]);
-
-                        completeMessage.put(header);
-                        completeMessage.put(body);
-                        synchronized (this) {
-                            myRequests.add(completeMessage.array());
-                            notifyAll();
-                        }
-                        // Setup for the next message.
-                        header = ByteBuffer
-                                .allocate(SocketConnection.HEADER_LENGTH);
-                        body = null;
-
-                        if (!myReplies.isEmpty()) {
-                            final byte[] reply = myReplies.remove(0);
-                            final ByteBuffer buffer = ByteBuffer.wrap(reply);
-
-                            while (buffer.hasRemaining()) {
-                                clientSocket.write(buffer);
-                            }
-                        }
-                    }
+                    buffOut.flush();
                 }
             }
+        }
+        catch (final EOFException eof) {
+            // Client disconnected.
+        }
+        finally {
+            IOUtils.close(buffIn);
+            IOUtils.close(in);
 
-            if (read < 0) {
-                return;
-            }
-            else if (read == 0) {
-                sleep();
-            }
+            IOUtils.close(buffOut);
+            IOUtils.close(out);
+
+            IOUtils.close(clientSocket);
         }
     }
 
     /**
-	 * 
-	 */
+     * Receives a single message from the connection.
+     * 
+     * @param bin
+     *            The stream to read the message.
+     * @return The {@link Message} received.
+     * @throws IOException
+     *             On an error receiving the message.
+     */
+    protected Header readHeader(final BsonInputStream bin) throws IOException {
+        final int length = bin.readInt();
+        final int requestId = bin.readInt();
+        final int responseId = bin.readInt();
+        final int opCode = bin.readInt();
+
+        final Operation op = Operation.fromCode(opCode);
+        if (op == null) {
+            // Huh? Dazed and confused
+            throw new MongoDbException("Unexpected operation read '" + opCode
+                    + "'.");
+        }
+
+        return new Header(length, requestId, responseId, op);
+    }
+
+    /**
+     * Receives a single message from the connection.
+     * 
+     * @param header
+     *            The read message header.
+     * @param bin
+     *            The stream to read the message.
+     * @return The {@link Message} received.
+     * @throws IOException
+     *             On an error receiving the message.
+     */
+    protected Message readMessage(final Header header, final BsonInputStream bin)
+            throws IOException {
+        Message message = null;
+        switch (header.getOperation()) {
+        case REPLY:
+            message = new Reply(header, bin);
+            break;
+        case QUERY:
+            message = new Query(header, bin);
+            break;
+        case UPDATE:
+            message = new Update(bin);
+            break;
+        case INSERT:
+            message = new Insert(header, bin);
+            break;
+        case GET_MORE:
+            message = new GetMore(bin);
+            break;
+        case DELETE:
+            message = new Delete(bin);
+            break;
+        case KILL_CURSORS:
+            message = new KillCursors(bin);
+            break;
+
+        }
+
+        return message;
+
+    }
+
+    /**
+     * Yawn - go to slepp.
+     */
     protected void sleep() {
         long now = System.currentTimeMillis();
         final long deadline = now + 5000;
