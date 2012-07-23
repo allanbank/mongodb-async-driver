@@ -55,10 +55,11 @@ driver.
   
 Testing
 
-  The driver has an extensive set of {{{./surefire-report.html}unit}}, integration and acceptance tests.  
-The unit tests alone provide line and branch coverage for well over 75% of the driver's source.  In addition 
-several integration tests have been created to ensure that the driver's interpretation of various MongoDb provided 
-documentation is correct.  For these tests a local MongoDB instance in the appropriate configuration is started as 
-part of the test.  Lastly, the acceptable tests exercise both the interfaces provided by the driver but also the 
-interaction of the driver with the various MongoDB applications and configurations.  Similar to the integration
-tests the acceptance tests start various configurations of MongoDB as part of the test.
+  The driver has an extensive set of {{{./surefire-report.html}unit}}, {{{.//failsafe-report.html}integration}} 
+and {{{./failsafe-report.html}acceptance#com.allanbank.mongodb.acceptance}} tests. The unit tests alone provide 
+line and branch coverage for well over 75% of the driver's source.  In addition several integration tests have 
+been created to ensure that the driver's interpretation of various MongoDb provided documentation is correct. 
+For these tests a local MongoDB instance in the appropriate configuration is started as part of the test.  
+Lastly, the acceptable tests exercise both the interfaces provided by the driver but also the interaction 
+of the driver with the various MongoDB applications and configurations.  Similar to the integration tests 
+the acceptance tests start various configurations of MongoDB as part of the test.
