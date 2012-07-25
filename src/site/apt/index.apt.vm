@@ -43,6 +43,11 @@ Download
 
 Usage
 
+  The driver includes a strongly types {{{./apidocs/com/allanbank/mongodb/bson/package-summary.html}BSON implementation}}.  
+The BSON package (and driver in general) make extensive use of 
+{{{./apidocs/com/allanbank/mongodb/bson/builder/package-summary.html}builders}}
+for constructing BSON Documents. 
+
   The main interface to the driver is via the 
 {{{./apidocs/com/allanbank/mongodb/Mongo.html}Mongo}} interface.  The 
 {{{./apidocs/com/allanbank/mongodb/MongoFactory.html}MongoFactory}} provides the ability
@@ -66,11 +71,35 @@ to create a Mongo instance from either a
   [[3]] Asynchronous Callback - The response to the request will be provided via a {{{./apidocs/com/allanbank/mongodb/Callback.html}callback}}. \
 {{{./apidocs/com/allanbank/mongodb/MongoCollection.html}void findOneAsync(Callback\<Document\>, Document)}}
 
+  []
+  
+  For the more common non-trivial commands to the server a set of domain objects and associated 
+{{{./apidocs/com/allanbank/mongodb/builder/package-summary.html}builders}} are provided.  In addition 
+to the commands there is also a {{{./apidocs/com/allanbank/mongodb/builder/QueryBuilder.html}query builder}} 
+that provides a very natural mechanism for defining queries.
+
++----------------------------------------+
+ import static com.allanbank.mongodb.builder.QueryBuilder.and
+ import static com.allanbank.mongodb.builder.QueryBuilder.or
+ import static com.allanbank.mongodb.builder.QueryBuilder.not
+ import static com.allanbank.mongodb.builder.QueryBuilder.where
+ 
+ Document query = 
+           or( 
+              where("f").greaterThan(23).lessThan(42).and("g").lessThan(3),
+              and( 
+                where("f").greaterThanOrEqualTo(42),
+                not( where("g").lessThan(3) ) 
+              )
+           );
++----------------------------------------+
+
 Performance
 
-  Performance for the driver's {{{./bson_performance.html}BSON library}} and 
-{{{./performance.html}overall}} performance have been benchmarked against the 10gen supported
-driver.
+  While the usability of the driver is critical, its primary reason for existing is to enable maximum
+performance from a MongoDB server.  The performance for the driver's {{{./bson_performance.html}BSON library}} 
+and {{{./performance.html}overall}} performance have been benchmarked against the 10gen supported
+driver showing favorable performance in both cases.
 
 Thread Model
 

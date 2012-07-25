@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.allanbank</groupId>
 	<artifactId>mongodb-async-driver</artifactId>
@@ -231,6 +232,24 @@
 							<head>Copyright ©:</head>
 						</tag>
 					</tags>
+					<header>
+					<![CDATA[
+						<script type="text/javascript">
+							var _gaq = _gaq || [];
+							_gaq.push(['_setAccount', 'UA-33634837-1']);
+							_gaq.push(['_trackPageview']);
+							(function() {
+							 var ga = document.createElement('script'); 
+							 ga.type = 'text/javascript'; 
+							 ga.async = true;
+							 ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
+							'http://www') + '.google-analytics.com/ga.js';
+							 var s = document.getElementsByTagName('script')[0];
+							 s.parentNode.insertBefore(ga, s);
+							})();
+						</script>
+					]]>
+					</header>
 				</configuration>
 			</plugin>
 			<plugin>
