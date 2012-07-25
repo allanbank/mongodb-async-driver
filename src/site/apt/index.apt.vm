@@ -1,4 +1,7 @@
-MongoDB Asynchronous Java Driver
+            ------
+            MongoDB Asynchronous Java Driver
+            ------
+            ------
 
   The MongoDB Asynchronous Java Driver provides a high performance alternative to the
 10gen provided Java driver.  The driver has been created to ensure maximum utilization of
