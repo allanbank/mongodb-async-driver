@@ -44,6 +44,9 @@ public class DurabilityTest {
         objs1.add(Durability.NONE);
         objs2.add(Durability.NONE);
 
+        objs1.add(Durability.ACK);
+        objs2.add(Durability.ACK);
+
         for (final Boolean waitForFsync : Arrays.asList(Boolean.TRUE,
                 Boolean.FALSE)) {
             for (final Boolean waitForJournal : Arrays.asList(Boolean.TRUE,
