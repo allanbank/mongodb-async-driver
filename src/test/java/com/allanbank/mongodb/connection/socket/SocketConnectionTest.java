@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -682,7 +683,8 @@ public class SocketConnectionTest {
         final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
-                7654321, false, false, false, false, false, false);
+                7654321, false, ReadPreference.PRIMARY, false, false, false,
+                false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
@@ -745,7 +747,8 @@ public class SocketConnectionTest {
         final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
-                7654321, false, false, false, true, false, false);
+                7654321, false, ReadPreference.PRIMARY, false, true, false,
+                false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
@@ -809,7 +812,8 @@ public class SocketConnectionTest {
         final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
-                7654321, false, false, false, false, true, false);
+                7654321, false, ReadPreference.PRIMARY, false, false, true,
+                false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
@@ -873,7 +877,8 @@ public class SocketConnectionTest {
         final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
-                7654321, false, false, true, false, false, false);
+                7654321, false, ReadPreference.PRIMARY, true, false, false,
+                false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
@@ -937,7 +942,8 @@ public class SocketConnectionTest {
         final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
-                7654321, false, false, false, false, false, true);
+                7654321, false, ReadPreference.PRIMARY, false, false, false,
+                true);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
@@ -980,7 +986,7 @@ public class SocketConnectionTest {
      *             On a failure connecting to the Mock MongoDB server.
      */
     @Test
-    public void testQueryReplicaOk() throws IOException {
+    public void testQuerySecondaryPreference() throws IOException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1001,7 +1007,8 @@ public class SocketConnectionTest {
         final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
-                7654321, false, true, false, false, false, false);
+                7654321, false, ReadPreference.SECONDARY, false, false, false,
+                false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
@@ -1065,7 +1072,8 @@ public class SocketConnectionTest {
         final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, null, 1234567, 0,
-                7654321, true, false, false, false, false, false);
+                7654321, true, ReadPreference.PRIMARY, false, false, false,
+                false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
@@ -1129,7 +1137,8 @@ public class SocketConnectionTest {
         final Document doc = builder.build();
 
         final Query query = new Query("foo", "bar", doc, doc, 7654321, 0,
-                1234567, false, false, false, false, false, false);
+                1234567, false, ReadPreference.PRIMARY, false, false, false,
+                false);
         myTestConnection.send(query);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 

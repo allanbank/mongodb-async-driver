@@ -20,6 +20,9 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
     @SuppressWarnings("hiding")
     public static final ElementType TYPE = ElementType.JAVA_SCRIPT_WITH_SCOPE;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -5697976862389984453L;
+
     /** The BSON scope value. */
     private final Document myScope;
 

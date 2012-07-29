@@ -45,14 +45,14 @@ public interface MongoCollection {
      * 
      * @param query
      *            The query document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
      * @return The number of matching documents.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public long count(Document query, boolean replicaOk)
+    public long count(Document query, ReadPreference readPreference)
             throws MongoDbException;
 
     /**
@@ -77,14 +77,14 @@ public interface MongoCollection {
      *            The callback to notify of the results.
      * @param query
      *            The query document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
     public void countAsync(Callback<Long> results, Document query,
-            boolean replicaOk) throws MongoDbException;
+            ReadPreference readPreference) throws MongoDbException;
 
     /**
      * Counts the set of documents matching the query document in the
@@ -105,15 +105,15 @@ public interface MongoCollection {
      * 
      * @param query
      *            The query document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
      * @return A future that will be updated with the number of matching
      *         documents.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Long> countAsync(Document query, boolean replicaOk)
+    public Future<Long> countAsync(Document query, ReadPreference readPreference)
             throws MongoDbException;
 
     /**

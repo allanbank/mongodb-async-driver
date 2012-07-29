@@ -14,6 +14,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -68,8 +69,8 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             authConn.send(reply,
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
                             false), new Query(USER_DB, "bar", BuilderFactory
-                            .start().build(), null, 1, 1, 0, false, false,
-                            false, false, false, false));
+                            .start().build(), null, 1, 1, 0, false,
+                            ReadPreference.PRIMARY, false, false, false, false));
             final Reply r = reply.get();
 
             assertEquals(1, r.getResults().size());
@@ -109,8 +110,8 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             authConn.send(reply,
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
                             false), new Query(USER_DB, "bar", BuilderFactory
-                            .start().build(), null, 1, 1, 0, false, false,
-                            false, false, false, false));
+                            .start().build(), null, 1, 1, 0, false,
+                            ReadPreference.PRIMARY, false, false, false, false));
             final Reply r = reply.get();
 
             assertEquals(1, r.getResults().size());

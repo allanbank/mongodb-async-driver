@@ -19,6 +19,9 @@ public class DoubleElement extends AbstractElement implements NumericElement {
     /** The BSON type for a double. */
     public static final ElementType TYPE = ElementType.DOUBLE;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -7373717629447356968L;
+
     /** The BSON double value. */
     private final double myValue;
 

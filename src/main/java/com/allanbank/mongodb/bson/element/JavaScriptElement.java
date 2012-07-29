@@ -18,6 +18,9 @@ public class JavaScriptElement extends AbstractElement {
     /** The BSON type for a string. */
     public static final ElementType TYPE = ElementType.JAVA_SCRIPT;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -180121123367519947L;
+
     /** The BSON string value. */
     private final String myJavaScript;
 

@@ -23,6 +23,9 @@ public class BinaryElement extends AbstractElement {
     /** The BSON type for a binary. */
     public static final ElementType TYPE = ElementType.BINARY;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 5864918707454038001L;
+
     /** The sub-type of the binary data. */
     private final byte mySubType;
 

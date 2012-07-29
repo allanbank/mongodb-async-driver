@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb.bson;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -11,7 +12,8 @@ import java.util.List;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface Document extends Iterable<Element>, DocumentAssignable {
+public interface Document extends Iterable<Element>, DocumentAssignable,
+        Serializable {
 
     /**
      * Accepts the visitor and calls the appropriate method on the visitor based

@@ -8,6 +8,7 @@ package com.allanbank.mongodb.connection.message;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -20,6 +21,7 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
@@ -61,8 +63,9 @@ public class QueryTest {
                                         1, 2, 0xFFF)) {
                                     final boolean tailable = random
                                             .nextBoolean();
-                                    final boolean replicaOk = random
-                                            .nextBoolean();
+                                    final ReadPreference readPreference = random
+                                            .nextBoolean() ? ReadPreference.CLOSEST
+                                            : ReadPreference.SECONDARY;
                                     final boolean noCursorTimeout = random
                                             .nextBoolean();
                                     final boolean awaitData = random
@@ -75,15 +78,15 @@ public class QueryTest {
                                     objs1.add(new Query(databaseName,
                                             collectionName, query,
                                             returnFields, batchSize, limit,
-                                            numberToSkip, tailable, replicaOk,
-                                            noCursorTimeout, awaitData,
-                                            exhaust, partial));
+                                            numberToSkip, tailable,
+                                            readPreference, noCursorTimeout,
+                                            awaitData, exhaust, partial));
                                     objs2.add(new Query(databaseName,
                                             collectionName, query,
                                             returnFields, batchSize, limit,
-                                            numberToSkip, tailable, replicaOk,
-                                            noCursorTimeout, awaitData,
-                                            exhaust, partial));
+                                            numberToSkip, tailable,
+                                            readPreference, noCursorTimeout,
+                                            awaitData, exhaust, partial));
 
                                 }
                             }
@@ -134,7 +137,8 @@ public class QueryTest {
         final Document returnFields = doc2;
         final int numberToSkip = random.nextInt();
         final boolean tailable = random.nextBoolean();
-        final boolean replicaOk = random.nextBoolean();
+        final ReadPreference readPreference = random.nextBoolean() ? ReadPreference.PRIMARY
+                : ReadPreference.SECONDARY;
         final boolean noCursorTimeout = random.nextBoolean();
         final boolean awaitData = random.nextBoolean();
         final boolean exhaust = random.nextBoolean();
@@ -145,7 +149,7 @@ public class QueryTest {
 
         final Query message = new Query(databaseName, collectionName, query,
                 returnFields, batchSize, limit, numberToSkip, tailable,
-                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+                readPreference, noCursorTimeout, awaitData, exhaust, partial);
 
         assertEquals(databaseName, message.getDatabaseName());
         assertEquals(collectionName, message.getCollectionName());
@@ -156,7 +160,7 @@ public class QueryTest {
         assertEquals(exhaust, message.isExhaust());
         assertEquals(noCursorTimeout, message.isNoCursorTimeout());
         assertEquals(partial, message.isPartial());
-        assertEquals(replicaOk, message.isReplicaOk());
+        assertSame(readPreference, message.getReadPreference());
         assertEquals(tailable, message.isTailable());
 
         assertEquals(batchSize, message.getBatchSize());
@@ -180,7 +184,8 @@ public class QueryTest {
         final Document returnFields = doc2;
         final int numberToSkip = random.nextInt();
         final boolean tailable = random.nextBoolean();
-        final boolean replicaOk = random.nextBoolean();
+        final ReadPreference readPreference = random.nextBoolean() ? ReadPreference.PRIMARY
+                : ReadPreference.SECONDARY;
         final boolean noCursorTimeout = random.nextBoolean();
         final boolean awaitData = random.nextBoolean();
         final boolean exhaust = random.nextBoolean();
@@ -191,7 +196,7 @@ public class QueryTest {
 
         final Query message = new Query(databaseName, collectionName, query,
                 returnFields, batchSize, limit, numberToSkip, tailable,
-                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+                readPreference, noCursorTimeout, awaitData, exhaust, partial);
 
         assertEquals(databaseName, message.getDatabaseName());
         assertEquals(collectionName, message.getCollectionName());
@@ -202,7 +207,7 @@ public class QueryTest {
         assertEquals(exhaust, message.isExhaust());
         assertEquals(noCursorTimeout, message.isNoCursorTimeout());
         assertEquals(partial, message.isPartial());
-        assertEquals(replicaOk, message.isReplicaOk());
+        assertSame(readPreference, message.getReadPreference());
         assertEquals(tailable, message.isTailable());
 
         assertEquals(batchSize, message.getBatchSize());
@@ -226,7 +231,8 @@ public class QueryTest {
         final Document returnFields = doc2;
         final int numberToSkip = random.nextInt();
         final boolean tailable = random.nextBoolean();
-        final boolean replicaOk = random.nextBoolean();
+        final ReadPreference readPreference = random.nextBoolean() ? ReadPreference.PRIMARY
+                : ReadPreference.SECONDARY;
         final boolean noCursorTimeout = random.nextBoolean();
         final boolean awaitData = random.nextBoolean();
         final boolean exhaust = random.nextBoolean();
@@ -237,7 +243,7 @@ public class QueryTest {
 
         final Query message = new Query(databaseName, collectionName, query,
                 returnFields, batchSize, limit, numberToSkip, tailable,
-                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+                readPreference, noCursorTimeout, awaitData, exhaust, partial);
 
         assertEquals(databaseName, message.getDatabaseName());
         assertEquals(collectionName, message.getCollectionName());
@@ -248,7 +254,7 @@ public class QueryTest {
         assertEquals(exhaust, message.isExhaust());
         assertEquals(noCursorTimeout, message.isNoCursorTimeout());
         assertEquals(partial, message.isPartial());
-        assertEquals(replicaOk, message.isReplicaOk());
+        assertSame(readPreference, message.getReadPreference());
         assertEquals(tailable, message.isTailable());
 
         assertEquals(batchSize, message.getBatchSize());
@@ -272,7 +278,8 @@ public class QueryTest {
         final Document returnFields = doc2;
         final int numberToSkip = random.nextInt();
         final boolean tailable = random.nextBoolean();
-        final boolean replicaOk = random.nextBoolean();
+        final ReadPreference readPreference = random.nextBoolean() ? ReadPreference.PRIMARY
+                : ReadPreference.SECONDARY;
         final boolean noCursorTimeout = random.nextBoolean();
         final boolean awaitData = random.nextBoolean();
         final boolean exhaust = random.nextBoolean();
@@ -283,7 +290,7 @@ public class QueryTest {
 
         final Query message = new Query(databaseName, collectionName, query,
                 returnFields, batchSize, limit, numberToSkip, tailable,
-                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+                readPreference, noCursorTimeout, awaitData, exhaust, partial);
 
         assertEquals(databaseName, message.getDatabaseName());
         assertEquals(collectionName, message.getCollectionName());
@@ -294,7 +301,7 @@ public class QueryTest {
         assertEquals(exhaust, message.isExhaust());
         assertEquals(noCursorTimeout, message.isNoCursorTimeout());
         assertEquals(partial, message.isPartial());
-        assertEquals(replicaOk, message.isReplicaOk());
+        assertSame(readPreference, message.getReadPreference());
         assertEquals(tailable, message.isTailable());
 
         assertEquals(batchSize, message.getBatchSize());
@@ -318,7 +325,8 @@ public class QueryTest {
         final Document returnFields = doc2;
         final int numberToSkip = random.nextInt();
         final boolean tailable = random.nextBoolean();
-        final boolean replicaOk = random.nextBoolean();
+        final ReadPreference readPreference = random.nextBoolean() ? ReadPreference.PRIMARY
+                : ReadPreference.SECONDARY;
         final boolean noCursorTimeout = random.nextBoolean();
         final boolean awaitData = random.nextBoolean();
         final boolean exhaust = random.nextBoolean();
@@ -329,7 +337,7 @@ public class QueryTest {
 
         final Query message = new Query(databaseName, collectionName, query,
                 returnFields, batchSize, limit, numberToSkip, tailable,
-                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+                readPreference, noCursorTimeout, awaitData, exhaust, partial);
 
         assertEquals(databaseName, message.getDatabaseName());
         assertEquals(collectionName, message.getCollectionName());
@@ -340,7 +348,7 @@ public class QueryTest {
         assertEquals(exhaust, message.isExhaust());
         assertEquals(noCursorTimeout, message.isNoCursorTimeout());
         assertEquals(partial, message.isPartial());
-        assertEquals(replicaOk, message.isReplicaOk());
+        assertSame(readPreference, message.getReadPreference());
         assertEquals(tailable, message.isTailable());
 
         assertEquals(batchSize, message.getBatchSize());
@@ -364,7 +372,8 @@ public class QueryTest {
         final Document returnFields = doc2;
         final int numberToSkip = random.nextInt();
         final boolean tailable = random.nextBoolean();
-        final boolean replicaOk = random.nextBoolean();
+        final ReadPreference readPreference = random.nextBoolean() ? ReadPreference.PRIMARY
+                : ReadPreference.SECONDARY;
         final boolean noCursorTimeout = random.nextBoolean();
         final boolean awaitData = random.nextBoolean();
         final boolean exhaust = random.nextBoolean();
@@ -375,7 +384,7 @@ public class QueryTest {
 
         final Query message = new Query(databaseName, collectionName, query,
                 returnFields, batchSize, limit, numberToSkip, tailable,
-                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+                readPreference, noCursorTimeout, awaitData, exhaust, partial);
 
         assertEquals(databaseName, message.getDatabaseName());
         assertEquals(collectionName, message.getCollectionName());
@@ -386,7 +395,7 @@ public class QueryTest {
         assertEquals(exhaust, message.isExhaust());
         assertEquals(noCursorTimeout, message.isNoCursorTimeout());
         assertEquals(partial, message.isPartial());
-        assertEquals(replicaOk, message.isReplicaOk());
+        assertSame(readPreference, message.getReadPreference());
         assertEquals(tailable, message.isTailable());
 
         assertEquals(batchSize, message.getBatchSize());
@@ -422,8 +431,9 @@ public class QueryTest {
                                         1, 2, 0xFFF)) {
                                     final boolean tailable = random
                                             .nextBoolean();
-                                    final boolean replicaOk = random
-                                            .nextBoolean();
+                                    final ReadPreference readPreference = random
+                                            .nextBoolean() ? ReadPreference.PRIMARY
+                                            : ReadPreference.SECONDARY;
                                     final boolean noCursorTimeout = random
                                             .nextBoolean();
                                     final boolean awaitData = random
@@ -436,9 +446,9 @@ public class QueryTest {
                                     objs1.add(new Query(databaseName,
                                             collectionName, query,
                                             returnFields, batchSize, limit,
-                                            numberToSkip, tailable, replicaOk,
-                                            noCursorTimeout, awaitData,
-                                            exhaust, partial));
+                                            numberToSkip, tailable,
+                                            readPreference, noCursorTimeout,
+                                            awaitData, exhaust, partial));
                                 }
                             }
                         }
@@ -473,7 +483,7 @@ public class QueryTest {
 
     /**
      * Test method for
-     * {@link Query#Query(String, String, Document, Document, int, int, int, boolean, boolean, boolean, boolean, boolean, boolean)}
+     * {@link Query#Query(String, String, Document, Document, int, int, int, boolean, ReadPreference, boolean, boolean, boolean, boolean)}
      * .
      */
     @Test
@@ -490,7 +500,8 @@ public class QueryTest {
         final int limit = random.nextInt();
         final int numberToSkip = random.nextInt();
         final boolean tailable = random.nextBoolean();
-        final boolean replicaOk = random.nextBoolean();
+        final ReadPreference readPreference = random.nextBoolean() ? ReadPreference.PRIMARY
+                : ReadPreference.SECONDARY;
         final boolean noCursorTimeout = random.nextBoolean();
         final boolean awaitData = random.nextBoolean();
         final boolean exhaust = random.nextBoolean();
@@ -498,7 +509,7 @@ public class QueryTest {
 
         final Query message = new Query(databaseName, collectionName, query,
                 returnFields, batchSize, limit, numberToSkip, tailable,
-                replicaOk, noCursorTimeout, awaitData, exhaust, partial);
+                readPreference, noCursorTimeout, awaitData, exhaust, partial);
 
         assertEquals(databaseName, message.getDatabaseName());
         assertEquals(collectionName, message.getCollectionName());
@@ -511,7 +522,7 @@ public class QueryTest {
         assertEquals(exhaust, message.isExhaust());
         assertEquals(noCursorTimeout, message.isNoCursorTimeout());
         assertEquals(partial, message.isPartial());
-        assertEquals(replicaOk, message.isReplicaOk());
+        assertSame(readPreference, message.getReadPreference());
         assertEquals(tailable, message.isTailable());
     }
 }

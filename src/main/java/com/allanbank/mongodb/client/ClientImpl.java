@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
@@ -138,6 +139,19 @@ public class ClientImpl extends AbstractClient {
     @Override
     public Durability getDefaultDurability() {
         return myConfig.getDefaultDurability();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the configurations default read preference.
+     * </p>
+     * 
+     * @see Client#getDefaultReadPreference()
+     */
+    @Override
+    public ReadPreference getDefaultReadPreference() {
+        return myConfig.getDefaultReadPreference();
     }
 
     /**

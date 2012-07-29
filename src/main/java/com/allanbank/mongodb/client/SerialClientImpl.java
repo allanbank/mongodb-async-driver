@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Connection;
 
 /**
@@ -78,6 +79,19 @@ public class SerialClientImpl extends AbstractClient {
     @Override
     public Durability getDefaultDurability() {
         return myDelegate.getDefaultDurability();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the configurations default read preference.
+     * </p>
+     * 
+     * @see Client#getDefaultReadPreference()
+     */
+    @Override
+    public ReadPreference getDefaultReadPreference() {
+        return myDelegate.getDefaultReadPreference();
     }
 
     /**

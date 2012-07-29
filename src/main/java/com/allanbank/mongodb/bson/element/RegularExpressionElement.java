@@ -62,6 +62,9 @@ public class RegularExpressionElement extends AbstractElement {
     /** The options for each possible bit field. */
     private static final String[] OPTIONS;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 7842839168833403380L;
+
     static {
 
         OPTION_I = 0x01;

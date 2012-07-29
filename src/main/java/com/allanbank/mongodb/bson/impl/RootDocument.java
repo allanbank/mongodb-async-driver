@@ -31,6 +31,9 @@ public class RootDocument implements Document {
     /** The empty list of elements. */
     public static final List<Element> EMPTY_ELEMENTS = Collections.emptyList();
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -2875918328146027036L;
+
     /**
      * Constructed when a user tries to access the elements of the document by
      * name.

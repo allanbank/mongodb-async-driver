@@ -146,6 +146,9 @@ public abstract class AbstractBuilder implements Builder {
      */
     public static final class BuilderElement extends AbstractElement {
 
+        /** Serialization version for the class. */
+        private static final long serialVersionUID = 4421203621373216989L;
+
         /** The encapsulated builder. */
         private final AbstractBuilder myBuilder;
 

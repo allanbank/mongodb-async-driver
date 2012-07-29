@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.builder;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 
 /**
@@ -29,11 +30,8 @@ public class Find {
     /** The query document. */
     private final Document myQuery;
 
-    /**
-     * If true, then the query can be run against a replica which might be
-     * slightly behind the primary.
-     */
-    private final boolean myReplicaOk;
+    /** The preference for which servers to use to retrieve the results. */
+    private final ReadPreference myReadPreference;
 
     /** The fields to be returned from the matching documents. */
     private final Document myReturnFields;
@@ -51,7 +49,7 @@ public class Find {
         myLimit = builder.myLimit;
         myNumberToSkip = builder.myNumberToSkip;
         myPartialOk = builder.myPartialOk;
-        myReplicaOk = builder.myReplicaOk;
+        myReadPreference = builder.myReadPreference;
     }
 
     /**
@@ -93,6 +91,17 @@ public class Find {
     }
 
     /**
+     * Returns the preference for the servers to retrieve the results from. May
+     * be <code>null</code> in which case the default read preference should be
+     * used.
+     * 
+     * @return The preference for the servers to retrieve the results from.
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
      * Returns the fields to be returned from the matching documents.
      * 
      * @return The fields to be returned from the matching documents.
@@ -110,16 +119,6 @@ public class Find {
      */
     public boolean isPartialOk() {
         return myPartialOk;
-    }
-
-    /**
-     * Returns the replica okay value. If true, then the query can be run
-     * against a replica which might be slightly behind the primary.
-     * 
-     * @return The replica okay value.
-     */
-    public boolean isReplicaOk() {
-        return myReplicaOk;
     }
 
     /**
@@ -145,11 +144,8 @@ public class Find {
         /** The query document. */
         protected Document myQuery;
 
-        /**
-         * If true, then the query can be run against a replica which might be
-         * slightly behind the primary.
-         */
-        protected boolean myReplicaOk;
+        /** The preference for which servers to use to retrieve the results. */
+        protected ReadPreference myReadPreference;
 
         /** The fields to be returned from the matching documents. */
         protected Document myReturnFields;
@@ -164,7 +160,7 @@ public class Find {
             myLimit = 0;
             myNumberToSkip = 0;
             myPartialOk = false;
-            myReplicaOk = false;
+            myReadPreference = null;
         }
 
         /**
@@ -254,16 +250,16 @@ public class Find {
         }
 
         /**
-         * Sets the value of replica okay to the new value. If true, then the
-         * query can be run against a replica which might be slightly behind the
-         * primary
+         * Sets the preference for the set of servers to retrieve the results
+         * from.
          * 
-         * @param replicaOk
-         *            The new value for the replica okay.
+         * @param readPreference
+         *            The new value for the preference of which server to return
+         *            the results from.
          * @return This builder for chaining method calls.
          */
-        public Builder setReplicaOk(final boolean replicaOk) {
-            myReplicaOk = replicaOk;
+        public Builder setReadPreference(final ReadPreference readPreference) {
+            myReadPreference = readPreference;
             return this;
         }
 

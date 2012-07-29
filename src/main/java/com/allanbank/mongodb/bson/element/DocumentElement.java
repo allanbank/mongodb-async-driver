@@ -34,6 +34,9 @@ public class DocumentElement extends AbstractElement implements Document {
     /** The BSON type for a document. */
     public static final ElementType TYPE = ElementType.DOCUMENT;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -564259598403040796L;
+
     /**
      * Constructed when a user tries to access the elements of the document by
      * name.

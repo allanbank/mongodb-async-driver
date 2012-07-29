@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -121,8 +122,8 @@ public class MongoDatabaseImplTest {
                 .addString("name", "test.1.oplog.$").build();
 
         final Query query = new Query("test", "system.namespaces",
-                BuilderFactory.start().build(), null, 0, 0, 0, false, true,
-                false, false, false, false);
+                BuilderFactory.start().build(), null, 0, 0, 0, false,
+                ReadPreference.CLOSEST, false, false, false, false);
 
         myMockClient.send(eq(query), callback(reply(result1, result2)));
         expectLastCall();

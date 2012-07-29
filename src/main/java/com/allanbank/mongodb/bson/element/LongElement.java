@@ -19,6 +19,9 @@ public class LongElement extends AbstractElement implements NumericElement {
     /** The BSON type for a long. */
     public static final ElementType TYPE = ElementType.LONG;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -2599658746763036474L;
+
     /** The BSON long value. */
     private final long myValue;
 

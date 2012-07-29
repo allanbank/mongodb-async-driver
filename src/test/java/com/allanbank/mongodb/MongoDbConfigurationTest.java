@@ -427,6 +427,34 @@ public class MongoDbConfigurationTest {
      * .
      */
     @Test
+    public void testMongoUriAck() {
+        final InetSocketAddress addr1 = new InetSocketAddress("foo",
+                MongoDbConfiguration.DEFAULT_PORT);
+
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                "mongodb://foo/db?replicaSet=set1;safe=true");
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
+        assertEquals(3, config.getMaxConnectionCount());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+        assertNull(config.getPasswordHash());
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1), config.getServers());
+        assertNotNull(config.getThreadFactory());
+        assertNull(config.getUsername());
+        assertFalse(config.isAuthenticating());
+        assertFalse(config.isAdminUser());
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+        assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @Test
     public void testMongoUriAdminUserNamePassword() {
         final InetSocketAddress addr1 = new InetSocketAddress("foo",
                 MongoDbConfiguration.DEFAULT_PORT);
@@ -460,7 +488,7 @@ public class MongoDbConfigurationTest {
                 MongoDbConfiguration.DEFAULT_PORT);
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
-                "mongodb://foo/db?replicaSet=set1;safe=false&w=1&wtimeout=100&fsync&journal=false&"
+                "mongodb://foo/db?replicaSet=set1;safe=false&w=1&wtimeout=100&fsync=false&fsync&journal=false&"
                         + "connectTIMEOUTMS=1000&socketTimeOUTms=2000;autoDiscoverServers=false;maxConnectionCount=5&"
                         + "maxPendingOperationsPerConnection=101&reconnectTimeoutMS=250&useSoKeepalive=false&foo&safe=false");
 
@@ -477,6 +505,16 @@ public class MongoDbConfigurationTest {
         assertFalse(config.isAdminUser());
         assertFalse(config.isAutoDiscoverServers());
         assertFalse(config.isUsingSoKeepalive());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testMongoUriBadFieldValue() {
+        new MongoDbConfiguration("mongodb://foo/db?socketTimeOUTms=alpha");
     }
 
     /**
@@ -545,6 +583,63 @@ public class MongoDbConfigurationTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMongoUriNull() {
         new MongoDbConfiguration((String) null);
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @Test
+    public void testMongoUriPrimary() {
+        final InetSocketAddress addr1 = new InetSocketAddress("foo",
+                MongoDbConfiguration.DEFAULT_PORT);
+
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                "mongodb://foo/db?replicaSet=set1;slaveOk=false");
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(3, config.getMaxConnectionCount());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+        assertNull(config.getPasswordHash());
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1), config.getServers());
+        assertNotNull(config.getThreadFactory());
+        assertNull(config.getUsername());
+        assertFalse(config.isAuthenticating());
+        assertFalse(config.isAdminUser());
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+        assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @Test
+    public void testMongoUriSecondary() {
+        final InetSocketAddress addr1 = new InetSocketAddress("foo",
+                MongoDbConfiguration.DEFAULT_PORT);
+
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                "mongodb://foo/db?replicaSet=set1;slaveOk=true");
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(3, config.getMaxConnectionCount());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+        assertNull(config.getPasswordHash());
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1), config.getServers());
+        assertNotNull(config.getThreadFactory());
+        assertNull(config.getUsername());
+        assertFalse(config.isAuthenticating());
+        assertFalse(config.isAdminUser());
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+        assertEquals(ReadPreference.SECONDARY,
+                config.getDefaultReadPreference());
     }
 
     /**
@@ -654,6 +749,21 @@ public class MongoDbConfigurationTest {
         assertEquals(Durability.NONE, config.getDefaultDurability());
         config.setDefaultDurability(Durability.ACK);
         assertEquals(Durability.ACK, config.getDefaultDurability());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#setDefaultReadPreference}.
+     */
+    @Test
+    public void testSetDefaultReadPreference() {
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+
+        assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
+        config.setDefaultReadPreference(ReadPreference.SECONDARY);
+        assertEquals(ReadPreference.SECONDARY,
+                config.getDefaultReadPreference());
+        config.setDefaultReadPreference(null);
+        assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
     }
 
     /**

@@ -156,6 +156,20 @@ public class DurabilityTest {
 
             assertSame(d, oin.readObject());
         }
+
+        final Durability d = Durability.journalDurable(100);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ObjectOutputStream oout = new ObjectOutputStream(out);
+        oout.writeObject(d);
+        oout.close();
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(
+                out.toByteArray());
+        final ObjectInputStream oin = new ObjectInputStream(in);
+
+        final Object read = oin.readObject();
+        assertEquals(d, read);
+        assertFalse(d == read);
     }
 
     /**

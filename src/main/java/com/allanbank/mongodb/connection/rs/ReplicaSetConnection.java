@@ -80,8 +80,10 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
 
         boolean canUseSecondary = true;
         for (final Message message : messages) {
-            if (message instanceof Query) {
-                canUseSecondary &= ((Query) message).isReplicaOk();
+            if ((message instanceof Query)
+                    && (((Query) message).getReadPreference() != null)) {
+                canUseSecondary &= ((Query) message).getReadPreference()
+                        .isSecondaryOk();
             }
             else {
                 canUseSecondary = false;

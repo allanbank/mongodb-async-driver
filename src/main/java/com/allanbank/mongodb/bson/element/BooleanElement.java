@@ -15,6 +15,9 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class BooleanElement extends AbstractElement {
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -3534279865960686134L;
+
     /** The boolean value */
     private final boolean myValue;
 

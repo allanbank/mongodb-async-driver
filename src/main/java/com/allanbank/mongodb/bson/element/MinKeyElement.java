@@ -18,6 +18,9 @@ public class MinKeyElement extends AbstractElement {
     /** The BSON type for a binary. */
     public static final ElementType TYPE = ElementType.MIN_KEY;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 5715544436237499313L;
+
     /**
      * Constructs a new {@link MinKeyElement}.
      * 

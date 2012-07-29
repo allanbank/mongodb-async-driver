@@ -18,6 +18,9 @@ public class SymbolElement extends AbstractElement {
     /** The BSON type for a symbol. */
     public static final ElementType TYPE = ElementType.SYMBOL;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -3181997000292958333L;
+
     /** The BSON string value. */
     private final String mySymbol;
 

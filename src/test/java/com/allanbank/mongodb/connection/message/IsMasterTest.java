@@ -8,8 +8,11 @@ package com.allanbank.mongodb.connection.message;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
+
+import com.allanbank.mongodb.ReadPreference;
 
 /**
  * IsMasterTest provides tests for the {@link IsMaster} message.
@@ -35,7 +38,7 @@ public class IsMasterTest {
         assertFalse(isMaster.isExhaust());
         assertFalse(isMaster.isNoCursorTimeout());
         assertFalse(isMaster.isPartial());
-        assertFalse(isMaster.isReplicaOk());
+        assertSame(ReadPreference.PRIMARY, isMaster.getReadPreference());
         assertFalse(isMaster.isTailable());
     }
 

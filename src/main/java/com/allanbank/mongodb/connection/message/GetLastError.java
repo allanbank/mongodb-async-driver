@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.connection.message;
 
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -113,7 +114,7 @@ public class GetLastError extends Query {
         super(dbName, Connection.COMMAND_COLLECTION, createQuery(fsync,
                 waitForJournal, w, wtimeout), /* fields= */null,
         /* batchSize= */1, /* limit= */1, /* numberToSkip= */0,
-        /* tailable= */false, /* replicaOk= */false,
+        /* tailable= */false, ReadPreference.PRIMARY,
         /* noCursorTimeout= */false, /* awaitData= */false,
         /* exhaust= */false, /* partial= */false);
     }
@@ -129,7 +130,7 @@ public class GetLastError extends Query {
     public GetLastError(final String dbName, final Durability durability) {
         super(dbName, Connection.COMMAND_COLLECTION, createQuery(durability),
         /* fields= */null, /* batchSize= */1, /* limit= */1,
-        /* numberToSkip= */0, /* tailable= */false, /* replicaOk= */false,
+        /* numberToSkip= */0, /* tailable= */false, ReadPreference.PRIMARY,
         /* noCursorTimeout= */false, /* awaitData= */false,
         /* exhaust= */false, /* partial= */false);
     }

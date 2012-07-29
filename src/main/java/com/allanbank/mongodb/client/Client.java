@@ -9,6 +9,7 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.GetMore;
@@ -39,6 +40,14 @@ public interface Client {
      * @return The default durability from the {@link MongoDbConfiguration}.
      */
     public Durability getDefaultDurability();
+
+    /**
+     * Returns the {@link ReadPreference} from the {@link MongoDbConfiguration}.
+     * 
+     * @return The default read preference from the {@link MongoDbConfiguration}
+     *         .
+     */
+    public ReadPreference getDefaultReadPreference();
 
     /**
      * Sends a get more request.

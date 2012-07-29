@@ -25,6 +25,9 @@ public class ArrayElement extends AbstractElement {
     /** The BSON type for an array. */
     public static final ElementType TYPE = ElementType.ARRAY;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -7363294574214059703L;
+
     /**
      * The entries in the array. The name attribute will be ignored when
      * encoding the elements.

@@ -17,6 +17,9 @@ import com.allanbank.mongodb.bson.ElementType;
  */
 public abstract class AbstractElement implements Element {
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 7537761445549731633L;
+
     /** The name for the BSON type. */
     private final String myName;
 

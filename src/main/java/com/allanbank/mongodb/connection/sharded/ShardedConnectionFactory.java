@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -107,8 +108,9 @@ public class ShardedConnectionFactory implements ConnectionFactory {
             final Query query = new Query("config", "mongos", BuilderFactory
                     .start().build(), /* fields= */null, /* batchSize= */0,
             /* limit= */0, /* numberToSkip= */0, /* tailable= */false,
-            /* replicaOk= */false, /* noCursorTimeout= */false,
-            /* awaitData= */false, /* exhaust= */false, /* partial= */false);
+                    ReadPreference.PRIMARY, /* noCursorTimeout= */false,
+                    /* awaitData= */false, /* exhaust= */false, /* partial= */
+                    false);
 
             for (final InetSocketAddress addr : myConfig.getServers()) {
                 SocketConnection conn = null;

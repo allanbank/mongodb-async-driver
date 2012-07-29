@@ -20,6 +20,9 @@ public class DBPointerElement extends AbstractElement {
     /** The BSON type for a Object Id. */
     public static final ElementType TYPE = ElementType.DB_POINTER;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 2736569317385382748L;
+
     /** The name of the collection containing the document. */
     private final String myCollectionName;
 

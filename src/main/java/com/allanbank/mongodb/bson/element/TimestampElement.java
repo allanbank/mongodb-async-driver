@@ -18,6 +18,9 @@ public class TimestampElement extends AbstractElement {
     /** The BSON type for a long. */
     public static final ElementType TYPE = ElementType.UTC_TIMESTAMP;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 949598909338399091L;
+
     /** The BSON timestamp value as the milliseconds since the epoch. */
     private final long myTimestamp;
 

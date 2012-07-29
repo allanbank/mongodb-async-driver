@@ -18,6 +18,9 @@ public class MaxKeyElement extends AbstractElement {
     /** The BSON type for a binary. */
     public static final ElementType TYPE = ElementType.MAX_KEY;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 7706652376786415426L;
+
     /**
      * Constructs a new {@link MaxKeyElement}.
      * 

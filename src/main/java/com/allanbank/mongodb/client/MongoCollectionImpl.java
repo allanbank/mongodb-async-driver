@@ -16,6 +16,7 @@ import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -61,27 +62,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * This is the canonical <code>count</code> method that implementations must
      * override.
      * </p>
-     * 
-     * @param results
-     *            The callback to notify of the results.
-     * @param query
-     *            The query document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @throws MongoDbException
-     *             On an error finding the documents.
      */
     @Override
     public void countAsync(final Callback<Long> results, final Document query,
-            final boolean replicaOk) throws MongoDbException {
+            final ReadPreference readPreference) throws MongoDbException {
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("count", getName());
         builder.addDocument("query", query);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), replicaOk);
+                builder.build(), readPreference);
 
         myClient.send(commandMsg, new ReplyLongCallback(results));
     }
@@ -256,12 +247,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Find query) throws MongoDbException {
 
+        ReadPreference readPreference = query.getReadPreference();
+        if (readPreference == null) {
+            readPreference = getDefaultReadPreference();
+        }
+
         final Query queryMessage = new Query(getDatabaseName(), myName,
                 query.getQuery(), query.getReturnFields(),
                 query.getBatchSize(), query.getLimit(),
-                query.getNumberToSkip(), false /* tailable */,
-                query.isReplicaOk(), false /* noCursorTimeout */,
-                false /* awaitData */, false /* exhaust */, query.isPartialOk());
+                query.getNumberToSkip(), false /* tailable */, readPreference,
+                false /* noCursorTimeout */, false /* awaitData */,
+                false /* exhaust */, query.isPartialOk());
 
         myClient.send(queryMessage, new QueryCallback(myClient, queryMessage,
                 results));
@@ -280,7 +276,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             final Document query) throws MongoDbException {
         final Query queryMessage = new Query(getDatabaseName(), myName, query,
                 null, 1 /* batchSize */, 1 /* limit */, 0 /* skip */,
-                false /* tailable */, false /* replicaOk */,
+                false /* tailable */, getDefaultReadPreference(),
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);
 

@@ -10,6 +10,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,6 +69,7 @@ public class ReadPreferenceTest {
 
         assertEquals(ReadPreference.Mode.NEAREST, preference.getMode());
         assertSame(Collections.EMPTY_LIST, preference.getTagMatchingDocuments());
+        assertEquals("nearest", preference.getMode().getToken());
 
         for (final Document[] tags : myTestTags) {
             preference = ReadPreference.closest(tags);
@@ -145,8 +151,41 @@ public class ReadPreferenceTest {
      * Test method for {@link ReadPreference#matches(Document)} .
      */
     @Test
+    public void testMatchesEmptyTags() {
+        final Document t = BuilderFactory.start().addInteger("a", 1).build();
+
+        final Document[] tags = new Document[] {}; // Empty document matches
+                                                   // all.
+        for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
+            final ReadPreference prefs = new ReadPreference(mode, tags);
+            assertTrue(prefs.matches(t));
+        }
+    }
+
+    /**
+     * Test method for {@link ReadPreference#matches(Document)} .
+     */
+    @Test
     public void testMatchesExactElements() {
         final Document t = BuilderFactory.start().addInteger("c", 1).build();
+
+        final Document[] tags = new Document[] {
+                BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
+                        .build(),
+                BuilderFactory.start().addInteger("c", 1).build() };
+        for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
+            final ReadPreference prefs = new ReadPreference(mode, tags);
+            assertTrue(prefs.matches(t));
+        }
+    }
+
+    /**
+     * Test method for {@link ReadPreference#matches(Document)} .
+     */
+    @Test
+    public void testMatchesExactElementsFirst() {
+        final Document t = BuilderFactory.start().addInteger("a", 1)
+                .addInteger("b", 2).build();
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
@@ -189,6 +228,57 @@ public class ReadPreferenceTest {
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
             assertTrue(prefs.matches(t));
+        }
+    }
+
+    /**
+     * Test method for {@link ReadPreference#matches(Document)} .
+     */
+    @Test
+    public void testMatchesFuzzyNumericLongNoMatch() {
+        final Document t = BuilderFactory.start().addLong("c", 2).build();
+
+        final Document[] tags = new Document[] {
+                BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
+                        .build(),
+                BuilderFactory.start().addInteger("c", 1).build() };
+        for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
+            final ReadPreference prefs = new ReadPreference(mode, tags);
+            assertFalse(prefs.matches(t));
+        }
+    }
+
+    /**
+     * Test method for {@link ReadPreference#matches(Document)} .
+     */
+    @Test
+    public void testMatchesFuzzyString() {
+        final Document t = BuilderFactory.start().addString("c", "1.0").build();
+
+        final Document[] tags = new Document[] {
+                BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
+                        .build(),
+                BuilderFactory.start().addInteger("c", 1).build() };
+        for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
+            final ReadPreference prefs = new ReadPreference(mode, tags);
+            assertFalse(prefs.matches(t));
+        }
+    }
+
+    /**
+     * Test method for {@link ReadPreference#matches(Document)} .
+     */
+    @Test
+    public void testMatchesFuzzyStringTag() {
+        final Document t = BuilderFactory.start().addDouble("c", 1.0).build();
+
+        final Document[] tags = new Document[] {
+                BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
+                        .build(),
+                BuilderFactory.start().addString("c", "1").build() };
+        for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
+            final ReadPreference prefs = new ReadPreference(mode, tags);
+            assertFalse(prefs.matches(t));
         }
     }
 
@@ -321,6 +411,47 @@ public class ReadPreferenceTest {
 
         assertEquals(ReadPreference.Mode.PRIMARY_ONLY, preference.getMode());
         assertSame(Collections.EMPTY_LIST, preference.getTagMatchingDocuments());
+    }
+
+    /**
+     * Test method for {@link ReadPreference#readResolve} .
+     * 
+     * @throws IOException
+     *             On a failure.
+     * @throws ClassNotFoundException
+     *             On a failure.
+     */
+    @Test
+    public void testReadResolve() throws IOException, ClassNotFoundException {
+        for (final ReadPreference rp : Arrays.asList(ReadPreference.CLOSEST,
+                ReadPreference.PREFER_PRIMARY, ReadPreference.PREFER_SECONDARY,
+                ReadPreference.PRIMARY, ReadPreference.SECONDARY)) {
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final ObjectOutputStream oout = new ObjectOutputStream(out);
+            oout.writeObject(rp);
+            oout.close();
+
+            final ByteArrayInputStream in = new ByteArrayInputStream(
+                    out.toByteArray());
+            final ObjectInputStream oin = new ObjectInputStream(in);
+
+            assertSame(rp, oin.readObject());
+        }
+
+        final ReadPreference rp = ReadPreference.closest(BuilderFactory.start()
+                .build());
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ObjectOutputStream oout = new ObjectOutputStream(out);
+        oout.writeObject(rp);
+        oout.close();
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(
+                out.toByteArray());
+        final ObjectInputStream oin = new ObjectInputStream(in);
+
+        final Object read = oin.readObject();
+        assertEquals(rp, read);
+        assertFalse(rp == read);
     }
 
     /**

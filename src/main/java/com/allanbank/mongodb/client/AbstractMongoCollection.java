@@ -17,6 +17,7 @@ import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.builder.Distinct;
@@ -49,9 +50,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
 
     /** The default for if an insert should continue on an error. */
     public static final boolean INSERT_CONTINUE_ON_ERROR_DEFAULT = false;
-
-    /** The default for using a replica on a query. */
-    public static final boolean REPLICA_OK_DEFAULT = false;
 
     /** The default for doing a multiple-update on an update. */
     public static final boolean UPDATE_MULTIUPDATE_DEFAULT = false;
@@ -90,41 +88,28 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #count(Document, boolean)} method with
-     * {@value #REPLICA_OK_DEFAULT} as the <tt>replicaOk</tt> argument.
+     * Overridden to call the {@link #count(Document, ReadPreference)} method
+     * with {@link #getDefaultReadPreference()} as the <tt>readPreference</tt>
+     * argument.
      * </p>
-     * 
-     * @param query
-     *            The query document.
-     * @return The number of matching documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
      */
     @Override
     public long count(final Document query) throws MongoDbException {
-        return count(query, REPLICA_OK_DEFAULT);
+        return count(query, getDefaultReadPreference());
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #countAsync(Document, boolean)} method.
+     * Overridden to call the {@link #countAsync(Document, ReadPreference)}
+     * method.
      * </p>
-     * 
-     * @param query
-     *            The query document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @return The number of matching documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
      */
     @Override
-    public long count(final Document query, final boolean replicaOk)
+    public long count(final Document query, final ReadPreference readPreference)
             throws MongoDbException {
 
-        final Future<Long> future = countAsync(query, replicaOk);
+        final Future<Long> future = countAsync(query, readPreference);
 
         return FutureUtils.unwrap(future).longValue();
     }
@@ -132,22 +117,16 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #countAsync(Callback, Document, boolean)}
-     * method with {@value #REPLICA_OK_DEFAULT} as the <tt>replicaOk</tt>
+     * Overridden to call the
+     * {@link #countAsync(Callback, Document, ReadPreference)} method with
+     * {@link #getDefaultReadPreference()} as the <tt>readPreference</tt>
      * argument.
      * </p>
-     * 
-     * @param results
-     *            The callback to notify of the results.
-     * @param query
-     *            The query document.
-     * @throws MongoDbException
-     *             On an error finding the documents.
      */
     @Override
     public void countAsync(final Callback<Long> results, final Document query)
             throws MongoDbException {
-        countAsync(results, query, REPLICA_OK_DEFAULT);
+        countAsync(results, query, getDefaultReadPreference());
     }
 
     /**
@@ -156,26 +135,17 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * This is the canonical <code>count</code> method that implementations must
      * override.
      * </p>
-     * 
-     * @param results
-     *            The callback to notify of the results.
-     * @param query
-     *            The query document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @throws MongoDbException
-     *             On an error finding the documents.
      */
     @Override
     public abstract void countAsync(Callback<Long> results, Document query,
-            boolean replicaOk) throws MongoDbException;
+            ReadPreference readPreference) throws MongoDbException;
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #countAsync(Callback, Document, boolean)}
-     * method with {@value #REPLICA_OK_DEFAULT} as the <tt>replicaOk</tt>
+     * Overridden to call the
+     * {@link #countAsync(Callback, Document, ReadPreference)} method with
+     * {@link #getDefaultReadPreference()} as the <tt>readPreference</tt>
      * argument.
      * </p>
      * 
@@ -191,7 +161,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>();
 
-        countAsync(future, query, REPLICA_OK_DEFAULT);
+        countAsync(future, query, getDefaultReadPreference());
 
         return future;
     }
@@ -199,26 +169,16 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #countAsync(Callback, Document, boolean)}
-     * method.
+     * Overridden to call the
+     * {@link #countAsync(Callback, Document, ReadPreference)} method.
      * </p>
-     * 
-     * @param query
-     *            The query document.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
-     * @return A future that will be updated with the number of matching
-     *         documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
      */
     @Override
-    public Future<Long> countAsync(final Document query, final boolean replicaOk)
-            throws MongoDbException {
+    public Future<Long> countAsync(final Document query,
+            final ReadPreference readPreference) throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>();
 
-        countAsync(future, query, replicaOk);
+        countAsync(future, query, readPreference);
 
         return future;
     }
@@ -1327,5 +1287,15 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      */
     protected Durability getDefaultDurability() {
         return myClient.getDefaultDurability();
+    }
+
+    /**
+     * Returns the {@link ReadPreference} from the {@link MongoDbConfiguration}.
+     * 
+     * @return The default read preference from the {@link MongoDbConfiguration}
+     *         .
+     */
+    protected ReadPreference getDefaultReadPreference() {
+        return myClient.getDefaultReadPreference();
     }
 }

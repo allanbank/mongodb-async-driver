@@ -19,6 +19,9 @@ public class IntegerElement extends AbstractElement implements NumericElement {
     /** The BSON type for a integer. */
     public static final ElementType TYPE = ElementType.INTEGER;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 3738845320555958508L;
+
     /** The BSON integer value. */
     private final int myValue;
 

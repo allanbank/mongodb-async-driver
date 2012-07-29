@@ -21,6 +21,9 @@ public class ObjectIdElement extends AbstractElement {
     /** The BSON type for a Object Id. */
     public static final ElementType TYPE = ElementType.OBJECT_ID;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -3563737127052573642L;
+
     /** The BSON Object id. */
     private final ObjectId myId;
 

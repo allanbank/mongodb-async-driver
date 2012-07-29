@@ -6,6 +6,7 @@ package com.allanbank.mongodb.connection.message;
 
 import java.io.IOException;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -96,11 +97,8 @@ public class Query extends AbstractMessage {
      */
     private final Document myQuery;
 
-    /**
-     * If true, then the query can be run against a replica which might be
-     * slightly behind the primary.
-     */
-    private final boolean myReplicaOk;
+    /** The preference for which servers to use to retrieve the results. */
+    private final ReadPreference myReadPreference;
 
     /** Optional document containing the fields to be returned. */
     private final Document myReturnFields;
@@ -141,7 +139,8 @@ public class Query extends AbstractMessage {
         myExhaust = (flags & EXHAUST_FLAG_BIT) == EXHAUST_FLAG_BIT;
         myNoCursorTimeout = (flags & NO_CURSOR_TIMEOUT_FLAG_BIT) == NO_CURSOR_TIMEOUT_FLAG_BIT;
         myPartial = (flags & PARTIAL_FLAG_BIT) == PARTIAL_FLAG_BIT;
-        myReplicaOk = (flags & REPLICA_OK_FLAG_BIT) == REPLICA_OK_FLAG_BIT;
+        myReadPreference = ((flags & REPLICA_OK_FLAG_BIT) == REPLICA_OK_FLAG_BIT) ? ReadPreference.SECONDARY
+                : ReadPreference.PRIMARY;
         myTailable = (flags & TAILABLE_CURSOR_FLAG_BIT) == TAILABLE_CURSOR_FLAG_BIT;
 
         myLimit = 0;
@@ -170,9 +169,9 @@ public class Query extends AbstractMessage {
      * @param tailable
      *            If true, then the cursor created should follow additional
      *            documents being inserted.
-     * @param replicaOk
-     *            If true, then the query can be run against a replica which
-     *            might be slightly behind the primary.
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
      * @param noCursorTimeout
      *            If true, marks the cursor as not having a timeout.
      * @param awaitData
@@ -187,7 +186,7 @@ public class Query extends AbstractMessage {
     public Query(final String databaseName, final String collectionName,
             final Document query, final Document returnFields,
             final int batchSize, final int limit, final int numberToSkip,
-            final boolean tailable, final boolean replicaOk,
+            final boolean tailable, final ReadPreference readPreference,
             final boolean noCursorTimeout, final boolean awaitData,
             final boolean exhaust, final boolean partial) {
         super(databaseName, collectionName);
@@ -198,7 +197,7 @@ public class Query extends AbstractMessage {
         myBatchSize = batchSize;
         myNumberToSkip = numberToSkip;
         myTailable = tailable;
-        myReplicaOk = replicaOk;
+        myReadPreference = readPreference;
         myNoCursorTimeout = noCursorTimeout;
         myAwaitData = awaitData;
         myExhaust = exhaust;
@@ -240,13 +239,14 @@ public class Query extends AbstractMessage {
                     && (myExhaust == other.myExhaust)
                     && (myNoCursorTimeout == other.myNoCursorTimeout)
                     && (myPartial == other.myPartial)
-                    && (myReplicaOk == other.myReplicaOk)
                     && (myTailable == other.myTailable)
                     && (myBatchSize == other.myBatchSize)
                     && (myLimit == other.myLimit)
                     && (myNumberToReturn == other.myNumberToReturn)
                     && (myNumberToSkip == other.myNumberToSkip)
                     && myQuery.equals(other.myQuery)
+                    && ((myReadPreference == other.myReadPreference) || ((myReadPreference != null) && myReadPreference
+                            .equals(other.myReadPreference)))
                     && ((myReturnFields == other.myReturnFields) || ((myReturnFields != null) && myReturnFields
                             .equals(other.myReturnFields)));
         }
@@ -303,6 +303,15 @@ public class Query extends AbstractMessage {
     }
 
     /**
+     * Returns the preference for which servers to retrieve the results from.
+     * 
+     * @return The preference for which servers to retrieve the results from.
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
      * Returns the optional document containing the fields to be returned.
      * Optional here means this method may return <code>null</code>.
      * 
@@ -325,13 +334,14 @@ public class Query extends AbstractMessage {
         result = (31 * result) + (myExhaust ? 1 : 7);
         result = (31 * result) + (myNoCursorTimeout ? 1 : 11);
         result = (31 * result) + (myPartial ? 1 : 13);
-        result = (31 * result) + (myReplicaOk ? 1 : 17);
         result = (31 * result) + (myTailable ? 1 : 19);
         result = (31 * result) + myBatchSize;
         result = (31 * result) + myLimit;
         result = (31 * result) + myNumberToReturn;
         result = (31 * result) + myNumberToSkip;
         result = (31 * result) + myQuery.hashCode();
+        result = (31 * result)
+                + (myReadPreference == null ? 1 : myReadPreference.hashCode());
         result = (31 * result)
                 + (myReturnFields == null ? 1 : myReturnFields.hashCode());
         return result;
@@ -394,17 +404,6 @@ public class Query extends AbstractMessage {
     }
 
     /**
-     * Returns true if the query can be run against a replica which might be
-     * slightly behind the primary.
-     * 
-     * @return True if the query can be run against a replica which might be
-     *         slightly behind the primary.
-     */
-    public boolean isReplicaOk() {
-        return myReplicaOk;
-    }
-
-    /**
      * Returns true if the cursor created should follow additional documents
      * being inserted.
      * 
@@ -439,7 +438,7 @@ public class Query extends AbstractMessage {
         if (myPartial) {
             flags += PARTIAL_FLAG_BIT;
         }
-        if (myReplicaOk) {
+        if ((myReadPreference != null) && myReadPreference.isSecondaryOk()) {
             flags += REPLICA_OK_FLAG_BIT;
         }
         if (myTailable) {

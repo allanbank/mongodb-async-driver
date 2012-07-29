@@ -280,6 +280,17 @@ public class ReadPreference implements Serializable {
     }
 
     /**
+     * Returns true if the mode allows reading from secondaries, false
+     * otherwise.
+     * 
+     * @return True if the mode allows reading from secondaries, false
+     *         otherwise.
+     */
+    public boolean isSecondaryOk() {
+        return myMode.isSecondaryOk();
+    }
+
+    /**
      * Returns true if this {@link ReadPreference} matches the <tt>tags</tt>
      * document.
      * 
@@ -454,6 +465,17 @@ public class ReadPreference implements Serializable {
          */
         public String getToken() {
             return myToken;
+        }
+
+        /**
+         * Returns true if the mode allows reading from secondaries, false
+         * otherwise.
+         * 
+         * @return True if the mode allows reading from secondaries, false
+         *         otherwise.
+         */
+        public boolean isSecondaryOk() {
+            return (this != PRIMARY_ONLY);
         }
     }
 }

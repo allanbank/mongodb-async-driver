@@ -15,6 +15,7 @@ import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
@@ -110,7 +111,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
         final Query query = new Query(myName, "system.namespaces", EMPTY_QUERY,
         /* fields= */null,
         /* batchSize= */0, /* limit= */0, /* numberToSkip= */0,
-        /* tailable= */false, /* replicaOk= */true,
+        /* tailable= */false, ReadPreference.CLOSEST,
         /* noCursorTimeout= */false, /* awaitData= */false,
         /* exhaust= */false, /* partial= */false);
 

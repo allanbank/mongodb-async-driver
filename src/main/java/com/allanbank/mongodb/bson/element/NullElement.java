@@ -18,6 +18,9 @@ public class NullElement extends AbstractElement {
     /** The BSON type for a binary. */
     public static final ElementType TYPE = ElementType.NULL;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -4974513577366947524L;
+
     /**
      * Constructs a new {@link NullElement}.
      * 

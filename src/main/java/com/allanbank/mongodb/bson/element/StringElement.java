@@ -18,6 +18,9 @@ public class StringElement extends AbstractElement {
     /** The BSON type for a string. */
     public static final ElementType TYPE = ElementType.STRING;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 2279503881395893379L;
+
     /** The BSON string value. */
     private final String myValue;
 

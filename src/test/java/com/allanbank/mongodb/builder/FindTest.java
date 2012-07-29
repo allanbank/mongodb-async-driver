@@ -14,6 +14,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
@@ -40,7 +41,7 @@ public class FindTest {
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
         builder.setPartialOk(true);
-        builder.setReplicaOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
@@ -49,9 +50,9 @@ public class FindTest {
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
         assertTrue(request.isPartialOk());
-        assertTrue(request.isReplicaOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
 
-        builder.setReplicaOk(false);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
 
         request = builder.build();
         assertSame(query, request.getQuery());
@@ -60,7 +61,7 @@ public class FindTest {
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
         assertTrue(request.isPartialOk());
-        assertFalse(request.isReplicaOk());
+        assertSame(ReadPreference.PREFER_SECONDARY, request.getReadPreference());
     }
 
     /**
@@ -79,7 +80,7 @@ public class FindTest {
         assertEquals(0, request.getLimit());
         assertEquals(0, request.getNumberToSkip());
         assertFalse(request.isPartialOk());
-        assertFalse(request.isReplicaOk());
+        assertNull(request.getReadPreference());
     }
 
     /**

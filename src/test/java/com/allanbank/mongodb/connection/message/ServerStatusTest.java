@@ -8,8 +8,11 @@ package com.allanbank.mongodb.connection.message;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
+
+import com.allanbank.mongodb.ReadPreference;
 
 /**
  * ServerStatusTest provides tests for the {@link ServerStatus} message.
@@ -37,7 +40,7 @@ public class ServerStatusTest {
         assertFalse(serverStatus.isExhaust());
         assertFalse(serverStatus.isNoCursorTimeout());
         assertFalse(serverStatus.isPartial());
-        assertFalse(serverStatus.isReplicaOk());
+        assertSame(ReadPreference.PRIMARY, serverStatus.getReadPreference());
         assertFalse(serverStatus.isTailable());
     }
 

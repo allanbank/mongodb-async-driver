@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.connection.message;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 
 /**
@@ -26,7 +27,7 @@ public class Command extends Query {
      *            The command document containing the command and options.
      */
     public Command(final String databaseName, final Document commandDocument) {
-        this(databaseName, commandDocument, false);
+        this(databaseName, commandDocument, ReadPreference.PRIMARY);
     }
 
     /**
@@ -36,15 +37,16 @@ public class Command extends Query {
      *            The name of the database.
      * @param commandDocument
      *            The command document containing the command and options.
-     * @param replicaOk
-     *            If the command can be run on a replica.
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
      */
     public Command(final String databaseName, final Document commandDocument,
-            final boolean replicaOk) {
+            final ReadPreference readPreference) {
         super(databaseName, COMMAND_COLLECTION, commandDocument,
         /* fields= */null,
         /* batchSize= */1, /* limit= */1, /* numberToSkip= */0,
-        /* tailable= */false, replicaOk,
+        /* tailable= */false, readPreference,
         /* noCursorTimeout= */false, /* awaitData= */false,
         /* exhaust= */false, /* partial= */false);
     }

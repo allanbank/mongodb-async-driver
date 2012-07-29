@@ -19,6 +19,9 @@ public class MongoTimestampElement extends AbstractElement {
     /** The BSON type for a long. */
     public static final ElementType TYPE = ElementType.MONGO_TIMESTAMP;
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -402083578422199042L;
+
     /** The BSON timestamp value as 4 byte increment and 4 byte timestamp. */
     private final long myTimestamp;
 

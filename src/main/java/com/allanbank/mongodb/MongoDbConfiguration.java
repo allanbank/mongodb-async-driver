@@ -122,6 +122,14 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     private Durability myDefaultDurability = Durability.NONE;
 
+    /**
+     * The default read preference for a query.
+     * <p>
+     * Defaults to {@link ReadPreference#PRIMARY}.
+     * </p>
+     */
+    private ReadPreference myDefaultReadPreference = ReadPreference.PRIMARY;
+
     /** The factory for creating threads to handle connections. */
     private transient ThreadFactory myFactory = null;
 
@@ -134,7 +142,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * <em>Note:</em> In the case of connecting to a replica set this setting
      * limits the number of connections to the primary server. The driver will
      * create single connections to the secondary servers if queries are issued
-     * with "replicaOk" set to true.
+     * with a {@link ReadPreference} other than {@link ReadPreference#PRIMARY}.
      * </p>
      */
     private int myMaxConnectionCount = 3;
@@ -365,8 +373,12 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
                             + "'.");
                 }
                 else if ("slaveOk".equalsIgnoreCase(property)) {
-                    LOG.info("Not able to set the default slave OK value to '"
-                            + value + "'.");
+                    if (Boolean.parseBoolean(value)) {
+                        myDefaultReadPreference = ReadPreference.SECONDARY;
+                    }
+                    else {
+                        myDefaultReadPreference = ReadPreference.PRIMARY;
+                    }
                 }
                 else if ("safe".equalsIgnoreCase(property)) {
                     safe = Boolean.parseBoolean(value);
@@ -566,6 +578,18 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the default read preference for a query.
+     * <p>
+     * Defaults to {@link ReadPreference#PRIMARY}.
+     * </p>
+     * 
+     * @return The default read preference for a query.
+     */
+    public ReadPreference getDefaultReadPreference() {
+        return myDefaultReadPreference;
+    }
+
+    /**
      * Returns the maximum number of connections to use.
      * <p>
      * Defaults to 3.
@@ -574,7 +598,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * <em>Note:</em> In the case of connecting to a replica set this setting
      * limits the number of connections to the primary server. The driver will
      * create single connections to the secondary servers if queries are issued
-     * with "replicaOk" set to true.
+     * with a {@link ReadPreference} other than {@link ReadPreference#PRIMARY}.
      * </p>
      * 
      * @return The maximum connections to use.
@@ -750,6 +774,25 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Sets the value of the default read preference for a query.
+     * <p>
+     * Defaults to {@link ReadPreference#PRIMARY} if <code>null</code> is set.
+     * </p>
+     * 
+     * @param defaultReadPreference
+     *            The default read preference for a query.
+     */
+    public void setDefaultReadPreference(
+            final ReadPreference defaultReadPreference) {
+        if (defaultReadPreference == null) {
+            myDefaultReadPreference = ReadPreference.PRIMARY;
+        }
+        else {
+            myDefaultReadPreference = defaultReadPreference;
+        }
+    }
+
+    /**
      * Sets the maximum number of connections to use.
      * <p>
      * Defaults to 3.
@@ -758,7 +801,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * <em>Note:</em> In the case of connecting to a replica set this setting
      * limits the number of connections to the primary server. The driver will
      * create single connections to the secondary servers if queries are issued
-     * with "replicaOk" set to true.
+     * with a {@link ReadPreference} other than {@link ReadPreference#PRIMARY}.
      * </p>
      * 
      * @param maxConnectionCount

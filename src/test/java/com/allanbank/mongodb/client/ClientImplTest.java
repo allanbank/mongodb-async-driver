@@ -25,6 +25,7 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
@@ -561,7 +562,7 @@ public class ClientImplTest {
     @Test
     public void testSendQueryCallbackOfReply() throws IOException {
         final Query message = new Query("db", "coll", null, null, 0, 0, 0,
-                false, false, false, false, false, false);
+                false, ReadPreference.PRIMARY, false, false, false, false);
         final Callback<Reply> callback = createMock(Callback.class);
 
         final Connection mockConnection = createMock(Connection.class);

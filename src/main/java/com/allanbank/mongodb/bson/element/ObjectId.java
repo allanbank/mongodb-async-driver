@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.security.MessageDigest;
@@ -17,13 +18,16 @@ import java.util.concurrent.atomic.AtomicLong;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ObjectId {
+public class ObjectId implements Serializable {
 
     /** The current process's machine id. */
     public static final long MACHINE_ID;
 
     /** The counter to add to the machine id. */
     private static final AtomicLong COUNTER = new AtomicLong(0);
+
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -3035334151717895487L;
 
     static {
         long value = 0;
