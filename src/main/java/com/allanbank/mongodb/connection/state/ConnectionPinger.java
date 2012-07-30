@@ -48,7 +48,7 @@ public class ConnectionPinger implements Runnable, Closeable {
             .getCanonicalName());
 
     /**
-     * Pings the server an suppresses all exceptions.
+     * Pings the server and suppresses all exceptions.
      * 
      * @param addr
      *            The address of the server. Used for logging.
@@ -95,6 +95,9 @@ public class ConnectionPinger implements Runnable, Closeable {
     /** The thread that is pinging the servers for latency. */
     private final Thread myPingThread;
 
+    /** The flag to stop the ping thread. */
+    private volatile boolean myRunning;
+
     /**
      * Creates a new ConnectionPinger.
      * 
@@ -113,6 +116,7 @@ public class ConnectionPinger implements Runnable, Closeable {
         myCluster = cluster;
         myConnectionFactory = factory;
         myConfig = config;
+        myRunning = true;
 
         myPingThread = myConfig.getThreadFactory().newThread(this);
         myPingThread.setDaemon(true);
@@ -129,6 +133,7 @@ public class ConnectionPinger implements Runnable, Closeable {
      */
     @Override
     public void close() throws IOException {
+        myRunning = false;
         myPingThread.interrupt();
     }
 
@@ -136,14 +141,14 @@ public class ConnectionPinger implements Runnable, Closeable {
      * {@inheritDoc}
      * <p>
      * Overridden to periodically wake-up and ping the servers. At first this
-     * will occur fairly often but eventually degrade two once every 5 minutes.
+     * will occur fairly often but eventually degrade to once every 5 minutes.
      * </p>
      */
     @Override
     public void run() {
         try {
             int sleepSeconds = MIN_PING_INTERVAL_SECONDS;
-            while (true) {
+            while (myRunning) {
                 for (final ServerState server : myCluster.getServers()) {
                     final InetSocketAddress addr = server.getServer();
                     Connection conn = null;

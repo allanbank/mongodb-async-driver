@@ -10,7 +10,6 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -62,10 +61,6 @@ public class SimpleReconnectStrategy extends
                 }
 
                 IOUtils.close(newConn);
-            }
-            catch (final MongoDbException error) {
-                IOUtils.close(newConn);
-                newConn = null;
             }
             catch (final IOException error) {
                 // Connection failed.
