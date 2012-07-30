@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
@@ -24,11 +25,11 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.socket.SocketConnection;
 import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.LatencyServerSelector;
 import com.allanbank.mongodb.connection.state.ServerSelector;
 import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * Provides the ability to create connections to a shard configuration via
@@ -69,8 +70,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         myClusterState = new ClusterState();
         mySelector = new LatencyServerSelector(myClusterState, true);
         for (final InetSocketAddress address : config.getServers()) {
-            final ServerState state = myClusterState.add(address.getAddress()
-                    .getHostName() + ":" + address.getPort());
+            final ServerState state = myClusterState.add(address
+                    .getHostString() + ":" + address.getPort());
 
             // In a sharded environment we assume that all of the mongos servers
             // are writable.
@@ -113,11 +114,11 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                     false);
 
             for (final InetSocketAddress addr : myConfig.getServers()) {
-                SocketConnection conn = null;
+                Connection conn = null;
                 final FutureCallback<Reply> future = new FutureCallback<Reply>();
                 try {
                     // Send the request...
-                    conn = new SocketConnection(addr, myConfig);
+                    conn = myConnectionFactory.connect(addr, myConfig);
                     conn.send(future, query);
 
                     // Receive the response.
@@ -141,6 +142,11 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                             "I/O error during sharded bootstrap to " + addr
                                     + ".", ioe);
                 }
+                catch (final MongoDbException me) {
+                    LOG.log(Level.WARNING,
+                            "MongoDB error during sharded bootstrap to " + addr
+                                    + ".", me);
+                }
                 catch (final InterruptedException e) {
                     LOG.log(Level.WARNING,
                             "Interrupted during sharded bootstrap to " + addr
@@ -151,16 +157,9 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                             + addr + ".", e);
                 }
                 finally {
-                    try {
-                        if (conn != null) {
-                            conn.close();
-                        }
-                    }
-                    catch (final IOException okay) {
-                        LOG.log(Level.WARNING,
-                                "I/O error shutting down sharded bootstrap connection to "
-                                        + addr + ".", okay);
-                    }
+                    IOUtils.close(conn, Level.WARNING,
+                            "I/O error shutting down sharded bootstrap connection to "
+                                    + addr + ".");
                 }
             }
         }
@@ -208,7 +207,17 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
         delegates.setState(myClusterState);
         delegates.setSelector(mySelector);
+        delegates.setConnectionFactory(myConnectionFactory);
 
         return delegates;
+    }
+
+    /**
+     * Returns the clusterState value.
+     * 
+     * @return The clusterState value.
+     */
+    protected ClusterState getClusterState() {
+        return myClusterState;
     }
 }

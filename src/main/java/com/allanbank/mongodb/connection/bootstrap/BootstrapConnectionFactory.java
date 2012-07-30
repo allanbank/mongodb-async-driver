@@ -133,7 +133,9 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                         + ".", e);
             }
             finally {
-                IOUtils.close(conn);
+                IOUtils.close(conn, Level.WARNING,
+                        "I/O error shutting down bootstrap connection to "
+                                + addr + ".");
             }
         }
     }

@@ -1,0 +1,12 @@
+            ------
+            MongoDB Asynchronous Java Driver - Download
+            ------
+            ------
+
+Download
+
+  The lastest version of the driver is available via the following links.
+
+  [Jar] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}.jar}${projectArtifactId}-${projectVersion}.jar}}
+  
+  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}-javadoc.jar}${projectArtifactId}-${projectVersion}-javadoc.jar}}

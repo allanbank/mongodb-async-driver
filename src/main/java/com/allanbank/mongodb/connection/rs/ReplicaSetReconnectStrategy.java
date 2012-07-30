@@ -102,8 +102,7 @@ public class ReplicaSetReconnectStrategy extends
             final long deadline = (wait <= 0) ? Long.MAX_VALUE : (now + wait);
 
             // How much time to pause for replies and waiting for a server to
-            // become
-            // primary.
+            // become primary.
             int pauseTime = INITIAL_RECONNECT_PAUSE_TIME_MS;
             while (now < deadline) {
                 // Ask all of the servers who they think the primary is.
@@ -190,6 +189,11 @@ public class ReplicaSetReconnectStrategy extends
                     final ServerState server = getState().get(putativePrimary);
 
                     // Mark the server writable.
+                    // There can only be 1 writable server.
+                    for (final ServerState other : getState()
+                            .getWritableServers()) {
+                        getState().markNotWritable(other);
+                    }
                     getState().markWritable(server);
 
                     final Connection primaryConn = connections.remove(server

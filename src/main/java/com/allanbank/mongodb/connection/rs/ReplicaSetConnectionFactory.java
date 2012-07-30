@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
@@ -22,10 +23,10 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.socket.SocketConnection;
 import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.LatencyServerSelector;
 import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * Provides the ability to create connections to a replica-set environment.
@@ -61,8 +62,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
         myConfig = config;
         myClusterState = new ClusterState();
         for (final InetSocketAddress address : config.getServers()) {
-            final ServerState state = myClusterState.add(address.getAddress()
-                    .getHostName() + ":" + address.getPort());
+            final ServerState state = myClusterState.add(address
+                    .getHostString() + ":" + address.getPort());
 
             // In a replica-set environment we assume that all of the
             // servers are non-writable.
@@ -78,10 +79,10 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      */
     public void bootstrap() {
         for (final InetSocketAddress addr : myConfig.getServers()) {
-            SocketConnection conn = null;
+            Connection conn = null;
             final FutureCallback<Reply> future = new FutureCallback<Reply>();
             try {
-                conn = new SocketConnection(addr, myConfig);
+                conn = myConnectionFactory.connect(addr, myConfig);
                 conn.send(future, new IsMaster());
                 final Reply reply = future.get();
                 final List<Document> results = reply.getResults();
@@ -115,6 +116,11 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                         "I/O error during replica-set bootstrap to " + addr
                                 + ".", ioe);
             }
+            catch (final MongoDbException me) {
+                LOG.log(Level.WARNING,
+                        "MongoDB error during replica-set bootstrap to " + addr
+                                + ".", me);
+            }
             catch (final InterruptedException e) {
                 LOG.log(Level.WARNING,
                         "Interrupted during replica-set bootstrap to " + addr
@@ -125,16 +131,9 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                         + addr + ".", e);
             }
             finally {
-                try {
-                    if (conn != null) {
-                        conn.close();
-                    }
-                }
-                catch (final IOException okay) {
-                    LOG.log(Level.WARNING,
-                            "I/O error shutting down replica-set bootstrap connection to "
-                                    + addr + ".", okay);
-                }
+                IOUtils.close(conn, Level.WARNING,
+                        "I/O error shutting down replica-set bootstrap connection to "
+                                + addr + ".");
             }
         }
     }
@@ -185,5 +184,14 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
         strategy.setSelector(new LatencyServerSelector(myClusterState, false));
 
         return strategy;
+    }
+
+    /**
+     * Returns the clusterState value.
+     * 
+     * @return The clusterState value.
+     */
+    protected ClusterState getClusterState() {
+        return myClusterState;
     }
 }

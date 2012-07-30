@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="MongoDB Asynchronous Java Driver">
-	
+
 	<googleAnalyticsAccountId>UA-33634837-1</googleAnalyticsAccountId>
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
@@ -9,25 +9,16 @@
 	</skin>
 	<body>
 		<menu name="Overview">
-			<item name="Introduction" href="index.html"/>
+			<item name="Introduction" href="index.html" />
+			<item name="Download" href="download.html" />
 			<item name="BSON Performance" href="bson_performance.html" />
 			<item name="Performance" href="performance.html" />
 		</menu>
-		<menu ref="reports" />		
+		<menu ref="reports" />
 	</body>
-	
-<!--
-	<skin>
-		<groupId>org.apache.maven.skins</groupId>
-		<artifactId>maven-fluido-skin</artifactId>
-		<version>1.2.1</version>
-	</skin>
-	<custom>
-		<fluidoSkin>
-			<topBarEnabled>true</topBarEnabled>
-			<sideBarEnabled>true</sideBarEnabled>
-			<googleSearch><siteSearch/></googleSearch>
-		</fluidoSkin>
-	</custom>
--->
+
+	<!-- <skin> <groupId>org.apache.maven.skins</groupId> <artifactId>maven-fluido-skin</artifactId> 
+		<version>1.2.1</version> </skin> <custom> <fluidoSkin> <topBarEnabled>true</topBarEnabled> 
+		<sideBarEnabled>true</sideBarEnabled> <googleSearch><siteSearch/></googleSearch> 
+		</fluidoSkin> </custom> -->
 </project>

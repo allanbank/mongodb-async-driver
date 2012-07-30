@@ -51,8 +51,8 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
         // Add all of the servers as writable by default.
         for (final InetSocketAddress address : config.getServers()) {
-            final ServerState state = myState.add(address.getAddress()
-                    .getHostName() + ":" + address.getPort());
+            final ServerState state = myState.add(address.getHostString() + ":"
+                    + address.getPort());
 
             myState.markWritable(state);
         }

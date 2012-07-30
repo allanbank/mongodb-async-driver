@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.builder.impl;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -150,7 +152,7 @@ public abstract class AbstractBuilder implements Builder {
         private static final long serialVersionUID = 4421203621373216989L;
 
         /** The encapsulated builder. */
-        private final AbstractBuilder myBuilder;
+        private transient AbstractBuilder myBuilder;
 
         /**
          * Creates a new {@link BuilderElement}.
@@ -181,6 +183,23 @@ public abstract class AbstractBuilder implements Builder {
          */
         public Element build() {
             return myBuilder.build(getName());
+        }
+
+        /**
+         * Sets the transient state of this non-Element.
+         * 
+         * @param in
+         *            The input stream.
+         * @throws ClassNotFoundException
+         *             On a failure loading a class in this classed reachable
+         *             tree.
+         * @throws IOException
+         *             On a failure reading from the stream.
+         */
+        private void readObject(final ObjectInputStream in)
+                throws ClassNotFoundException, IOException {
+            in.defaultReadObject();
+            myBuilder = null;
         }
     }
 }

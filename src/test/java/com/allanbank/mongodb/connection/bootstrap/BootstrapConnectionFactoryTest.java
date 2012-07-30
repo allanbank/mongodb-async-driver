@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.connection.bootstrap;
 
+import static com.allanbank.mongodb.connection.MockMongoDBServer.reply;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -16,8 +17,6 @@ import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -26,14 +25,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
-import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.auth.AuthenticationConnectionFactory;
-import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.rs.ReplicaSetConnectionFactory;
 import com.allanbank.mongodb.connection.rs.ReplicaSetReconnectStrategy;
 import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
@@ -262,20 +259,5 @@ public class BootstrapConnectionFactoryTest {
             error.initCause(ioe);
             throw error;
         }
-    }
-
-    /**
-     * Creates a reply with the specified document.
-     * 
-     * @param builders
-     *            The builder for the reply document.
-     * @return The Repy.
-     */
-    protected Reply reply(final DocumentBuilder... builders) {
-        final List<Document> docs = new ArrayList<Document>(builders.length);
-        for (final DocumentBuilder builder : builders) {
-            docs.add(builder.build());
-        }
-        return new Reply(0, 0, 0, docs, false, false, false, false);
     }
 }

@@ -35,12 +35,6 @@ Java Driver instead creates a completely new driver that at its very core is asy
 interface to the driver still provides synchronous methods but they are implemented using the 
 asynchronous variants of the methods.
 
-Download
-
-  [Jar] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}.jar}${projectArtifactId}-${projectVersion}.jar}}
-  
-  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}-javadoc.jar}${projectArtifactId}-${projectVersion}-javadoc.jar}}
-
 Usage
 
   The driver includes a strongly types {{{./apidocs/com/allanbank/mongodb/bson/package-summary.html}BSON implementation}}.  
@@ -113,7 +107,7 @@ using Java's NIO package for using a single thread across multiple connections.
 balance requests across all open connections the driver can not guarantee that two requests to the server,
 even from a single thread, will be executed in the order they are submitted on the client.  For client's
 that need to serialize requests to the server can create a serial version of a
-{{{./apidocs/com/allanbank/mongodb/Mongo.html#asSerializedMongo()}Mongo}} implementation.  The only difference
+{{{./apidocs/com/allanbank/mongodb/Mongo.html#asSerializedMongo}Mongo}} implementation.  The only difference
 between a serialized version and the non-serialized version is that the serialized version will only use
 a single connection to the server.  The asSerializedMongo() and creation of the MongoDatabase 
 and MongoCollection client side objects are extremely lightweight and have no server interaction 
@@ -123,9 +117,10 @@ Testing
 
   The driver has an extensive set of {{{./surefire-report.html}unit}}, {{{./failsafe-report.html}integration}} 
 and {{{./failsafe-report.html#com.allanbank.mongodb.acceptance}acceptance}} tests. The unit tests alone provide 
-line and branch coverage for well over 75% of the driver's source.  In addition several integration tests have 
-been created to ensure that the driver's interpretation of various MongoDb provided documentation is correct. 
-For these tests a local MongoDB instance in the appropriate configuration is started as part of the test.  
-Lastly, the acceptable tests exercise both the interfaces provided by the driver but also the interaction 
-of the driver with the various MongoDB applications and configurations.  Similar to the integration tests 
-the acceptance tests start various configurations of MongoDB as part of the test.
+line and branch coverage for over 90% and 82% respectively of the driver's source.  In addition several 
+integration tests have been created to ensure that the driver's interpretation of various MongoDb provided 
+documentation matches what the server does. For these tests a local MongoDB instance in the appropriate 
+configuration is started as part of the test.  Lastly, the acceptable tests exercise both the interfaces 
+provided by the driver but also the interaction of the driver with the various MongoDB applications and 
+configurations.  Similar to the integration tests the acceptance tests start various configurations of 
+MongoDB as part of the test.
