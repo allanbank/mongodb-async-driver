@@ -63,7 +63,7 @@ public class GridFs {
     private final MongoCollection myChunksCollection;
 
     /** The size for a chunk written. */
-    private final int myChunkSize = DEFAULT_CHUNK_SIZE;
+    private int myChunkSize = DEFAULT_CHUNK_SIZE;
 
     /** The GridFS files collection. */
     private final MongoCollection myFilesCollection;
@@ -142,6 +142,15 @@ public class GridFs {
     }
 
     /**
+     * Returns the size for a chunk written.
+     * 
+     * @return The size for a chunk written.
+     */
+    public int getChunkSize() {
+        return myChunkSize;
+    }
+
+    /**
      * Reads a file from the GridFS collections and writes the contents to the
      * <tt>sink</tt>
      * 
@@ -182,6 +191,16 @@ public class GridFs {
                 sink.write(bytes.getValue());
             }
         }
+    }
+
+    /**
+     * Sets the value of size for a chunk written.
+     * 
+     * @param chunkSize
+     *            The new value for the size for a chunk written.
+     */
+    public void setChunkSize(final int chunkSize) {
+        myChunkSize = chunkSize;
     }
 
     /**
@@ -294,7 +313,7 @@ public class GridFs {
         }
         catch (final ExecutionException e) {
             failed = true;
-            throw new IOException(e);
+            throw new IOException(e.getCause());
         }
         finally {
             if (failed) {
