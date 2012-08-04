@@ -76,7 +76,7 @@ public abstract class AbstractProxyConnection implements Connection {
     public void addPropertyChangeListener(final PropertyChangeListener listener) {
         try {
             myProxiedConnection
-                    .addPropertyChangeListener(new ProxiedChangeListener(
+                    .addPropertyChangeListener(new ProxiedChangeListener(this,
                             listener));
         }
         catch (final MongoDbException error) {
@@ -206,7 +206,7 @@ public abstract class AbstractProxyConnection implements Connection {
     public void removePropertyChangeListener(
             final PropertyChangeListener listener) {
         myProxiedConnection
-                .removePropertyChangeListener(new ProxiedChangeListener(
+                .removePropertyChangeListener(new ProxiedChangeListener(this,
                         listener));
     }
 
@@ -236,7 +236,13 @@ public abstract class AbstractProxyConnection implements Connection {
      */
     @Override
     public void send(final Message... messages) throws MongoDbException {
-        send(null, messages);
+        try {
+            myProxiedConnection.send(messages);
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
     }
 
     /**
@@ -297,18 +303,26 @@ public abstract class AbstractProxyConnection implements Connection {
      * 
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected class ProxiedChangeListener implements PropertyChangeListener {
+    protected static class ProxiedChangeListener implements
+            PropertyChangeListener {
 
         /** The delegate listener. */
         private final PropertyChangeListener myDelegate;
 
+        /** The proxied connection. */
+        private final AbstractProxyConnection myProxiedConn;
+
         /**
          * Creates a new ProxiedChangeListener.
          * 
+         * @param proxiedConn
+         *            The proxied connection.
          * @param delegate
          *            The delegate listener.
          */
-        public ProxiedChangeListener(final PropertyChangeListener delegate) {
+        public ProxiedChangeListener(final AbstractProxyConnection proxiedConn,
+                final PropertyChangeListener delegate) {
+            myProxiedConn = proxiedConn;
             myDelegate = delegate;
         }
 
@@ -354,7 +368,7 @@ public abstract class AbstractProxyConnection implements Connection {
         public void propertyChange(final PropertyChangeEvent event) {
 
             final PropertyChangeEvent newEvent = new PropertyChangeEvent(
-                    AbstractProxyConnection.this, event.getPropertyName(),
+                    myProxiedConn, event.getPropertyName(),
                     event.getOldValue(), event.getNewValue());
             newEvent.setPropagationId(event.getPropagationId());
             myDelegate.propertyChange(newEvent);

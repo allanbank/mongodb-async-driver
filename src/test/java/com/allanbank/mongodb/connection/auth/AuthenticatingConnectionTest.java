@@ -316,7 +316,7 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send((Callback<Reply>) null, msg);
+        mockConnetion.send(msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -373,7 +373,7 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send((Callback<Reply>) null, msg);
+        mockConnetion.send(msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -519,7 +519,7 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send((Callback<Reply>) null, msg);
+        mockConnetion.send(msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -614,7 +614,7 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send((Callback<Reply>) null, msg);
+        mockConnetion.send(msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -658,7 +658,7 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send((Callback<Reply>) null, msg);
+        mockConnetion.send(msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -700,11 +700,11 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send((Callback<Reply>) null, msg);
+        mockConnetion.send(msg);
         expectLastCall();
 
         // Message, again.
-        mockConnetion.send((Callback<Reply>) null, msg);
+        mockConnetion.send(msg);
         expectLastCall();
 
         mockConnetion.close();
