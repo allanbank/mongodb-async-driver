@@ -48,5 +48,4 @@ public final class FutureUtils {
     private FutureUtils() {
         // Nothing.
     }
-
 }

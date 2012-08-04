@@ -38,6 +38,5 @@ public class BuilderFactory {
      */
     private BuilderFactory() {
         // Nothing to do.
-        super();
     }
 }
