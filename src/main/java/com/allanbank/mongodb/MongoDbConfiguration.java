@@ -18,6 +18,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * Contains the configuration for the connection(s) to the MongoDB servers.
@@ -35,31 +36,12 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     /** The ASCII character encoding. */
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
-    /** Hex encoding characters. */
-    private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
-
     /** The logger for the {@link MongoDbConfiguration}. */
     private static final Logger LOG = Logger
             .getLogger(MongoDbConfiguration.class.getCanonicalName());
 
     /** The serialization version for the class. */
     private static final long serialVersionUID = 2964127883934086509L;
-
-    /**
-     * Hex encodes a byte array.
-     * 
-     * @param buf
-     *            The bytes to encode.
-     * @return The hex encoded string.
-     */
-    public static String asHex(final byte[] buf) {
-        final char[] chars = new char[2 * buf.length];
-        for (int i = 0; i < buf.length; ++i) {
-            chars[2 * i] = HEX_CHARS[(buf[i] & 0xF0) >>> 4];
-            chars[(2 * i) + 1] = HEX_CHARS[buf[i] & 0x0F];
-        }
-        return new String(chars);
-    }
 
     /**
      * Parse the name into a {@link InetSocketAddress}. If a port component is
@@ -256,7 +238,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     public MongoDbConfiguration(final MongoDbUri mongoDbUri)
             throws IllegalArgumentException {
         this();
-        
+
         for (final String host : mongoDbUri.getHosts()) {
             addServer(host);
         }
@@ -458,7 +440,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
 
             myAdminUser = false;
             myUsername = username;
-            myPasswordHash = asHex(digest);
+            myPasswordHash = IOUtils.toHex(digest);
         }
         catch (final NoSuchAlgorithmException e) {
             throw new MongoDbAuthenticationException(e);

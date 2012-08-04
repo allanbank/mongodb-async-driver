@@ -241,9 +241,8 @@ public class ClientImpl extends AbstractClient {
      * @param connection
      *            The connection to reconnect.
      */
-    @SuppressWarnings("unchecked")
     protected <C extends Connection> void reconnect(final Connection connection) {
-        final ReconnectStrategy<Connection> strategy = (ReconnectStrategy<Connection>) myConnectionFactory
+        final ReconnectStrategy strategy = myConnectionFactory
                 .getReconnectStrategy();
 
         try {

@@ -12,13 +12,9 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 /**
  * AbstractReconnectStrategy provides a base class for reconnection strategies.
  * 
- * @param <C>
- *            The type of the connection.
- * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractReconnectStrategy<C extends Connection>
-        implements ReconnectStrategy<C> {
+public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
 
     /** The configuration for connections to the servers. */
     protected MongoDbConfiguration myConfig = null;

@@ -98,6 +98,9 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
                     ProxiedConnectionFactory factory = new SocketConnectionFactory(
                             myConfig);
+
+                    // Authentication has to be right on top of the physical
+                    // connection.
                     if (myConfig.isAuthenticating()) {
                         factory = new AuthenticationConnectionFactory(factory,
                                 myConfig);
@@ -158,7 +161,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * </p>
      */
     @Override
-    public ReconnectStrategy<? extends Connection> getReconnectStrategy() {
+    public ReconnectStrategy getReconnectStrategy() {
         return getDelegate().getReconnectStrategy();
     }
 

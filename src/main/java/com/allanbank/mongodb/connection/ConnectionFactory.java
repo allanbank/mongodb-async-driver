@@ -41,5 +41,5 @@ public interface ConnectionFactory {
      * 
      * @return The reconnection strategy for the type of connections.
      */
-    public ReconnectStrategy<? extends Connection> getReconnectStrategy();
+    public ReconnectStrategy getReconnectStrategy();
 }

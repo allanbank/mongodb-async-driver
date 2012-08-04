@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
-import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 
@@ -52,7 +51,7 @@ public class AuthenticationConnectionFactory implements
      * </p>
      */
     @Override
-    public Connection connect() throws IOException {
+    public AuthenticatingConnection connect() throws IOException {
         return new AuthenticatingConnection(
                 myProxiedConnectionFactory.connect(), myConfig);
     }
@@ -60,12 +59,12 @@ public class AuthenticationConnectionFactory implements
     /**
      * {@inheritDoc}
      * <p>
-     * Overriden to wrap the returned connection with an
+     * Overridden to wrap the returned connection with an
      * {@link AuthenticatingConnection}.
      * </p>
      */
     @Override
-    public Connection connect(final InetSocketAddress address,
+    public AuthenticatingConnection connect(final InetSocketAddress address,
             final MongoDbConfiguration config) throws IOException {
         return new AuthenticatingConnection(myProxiedConnectionFactory.connect(
                 address, config), config);
@@ -79,8 +78,8 @@ public class AuthenticationConnectionFactory implements
      * </p>
      */
     @Override
-    public ReconnectStrategy<? extends Connection> getReconnectStrategy() {
-        final ReconnectStrategy<? extends Connection> delegates = myProxiedConnectionFactory
+    public ReconnectStrategy getReconnectStrategy() {
+        final ReconnectStrategy delegates = myProxiedConnectionFactory
                 .getReconnectStrategy();
         delegates.setConnectionFactory(this);
 

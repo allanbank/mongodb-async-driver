@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.connection.bootstrap;
 
-import static com.allanbank.mongodb.connection.MockMongoDBServer.reply;
+import static com.allanbank.mongodb.connection.CallbackReply.reply;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;

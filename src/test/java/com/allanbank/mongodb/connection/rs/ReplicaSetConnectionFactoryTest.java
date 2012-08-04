@@ -5,9 +5,9 @@
 
 package com.allanbank.mongodb.connection.rs;
 
-import static com.allanbank.mongodb.connection.MockMongoDBServer.reply;
+import static com.allanbank.mongodb.connection.CallbackReply.cb;
+import static com.allanbank.mongodb.connection.CallbackReply.reply;
 import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
@@ -26,14 +26,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -42,7 +40,6 @@ import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
-import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
@@ -374,8 +371,7 @@ public class ReplicaSetConnectionFactoryTest {
                 mockFactory.connect(anyObject(InetSocketAddress.class),
                         eq(config))).andReturn(mockConnection);
 
-        mockConnection.send(capture(new CallbackFailureCapture()),
-                anyObject(IsMaster.class));
+        mockConnection.send(cb(), anyObject(IsMaster.class));
         expectLastCall().andThrow(new MongoDbException("This is a test"));
 
         mockConnection.close();
@@ -436,8 +432,7 @@ public class ReplicaSetConnectionFactoryTest {
                 mockFactory.connect(anyObject(InetSocketAddress.class),
                         eq(config))).andReturn(mockConnection);
 
-        mockConnection.send(capture(new CallbackCapture()),
-                anyObject(IsMaster.class));
+        mockConnection.send(cb(), anyObject(IsMaster.class));
         expectLastCall().andThrow(new MongoDbException("This is a test"));
 
         mockConnection.close();
@@ -468,7 +463,7 @@ public class ReplicaSetConnectionFactoryTest {
         final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
                 mockFactory, config);
 
-        final ReconnectStrategy<?> strategy = factory.getReconnectStrategy();
+        final ReconnectStrategy strategy = factory.getReconnectStrategy();
 
         assertThat(strategy, instanceOf(ReplicaSetReconnectStrategy.class));
 
@@ -477,41 +472,5 @@ public class ReplicaSetConnectionFactoryTest {
         assertSame(mockFactory, rsStrategy.getConnectionFactory());
 
         verify(mockFactory);
-    }
-
-    /**
-     * CallbackCapture provides the ability to trigger the callback.
-     * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected final class CallbackCapture extends Capture<Callback<Reply>> {
-        /** Serialization version for the class. */
-        private static final long serialVersionUID = -8744386051520804331L;
-
-        @Override
-        public void setValue(final Callback<Reply> value) {
-            super.setValue(value);
-
-            value.callback(reply());
-        }
-    }
-
-    /**
-     * CallbackFailureCapture provides the ability to trigger the callback
-     * failure.
-     * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected final class CallbackFailureCapture extends
-            Capture<Callback<Reply>> {
-        /** Serialization version for the class. */
-        private static final long serialVersionUID = -8744386051520804331L;
-
-        @Override
-        public void setValue(final Callback<Reply> value) {
-            super.setValue(value);
-
-            value.exception(null);
-        }
     }
 }

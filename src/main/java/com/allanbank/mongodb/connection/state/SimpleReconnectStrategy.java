@@ -19,8 +19,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class SimpleReconnectStrategy extends
-        AbstractReconnectStrategy<Connection> {
+public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
 
     /** The logger for the {@link SimpleReconnectStrategy}. */
     protected static final Logger LOG = Logger

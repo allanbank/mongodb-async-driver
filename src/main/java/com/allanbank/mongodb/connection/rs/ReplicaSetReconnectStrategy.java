@@ -51,8 +51,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReplicaSetReconnectStrategy extends
-        AbstractReconnectStrategy<ReplicaSetConnection> {
+public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
 
     /**
      * The initial amount of time to pause waiting for a server to take over as
@@ -86,8 +85,7 @@ public class ReplicaSetReconnectStrategy extends
      * </p>
      */
     @Override
-    public ReplicaSetConnection reconnect(
-            final ReplicaSetConnection oldConnection) {
+    public ReplicaSetConnection reconnect(final Connection oldConnection) {
 
         LOG.fine("Trying replica set reconnect.");
 
@@ -160,7 +158,7 @@ public class ReplicaSetReconnectStrategy extends
      *         it was the primary.
      */
     protected ReplicaSetConnection checkForReply(
-            final ReplicaSetConnection oldConnection,
+            final Connection oldConnection,
             final Map<InetSocketAddress, Future<Reply>> answers,
             final Map<InetSocketAddress, Connection> connections) {
         final Map<InetSocketAddress, Future<Reply>> copy = new HashMap<InetSocketAddress, Future<Reply>>(

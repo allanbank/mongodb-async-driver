@@ -113,7 +113,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      * </p>
      */
     @Override
-    public ReconnectStrategy<Connection> getReconnectStrategy() {
+    public ReconnectStrategy getReconnectStrategy() {
         final SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
         strategy.setConfig(myConfig);
         strategy.setConnectionFactory(this);

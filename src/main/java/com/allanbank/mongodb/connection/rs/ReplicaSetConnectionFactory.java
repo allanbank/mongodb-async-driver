@@ -174,7 +174,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      * </p>
      */
     @Override
-    public ReconnectStrategy<?> getReconnectStrategy() {
+    public ReconnectStrategy getReconnectStrategy() {
 
         final ReplicaSetReconnectStrategy strategy = new ReplicaSetReconnectStrategy();
 

@@ -201,8 +201,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      * </p>
      */
     @Override
-    public ReconnectStrategy<? extends Connection> getReconnectStrategy() {
-        final ReconnectStrategy<? extends Connection> delegates = myConnectionFactory
+    public ReconnectStrategy getReconnectStrategy() {
+        final ReconnectStrategy delegates = myConnectionFactory
                 .getReconnectStrategy();
 
         delegates.setState(myClusterState);

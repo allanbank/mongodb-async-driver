@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.connection.rs;
 
-import static com.allanbank.mongodb.connection.MockMongoDBServer.reply;
+import static com.allanbank.mongodb.connection.CallbackReply.reply;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 
@@ -20,6 +20,7 @@ import org.junit.Test;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
@@ -101,8 +102,8 @@ public class ReplicaSetReconnectStrategyTest {
     }
 
     /**
-     * Test method for
-     * {@link ReplicaSetReconnectStrategy#reconnect(ReplicaSetConnection)} .
+     * Test method for {@link ReplicaSetReconnectStrategy#reconnect(Connection)}
+     * .
      * 
      * @throws IOException
      *             On a failure.
@@ -177,8 +178,8 @@ public class ReplicaSetReconnectStrategyTest {
     }
 
     /**
-     * Test method for
-     * {@link ReplicaSetReconnectStrategy#reconnect(ReplicaSetConnection)} .
+     * Test method for {@link ReplicaSetReconnectStrategy#reconnect(Connection)}
+     * .
      * 
      * @throws IOException
      *             On a failure.
@@ -266,8 +267,8 @@ public class ReplicaSetReconnectStrategyTest {
     }
 
     /**
-     * Test method for
-     * {@link ReplicaSetReconnectStrategy#reconnect(ReplicaSetConnection)} .
+     * Test method for {@link ReplicaSetReconnectStrategy#reconnect(Connection)}
+     * .
      * 
      * @throws IOException
      *             On a failure.
@@ -348,8 +349,8 @@ public class ReplicaSetReconnectStrategyTest {
     }
 
     /**
-     * Test method for
-     * {@link ReplicaSetReconnectStrategy#reconnect(ReplicaSetConnection)} .
+     * Test method for {@link ReplicaSetReconnectStrategy#reconnect(Connection)}
+     * .
      * 
      * @throws IOException
      *             On a failure.

@@ -31,6 +31,7 @@ import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.AbstractProxyConnection;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * AuthenticatingConnection provides a connection that authenticated with the
@@ -108,25 +109,14 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
     }
 
     /**
-     * Creates an exception from the {@link Reply}.
-     * 
-     * @param reply
-     *            The raw reply.
-     * @return The exception created.
+     * {@inheritDoc}
+     * <p>
+     * Overridden to give access to the proxied connections to tests.
+     * </p>
      */
-    protected boolean isOk(final Reply reply) {
-        final List<Document> results = reply.getResults();
-        if (results.size() == 1) {
-            final Document doc = results.get(0);
-            final Element okElem = doc.get("ok");
-            if (okElem != null) {
-                final int okValue = toInt(okElem);
-                if (okValue == 1) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    @Override
+    protected Connection getProxiedConnection() {
+        return super.getProxiedConnection();
     }
 
     /**
@@ -166,19 +156,22 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
 
         Boolean current = myAuthResponse.get(name);
         if (current == null) {
+            FutureCallback<Reply> replyCallback = null;
+            Future<Reply> alreadySent = null;
             try {
                 DocumentBuilder builder = BuilderFactory.start();
                 builder.addInteger("getnonce", 1);
 
-                FutureCallback<Reply> replyCallback = new FutureCallback<Reply>();
-                Future<Reply> alreadySent = myAuthTokens.putIfAbsent(name,
-                        replyCallback);
+                replyCallback = new FutureCallback<Reply>();
+                alreadySent = myAuthTokens.putIfAbsent(name, replyCallback);
                 if (alreadySent == null) {
                     getProxiedConnection().send(replyCallback,
                             new Command(name, builder.build()));
                     alreadySent = replyCallback;
+                    replyCallback = null;
                 }
 
+                // Read the nonce reply.
                 String nonce = "";
                 Reply reply = alreadySent.get();
                 if (reply.getResults().size() > 0) {
@@ -188,8 +181,21 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                     if (strElem.size() > 0) {
                         nonce = strElem.get(0).getValue();
                     }
+                    else {
+                        // Bad reply. Try again.
+                        myAuthTokens.remove(name, alreadySent);
+                        throw new MongoDbAuthenticationException(
+                                "Bad response from nonce request.");
+                    }
+                }
+                else {
+                    // Bad reply. Try again.
+                    myAuthTokens.remove(name, alreadySent);
+                    throw new MongoDbAuthenticationException(
+                            "Bad response from nonce request.");
                 }
 
+                // Send an authenticate request.
                 final MessageDigest md5 = MessageDigest.getInstance("MD5");
                 final byte[] bytes = md5
                         .digest((nonce + myConfig.getUsername() + myConfig
@@ -200,7 +206,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                 builder.addInteger("authenticate", 1);
                 builder.addString("user", myConfig.getUsername());
                 builder.addString("nonce", nonce);
-                builder.addString("key", MongoDbConfiguration.asHex(bytes));
+                builder.addString("key", IOUtils.toHex(bytes));
 
                 replyCallback = new FutureCallback<Reply>();
                 alreadySent = myAuthReplys.putIfAbsent(name, replyCallback);
@@ -208,20 +214,63 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                     getProxiedConnection().send(replyCallback,
                             new Command(name, builder.build()));
                     alreadySent = replyCallback;
+                    replyCallback = null;
                 }
 
+                // Read the reply.
                 reply = alreadySent.get();
-                current = Boolean.valueOf(isOk(reply));
-                myAuthResponse.put(name, current);
+                current = Boolean.FALSE;
+                final List<Document> results = reply.getResults();
+                if (results.size() == 1) {
+                    final Document doc = results.get(0);
+                    final Element okElem = doc.get("ok");
+                    if (okElem != null) {
+                        final int okValue = toInt(okElem);
+                        if (okValue == 1) {
+                            current = Boolean.TRUE;
+                        }
+
+                        myAuthResponse.put(name, current);
+                    }
+                    else {
+                        // Bad reply. Try again.
+                        myAuthReplys.remove(name, alreadySent);
+                        throw new MongoDbAuthenticationException(
+                                "Bad response from authenticate request.");
+                    }
+                }
+                else {
+                    // Bad reply. Try again.
+                    myAuthReplys.remove(name, alreadySent);
+                    throw new MongoDbAuthenticationException(
+                            "Bad response from authenticate request.");
+                }
             }
             catch (final InterruptedException e) {
+                // Bad reply. Try again.
+                myAuthTokens.remove(name, alreadySent);
+                myAuthReplys.remove(name, alreadySent);
+
                 throw new MongoDbAuthenticationException(e);
             }
             catch (final ExecutionException e) {
-                throw new MongoDbAuthenticationException(e);
+                // Bad reply. Try again.
+                myAuthTokens.remove(name, alreadySent);
+                myAuthReplys.remove(name, alreadySent);
+
+                throw new MongoDbAuthenticationException(e.getCause());
             }
             catch (final NoSuchAlgorithmException e) {
                 throw new MongoDbAuthenticationException(e);
+            }
+            catch (final MongoDbException errorOnSend) {
+                if (replyCallback != null) {
+                    replyCallback.exception(errorOnSend);
+                }
+                myAuthTokens.remove(name, replyCallback);
+                myAuthReplys.remove(name, replyCallback);
+
+                throw errorOnSend;
             }
         }
 

@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.connection.message.Delete;
@@ -45,21 +43,6 @@ import com.allanbank.mongodb.util.IOUtils;
 public class MockMongoDBServer extends Thread {
     /** An empty Array of bytes. */
     public static final byte[] EMPTY_BYTES = new byte[0];
-
-    /**
-     * Creates a reply with the specified document.
-     * 
-     * @param builders
-     *            The builder for the reply document.
-     * @return The Repy.
-     */
-    public static Reply reply(final DocumentBuilder... builders) {
-        final List<Document> docs = new ArrayList<Document>(builders.length);
-        for (final DocumentBuilder builder : builders) {
-            docs.add(builder.build());
-        }
-        return new Reply(0, 0, 0, docs, false, false, false, false);
-    }
 
     /** Set to true when a client is connected. */
     private boolean myClientConnected = false;
