@@ -39,8 +39,23 @@ public class MongoFactory {
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
-    public static Mongo create(final String mongoDbUri) {
+    public static Mongo create(final MongoDbUri mongoDbUri) {
         return create(new MongoDbConfiguration(mongoDbUri));
+    }
+
+    /**
+     * Creates a new {@link Mongo} instance using a MongoDB style URL.
+     * 
+     * @param mongoDbUri
+     *            The configuration for the connection to MongoDB expressed as a
+     *            MongoDB URL.
+     * @return The {@link Mongo} representation of the connections to MongoDB.
+     * 
+     * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
+     *      Connections</a>
+     */
+    public static Mongo create(final String mongoDbUri) {
+        return create(new MongoDbUri(mongoDbUri));
     }
 
     /**

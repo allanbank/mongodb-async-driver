@@ -156,4 +156,16 @@ public class DBPointerElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link DBPointerElement}.
+     * </p>
+     */
+    @Override
+    public DBPointerElement withName(final String name) {
+        return new DBPointerElement(name, myDatabaseName, myCollectionName,
+                myId);
+    }
 }

@@ -59,4 +59,15 @@ public class MaxKeyElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link MaxKeyElement}.
+     * </p>
+     */
+    @Override
+    public MaxKeyElement withName(final String name) {
+        return new MaxKeyElement(name);
+    }
 }

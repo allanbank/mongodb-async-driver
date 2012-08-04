@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * Distinct provides container for all of the options to a <tt>distinct</tt>
@@ -104,8 +105,8 @@ public class Distinct {
          *            the distinct against.
          * @return This {@link Builder} for method call chaining.
          */
-        public Builder setQuery(final Document query) {
-            myQuery = query;
+        public Builder setQuery(final DocumentAssignable query) {
+            myQuery = query.asDocument();
             return this;
         }
 

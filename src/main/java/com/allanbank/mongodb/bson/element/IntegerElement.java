@@ -145,4 +145,15 @@ public class IntegerElement extends AbstractElement implements NumericElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link IntegerElement}.
+     * </p>
+     */
+    @Override
+    public IntegerElement withName(final String name) {
+        return new IntegerElement(name, myValue);
+    }
 }

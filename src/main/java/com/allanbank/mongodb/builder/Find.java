@@ -7,6 +7,7 @@ package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * Find provides an immutable container for all of the options for a query.
@@ -36,6 +37,9 @@ public class Find {
     /** The fields to be returned from the matching documents. */
     private final Document myReturnFields;
 
+    /** The fields to order the document by. */
+    private final Document mySortFields;
+
     /**
      * Creates a new Find.
      * 
@@ -50,6 +54,7 @@ public class Find {
         myNumberToSkip = builder.myNumberToSkip;
         myPartialOk = builder.myPartialOk;
         myReadPreference = builder.myReadPreference;
+        mySortFields = builder.mySortFields;
     }
 
     /**
@@ -111,6 +116,15 @@ public class Find {
     }
 
     /**
+     * Returns the fields to order document by.
+     * 
+     * @return The fields to order document by.
+     */
+    public Document getSortFields() {
+        return mySortFields;
+    }
+
+    /**
      * Returns the partial okay value. If true then an error in the query should
      * return any partial results.
      * 
@@ -150,6 +164,9 @@ public class Find {
         /** The fields to be returned from the matching documents. */
         protected Document myReturnFields;
 
+        /** The fields to order the document on. */
+        protected Document mySortFields;
+
         /**
          * Creates a new Builder.
          */
@@ -169,9 +186,9 @@ public class Find {
          * @param query
          *            The query document.
          */
-        public Builder(final Document query) {
+        public Builder(final DocumentAssignable query) {
             this();
-            myQuery = query;
+            myQuery = query.asDocument();
         }
 
         /**
@@ -244,8 +261,8 @@ public class Find {
          *            The new value for the query document.
          * @return This builder for chaining method calls.
          */
-        public Builder setQuery(final Document query) {
-            myQuery = query;
+        public Builder setQuery(final DocumentAssignable query) {
+            myQuery = query.asDocument();
             return this;
         }
 
@@ -272,8 +289,21 @@ public class Find {
          *            matching documents.
          * @return This builder for chaining method calls.
          */
-        public Builder setReturnFields(final Document returnFields) {
-            myReturnFields = returnFields;
+        public Builder setReturnFields(final DocumentAssignable returnFields) {
+            myReturnFields = returnFields.asDocument();
+            return this;
+        }
+
+        /**
+         * Sets the value of the fields to to sort matching documents by.
+         * 
+         * @param sortFields
+         *            The new value for the fields to sort matching documents
+         *            by.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setSortFields(final DocumentAssignable sortFields) {
+            mySortFields = sortFields.asDocument();
             return this;
         }
     }

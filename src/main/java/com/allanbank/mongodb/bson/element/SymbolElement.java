@@ -113,4 +113,15 @@ public class SymbolElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link SymbolElement}.
+     * </p>
+     */
+    @Override
+    public SymbolElement withName(final String name) {
+        return new SymbolElement(name, mySymbol);
+    }
 }

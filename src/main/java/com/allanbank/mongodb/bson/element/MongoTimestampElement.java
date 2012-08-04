@@ -117,4 +117,15 @@ public class MongoTimestampElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link MongoTimestampElement}.
+     * </p>
+     */
+    @Override
+    public MongoTimestampElement withName(final String name) {
+        return new MongoTimestampElement(name, myTimestamp);
+    }
 }

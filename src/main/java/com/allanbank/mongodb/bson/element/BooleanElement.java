@@ -104,4 +104,15 @@ public class BooleanElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link BooleanElement}.
+     * </p>
+     */
+    @Override
+    public BooleanElement withName(final String name) {
+        return new BooleanElement(name, myValue);
+    }
 }

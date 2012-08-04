@@ -7,6 +7,7 @@ package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * Represents the state of a single {@link MongoCollection#findAndModify}
@@ -180,8 +181,8 @@ public class FindAndModify {
          *            document.
          * @return This builder for chaining method calls.
          */
-        public Builder setFields(final Document fields) {
-            myFields = fields;
+        public Builder setFields(final DocumentAssignable fields) {
+            myFields = fields.asDocument();
             return this;
         }
 
@@ -192,8 +193,8 @@ public class FindAndModify {
          *            The query to locate the document to update.
          * @return This builder for chaining method calls.
          */
-        public Builder setQuery(final Document query) {
-            myQuery = query;
+        public Builder setQuery(final DocumentAssignable query) {
+            myQuery = query.asDocument();
             return this;
         }
 
@@ -232,8 +233,8 @@ public class FindAndModify {
          *            one as the object to manipulate.
          * @return This builder for chaining method calls.
          */
-        public Builder setSort(final Document sort) {
-            mySort = sort;
+        public Builder setSort(final DocumentAssignable sort) {
+            mySort = sort.asDocument();
             return this;
         }
 
@@ -244,8 +245,8 @@ public class FindAndModify {
          *            The updates to be applied to the document.
          * @return This builder for chaining method calls.
          */
-        public Builder setUpdate(final Document update) {
-            myUpdate = update;
+        public Builder setUpdate(final DocumentAssignable update) {
+            myUpdate = update.asDocument();
             return this;
         }
 

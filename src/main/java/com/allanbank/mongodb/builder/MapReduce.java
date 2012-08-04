@@ -7,6 +7,7 @@ package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * Represents the state of a single {@link MongoCollection#mapReduce} command.
@@ -437,8 +438,8 @@ public class MapReduce {
          *            against.
          * @return This builder for chaining method calls.
          */
-        public Builder setQuery(final Document query) {
-            myQuery = query;
+        public Builder setQuery(final DocumentAssignable query) {
+            myQuery = query.asDocument();
             return this;
         }
 
@@ -465,8 +466,8 @@ public class MapReduce {
          *            functions.
          * @return This builder for chaining method calls.
          */
-        public Builder setScope(final Document scope) {
-            myScope = scope;
+        public Builder setScope(final DocumentAssignable scope) {
+            myScope = scope.asDocument();
             return this;
         }
 
@@ -480,8 +481,8 @@ public class MapReduce {
          *            reduces.
          * @return This builder for chaining method calls.
          */
-        public Builder setSort(final Document sort) {
-            mySort = sort;
+        public Builder setSort(final DocumentAssignable sort) {
+            mySort = sort.asDocument();
             return this;
         }
 

@@ -148,4 +148,15 @@ public class DoubleElement extends AbstractElement implements NumericElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link DoubleElement}.
+     * </p>
+     */
+    @Override
+    public DoubleElement withName(final String name) {
+        return new DoubleElement(name, myValue);
+    }
 }

@@ -61,4 +61,16 @@ public interface Element extends Serializable {
      */
     public List<Element> queryPath(String... nameRegexs);
 
+    /**
+     * Creates a new element with the same type and value as this element but
+     * with the specified name. This is useful when creating a query across a
+     * set of collections where the filed name changes in the collections but
+     * the values must be identical.
+     * 
+     * @param name
+     *            The new name for the element.
+     * @return The created element.
+     */
+    public Element withName(String name);
+
 }

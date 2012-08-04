@@ -121,4 +121,15 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link JavaScriptElement}.
+     * </p>
+     */
+    @Override
+    public JavaScriptWithScopeElement withName(final String name) {
+        return new JavaScriptWithScopeElement(name, getJavaScript(), myScope);
+    }
 }

@@ -346,4 +346,15 @@ public class RegularExpressionElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link RegularExpressionElement}.
+     * </p>
+     */
+    @Override
+    public RegularExpressionElement withName(final String name) {
+        return new RegularExpressionElement(name, myPattern, myOptions);
+    }
 }

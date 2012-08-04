@@ -186,6 +186,17 @@ public abstract class AbstractBuilder implements Builder {
         }
 
         /**
+         * {@inheritDoc}
+         * <p>
+         * Returns a new {@link BuilderElement}.
+         * </p>
+         */
+        @Override
+        public BuilderElement withName(final String name) {
+            return new BuilderElement(name, myBuilder);
+        }
+
+        /**
          * Sets the transient state of this non-Element.
          * 
          * @param in

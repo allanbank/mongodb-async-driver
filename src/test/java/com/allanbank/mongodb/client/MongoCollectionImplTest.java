@@ -36,6 +36,7 @@ import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -97,7 +98,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#countAsync(Callback, Document)} .
+     * {@link AbstractMongoCollection#countAsync(Callback, DocumentAssignable)}
+     * .
      */
     @Test
     public void testCountAsyncCallbackOfLongDocument() {
@@ -122,7 +124,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#countAsync(Callback, Document, ReadPreference)}
+     * {@link MongoCollectionImpl#countAsync(Callback, DocumentAssignable, ReadPreference)}
      * .
      */
     @Test
@@ -147,7 +149,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#countAsync(Document)} .
+     * Test method for
+     * {@link AbstractMongoCollection#countAsync(DocumentAssignable)} .
      */
     @Test
     public void testCountAsyncDocument() {
@@ -171,7 +174,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#countAsync(Document, ReadPreference)} .
+     * {@link AbstractMongoCollection#countAsync(DocumentAssignable, ReadPreference)}
+     * .
      * 
      * @throws Exception
      *             On an error
@@ -198,7 +202,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#count(Document)} .
+     * Test method for {@link AbstractMongoCollection#count(DocumentAssignable)}
+     * .
      */
     @Test
     public void testCountDocument() {
@@ -224,7 +229,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#count(Document, ReadPreference)} .
+     * {@link AbstractMongoCollection#count(DocumentAssignable, ReadPreference)}
+     * .
      */
     @Test
     public void testCountDocumentBoolean() {
@@ -248,7 +254,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#count(Document, ReadPreference)} .
+     * {@link AbstractMongoCollection#count(DocumentAssignable, ReadPreference)}
+     * .
      */
     @Test
     public void testCountDocumentBooleanOnInterrupt() {
@@ -275,7 +282,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#count(Document, ReadPreference)} .
+     * {@link AbstractMongoCollection#count(DocumentAssignable, ReadPreference)}
+     * .
      */
     @Test
     public void testCountDocumentBooleanOnIOError() {
@@ -303,7 +311,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#count(Document, ReadPreference)} .
+     * {@link AbstractMongoCollection#count(DocumentAssignable, ReadPreference)}
+     * .
      */
     @Test
     public void testCountDocumentBooleanOnMongoError() {
@@ -566,7 +575,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(Callback, Document)} .
+     * {@link AbstractMongoCollection#deleteAsync(Callback, DocumentAssignable)}
+     * .
      */
     @Test
     public void testDeleteAsyncCallbackOfLongDocument() {
@@ -595,7 +605,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(Callback, Document, boolean)}
+     * {@link AbstractMongoCollection#deleteAsync(Callback, DocumentAssignable, boolean)}
      * .
      */
     @Test
@@ -625,7 +635,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#deleteAsync(Callback, Document, boolean, Durability)}
+     * {@link MongoCollectionImpl#deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * .
      */
     @Test
@@ -654,7 +664,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(Callback, Document, Durability)}
+     * {@link AbstractMongoCollection#deleteAsync(Callback, DocumentAssignable, Durability)}
      * .
      */
     @Test
@@ -681,7 +691,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#deleteAsync(Document)} .
+     * Test method for
+     * {@link AbstractMongoCollection#deleteAsync(DocumentAssignable)} .
      * 
      * @throws Exception
      *             On an error.
@@ -714,7 +725,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(Document, boolean)} .
+     * {@link AbstractMongoCollection#deleteAsync(DocumentAssignable, boolean)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -747,7 +759,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(Document, boolean, Durability)}
+     * {@link AbstractMongoCollection#deleteAsync(DocumentAssignable, boolean, Durability)}
      * .
      * 
      * @throws Exception
@@ -779,7 +791,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(Document, Durability)} .
+     * {@link AbstractMongoCollection#deleteAsync(DocumentAssignable, Durability)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -804,7 +817,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#delete(Document)} .
+     * Test method for
+     * {@link AbstractMongoCollection#delete(DocumentAssignable)} .
      */
     @Test
     public void testDeleteDocument() {
@@ -832,8 +846,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#delete(Document, boolean)}
-     * .
+     * Test method for
+     * {@link AbstractMongoCollection#delete(DocumentAssignable, boolean)} .
      */
     @Test
     public void testDeleteDocumentBoolean() {
@@ -862,7 +876,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#delete(Document, boolean, Durability)} .
+     * {@link AbstractMongoCollection#delete(DocumentAssignable, boolean, Durability)}
+     * .
      */
     @Test
     public void testDeleteDocumentBooleanDurability() {
@@ -889,7 +904,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#delete(Document, Durability)} .
+     * {@link AbstractMongoCollection#delete(DocumentAssignable, Durability)} .
      */
     @Test
     public void testDeleteDocumentDurability() {
@@ -1209,7 +1224,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAsync(Callback, Document)} .
+     * {@link AbstractMongoCollection#findAsync(Callback, DocumentAssignable)} .
      */
     @Test
     public void testFindAsyncCallbackOfClosableIteratorOfDocumentDocument() {
@@ -1262,7 +1277,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#findAsync(Document)}.
+     * Test method for
+     * {@link AbstractMongoCollection#findAsync(DocumentAssignable)}.
      * 
      * @throws Exception
      *             On an error.
@@ -1339,7 +1355,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#find(Document)} .
+     * Test method for {@link AbstractMongoCollection#find(DocumentAssignable)}
+     * .
      */
     @Test
     public void testFindDocument() {
@@ -1407,7 +1424,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#findOne(Document)} .
+     * Test method for
+     * {@link AbstractMongoCollection#findOne(DocumentAssignable)} .
      */
     @Test
     public void testFindOne() {
@@ -1435,7 +1453,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#findOneAsync(Callback, Document)} .
+     * {@link MongoCollectionImpl#findOneAsync(Callback, DocumentAssignable)} .
      */
     @Test
     public void testFindOneAsyncCallbackOfDocumentDocument() {
@@ -1460,7 +1478,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#findOneAsync(Document)}.
+     * Test method for
+     * {@link AbstractMongoCollection#findOneAsync(DocumentAssignable)}.
      * 
      * @throws Exception
      *             On an error.
@@ -2432,7 +2451,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(Callback, Document, Document)}
+     * {@link AbstractMongoCollection#updateAsync(Callback, DocumentAssignable, DocumentAssignable)}
      * .
      */
     @Test
@@ -2463,7 +2482,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(Callback, Document, Document, boolean, boolean)}
+     * {@link AbstractMongoCollection#updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean)}
      * .
      */
     @Test
@@ -2494,7 +2513,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#updateAsync(Callback, Document, Document, boolean, boolean, Durability)}
+     * {@link MongoCollectionImpl#updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * .
      */
     @Test
@@ -2526,7 +2545,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(Callback, Document, Document, Durability)}
+     * {@link AbstractMongoCollection#updateAsync(Callback, DocumentAssignable, DocumentAssignable, Durability)}
      * .
      */
     @Test
@@ -2557,7 +2576,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(Document, Document)} .
+     * {@link AbstractMongoCollection#updateAsync(DocumentAssignable, DocumentAssignable)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -2587,7 +2607,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(Document, Document, boolean, boolean)}
+     * {@link AbstractMongoCollection#updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean)}
      * .
      * 
      * @throws Exception
@@ -2624,7 +2644,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(Document, Document, boolean, boolean, Durability)}
+     * {@link AbstractMongoCollection#updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * .
      * 
      * @throws Exception
@@ -2663,7 +2683,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(Document, Document, Durability)}
+     * {@link AbstractMongoCollection#updateAsync(DocumentAssignable, DocumentAssignable, Durability)}
      * .
      * 
      * @throws Exception
@@ -2698,7 +2718,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#update(Document, Document)} .
+     * {@link AbstractMongoCollection#update(DocumentAssignable, DocumentAssignable)}
+     * .
      */
     @Test
     public void testUpdateDocumentDocument() {
@@ -2729,7 +2750,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#update(Document, Document, boolean, boolean)}
+     * {@link AbstractMongoCollection#update(DocumentAssignable, DocumentAssignable, boolean, boolean)}
      * .
      */
     @Test
@@ -2761,7 +2782,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#update(Document, Document, boolean, boolean, Durability)}
+     * {@link AbstractMongoCollection#update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * .
      */
     @Test
@@ -2793,7 +2814,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#update(Document, Document, Durability)} .
+     * {@link AbstractMongoCollection#update(DocumentAssignable, DocumentAssignable, Durability)}
+     * .
      */
     @Test
     public void testUpdateDocumentDocumentDurability() {

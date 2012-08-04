@@ -117,4 +117,15 @@ public class ObjectIdElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link ObjectIdElement}.
+     * </p>
+     */
+    @Override
+    public ObjectIdElement withName(final String name) {
+        return new ObjectIdElement(name, myId);
+    }
 }

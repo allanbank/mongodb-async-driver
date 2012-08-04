@@ -59,4 +59,15 @@ public class MinKeyElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link MinKeyElement}.
+     * </p>
+     */
+    @Override
+    public MinKeyElement withName(final String name) {
+        return new MinKeyElement(name);
+    }
 }

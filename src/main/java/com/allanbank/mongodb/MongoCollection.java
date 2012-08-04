@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -27,7 +28,7 @@ public interface MongoCollection {
      * Counts the set of documents matching the query document in the
      * collection.
      * <p>
-     * This is equivalent to calling {@link #countAsync(Document)
+     * This is equivalent to calling {@link #countAsync(DocumentAssignable)
      * countAsync(...).get()}
      * </p>
      * 
@@ -37,7 +38,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public long count(Document query) throws MongoDbException;
+    public long count(DocumentAssignable query) throws MongoDbException;
 
     /**
      * Counts the set of documents matching the query document in the
@@ -52,7 +53,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public long count(Document query, ReadPreference readPreference)
+    public long count(DocumentAssignable query, ReadPreference readPreference)
             throws MongoDbException;
 
     /**
@@ -66,7 +67,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void countAsync(Callback<Long> results, Document query)
+    public void countAsync(Callback<Long> results, DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -83,7 +84,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void countAsync(Callback<Long> results, Document query,
+    public void countAsync(Callback<Long> results, DocumentAssignable query,
             ReadPreference readPreference) throws MongoDbException;
 
     /**
@@ -97,7 +98,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Long> countAsync(Document query) throws MongoDbException;
+    public Future<Long> countAsync(DocumentAssignable query)
+            throws MongoDbException;
 
     /**
      * Counts the set of documents matching the query document in the
@@ -113,8 +115,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Long> countAsync(Document query, ReadPreference readPreference)
-            throws MongoDbException;
+    public Future<Long> countAsync(DocumentAssignable query,
+            ReadPreference readPreference) throws MongoDbException;
 
     /**
      * Creates an index with a generated name, across the keys specified
@@ -171,7 +173,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public long delete(Document query) throws MongoDbException;
+    public long delete(DocumentAssignable query) throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -187,7 +189,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public long delete(Document query, boolean singleDelete)
+    public long delete(DocumentAssignable query, boolean singleDelete)
             throws MongoDbException;
 
     /**
@@ -206,7 +208,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public long delete(Document query, boolean singleDelete,
+    public long delete(DocumentAssignable query, boolean singleDelete,
             Durability durability) throws MongoDbException;
 
     /**
@@ -221,7 +223,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public long delete(Document query, Durability durability)
+    public long delete(DocumentAssignable query, Durability durability)
             throws MongoDbException;
 
     /**
@@ -235,7 +237,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public void deleteAsync(Callback<Long> results, Document query)
+    public void deleteAsync(Callback<Long> results, DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -253,7 +255,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public void deleteAsync(Callback<Long> results, Document query,
+    public void deleteAsync(Callback<Long> results, DocumentAssignable query,
             boolean singleDelete) throws MongoDbException;
 
     /**
@@ -273,7 +275,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public void deleteAsync(Callback<Long> results, Document query,
+    public void deleteAsync(Callback<Long> results, DocumentAssignable query,
             boolean singleDelete, Durability durability)
             throws MongoDbException;
 
@@ -290,7 +292,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public void deleteAsync(Callback<Long> results, Document query,
+    public void deleteAsync(Callback<Long> results, DocumentAssignable query,
             Durability durability) throws MongoDbException;
 
     /**
@@ -303,7 +305,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Long> deleteAsync(Document query) throws MongoDbException;
+    public Future<Long> deleteAsync(DocumentAssignable query)
+            throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -319,8 +322,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Long> deleteAsync(Document query, boolean singleDelete)
-            throws MongoDbException;
+    public Future<Long> deleteAsync(DocumentAssignable query,
+            boolean singleDelete) throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -338,8 +341,9 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Long> deleteAsync(Document query, boolean singleDelete,
-            Durability durability) throws MongoDbException;
+    public Future<Long> deleteAsync(DocumentAssignable query,
+            boolean singleDelete, Durability durability)
+            throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -353,8 +357,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Long> deleteAsync(Document query, Durability durability)
-            throws MongoDbException;
+    public Future<Long> deleteAsync(DocumentAssignable query,
+            Durability durability) throws MongoDbException;
 
     /**
      * Invokes a distinct command on the server.
@@ -427,7 +431,7 @@ public interface MongoCollection {
     /**
      * Finds the set of documents matching the query document in the collection.
      * <p>
-     * This is equivalent to calling {@link #findAsync(Document)
+     * This is equivalent to calling {@link #findAsync(DocumentAssignable)
      * findAsync(...).get()}
      * </p>
      * 
@@ -437,7 +441,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public ClosableIterator<Document> find(Document query)
+    public ClosableIterator<Document> find(DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -506,7 +510,7 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public void findAsync(Callback<ClosableIterator<Document>> results,
-            Document query) throws MongoDbException;
+            DocumentAssignable query) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query in the collection.
@@ -530,7 +534,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<ClosableIterator<Document>> findAsync(Document query)
+    public Future<ClosableIterator<Document>> findAsync(DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -554,7 +558,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the document.
      */
-    public Document findOne(Document query) throws MongoDbException;
+    public Document findOne(DocumentAssignable query) throws MongoDbException;
 
     /**
      * Finds a single matching document in the collection.
@@ -566,8 +570,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the document.
      */
-    public void findOneAsync(Callback<Document> results, Document query)
-            throws MongoDbException;
+    public void findOneAsync(Callback<Document> results,
+            DocumentAssignable query) throws MongoDbException;
 
     /**
      * Finds a single matching document in the collection.
@@ -578,7 +582,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the document.
      */
-    public Future<Document> findOneAsync(Document query)
+    public Future<Document> findOneAsync(DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -635,7 +639,7 @@ public interface MongoCollection {
      * Inserts a set of documents into the collection.
      * <p>
      * This is equivalent to calling
-     * {@link #insertAsync(boolean, Durability, Document[])
+     * {@link #insertAsync(boolean, Durability, DocumentAssignable[])
      * insertAsync(...).get()}
      * </p>
      * 
@@ -649,14 +653,14 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public int insert(final boolean continueOnError, Document... documents)
-            throws MongoDbException;
+    public int insert(final boolean continueOnError,
+            DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
      * <p>
      * This is equivalent to calling
-     * {@link #insertAsync(boolean, Durability, Document[])
+     * {@link #insertAsync(boolean, Durability, DocumentAssignable[])
      * insertAsync(...).get()}
      * </p>
      * 
@@ -673,14 +677,14 @@ public interface MongoCollection {
      *             On an error inserting the documents.
      */
     public int insert(final boolean continueOnError,
-            final Durability durability, Document... documents)
+            final Durability durability, DocumentAssignable... documents)
             throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
      * <p>
      * This is equivalent to calling
-     * {@link #insertAsync(boolean, Durability, Document[])
+     * {@link #insertAsync(boolean, Durability, DocumentAssignable[])
      * insertAsync(...).get()}
      * </p>
      * 
@@ -691,13 +695,13 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public int insert(Document... documents) throws MongoDbException;
+    public int insert(DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
      * <p>
      * This is equivalent to calling
-     * {@link #insertAsync(boolean, Durability, Document[])
+     * {@link #insertAsync(boolean, Durability, DocumentAssignable[])
      * insertAsync(...).get()}
      * </p>
      * 
@@ -710,8 +714,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public int insert(final Durability durability, Document... documents)
-            throws MongoDbException;
+    public int insert(final Durability durability,
+            DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -727,7 +731,7 @@ public interface MongoCollection {
      *             On an error inserting the documents.
      */
     public Future<Integer> insertAsync(boolean continueOnError,
-            Document... documents) throws MongoDbException;
+            DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -745,7 +749,7 @@ public interface MongoCollection {
      *             On an error inserting the documents.
      */
     public Future<Integer> insertAsync(boolean continueOnError,
-            Durability durability, Document... documents)
+            Durability durability, DocumentAssignable... documents)
             throws MongoDbException;
 
     /**
@@ -764,7 +768,7 @@ public interface MongoCollection {
      *             On an error inserting the documents.
      */
     public void insertAsync(Callback<Integer> results, boolean continueOnError,
-            Document... documents) throws MongoDbException;
+            DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -784,7 +788,7 @@ public interface MongoCollection {
      *             On an error inserting the documents.
      */
     public void insertAsync(Callback<Integer> results, boolean continueOnError,
-            Durability durability, Document... documents)
+            Durability durability, DocumentAssignable... documents)
             throws MongoDbException;
 
     /**
@@ -799,8 +803,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public void insertAsync(Callback<Integer> results, Document... documents)
-            throws MongoDbException;
+    public void insertAsync(Callback<Integer> results,
+            DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -817,7 +821,7 @@ public interface MongoCollection {
      *             On an error inserting the documents.
      */
     public void insertAsync(Callback<Integer> results, Durability durability,
-            Document... documents) throws MongoDbException;
+            DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -829,7 +833,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public Future<Integer> insertAsync(Document... documents)
+    public Future<Integer> insertAsync(DocumentAssignable... documents)
             throws MongoDbException;
 
     /**
@@ -845,7 +849,7 @@ public interface MongoCollection {
      *             On an error inserting the documents.
      */
     public Future<Integer> insertAsync(Durability durability,
-            Document... documents) throws MongoDbException;
+            DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * Invokes a mapReduce command on the server.
@@ -900,7 +904,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public long update(Document query, Document update) throws MongoDbException;
+    public long update(DocumentAssignable query, DocumentAssignable update)
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -922,7 +927,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public long update(Document query, Document update,
+    public long update(DocumentAssignable query, DocumentAssignable update,
             final boolean multiUpdate, final boolean upsert)
             throws MongoDbException;
 
@@ -948,7 +953,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public long update(Document query, Document update,
+    public long update(DocumentAssignable query, DocumentAssignable update,
             final boolean multiUpdate, final boolean upsert,
             final Durability durability) throws MongoDbException;
 
@@ -968,7 +973,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public long update(Document query, Document update,
+    public long update(DocumentAssignable query, DocumentAssignable update,
             final Durability durability) throws MongoDbException;
 
     /**
@@ -987,8 +992,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public void updateAsync(Callback<Long> results, Document query,
-            Document update) throws MongoDbException;
+    public void updateAsync(Callback<Long> results, DocumentAssignable query,
+            DocumentAssignable update) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -1012,8 +1017,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public void updateAsync(Callback<Long> results, Document query,
-            Document update, boolean multiUpdate, boolean upsert)
+    public void updateAsync(Callback<Long> results, DocumentAssignable query,
+            DocumentAssignable update, boolean multiUpdate, boolean upsert)
             throws MongoDbException;
 
     /**
@@ -1040,8 +1045,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public void updateAsync(Callback<Long> results, Document query,
-            Document update, boolean multiUpdate, boolean upsert,
+    public void updateAsync(Callback<Long> results, DocumentAssignable query,
+            DocumentAssignable update, boolean multiUpdate, boolean upsert,
             Durability durability) throws MongoDbException;
 
     /**
@@ -1062,8 +1067,9 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public void updateAsync(Callback<Long> results, Document query,
-            Document update, Durability durability) throws MongoDbException;
+    public void updateAsync(Callback<Long> results, DocumentAssignable query,
+            DocumentAssignable update, Durability durability)
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -1080,8 +1086,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public Future<Long> updateAsync(Document query, Document update)
-            throws MongoDbException;
+    public Future<Long> updateAsync(DocumentAssignable query,
+            DocumentAssignable update) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -1104,8 +1110,9 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public Future<Long> updateAsync(Document query, Document update,
-            boolean multiUpdate, boolean upsert) throws MongoDbException;
+    public Future<Long> updateAsync(DocumentAssignable query,
+            DocumentAssignable update, boolean multiUpdate, boolean upsert)
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -1130,27 +1137,28 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public Future<Long> updateAsync(Document query, Document update,
-            boolean multiUpdate, boolean upsert, Durability durability)
-            throws MongoDbException;
-
-    /**
-     * Applies updates to a set of documents within the collection. The
-     * documents to update are selected by the <tt>query</tt> and the updates
-     * are describe by the <tt>update</tt> document.
-     * 
-     * @param query
-     *            The query to select the documents to update.
-     * @param update
-     *            The updates to apply to the selected documents.
-     * @param durability
-     *            The durability for the update.
-     * @return A {@link Future} that will be updated with the number of
-     *         documents updated. If the durability of the operation is NONE
-     *         then this will be -1.
-     * @throws MongoDbException
-     *             On an error updating the documents.
-     */
-    public Future<Long> updateAsync(Document query, Document update,
+    public Future<Long> updateAsync(DocumentAssignable query,
+            DocumentAssignable update, boolean multiUpdate, boolean upsert,
             Durability durability) throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @param durability
+     *            The durability for the update.
+     * @return A {@link Future} that will be updated with the number of
+     *         documents updated. If the durability of the operation is NONE
+     *         then this will be -1.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public Future<Long> updateAsync(DocumentAssignable query,
+            DocumentAssignable update, Durability durability)
+            throws MongoDbException;
 }

@@ -129,4 +129,15 @@ public class JavaScriptElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link JavaScriptElement}.
+     * </p>
+     */
+    @Override
+    public JavaScriptElement withName(final String name) {
+        return new JavaScriptElement(name, myJavaScript);
+    }
 }

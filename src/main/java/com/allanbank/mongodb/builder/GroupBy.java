@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * Group provides a container for all of the options to a <tt>group</tt>
@@ -199,8 +200,8 @@ public class GroupBy {
          *            The new value for the initial value for the group.
          * @return This {@link Builder} for method call chaining.
          */
-        public Builder setInitialValue(final Document initialValue) {
-            myInitialValue = initialValue;
+        public Builder setInitialValue(final DocumentAssignable initialValue) {
+            myInitialValue = initialValue.asDocument();
             return this;
         }
 
@@ -244,8 +245,8 @@ public class GroupBy {
          *            the group against.
          * @return This {@link Builder} for method call chaining.
          */
-        public Builder setQuery(final Document query) {
-            myQuery = query;
+        public Builder setQuery(final DocumentAssignable query) {
+            myQuery = query.asDocument();
             return this;
         }
 

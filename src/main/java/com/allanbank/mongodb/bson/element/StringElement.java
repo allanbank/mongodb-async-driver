@@ -113,4 +113,15 @@ public class StringElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link StringElement}.
+     * </p>
+     */
+    @Override
+    public StringElement withName(final String name) {
+        return new StringElement(name, myValue);
+    }
 }

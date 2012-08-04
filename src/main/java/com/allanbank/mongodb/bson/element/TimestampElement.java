@@ -113,4 +113,15 @@ public class TimestampElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link TimestampElement}.
+     * </p>
+     */
+    @Override
+    public TimestampElement withName(final String name) {
+        return new TimestampElement(name, myTimestamp);
+    }
 }

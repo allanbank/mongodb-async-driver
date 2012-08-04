@@ -331,6 +331,17 @@ public class DocumentElement extends AbstractElement implements Document {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link DocumentElement}.
+     * </p>
+     */
+    @Override
+    public DocumentElement withName(final String name) {
+        return new DocumentElement(name, myElements);
+    }
+
+    /**
      * Returns a map from the element names to the elements in the document.
      * Used for faster by-name access.
      * 

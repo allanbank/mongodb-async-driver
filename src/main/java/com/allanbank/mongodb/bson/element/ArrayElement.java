@@ -200,4 +200,15 @@ public class ArrayElement extends AbstractElement {
         return builder.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link ArrayElement}.
+     * </p>
+     */
+    @Override
+    public ArrayElement withName(final String name) {
+        return new ArrayElement(name, myEntries);
+    }
+
 }

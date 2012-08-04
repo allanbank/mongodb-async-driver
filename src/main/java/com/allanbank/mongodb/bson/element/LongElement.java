@@ -147,4 +147,14 @@ public class LongElement extends AbstractElement implements NumericElement {
         return builder.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link LongElement}.
+     * </p>
+     */
+    @Override
+    public LongElement withName(final String name) {
+        return new LongElement(name, myValue);
+    }
 }

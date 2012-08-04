@@ -58,4 +58,15 @@ public class NullElement extends AbstractElement {
 
         return builder.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a new {@link NullElement}.
+     * </p>
+     */
+    @Override
+    public NullElement withName(final String name) {
+        return new NullElement(name);
+    }
 }

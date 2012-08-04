@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.client;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +18,8 @@ import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -64,12 +66,13 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void countAsync(final Callback<Long> results, final Document query,
-            final ReadPreference readPreference) throws MongoDbException {
+    public void countAsync(final Callback<Long> results,
+            final DocumentAssignable query, final ReadPreference readPreference)
+            throws MongoDbException {
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("count", getName());
-        builder.addDocument("query", query);
+        builder.addDocument("query", query.asDocument());
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
@@ -121,11 +124,11 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void deleteAsync(final Callback<Long> results, final Document query,
-            final boolean singleDelete, final Durability durability)
-            throws MongoDbException {
+    public void deleteAsync(final Callback<Long> results,
+            final DocumentAssignable query, final boolean singleDelete,
+            final Durability durability) throws MongoDbException {
         final Delete deleteMessage = new Delete(getDatabaseName(), myName,
-                query, singleDelete);
+                query.asDocument(), singleDelete);
 
         if (Durability.NONE.equals(durability)) {
             myClient.send(deleteMessage);
@@ -252,10 +255,21 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             readPreference = getDefaultReadPreference();
         }
 
+        Document queryDoc = query.getQuery();
+        if (query.getSortFields() != null) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            for (final Element e : queryDoc) {
+                builder.add(e);
+            }
+            builder.addDocument("$sort", query.getSortFields());
+
+            queryDoc = builder.build();
+        }
+
         final Query queryMessage = new Query(getDatabaseName(), myName,
-                query.getQuery(), query.getReturnFields(),
-                query.getBatchSize(), query.getLimit(),
-                query.getNumberToSkip(), false /* tailable */, readPreference,
+                queryDoc, query.getReturnFields(), query.getBatchSize(),
+                query.getLimit(), query.getNumberToSkip(),
+                false /* tailable */, readPreference,
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, query.isPartialOk());
 
@@ -269,14 +283,14 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * Overridden to send a {@link Query} message to the server.
      * </p>
      * 
-     * @see MongoCollection#findOneAsync(Callback, Document)
+     * @see MongoCollection#findOneAsync(Callback, DocumentAssignable)
      */
     @Override
     public void findOneAsync(final Callback<Document> results,
-            final Document query) throws MongoDbException {
-        final Query queryMessage = new Query(getDatabaseName(), myName, query,
-                null, 1 /* batchSize */, 1 /* limit */, 0 /* skip */,
-                false /* tailable */, getDefaultReadPreference(),
+            final DocumentAssignable query) throws MongoDbException {
+        final Query queryMessage = new Query(getDatabaseName(), myName,
+                query.asDocument(), null, 1 /* batchSize */, 1 /* limit */,
+                0 /* skip */, false /* tailable */, getDefaultReadPreference(),
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);
 
@@ -335,17 +349,20 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void insertAsync(final Callback<Integer> results,
             final boolean continueOnError, final Durability durability,
-            final Document... documents) throws MongoDbException {
-        final Insert insertMessage = new Insert(getDatabaseName(), myName,
-                Arrays.asList(documents), continueOnError);
+            final DocumentAssignable... documents) throws MongoDbException {
 
         // Make sure the documents have an _id.
-        for (final Document doc : documents) {
+        final List<Document> docs = new ArrayList<Document>(documents.length);
+        for (final DocumentAssignable docAssignable : documents) {
+            final Document doc = docAssignable.asDocument();
             if (!doc.contains("_id") && (doc instanceof RootDocument)) {
                 ((RootDocument) doc).injectId();
             }
+            docs.add(doc);
         }
 
+        final Insert insertMessage = new Insert(getDatabaseName(), myName,
+                docs, continueOnError);
         if (Durability.NONE == durability) {
             myClient.send(insertMessage);
             results.callback(Integer.valueOf(-1));
@@ -438,12 +455,13 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void updateAsync(final Callback<Long> results, final Document query,
-            final Document update, final boolean multiUpdate,
-            final boolean upsert, final Durability durability)
-            throws MongoDbException {
+    public void updateAsync(final Callback<Long> results,
+            final DocumentAssignable query, final DocumentAssignable update,
+            final boolean multiUpdate, final boolean upsert,
+            final Durability durability) throws MongoDbException {
+
         final Update updateMessage = new Update(getDatabaseName(), myName,
-                query, update, multiUpdate, upsert);
+                query.asDocument(), update.asDocument(), multiUpdate, upsert);
 
         if (Durability.NONE == durability) {
             myClient.send(updateMessage);

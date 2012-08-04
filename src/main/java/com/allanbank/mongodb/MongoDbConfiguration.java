@@ -32,9 +32,6 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     /** The default MongoDB port. */
     public static final int DEFAULT_PORT = 27017;
 
-    /** The prefix for a MongoDB URI. */
-    public static final String MONGODB_URI_PREFIX = "mongodb://";
-
     /** The ASCII character encoding. */
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
@@ -256,68 +253,9 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
-    public MongoDbConfiguration(final String mongoDbUri)
+    public MongoDbConfiguration(final MongoDbUri mongoDbUri)
             throws IllegalArgumentException {
-        this();
-
-        if (mongoDbUri == null) {
-            throw new IllegalArgumentException(
-                    "The MongoDB URI cannot be null.");
-        }
-        else if (!mongoDbUri.substring(0, MONGODB_URI_PREFIX.length())
-                .equalsIgnoreCase(MONGODB_URI_PREFIX)) {
-            throw new IllegalArgumentException(
-                    "The MongoDB URI must start with '" + MONGODB_URI_PREFIX
-                            + "'.");
-        }
-
-        String remaining = mongoDbUri.substring(MONGODB_URI_PREFIX.length());
-        String userNamePassword;
-        String hosts;
-        String options;
-        String database;
-
-        int position = remaining.indexOf('@');
-        if (position >= 0) {
-            userNamePassword = remaining.substring(0, position);
-            remaining = remaining.substring(position + 1);
-        }
-        else {
-            userNamePassword = "";
-        }
-
-        position = remaining.indexOf('/');
-        if (position >= 0) {
-            hosts = remaining.substring(0, position);
-            remaining = remaining.substring(position + 1);
-
-            position = remaining.indexOf('?');
-            if (position >= 0) {
-                database = remaining.substring(0, position);
-                options = remaining.substring(position + 1);
-            }
-            else {
-                database = remaining;
-                options = "";
-            }
-        }
-        else {
-            database = ADMIN_DB_NAME;
-            position = remaining.indexOf('?');
-            if (position >= 0) {
-                hosts = remaining.substring(0, position);
-                options = remaining.substring(position + 1);
-            }
-            else {
-                hosts = remaining;
-                options = "";
-            }
-        }
-
-        // Update the configuration with the values.
-        StringTokenizer tokenizer = new StringTokenizer(hosts, ",");
-        while (tokenizer.hasMoreTokens()) {
-            final String host = tokenizer.nextToken();
+        for (final String host : mongoDbUri.getHosts()) {
             addServer(host);
         }
         if (myServers.isEmpty()) {
@@ -325,23 +263,14 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
                     "Must provide at least 1 host to connect to.");
         }
 
-        if (!userNamePassword.isEmpty()) {
-            position = userNamePassword.indexOf(':');
-            if (position >= 0) {
-                if (database.isEmpty() || database.equals(ADMIN_DB_NAME)) {
-                    authenticateAsAdmin(
-                            userNamePassword.substring(0, position),
-                            userNamePassword.substring(position + 1));
-                }
-                else {
-                    authenticate(userNamePassword.substring(0, position),
-                            userNamePassword.substring(position + 1));
-                }
+        if (mongoDbUri.getUserName() != null) {
+            final String database = mongoDbUri.getDatabase();
+            if (database.isEmpty() || database.equals(ADMIN_DB_NAME)) {
+                authenticateAsAdmin(mongoDbUri.getUserName(),
+                        mongoDbUri.getPassword());
             }
             else {
-                throw new IllegalArgumentException(
-                        "The password for the user '" + userNamePassword
-                                + "' must be provided.");
+                authenticate(mongoDbUri.getUserName(), mongoDbUri.getPassword());
             }
         }
 
@@ -351,13 +280,14 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
         boolean journal = false;
         int wtimeout = 0;
 
-        tokenizer = new StringTokenizer(options, "?;&");
+        final StringTokenizer tokenizer = new StringTokenizer(
+                mongoDbUri.getOptions(), "?;&");
         while (tokenizer.hasMoreTokens()) {
             String property;
             String value;
 
             final String propertyAndValue = tokenizer.nextToken();
-            position = propertyAndValue.indexOf('=');
+            final int position = propertyAndValue.indexOf('=');
             if (position >= 0) {
                 property = propertyAndValue.substring(0, position);
                 value = propertyAndValue.substring(position + 1);
@@ -463,6 +393,26 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
         else {
             myDefaultDurability = Durability.NONE;
         }
+    }
+
+    /**
+     * Creates a new {@link MongoDbConfiguration} instance using a MongoDB style
+     * URL to initialize its state. Further configuration is possible once the
+     * {@link MongoDbConfiguration} has been instantiated.
+     * 
+     * @param mongoDbUri
+     *            The configuration for the connection to MongoDB expressed as a
+     *            MongoDB URL.
+     * @throws IllegalArgumentException
+     *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
+     *             style URL.
+     * 
+     * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
+     *      Connections</a>
+     */
+    public MongoDbConfiguration(final String mongoDbUri)
+            throws IllegalArgumentException {
+        this(new MongoDbUri(mongoDbUri));
     }
 
     /**
