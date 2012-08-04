@@ -255,6 +255,8 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     public MongoDbConfiguration(final MongoDbUri mongoDbUri)
             throws IllegalArgumentException {
+        this();
+        
         for (final String host : mongoDbUri.getHosts()) {
             addServer(host);
         }

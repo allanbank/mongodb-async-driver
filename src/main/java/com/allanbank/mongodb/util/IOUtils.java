@@ -66,7 +66,7 @@ public final class IOUtils {
     public static String toHex(final byte[] bytes) {
         final StringBuilder builder = new StringBuilder(bytes.length * 2);
         for (final byte b : bytes) {
-            appendNibble(builder, (b >> 8) & 0xF);
+            appendNibble(builder, (b >> 4) & 0xF);
             appendNibble(builder, b & 0xF);
         }
         return builder.toString();
