@@ -476,8 +476,9 @@ public class QueryTest {
             assertEquals(out.size(), header.getLength());
 
             final Query read = new Query(header, bIn);
-
-            assertEquals(message, read);
+            if (message.getReadPreference() == ReadPreference.PRIMARY) {
+                assertEquals(message, read);
+            }
         }
     }
 

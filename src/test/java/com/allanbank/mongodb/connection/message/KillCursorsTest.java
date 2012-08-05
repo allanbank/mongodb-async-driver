@@ -15,11 +15,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -44,10 +46,13 @@ public class KillCursorsTest {
         final List<Message> objs2 = new ArrayList<Message>();
 
         for (int i = 0; i < 1000; ++i) {
-            final long cursorId = random.nextLong();
+            for (final ReadPreference prefs : Arrays.asList(
+                    ReadPreference.PRIMARY, ReadPreference.SECONDARY)) {
+                final long cursorId = random.nextLong();
 
-            objs1.add(new KillCursors(new long[] { cursorId }));
-            objs2.add(new KillCursors(new long[] { cursorId }));
+                objs1.add(new KillCursors(new long[] { cursorId }, prefs));
+                objs2.add(new KillCursors(new long[] { cursorId }, prefs));
+            }
         }
 
         // Sanity check.
@@ -91,11 +96,12 @@ public class KillCursorsTest {
 
             KillCursors message = null;
             if (random.nextBoolean()) {
-                message = new KillCursors(new long[] { random.nextLong() });
+                message = new KillCursors(new long[] { random.nextLong() },
+                        ReadPreference.PRIMARY);
             }
             else {
                 message = new KillCursors(new long[] { random.nextLong(),
-                        random.nextLong() });
+                        random.nextLong() }, ReadPreference.PRIMARY);
             }
 
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -122,13 +128,13 @@ public class KillCursorsTest {
     }
 
     /**
-     * Test method for {@link KillCursors#KillCursors(long[])} .
+     * Test method for {@link KillCursors#KillCursors(long[], ReadPreference)} .
      */
     @Test
     public void testKillCursorsLongArray() {
 
         final long[] ids = new long[] { 1234 };
-        final KillCursors message = new KillCursors(ids);
+        final KillCursors message = new KillCursors(ids, ReadPreference.PRIMARY);
 
         assertEquals("", message.getDatabaseName());
         assertEquals("", message.getCollectionName());

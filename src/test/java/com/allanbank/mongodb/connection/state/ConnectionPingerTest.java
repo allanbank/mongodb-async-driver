@@ -15,6 +15,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.easymock.Capture;
@@ -58,6 +59,9 @@ public class ConnectionPingerTest {
      */
     @Test
     public void testRun() throws IOException, InterruptedException {
+        final InetSocketAddress address = new InetSocketAddress(
+                InetAddress.getLoopbackAddress(), 1234);
+
         final ClusterState cluster = new ClusterState();
         cluster.add("localhost:27017");
 
@@ -71,10 +75,9 @@ public class ConnectionPingerTest {
                 mockFactory.connect(anyObject(InetSocketAddress.class),
                         anyObject(MongoDbConfiguration.class))).andReturn(
                 mockConnection);
-
-        mockConnection.send(capture(new CallbackCapture()),
-                anyObject(ServerStatus.class));
-        expectLastCall();
+        expect(
+                mockConnection.send(capture(new CallbackCapture()),
+                        anyObject(ServerStatus.class))).andReturn(address);
 
         mockConnection.close();
         expectLastCall();
@@ -100,6 +103,9 @@ public class ConnectionPingerTest {
      */
     @Test
     public void testRunPingFails() throws IOException, InterruptedException {
+        final InetSocketAddress address = new InetSocketAddress(
+                InetAddress.getLoopbackAddress(), 1234);
+
         final ClusterState cluster = new ClusterState();
         cluster.add("localhost:27017");
 
@@ -113,10 +119,9 @@ public class ConnectionPingerTest {
                 mockFactory.connect(anyObject(InetSocketAddress.class),
                         anyObject(MongoDbConfiguration.class))).andReturn(
                 mockConnection);
-
-        mockConnection.send(capture(new CallbackFailureCapture()),
-                anyObject(ServerStatus.class));
-        expectLastCall();
+        expect(
+                mockConnection.send(capture(new CallbackFailureCapture()),
+                        anyObject(ServerStatus.class))).andReturn(address);
 
         mockConnection.close();
         expectLastCall();

@@ -97,9 +97,6 @@ public class Query extends AbstractMessage {
      */
     private final Document myQuery;
 
-    /** The preference for which servers to use to retrieve the results. */
-    private final ReadPreference myReadPreference;
-
     /** Optional document containing the fields to be returned. */
     private final Document myReturnFields;
 
@@ -139,8 +136,6 @@ public class Query extends AbstractMessage {
         myExhaust = (flags & EXHAUST_FLAG_BIT) == EXHAUST_FLAG_BIT;
         myNoCursorTimeout = (flags & NO_CURSOR_TIMEOUT_FLAG_BIT) == NO_CURSOR_TIMEOUT_FLAG_BIT;
         myPartial = (flags & PARTIAL_FLAG_BIT) == PARTIAL_FLAG_BIT;
-        myReadPreference = ((flags & REPLICA_OK_FLAG_BIT) == REPLICA_OK_FLAG_BIT) ? ReadPreference.SECONDARY
-                : ReadPreference.PRIMARY;
         myTailable = (flags & TAILABLE_CURSOR_FLAG_BIT) == TAILABLE_CURSOR_FLAG_BIT;
 
         myLimit = 0;
@@ -189,7 +184,7 @@ public class Query extends AbstractMessage {
             final boolean tailable, final ReadPreference readPreference,
             final boolean noCursorTimeout, final boolean awaitData,
             final boolean exhaust, final boolean partial) {
-        super(databaseName, collectionName);
+        super(databaseName, collectionName, readPreference);
 
         myQuery = query;
         myReturnFields = returnFields;
@@ -197,7 +192,6 @@ public class Query extends AbstractMessage {
         myBatchSize = batchSize;
         myNumberToSkip = numberToSkip;
         myTailable = tailable;
-        myReadPreference = readPreference;
         myNoCursorTimeout = noCursorTimeout;
         myAwaitData = awaitData;
         myExhaust = exhaust;
@@ -245,8 +239,6 @@ public class Query extends AbstractMessage {
                     && (myNumberToReturn == other.myNumberToReturn)
                     && (myNumberToSkip == other.myNumberToSkip)
                     && myQuery.equals(other.myQuery)
-                    && ((myReadPreference == other.myReadPreference) || ((myReadPreference != null) && myReadPreference
-                            .equals(other.myReadPreference)))
                     && ((myReturnFields == other.myReturnFields) || ((myReturnFields != null) && myReturnFields
                             .equals(other.myReturnFields)));
         }
@@ -303,15 +295,6 @@ public class Query extends AbstractMessage {
     }
 
     /**
-     * Returns the preference for which servers to retrieve the results from.
-     * 
-     * @return The preference for which servers to retrieve the results from.
-     */
-    public ReadPreference getReadPreference() {
-        return myReadPreference;
-    }
-
-    /**
      * Returns the optional document containing the fields to be returned.
      * Optional here means this method may return <code>null</code>.
      * 
@@ -340,8 +323,6 @@ public class Query extends AbstractMessage {
         result = (31 * result) + myNumberToReturn;
         result = (31 * result) + myNumberToSkip;
         result = (31 * result) + myQuery.hashCode();
-        result = (31 * result)
-                + (myReadPreference == null ? 1 : myReadPreference.hashCode());
         result = (31 * result)
                 + (myReturnFields == null ? 1 : myReturnFields.hashCode());
         return result;
@@ -438,7 +419,7 @@ public class Query extends AbstractMessage {
         if (myPartial) {
             flags += PARTIAL_FLAG_BIT;
         }
-        if ((myReadPreference != null) && myReadPreference.isSecondaryOk()) {
+        if (getReadPreference().isSecondaryOk()) {
             flags += REPLICA_OK_FLAG_BIT;
         }
         if (myTailable) {

@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.client;
 
+import java.net.SocketAddress;
+
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
@@ -34,8 +36,9 @@ public abstract class AbstractClient implements Client {
      * @see Client#send(Callback,Message[])
      */
     @Override
-    public void send(final Callback<Reply> callback, Message... messages) {
-        findConnection().send(callback, messages);
+    public SocketAddress send(final Callback<Reply> callback,
+            final Message... messages) {
+        return findConnection().send(callback, messages);
     }
 
     /**
@@ -47,8 +50,8 @@ public abstract class AbstractClient implements Client {
      * @see Client#send(Message[])
      */
     @Override
-    public void send(Message... messages) {
-        findConnection().send(null, messages);
+    public SocketAddress send(final Message... messages) {
+        return findConnection().send(null, messages);
     }
 
     /**

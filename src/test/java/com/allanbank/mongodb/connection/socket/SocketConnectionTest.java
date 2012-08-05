@@ -528,7 +528,7 @@ public class SocketConnectionTest {
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
         final GetMore getMore = new GetMore("foo", "bar", 12345678901234L,
-                98765);
+                98765, ReadPreference.CLOSEST);
         myTestConnection.send(null, getMore);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
         assertTrue("Should receive the request after flush.",
@@ -704,7 +704,8 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final KillCursors kill = new KillCursors(new long[] { 12345678901234L });
+        final KillCursors kill = new KillCursors(
+                new long[] { 12345678901234L }, ReadPreference.CLOSEST);
         myTestConnection.send(null, kill);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 

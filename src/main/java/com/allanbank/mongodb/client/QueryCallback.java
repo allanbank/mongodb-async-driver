@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.client;
 
+import java.net.SocketAddress;
+
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoDbException;
@@ -22,11 +24,17 @@ import com.allanbank.mongodb.error.ReplyException;
 /* package */final class QueryCallback extends
         AbstractReplyCallback<ClosableIterator<Document>> {
 
+    /** The server the original request was sent to. */
+    private volatile SocketAddress myAddress;
+
     /** The original query. */
     private final Client myClient;
 
     /** The original query. */
     private final Query myQueryMessage;
+
+    /** The server the original request was sent to. */
+    private volatile Reply myReply;
 
     /**
      * Create a new QueryCallback.
@@ -46,6 +54,29 @@ import com.allanbank.mongodb.error.ReplyException;
 
         myClient = client;
         myQueryMessage = queryMessage;
+    }
+
+    /**
+     * Returns the server the original request was sent to.
+     * 
+     * @return The server the original request was sent to.
+     */
+    public SocketAddress getAddress() {
+        return myAddress;
+    }
+
+    /**
+     * Sets the value of the server the original request was sent to.
+     * 
+     * @param address
+     *            The new value for the server the original request was sent to.
+     */
+    public void setAddress(final SocketAddress address) {
+        myAddress = address;
+        // For races make sure that the iterator has the server name.
+        if (myReply != null) {
+            getForwardCallback().callback(convert(myReply));
+        }
     }
 
     /**
@@ -74,6 +105,10 @@ import com.allanbank.mongodb.error.ReplyException;
     @Override
     protected ClosableIterator<Document> convert(final Reply reply)
             throws MongoDbException {
-        return new MongoIterator(myQueryMessage, myClient, reply);
+        myReply = reply;
+        if (myAddress != null) {
+            return new MongoIterator(myQueryMessage, myClient, myAddress, reply);
+        }
+        return null;
     }
 }

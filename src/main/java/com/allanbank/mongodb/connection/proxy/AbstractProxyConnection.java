@@ -8,6 +8,7 @@ package com.allanbank.mongodb.connection.proxy;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -217,10 +218,10 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public void send(final Callback<Reply> reply, final Message... messages)
-            throws MongoDbException {
+    public SocketAddress send(final Callback<Reply> reply,
+            final Message... messages) throws MongoDbException {
         try {
-            myProxiedConnection.send(reply, messages);
+            return myProxiedConnection.send(reply, messages);
         }
         catch (final MongoDbException error) {
             onExceptin(error);

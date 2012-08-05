@@ -7,6 +7,7 @@ package com.allanbank.mongodb.connection;
 import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.io.Flushable;
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -104,15 +105,16 @@ public interface Connection extends Closeable, Flushable {
      * 
      * @param reply
      *            The callback to notify of responses to the messages. May be
-     *            null.
+     *            <code>null</code>.
      * @param messages
      *            The messages to send on the connection. The messages will be
      *            sent one after the other and are guaranteed to be contiguous
      *            and have sequential message ids.
+     * @return The server that was sent the request.
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public void send(Callback<Reply> reply, Message... messages)
+    public SocketAddress send(Callback<Reply> reply, Message... messages)
             throws MongoDbException;
 
     /**

@@ -20,6 +20,7 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -46,21 +47,30 @@ public class GetMoreTest {
         for (final String db : Arrays.asList("n1", "n2", "n3", "n4")) {
             for (final String collection : Arrays
                     .asList("n1", "n2", "n3", "n4")) {
-                long cursorId = random.nextLong();
-                int numberToReturn = random.nextInt();
+                for (final ReadPreference prefs : Arrays.asList(
+                        ReadPreference.PRIMARY, ReadPreference.SECONDARY)) {
+                    long cursorId = random.nextLong();
+                    int numberToReturn = random.nextInt();
 
-                objs1.add(new GetMore(db, collection, cursorId, numberToReturn));
-                objs2.add(new GetMore(db, collection, cursorId, numberToReturn));
+                    objs1.add(new GetMore(db, collection, cursorId,
+                            numberToReturn, prefs));
+                    objs2.add(new GetMore(db, collection, cursorId,
+                            numberToReturn, prefs));
 
-                numberToReturn = random.nextInt();
+                    numberToReturn = random.nextInt();
 
-                objs1.add(new GetMore(db, collection, cursorId, numberToReturn));
-                objs2.add(new GetMore(db, collection, cursorId, numberToReturn));
+                    objs1.add(new GetMore(db, collection, cursorId,
+                            numberToReturn, prefs));
+                    objs2.add(new GetMore(db, collection, cursorId,
+                            numberToReturn, prefs));
 
-                cursorId = random.nextLong();
+                    cursorId = random.nextLong();
 
-                objs1.add(new GetMore(db, collection, cursorId, numberToReturn));
-                objs2.add(new GetMore(db, collection, cursorId, numberToReturn));
+                    objs1.add(new GetMore(db, collection, cursorId,
+                            numberToReturn, prefs));
+                    objs2.add(new GetMore(db, collection, cursorId,
+                            numberToReturn, prefs));
+                }
             }
         }
 
@@ -104,37 +114,42 @@ public class GetMoreTest {
         for (final String db : Arrays.asList("n1", "n2", "n3", "n4")) {
             for (final String collection : Arrays
                     .asList("n1", "n2", "n3", "n4")) {
-                final long cursorId = random.nextLong();
-                final int numberToReturn = random.nextInt();
+                for (final ReadPreference prefs : Arrays
+                        .asList(ReadPreference.PRIMARY)) {
 
-                final GetMore message = new GetMore(db, collection, cursorId,
-                        numberToReturn);
+                    final long cursorId = random.nextLong();
+                    final int numberToReturn = random.nextInt();
 
-                final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                final BsonOutputStream bOut = new BsonOutputStream(out);
+                    final GetMore message = new GetMore(db, collection,
+                            cursorId, numberToReturn, prefs);
 
-                message.write(1234, bOut);
+                    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    final BsonOutputStream bOut = new BsonOutputStream(out);
 
-                final ByteArrayInputStream in = new ByteArrayInputStream(
-                        out.toByteArray());
-                final BsonInputStream bIn = new BsonInputStream(in);
+                    message.write(1234, bOut);
 
-                final Header header = new Header(bIn);
+                    final ByteArrayInputStream in = new ByteArrayInputStream(
+                            out.toByteArray());
+                    final BsonInputStream bIn = new BsonInputStream(in);
 
-                assertEquals(Operation.GET_MORE, header.getOperation());
-                assertEquals(1234, header.getRequestId());
-                assertEquals(0, header.getResponseId());
-                assertEquals(out.size(), header.getLength());
+                    final Header header = new Header(bIn);
 
-                final Message read = new GetMore(bIn);
+                    assertEquals(Operation.GET_MORE, header.getOperation());
+                    assertEquals(1234, header.getRequestId());
+                    assertEquals(0, header.getResponseId());
+                    assertEquals(out.size(), header.getLength());
 
-                assertEquals(message, read);
+                    final Message read = new GetMore(bIn);
+
+                    assertEquals(message, read);
+                }
             }
         }
     }
 
     /**
-     * Test method for {@link GetMore#GetMore(String, String, long, int)} .
+     * Test method for
+     * {@link GetMore#GetMore(String, String, long, int, ReadPreference)} .
      */
     @Test
     public void testGetMoreStringStringLongInt() {
@@ -146,7 +161,7 @@ public class GetMoreTest {
         final int numberToReturn = random.nextInt();
 
         final GetMore message = new GetMore(db, collection, cursorId,
-                numberToReturn);
+                numberToReturn, ReadPreference.PRIMARY);
 
         assertEquals(db, message.getDatabaseName());
         assertEquals(collection, message.getCollectionName());

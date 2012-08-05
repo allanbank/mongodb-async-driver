@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Enumeration;
@@ -313,7 +314,7 @@ public class SocketConnection implements Connection {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void send(final Callback<Reply> reply,
+    public synchronized SocketAddress send(final Callback<Reply> reply,
             final Message... messages) throws MongoDbException {
         try {
             final int last = messages.length - 1;
@@ -331,6 +332,8 @@ public class SocketConnection implements Connection {
         catch (final InterruptedException e) {
             throw new MongoDbException(e);
         }
+
+        return mySocket.getRemoteSocketAddress();
     }
 
     /**

@@ -7,6 +7,7 @@ package com.allanbank.mongodb.connection.message;
 import java.io.IOException;
 import java.util.Arrays;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.connection.Message;
@@ -59,9 +60,12 @@ public class KillCursors extends AbstractMessage {
      * 
      * @param cursorIds
      *            The ids of the cursors to kill.
+     * @param readPreference
+     *            The preferences for which server to send the request.
      */
-    public KillCursors(final long[] cursorIds) {
-        super("", "");
+    public KillCursors(final long[] cursorIds,
+            final ReadPreference readPreference) {
+        super("", "", readPreference);
         myCursorIds = Arrays.copyOf(cursorIds, cursorIds.length);
     }
 

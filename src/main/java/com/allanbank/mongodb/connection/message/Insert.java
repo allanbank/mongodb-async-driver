@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -92,7 +93,7 @@ public class Insert extends AbstractMessage {
      */
     public Insert(final String databaseName, final String collectionName,
             final List<Document> documents, final boolean continueOnError) {
-        super(databaseName, collectionName);
+        super(databaseName, collectionName, ReadPreference.PRIMARY);
 
         myDocuments = new ArrayList<Document>(documents);
         myContinueOnError = continueOnError;

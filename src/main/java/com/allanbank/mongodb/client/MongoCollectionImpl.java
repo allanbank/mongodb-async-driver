@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.client;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -256,13 +257,20 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         Document queryDoc = query.getQuery();
-        if (query.getSortFields() != null) {
+        if ((query.getSortFields() != null) || !readPreference.isLegacy()) {
             final DocumentBuilder builder = BuilderFactory.start();
             for (final Element e : queryDoc) {
                 builder.add(e);
             }
-            builder.addDocument("$sort", query.getSortFields());
 
+            if (query.getSortFields() != null) {
+                builder.addDocument("orderby", query.getSortFields());
+            }
+
+            if (!readPreference.isLegacy()) {
+                builder.addDocument("$readPreference",
+                        readPreference.asDocument());
+            }
             queryDoc = builder.build();
         }
 
@@ -273,8 +281,11 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, query.isPartialOk());
 
-        myClient.send(new QueryCallback(myClient, queryMessage, results),
-                queryMessage);
+        final QueryCallback callback = new QueryCallback(myClient,
+                queryMessage, results);
+        final SocketAddress address = myClient.send(callback, queryMessage);
+
+        callback.setAddress(address);
     }
 
     /**
@@ -288,9 +299,26 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void findOneAsync(final Callback<Document> results,
             final DocumentAssignable query) throws MongoDbException {
+
+        final ReadPreference readPreference = getDefaultReadPreference();
+
+        Document queryDoc = query.asDocument();
+        if (!readPreference.isLegacy()) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            for (final Element e : queryDoc) {
+                builder.add(e);
+            }
+
+            if (!readPreference.isLegacy()) {
+                builder.addDocument("$readPreference",
+                        readPreference.asDocument());
+            }
+            queryDoc = builder.build();
+        }
+
         final Query queryMessage = new Query(getDatabaseName(), myName,
-                query.asDocument(), null, 1 /* batchSize */, 1 /* limit */,
-                0 /* skip */, false /* tailable */, getDefaultReadPreference(),
+                queryDoc, null, 1 /* batchSize */, 1 /* limit */, 0 /* skip */,
+                false /* tailable */, readPreference,
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);
 

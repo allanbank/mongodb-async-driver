@@ -6,6 +6,7 @@ package com.allanbank.mongodb.connection.message;
 
 import java.io.IOException;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -99,7 +100,7 @@ public class Update extends AbstractMessage {
     public Update(final String databaseName, final String collectionName,
             final Document query, final Document update,
             final boolean multiUpdate, final boolean upsert) {
-        super(databaseName, collectionName);
+        super(databaseName, collectionName, ReadPreference.PRIMARY);
         myQuery = query;
         myUpdate = update;
         myMultiUpdate = multiUpdate;

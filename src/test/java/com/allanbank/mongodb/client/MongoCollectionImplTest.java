@@ -18,6 +18,9 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -64,6 +67,9 @@ import com.allanbank.mongodb.error.ReplyException;
 @SuppressWarnings("unchecked")
 public class MongoCollectionImplTest {
 
+    /** The address for the test. */
+    private SocketAddress myAddress = null;
+
     /** The client the collection interacts with. */
     private Client myMockClient = null;
 
@@ -83,6 +89,8 @@ public class MongoCollectionImplTest {
 
         myTestInstance = new MongoCollectionImpl(myMockClient, myMockDatabase,
                 "test");
+        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
+                1234);
     }
 
     /**
@@ -94,6 +102,7 @@ public class MongoCollectionImplTest {
         myMockDatabase = null;
 
         myTestInstance = null;
+        myAddress = null;
     }
 
     /**
@@ -110,11 +119,13 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(new Command(
-                "test", BuilderFactory.start().addString("count", "test")
-                        .addDocument("query", doc).build(),
-                ReadPreference.PRIMARY)));
-        expectLastCall();
+        expect(
+                myMockClient.send(
+                        anyObject(ReplyLongCallback.class),
+                        eq(new Command("test", BuilderFactory.start()
+                                .addString("count", "test")
+                                .addDocument("query", doc).build(),
+                                ReadPreference.PRIMARY)))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -136,11 +147,14 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(new Command(
-                "test", BuilderFactory.start().addString("count", "test")
-                        .addDocument("query", doc).build(),
-                ReadPreference.SECONDARY)));
-        expectLastCall();
+        expect(
+                myMockClient.send(
+                        anyObject(ReplyLongCallback.class),
+                        eq(new Command("test", BuilderFactory.start()
+                                .addString("count", "test")
+                                .addDocument("query", doc).build(),
+                                ReadPreference.SECONDARY)))).andReturn(
+                myAddress);
 
         replay(mockCountCallback);
 
@@ -162,11 +176,13 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(new Command(
-                "test", BuilderFactory.start().addString("count", "test")
-                        .addDocument("query", doc).build(),
-                ReadPreference.PRIMARY)));
-        expectLastCall();
+        expect(
+                myMockClient.send(
+                        anyObject(ReplyLongCallback.class),
+                        eq(new Command("test", BuilderFactory.start()
+                                .addString("count", "test")
+                                .addDocument("query", doc).build(),
+                                ReadPreference.PRIMARY)))).andReturn(myAddress);
 
         replay();
 
@@ -191,12 +207,14 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(
-                callback(reply(replyDoc)),
-                eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)));
-        expectLastCall();
+        expect(
+                myMockClient.send(
+                        callback(reply(replyDoc)),
+                        eq(new Command("test", BuilderFactory.start()
+                                .addString("count", "test")
+                                .addDocument("query", doc).build(),
+                                ReadPreference.SECONDARY)))).andReturn(
+                myAddress);
 
         replay();
 
@@ -220,12 +238,13 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(
-                callback(reply(replyDoc)),
-                eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.PRIMARY)));
-        expectLastCall();
+        expect(
+                myMockClient.send(
+                        callback(reply(replyDoc)),
+                        eq(new Command("test", BuilderFactory.start()
+                                .addString("count", "test")
+                                .addDocument("query", doc).build(),
+                                ReadPreference.PRIMARY)))).andReturn(myAddress);
 
         replay();
 
@@ -247,12 +266,14 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(
-                callback(reply(replyDoc)),
-                eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)));
-        expectLastCall();
+        expect(
+                myMockClient.send(
+                        callback(reply(replyDoc)),
+                        eq(new Command("test", BuilderFactory.start()
+                                .addString("count", "test")
+                                .addDocument("query", doc).build(),
+                                ReadPreference.SECONDARY)))).andReturn(
+                myAddress);
 
         replay();
 
@@ -272,12 +293,11 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(
-                callback(Reply.class),
-                eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(Reply.class), eq(new Command("test",
+                        BuilderFactory.start().addString("count", "test")
+                                .addDocument("query", doc).build(),
+                        ReadPreference.SECONDARY)))).andReturn(myAddress);
 
         replay();
 
@@ -302,12 +322,14 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(
-                callback(Reply.class, new IOException()),
-                eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)));
-        expectLastCall();
+        expect(
+                myMockClient.send(
+                        callback(Reply.class, new IOException()),
+                        eq(new Command("test", BuilderFactory.start()
+                                .addString("count", "test")
+                                .addDocument("query", doc).build(),
+                                ReadPreference.SECONDARY)))).andReturn(
+                myAddress);
 
         replay();
 
@@ -334,12 +356,14 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(
-                callback(reply(replyDoc)),
-                eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)));
-        expectLastCall();
+        expect(
+                myMockClient.send(
+                        callback(reply(replyDoc)),
+                        eq(new Command("test", BuilderFactory.start()
+                                .addString("count", "test")
+                                .addDocument("query", doc).build(),
+                                ReadPreference.SECONDARY)))).andReturn(
+                myAddress);
 
         replay();
 
@@ -377,9 +401,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(callback(reply(indexDocBuilder.build())),
-                eq(queryMessage));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(indexDocBuilder.build())),
+                        eq(queryMessage))).andReturn(myAddress);
 
         replay();
 
@@ -415,9 +439,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(callback(reply(indexDocBuilder.build())),
-                eq(queryMessage));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(indexDocBuilder.build())),
+                        eq(queryMessage))).andReturn(myAddress);
 
         replay();
 
@@ -461,11 +485,12 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(callback(reply()), eq(queryMessage));
-        expectLastCall();
-        myMockClient.send(callback(reply(replyDoc)), anyObject(Insert.class),
-                eq(expectedLastError));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply()), eq(queryMessage)))
+                .andReturn(myAddress);
+        expect(
+                myMockClient.send(callback(reply(replyDoc)),
+                        anyObject(Insert.class), eq(expectedLastError)))
+                .andReturn(myAddress);
 
         replay();
 
@@ -500,9 +525,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(callback(reply(indexDocBuilder.build())),
-                eq(queryMessage));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(indexDocBuilder.build())),
+                        eq(queryMessage))).andReturn(myAddress);
 
         replay();
 
@@ -538,9 +563,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(callback(reply(indexDocBuilder.build())),
-                eq(queryMessage));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(indexDocBuilder.build())),
+                        eq(queryMessage))).andReturn(myAddress);
 
         replay();
 
@@ -576,9 +601,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(callback(reply(indexDocBuilder.build())),
-                eq(queryMessage));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(indexDocBuilder.build())),
+                        eq(queryMessage))).andReturn(myAddress);
 
         replay();
 
@@ -604,8 +629,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.NONE);
 
-        myMockClient.send(eq(message));
-        expectLastCall();
+        expect(myMockClient.send(eq(message))).andReturn(myAddress);
 
         mockCountCallback.callback(Long.valueOf(-1L));
         expectLastCall();
@@ -636,9 +660,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
 
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyLongCallback.class),
+                        eq(message), eq(getLastError))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -664,9 +688,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyLongCallback.class),
+                        eq(message), eq(getLastError))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -691,8 +715,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message));
-        expectLastCall();
+        expect(myMockClient.send(eq(message))).andReturn(myAddress);
 
         mockCountCallback.callback(Long.valueOf(-1L));
         expectLastCall();
@@ -726,9 +749,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
 
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -759,9 +782,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
 
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -791,9 +814,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -819,8 +842,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message));
-        expectLastCall();
+        expect(myMockClient.send(eq(message))).andReturn(myAddress);
 
         replay();
 
@@ -848,9 +870,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
 
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -877,9 +899,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
 
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -905,9 +927,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -928,8 +950,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(message));
-        expectLastCall();
+        expect(myMockClient.send(eq(message))).andReturn(myAddress);
 
         replay();
 
@@ -962,8 +983,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(callback(reply(result.build())), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(result.build())), eq(message)))
+                .andReturn(myAddress);
 
         replay();
 
@@ -995,8 +1016,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(anyObject(ReplyArrayCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyArrayCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1032,8 +1054,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(callback(reply(result.build())), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(result.build())), eq(message)))
+                .andReturn(myAddress);
 
         replay();
 
@@ -1062,9 +1084,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(ReplyArrayCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyArrayCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1154,9 +1176,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(callback(reply(result.build())), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(result.build())), eq(message)))
+                .andReturn(myAddress);
 
         replay();
 
@@ -1186,9 +1207,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(ReplyDocumentCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyDocumentCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -1224,9 +1245,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(callback(reply(result.build())), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(result.build())), eq(message)))
+                .andReturn(myAddress);
 
         replay();
 
@@ -1252,8 +1272,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(anyObject(QueryCallback.class), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(anyObject(QueryCallback.class), eq(message)))
+                .andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1280,8 +1300,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(anyObject(QueryCallback.class), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(anyObject(QueryCallback.class), eq(message)))
+                .andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1312,8 +1332,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(callback(reply(result1, result2)), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(result1, result2)),
+                        eq(message))).andReturn(myAddress);
 
         replay();
 
@@ -1343,16 +1364,15 @@ public class MongoCollectionImplTest {
         final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
-                false, ReadPreference.PREFER_SECONDARY, false, false, false,
-                false);
+                false, ReadPreference.SECONDARY, false, false, false, false);
 
         final Find.Builder findBuilder = new Find.Builder(doc);
-        findBuilder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        findBuilder.setReadPreference(ReadPreference.SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(callback(reply(result1, result2)), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(result1, result2)),
+                        eq(message))).andReturn(myAddress);
 
         replay();
 
@@ -1380,15 +1400,15 @@ public class MongoCollectionImplTest {
         final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
-                false, ReadPreference.PREFER_PRIMARY, false, false, false,
-                false);
+                false, ReadPreference.PRIMARY, false, false, false, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
-                ReadPreference.PREFER_PRIMARY);
-        myMockClient.send(callback(reply(result1, result2)), eq(message));
-        expectLastCall();
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(callback(reply(result1, result2)),
+                        eq(message))).andReturn(myAddress);
 
         replay();
 
@@ -1413,16 +1433,15 @@ public class MongoCollectionImplTest {
         final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
-                false, ReadPreference.PREFER_PRIMARY, false, false, false,
-                false);
+                false, ReadPreference.PRIMARY, false, false, false, false);
 
         final Find.Builder findBuilder = new Find.Builder(doc);
-        findBuilder.setReadPreference(ReadPreference.PREFER_PRIMARY);
+        findBuilder.setReadPreference(ReadPreference.PRIMARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(callback(reply(result1, result2)), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(result1, result2)),
+                        eq(message))).andReturn(myAddress);
 
         replay();
 
@@ -1455,8 +1474,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(callback(reply(replyDoc)), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(replyDoc)), eq(message)))
+                .andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1481,8 +1500,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(anyObject(QueryOneCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(QueryOneCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1512,8 +1532,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockClient.getDefaultReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(callback(reply(replyDoc)), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(replyDoc)), eq(message)))
+                .andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1534,8 +1554,68 @@ public class MongoCollectionImplTest {
         final Document result1 = BuilderFactory.start().build();
         final Document result2 = BuilderFactory.start().build();
 
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final DocumentBuilder sort = BuilderFactory.start()
+                .addInteger("baz", 1);
+
         final Find.Builder builder = new Find.Builder();
-        builder.setQuery(BuilderFactory.start().addInteger("foo", 1).build());
+        builder.setQuery(qBuilder);
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        builder.setSortFields(sort);
+
+        final Find request = builder.build();
+
+        qBuilder.addDocument("orderby", sort.asDocument());
+        qBuilder.addDocument("$readPreference",
+                ReadPreference.PREFER_SECONDARY.asDocument());
+
+        final Query message = new Query("test", "test", qBuilder.build(),
+                request.getReturnFields(), request.getBatchSize(),
+                request.getLimit(), request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(
+                myMockClient.send(callback(reply(result1, result2)),
+                        eq(message))).andReturn(myAddress);
+
+        replay();
+
+        final Future<ClosableIterator<Document>> future = myTestInstance
+                .findAsync(request);
+        final ClosableIterator<Document> iter = future.get();
+        assertTrue(iter.hasNext());
+        assertSame(result1, iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(result2, iter.next());
+        assertFalse(iter.hasNext());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testFindWithNonLegacyOptions() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder.build());
         builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
@@ -1546,15 +1626,18 @@ public class MongoCollectionImplTest {
 
         final Find request = builder.build();
 
-        final Query message = new Query("test", "test", request.getQuery(),
+        qBuilder.addDocument("$readPreference",
+                ReadPreference.PREFER_SECONDARY.asDocument());
+
+        final Query message = new Query("test", "test", qBuilder.asDocument(),
                 request.getReturnFields(), request.getBatchSize(),
                 request.getLimit(), request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(callback(reply(result1, result2)), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(result1, result2)),
+                        eq(message))).andReturn(myAddress);
 
         replay();
 
@@ -1613,9 +1696,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(callback(reply(result.build())), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(result.build())), eq(message)))
+                .andReturn(myAddress);
 
         replay();
 
@@ -1645,9 +1727,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(ReplyArrayCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyArrayCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -1681,9 +1763,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(callback(reply(result.build())), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(result.build())), eq(message)))
+                .andReturn(myAddress);
 
         replay();
 
@@ -1721,9 +1802,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(ReplyArrayCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyArrayCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -1753,10 +1834,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -1787,10 +1867,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -1817,10 +1896,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
-
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyLongCallback.class),
+                        eq(message), eq(getLastError))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1845,10 +1923,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyLongCallback.class),
+                        eq(message), eq(getLastError))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1874,10 +1951,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
-
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyLongCallback.class),
+                        eq(message), eq(getLastError))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1902,10 +1978,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyLongCallback.class),
+                        eq(message), eq(getLastError))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -1929,9 +2004,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.NONE);
-
-        myMockClient.send(eq(message));
-        expectLastCall();
+        expect(myMockClient.send(eq(message))).andReturn(myAddress);
 
         replay();
 
@@ -1959,10 +2032,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -1989,10 +2061,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -2017,10 +2088,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -2045,10 +2115,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -2073,10 +2142,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -2110,9 +2178,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(callback(reply(result.build())), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(result.build())), eq(message)))
+                .andReturn(myAddress);
 
         replay();
 
@@ -2145,9 +2212,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(MapReduceReplyCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -2185,9 +2252,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(callback(reply(result.build())), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(result.build())), eq(message)))
+                .andReturn(myAddress);
 
         replay();
 
@@ -2236,9 +2302,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(MapReduceReplyCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -2271,9 +2337,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(MapReduceReplyCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -2308,9 +2374,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(MapReduceReplyCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -2343,9 +2409,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(MapReduceReplyCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -2380,9 +2446,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(MapReduceReplyCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -2415,9 +2481,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(MapReduceReplyCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -2452,9 +2518,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        myMockClient.send(anyObject(MapReduceReplyCallback.class), eq(message));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                        eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
 
@@ -2482,10 +2548,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
-
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyLongCallback.class),
+                        eq(message), eq(getLastError))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -2513,10 +2578,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
-
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyLongCallback.class),
+                        eq(message), eq(getLastError))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -2544,10 +2608,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyLongCallback.class),
+                        eq(message), eq(getLastError))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -2575,10 +2638,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(anyObject(ReplyLongCallback.class), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(anyObject(ReplyLongCallback.class),
+                        eq(message), eq(getLastError))).andReturn(myAddress);
 
         replay(mockCountCallback);
 
@@ -2607,9 +2669,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.NONE);
-
-        myMockClient.send(eq(message));
-        expectLastCall();
+        expect(myMockClient.send(eq(message))).andReturn(myAddress);
 
         replay();
 
@@ -2643,10 +2703,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -2680,10 +2739,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -2717,10 +2775,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -2750,10 +2807,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -2782,10 +2838,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -2813,10 +2868,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 
@@ -2845,10 +2899,9 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-
-        myMockClient.send(callback(reply(replyDoc)), eq(message),
-                eq(getLastError));
-        expectLastCall();
+        expect(
+                myMockClient.send(callback(reply(replyDoc)), eq(message),
+                        eq(getLastError))).andReturn(myAddress);
 
         replay();
 

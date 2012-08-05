@@ -6,14 +6,20 @@
 package com.allanbank.mongodb;
 
 import java.io.Serializable;
+import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
+import com.allanbank.mongodb.bson.builder.ArrayBuilder;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.client.MongoIterator;
 
 /**
  * ReadPreference encapsulates a {@link Mode} and a set of tag matching
@@ -45,7 +51,7 @@ import com.allanbank.mongodb.bson.NumericElement;
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReadPreference implements Serializable {
+public class ReadPreference implements Serializable, DocumentAssignable {
 
     /**
      * {@link ReadPreference} to read from the closest/{@link Mode#NEAREST}
@@ -189,10 +195,38 @@ public class ReadPreference implements Serializable {
     }
 
     /**
+     * Creates a {@link ReadPreference} to read only from a specific server.
+     * <p>
+     * Used by the {@link MongoIterator} to ensure cursor fetch and terminate
+     * requests use the originating server.
+     * </p>
+     * <p>
+     * <b>Note:</b> Use this form of {@link ReadPreference} with caution. If the
+     * specified server fails all requests will fail.
+     * </p>
+     * 
+     * @param address
+     *            The server to read from.
+     * @return The creates {@link ReadPreference}.
+     */
+    public static ReadPreference server(final SocketAddress address) {
+        return new ReadPreference(Mode.SERVER, address);
+    }
+
+    /** The document form for the ReadPreference. */
+    private final Document myDocumentForm;
+
+    /**
      * The read preference mode controlling if primary or secondary servers can
      * be used and which to prefer.
      */
     private final Mode myMode;
+
+    /**
+     * The server to read from. Used by the {@link MongoIterator} to ensure
+     * cursor fetch and terminate requests use the originating server.
+     */
+    private final SocketAddress myServer;
 
     /** The list of tag matching documents to control the secondaries used. */
     private final List<Document> myTagMatchingDocuments;
@@ -209,14 +243,56 @@ public class ReadPreference implements Serializable {
      */
     protected ReadPreference(final Mode mode,
             final Document... tagMatchDocuments) {
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addString("mode", mode.getToken());
+
         myMode = mode;
+        myServer = null;
         if (tagMatchDocuments.length == 0) {
             myTagMatchingDocuments = Collections.emptyList();
         }
         else {
             myTagMatchingDocuments = Collections.unmodifiableList(Arrays
                     .asList(tagMatchDocuments));
+
+            final ArrayBuilder tagsBuilder = builder.pushArray("tags");
+            for (final Document tags : tagMatchDocuments) {
+                tagsBuilder.addDocument(tags);
+            }
         }
+
+        myDocumentForm = builder.build();
+    }
+
+    /**
+     * Creates a new ReadPreference.
+     * 
+     * @param mode
+     *            The read preference mode controlling if primary or secondary
+     *            servers can be used and which to prefer.
+     * @param address
+     *            The server to read from.
+     */
+    protected ReadPreference(final Mode mode, final SocketAddress address) {
+        myMode = mode;
+        myServer = address;
+        myTagMatchingDocuments = Collections.emptyList();
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addString("mode", mode.getToken());
+        myDocumentForm = builder.build();
+
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the read preference document.
+     * </p>
+     */
+    @Override
+    public Document asDocument() {
+        return myDocumentForm;
     }
 
     /**
@@ -239,7 +315,8 @@ public class ReadPreference implements Serializable {
 
             result = myMode.equals(other.myMode)
                     && myTagMatchingDocuments
-                            .equals(other.myTagMatchingDocuments);
+                            .equals(other.myTagMatchingDocuments)
+                    && nullSafeEquals(myServer, other.myServer);
         }
         return result;
     }
@@ -253,6 +330,16 @@ public class ReadPreference implements Serializable {
      */
     public Mode getMode() {
         return myMode;
+    }
+
+    /**
+     * Returns the server to read from. Used by the {@link MongoIterator} to
+     * ensure cursor fetch and terminate requests use the originating server.
+     * 
+     * @return The server to read from.
+     */
+    public SocketAddress getServer() {
+        return myServer;
     }
 
     /**
@@ -277,6 +364,21 @@ public class ReadPreference implements Serializable {
         result = (31 * result) + myMode.ordinal();
         result = (31 * result) + myTagMatchingDocuments.hashCode();
         return result;
+    }
+
+    /**
+     * Returns true if the read preference is compatible with the legacy
+     * "slaveOk", e.g., is one of {@link Mode#PRIMARY_ONLY},
+     * {@link Mode#SECONDARY_ONLY}, or {@link Mode#SERVER} and has no tag
+     * matching documents.
+     * 
+     * @return True if the mode allows reading from secondaries, false
+     *         otherwise.
+     */
+    public boolean isLegacy() {
+        return ((myMode == Mode.PRIMARY_ONLY)
+                || (myMode == Mode.SECONDARY_ONLY) || (myMode == Mode.SERVER))
+                && myTagMatchingDocuments.isEmpty();
     }
 
     /**
@@ -333,6 +435,20 @@ public class ReadPreference implements Serializable {
         }
 
         return matches;
+    }
+
+    /**
+     * Does a null safe equals comparison.
+     * 
+     * @param rhs
+     *            The right-hand-side of the comparison.
+     * @param lhs
+     *            The left-hand-side of the comparison.
+     * @return True if the rhs equals the lhs. Note: nullSafeEquals(null, null)
+     *         returns true.
+     */
+    protected boolean nullSafeEquals(final Object rhs, final Object lhs) {
+        return (rhs == lhs) || ((rhs != null) && rhs.equals(lhs));
     }
 
     /**
@@ -440,7 +556,14 @@ public class ReadPreference implements Serializable {
          * matching the specified tag matching documents would be used.
          * </p>
          */
-        SECONDARY_PREFERRED("secondaryPreferred");
+        SECONDARY_PREFERRED("secondaryPreferred"),
+
+        /**
+         * Do not attempt to read from any server other than the one specified.
+         * Used by the {@link MongoIterator} to ensure cursor fetch and
+         * terminate requests use the originating server.
+         */
+        SERVER("server");
 
         /** The token passed to the mongos server when in a shared environment. */
         private final String myToken;

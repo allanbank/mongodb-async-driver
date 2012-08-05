@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb.connection.message;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
@@ -24,12 +25,16 @@ public abstract class AbstractMessage implements Message {
     /** The name of the database to operate on. */
     protected String myDatabaseName;
 
+    /** The details on which servers may be sent the message. */
+    private final ReadPreference myReadPreference;
+
     /**
      * Create a new AbstractMessage.
      */
     public AbstractMessage() {
         myDatabaseName = "";
         myCollectionName = "";
+        myReadPreference = ReadPreference.PRIMARY;
     }
 
     /**
@@ -39,11 +44,14 @@ public abstract class AbstractMessage implements Message {
      *            The name of the database.
      * @param collectionName
      *            The name of the collection.
+     * @param readPreference
+     *            The preferences for which servers to send the message.
      */
     public AbstractMessage(final String databaseName,
-            final String collectionName) {
+            final String collectionName, final ReadPreference readPreference) {
         myDatabaseName = databaseName;
         myCollectionName = collectionName;
+        myReadPreference = readPreference;
     }
 
     /**
@@ -65,7 +73,8 @@ public abstract class AbstractMessage implements Message {
             final AbstractMessage other = (AbstractMessage) object;
 
             result = myCollectionName.equals(other.myCollectionName)
-                    && myDatabaseName.equals(other.myDatabaseName);
+                    && myDatabaseName.equals(other.myDatabaseName)
+                    && myReadPreference.equals(other.myReadPreference);
         }
         return result;
     }
@@ -90,6 +99,17 @@ public abstract class AbstractMessage implements Message {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the message's read preference.
+     * </p>
+     */
+    @Override
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.
@@ -99,6 +119,7 @@ public abstract class AbstractMessage implements Message {
         int result = 1;
         result = (31 * result) + myCollectionName.hashCode();
         result = (31 * result) + myDatabaseName.hashCode();
+        result = (31 * result) + myReadPreference.hashCode();
         return result;
     }
 

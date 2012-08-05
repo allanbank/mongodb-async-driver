@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.client;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -111,7 +112,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
         final Query query = new Query(myName, "system.namespaces", EMPTY_QUERY,
         /* fields= */null,
         /* batchSize= */0, /* limit= */0, /* numberToSkip= */0,
-        /* tailable= */false, ReadPreference.CLOSEST,
+        /* tailable= */false, ReadPreference.PRIMARY,
         /* noCursorTimeout= */false, /* awaitData= */false,
         /* exhaust= */false, /* partial= */false);
 
@@ -119,7 +120,9 @@ public class MongoDatabaseImpl implements MongoDatabase {
         final QueryCallback callback = new QueryCallback(myClient, query,
                 iterFuture);
 
-        myClient.send(callback, query);
+        final SocketAddress addr = myClient.send(callback, query);
+
+        callback.setAddress(addr);
 
         final List<String> names = new ArrayList<String>();
         final Iterator<Document> iter = FutureUtils.unwrap(iterFuture);

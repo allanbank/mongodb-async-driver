@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.client;
 
+import java.net.SocketAddress;
+
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
@@ -56,10 +58,11 @@ public interface Client {
      *            The messages to send on the connection. The messages will be
      *            sent one after the other and are guaranteed to be contiguous
      *            and have sequential message ids.
+     * @return The address of the server the request will be sent to.
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public void send(Callback<Reply> reply, Message... messages)
+    public SocketAddress send(Callback<Reply> reply, Message... messages)
             throws MongoDbException;
 
     /**
@@ -69,8 +72,9 @@ public interface Client {
      *            The messages to send on the connection. The messages will be
      *            sent one after the other and are guaranteed to be contiguous
      *            and have sequential message ids.
+     * @return The address of the server the request will be sent to.
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public void send(Message... messages) throws MongoDbException;
+    public SocketAddress send(Message... messages) throws MongoDbException;
 }

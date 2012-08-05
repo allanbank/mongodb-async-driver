@@ -6,6 +6,7 @@ package com.allanbank.mongodb.connection.message;
 
 import java.io.IOException;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -76,7 +77,7 @@ public class Delete extends AbstractMessage {
      */
     public Delete(final String databaseName, final String collectionName,
             final Document query, final boolean singleDelete) {
-        super(databaseName, collectionName);
+        super(databaseName, collectionName, ReadPreference.PRIMARY);
         myQuery = query;
         mySingleDelete = singleDelete;
     }

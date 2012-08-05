@@ -8,7 +8,7 @@ package com.allanbank.mongodb.client;
 import static com.allanbank.mongodb.connection.CallbackReply.cb;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
@@ -17,6 +17,9 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -41,6 +44,9 @@ import com.allanbank.mongodb.connection.message.Reply;
  */
 public class MongoIteratorTest {
 
+    /** The address for the test. */
+    private SocketAddress myAddress = null;
+
     /** A set of documents for the test. */
     private List<Document> myDocs = null;
 
@@ -62,6 +68,9 @@ public class MongoIteratorTest {
 
         myQuery = new Query("db", "c", b.build(), b.build(), 5, 0, 0, false,
                 ReadPreference.PRIMARY, false, false, false, false);
+
+        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
+                1234);
     }
 
     /**
@@ -71,10 +80,12 @@ public class MongoIteratorTest {
     public void tearDown() {
         myDocs = null;
         myQuery = null;
+        myAddress = null;
     }
 
     /**
-     * Test method for {@link MongoIterator#MongoIterator(Query, Client, Reply)}
+     * Test method for
+     * {@link MongoIterator#MongoIterator(Query, Client, SocketAddress, Reply)}
      * .
      */
     @Test
@@ -86,7 +97,8 @@ public class MongoIteratorTest {
 
         replay(mockClient);
 
-        final MongoIterator iter = new MongoIterator(myQuery, mockClient, reply);
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
         assertSame(iter, iter.iterator());
         assertTrue(iter.hasNext());
         assertSame(myDocs.get(0), iter.next());
@@ -106,7 +118,8 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for {@link MongoIterator#MongoIterator(Query, Client, Reply)}
+     * Test method for
+     * {@link MongoIterator#MongoIterator(Query, Client, SocketAddress, Reply)}
      * .
      */
     @Test
@@ -118,12 +131,13 @@ public class MongoIteratorTest {
         final Reply reply2 = new Reply(0, 0, 0, myDocs, false, false, false,
                 false);
 
-        mockClient.send(cb(reply2), anyObject(GetMore.class));
-        expectLastCall();
+        expect(mockClient.send(cb(reply2), anyObject(GetMore.class)))
+                .andReturn(myAddress);
 
         replay(mockClient);
 
-        final MongoIterator iter = new MongoIterator(myQuery, mockClient, reply);
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
         assertSame(iter, iter.iterator());
         assertTrue(iter.hasNext());
         assertSame(myDocs.get(0), iter.next());
@@ -153,7 +167,8 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for {@link MongoIterator#MongoIterator(Query, Client, Reply)}
+     * Test method for
+     * {@link MongoIterator#MongoIterator(Query, Client, SocketAddress, Reply)}
      * .
      */
     @Test
@@ -165,7 +180,8 @@ public class MongoIteratorTest {
 
         replay(mockClient);
 
-        final MongoIterator iter = new MongoIterator(myQuery, mockClient, reply);
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
         assertSame(iter, iter.iterator());
         assertTrue(iter.hasNext());
         assertSame(myDocs.get(0), iter.next());
@@ -201,12 +217,13 @@ public class MongoIteratorTest {
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        mockClient.send(anyObject(KillCursors.class));
-        expectLastCall();
+        expect(mockClient.send(anyObject(KillCursors.class))).andReturn(
+                myAddress);
 
         replay(mockClient);
 
-        final MongoIterator iter = new MongoIterator(myQuery, mockClient, reply);
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
 
         iter.close();
 
@@ -224,14 +241,15 @@ public class MongoIteratorTest {
         final Reply reply2 = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        mockClient.send(cb(reply2), anyObject(GetMore.class));
-        expectLastCall();
-        mockClient.send(anyObject(KillCursors.class));
-        expectLastCall();
+        expect(mockClient.send(cb(reply2), anyObject(GetMore.class)))
+                .andReturn(myAddress);
+        expect(mockClient.send(anyObject(KillCursors.class))).andReturn(
+                myAddress);
 
         replay(mockClient);
 
-        final MongoIterator iter = new MongoIterator(myQuery, mockClient, reply);
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
         assertSame(iter, iter.iterator());
         assertTrue(iter.hasNext());
         assertSame(myDocs.get(0), iter.next());
@@ -264,21 +282,22 @@ public class MongoIteratorTest {
 
         replay(mockClient);
 
-        MongoIterator iter = new MongoIterator(myQuery, mockClient, reply);
+        MongoIterator iter = new MongoIterator(myQuery, mockClient, myAddress,
+                reply);
         assertEquals(batchSize, iter.nextBatchSize());
 
         limit = 5;
         myQuery = new Query("db", "c", myDocs.get(0), myDocs.get(0), batchSize,
                 limit, 0, false, ReadPreference.PRIMARY, false, false, false,
                 false);
-        iter = new MongoIterator(myQuery, mockClient, reply);
+        iter = new MongoIterator(myQuery, mockClient, myAddress, reply);
         assertEquals(-limit, iter.nextBatchSize());
 
         limit = -1;
         myQuery = new Query("db", "c", myDocs.get(0), myDocs.get(0), batchSize,
                 limit, 0, false, ReadPreference.PRIMARY, false, false, false,
                 false);
-        iter = new MongoIterator(myQuery, mockClient, reply);
+        iter = new MongoIterator(myQuery, mockClient, myAddress, reply);
         assertEquals(batchSize, iter.nextBatchSize());
 
         iter.close();
@@ -286,7 +305,8 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for {@link MongoIterator#MongoIterator(Query, Client, Reply)}
+     * Test method for
+     * {@link MongoIterator#MongoIterator(Query, Client, SocketAddress, Reply)}
      * .
      */
     @Test
@@ -301,12 +321,13 @@ public class MongoIteratorTest {
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        mockClient.send(anyObject(KillCursors.class));
-        expectLastCall();
+        expect(mockClient.send(anyObject(KillCursors.class))).andReturn(
+                myAddress);
 
         replay(mockClient);
 
-        final MongoIterator iter = new MongoIterator(myQuery, mockClient, reply);
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
         assertSame(iter, iter.iterator());
         assertTrue(iter.hasNext());
         assertSame(myDocs.get(0), iter.next());
@@ -322,7 +343,8 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for {@link MongoIterator#MongoIterator(Query, Client, Reply)}
+     * Test method for
+     * {@link MongoIterator#MongoIterator(Query, Client, SocketAddress, Reply)}
      * .
      */
     @Test
@@ -339,7 +361,8 @@ public class MongoIteratorTest {
 
         replay(mockClient);
 
-        final MongoIterator iter = new MongoIterator(myQuery, mockClient, reply);
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
         assertSame(iter, iter.iterator());
         assertTrue(iter.hasNext());
         assertSame(myDocs.get(0), iter.next());
@@ -365,7 +388,8 @@ public class MongoIteratorTest {
 
         replay(mockClient);
 
-        final MongoIterator iter = new MongoIterator(myQuery, mockClient, reply);
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
 
         try {
             iter.remove();
@@ -394,7 +418,8 @@ public class MongoIteratorTest {
 
         replay(mockClient);
 
-        final MongoIterator iter = new MongoIterator(myQuery, mockClient, reply);
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
 
         assertEquals(batchSize, iter.getBatchSize());
         iter.setBatchSize(10);

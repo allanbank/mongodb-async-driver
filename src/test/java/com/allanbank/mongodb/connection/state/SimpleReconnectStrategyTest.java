@@ -9,19 +9,23 @@ import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.easymock.Capture;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
@@ -40,6 +44,26 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SimpleReconnectStrategyTest {
+
+    /** The address for the test. */
+    private SocketAddress myAddress = null;
+
+    /**
+     * Creates the basic test objects.
+     */
+    @Before
+    public void setUp() {
+        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
+                1234);
+    }
+
+    /**
+     * Cleans up the test.
+     */
+    @After
+    public void tearDown() {
+        myAddress = null;
+    }
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
@@ -75,9 +99,9 @@ public class SimpleReconnectStrategyTest {
                 value.callback(null);
             }
         };
-        mockNewConnection.send(capture(callbackCapture),
-                anyObject(ServerStatus.class));
-        expectLastCall();
+        expect(
+                mockNewConnection.send(capture(callbackCapture),
+                        anyObject(ServerStatus.class))).andReturn(myAddress);
 
         mockOldConnection.drainPending((List<PendingMessage>) anyObject());
         mockNewConnection.addPending((List<PendingMessage>) anyObject());
@@ -158,9 +182,9 @@ public class SimpleReconnectStrategyTest {
                 value.callback(null);
             }
         };
-        mockNewConnection.send(capture(callbackCapture),
-                anyObject(ServerStatus.class));
-        expectLastCall();
+        expect(
+                mockNewConnection.send(capture(callbackCapture),
+                        anyObject(ServerStatus.class))).andReturn(myAddress);
 
         mockOldConnection.drainPending((List<PendingMessage>) anyObject());
         mockNewConnection.addPending((List<PendingMessage>) anyObject());
@@ -217,9 +241,9 @@ public class SimpleReconnectStrategyTest {
                 value.exception(new MongoDbException("This is a test."));
             }
         };
-        mockNewConnection.send(capture(callbackCapture),
-                anyObject(ServerStatus.class));
-        expectLastCall();
+        expect(
+                mockNewConnection.send(capture(callbackCapture),
+                        anyObject(ServerStatus.class))).andReturn(myAddress);
 
         mockNewConnection.close();
 

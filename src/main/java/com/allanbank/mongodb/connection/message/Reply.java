@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -137,7 +138,7 @@ public class Reply extends AbstractMessage {
             final int cursorOffset, final List<Document> results,
             final boolean awaitCapable, final boolean cursorNotFound,
             final boolean queryFailed, final boolean shardConfigStale) {
-        super("", "");
+        super("", "", ReadPreference.PRIMARY);
 
         myResponseToId = responseToId;
         myCursorId = cursorId;

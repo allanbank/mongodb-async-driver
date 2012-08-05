@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.connection.rs;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -75,8 +76,8 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      * </p>
      */
     @Override
-    public void send(final Callback<Reply> reply, final Message... messages)
-            throws MongoDbException {
+    public SocketAddress send(final Callback<Reply> reply,
+            final Message... messages) throws MongoDbException {
 
         boolean canUseSecondary = true;
         for (final Message message : messages) {
@@ -93,7 +94,7 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
         final Connection secondary = mySecondaryConnection;
         if (canUseSecondary && (secondary != null)) {
             try {
-                secondary.send(reply, messages);
+                return secondary.send(reply, messages);
             }
             catch (final MongoDbException error) {
                 // Failed. Try the primary.
@@ -109,7 +110,7 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
             }
         }
 
-        super.send(reply, messages);
+        return super.send(reply, messages);
     }
 
     /**

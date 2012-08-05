@@ -130,8 +130,8 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(null, message);
-        expectLastCall();
+        expect(mockConnection.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         mockConnection.shutdown();
         expectLastCall();
@@ -171,8 +171,8 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(null, message);
-        expectLastCall();
+        expect(mockConnection.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         mockConnection.shutdown();
         expectLastCall();
@@ -286,7 +286,7 @@ public class ClientImplTest {
 
         final Callback<Reply> callback = createMock(Callback.class);
         final GetMore message = new GetMore("testDb", "collection", 1234L,
-                12345);
+                12345, ReadPreference.PRIMARY);
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -295,8 +295,8 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(callback, message);
-        expectLastCall();
+        expect(mockConnection.send(callback, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         replay(mockConnection);
 
@@ -323,8 +323,8 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(null, message);
-        expectLastCall();
+        expect(mockConnection.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         replay(mockConnection);
 
@@ -382,8 +382,8 @@ public class ClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(null, message);
-        expectLastCall();
+        expect(mockConnection.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
@@ -391,23 +391,23 @@ public class ClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.send(null, message);
-        expectLastCall();
+        expect(mockConnection2.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         mockConnection.shutdown();
         expectLastCall();
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(0);
-        mockConnection2.send(null, message);
-        expectLastCall();
+        expect(mockConnection2.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        mockConnection2.send(null, message);
-        expectLastCall();
+        expect(mockConnection2.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         replay(mockConnection, mockConnection2);
 
@@ -443,8 +443,8 @@ public class ClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(null, message);
-        expectLastCall();
+        expect(mockConnection.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
@@ -452,23 +452,23 @@ public class ClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.send(null, message);
-        expectLastCall();
+        expect(mockConnection2.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         mockConnection.shutdown();
         expectLastCall();
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(0);
-        mockConnection2.send(null, message);
-        expectLastCall();
+        expect(mockConnection2.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        mockConnection2.send(null, message);
-        expectLastCall();
+        expect(mockConnection2.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         replay(mockConnection, mockConnection2);
 
@@ -504,8 +504,8 @@ public class ClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(null, message);
-        expectLastCall();
+        expect(mockConnection.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
@@ -513,8 +513,8 @@ public class ClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.send(null, message);
-        expectLastCall();
+        expect(mockConnection2.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         replay(mockConnection, mockConnection2);
 
@@ -545,8 +545,8 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(callback, message, lastError);
-        expectLastCall();
+        expect(mockConnection.send(callback, message, lastError)).andReturn(
+                ourServer.getInetSocketAddress());
 
         replay(mockConnection);
 
@@ -574,12 +574,12 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(null, message);
-        expectLastCall();
+        expect(mockConnection.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(0);
-        mockConnection.send(null, message);
-        expectLastCall();
+        expect(mockConnection.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         replay(mockConnection);
 
@@ -610,8 +610,8 @@ public class ClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(null, message);
-        expectLastCall();
+        expect(mockConnection.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
@@ -619,8 +619,8 @@ public class ClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.send(null, message);
-        expectLastCall();
+        expect(mockConnection2.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         // First pass for idle.
         expect(mockConnection.isOpen()).andReturn(true);
@@ -632,8 +632,8 @@ public class ClientImplTest {
         expect(mockConnection.getPendingCount()).andReturn(2);
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        mockConnection2.send(null, message);
-        expectLastCall();
+        expect(mockConnection2.send(null, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         replay(mockConnection, mockConnection2);
 
@@ -663,8 +663,8 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(callback, message);
-        expectLastCall();
+        expect(mockConnection.send(callback, message)).andReturn(
+                ourServer.getInetSocketAddress());
 
         replay(mockConnection);
 

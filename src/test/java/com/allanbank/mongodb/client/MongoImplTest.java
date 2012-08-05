@@ -7,6 +7,7 @@ package com.allanbank.mongodb.client;
 
 import static com.allanbank.mongodb.AnswerCallback.callback;
 import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -14,6 +15,9 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Arrays;
 
 import org.easymock.EasyMock;
@@ -38,6 +42,9 @@ import com.allanbank.mongodb.connection.message.Reply;
  */
 public class MongoImplTest {
 
+    /** The address for the test. */
+    private SocketAddress myAddress = null;
+
     /** The client the collection interacts with. */
     private Client myMockClient = null;
 
@@ -52,6 +59,8 @@ public class MongoImplTest {
         myMockClient = EasyMock.createMock(Client.class);
 
         myTestInstance = new MongoImpl(myMockClient);
+        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
+                1234);
     }
 
     /**
@@ -62,6 +71,7 @@ public class MongoImplTest {
         myMockClient = null;
 
         myTestInstance = null;
+        myAddress = null;
     }
 
     /**
@@ -138,8 +148,8 @@ public class MongoImplTest {
 
         final Command message = new Command("admin", commandDoc.build());
 
-        myMockClient.send(callback(reply(reply.build())), eq(message));
-        expectLastCall();
+        expect(myMockClient.send(callback(reply(reply.build())), eq(message)))
+                .andReturn(myAddress);
 
         replay();
 

@@ -6,6 +6,7 @@ package com.allanbank.mongodb.connection.message;
 
 import java.io.IOException;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.connection.Message;
@@ -65,10 +66,13 @@ public class GetMore extends AbstractMessage {
      *            The id of the cursor.
      * @param numberToReturn
      *            The number of documents to return.
+     * @param readPreference
+     *            The preferences for which server to send the request.
      */
     public GetMore(final String databaseName, final String collectionName,
-            final long cursorId, final int numberToReturn) {
-        super(databaseName, collectionName);
+            final long cursorId, final int numberToReturn,
+            final ReadPreference readPreference) {
+        super(databaseName, collectionName, readPreference);
 
         myCursorId = cursorId;
         myNumberToReturn = numberToReturn;

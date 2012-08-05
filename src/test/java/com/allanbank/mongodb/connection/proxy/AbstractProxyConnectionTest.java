@@ -21,6 +21,8 @@ import static org.junit.Assert.fail;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -701,14 +703,16 @@ public class AbstractProxyConnectionTest {
      */
     @Test
     public void testSendCallbackOfReplyMessageArray() throws IOException {
+        final InetSocketAddress address = new InetSocketAddress(
+                InetAddress.getLoopbackAddress(), 1234);
+
         final Message msg = new Delete("db", "collection", EMPTY_DOC, true);
         final FutureCallback<Reply> callback = new FutureCallback<Reply>();
 
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        mockConnetion.send(callback, msg);
-        expectLastCall();
+        expect(mockConnetion.send(callback, msg)).andReturn(address);
 
         mockConnetion.close();
         expectLastCall();
@@ -772,13 +776,15 @@ public class AbstractProxyConnectionTest {
      */
     @Test
     public void testSendMessageArray() throws IOException {
+        final InetSocketAddress address = new InetSocketAddress(
+                InetAddress.getLoopbackAddress(), 1234);
+
         final Message msg = new Delete("db", "collection", EMPTY_DOC, true);
 
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        mockConnetion.send(null, msg);
-        expectLastCall();
+        expect(mockConnetion.send(null, msg)).andReturn(address);
 
         mockConnetion.close();
         expectLastCall();

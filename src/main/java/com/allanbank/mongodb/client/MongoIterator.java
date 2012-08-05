@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.client;
 
+import java.net.SocketAddress;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -14,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.ClosableIterator;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.GetMore;
@@ -56,6 +58,9 @@ public class MongoIterator implements ClosableIterator<Document> {
     /** The original query. */
     private final Query myOriginalQuery;
 
+    /** The read preference to subsequent requests. */
+    private final ReadPreference myReadPerference;
+
     /**
      * Create a new MongoDBInterator.
      * 
@@ -63,14 +68,17 @@ public class MongoIterator implements ClosableIterator<Document> {
      *            The original query being iterated over.
      * @param client
      *            The client for issuing more requests.
+     * @param server
+     *            The server that received the original query request.
      * @param reply
      *            The initial results of the query that are available.
      */
     public MongoIterator(final Query originalQuery, final Client client,
-            final Reply reply) {
+            final SocketAddress server, final Reply reply) {
         myNextReply = new FutureCallback<Reply>();
         myNextReply.callback(reply);
 
+        myReadPerference = ReadPreference.server(server);
         myCursorId = 0;
         myClient = client;
         myOriginalQuery = originalQuery;
@@ -103,7 +111,7 @@ public class MongoIterator implements ClosableIterator<Document> {
 
                     if (reply.getCursorId() != 0) {
                         myClient.send(new KillCursors(new long[] { reply
-                                .getCursorId() }));
+                                .getCursorId() }, myReadPerference));
                     }
                 }
                 catch (final InterruptedException e) {
@@ -119,7 +127,8 @@ public class MongoIterator implements ClosableIterator<Document> {
             }
         }
         else {
-            myClient.send(new KillCursors(new long[] { cursorId }));
+            myClient.send(new KillCursors(new long[] { cursorId },
+                    myReadPerference));
         }
     }
 
@@ -240,7 +249,8 @@ public class MongoIterator implements ClosableIterator<Document> {
                     myCurrentIterator = docs.subList(0, myLimit).iterator();
                     if (myCursorId != 0) {
                         // Kill the cursor.
-                        myClient.send(new KillCursors(new long[] { myCursorId }));
+                        myClient.send(new KillCursors(
+                                new long[] { myCursorId }, myReadPerference));
                         myCursorId = 0;
                     }
                 }
@@ -253,7 +263,7 @@ public class MongoIterator implements ClosableIterator<Document> {
                 final GetMore getMore = new GetMore(
                         myOriginalQuery.getDatabaseName(),
                         myOriginalQuery.getCollectionName(), myCursorId,
-                        nextBatchSize());
+                        nextBatchSize(), myReadPerference);
 
                 myNextReply = new FutureCallback<Reply>();
                 myClient.send(myNextReply, getMore);

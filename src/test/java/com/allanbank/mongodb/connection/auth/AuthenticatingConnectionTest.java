@@ -8,6 +8,7 @@ package com.allanbank.mongodb.connection.auth;
 import static com.allanbank.mongodb.connection.CallbackReply.cb;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
@@ -16,6 +17,9 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +50,9 @@ public class AuthenticatingConnectionTest {
 
     /** An empty document for use in constructing messages. */
     public static final Document EMPTY_DOC = BuilderFactory.start().build();
+
+    /** The address for the test. */
+    private SocketAddress myAddress = null;
 
     /** The authenticate reply message. */
     private DocumentBuilder myAuthReply;
@@ -84,6 +91,9 @@ public class AuthenticatingConnectionTest {
 
         myAuthReply = BuilderFactory.start();
         myAuthReply.addInteger("ok", 1);
+
+        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
+                1234);
     }
 
     /**
@@ -96,6 +106,7 @@ public class AuthenticatingConnectionTest {
         myNonceReply = null;
         myAuthRequest = null;
         myAuthReply = null;
+        myAddress = null;
     }
 
     /**
@@ -115,14 +126,14 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(myAuthReply),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -169,14 +180,14 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(myAuthReply),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -223,9 +234,9 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -262,8 +273,10 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(), eq(new Command("db", myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(),
+                        eq(new Command("db", myNonceRequest.build()))))
+                .andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -301,23 +314,22 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(injected),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(injected), eq(new Command("db",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         // Retry.
-        mockConnetion.send(cb(myAuthReply),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         // Message.
-        mockConnetion.send(null, msg);
-        expectLastCall();
+        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -358,23 +370,22 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(myAuthReply),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall().andThrow(injected);
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
+                        myAuthRequest.build())))).andThrow(injected);
 
         // Retry.
-        mockConnetion.send(cb(myAuthReply),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         // Message.
-        mockConnetion.send(null, msg);
-        expectLastCall();
+        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -414,13 +425,15 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(), eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(),
+                        eq(new Command("db", myAuthRequest.build()))))
+                .andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -459,14 +472,14 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(myAuthReply),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -504,23 +517,22 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall().andThrow(injected);
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andThrow(injected);
 
         // Retry.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(myAuthReply),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         // Message.
-        mockConnetion.send(null, msg);
-        expectLastCall();
+        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -562,18 +574,17 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(myAuthReply),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         // Message.
-        mockConnetion.send(reply, msg);
-        expectLastCall();
+        expect(mockConnetion.send(reply, msg)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -604,18 +615,17 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(myAuthReply),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         // Message.
-        mockConnetion.send(null, msg);
-        expectLastCall();
+        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -648,18 +658,17 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("admin",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("admin",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(myAuthReply), eq(new Command("admin",
-                myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("admin",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         // Message.
-        mockConnetion.send(null, msg);
-        expectLastCall();
+        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -690,22 +699,20 @@ public class AuthenticatingConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                myNonceRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
+                        myNonceRequest.build())))).andReturn(myAddress);
 
         // Auth.
-        mockConnetion.send(cb(myAuthReply),
-                eq(new Command("db", myAuthRequest.build())));
-        expectLastCall();
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
+                        myAuthRequest.build())))).andReturn(myAddress);
 
         // Message.
-        mockConnetion.send(null, msg);
-        expectLastCall();
+        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
 
         // Message, again.
-        mockConnetion.send(null, msg);
-        expectLastCall();
+        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();

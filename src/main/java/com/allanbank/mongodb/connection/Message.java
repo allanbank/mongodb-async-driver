@@ -6,6 +6,7 @@ package com.allanbank.mongodb.connection;
 
 import java.io.IOException;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 
 /**
@@ -22,6 +23,15 @@ public interface Message {
      * @return The name of the database.
      */
     public String getDatabaseName();
+
+    /**
+     * Provides the details on which servers are eligible to receive the
+     * message.
+     * 
+     * @return The {@link ReadPreference} for which servers should be sent the
+     *         request.
+     */
+    public ReadPreference getReadPreference();
 
     /**
      * Writes the message from the stream. The message header <b>is</b> written
