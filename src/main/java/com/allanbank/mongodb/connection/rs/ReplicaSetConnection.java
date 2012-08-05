@@ -115,18 +115,6 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
     /**
      * {@inheritDoc}
      * <p>
-     * Forwards the call to the {@link #send(Callback, Message...)} method with
-     * a <code>null</code> callback.
-     * </p>
-     */
-    @Override
-    public void send(final Message... messages) throws MongoDbException {
-        send(null, messages);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to return the socket information.
      * </p>
      */

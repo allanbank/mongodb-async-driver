@@ -11,9 +11,6 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.message.GetLastError;
-import com.allanbank.mongodb.connection.message.GetMore;
-import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 
 /**
@@ -50,53 +47,30 @@ public interface Client {
     public ReadPreference getDefaultReadPreference();
 
     /**
-     * Sends a get more request.
+     * Sends a message on the connection.
      * 
-     * @param getMore
-     *            The get more message to send.
-     * @param callback
-     *            The callback to receive the response to the get more.
+     * @param reply
+     *            The callback to notify of responses to the messages. May be
+     *            null.
+     * @param messages
+     *            The messages to send on the connection. The messages will be
+     *            sent one after the other and are guaranteed to be contiguous
+     *            and have sequential message ids.
      * @throws MongoDbException
-     *             On a failure to communicate with the MongoDB servers.
+     *             On an error sending the message.
      */
-    public void send(GetMore getMore, Callback<Reply> callback)
+    public void send(Callback<Reply> reply, Message... messages)
             throws MongoDbException;
 
     /**
-     * Sends a message.
+     * Sends a message on the connection.
      * 
-     * @param message
-     *            The message to send.
+     * @param messages
+     *            The messages to send on the connection. The messages will be
+     *            sent one after the other and are guaranteed to be contiguous
+     *            and have sequential message ids.
      * @throws MongoDbException
-     *             On a failure to communicate with the MongoDB servers.
+     *             On an error sending the message.
      */
-    public void send(Message message) throws MongoDbException;
-
-    /**
-     * Sends a message followed by a getlasterror message.
-     * 
-     * @param message
-     *            The message to send.
-     * @param lastError
-     *            The last error command.
-     * @param callback
-     *            The callback to receive the response to the getlasterror.
-     * @throws MongoDbException
-     *             On a failure to communicate with the MongoDB servers.
-     */
-    public void send(Message message, GetLastError lastError,
-            Callback<Reply> callback) throws MongoDbException;
-
-    /**
-     * Sends a query request.
-     * 
-     * @param query
-     *            The query to send.
-     * @param callback
-     *            The callback to receive the response to the query.
-     * @throws MongoDbException
-     *             On a failure to communicate with the MongoDB servers.
-     */
-    public void send(Query query, Callback<Reply> callback)
-            throws MongoDbException;
+    public void send(Message... messages) throws MongoDbException;
 }

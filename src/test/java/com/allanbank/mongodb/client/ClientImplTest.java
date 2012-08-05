@@ -130,7 +130,7 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         mockConnection.shutdown();
@@ -171,7 +171,7 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         mockConnection.shutdown();
@@ -276,7 +276,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(GetMore, Callback)} .
+     * Test method for {@link ClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -300,13 +300,13 @@ public class ClientImplTest {
 
         replay(mockConnection);
 
-        myTestInstance.send(message, callback);
+        myTestInstance.send(callback, message);
 
         verify(mockConnection);
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link ClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -323,7 +323,7 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         replay(mockConnection);
@@ -334,7 +334,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link ClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -362,7 +362,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link ClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -382,7 +382,7 @@ public class ClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
@@ -391,7 +391,7 @@ public class ClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.send(message);
+        mockConnection2.send(null, message);
         expectLastCall();
 
         mockConnection.shutdown();
@@ -399,14 +399,14 @@ public class ClientImplTest {
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(0);
-        mockConnection2.send(message);
+        mockConnection2.send(null, message);
         expectLastCall();
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        mockConnection2.send(message);
+        mockConnection2.send(null, message);
         expectLastCall();
 
         replay(mockConnection, mockConnection2);
@@ -422,7 +422,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link ClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -443,7 +443,7 @@ public class ClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
@@ -452,7 +452,7 @@ public class ClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.send(message);
+        mockConnection2.send(null, message);
         expectLastCall();
 
         mockConnection.shutdown();
@@ -460,14 +460,14 @@ public class ClientImplTest {
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(0);
-        mockConnection2.send(message);
+        mockConnection2.send(null, message);
         expectLastCall();
 
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        mockConnection2.send(message);
+        mockConnection2.send(null, message);
         expectLastCall();
 
         replay(mockConnection, mockConnection2);
@@ -483,7 +483,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link ClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -504,7 +504,7 @@ public class ClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
@@ -513,7 +513,7 @@ public class ClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.send(message);
+        mockConnection2.send(null, message);
         expectLastCall();
 
         replay(mockConnection, mockConnection2);
@@ -525,8 +525,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message, GetLastError, Callback)}
-     * .
+     * Test method for {@link ClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -551,13 +550,13 @@ public class ClientImplTest {
 
         replay(mockConnection);
 
-        myTestInstance.send(message, lastError, callback);
+        myTestInstance.send(callback, message, lastError);
 
         verify(mockConnection);
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link ClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -575,11 +574,11 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(0);
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         replay(mockConnection);
@@ -591,7 +590,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Message)} .
+     * Test method for {@link ClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -611,7 +610,7 @@ public class ClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
@@ -620,7 +619,7 @@ public class ClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.send(message);
+        mockConnection2.send(null, message);
         expectLastCall();
 
         // First pass for idle.
@@ -633,7 +632,7 @@ public class ClientImplTest {
         expect(mockConnection.getPendingCount()).andReturn(2);
         expect(mockConnection2.isOpen()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        mockConnection2.send(message);
+        mockConnection2.send(null, message);
         expectLastCall();
 
         replay(mockConnection, mockConnection2);
@@ -646,7 +645,7 @@ public class ClientImplTest {
     }
 
     /**
-     * Test method for {@link ClientImpl#send(Query, Callback)} .
+     * Test method for {@link ClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -669,7 +668,7 @@ public class ClientImplTest {
 
         replay(mockConnection);
 
-        myTestInstance.send(message, callback);
+        myTestInstance.send(callback, message);
 
         verify(mockConnection);
     }

@@ -235,23 +235,6 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public void send(final Message... messages) throws MongoDbException {
-        try {
-            myProxiedConnection.send(messages);
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Forwards the call to the proxied {@link Connection}.
-     * </p>
-     */
-    @Override
     public void shutdown() {
         myProxiedConnection.shutdown();
     }

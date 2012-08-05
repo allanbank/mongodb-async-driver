@@ -256,7 +256,7 @@ public class MongoIterator implements ClosableIterator<Document> {
                         nextBatchSize());
 
                 myNextReply = new FutureCallback<Reply>();
-                myClient.send(getMore, myNextReply);
+                myClient.send(myNextReply, getMore);
             }
             else {
                 // Exhausted the cursor - no more results.

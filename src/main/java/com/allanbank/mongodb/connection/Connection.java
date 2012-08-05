@@ -103,7 +103,8 @@ public interface Connection extends Closeable, Flushable {
      * Sends a message on the connection.
      * 
      * @param reply
-     *            The callback to notify of responses to the messages.
+     *            The callback to notify of responses to the messages. May be
+     *            null.
      * @param messages
      *            The messages to send on the connection. The messages will be
      *            sent one after the other and are guaranteed to be contiguous
@@ -113,18 +114,6 @@ public interface Connection extends Closeable, Flushable {
      */
     public void send(Callback<Reply> reply, Message... messages)
             throws MongoDbException;
-
-    /**
-     * Sends a message on the connection.
-     * 
-     * @param messages
-     *            The messages to send on the connection. The messages will be
-     *            sent one after the other and are guaranteed to be contiguous
-     *            and have sequential message ids.
-     * @throws MongoDbException
-     *             On an error sending the message.
-     */
-    public void send(Message... messages) throws MongoDbException;
 
     /**
      * Notifies the connection that once all outstanding requests have been sent

@@ -138,7 +138,7 @@ public class MongoImplTest {
 
         final Command message = new Command("admin", commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply.build())));
+        myMockClient.send(callback(reply(reply.build())), eq(message));
         expectLastCall();
 
         replay();

@@ -84,7 +84,7 @@ public class SerialClientImplTest {
      * Test method for {@link SerialClientImpl#close()}.
      * 
      * @throws IOException
-     *             on aa test failure.
+     *             on a test failure.
      */
     @SuppressWarnings("boxing")
     @Test
@@ -100,13 +100,13 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(0);
 
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         replay(mockConnection);
@@ -139,7 +139,7 @@ public class SerialClientImplTest {
     }
 
     /**
-     * Test method for {@link SerialClientImpl#send(GetMore, Callback)} .
+     * Test method for {@link SerialClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -163,13 +163,13 @@ public class SerialClientImplTest {
 
         replay(mockConnection);
 
-        myTestInstance.send(message, callback);
+        myTestInstance.send(callback, message);
 
         verify(mockConnection);
     }
 
     /**
-     * Test method for {@link SerialClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -186,7 +186,7 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         replay(mockConnection);
@@ -197,7 +197,7 @@ public class SerialClientImplTest {
     }
 
     /**
-     * Test method for {@link SerialClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -225,7 +225,7 @@ public class SerialClientImplTest {
     }
 
     /**
-     * Test method for {@link SerialClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -242,7 +242,7 @@ public class SerialClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(false);
@@ -252,7 +252,7 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         replay(mockConnection);
@@ -264,7 +264,7 @@ public class SerialClientImplTest {
     }
 
     /**
-     * Test method for {@link SerialClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -285,7 +285,7 @@ public class SerialClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(false);
@@ -294,7 +294,7 @@ public class SerialClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.send(message);
+        mockConnection2.send(null, message);
         expectLastCall();
 
         replay(mockConnection, mockConnection2);
@@ -306,8 +306,7 @@ public class SerialClientImplTest {
     }
 
     /**
-     * Test method for
-     * {@link SerialClientImpl#send(Message, GetLastError, Callback)} .
+     * Test method for {@link SerialClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -332,13 +331,13 @@ public class SerialClientImplTest {
 
         replay(mockConnection);
 
-        myTestInstance.send(message, lastError, callback);
+        myTestInstance.send(callback, message, lastError);
 
         verify(mockConnection);
     }
 
     /**
-     * Test method for {@link SerialClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -356,10 +355,10 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
         expect(mockConnection.isOpen()).andReturn(true);
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         replay(mockConnection);
@@ -371,7 +370,7 @@ public class SerialClientImplTest {
     }
 
     /**
-     * Test method for {@link SerialClientImpl#send(Message)} .
+     * Test method for {@link SerialClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -390,16 +389,16 @@ public class SerialClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(true);
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         // First pass for idle.
         expect(mockConnection.isOpen()).andReturn(true);
-        mockConnection.send(message);
+        mockConnection.send(null, message);
         expectLastCall();
 
         replay(mockConnection);
@@ -412,7 +411,7 @@ public class SerialClientImplTest {
     }
 
     /**
-     * Test method for {@link SerialClientImpl#send(Query, Callback)} .
+     * Test method for {@link SerialClientImpl#send} .
      * 
      * @throws IOException
      *             On a failure setting up the test.
@@ -435,7 +434,7 @@ public class SerialClientImplTest {
 
         replay(mockConnection);
 
-        myTestInstance.send(message, callback);
+        myTestInstance.send(callback, message);
 
         verify(mockConnection);
     }

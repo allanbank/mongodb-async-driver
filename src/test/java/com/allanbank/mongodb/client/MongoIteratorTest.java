@@ -118,7 +118,7 @@ public class MongoIteratorTest {
         final Reply reply2 = new Reply(0, 0, 0, myDocs, false, false, false,
                 false);
 
-        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        mockClient.send(cb(reply2), anyObject(GetMore.class));
         expectLastCall();
 
         replay(mockClient);
@@ -224,7 +224,7 @@ public class MongoIteratorTest {
         final Reply reply2 = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        mockClient.send(cb(reply2), anyObject(GetMore.class));
         expectLastCall();
         mockClient.send(anyObject(KillCursors.class));
         expectLastCall();

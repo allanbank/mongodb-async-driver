@@ -80,11 +80,11 @@ public class MongoDatabaseImplTest {
         final Command command = new Command("test", BuilderFactory.start()
                 .addInteger("dropDatabase", 1).build());
 
-        myMockClient.send(eq(command), callback(reply(goodResult)));
+        myMockClient.send(callback(reply(goodResult)), eq(command));
         expectLastCall();
-        myMockClient.send(eq(command), callback(reply(badResult)));
+        myMockClient.send(callback(reply(badResult)), eq(command));
         expectLastCall();
-        myMockClient.send(eq(command), callback(reply(missingOkResult)));
+        myMockClient.send(callback(reply(missingOkResult)), eq(command));
         expectLastCall();
 
         replay();
@@ -125,7 +125,7 @@ public class MongoDatabaseImplTest {
                 BuilderFactory.start().build(), null, 0, 0, 0, false,
                 ReadPreference.CLOSEST, false, false, false, false);
 
-        myMockClient.send(eq(query), callback(reply(result1, result2)));
+        myMockClient.send(callback(reply(result1, result2)), eq(query));
         expectLastCall();
 
         replay();
@@ -150,7 +150,7 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("admin", commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply)));
+        myMockClient.send(callback(reply(reply)), eq(message));
         expectLastCall();
 
         replay();
@@ -177,9 +177,9 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("admin", commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply)));
+        myMockClient.send(callback(reply(reply)), eq(message));
         expectLastCall();
-        myMockClient.send(eq(message), callback(reply(reply)));
+        myMockClient.send(callback(reply(reply)), eq(message));
         expectLastCall();
 
         replay();
@@ -205,7 +205,7 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("admin", commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply)));
+        myMockClient.send(callback(reply(reply)), eq(message));
         expectLastCall();
 
         replay();
@@ -229,7 +229,7 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), anyObject(ReplyCallback.class));
+        myMockClient.send(anyObject(ReplyCallback.class), eq(message));
         expectLastCall();
 
         replay(mockCallback);
@@ -258,7 +258,7 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), anyObject(ReplyCallback.class));
+        myMockClient.send(anyObject(ReplyCallback.class), eq(message));
         expectLastCall();
 
         replay(mockCallback);
@@ -288,7 +288,7 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), anyObject(ReplyCallback.class));
+        myMockClient.send(anyObject(ReplyCallback.class), eq(message));
         expectLastCall();
 
         replay(mockCallback);
@@ -315,7 +315,7 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply)));
+        myMockClient.send(callback(reply(reply)), eq(message));
         expectLastCall();
 
         replay();
@@ -345,7 +345,7 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply)));
+        myMockClient.send(callback(reply(reply)), eq(message));
         expectLastCall();
 
         replay();
@@ -377,7 +377,7 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply)));
+        myMockClient.send(callback(reply(reply)), eq(message));
         expectLastCall();
 
         replay();
@@ -402,7 +402,7 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply)));
+        myMockClient.send(callback(reply(reply)), eq(message));
         expectLastCall();
 
         replay();
@@ -429,7 +429,7 @@ public class MongoDatabaseImplTest {
         final Command message = new Command(myTestInstance.getName(),
                 commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply)));
+        myMockClient.send(callback(reply(reply)), eq(message));
         expectLastCall();
 
         replay();
@@ -456,7 +456,7 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), callback(reply(reply)));
+        myMockClient.send(callback(reply(reply)), eq(message));
         expectLastCall();
 
         replay();

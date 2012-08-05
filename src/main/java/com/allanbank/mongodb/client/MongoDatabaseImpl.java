@@ -119,7 +119,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
         final QueryCallback callback = new QueryCallback(myClient, query,
                 iterFuture);
 
-        myClient.send(query, callback);
+        myClient.send(callback, query);
 
         final List<String> names = new ArrayList<String>();
         final Iterator<Document> iter = FutureUtils.unwrap(iterFuture);
@@ -267,7 +267,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
         final Command commandMessage = new Command(myName, builder.build());
 
-        myClient.send(commandMessage, new ReplyCommandCallback(reply));
+        myClient.send(new ReplyCommandCallback(reply), commandMessage);
     }
 
     /**
@@ -292,7 +292,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
         final Command commandMessage = new Command(myName, builder.build());
 
-        myClient.send(commandMessage, new ReplyCallback(reply));
+        myClient.send(new ReplyCallback(reply), commandMessage);
     }
 
     /**

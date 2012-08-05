@@ -335,22 +335,6 @@ public class SocketConnection implements Connection {
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public synchronized void send(final Message... messages)
-            throws MongoDbException {
-        try {
-            for (final Message message : messages) {
-                myToSendQueue.put(new PendingMessage(nextId(), message));
-            }
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
      * <p>
      * Overridden to mark the socket as shutting down and tickles the sender to
      * make sure that happens as soon as possible.

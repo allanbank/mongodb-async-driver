@@ -77,7 +77,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
 
-        myClient.send(commandMsg, new ReplyLongCallback(results));
+        myClient.send(new ReplyLongCallback(results), commandMsg);
     }
 
     /**
@@ -135,8 +135,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             results.callback(Long.valueOf(-1));
         }
         else {
-            myClient.send(deleteMessage, asGetLastError(durability),
-                    new ReplyLongCallback(results));
+            myClient.send(new ReplyLongCallback(results), deleteMessage,
+                    asGetLastError(durability));
         }
     }
 
@@ -160,7 +160,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build());
 
-        myClient.send(commandMsg, new ReplyArrayCallback(results));
+        myClient.send(new ReplyArrayCallback(results), commandMsg);
 
     }
 
@@ -237,7 +237,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build());
-        myClient.send(commandMsg, new ReplyDocumentCallback(results));
+        myClient.send(new ReplyDocumentCallback(results), commandMsg);
     }
 
     /**
@@ -273,8 +273,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, query.isPartialOk());
 
-        myClient.send(queryMessage, new QueryCallback(myClient, queryMessage,
-                results));
+        myClient.send(new QueryCallback(myClient, queryMessage, results),
+                queryMessage);
     }
 
     /**
@@ -294,7 +294,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, false /* partial */);
 
-        myClient.send(queryMessage, new QueryOneCallback(results));
+        myClient.send(new QueryOneCallback(results), queryMessage);
     }
 
     /**
@@ -337,7 +337,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build());
-        myClient.send(commandMsg, new ReplyArrayCallback("retval", results));
+        myClient.send(new ReplyArrayCallback("retval", results), commandMsg);
     }
 
     /**
@@ -368,8 +368,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             results.callback(Integer.valueOf(-1));
         }
         else {
-            myClient.send(insertMessage, asGetLastError(durability),
-                    new ReplyIntegerCallback(results));
+            myClient.send(new ReplyIntegerCallback(results), insertMessage,
+                    asGetLastError(durability));
         }
     }
 
@@ -445,7 +445,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build());
-        myClient.send(commandMsg, new MapReduceReplyCallback(results));
+        myClient.send(new MapReduceReplyCallback(results), commandMsg);
     }
 
     /**
@@ -468,8 +468,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             results.callback(Long.valueOf(-1));
         }
         else {
-            myClient.send(updateMessage, asGetLastError(durability),
-                    new ReplyLongCallback(results));
+            myClient.send(new ReplyLongCallback(results), updateMessage,
+                    asGetLastError(durability));
         }
     }
 }

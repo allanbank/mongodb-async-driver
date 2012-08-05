@@ -99,7 +99,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -133,7 +133,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -141,7 +141,7 @@ public class AuthenticatingConnectionTest {
         }
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
         }
         catch (final MongoDbAuthenticationException good) {
             // Good. Ask once. Keep failing.
@@ -153,7 +153,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -187,7 +187,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -195,7 +195,7 @@ public class AuthenticatingConnectionTest {
         }
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
         }
         catch (final MongoDbAuthenticationException good) {
             // Good. Ask once. Keep failing.
@@ -207,7 +207,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -236,7 +236,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -249,7 +249,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -274,7 +274,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -287,7 +287,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -316,7 +316,7 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg);
+        mockConnetion.send(null, msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -328,7 +328,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbException good) {
@@ -336,7 +336,7 @@ public class AuthenticatingConnectionTest {
             assertSame(injected, good.getCause());
         }
 
-        conn.send(msg);
+        conn.send(null, msg);
 
         IOUtils.close(conn);
 
@@ -344,7 +344,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -373,7 +373,7 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg);
+        mockConnetion.send(null, msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -385,7 +385,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbException good) {
@@ -393,7 +393,7 @@ public class AuthenticatingConnectionTest {
             assertSame(injected, good);
         }
 
-        conn.send(msg);
+        conn.send(null, msg);
 
         IOUtils.close(conn);
 
@@ -401,7 +401,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -431,7 +431,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -444,7 +444,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -477,7 +477,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -490,7 +490,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -519,7 +519,7 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg);
+        mockConnetion.send(null, msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -531,7 +531,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbException good) {
@@ -539,7 +539,7 @@ public class AuthenticatingConnectionTest {
             assertSame(injected, good);
         }
 
-        conn.send(msg);
+        conn.send(null, msg);
 
         IOUtils.close(conn);
 
@@ -591,7 +591,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -614,7 +614,7 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg);
+        mockConnetion.send(null, msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -625,7 +625,7 @@ public class AuthenticatingConnectionTest {
         final AuthenticatingConnection conn = new AuthenticatingConnection(
                 mockConnetion, myConfig);
 
-        conn.send(msg);
+        conn.send(null, msg);
 
         IOUtils.close(conn);
 
@@ -633,7 +633,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -658,7 +658,7 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg);
+        mockConnetion.send(null, msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -669,7 +669,7 @@ public class AuthenticatingConnectionTest {
         final AuthenticatingConnection conn = new AuthenticatingConnection(
                 mockConnetion, myConfig);
 
-        conn.send(msg);
+        conn.send(null, msg);
 
         IOUtils.close(conn);
 
@@ -677,7 +677,7 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message[])} .
+     * Test method for {@link AuthenticatingConnection#send} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -700,11 +700,11 @@ public class AuthenticatingConnectionTest {
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg);
+        mockConnetion.send(null, msg);
         expectLastCall();
 
         // Message, again.
-        mockConnetion.send(msg);
+        mockConnetion.send(null, msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -715,8 +715,8 @@ public class AuthenticatingConnectionTest {
         final AuthenticatingConnection conn = new AuthenticatingConnection(
                 mockConnetion, myConfig);
 
-        conn.send(msg);
-        conn.send(msg);
+        conn.send(null, msg);
+        conn.send(null, msg);
 
         IOUtils.close(conn);
 

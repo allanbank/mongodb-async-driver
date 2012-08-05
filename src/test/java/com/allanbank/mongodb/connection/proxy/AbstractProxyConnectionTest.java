@@ -765,7 +765,7 @@ public class AbstractProxyConnectionTest {
     }
 
     /**
-     * Test method for {@link AbstractProxyConnection#send(Message[])}.
+     * Test method for {@link AbstractProxyConnection#send}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -777,7 +777,7 @@ public class AbstractProxyConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        mockConnetion.send(msg);
+        mockConnetion.send(null, msg);
         expectLastCall();
 
         mockConnetion.close();
@@ -788,7 +788,7 @@ public class AbstractProxyConnectionTest {
         final TestProxiedConnection conn = new TestProxiedConnection(
                 mockConnetion, new MongoDbConfiguration());
 
-        conn.send(msg);
+        conn.send(null, msg);
 
         IOUtils.close(conn);
 
@@ -796,7 +796,7 @@ public class AbstractProxyConnectionTest {
     }
 
     /**
-     * Test method for {@link AbstractProxyConnection#send(Message[])}.
+     * Test method for {@link AbstractProxyConnection#send}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -809,7 +809,7 @@ public class AbstractProxyConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        mockConnetion.send(msg);
+        mockConnetion.send(null, msg);
         expectLastCall().andThrow(thrown);
 
         mockConnetion.close();
@@ -821,7 +821,7 @@ public class AbstractProxyConnectionTest {
                 mockConnetion, new MongoDbConfiguration());
 
         try {
-            conn.send(msg);
+            conn.send(null, msg);
             fail("Should have thrown the exception.");
         }
         catch (final MongoDbException good) {

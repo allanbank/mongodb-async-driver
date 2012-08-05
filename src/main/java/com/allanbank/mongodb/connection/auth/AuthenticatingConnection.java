@@ -85,21 +85,6 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
     /**
      * {@inheritDoc}
      * <p>
-     * Makes sure the connection is authenticated for the messages databases
-     * before forwarding to the proxied connection.
-     * </p>
-     */
-    @Override
-    public void send(final Message... messages) throws MongoDbException {
-        for (final Message message : messages) {
-            ensureAuthenticated(message);
-        }
-        super.send(messages);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to return the socket information.
      * </p>
      */

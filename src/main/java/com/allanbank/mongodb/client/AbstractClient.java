@@ -9,9 +9,6 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.message.GetLastError;
-import com.allanbank.mongodb.connection.message.GetMore;
-import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 
 /**
@@ -34,52 +31,24 @@ public abstract class AbstractClient implements Client {
      * Overridden to locate the .
      * </p>
      * 
-     * @see Client#send(GetMore,Callback)
+     * @see Client#send(Callback,Message[])
      */
     @Override
-    public void send(final GetMore getMore, final Callback<Reply> callback) {
-        findConnection().send(callback, getMore);
+    public void send(final Callback<Reply> callback, Message... messages) {
+        findConnection().send(callback, messages);
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to send the {@link Message} to MongoDB.
+     * Overridden to locate the .
      * </p>
      * 
-     * @see Client#send(Message)
+     * @see Client#send(Message[])
      */
     @Override
-    public void send(final Message message) {
-        findConnection().send(message);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send the {@link Message} and {@link GetLastError} to
-     * MongoDB.
-     * </p>
-     * 
-     * @see Client#send(Message, GetLastError, Callback)
-     */
-    @Override
-    public void send(final Message message, final GetLastError lastError,
-            final Callback<Reply> callback) {
-        findConnection().send(callback, message, lastError);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send the {@link Query} to MongoDB.
-     * </p>
-     * 
-     * @see Client#send(Query, Callback)
-     */
-    @Override
-    public void send(final Query query, final Callback<Reply> callback) {
-        findConnection().send(callback, query);
+    public void send(Message... messages) {
+        findConnection().send(null, messages);
     }
 
     /**
