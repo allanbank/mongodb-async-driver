@@ -125,4 +125,30 @@ public class SocketConnectionFactoryTest {
         }
     }
 
+    /**
+     * Test method for {@link SocketConnectionFactory#connect()} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test(expected = IOException.class)
+    public void testConnectFailureNoAddresses() throws IOException {
+
+        // Force to the wrong port.
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+
+        final SocketConnectionFactory factory = new SocketConnectionFactory(
+                config);
+
+        Connection conn = null;
+        try {
+            conn = factory.connect();
+        }
+        finally {
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
+
 }

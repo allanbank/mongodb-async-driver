@@ -4,13 +4,21 @@
  */
 package com.allanbank.mongodb.connection.socket;
 
+import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.makeThreadSafe;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,6 +34,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.easymock.Capture;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -39,6 +49,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.EndianUtils;
+import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
@@ -47,6 +58,7 @@ import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.GetMore;
 import com.allanbank.mongodb.connection.message.Insert;
 import com.allanbank.mongodb.connection.message.KillCursors;
+import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
@@ -104,6 +116,67 @@ public class SocketConnectionTest {
     }
 
     /**
+     * Test method for {@link SocketConnection#addPending} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testAddPending() throws IOException {
+
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(addr, config);
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addInteger("getlasterror", 1);
+
+        final Document doc = builder.build();
+
+        final GetLastError error = new GetLastError("fo", false, false, 0, 0);
+        myTestConnection.addPending(Collections
+                .singletonList(new PendingMessage(1, error)));
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+        assertTrue("Should receive the request after flush.",
+                ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
+
+        final byte[] request = ourServer.getRequests().get(0);
+
+        final IntBuffer asInts = ByteBuffer.wrap(request).asIntBuffer();
+
+        // Header.
+        assertEquals("Message size is wrong.", request.length,
+                EndianUtils.swap(asInts.get(0)));
+        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertEquals("Response id should be zero.", 0, asInts.get(2));
+        assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
+                EndianUtils.swap(asInts.get(3)));
+
+        assertEquals("Flags should be zero.", 0, asInts.get(4));
+        assertArrayEquals("Collection name is wrong.", new byte[] { 'f', 'o',
+                '.', '$', 'c', 'm', 'd', 0 },
+                Arrays.copyOfRange(request, 20, 28));
+        assertEquals("Number to skip not expected.", 0,
+                EndianUtils.swap(asInts.get(7)));
+        assertEquals("Number to return not expected.", -1,
+                EndianUtils.swap(asInts.get(8)));
+
+        final BsonInputStream reader = new BsonInputStream(
+                new ByteArrayInputStream(Arrays.copyOfRange(request,
+                        (7 * 4) + 8, request.length)));
+
+        final Document sent = reader.readDocument();
+        reader.close();
+
+        assertEquals("The sent command is not the expected command.", doc, sent);
+    }
+
+    /**
      * Test method for {@link SocketConnection#close()}.
      * 
      * @throws IOException
@@ -125,6 +198,71 @@ public class SocketConnectionTest {
         assertTrue("Should have disconnected from the server.",
                 ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10)));
         myTestConnection = null;
+    }
+
+    /**
+     * Test method for {@link SocketConnection#addPending} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testConnectionLost() throws IOException, InterruptedException {
+
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(addr, config);
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addInteger("getlasterror", 1);
+
+        final GetLastError error = new GetLastError("fo", false, false, 0, 0);
+        myTestConnection.send(error);
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+        assertTrue("Should receive the request after flush.",
+                ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
+
+        assertTrue(myTestConnection.isIdle());
+        assertTrue(myTestConnection.isOpen());
+        assertEquals(0, myTestConnection.getPendingCount());
+
+        // Break the connection.
+        final PropertyChangeListener mockListener = EasyMock
+                .createMock(PropertyChangeListener.class);
+        makeThreadSafe(mockListener, true);
+        final Capture<PropertyChangeEvent> capture = new Capture<PropertyChangeEvent>();
+
+        mockListener.propertyChange(capture(capture));
+        expectLastCall();
+
+        replay(mockListener);
+
+        myTestConnection.addPropertyChangeListener(mockListener);
+        ourServer.disconnectClient();
+        ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10));
+        myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
+
+        // Pause for a beat for the event to get pushed out.
+        waitFor(capture);
+
+        verify(mockListener);
+
+        final PropertyChangeEvent evt = capture.getValue();
+        assertEquals(Connection.OPEN_PROP_NAME, evt.getPropertyName());
+        assertEquals(Boolean.FALSE, evt.getNewValue());
+        assertEquals(Boolean.TRUE, evt.getOldValue());
+
+        myTestConnection.removePropertyChangeListener(mockListener);
+
+        assertTrue(myTestConnection.isIdle());
+        assertFalse(myTestConnection.isOpen());
     }
 
     /**
@@ -1181,6 +1319,66 @@ public class SocketConnectionTest {
     }
 
     /**
+     * Test method for
+     * {@link SocketConnection#raiseErrors(MongoDbException, boolean)} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testRaiseError() throws IOException, InterruptedException {
+
+        // From the BSON specification.
+        final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
+                (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
+                0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
+                (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
+
+        final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
+        final IntBuffer buff = byteBuff.asIntBuffer();
+        buff.put(0, (7 * 4) + 8 + helloWorld.length);
+        buff.put(1, 0);
+        buff.put(2, EndianUtils.swap(1));
+        buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));
+        buff.put(4, 0);
+        buff.put(5, 0);
+        buff.put(6, 0);
+        buff.put(7, 0);
+        buff.put(8, EndianUtils.swap(1));
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(byteBuff.array());
+        out.write(helloWorld);
+        ourServer.setReplies(Arrays.asList(out.toByteArray()));
+
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(addr, config);
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        myTestConnection.shutdown();
+        myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
+
+        assertTrue(myTestConnection.isIdle());
+        assertFalse(myTestConnection.isOpen());
+
+        final GetLastError error = new GetLastError("fo", false, false, 0, 0);
+        myTestConnection.send(error);
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
+        assertFalse(myTestConnection.isIdle());
+        assertFalse(myTestConnection.isOpen());
+
+        myTestConnection.raiseErrors(new MongoDbException(), true);
+        myTestConnection.raiseErrors(new MongoDbException(), false);
+    }
+
+    /**
      * Test method for {@link SocketConnection}.
      * 
      * @throws IOException
@@ -1243,6 +1441,62 @@ public class SocketConnectionTest {
                 Collections.singletonList(doc), false, false, false, false);
 
         assertEquals("Did not receive the expected reply.", expected, reply);
+    }
+
+    /**
+     * Test method for {@link SocketConnection#addPending} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testReadGarbage() throws IOException, InterruptedException {
+
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+        final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
+                (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
+                0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
+                (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
+
+        final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
+        final IntBuffer buff = byteBuff.asIntBuffer();
+        buff.put(0, (7 * 4) + 8 + helloWorld.length);
+        buff.put(1, 0);
+        buff.put(2, EndianUtils.swap(1));
+        buff.put(3, EndianUtils.swap(255)); // Bad op code.
+        buff.put(4, 0);
+        buff.put(5, 0);
+        buff.put(6, 0);
+        buff.put(7, 0);
+        buff.put(8, EndianUtils.swap(1));
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(byteBuff.array());
+        out.write(helloWorld);
+        ourServer.setReplies(Arrays.asList(out.toByteArray()));
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(addr, config);
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final GetLastError error = new GetLastError("fo", false, false, 0, 0);
+        myTestConnection.send(error);
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+        assertTrue("Should receive the request after flush.",
+                ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
+
+        ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10));
+        myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
+
+        assertTrue(myTestConnection.isIdle());
+        assertFalse(myTestConnection.isOpen());
+        assertEquals(0, myTestConnection.getPendingCount());
+
     }
 
     /**
@@ -1371,6 +1625,55 @@ public class SocketConnectionTest {
                 Collections.singletonList(doc), true, true, true, true);
 
         assertEquals("Did not receive the expected reply.", expected, reply);
+    }
+
+    /**
+     * Test method for {@link SocketConnection#shutdown} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testShutdown() throws IOException, InterruptedException {
+
+        // From the BSON specification.
+        final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
+                (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
+                0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
+                (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
+
+        final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
+        final IntBuffer buff = byteBuff.asIntBuffer();
+        buff.put(0, (7 * 4) + 8 + helloWorld.length);
+        buff.put(1, 0);
+        buff.put(2, EndianUtils.swap(1));
+        buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));
+        buff.put(4, 0);
+        buff.put(5, 0);
+        buff.put(6, 0);
+        buff.put(7, 0);
+        buff.put(8, EndianUtils.swap(1));
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(byteBuff.array());
+        out.write(helloWorld);
+        ourServer.setReplies(Arrays.asList(out.toByteArray()));
+
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(addr, config);
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        myTestConnection.shutdown();
+        myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
+
+        assertTrue(myTestConnection.isIdle());
+        assertFalse(myTestConnection.isOpen());
     }
 
     /**
@@ -1669,5 +1972,28 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
                         - helloWorld.length, request.length));
+    }
+
+    /**
+     * Waits for the capture to have been set.
+     * 
+     * @param capture
+     *            The capture to wait for.
+     */
+    private void waitFor(final Capture<PropertyChangeEvent> capture) {
+        long now = System.currentTimeMillis();
+        final long deadline = now + TimeUnit.SECONDS.toMillis(10);
+
+        while (!capture.hasCaptured() && (now < deadline)) {
+            try {
+                // A slow spin loop.
+                TimeUnit.MILLISECONDS.sleep(10);
+            }
+            catch (final InterruptedException e) {
+                // Ignore.
+                e.hashCode();
+            }
+            now = System.currentTimeMillis();
+        }
     }
 }

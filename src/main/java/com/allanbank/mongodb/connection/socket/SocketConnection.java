@@ -359,10 +359,9 @@ public class SocketConnection implements Connection {
     @Override
     public void shutdown() {
         myShutdown.set(true);
-        if (myToSendQueue.isEmpty() && isOpen()) {
-            // Force a message to wake the sender up.
-            send(new NoopCallback(), new IsMaster());
-        }
+
+        // Force a message with a callback to wake the sender and receiver up.
+        send(new NoopCallback(), new IsMaster());
     }
 
     /**
@@ -388,7 +387,7 @@ public class SocketConnection implements Connection {
         long now = System.currentTimeMillis();
         final long deadline = now + timeoutUnits.toMillis(timeout);
 
-        while (!isIdle() && (now < deadline)) {
+        while (isOpen() && (now < deadline)) {
             try {
                 // A slow spin loop.
                 TimeUnit.MILLISECONDS.sleep(10);
@@ -455,7 +454,6 @@ public class SocketConnection implements Connection {
             case KILL_CURSORS:
                 message = new KillCursors(myBsonIn);
                 break;
-
             }
 
             return message;
@@ -661,6 +659,7 @@ public class SocketConnection implements Connection {
                         LOG.log(Level.WARNING, "Error reading a message: "
                                 + error.getMessage(), error);
                     }
+                    IOUtils.close(SocketConnection.this);
                 }
             }
         }
@@ -698,13 +697,6 @@ public class SocketConnection implements Connection {
                         message = myToSendQueue.take();
                     }
 
-                    // If shutting down force a message that will send a reply.
-                    // and clear the pending queue.
-                    if (myShutdown.get() && (message == null)) {
-                        message = new PendingMessage(nextId(), new IsMaster(),
-                                new NoopCallback());
-                    }
-
                     if (message != null) {
                         needToFlush = true;
                         // Make sure the message is on the queue before the
@@ -718,6 +710,12 @@ public class SocketConnection implements Connection {
                             myPendingQueue.put(message);
                         }
                         doSend(message);
+
+                        // If shutting down then flush after each message.
+                        if (myShutdown.get()) {
+                            flush();
+                            needToFlush = false;
+                        }
                     }
                     else {
                         flush();
@@ -741,7 +739,7 @@ public class SocketConnection implements Connection {
                     flush();
                 }
                 catch (final IOException ioe) {
-                    ioe.printStackTrace();
+                    LOG.log(Level.WARNING, "I/O Error flushing a message.", ioe);
                 }
             }
         }

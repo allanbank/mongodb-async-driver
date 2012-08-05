@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.bson.io.EndianUtils;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * Provides a simple single threaded socket server to act as a MongoDB server in
@@ -30,6 +31,9 @@ public class MockSocketServer extends Thread {
 
     /** Set to true when a client is connected. */
     private boolean myClientConnected = false;
+
+    /** The current active connection. */
+    private SocketChannel myConnection;
 
     /** The replies to send when a message is received. */
     private final List<byte[]> myReplies = new ArrayList<byte[]>();
@@ -79,6 +83,19 @@ public class MockSocketServer extends Thread {
     }
 
     /**
+     * Disconnects any active client..
+     * 
+     * @return True if a client is connected, false otherwise.
+     */
+    public boolean disconnectClient() {
+        final SocketChannel channel = myConnection;
+
+        IOUtils.close(channel);
+
+        return (channel != null);
+    }
+
+    /**
      * Returns the address for the server.
      * 
      * @return The address for the server.
@@ -121,14 +138,13 @@ public class MockSocketServer extends Thread {
      */
     @Override
     public void run() {
-        SocketChannel clientSocket = null;
         myRunning = true;
         try {
             while (myRunning) {
-                clientSocket = myServerSocket.accept();
-                if (clientSocket != null) {
+                myConnection = myServerSocket.accept();
+                if (myConnection != null) {
                     try {
-                        handleClient(clientSocket);
+                        handleClient(myConnection);
                     }
                     finally {
                         synchronized (this) {
@@ -136,8 +152,8 @@ public class MockSocketServer extends Thread {
                             notifyAll();
                         }
 
-                        clientSocket.close();
-                        clientSocket = null;
+                        myConnection.close();
+                        myConnection = null;
                     }
                 }
                 else {
@@ -337,6 +353,10 @@ public class MockSocketServer extends Thread {
                         }
                     }
                 }
+            }
+            else {
+                // Disconnected.
+                return;
             }
 
             if (read < 0) {
