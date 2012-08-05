@@ -114,4 +114,16 @@ public class MinKeyElementTest {
         assertEquals("\"foo\" : /* MIN_KEY */ -9223372036854775808",
                 element.toString());
     }
+
+    /**
+     * Test method for {@link MinKeyElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        MinKeyElement element = new MinKeyElement("foo");
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(ElementType.MIN_KEY, element.getType());
+    }
 }

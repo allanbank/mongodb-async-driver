@@ -423,4 +423,16 @@ public class DocumentElementTest {
                 element.toString());
     }
 
+    /**
+     * Test method for {@link DocumentElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        DocumentElement element = new DocumentElement("foo");
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertTrue(element.getElements().isEmpty());
+    }
+
 }

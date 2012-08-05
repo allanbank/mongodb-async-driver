@@ -248,4 +248,18 @@ public class BinaryElementTest {
 
         assertEquals("\"foo\" : (0x11) 0x312213", element.toString());
     }
+
+    /**
+     * Test method for {@link BinaryElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals((byte) 0x01, element.getSubType());
+        assertArrayEquals(new byte[] { 0x01, 0x02, 0x03 }, element.getValue());
+        assertEquals(ElementType.BINARY, element.getType());
+    }
 }

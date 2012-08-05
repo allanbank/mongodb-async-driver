@@ -137,4 +137,18 @@ public class MongoTimestampElementTest {
 
         assertEquals("\"foo\" : 1010101", element.toString());
     }
+
+    /**
+     * Test method for {@link MongoTimestampElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        MongoTimestampElement element = new MongoTimestampElement("foo",
+                1010101);
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(1010101, element.getTime(), 0.0001);
+        assertEquals(ElementType.MONGO_TIMESTAMP, element.getType());
+    }
 }

@@ -130,4 +130,17 @@ public class TimestampElementTest {
 
         assertEquals("\"foo\" : UTC(1010101)", element.toString());
     }
+
+    /**
+     * Test method for {@link TimestampElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        TimestampElement element = new TimestampElement("foo", 1010101);
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(1010101, element.getTime(), 0.0001);
+        assertEquals(ElementType.UTC_TIMESTAMP, element.getType());
+    }
 }

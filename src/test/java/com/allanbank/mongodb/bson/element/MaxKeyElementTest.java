@@ -114,4 +114,16 @@ public class MaxKeyElementTest {
         assertEquals("\"foo\" : /* MAX_KEY */ 9223372036854775807",
                 element.toString());
     }
+
+    /**
+     * Test method for {@link MaxKeyElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        MaxKeyElement element = new MaxKeyElement("foo");
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(ElementType.MAX_KEY, element.getType());
+    }
 }

@@ -15,6 +15,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,6 +47,9 @@ public class MockMongoDBServer extends Thread {
 
     /** Set to true when a client is connected. */
     private boolean myClientConnected = false;
+
+    /** The active client connection. */
+    private Socket myConnection = null;
 
     /** The replies to send when a message is received. */
     private final List<Reply> myReplies = new ArrayList<Reply>();
@@ -101,6 +105,19 @@ public class MockMongoDBServer extends Thread {
     }
 
     /**
+     * Disconnects any active client..
+     * 
+     * @return True if a client is connected, false otherwise.
+     */
+    public boolean disconnectClient() {
+        final Socket socket = myConnection;
+
+        IOUtils.close(socket);
+
+        return (socket != null);
+    }
+
+    /**
      * Returns the address for the server.
      * 
      * @return The address for the server.
@@ -143,27 +160,26 @@ public class MockMongoDBServer extends Thread {
      */
     @Override
     public void run() {
-        Socket clientSocket = null;
-
         myRunningThread = Thread.currentThread();
         myRunning = true;
         try {
             while (myRunning) {
-                clientSocket = myServerSocket.accept();
-                if (clientSocket != null) {
+                myConnection = myServerSocket.accept();
+                if (myConnection != null) {
                     try {
                         synchronized (this) {
                             myClientConnected = true;
                             notifyAll();
                         }
 
-                        handleClient(clientSocket);
+                        handleClient(myConnection);
                     }
                     finally {
                         synchronized (this) {
                             myClientConnected = false;
                             notifyAll();
                         }
+                        myConnection = null;
                     }
                 }
                 else {
@@ -352,6 +368,12 @@ public class MockMongoDBServer extends Thread {
             }
         }
         catch (final EOFException eof) {
+            // Client disconnected.
+        }
+        catch (final SocketException eof) {
+            // Client disconnected.
+        }
+        catch (final MongoDbException eof) {
             // Client disconnected.
         }
         finally {

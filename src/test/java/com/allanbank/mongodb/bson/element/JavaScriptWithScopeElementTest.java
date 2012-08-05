@@ -166,4 +166,19 @@ public class JavaScriptWithScopeElementTest {
         assertEquals("\"foo\" : func code() {} (scope :{ \"f\" : true}\n)",
                 element.toString());
     }
+
+    /**
+     * Test method for {@link JavaScriptWithScopeElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        JavaScriptWithScopeElement element = new JavaScriptWithScopeElement(
+                "foo", "func code() {}", SCOPE_1);
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals("func code() {}", element.getJavaScript());
+        assertEquals(SCOPE_1, element.getScope());
+        assertEquals(ElementType.JAVA_SCRIPT_WITH_SCOPE, element.getType());
+    }
 }

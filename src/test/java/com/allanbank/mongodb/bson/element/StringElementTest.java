@@ -132,4 +132,17 @@ public class StringElementTest {
 
         assertEquals("\"foo\" : \"string\"", element.toString());
     }
+
+    /**
+     * Test method for {@link StringElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        StringElement element = new StringElement("foo", "string");
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals("string", element.getValue());
+        assertEquals(ElementType.STRING, element.getType());
+    }
 }

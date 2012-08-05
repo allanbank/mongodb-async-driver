@@ -311,4 +311,18 @@ public class ArrayElementTest {
         assertEquals("\"foo\" : [ \"1\" : false,\n\"1\" : false]\n",
                 element.toString());
     }
+
+    /**
+     * Test method for {@link ArrayElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        final List<Element> list = Collections.emptyList();
+
+        ArrayElement element = new ArrayElement("foo", list);
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(ElementType.ARRAY, element.getType());
+        assertEquals(list, element.getEntries());
+    }
 }

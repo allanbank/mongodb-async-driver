@@ -144,4 +144,18 @@ public class ObjectIdElementTest {
 
         assertEquals("\"foo\" : " + element.getId(), element.toString());
     }
+
+    /**
+     * Test method for {@link ObjectIdElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        final ObjectId id = new ObjectId();
+        ObjectIdElement element = new ObjectIdElement("foo", id);
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(id, element.getId());
+        assertEquals(ElementType.OBJECT_ID, element.getType());
+    }
 }

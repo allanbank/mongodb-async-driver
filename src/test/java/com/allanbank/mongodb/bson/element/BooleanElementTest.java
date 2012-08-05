@@ -118,4 +118,16 @@ public class BooleanElementTest {
         assertEquals("\"foo\" : false", element.toString());
     }
 
+    /**
+     * Test method for {@link BooleanElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        BooleanElement element = new BooleanElement("foo", false);
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(false, element.getValue());
+        assertEquals(ElementType.BOOLEAN, element.getType());
+    }
+
 }

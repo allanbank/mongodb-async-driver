@@ -159,4 +159,17 @@ public class IntegerElementTest {
 
         assertEquals("\"foo\" : 1010101", element.toString());
     }
+
+    /**
+     * Test method for {@link IntegerElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        IntegerElement element = new IntegerElement("foo", 1010101);
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(1010101, element.getValue(), 0.0001);
+        assertEquals(ElementType.INTEGER, element.getType());
+    }
 }

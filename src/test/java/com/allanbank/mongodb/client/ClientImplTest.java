@@ -5,11 +5,13 @@
 
 package com.allanbank.mongodb.client;
 
+import static com.allanbank.mongodb.connection.CallbackReply.reply;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.beans.PropertyChangeListener;
@@ -18,7 +20,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.easymock.EasyMock;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
@@ -30,12 +34,14 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.Message;
+import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.GetMore;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
+import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 
 /**
  * ClientImplTest provides tests for the {@link ClientImpl} class.
@@ -44,6 +50,33 @@ import com.allanbank.mongodb.connection.message.Update;
  */
 @SuppressWarnings("unchecked")
 public class ClientImplTest {
+    /** A Mock MongoDB server to connect to. */
+    private static MockMongoDBServer ourServer;
+
+    /**
+     * Starts a Mock MongoDB server.
+     * 
+     * @throws IOException
+     *             On a failure to start the Mock MongoDB server.
+     */
+    @BeforeClass
+    public static void setUpBeforeClass() throws IOException {
+        ourServer = new MockMongoDBServer();
+        ourServer.start();
+    }
+
+    /**
+     * Stops a Mock MongoDB server.
+     * 
+     * @throws IOException
+     *             On a failure to stop the Mock MongoDB server.
+     */
+    @AfterClass
+    public static void tearDownAfterClass() throws IOException {
+        ourServer.setRunning(false);
+        ourServer.close();
+        ourServer = null;
+    }
 
     /** The active configuration. */
     private MongoDbConfiguration myConfig;
@@ -74,13 +107,14 @@ public class ClientImplTest {
 
         myConfig = null;
         myTestInstance = null;
+        ourServer.clear();
     }
 
     /**
      * Test method for {@link ClientImpl#close()}.
      * 
      * @throws IOException
-     *             on aa test failure.
+     *             on a test failure.
      */
     @SuppressWarnings("boxing")
     @Test
@@ -181,6 +215,64 @@ public class ClientImplTest {
         myConfig.setDefaultDurability(Durability.journalDurable(1000));
         assertSame(myConfig.getDefaultDurability(),
                 myTestInstance.getDefaultDurability());
+    }
+
+    /**
+     * Test method for reconnect logic.
+     */
+    @Test
+    public void testReconnect() {
+
+        final String serverName = ourServer.getInetSocketAddress()
+                .getHostString()
+                + ":"
+                + ourServer.getInetSocketAddress().getPort();
+
+        ourServer.setReplies(
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")),
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")),
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")),
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")));
+
+        final GetLastError message = new GetLastError("testDb", Durability.ACK);
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                ourServer.getInetSocketAddress());
+        config.setAutoDiscoverServers(false);
+
+        try {
+            myTestInstance = new ClientImpl(config,
+                    new SocketConnectionFactory(config));
+
+            myTestInstance.send(message);
+            ourServer.waitForRequest(1, 10000);
+
+            ourServer.disconnectClient();
+            assertTrue(ourServer.waitForDisconnect(10000));
+
+            assertTrue(ourServer.waitForClient(10000));
+            ourServer.waitForRequest(2, 10000); // ping.
+
+            // Give a pause for the reconnect to finish on out side.
+            Thread.sleep(50);
+
+            myTestInstance.send(message);
+            ourServer.waitForRequest(3, 10000);
+        }
+        catch (final InterruptedException e) {
+            // Ignore.
+        }
+        finally {
+            myTestInstance.close();
+        }
+
     }
 
     /**

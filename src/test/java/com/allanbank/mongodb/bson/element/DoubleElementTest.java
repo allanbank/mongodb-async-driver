@@ -158,4 +158,17 @@ public class DoubleElementTest {
 
         assertEquals("\"foo\" : 1.0101", element.toString());
     }
+
+    /**
+     * Test method for {@link DoubleElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        DoubleElement element = new DoubleElement("foo", 1.0101);
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(1.0101, element.getValue(), 0.0001);
+        assertEquals(ElementType.DOUBLE, element.getType());
+    }
 }

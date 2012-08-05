@@ -141,4 +141,20 @@ public class DBPointerElementTest {
                 element.toString());
     }
 
+    /**
+     * Test method for {@link DBPointerElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        final ObjectId id = new ObjectId();
+        DBPointerElement element = new DBPointerElement("foo", "bar", "baz", id);
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals("bar", element.getDatabaseName());
+        assertEquals("baz", element.getCollectionName());
+        assertSame(id, element.getId());
+        assertEquals(ElementType.DB_POINTER, element.getType());
+    }
+
 }

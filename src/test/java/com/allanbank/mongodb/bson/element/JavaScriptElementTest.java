@@ -132,4 +132,18 @@ public class JavaScriptElementTest {
 
         assertEquals("\"foo\" : func code() {}", element.toString());
     }
+
+    /**
+     * Test method for {@link JavaScriptElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        JavaScriptElement element = new JavaScriptElement("foo",
+                "func code() {}");
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals("func code() {}", element.getJavaScript());
+        assertEquals(ElementType.JAVA_SCRIPT, element.getType());
+    }
 }

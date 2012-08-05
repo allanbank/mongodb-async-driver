@@ -159,4 +159,17 @@ public class LongElementTest {
 
         assertEquals("\"foo\" : 1010101", element.toString());
     }
+
+    /**
+     * Test method for {@link LongElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        LongElement element = new LongElement("foo", 1010101);
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(1010101, element.getValue(), 0.0001);
+        assertEquals(ElementType.LONG, element.getType());
+    }
 }

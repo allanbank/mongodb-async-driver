@@ -132,4 +132,17 @@ public class SymbolElementTest {
 
         assertEquals("\"foo\" : string", element.toString());
     }
+
+    /**
+     * Test method for {@link SymbolElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        SymbolElement element = new SymbolElement("foo", "string");
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals("string", element.getSymbol());
+        assertEquals(ElementType.SYMBOL, element.getType());
+    }
 }

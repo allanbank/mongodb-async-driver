@@ -197,4 +197,19 @@ public class RegularExpressionElementTest {
 
         assertEquals("\"foo\" : /func code() {}/i", element.toString());
     }
+
+    /**
+     * Test method for {@link RegularExpressionElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        RegularExpressionElement element = new RegularExpressionElement("foo",
+                "func code() {}", OPTIONS_1);
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals("func code() {}", element.getPattern());
+        assertEquals(RegularExpressionElement.OPTION_I, element.getOptions());
+        assertEquals(ElementType.REGEX, element.getType());
+    }
 }

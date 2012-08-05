@@ -113,4 +113,16 @@ public class NullElementTest {
 
         assertEquals("\"foo\" : null", element.toString());
     }
+
+    /**
+     * Test method for {@link NullElement#withName(String)}.
+     */
+    @Test
+    public void testWithName() {
+        NullElement element = new NullElement("foo");
+
+        element = element.withName("bar");
+        assertEquals("bar", element.getName());
+        assertEquals(ElementType.NULL, element.getType());
+    }
 }
