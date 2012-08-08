@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.easymock.EasyMock;
@@ -97,9 +96,7 @@ public class ShardedConnectionFactoryTest {
      */
     @Test
     public void testBootstrap() {
-        final String serverName = ourServer.getInetSocketAddress()
-                .getHostString()
-                + ":"
+        final String serverName = "localhost:"
                 + ourServer.getInetSocketAddress().getPort();
 
         ourServer.setReplies(
@@ -266,9 +263,8 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(
-                mockFactory.connect(anyObject(InetSocketAddress.class),
-                        eq(config))).andReturn(mockConnection);
+        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
+                .andReturn(mockConnection);
 
         mockConnection.send(cb(), anyObject(IsMaster.class));
         expectLastCall().andThrow(new MongoDbException("This is a test"));
@@ -299,9 +295,7 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(
-                mockFactory.connect(anyObject(InetSocketAddress.class),
-                        eq(config)))
+        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
                 .andThrow(new IOException("This is a test"));
 
         replay(mockFactory, mockConnection);
@@ -327,9 +321,8 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(
-                mockFactory.connect(anyObject(InetSocketAddress.class),
-                        eq(config))).andReturn(mockConnection);
+        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
+                .andReturn(mockConnection);
 
         mockConnection.send(cb(), anyObject(IsMaster.class));
         expectLastCall().andThrow(new MongoDbException("This is a test"));

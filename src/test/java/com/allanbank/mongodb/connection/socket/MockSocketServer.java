@@ -17,6 +17,7 @@ import java.util.List;
 
 import com.allanbank.mongodb.bson.io.EndianUtils;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * Provides a simple single threaded socket server to act as a MongoDB server in
@@ -121,6 +122,15 @@ public class MockSocketServer extends Thread {
      */
     public List<byte[]> getRequests() {
         return Collections.unmodifiableList(myRequests);
+    }
+
+    /**
+     * Returns the address for the server.
+     * 
+     * @return The address for the server.
+     */
+    public String getServerName() {
+        return ServerNameUtils.normalize(getInetSocketAddress());
     }
 
     /**

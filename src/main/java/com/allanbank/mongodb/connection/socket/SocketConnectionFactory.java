@@ -5,7 +5,6 @@
 package com.allanbank.mongodb.connection.socket;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,9 +49,8 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         myServerSelector = new LatencyServerSelector(myState, true);
 
         // Add all of the servers as writable by default.
-        for (final InetSocketAddress address : config.getServers()) {
-            final ServerState state = myState.add(address.getHostString() + ":"
-                    + address.getPort());
+        for (final String address : config.getServers()) {
+            final ServerState state = myState.add(address);
 
             myState.markWritable(state);
         }
@@ -68,15 +66,15 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      */
     @Override
     public Connection connect() throws IOException {
-        final List<InetSocketAddress> servers = new ArrayList<InetSocketAddress>(
+        final List<String> servers = new ArrayList<String>(
                 myConfig.getServers());
 
         // Shuffle the servers and try to connect to each until one works.
         IOException last = null;
         Collections.shuffle(servers);
-        for (final InetSocketAddress address : servers) {
+        for (final String address : servers) {
             try {
-                return connect(address, myConfig);
+                return connect(new ServerState(address), myConfig);
             }
             catch (final IOException error) {
                 last = error;
@@ -92,8 +90,8 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     /**
      * Creates a connection to the address provided.
      * 
-     * @param address
-     *            The address of the MongoDB server to connect to.
+     * @param server
+     *            The MongoDB server to connect to.
      * @param config
      *            The configuration for the Connection to the MongoDB server.
      * @return The Connection to MongoDB.
@@ -101,9 +99,9 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      *             On a failure connecting to the server.
      */
     @Override
-    public Connection connect(final InetSocketAddress address,
+    public Connection connect(final ServerState server,
             final MongoDbConfiguration config) throws IOException {
-        return new SocketConnection(address, myConfig);
+        return new SocketConnection(server, myConfig);
     }
 
     /**

@@ -15,9 +15,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,15 +43,14 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 public class SimpleReconnectStrategyTest {
 
     /** The address for the test. */
-    private SocketAddress myAddress = null;
+    private String myAddress = null;
 
     /**
      * Creates the basic test objects.
      */
     @Before
     public void setUp() {
-        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
-                1234);
+        myAddress = "localhost:27017";
     }
 
     /**
@@ -85,8 +81,8 @@ public class SimpleReconnectStrategyTest {
         expect(mockSelector.pickServers()).andReturn(
                 Collections.singletonList(server));
 
-        expect(mockFactory.connect(server.getServer(), config)).andReturn(
-                mockNewConnection);
+        expect(mockFactory.connect(server, config))
+                .andReturn(mockNewConnection);
 
         final Capture<Callback<Reply>> callbackCapture = new Capture<Callback<Reply>>() {
             /** Serialization version for the class. */
@@ -166,10 +162,9 @@ public class SimpleReconnectStrategyTest {
         expect(mockSelector.pickServers()).andReturn(
                 Arrays.asList(server, server));
 
-        expect(mockFactory.connect(server.getServer(), config)).andThrow(
-                new IOException());
-        expect(mockFactory.connect(server.getServer(), config)).andReturn(
-                mockNewConnection);
+        expect(mockFactory.connect(server, config)).andThrow(new IOException());
+        expect(mockFactory.connect(server, config))
+                .andReturn(mockNewConnection);
 
         final Capture<Callback<Reply>> callbackCapture = new Capture<Callback<Reply>>() {
             /** Serialization version for the class. */
@@ -227,8 +222,8 @@ public class SimpleReconnectStrategyTest {
         expect(mockSelector.pickServers()).andReturn(
                 Collections.singletonList(server));
 
-        expect(mockFactory.connect(server.getServer(), config)).andReturn(
-                mockNewConnection);
+        expect(mockFactory.connect(server, config))
+                .andReturn(mockNewConnection);
 
         final Capture<Callback<Reply>> callbackCapture = new Capture<Callback<Reply>>() {
             /** Serialization version for the class. */

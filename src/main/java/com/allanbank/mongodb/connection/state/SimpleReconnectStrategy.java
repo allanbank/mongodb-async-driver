@@ -49,7 +49,7 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
             try {
                 final InetSocketAddress addr = server.getServer();
 
-                newConn = getConnectionFactory().connect(addr, getConfig());
+                newConn = getConnectionFactory().connect(server, getConfig());
                 if (isConnected(server, newConn)) {
 
                     LOG.info("Reconnected to " + addr);

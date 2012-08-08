@@ -17,9 +17,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -52,7 +49,7 @@ public class AuthenticatingConnectionTest {
     public static final Document EMPTY_DOC = BuilderFactory.start().build();
 
     /** The address for the test. */
-    private SocketAddress myAddress = null;
+    private String myAddress = null;
 
     /** The authenticate reply message. */
     private DocumentBuilder myAuthReply;
@@ -92,8 +89,7 @@ public class AuthenticatingConnectionTest {
         myAuthReply = BuilderFactory.start();
         myAuthReply.addInteger("ok", 1);
 
-        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
-                1234);
+        myAddress = "localhost:27017";
     }
 
     /**

@@ -5,7 +5,6 @@
 package com.allanbank.mongodb.connection.bootstrap;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -28,6 +27,7 @@ import com.allanbank.mongodb.connection.rs.ReplicaSetConnectionFactory;
 import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnection;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
+import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -81,11 +81,11 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * </p>
      */
     public void bootstrap() {
-        for (final InetSocketAddress addr : myConfig.getServers()) {
+        for (final String addr : myConfig.getServers()) {
             SocketConnection conn = null;
             final FutureCallback<Reply> future = new FutureCallback<Reply>();
             try {
-                conn = new SocketConnection(addr, myConfig);
+                conn = new SocketConnection(new ServerState(addr), myConfig);
                 conn.send(future, new ServerStatus());
                 final Reply reply = future.get();
 

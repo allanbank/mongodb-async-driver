@@ -15,8 +15,6 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 
 import org.easymock.Capture;
 import org.junit.After;
@@ -59,11 +57,10 @@ public class ConnectionPingerTest {
      */
     @Test
     public void testRun() throws IOException, InterruptedException {
-        final InetSocketAddress address = new InetSocketAddress(
-                InetAddress.getLoopbackAddress(), 1234);
+        final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState();
-        cluster.add("localhost:27017");
+        cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -72,7 +69,7 @@ public class ConnectionPingerTest {
         makeThreadSafe(mockFactory, true);
 
         expect(
-                mockFactory.connect(anyObject(InetSocketAddress.class),
+                mockFactory.connect(anyObject(ServerState.class),
                         anyObject(MongoDbConfiguration.class))).andReturn(
                 mockConnection);
         expect(
@@ -103,11 +100,10 @@ public class ConnectionPingerTest {
      */
     @Test
     public void testRunPingFails() throws IOException, InterruptedException {
-        final InetSocketAddress address = new InetSocketAddress(
-                InetAddress.getLoopbackAddress(), 1234);
+        final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState();
-        cluster.add("localhost:27017");
+        cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -116,7 +112,7 @@ public class ConnectionPingerTest {
         makeThreadSafe(mockFactory, true);
 
         expect(
-                mockFactory.connect(anyObject(InetSocketAddress.class),
+                mockFactory.connect(anyObject(ServerState.class),
                         anyObject(MongoDbConfiguration.class))).andReturn(
                 mockConnection);
         expect(
@@ -156,7 +152,7 @@ public class ConnectionPingerTest {
         makeThreadSafe(mockFactory, true);
 
         expect(
-                mockFactory.connect(anyObject(InetSocketAddress.class),
+                mockFactory.connect(anyObject(ServerState.class),
                         anyObject(MongoDbConfiguration.class))).andThrow(
                 new IOException("This is a test."));
 

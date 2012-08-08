@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.client;
 
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -120,8 +119,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
         final QueryCallback callback = new QueryCallback(myClient, query,
                 iterFuture);
 
-        final SocketAddress addr = myClient.send(callback, query);
-
+        final String addr = myClient.send(callback, query);
         callback.setAddress(addr);
 
         final List<String> names = new ArrayList<String>();

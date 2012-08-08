@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.allanbank.mongodb.util.ServerNameUtils;
+
 /**
  * {@link ClusterState} tracks the state of the cluster of MongoDB servers.
  * PropertyChangeEvents are fired when a server is added or marked writable/not
@@ -91,12 +93,13 @@ public class ClusterState {
      */
     public synchronized ServerState get(final String address) {
 
-        ServerState state = myServers.get(address);
+        final String normalized = ServerNameUtils.normalize(address);
+        ServerState state = myServers.get(normalized);
         if (state == null) {
-            state = new ServerState(address);
+            state = new ServerState(normalized);
             state.setWritable(false);
 
-            myServers.put(address, state);
+            myServers.put(normalized, state);
             myNonWritableServers.add(state);
 
             myChangeSupport.firePropertyChange("server", null, state);

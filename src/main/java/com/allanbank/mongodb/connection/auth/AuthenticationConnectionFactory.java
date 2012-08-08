@@ -6,11 +6,11 @@
 package com.allanbank.mongodb.connection.auth;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.connection.state.ServerState;
 
 /**
  * AuthenticationConnectionFactory wraps all of the connections with
@@ -64,10 +64,10 @@ public class AuthenticationConnectionFactory implements
      * </p>
      */
     @Override
-    public AuthenticatingConnection connect(final InetSocketAddress address,
+    public AuthenticatingConnection connect(final ServerState server,
             final MongoDbConfiguration config) throws IOException {
         return new AuthenticatingConnection(myProxiedConnectionFactory.connect(
-                address, config), config);
+                server, config), config);
     }
 
     /**

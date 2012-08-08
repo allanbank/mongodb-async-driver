@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.client;
 
-import java.net.SocketAddress;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -74,7 +73,7 @@ public class MongoIterator implements ClosableIterator<Document> {
      *            The initial results of the query that are available.
      */
     public MongoIterator(final Query originalQuery, final Client client,
-            final SocketAddress server, final Reply reply) {
+            final String server, final Reply reply) {
         myNextReply = new FutureCallback<Reply>();
         myNextReply.callback(reply);
 

@@ -5,8 +5,6 @@
 
 package com.allanbank.mongodb.client;
 
-import java.net.SocketAddress;
-
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
@@ -62,7 +60,7 @@ public interface Client {
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public SocketAddress send(Callback<Reply> reply, Message... messages)
+    public String send(Callback<Reply> reply, Message... messages)
             throws MongoDbException;
 
     /**
@@ -76,5 +74,5 @@ public interface Client {
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public SocketAddress send(Message... messages) throws MongoDbException;
+    public String send(Message... messages) throws MongoDbException;
 }

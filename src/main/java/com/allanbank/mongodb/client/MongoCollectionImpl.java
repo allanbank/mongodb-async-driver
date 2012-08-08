@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.client;
 
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -283,7 +282,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final QueryCallback callback = new QueryCallback(myClient,
                 queryMessage, results);
-        final SocketAddress address = myClient.send(callback, queryMessage);
+        final String address = myClient.send(callback, queryMessage);
 
         callback.setAddress(address);
     }

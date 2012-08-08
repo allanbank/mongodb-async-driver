@@ -14,9 +14,6 @@ import static org.junit.Assert.fail;
 
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -48,7 +45,7 @@ import com.allanbank.mongodb.connection.message.Update;
 public class SerialClientImplTest {
 
     /** The address for the test. */
-    private SocketAddress myAddress = null;
+    private String myAddress = null;
 
     /** The instance under test. */
     private ClientImpl myClient;
@@ -72,8 +69,7 @@ public class SerialClientImplTest {
         myConfig = new MongoDbConfiguration();
         myClient = new ClientImpl(myConfig, myMockConnectionFactory);
         myTestInstance = new SerialClientImpl(myClient);
-        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
-                1234);
+        myAddress = "localhost:27017";
     }
 
     /**
@@ -360,6 +356,11 @@ public class SerialClientImplTest {
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.send(null, message)).andReturn(myAddress);
 
+        if (SerialClientImpl.ASSERTIONS_ENABLED) {
+            expect(mockConnection.isCompatibleWith(message.getReadPreference()))
+                    .andReturn(Boolean.TRUE);
+        }
+
         replay(mockConnection);
 
         myTestInstance.send(message);
@@ -396,6 +397,11 @@ public class SerialClientImplTest {
         // First pass for idle.
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.send(null, message)).andReturn(myAddress);
+
+        if (SerialClientImpl.ASSERTIONS_ENABLED) {
+            expect(mockConnection.isCompatibleWith(message.getReadPreference()))
+                    .andReturn(Boolean.TRUE).times(2);
+        }
 
         replay(mockConnection);
 

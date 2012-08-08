@@ -13,6 +13,7 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.connection.Message;
 
 /**
  * A specialization of the {@link ClientImpl} to always try to use the same
@@ -22,9 +23,15 @@ import com.allanbank.mongodb.connection.Connection;
  */
 public class SerialClientImpl extends AbstractClient {
 
+    /** If true then assertions have been enabled for the class. */
+    protected static final boolean ASSERTIONS_ENABLED;
     /** The logger for the {@link SerialClientImpl}. */
     protected static final Logger LOG = Logger.getLogger(SerialClientImpl.class
             .getCanonicalName());
+
+    static {
+        ASSERTIONS_ENABLED = SerialClientImpl.class.desiredAssertionStatus();
+    }
 
     /** The current active Connection to the MongoDB Servers. */
     private Connection myConnection;
@@ -104,10 +111,27 @@ public class SerialClientImpl extends AbstractClient {
      *             On a failure to talk to the MongoDB servers.
      */
     @Override
-    protected Connection findConnection() throws MongoDbException {
+    protected Connection findConnection(final Message[] messages)
+            throws MongoDbException {
         if ((myConnection == null) || !myConnection.isOpen()) {
-            myConnection = myDelegate.findConnection();
+            myConnection = myDelegate.findConnection(messages);
         }
+        else {
+            // Verify that the connection is compatible with the message's
+            // read preferences. This is almost certain to be the case unless
+            // the user is doing weird things with read preferences so only do
+            // the check when assertions are enabled.
+            if (ASSERTIONS_ENABLED) {
+                for (final Message message : messages) {
+                    final ReadPreference readPref = message.getReadPreference();
+
+                    assert myConnection.isCompatibleWith(readPref) : "The serial connection "
+                            + "cannot send a message with a read preference of : "
+                            + message.getReadPreference();
+                }
+            }
+        }
+
         return myConnection;
     }
 }

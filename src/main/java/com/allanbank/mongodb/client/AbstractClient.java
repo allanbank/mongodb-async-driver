@@ -5,10 +5,9 @@
 
 package com.allanbank.mongodb.client;
 
-import java.net.SocketAddress;
-
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Reply;
@@ -36,9 +35,9 @@ public abstract class AbstractClient implements Client {
      * @see Client#send(Callback,Message[])
      */
     @Override
-    public SocketAddress send(final Callback<Reply> callback,
+    public String send(final Callback<Reply> callback,
             final Message... messages) {
-        return findConnection().send(callback, messages);
+        return findConnection(messages).send(callback, messages);
     }
 
     /**
@@ -50,17 +49,22 @@ public abstract class AbstractClient implements Client {
      * @see Client#send(Message[])
      */
     @Override
-    public SocketAddress send(final Message... messages) {
-        return findConnection().send(null, messages);
+    public String send(final Message... messages) {
+        return findConnection(messages).send(null, messages);
     }
 
     /**
      * Locates a {@link Connection} to send a message on.
      * 
+     * @param messages
+     *            The messages that will be sent. The connection return should
+     *            be compatible with all of the messages {@link ReadPreference}.
+     * 
      * @return The {@link Connection} to send a message on.
      * @throws MongoDbException
      *             In the case of an error finding a {@link Connection}.
      */
-    protected abstract Connection findConnection() throws MongoDbException;
+    protected abstract Connection findConnection(Message[] messages)
+            throws MongoDbException;
 
 }

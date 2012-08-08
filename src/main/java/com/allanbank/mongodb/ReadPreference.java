@@ -6,7 +6,6 @@
 package com.allanbank.mongodb;
 
 import java.io.Serializable;
-import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -209,7 +208,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      *            The server to read from.
      * @return The creates {@link ReadPreference}.
      */
-    public static ReadPreference server(final SocketAddress address) {
+    public static ReadPreference server(final String address) {
         return new ReadPreference(Mode.SERVER, address);
     }
 
@@ -226,7 +225,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * The server to read from. Used by the {@link MongoIterator} to ensure
      * cursor fetch and terminate requests use the originating server.
      */
-    private final SocketAddress myServer;
+    private final String myServer;
 
     /** The list of tag matching documents to control the secondaries used. */
     private final List<Document> myTagMatchingDocuments;
@@ -273,7 +272,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * @param address
      *            The server to read from.
      */
-    protected ReadPreference(final Mode mode, final SocketAddress address) {
+    protected ReadPreference(final Mode mode, final String address) {
         myMode = mode;
         myServer = address;
         myTagMatchingDocuments = Collections.emptyList();
@@ -338,7 +337,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * 
      * @return The server to read from.
      */
-    public SocketAddress getServer() {
+    public String getServer() {
         return myServer;
     }
 

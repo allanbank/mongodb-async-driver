@@ -6,7 +6,6 @@
 package com.allanbank.mongodb.connection.rs;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -61,9 +60,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
         myConnectionFactory = factory;
         myConfig = config;
         myClusterState = new ClusterState();
-        for (final InetSocketAddress address : config.getServers()) {
-            final ServerState state = myClusterState.add(address
-                    .getHostString() + ":" + address.getPort());
+        for (final String address : config.getServers()) {
+            final ServerState state = myClusterState.add(address);
 
             // In a replica-set environment we assume that all of the
             // servers are non-writable.
@@ -78,11 +76,12 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      * Finds the primary member of the replica set.
      */
     public void bootstrap() {
-        for (final InetSocketAddress addr : myConfig.getServers()) {
+        for (final String addr : myConfig.getServers()) {
             Connection conn = null;
             final FutureCallback<Reply> future = new FutureCallback<Reply>();
             try {
-                conn = myConnectionFactory.connect(addr, myConfig);
+                conn = myConnectionFactory.connect(new ServerState(addr),
+                        myConfig);
                 conn.send(future, new IsMaster());
                 final Reply reply = future.get();
                 final List<Document> results = reply.getResults();
@@ -150,7 +149,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
         for (final ServerState primary : myClusterState.getWritableServers()) {
             try {
                 final Connection primaryConn = myConnectionFactory.connect(
-                        primary.getServer(), myConfig);
+                        primary, myConfig);
 
                 return new ReplicaSetConnection(primaryConn, myConfig);
             }

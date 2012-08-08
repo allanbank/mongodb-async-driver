@@ -17,9 +17,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -45,7 +42,7 @@ import com.allanbank.mongodb.connection.message.Reply;
 public class MongoIteratorTest {
 
     /** The address for the test. */
-    private SocketAddress myAddress = null;
+    private String myAddress = null;
 
     /** A set of documents for the test. */
     private List<Document> myDocs = null;
@@ -69,8 +66,7 @@ public class MongoIteratorTest {
         myQuery = new Query("db", "c", b.build(), b.build(), 5, 0, 0, false,
                 ReadPreference.PRIMARY, false, false, false, false);
 
-        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
-                1234);
+        myAddress = "localhost:21017";
     }
 
     /**
@@ -85,8 +81,7 @@ public class MongoIteratorTest {
 
     /**
      * Test method for
-     * {@link MongoIterator#MongoIterator(Query, Client, SocketAddress, Reply)}
-     * .
+     * {@link MongoIterator#MongoIterator(Query, Client, String, Reply)} .
      */
     @Test
     public void testAllDocsInFirstReply() {
@@ -119,8 +114,7 @@ public class MongoIteratorTest {
 
     /**
      * Test method for
-     * {@link MongoIterator#MongoIterator(Query, Client, SocketAddress, Reply)}
-     * .
+     * {@link MongoIterator#MongoIterator(Query, Client, String, Reply)} .
      */
     @Test
     public void testAskForMore() {
@@ -168,8 +162,7 @@ public class MongoIteratorTest {
 
     /**
      * Test method for
-     * {@link MongoIterator#MongoIterator(Query, Client, SocketAddress, Reply)}
-     * .
+     * {@link MongoIterator#MongoIterator(Query, Client, String, Reply)} .
      */
     @Test
     public void testAskForMoreWhenNoMore() {
@@ -306,8 +299,7 @@ public class MongoIteratorTest {
 
     /**
      * Test method for
-     * {@link MongoIterator#MongoIterator(Query, Client, SocketAddress, Reply)}
-     * .
+     * {@link MongoIterator#MongoIterator(Query, Client, String, Reply)} .
      */
     @Test
     public void testOverLimit() {
@@ -344,8 +336,7 @@ public class MongoIteratorTest {
 
     /**
      * Test method for
-     * {@link MongoIterator#MongoIterator(Query, Client, SocketAddress, Reply)}
-     * .
+     * {@link MongoIterator#MongoIterator(Query, Client, String, Reply)} .
      */
     @Test
     public void testOverLimitCursorAlreadyDead() {

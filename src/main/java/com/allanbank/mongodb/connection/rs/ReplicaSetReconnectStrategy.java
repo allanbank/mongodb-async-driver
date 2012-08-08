@@ -292,7 +292,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
             // Locate a connection to the server.
             Connection conn = connections.get(addr);
             if ((conn == null) || (conn.isOpen() == false)) {
-                conn = getConnectionFactory().connect(addr, getConfig());
+                conn = getConnectionFactory().connect(server, getConfig());
                 connections.put(addr, conn);
             }
 

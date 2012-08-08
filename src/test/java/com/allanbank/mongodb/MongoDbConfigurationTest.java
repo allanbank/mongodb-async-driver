@@ -42,7 +42,7 @@ public class MongoDbConfigurationTest {
         config.addServer(addr1);
         config.addServer(addr2);
 
-        assertEquals(Arrays.asList(addr1, addr2), config.getServers());
+        assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
     }
 
     /**
@@ -50,15 +50,12 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testAddServerString() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo", 1234);
-        final InetSocketAddress addr2 = new InetSocketAddress("bar", 1234);
-
         final MongoDbConfiguration config = new MongoDbConfiguration();
 
         config.addServer("foo:1234");
         config.addServer("bar:1234");
 
-        assertEquals(Arrays.asList(addr1, addr2), config.getServers());
+        assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
     }
 
     /**
@@ -124,7 +121,7 @@ public class MongoDbConfigurationTest {
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
-        assertEquals(Arrays.asList(addr1, addr2), config.getServers());
+        assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertNull(config.getUsername());
         assertFalse(config.isAuthenticating());
@@ -175,7 +172,7 @@ public class MongoDbConfigurationTest {
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
-        assertEquals(Arrays.asList(addr1, addr2), config.getServers());
+        assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertNull(config.getUsername());
         assertFalse(config.isAuthenticating());
@@ -202,7 +199,7 @@ public class MongoDbConfigurationTest {
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
-        assertEquals(Arrays.asList(addr1, addr2), config.getServers());
+        assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertNull(config.getUsername());
         assertFalse(config.isAuthenticating());
@@ -216,8 +213,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoFsync() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://foo/db?fsync;wtimeout=1005");
@@ -245,8 +241,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoJournal() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://foo/db?journal=true;wtimeout=1000");
@@ -274,8 +269,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoReplica() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://foo/db?w=2;wtimeout=1007");
@@ -303,8 +297,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoReplicaTimeout() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://foo/db?wtimeout=1008");
@@ -332,8 +325,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoUri() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://foo");
@@ -359,8 +351,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoUriAck() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://foo/db?replicaSet=set1;safe=true");
@@ -387,8 +378,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoUriAdminUserNamePassword() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://user:pass:ord@foo/");
@@ -415,8 +405,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoUriAllProps() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://foo/db?replicaSet=set1;safe=false&w=1&wtimeout=100&fsync=false&fsync&journal=false&"
@@ -454,8 +443,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoUriExplicitAdminUserNamePassword() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://user:pass:ord@foo/admin?");
@@ -522,8 +510,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoUriPrimary() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://foo/db?replicaSet=set1;slaveOk=false");
@@ -550,8 +537,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoUriSecondary() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://foo/db?replicaSet=set1;slaveOk=true");
@@ -579,9 +565,8 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoUriTwoServers() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
-        final InetSocketAddress addr2 = new InetSocketAddress("bar", 1234);
+        final String addr1 = "foo:27017";
+        final String addr2 = "bar:1234";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://foo,bar:1234");
@@ -607,8 +592,7 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoUriUserNamePassword() {
-        final InetSocketAddress addr1 = new InetSocketAddress("foo",
-                MongoDbConfiguration.DEFAULT_PORT);
+        final String addr1 = "foo:27017";
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 "mongodb://user:pass:ord@foo/db");
@@ -762,7 +746,7 @@ public class MongoDbConfigurationTest {
 
         config.setServers(Arrays.asList(addr1, addr2));
 
-        assertEquals(Arrays.asList(addr1, addr2), config.getServers());
+        assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
 
         config.setServers(null);
 

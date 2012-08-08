@@ -15,9 +15,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.Arrays;
 
 import org.easymock.EasyMock;
@@ -43,7 +40,7 @@ import com.allanbank.mongodb.connection.message.Reply;
 public class MongoImplTest {
 
     /** The address for the test. */
-    private SocketAddress myAddress = null;
+    private String myAddress = null;
 
     /** The client the collection interacts with. */
     private Client myMockClient = null;
@@ -59,8 +56,7 @@ public class MongoImplTest {
         myMockClient = EasyMock.createMock(Client.class);
 
         myTestInstance = new MongoImpl(myMockClient);
-        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
-                1234);
+        myAddress = "localhost:21017";
     }
 
     /**

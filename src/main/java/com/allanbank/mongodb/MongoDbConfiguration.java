@@ -10,7 +10,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executors;
@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * Contains the configuration for the connection(s) to the MongoDB servers.
@@ -30,9 +31,6 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     /** The name of the administration database. */
     public static final String ADMIN_DB_NAME = "admin";
 
-    /** The default MongoDB port. */
-    public static final int DEFAULT_PORT = 27017;
-
     /** The ASCII character encoding. */
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
@@ -42,35 +40,6 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
 
     /** The serialization version for the class. */
     private static final long serialVersionUID = 2964127883934086509L;
-
-    /**
-     * Parse the name into a {@link InetSocketAddress}. If a port component is
-     * not provided then port 27017 is assumed.
-     * 
-     * @param server
-     *            The server[:port] string.
-     * @return The {@link InetSocketAddress} parsed from the server string.
-     */
-    public static InetSocketAddress parseAddress(final String server) {
-        String name = server;
-        int port = DEFAULT_PORT;
-
-        final int colonIndex = server.lastIndexOf(':');
-        if (colonIndex > 0) {
-            final String portString = server.substring(colonIndex + 1);
-            try {
-                port = Integer.parseInt(portString);
-                name = server.substring(0, colonIndex);
-            }
-            catch (final NumberFormatException nfe) {
-                // Not a port after the colon. Move on.
-                port = DEFAULT_PORT;
-
-            }
-        }
-
-        return new InetSocketAddress(name, port);
-    }
 
     /** If true then the user should be authenticated as an anministrative user. */
     private boolean myAdminUser = false;
@@ -167,7 +136,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * The list of servers to initially attempt to connect to. Not final for
      * clone.
      */
-    private ArrayList<InetSocketAddress> myServers = new ArrayList<InetSocketAddress>();
+    private List<String> myServers = new ArrayList<String>();
 
     /** The username for authentication with the servers. */
     private String myUsername = null;
@@ -199,7 +168,9 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     public MongoDbConfiguration(final InetSocketAddress... servers) {
         this();
 
-        myServers.addAll(Arrays.asList(servers));
+        for (final InetSocketAddress server : servers) {
+            addServer(server);
+        }
     }
 
     /**
@@ -211,7 +182,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     public MongoDbConfiguration(final MongoDbConfiguration other) {
         this();
 
-        setServers(other.getServers());
+        myServers.addAll(other.getServers());
 
         myAutoDiscoverServers = other.isAutoDiscoverServers();
         myMaxConnectionCount = other.getMaxConnectionCount();
@@ -406,7 +377,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      *            The server to add.
      */
     public void addServer(final InetSocketAddress server) {
-        myServers.add(server);
+        myServers.add(ServerNameUtils.normalize(server));
     }
 
     /**
@@ -416,7 +387,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      *            The server to add.
      */
     public void addServer(final String server) {
-        addServer(parseAddress(server));
+        myServers.add(ServerNameUtils.normalize(server));
     }
 
     /**
@@ -477,7 +448,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
         MongoDbConfiguration clone = null;
         try {
             clone = (MongoDbConfiguration) super.clone();
-            clone.myServers = new ArrayList<InetSocketAddress>(getServers());
+            clone.myServers = new ArrayList<String>(getServers());
         }
         catch (final CloneNotSupportedException shouldNotHappen) {
             clone = new MongoDbConfiguration(this);
@@ -603,8 +574,8 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * 
      * @return The list of servers to initially attempt to connect to.
      */
-    public List<InetSocketAddress> getServers() {
-        return myServers;
+    public List<String> getServers() {
+        return Collections.unmodifiableList(myServers);
     }
 
     /**
@@ -791,7 +762,9 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     public void setServers(final List<InetSocketAddress> servers) {
         myServers.clear();
         if (servers != null) {
-            myServers.addAll(servers);
+            for (final InetSocketAddress server : servers) {
+                addServer(server);
+            }
         }
     }
 

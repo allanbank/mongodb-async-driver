@@ -7,12 +7,12 @@ package com.allanbank.mongodb.connection;
 import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.io.Flushable;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Reply;
 
@@ -66,6 +66,17 @@ public interface Connection extends Closeable, Flushable {
     public int getPendingCount();
 
     /**
+     * Returns true if the connection can send a message with the provided
+     * {@link ReadPreference}.
+     * 
+     * @param readPreference
+     *            The read preference to check the connection against.
+     * @return True if the connection can send a message with the provided
+     *         {@link ReadPreference}, false otherwise.
+     */
+    public boolean isCompatibleWith(ReadPreference readPreference);
+
+    /**
      * Determines if the connection is idle.
      * 
      * @return True if the connection is waiting for messages to send and has no
@@ -114,7 +125,7 @@ public interface Connection extends Closeable, Flushable {
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public SocketAddress send(Callback<Reply> reply, Message... messages)
+    public String send(Callback<Reply> reply, Message... messages)
             throws MongoDbException;
 
     /**

@@ -25,6 +25,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
+import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.bootstrap.BootstrapConnectionFactory;
 import com.allanbank.mongodb.error.CannotConnectException;
@@ -171,12 +172,17 @@ public class ClientImpl extends AbstractClient {
      * least messages.</li>
      * <ul>
      * 
+     * @param messages
+     *            The messages to be sent on the connection. The read preference
+     *            for each message should be verified as compatible with the
+     *            connection.
      * @return The found connection.
      * @throws MongoDbException
      *             On a failure to talk to the MongoDB servers.
      */
     @Override
-    protected Connection findConnection() throws MongoDbException {
+    protected Connection findConnection(final Message[] messages)
+            throws MongoDbException {
         // Make sure we shrink connections when the max changes.
         final int limit = Math.max(1, myConfig.getMaxConnectionCount());
         if (limit < myConnections.size()) {
@@ -197,7 +203,7 @@ public class ClientImpl extends AbstractClient {
             if (conn == null) {
                 conn = findMostIdleConnection();
                 if (conn == null) {
-                    conn = waitForReconnect();
+                    conn = waitForReconnect(messages);
                 }
             }
         }
@@ -241,7 +247,7 @@ public class ClientImpl extends AbstractClient {
      * @param connection
      *            The connection to reconnect.
      */
-    protected <C extends Connection> void reconnect(final Connection connection) {
+    protected void reconnect(final Connection connection) {
         final ReconnectStrategy strategy = myConnectionFactory
                 .getReconnectStrategy();
 
@@ -251,7 +257,7 @@ public class ClientImpl extends AbstractClient {
             }
 
             // Raise errors for all of the pending messages - there is no way to
-            // know their state of flight between here and the sever.
+            // know their state of flight between here and the server.
             MongoDbException exception = new ConnectionLostException(
                     "Connection lost to MongoDB: " + connection);
             connection.raiseErrors(exception, false);
@@ -374,10 +380,14 @@ public class ClientImpl extends AbstractClient {
      * Checks if there is an active reconnect attempt on-going. If so waits for
      * it to finish (with a timeout) and then searches for a connection again.
      * 
+     * @param messages
+     *            The messages to be sent on the connection. The read preference
+     *            for each message should be verified as compatible with the
+     *            connection.
      * @return The connection found after waiting or <code>null</code> if there
      *         was no active reconnect or there was still no connection.
      */
-    private Connection waitForReconnect() {
+    private Connection waitForReconnect(final Message[] messages) {
         Connection conn = null;
         boolean wasReconnecting = false;
         synchronized (this) {
@@ -400,7 +410,7 @@ public class ClientImpl extends AbstractClient {
 
         if (wasReconnecting) {
             // Look again now that we may have reconnected.
-            conn = findConnection();
+            conn = findConnection(messages);
         }
         return conn;
     }

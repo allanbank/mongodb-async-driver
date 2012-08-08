@@ -5,8 +5,6 @@
 
 package com.allanbank.mongodb.client;
 
-import java.net.SocketAddress;
-
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoDbException;
@@ -25,7 +23,7 @@ import com.allanbank.mongodb.error.ReplyException;
         AbstractReplyCallback<ClosableIterator<Document>> {
 
     /** The server the original request was sent to. */
-    private volatile SocketAddress myAddress;
+    private volatile String myAddress;
 
     /** The original query. */
     private final Client myClient;
@@ -61,7 +59,7 @@ import com.allanbank.mongodb.error.ReplyException;
      * 
      * @return The server the original request was sent to.
      */
-    public SocketAddress getAddress() {
+    public String getAddress() {
         return myAddress;
     }
 
@@ -71,7 +69,7 @@ import com.allanbank.mongodb.error.ReplyException;
      * @param address
      *            The new value for the server the original request was sent to.
      */
-    public void setAddress(final SocketAddress address) {
+    public void setAddress(final String address) {
         myAddress = address;
         // For races make sure that the iterator has the server name.
         if (myReply != null) {

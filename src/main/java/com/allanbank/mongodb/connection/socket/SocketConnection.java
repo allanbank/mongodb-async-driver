@@ -10,10 +10,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Enumeration;
@@ -28,6 +26,8 @@ import java.util.logging.Logger;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.ReadPreference.Mode;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.connection.Connection;
@@ -43,6 +43,7 @@ import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
+import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -96,13 +97,16 @@ public class SocketConnection implements Connection {
     private final Thread mySender;
 
     /** The open socket. */
+    private final ServerState myServer;
+
+    /** The open socket. */
     private final Socket mySocket;
 
     /**
      * Creates a new SocketConnection to a MongoDB server.
      * 
-     * @param address
-     *            The address of the MongoDB server to connect to.
+     * @param server
+     *            The MongoDB server to connect to.
      * @param config
      *            The configuration for the Connection to the MongoDB server.
      * @throws SocketException
@@ -110,10 +114,11 @@ public class SocketConnection implements Connection {
      * @throws IOException
      *             On a failure to read or write data to the MongoDB server.
      */
-    public SocketConnection(final InetSocketAddress address,
+    public SocketConnection(final ServerState server,
             final MongoDbConfiguration config) throws SocketException,
             IOException {
 
+        myServer = server;
         myEventSupport = new PropertyChangeSupport(this);
         myOpen = new AtomicBoolean(false);
         myShutdown = new AtomicBoolean(false);
@@ -122,7 +127,7 @@ public class SocketConnection implements Connection {
 
         mySocket.setKeepAlive(config.isUsingSoKeepalive());
         mySocket.setSoTimeout(config.getReadTimeout());
-        mySocket.connect(address, config.getConnectTimeout());
+        mySocket.connect(myServer.getServer(), config.getConnectTimeout());
 
         myOpen.set(true);
 
@@ -157,12 +162,12 @@ public class SocketConnection implements Connection {
 
         myReceiver = config.getThreadFactory().newThread(new ReceiveRunnable());
         myReceiver.setName("MongoDB Receiver " + mySocket.getLocalPort()
-                + "-->" + address.toString());
+                + "-->" + myServer.getServer().toString());
         myReceiver.start();
 
         mySender = config.getThreadFactory().newThread(new SendRunnable());
         mySender.setName("MongoDB Sender " + mySocket.getLocalPort() + "-->"
-                + address.toString());
+                + myServer.getServer().toString());
         mySender.start();
     }
 
@@ -253,6 +258,28 @@ public class SocketConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
+     * If the {@link ReadPreference#getMode() mode} is {@link Mode#SERVER} then
+     * verifies this connections remote address matches the address in the
+     * {@link ReadPreference}.
+     * </p>
+     * <p>
+     * If not in the {@link Mode#SERVER} mode then returns the results of
+     * {@link ReadPreference#matches}.
+     * </p>
+     */
+    @Override
+    public boolean isCompatibleWith(final ReadPreference readPreference) {
+        if (readPreference.getMode() == Mode.SERVER) {
+            return mySocket.getRemoteSocketAddress().equals(
+                    readPreference.getServer())
+                    && readPreference.matches(myServer.getTags());
+        }
+        return readPreference.matches(myServer.getTags());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * True if the send and pending queues are empty.
      * </p>
      */
@@ -314,7 +341,7 @@ public class SocketConnection implements Connection {
      * {@inheritDoc}
      */
     @Override
-    public synchronized SocketAddress send(final Callback<Reply> reply,
+    public synchronized String send(final Callback<Reply> reply,
             final Message... messages) throws MongoDbException {
         try {
             final int last = messages.length - 1;
@@ -333,7 +360,7 @@ public class SocketConnection implements Connection {
             throw new MongoDbException(e);
         }
 
-        return mySocket.getRemoteSocketAddress();
+        return myServer.getName();
     }
 
     /**

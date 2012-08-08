@@ -8,13 +8,13 @@ package com.allanbank.mongodb.connection.proxy;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.PendingMessage;
@@ -157,6 +157,23 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
+    public boolean isCompatibleWith(final ReadPreference readPreference) {
+        try {
+            return myProxiedConnection.isCompatibleWith(readPreference);
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the proxied {@link Connection}.
+     * </p>
+     */
+    @Override
     public boolean isIdle() {
         try {
             return myProxiedConnection.isIdle();
@@ -218,8 +235,8 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public SocketAddress send(final Callback<Reply> reply,
-            final Message... messages) throws MongoDbException {
+    public String send(final Callback<Reply> reply, final Message... messages)
+            throws MongoDbException {
         try {
             return myProxiedConnection.send(reply, messages);
         }

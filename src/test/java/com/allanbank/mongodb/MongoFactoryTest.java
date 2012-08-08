@@ -13,6 +13,8 @@ import java.util.Collections;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.util.ServerNameUtils;
+
 /**
  * MongoFactoryTest provides tests for the {@link MongoFactory} class.
  * 
@@ -42,8 +44,8 @@ public class MongoFactoryTest {
         final MongoDbConfiguration config = mongo.getConfig();
 
         assertNotNull(config);
-        assertEquals(Collections.singletonList(MongoDbConfiguration
-                .parseAddress("localhost")), config.getServers());
+        assertEquals(Collections.singletonList(ServerNameUtils
+                .normalize("localhost")), config.getServers());
     }
 
 }

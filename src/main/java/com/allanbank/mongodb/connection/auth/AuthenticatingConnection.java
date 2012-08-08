@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.connection.auth;
 
-import java.net.SocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -75,8 +74,8 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
      * </p>
      */
     @Override
-    public SocketAddress send(final Callback<Reply> reply,
-            final Message... messages) throws MongoDbException {
+    public String send(final Callback<Reply> reply, final Message... messages)
+            throws MongoDbException {
         for (final Message message : messages) {
             ensureAuthenticated(message);
         }

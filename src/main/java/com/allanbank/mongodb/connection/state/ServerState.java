@@ -7,8 +7,11 @@ package com.allanbank.mongodb.connection.state;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * Tracks the state of a single server. Currently two factors are tracked:
@@ -32,7 +35,7 @@ public class ServerState {
     public static final double DECAY_SAMPLES = 1000.0D;
 
     /** The default MongoDB port. */
-    public static final int DEFAULT_PORT = MongoDbConfiguration.DEFAULT_PORT;
+    public static final int DEFAULT_PORT = ServerNameUtils.DEFAULT_PORT;
 
     static {
         DECAY_ALPHA = (2.0D / (DECAY_SAMPLES + 1));
@@ -46,8 +49,27 @@ public class ServerState {
      */
     private final AtomicLong myAverageLatency;
 
+    /** The normalized name of the server being tracked. */
+    private final String myName;
+
+    /**
+     * A connection that may be owned by a logical connection but can be used
+     * for direct communication with the server. Primarily used by the
+     * {@link ConnectionPinger}.
+     */
+    private final AtomicReference<Connection> myPrimaryConnection;
+
+    /**
+     * If true then the primary connection has been claimed by a logical
+     * connection and the state will not try and close it.
+     */
+    private final AtomicBoolean myPrimaryConnectionOwned;
+
     /** The server being tracked. */
     private final InetSocketAddress myServer;
+
+    /** Tracking the tags for the server. */
+    private final AtomicReference<Document> myTags;
 
     /** Tracking if write operations can occur to the server. */
     private final AtomicBoolean myWritable;
@@ -59,11 +81,15 @@ public class ServerState {
      * @param server
      *            The server being tracked.
      */
-    /* package */ServerState(final String server) {
-        myServer = MongoDbConfiguration.parseAddress(server);
+    public ServerState(final String server) {
+        myServer = ServerNameUtils.parse(server);
+        myName = ServerNameUtils.normalize(server);
         myWritable = new AtomicBoolean(false);
         myAverageLatency = new AtomicLong(
                 Double.doubleToLongBits(Double.MAX_VALUE));
+        myTags = new AtomicReference<Document>(null);
+        myPrimaryConnection = new AtomicReference<Connection>(null);
+        myPrimaryConnectionOwned = new AtomicBoolean(false);
     }
 
     /**
@@ -79,12 +105,30 @@ public class ServerState {
     }
 
     /**
+     * Returns the normalized name of the server being tracked.
+     * 
+     * @return The normalized name of the server being tracked.
+     */
+    public String getName() {
+        return myName;
+    }
+
+    /**
      * Returns the address of the server being tracked.
      * 
      * @return The address of the server being tracked.
      */
     public InetSocketAddress getServer() {
         return myServer;
+    }
+
+    /**
+     * Returns the tags for the server.
+     * 
+     * @return The tags for the server.
+     */
+    public Document getTags() {
+        return myTags.get();
     }
 
     /**
@@ -117,6 +161,16 @@ public class ServerState {
      */
     public void setAverageLatency(final double latency) {
         myAverageLatency.set(Double.doubleToLongBits(latency));
+    }
+
+    /**
+     * Sets the tags for the server.
+     * 
+     * @param tags
+     *            The tags for the server.
+     */
+    public void setTags(final Document tags) {
+        myTags.set(tags);
     }
 
     /**

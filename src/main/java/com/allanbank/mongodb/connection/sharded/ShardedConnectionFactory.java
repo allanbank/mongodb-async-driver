@@ -5,7 +5,6 @@
 package com.allanbank.mongodb.connection.sharded;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -69,9 +68,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         myConfig = config;
         myClusterState = new ClusterState();
         mySelector = new LatencyServerSelector(myClusterState, true);
-        for (final InetSocketAddress address : config.getServers()) {
-            final ServerState state = myClusterState.add(address
-                    .getHostString() + ":" + address.getPort());
+        for (final String address : config.getServers()) {
+            final ServerState state = myClusterState.add(address);
 
             // In a sharded environment we assume that all of the mongos servers
             // are writable.
@@ -113,12 +111,13 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                     /* awaitData= */false, /* exhaust= */false, /* partial= */
                     false);
 
-            for (final InetSocketAddress addr : myConfig.getServers()) {
+            for (final String addr : myConfig.getServers()) {
                 Connection conn = null;
                 final FutureCallback<Reply> future = new FutureCallback<Reply>();
                 try {
                     // Send the request...
-                    conn = myConnectionFactory.connect(addr, myConfig);
+                    conn = myConnectionFactory.connect(
+                            myClusterState.add(addr), myConfig);
                     conn.send(future, query);
 
                     // Receive the response.
@@ -176,7 +175,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         for (final ServerState primary : myClusterState.getWritableServers()) {
             try {
                 final Connection primaryConn = myConnectionFactory.connect(
-                        primary.getServer(), myConfig);
+                        primary, myConfig);
 
                 return new ShardedConnection(primaryConn, myConfig);
             }

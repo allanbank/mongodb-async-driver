@@ -7,7 +7,6 @@ package com.allanbank.mongodb.connection.auth;
 
 import static org.junit.Assert.assertEquals;
 
-import java.net.InetSocketAddress;
 import java.util.Collections;
 
 import org.junit.After;
@@ -24,6 +23,7 @@ import com.allanbank.mongodb.connection.message.Insert;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.socket.SocketConnection;
+import com.allanbank.mongodb.connection.state.ServerState;
 
 /**
  * AuthenticatingConnectionITest provides tests of the authentication against a
@@ -61,8 +61,8 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             final Document doc = BuilderFactory.start()
                     .addObjectId("_id", new ObjectId()).build();
 
-            socketConn = new SocketConnection(new InetSocketAddress(
-                    "127.0.0.1", 27017), config);
+            socketConn = new SocketConnection(
+                    new ServerState("127.0.0.1:27017"), config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();
@@ -102,8 +102,8 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             final Document doc = BuilderFactory.start()
                     .addObjectId("_id", new ObjectId()).build();
 
-            socketConn = new SocketConnection(new InetSocketAddress(
-                    "127.0.0.1", 27017), config);
+            socketConn = new SocketConnection(
+                    new ServerState("127.0.0.1:27017"), config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();

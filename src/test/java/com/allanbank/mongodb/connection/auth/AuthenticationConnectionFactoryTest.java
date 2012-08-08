@@ -5,7 +5,9 @@
 
 package com.allanbank.mongodb.connection.auth;
 
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
@@ -13,8 +15,6 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertSame;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 
 import org.junit.Test;
 
@@ -22,6 +22,7 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.connection.state.ServerState;
 
 /**
  * AuthenticationConnectionFactoryTest provides test for the
@@ -58,7 +59,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Test method for
-     * {@link AuthenticationConnectionFactory#connect(InetSocketAddress, MongoDbConfiguration)}
+     * {@link AuthenticationConnectionFactory#connect(ServerState, MongoDbConfiguration)}
      * .
      * 
      * @throws IOException
@@ -71,19 +72,18 @@ public class AuthenticationConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        final InetAddress addr = InetAddress.getLoopbackAddress();
-        final InetSocketAddress socketAddr = new InetSocketAddress(addr, 1234);
+        final String socketAddr = "localhost:27017";
 
         final AuthenticationConnectionFactory testFactory = new AuthenticationConnectionFactory(
                 mockFactory, config);
 
-        expect(mockFactory.connect(socketAddr, config)).andReturn(
-                mockConnection);
+        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
+                .andReturn(mockConnection);
 
         replay(mockFactory, mockConnection);
 
-        final AuthenticatingConnection conn = testFactory.connect(socketAddr,
-                config);
+        final AuthenticatingConnection conn = testFactory.connect(
+                new ServerState(socketAddr), config);
         assertSame(mockConnection, conn.getProxiedConnection());
 
         verify(mockFactory, mockConnection);

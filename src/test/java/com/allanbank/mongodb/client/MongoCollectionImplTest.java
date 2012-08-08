@@ -18,9 +18,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -68,7 +65,7 @@ import com.allanbank.mongodb.error.ReplyException;
 public class MongoCollectionImplTest {
 
     /** The address for the test. */
-    private SocketAddress myAddress = null;
+    private String myAddress = null;
 
     /** The client the collection interacts with. */
     private Client myMockClient = null;
@@ -89,8 +86,7 @@ public class MongoCollectionImplTest {
 
         myTestInstance = new MongoCollectionImpl(myMockClient, myMockDatabase,
                 "test");
-        myAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(),
-                1234);
+        myAddress = "localhost:21017";
     }
 
     /**
