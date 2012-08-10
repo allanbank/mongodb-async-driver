@@ -7,11 +7,14 @@ package com.allanbank.mongodb.connection.state;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.InetSocketAddress;
 
 import org.junit.Test;
+
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
  * ServerStateTest provides tests for the {@link ServerState} class.
@@ -38,6 +41,23 @@ public class ServerStateTest {
 
         state.setAverageLatency(100.0);
         assertEquals(100.0, state.getAverageLatency(), 0.1);
+    }
+
+    /**
+     * Test method for {@link ServerState#getTags()}.
+     */
+    @Test
+    public void testGetSetTags() {
+        final ServerState state = new ServerState("foo:27017");
+
+        assertNull(state.getTags());
+
+        state.setTags(BuilderFactory.start().addInteger("f", 1).build());
+        assertEquals(BuilderFactory.start().addInteger("f", 1).build(),
+                state.getTags());
+
+        state.setTags(null);
+        assertNull(state.getTags());
     }
 
     /**

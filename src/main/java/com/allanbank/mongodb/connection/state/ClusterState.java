@@ -8,10 +8,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
@@ -42,7 +46,7 @@ public class ClusterState {
     private final List<ServerState> myNonWritableServers;
 
     /** The complete list of servers. */
-    private final Map<String, ServerState> myServers;
+    private final ConcurrentMap<String, ServerState> myServers;
 
     /** The complete list of writable servers. */
     private final List<ServerState> myWritableServers;
@@ -52,9 +56,9 @@ public class ClusterState {
      */
     public ClusterState() {
         myChangeSupport = new PropertyChangeSupport(this);
-        myServers = new HashMap<String, ServerState>();
-        myWritableServers = new ArrayList<ServerState>();
-        myNonWritableServers = new ArrayList<ServerState>();
+        myServers = new ConcurrentHashMap<String, ServerState>();
+        myWritableServers = new CopyOnWriteArrayList<ServerState>();
+        myNonWritableServers = new CopyOnWriteArrayList<ServerState>();
     }
 
     /**
@@ -78,8 +82,42 @@ public class ClusterState {
      * @param listener
      *            The listener for the state changes.
      */
-    public synchronized void addListener(final PropertyChangeListener listener) {
-        myChangeSupport.addPropertyChangeListener(listener);
+    public void addListener(final PropertyChangeListener listener) {
+        synchronized (this) {
+            myChangeSupport.addPropertyChangeListener(listener);
+        }
+    }
+
+    /**
+     * Returns the set of servers that can be used based on the provided
+     * {@link ReadPreference}.
+     * 
+     * @param readPreference
+     *            The {@link ReadPreference} to filter the servers.
+     * @return The {@link List} of servers that can be used. Servers will be
+     *         ordered by preference to be used, most preferred to least
+     *         preferred.
+     */
+    public List<ServerState> findCandidateServers(
+            final ReadPreference readPreference) {
+        switch (readPreference.getMode()) {
+        case NEAREST:
+            return findNearestCandidates(readPreference);
+        case PRIMARY_ONLY:
+            return findWritableCandidates(readPreference);
+        case PRIMARY_PREFERRED:
+            return merge(findWritableCandidates(readPreference),
+                    findNonWritableCandidates(readPreference));
+        case SECONDARY_ONLY:
+            return findNonWritableCandidates(readPreference);
+        case SECONDARY_PREFERRED:
+            return merge(findNonWritableCandidates(readPreference),
+                    findWritableCandidates(readPreference));
+        case SERVER:
+            return findCandidateServer(readPreference);
+        default:
+            return Collections.emptyList();
+        }
     }
 
     /**
@@ -91,18 +129,26 @@ public class ClusterState {
      *            The address of the {@link ServerState} to return.
      * @return The {@link ServerState} for the address.
      */
-    public synchronized ServerState get(final String address) {
+    public ServerState get(final String address) {
 
         final String normalized = ServerNameUtils.normalize(address);
         ServerState state = myServers.get(normalized);
         if (state == null) {
+
             state = new ServerState(normalized);
             state.setWritable(false);
 
-            myServers.put(normalized, state);
-            myNonWritableServers.add(state);
-
-            myChangeSupport.firePropertyChange("server", null, state);
+            synchronized (this) {
+                final ServerState existing = myServers.putIfAbsent(normalized,
+                        state);
+                if (existing != null) {
+                    state = existing;
+                }
+                else {
+                    myNonWritableServers.add(state);
+                    myChangeSupport.firePropertyChange("server", null, state);
+                }
+            }
         }
         return state;
     }
@@ -113,7 +159,7 @@ public class ClusterState {
      * 
      * @return The complete list of non-writable servers.
      */
-    public synchronized List<ServerState> getNonWritableServers() {
+    public List<ServerState> getNonWritableServers() {
         return new ArrayList<ServerState>(myNonWritableServers);
     }
 
@@ -123,7 +169,7 @@ public class ClusterState {
      * 
      * @return The complete list of servers.
      */
-    public synchronized List<ServerState> getServers() {
+    public List<ServerState> getServers() {
         return new ArrayList<ServerState>(myServers.values());
     }
 
@@ -133,7 +179,7 @@ public class ClusterState {
      * 
      * @return The complete list of writable servers.
      */
-    public synchronized List<ServerState> getWritableServers() {
+    public List<ServerState> getWritableServers() {
         return new ArrayList<ServerState>(myWritableServers);
     }
 
@@ -144,13 +190,13 @@ public class ClusterState {
      * @param server
      *            The server to mark non-writable.
      */
-    public synchronized void markNotWritable(final ServerState server) {
-        if (server.isWritable()) {
-            server.setWritable(false);
-
-            myWritableServers.remove(server);
-            myNonWritableServers.add(server);
-            myChangeSupport.firePropertyChange("writable", true, false);
+    public void markNotWritable(final ServerState server) {
+        synchronized (this) {
+            if (server.setWritable(false)) {
+                myWritableServers.remove(server);
+                myNonWritableServers.add(server);
+                myChangeSupport.firePropertyChange("writable", true, false);
+            }
         }
     }
 
@@ -161,13 +207,13 @@ public class ClusterState {
      * @param server
      *            The server to mark writable.
      */
-    public synchronized void markWritable(final ServerState server) {
-        if (!server.isWritable()) {
-            server.setWritable(true);
-
-            myNonWritableServers.remove(server);
-            myWritableServers.add(server);
-            myChangeSupport.firePropertyChange("writable", false, true);
+    public void markWritable(final ServerState server) {
+        synchronized (this) {
+            if (!server.setWritable(true)) {
+                myNonWritableServers.remove(server);
+                myWritableServers.add(server);
+                myChangeSupport.firePropertyChange("writable", false, true);
+            }
         }
     }
 
@@ -177,8 +223,246 @@ public class ClusterState {
      * @param listener
      *            The listener for the state changes.
      */
-    public synchronized void removeListener(
-            final PropertyChangeListener listener) {
-        myChangeSupport.removePropertyChangeListener(listener);
+    public void removeListener(final PropertyChangeListener listener) {
+        synchronized (this) {
+            myChangeSupport.removePropertyChangeListener(listener);
+        }
     }
+
+    /**
+     * Computes a relative CDF (cumulative distribution function) for the
+     * servers based on the latency from the client.
+     * <p>
+     * The latency of each server is used to create a strict ordering of servers
+     * from lowest latency to highest. The relative latency of the i'th server
+     * is then calculated based on the function: <blockquote>
+     * 
+     * <pre>
+     *                                       latency[0]
+     *                relative_latency[i] =  ----------
+     *                                       latency[i]
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * The relative latencies are then then summed and the probability of
+     * selecting each server is then calculated by:<blockquote>
+     * 
+     * <pre>
+     *                                  relative_latency[i]
+     *     probability[i] = -------------------------------------------------
+     *                      sum(relative_latency[0], ... relative_latency[n])
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * The CDF over these probabilities is returned.
+     * </p>
+     * 
+     * @param servers
+     *            The servers to compute the CDF for.
+     * @return The CDF for the server latencies.
+     */
+    protected final double[] cdf(final List<ServerState> servers) {
+        Collections.sort(servers, ServerLatencyComparator.COMPARATOR);
+
+        // Pick a server to move to the front.
+        final double[] relativeLatency = new double[servers.size()];
+        double sum = 0;
+        double first = Double.NEGATIVE_INFINITY;
+        for (int i = 0; i < relativeLatency.length; ++i) {
+            final ServerState server = servers.get(i);
+            double latency = server.getAverageLatency();
+
+            // Turn the latency into a ratio of the lowest latency.
+            if (first == Double.NEGATIVE_INFINITY) {
+                first = latency;
+                latency = 1.0D; // By definition N/N = 1.0.
+            }
+            else {
+                latency /= first;
+            }
+
+            relativeLatency[i] = latency;
+            sum += latency;
+        }
+
+        // Turn the latencies into a range of 0 <= relativeLatency < 1.
+        // Also known as the CDF (cumulative distribution function)
+        double accum = 0.0D;
+        for (int i = 0; i < relativeLatency.length; ++i) {
+            accum += relativeLatency[i];
+
+            relativeLatency[i] = accum / sum;
+        }
+
+        return relativeLatency;
+    }
+
+    /**
+     * Finds the candidate server, if known.
+     * 
+     * @param readPreference
+     *            The read preference to match the server against.
+     * @return The Server found in a singleton list or an empty list if the
+     *         server is not known.
+     */
+    protected List<ServerState> findCandidateServer(
+            final ReadPreference readPreference) {
+        final ServerState server = myServers.get(ServerNameUtils
+                .normalize(readPreference.getServer()));
+        if ((server != null) && readPreference.matches(server.getTags())) {
+            return Collections.singletonList(server);
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Returns the list of servers that match the read preference's tags.
+     * 
+     * @param readPreference
+     *            The read preference to match the server against.
+     * @return The servers found in order of preference. Generally this is in
+     *         latency order but we randomly move one of the servers to the
+     *         front of the list to distribute the load across more servers.
+     * 
+     * @see #sort
+     */
+    protected List<ServerState> findNearestCandidates(
+            final ReadPreference readPreference) {
+        final List<ServerState> results = new ArrayList<ServerState>(
+                myServers.size());
+        for (final ServerState server : myServers.values()) {
+            if (readPreference.matches(server.getTags())) {
+                results.add(server);
+            }
+        }
+
+        // Sort the server by preference.
+        sort(results);
+
+        return results;
+    }
+
+    /**
+     * Returns the list of non-writable servers that match the read preference's
+     * tags.
+     * 
+     * @param readPreference
+     *            The read preference to match the server against.
+     * @return The servers found in order of preference. Generally this is in
+     *         latency order but we randomly move one of the servers to the
+     *         front of the list to distribute the load across more servers.
+     * 
+     * @see #sort
+     */
+    protected List<ServerState> findNonWritableCandidates(
+            final ReadPreference readPreference) {
+        final List<ServerState> results = new ArrayList<ServerState>(
+                myNonWritableServers.size());
+        for (final ServerState server : myNonWritableServers) {
+            if (readPreference.matches(server.getTags())) {
+                results.add(server);
+            }
+        }
+
+        // Sort the server by preference.
+        sort(results);
+
+        return results;
+    }
+
+    /**
+     * Returns the list of writable servers that match the read preference's
+     * tags.
+     * 
+     * @param readPreference
+     *            The read preference to match the server against.
+     * @return The servers found in order of preference. Generally this is in
+     *         latency order but we randomly move one of the servers to the
+     *         front of the list to distribute the load across more servers.
+     * 
+     * @see #sort
+     */
+    protected List<ServerState> findWritableCandidates(
+            final ReadPreference readPreference) {
+        final List<ServerState> results = new ArrayList<ServerState>(
+                myWritableServers.size());
+        for (final ServerState server : myWritableServers) {
+            if (readPreference.matches(server.getTags())) {
+                results.add(server);
+            }
+        }
+
+        // Sort the server by preference.
+        sort(results);
+
+        return results;
+    }
+
+    /**
+     * Sorts the servers based on the latency from the client.
+     * <p>
+     * To distribute the requests across servers more evenly the first server is
+     * replaced with a random server based on a single sided simplified Gaussian
+     * distribution.
+     * </p>
+     * 
+     * @param servers
+     *            The servers to be sorted.
+     * 
+     * @see #cdf(List)
+     */
+    protected final void sort(final List<ServerState> servers) {
+        if (servers.isEmpty() || (servers.size() == 1)) {
+            return;
+        }
+
+        // Pick a server to move to the front.
+        final double[] cdf = cdf(servers);
+        final double random = Math.random();
+        int index = Arrays.binarySearch(cdf, random);
+
+        // Probably a negative index since not expecting an exact match.
+        if (index < 0) {
+            // Undo (-(insertion point) - 1)
+            index = Math.abs(index + 1);
+        }
+
+        // Should not be needed. random should be < 1.0 and
+        // relativeLatency[relativeLatency.length] == 1.0
+        assert random < 1.0D : "The random value should be strictly less than 1.0.";
+        assert cdf[cdf.length - 1] <= 1.0001 : "The cdf of the last server should be 1.0.";
+        assert cdf[cdf.length - 1] >= 0.9999 : "The cdf of the last server should be 1.0.";
+        index = Math.min(cdf.length - 1, index);
+
+        // Swap the lucky winner into the first position.
+        Collections.swap(servers, 0, index);
+    }
+
+    /**
+     * Merges the two lists into a single list.
+     * 
+     * @param list1
+     *            The first list of servers.
+     * @param list2
+     *            The second list of servers.
+     * @return The 2 lists of servers merged into a single list.
+     */
+    private final List<ServerState> merge(final List<ServerState> list1,
+            final List<ServerState> list2) {
+        List<ServerState> results;
+        if (list1.isEmpty() && list2.isEmpty()) {
+            results = list1;
+        }
+        else {
+            results = new ArrayList<ServerState>(list1.size() + list2.size());
+            results.addAll(list1);
+            results.addAll(list2);
+        }
+        return results;
+    }
+
 }

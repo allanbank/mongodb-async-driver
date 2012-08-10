@@ -29,7 +29,8 @@ public class ServerLatencyComparatorTest {
         state1.setAverageLatency(99.0);
         state2.setAverageLatency(100.0);
 
-        assertEquals(-1, new ServerLatencyComparator().compare(state1, state2));
+        assertEquals(-1,
+                ServerLatencyComparator.COMPARATOR.compare(state1, state2));
     }
 
     /**
@@ -44,7 +45,8 @@ public class ServerLatencyComparatorTest {
         state1.setAverageLatency(101.0);
         state2.setAverageLatency(100.0);
 
-        assertEquals(1, new ServerLatencyComparator().compare(state1, state2));
+        assertEquals(1,
+                ServerLatencyComparator.COMPARATOR.compare(state1, state2));
     }
 
     /**
@@ -59,7 +61,8 @@ public class ServerLatencyComparatorTest {
         state1.setAverageLatency(100.0);
         state2.setAverageLatency(100.0);
 
-        assertEquals(0, new ServerLatencyComparator().compare(state1, state2));
+        assertEquals(0,
+                ServerLatencyComparator.COMPARATOR.compare(state1, state2));
     }
 
 }

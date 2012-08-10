@@ -62,7 +62,7 @@ public class LatencyServerSelector implements ServerSelector {
 
         // Copy to a list we know we can modify and sort.
         servers = new ArrayList<ServerState>(servers);
-        Collections.sort(servers, new ServerLatencyComparator());
+        Collections.sort(servers, ServerLatencyComparator.COMPARATOR);
 
         return servers;
     }

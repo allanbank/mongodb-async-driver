@@ -199,8 +199,9 @@ public class ServerState {
      * 
      * @param writable
      *            If true the server can be written to, false otherwise.
+     * @return The previous writable state.
      */
-    /* package */void setWritable(final boolean writable) {
-        myWritable.set(writable);
+    /* package */boolean setWritable(final boolean writable) {
+        return myWritable.getAndSet(writable);
     }
 }

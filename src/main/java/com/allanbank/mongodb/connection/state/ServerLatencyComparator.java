@@ -15,13 +15,16 @@ import java.util.Comparator;
 public class ServerLatencyComparator implements Comparator<ServerState>,
         Serializable {
 
+    /** A singleton instance of the comparator. No need to multiple instances. */
+    public static final Comparator<ServerState> COMPARATOR = new ServerLatencyComparator();
+
     /** Serialization version of the class. */
     private static final long serialVersionUID = -7926757327660948536L;
 
     /**
      * Creates a new {@link ServerLatencyComparator}.
      */
-    public ServerLatencyComparator() {
+    private ServerLatencyComparator() {
         super();
     }
 
