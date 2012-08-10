@@ -135,7 +135,7 @@ public class RegularExpressionElement extends AbstractElement {
      *            The pattern to extract the options from.
      * @return The options integer value.
      */
-    private static int optionsAsInt(final Pattern pattern) {
+    protected static int optionsAsInt(final Pattern pattern) {
         int optInt = 0;
 
         if (pattern != null) {
@@ -143,7 +143,6 @@ public class RegularExpressionElement extends AbstractElement {
             if ((flags & Pattern.CASE_INSENSITIVE) == Pattern.CASE_INSENSITIVE) {
                 optInt |= CASE_INSENSITIVE;
             }
-
             if ((flags & Pattern.MULTILINE) == Pattern.MULTILINE) {
                 optInt |= MULTILINE;
             }
@@ -165,37 +164,30 @@ public class RegularExpressionElement extends AbstractElement {
      *            The possibly non-normalized options string.
      * @return The options integer value.
      */
-    private static int optionsAsInt(final String options) {
+    protected static int optionsAsInt(final String options) {
         int optInt = 0;
 
         if (options != null) {
             for (final char c : options.toCharArray()) {
-                switch (c) {
-                case 'i':
-                case 'I':
+                if ((c == 'i') || (c == 'I')) {
                     optInt |= OPTION_I;
-                    break;
-                case 'l':
-                case 'L':
+                }
+                else if ((c == 'l') || (c == 'L')) {
                     optInt |= OPTION_L;
-                    break;
-                case 'm':
-                case 'M':
+                }
+                else if ((c == 'm') || (c == 'M')) {
                     optInt |= OPTION_M;
-                    break;
-                case 's':
-                case 'S':
+                }
+                else if ((c == 's') || (c == 'S')) {
                     optInt |= OPTION_S;
-                    break;
-                case 'u':
-                case 'U':
+                }
+                else if ((c == 'u') || (c == 'U')) {
                     optInt |= OPTION_U;
-                    break;
-                case 'x':
-                case 'X':
+                }
+                else if ((c == 'x') || (c == 'X')) {
                     optInt |= OPTION_X;
-                    break;
-                default:
+                }
+                else {
                     throw new IllegalArgumentException(
                             "Invalid regular expression option '" + c
                                     + "' in options '" + options + "'.");

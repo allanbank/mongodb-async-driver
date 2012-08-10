@@ -100,24 +100,32 @@ public class ClusterState {
      */
     public List<ServerState> findCandidateServers(
             final ReadPreference readPreference) {
+        List<ServerState> results = Collections.emptyList();
+
         switch (readPreference.getMode()) {
         case NEAREST:
-            return findNearestCandidates(readPreference);
+            results = findNearestCandidates(readPreference);
+            break;
         case PRIMARY_ONLY:
-            return findWritableCandidates(readPreference);
+            results = findWritableCandidates(readPreference);
+            break;
         case PRIMARY_PREFERRED:
-            return merge(findWritableCandidates(readPreference),
+            results = merge(findWritableCandidates(readPreference),
                     findNonWritableCandidates(readPreference));
+            break;
         case SECONDARY_ONLY:
-            return findNonWritableCandidates(readPreference);
+            results = findNonWritableCandidates(readPreference);
+            break;
         case SECONDARY_PREFERRED:
-            return merge(findNonWritableCandidates(readPreference),
+            results = merge(findNonWritableCandidates(readPreference),
                     findWritableCandidates(readPreference));
+            break;
         case SERVER:
-            return findCandidateServer(readPreference);
-        default:
-            return Collections.emptyList();
+            results = findCandidateServer(readPreference);
+            break;
         }
+
+        return results;
     }
 
     /**
@@ -433,9 +441,13 @@ public class ClusterState {
 
         // Should not be needed. random should be < 1.0 and
         // relativeLatency[relativeLatency.length] == 1.0
-        assert random < 1.0D : "The random value should be strictly less than 1.0.";
-        assert cdf[cdf.length - 1] <= 1.0001 : "The cdf of the last server should be 1.0.";
-        assert cdf[cdf.length - 1] >= 0.9999 : "The cdf of the last server should be 1.0.";
+        //
+        // assert (random < 1.0D) :
+        // "The random value should be strictly less than 1.0.";
+        // assert (cdf[cdf.length - 1] <= 1.0001) :
+        // "The cdf of the last server should be 1.0.";
+        // assert (0.9999 <= cdf[cdf.length - 1]) :
+        // "The cdf of the last server should be 1.0.";
         index = Math.min(cdf.length - 1, index);
 
         // Swap the lucky winner into the first position.
@@ -454,7 +466,10 @@ public class ClusterState {
     private final List<ServerState> merge(final List<ServerState> list1,
             final List<ServerState> list2) {
         List<ServerState> results;
-        if (list1.isEmpty() && list2.isEmpty()) {
+        if (list1.isEmpty()) {
+            results = list2;
+        }
+        else if (list2.isEmpty()) {
             results = list1;
         }
         else {

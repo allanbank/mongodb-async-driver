@@ -232,9 +232,22 @@ public class ClusterStateTest {
         s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
         servers = c.findCandidateServers(ReadPreference.preferPrimary(
                 BuilderFactory.start().addInteger("f", 1).build(),
-                BuilderFactory.start().addInteger("C", 1).build()));
-        assertEquals(1, servers.size());
-        assertEquals(s1, servers.get(0));
+                BuilderFactory.start().addInteger("g", 1).build()));
+        assertEquals(2, servers.size());
+        assertTrue(servers.contains(s1));
+        assertTrue(servers.contains(s3));
+
+        c.markWritable(s1);
+        c.markWritable(s2);
+        c.markWritable(s3);
+        s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
+        s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
+        servers = c.findCandidateServers(ReadPreference.preferPrimary(
+                BuilderFactory.start().addInteger("f", 1).build(),
+                BuilderFactory.start().addInteger("g", 1).build()));
+        assertEquals(2, servers.size());
+        assertTrue(servers.contains(s1));
+        assertTrue(servers.contains(s3));
 
         // Exclude all on tags.
         s1.setTags(BuilderFactory.start().addInteger("f", 1).build());

@@ -19,6 +19,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.junit.Test;
 
@@ -160,6 +161,62 @@ public class RegularExpressionElementTest {
         assertEquals("func code() {}", element.getPattern());
         assertEquals(RegularExpressionElement.OPTION_I, element.getOptions());
         assertEquals(ElementType.REGEX, element.getType());
+    }
+
+    /**
+     * Test method for {@link RegularExpressionElement#optionsAsInt(Pattern)} .
+     */
+    @Test
+    public void testOptionsAsIntWithNullPattern() {
+        assertEquals(0, RegularExpressionElement.optionsAsInt((Pattern) null));
+    }
+
+    /**
+     * Test method for
+     * {@link RegularExpressionElement#RegularExpressionElement(String, Pattern)}
+     * .
+     */
+    @Test
+    public void testRegularExpressionElementWithPattern() {
+        Pattern p;
+        RegularExpressionElement re;
+
+        p = Pattern.compile(".*", 0);
+        re = new RegularExpressionElement("f", p);
+        assertEquals(".*", re.getPattern());
+        assertEquals(0, re.getOptions());
+
+        p = Pattern.compile(".*", Pattern.CASE_INSENSITIVE);
+        re = new RegularExpressionElement("f", p);
+        assertEquals(".*", re.getPattern());
+        assertEquals(RegularExpressionElement.CASE_INSENSITIVE, re.getOptions());
+
+        p = Pattern.compile(".*", Pattern.MULTILINE);
+        re = new RegularExpressionElement("f", p);
+        assertEquals(".*", re.getPattern());
+        assertEquals(RegularExpressionElement.MULTILINE, re.getOptions());
+
+        p = Pattern.compile(".*", Pattern.DOTALL);
+        re = new RegularExpressionElement("f", p);
+        assertEquals(".*", re.getPattern());
+        assertEquals(RegularExpressionElement.DOT_ALL, re.getOptions());
+
+        p = Pattern.compile(".*", Pattern.UNICODE_CHARACTER_CLASS);
+        re = new RegularExpressionElement("f", p);
+        assertEquals(".*", re.getPattern());
+        assertEquals(RegularExpressionElement.UNICODE, re.getOptions());
+
+        // Combined
+
+        p = Pattern
+                .compile(".*", Pattern.UNICODE_CHARACTER_CLASS | Pattern.DOTALL
+                        | Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+        re = new RegularExpressionElement("f", p);
+        assertEquals(".*", re.getPattern());
+        assertEquals(RegularExpressionElement.UNICODE
+                | RegularExpressionElement.DOT_ALL
+                | RegularExpressionElement.MULTILINE
+                | RegularExpressionElement.CASE_INSENSITIVE, re.getOptions());
     }
 
     /**
