@@ -39,14 +39,14 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  */
 public class ClusterState {
 
+    /** The complete list of servers. */
+    protected final ConcurrentMap<String, ServerState> myServers;
+
     /** Support for firing property change events. */
     private final PropertyChangeSupport myChangeSupport;
 
     /** The complete list of non-writable servers. */
     private final List<ServerState> myNonWritableServers;
-
-    /** The complete list of servers. */
-    private final ConcurrentMap<String, ServerState> myServers;
 
     /** The complete list of writable servers. */
     private final List<ServerState> myWritableServers;

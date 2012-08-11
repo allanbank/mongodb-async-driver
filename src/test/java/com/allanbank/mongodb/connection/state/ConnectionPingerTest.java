@@ -5,26 +5,37 @@
 
 package com.allanbank.mongodb.connection.state;
 
+import static com.allanbank.mongodb.connection.CallbackReply.cb;
 import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.makeThreadSafe;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
-import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.After;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.connection.CallbackReply;
 import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Reply;
-import com.allanbank.mongodb.connection.message.ServerStatus;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -34,7 +45,6 @@ import com.allanbank.mongodb.util.IOUtils;
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ConnectionPingerTest {
-
     /** The pinger being tested. */
     protected ConnectionPinger myPinger = null;
 
@@ -52,42 +62,79 @@ public class ConnectionPingerTest {
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
-     * @throws InterruptedException
-     *             On a failure to sleep.
      */
     @Test
-    public void testRun() throws IOException, InterruptedException {
+    public void testRun() throws IOException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState();
-        cluster.add(address);
+        final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
 
-        makeThreadSafe(mockConnection, true);
-        makeThreadSafe(mockFactory, true);
-
         expect(
-                mockFactory.connect(anyObject(ServerState.class),
+                mockFactory.connect(eq(state),
                         anyObject(MongoDbConfiguration.class))).andReturn(
                 mockConnection);
         expect(
-                mockConnection.send(capture(new CallbackCapture()),
-                        anyObject(ServerStatus.class))).andReturn(address);
-
-        mockConnection.close();
-        expectLastCall();
+                mockConnection.send(cbAndClose(reply),
+                        anyObject(IsMaster.class))).andReturn(address);
 
         replay(mockConnection, mockFactory);
 
         myPinger = new ConnectionPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
-
-        Thread.sleep(100);
-        IOUtils.close(myPinger);
+        myPinger.run();
 
         verify(mockConnection, mockFactory);
+
+        assertEquals(reply.build().get("tags"), state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ConnectionPinger#run()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testRunBadPingReply() throws IOException {
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(mockConnection.send(cbAndClose(), anyObject(IsMaster.class)))
+                .andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ConnectionPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.run();
+
+        verify(mockConnection, mockFactory);
+
+        assertNull(state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
     }
 
     /**
@@ -99,122 +146,701 @@ public class ConnectionPingerTest {
      *             On a failure to sleep.
      */
     @Test
-    public void testRunPingFails() throws IOException, InterruptedException {
-        final String address = "localhost:27017";
-
-        final ClusterState cluster = new ClusterState();
-        cluster.add(address);
-
-        final Connection mockConnection = createMock(Connection.class);
-        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
-
-        makeThreadSafe(mockConnection, true);
-        makeThreadSafe(mockFactory, true);
-
-        expect(
-                mockFactory.connect(anyObject(ServerState.class),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
-                mockConnection);
-        expect(
-                mockConnection.send(capture(new CallbackFailureCapture()),
-                        anyObject(ServerStatus.class))).andReturn(address);
-
-        mockConnection.close();
-        expectLastCall();
-
-        replay(mockConnection, mockFactory);
-
-        myPinger = new ConnectionPinger(cluster, mockFactory,
-                new MongoDbConfiguration());
-
-        Thread.sleep(100);
-        IOUtils.close(myPinger);
-
-        verify(mockConnection, mockFactory);
-    }
-
-    /**
-     * Test method for {@link ConnectionPinger#run()}.
-     * 
-     * @throws IOException
-     *             On a failure setting up the mocks.
-     * @throws InterruptedException
-     *             On a failure to sleep.
-     */
-    @Test
-    public void testRunThrowsIOException() throws IOException,
+    public void testRunCannottGiveConnectionBack() throws IOException,
             InterruptedException {
-        final ClusterState cluster = new ClusterState();
-        cluster.add("localhost:27017");
 
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
 
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(
+                        cbAndCloseWithConn(reply, state, mockConnection),
+                        anyObject(IsMaster.class))).andReturn(address);
+
+        // Have to close the connection since state won't accept it.
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ConnectionPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.run();
+
+        verify(mockConnection, mockFactory);
+
+        assertEquals(reply.build().get("tags"), state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ConnectionPinger#run()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testRunInThread() throws IOException, InterruptedException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        makeThreadSafe(mockConnection, true);
         makeThreadSafe(mockFactory, true);
 
         expect(
-                mockFactory.connect(anyObject(ServerState.class),
-                        anyObject(MongoDbConfiguration.class))).andThrow(
-                new IOException("This is a test."));
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(mockConnection.send(cb(reply), anyObject(IsMaster.class)))
+                .andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ConnectionPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.start();
+        Thread.sleep(100);
+        myPinger.stop();
+
+        verify(mockConnection, mockFactory);
+
+        assertEquals(reply.build().get("tags"), state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ConnectionPinger#run()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testRunNoTags() throws IOException {
+
+        final DocumentBuilder reply = BuilderFactory.start();
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(cbAndClose(reply),
+                        anyObject(IsMaster.class))).andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ConnectionPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.run();
+
+        verify(mockConnection, mockFactory);
+
+        assertNull(state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ConnectionPinger#run()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testRunPingFails() throws IOException {
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(cbAndCloseError(),
+                        anyObject(IsMaster.class))).andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ConnectionPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.run();
+        IOUtils.close(myPinger);
+
+        verify(mockConnection, mockFactory);
+
+        assertNull(state.getTags());
+        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ConnectionPinger#run()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testRunSweepTwice() throws IOException, InterruptedException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        cluster.myServers.put(address, new ServerState(address) {
+            @Override
+            public long getConnectionGeneration() {
+                // Randomize the generation to make it look like a very busy
+                // server.
+                return (long) Math.ceil(Math.random() * 1000000000);
+            }
+        });
+
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(mockConnection.send(cb(reply), anyObject(IsMaster.class)))
+                .andReturn(address);
+
+        // Second Sweep.
+        expect(
+                mockConnection.send(cbAndClose(reply),
+                        anyObject(IsMaster.class))).andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ConnectionPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(1);
+        myPinger.run();
+
+        verify(mockConnection, mockFactory);
+
+        assertEquals(reply.build().get("tags"), state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ConnectionPinger#run()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testRunSweepTwiceIdleConnection() throws IOException,
+            InterruptedException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(mockConnection.send(cb(reply), anyObject(IsMaster.class)))
+                .andReturn(address);
+
+        mockConnection.close();
+        expectLastCall();
+
+        // Second Sweep.
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(cbAndClose(reply),
+                        anyObject(IsMaster.class))).andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ConnectionPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(1);
+        myPinger.run();
+
+        verify(mockConnection, mockFactory);
+
+        assertEquals(reply.build().get("tags"), state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ConnectionPinger#run()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testRunSweepTwiceNotGiveBackConnection() throws IOException,
+            InterruptedException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(cbWithConn(reply, state, mockConnection),
+                        anyObject(IsMaster.class))).andReturn(address);
+        mockConnection.close();
+        expectLastCall();
+
+        // Second Sweep.
+        expect(
+                mockConnection.send(cbAndClose(reply),
+                        anyObject(IsMaster.class))).andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ConnectionPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(1);
+        myPinger.run();
+
+        verify(mockConnection, mockFactory);
+
+        assertEquals(reply.build().get("tags"), state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ConnectionPinger#run()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testRunThrowsIOException() throws IOException {
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andAnswer(
+                a(new IOException("Injected")));
 
         replay(mockFactory);
 
         myPinger = new ConnectionPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
-
-        Thread.sleep(250);
+        Thread.currentThread().interrupt();
+        myPinger.run();
 
         verify(mockFactory);
+
+        assertNull(state.getTags());
+        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
     }
 
     /**
-     * CallbackCapture provides the ability to trigger the ping callback.
+     * Test method for {@link ConnectionPinger#run()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testRunThrowsMongoDbException() throws IOException {
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(cbAndCloseError(),
+                        anyObject(IsMaster.class))).andAnswer(
+                throwA(new MongoDbException("Injected")));
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ConnectionPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.run();
+        IOUtils.close(myPinger);
+
+        verify(mockConnection, mockFactory);
+
+        assertNull(state.getTags());
+        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Creates a new CloseAnswer.
+     * 
+     * @param reply
+     *            The reply to return.
+     * @return The CloseAnswer.
+     */
+    protected <C> IAnswer<C> a(final C reply) {
+        return new CloseAnswer<C>(reply);
+    }
+
+    /**
+     * Creates a new CloseAnswer.
+     * 
+     * @param reply
+     *            The reply to throw.
+     * @return The CloseAnswer.
+     */
+    protected IAnswer<Connection> a(final Throwable reply) {
+        return new CloseAnswer<Connection>(reply);
+    }
+
+    /**
+     * Creates a new CallbackReply.
+     * 
+     * @param builders
+     *            The reply to provide to the callback.
+     * @return The CallbackReply.
+     */
+    protected Callback<Reply> cbAndClose(final DocumentBuilder... builders) {
+        return cbAndClose(CallbackReply.reply(builders));
+    }
+
+    /**
+     * Creates a new CallbackReply.
+     * 
+     * @param reply
+     *            The reply to provide to the callback.
+     * @return The CallbackReply.
+     */
+    protected Callback<Reply> cbAndClose(final Reply reply) {
+        EasyMock.capture(new CloseCallbackReply(reply));
+        return null;
+    }
+
+    /**
+     * Creates a new CallbackReply.
+     * 
+     * @param error
+     *            The error to provide to the callback.
+     * @return The CallbackReply.
+     */
+    protected Callback<Reply> cbAndClose(final Throwable error) {
+        EasyMock.capture(new CloseCallbackReply(error));
+        return null;
+    }
+
+    /**
+     * Creates a new CallbackReply.
+     * 
+     * @return The CallbackReply.
+     */
+    protected Callback<Reply> cbAndCloseError() {
+        EasyMock.capture(new CloseCallbackReply(new Throwable("Injected")));
+        return null;
+    }
+
+    /**
+     * Creates a new CallbackReply.
+     * 
+     * @param builder
+     *            The reply to provide to the callback.
+     * @param state
+     *            The state to give the connection to.
+     * @param conn
+     *            The connection to give the server.
+     * 
+     * @return The CallbackReply.
+     */
+    protected Callback<Reply> cbAndCloseWithConn(final DocumentBuilder builder,
+            final ServerState state, final Connection conn) {
+        class CloseCallbackWithSetConnection extends CloseCallbackReply {
+
+            private static final long serialVersionUID = -2458416861114720698L;
+
+            public CloseCallbackWithSetConnection(final Reply reply) {
+                super(reply);
+            }
+
+            @Override
+            public void setValue(final Callback<Reply> value) {
+                super.setValue(value);
+                state.addConnection(conn);
+            }
+        }
+        EasyMock.capture(new CloseCallbackWithSetConnection(CallbackReply
+                .reply(builder)));
+        return null;
+    }
+
+    /**
+     * Creates a new CallbackReply.
+     * 
+     * @param builder
+     *            The reply to provide to the callback.
+     * @param state
+     *            The state to give the connection to.
+     * @param conn
+     *            The connection to give the server.
+     * 
+     * @return The CallbackReply.
+     */
+    protected Callback<Reply> cbConnUsed(final DocumentBuilder builder,
+            final ServerState state, final Connection conn) {
+        class CloseCallbackWithSetConnection extends CloseCallbackReply {
+
+            private static final long serialVersionUID = -2458416861114720698L;
+
+            public CloseCallbackWithSetConnection(final Reply reply) {
+                super(reply);
+            }
+
+            @Override
+            public void setValue(final Callback<Reply> value) {
+                super.setValue(value);
+                state.addConnection(state.takeConnection());
+            }
+        }
+        EasyMock.capture(new CloseCallbackWithSetConnection(CallbackReply
+                .reply(builder)));
+        return null;
+    }
+
+    /**
+     * Creates a new CallbackReply.
+     * 
+     * @param builder
+     *            The reply to provide to the callback.
+     * @param state
+     *            The state to give the connection to.
+     * @param conn
+     *            The connection to give the server.
+     * 
+     * @return The CallbackReply.
+     */
+    protected Callback<Reply> cbWithConn(final DocumentBuilder builder,
+            final ServerState state, final Connection conn) {
+        class CallbackWithSetConnection extends CallbackReply {
+
+            private static final long serialVersionUID = -2458416861114720698L;
+
+            public CallbackWithSetConnection(final Reply reply) {
+                super(reply);
+            }
+
+            @Override
+            public void setValue(final Callback<Reply> value) {
+                super.setValue(value);
+                state.addConnection(conn);
+            }
+        }
+        EasyMock.capture(new CallbackWithSetConnection(CallbackReply
+                .reply(builder)));
+        return null;
+    }
+
+    /**
+     * Creates a new CloseAnswer.
+     * 
+     * @param reply
+     *            The reply to throw.
+     * @return The CloseAnswer.
+     */
+    protected IAnswer<String> throwA(final Throwable reply) {
+        return new CloseAnswer<String>(reply);
+    }
+
+    /**
+     * A specialized {@link IAnswer} to close the pinger.
+     * 
+     * @param <C>
+     *            The type for the answer.
      * 
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected final class CallbackCapture extends Capture<Callback<Reply>> {
-        /** Serialization version for the class. */
-        private static final long serialVersionUID = -8744386051520804331L;
+    public final class CloseAnswer<C> implements IAnswer<C> {
+        /** The error to provide to the callback. */
+        private final Throwable myError;
 
+        /** The reply to provide to the callback. */
+        private final C myReply;
+
+        /**
+         * Creates a new CallbackReply.
+         * 
+         * @param reply
+         *            The reply to provide to the callback.
+         */
+        public CloseAnswer(final C reply) {
+            myReply = reply;
+            myError = null;
+        }
+
+        /**
+         * Creates a new CallbackReply.
+         * 
+         * @param error
+         *            The error to provide to the callback.
+         */
+        public CloseAnswer(final Throwable error) {
+            myReply = null;
+            myError = error;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to throw the error or return the reply.
+         * </p>
+         */
         @Override
-        public void setValue(final Callback<Reply> value) {
-            super.setValue(value);
-
-            value.callback(null);
-
+        public C answer() throws Throwable {
+            myPinger.close();
             Thread.currentThread().interrupt();
-            try {
-                myPinger.close();
+
+            if (myError != null) {
+                throw myError;
             }
-            catch (final IOException e) {
-                // Ignored
-            }
+            return myReply;
         }
     }
 
     /**
-     * CallbackFailureCapture provides the ability to trigger the ping callback
-     * failure.
+     * A specialized callback reply to close the pinger when a value is set.
      * 
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected final class CallbackFailureCapture extends
-            Capture<Callback<Reply>> {
-        /** Serialization version for the class. */
-        private static final long serialVersionUID = -8744386051520804331L;
+    public class CloseCallbackReply extends CallbackReply {
 
+        /** The serialization version for the class. */
+        private static final long serialVersionUID = -5855409833338626339L;
+
+        /**
+         * Creates a new CloseCallbackReply.
+         * 
+         * @param reply
+         *            The reply for the callback.
+         */
+        public CloseCallbackReply(final Reply reply) {
+            super(reply);
+        }
+
+        /**
+         * Creates a new CloseCallbackReply.
+         * 
+         * @param thrown
+         *            The error for the callback.
+         */
+        public CloseCallbackReply(final Throwable thrown) {
+            super(thrown);
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to call super and then provide the reply or error to the
+         * callback.
+         * </p>
+         */
         @Override
         public void setValue(final Callback<Reply> value) {
             super.setValue(value);
-
-            value.exception(null);
-
+            myPinger.close();
             Thread.currentThread().interrupt();
-            try {
-                myPinger.close();
-            }
-            catch (final IOException e) {
-                // Ignored
-            }
         }
+
     }
 }

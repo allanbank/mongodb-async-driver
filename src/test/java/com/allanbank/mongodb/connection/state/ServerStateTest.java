@@ -30,7 +30,7 @@ public class ServerStateTest {
 
     /**
      * Test method for {@link ServerState#addConnection} and
-     * {@link ServerState#getConnection}.
+     * {@link ServerState#takeConnection}.
      */
     @Test
     public void testAddConnectionGetConnection() {
@@ -41,16 +41,16 @@ public class ServerStateTest {
         replay(mockConnection, mockConnection2);
 
         final ServerState state = new ServerState("foo");
-        assertNull(state.getConnection());
+        assertNull(state.takeConnection());
 
         assertTrue(state.addConnection(mockConnection));
-        assertSame(mockConnection, state.getConnection());
-        assertNull(state.getConnection());
+        assertSame(mockConnection, state.takeConnection());
+        assertNull(state.takeConnection());
 
         assertTrue(state.addConnection(mockConnection));
         assertFalse(state.addConnection(mockConnection2));
-        assertSame(mockConnection, state.getConnection());
-        assertNull(state.getConnection());
+        assertSame(mockConnection, state.takeConnection());
+        assertNull(state.takeConnection());
 
         verify(mockConnection, mockConnection2);
     }

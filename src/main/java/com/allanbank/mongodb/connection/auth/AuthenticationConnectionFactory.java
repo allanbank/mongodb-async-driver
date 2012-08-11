@@ -81,6 +81,7 @@ public class AuthenticationConnectionFactory implements
     public ReconnectStrategy getReconnectStrategy() {
         final ReconnectStrategy delegates = myProxiedConnectionFactory
                 .getReconnectStrategy();
+
         delegates.setConnectionFactory(this);
 
         return delegates;

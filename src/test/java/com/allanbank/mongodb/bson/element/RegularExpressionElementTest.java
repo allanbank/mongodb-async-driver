@@ -148,6 +148,14 @@ public class RegularExpressionElementTest {
     }
 
     /**
+     * Test method for {@link RegularExpressionElement#optionsAsInt(Pattern)} .
+     */
+    @Test
+    public void testOptionsAsIntWithNullPattern() {
+        assertEquals(0, RegularExpressionElement.optionsAsInt((Pattern) null));
+    }
+
+    /**
      * Test method for
      * {@link RegularExpressionElement#RegularExpressionElement(String, String, String)}
      * .
@@ -164,11 +172,28 @@ public class RegularExpressionElementTest {
     }
 
     /**
-     * Test method for {@link RegularExpressionElement#optionsAsInt(Pattern)} .
+     * Test method for
+     * {@link RegularExpressionElement#RegularExpressionElement(String, String, String)}
+     * .
      */
+    @SuppressWarnings("unused")
     @Test
-    public void testOptionsAsIntWithNullPattern() {
-        assertEquals(0, RegularExpressionElement.optionsAsInt((Pattern) null));
+    public void testRegularExpressionElementWithBadOption() {
+
+        final String options = OPTIONS_2.toLowerCase()
+                + OPTIONS_2.toUpperCase();
+        for (char c = Character.MIN_VALUE; c < Character.MAX_VALUE; ++c) {
+            if (options.indexOf(c) < 0) {
+                try {
+                    new RegularExpressionElement("foo", "func code() {}",
+                            String.valueOf(c));
+                    fail("Should throw an exception on bad option: " + c);
+                }
+                catch (final IllegalArgumentException good) {
+                    // Good.
+                }
+            }
+        }
     }
 
     /**
@@ -217,31 +242,6 @@ public class RegularExpressionElementTest {
                 | RegularExpressionElement.DOT_ALL
                 | RegularExpressionElement.MULTILINE
                 | RegularExpressionElement.CASE_INSENSITIVE, re.getOptions());
-    }
-
-    /**
-     * Test method for
-     * {@link RegularExpressionElement#RegularExpressionElement(String, String, String)}
-     * .
-     */
-    @SuppressWarnings("unused")
-    @Test
-    public void testRegularExpressionElementWithBadOption() {
-
-        final String options = OPTIONS_2.toLowerCase()
-                + OPTIONS_2.toUpperCase();
-        for (char c = Character.MIN_VALUE; c < Character.MAX_VALUE; ++c) {
-            if (options.indexOf(c) < 0) {
-                try {
-                    new RegularExpressionElement("foo", "func code() {}",
-                            String.valueOf(c));
-                    fail("Should throw an exception on bad option: " + c);
-                }
-                catch (final IllegalArgumentException good) {
-                    // Good.
-                }
-            }
-        }
     }
 
     /**

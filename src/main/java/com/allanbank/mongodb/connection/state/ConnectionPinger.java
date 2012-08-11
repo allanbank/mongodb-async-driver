@@ -34,17 +34,8 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class ConnectionPinger implements Runnable, Closeable {
 
-    /** The maximum interval between ping sweeps in seconds. */
-    public static final int MAX_PING_INTERVAL_SECONDS = 600;
-
-    /** The minimum interval between ping sweeps in seconds. */
-    public static final int MIN_PING_INTERVAL_SECONDS = 30;
-
-    /**
-     * The increment for increases in the interval between ping sweeps in
-     * seconds.
-     */
-    public static final int PING_INTERVAL_INCREMENT_SECONDS = 15;
+    /** The default interval between ping sweeps in seconds. */
+    public static final int DEFAULT_PING_INTERVAL_SECONDS = 600;
 
     /** The logger for the {@link ConnectionPinger}. */
     protected static final Logger LOG = Logger.getLogger(ConnectionPinger.class
@@ -76,6 +67,12 @@ public class ConnectionPinger implements Runnable, Closeable {
     /** The factory for creating connections to the servers. */
     private final ProxiedConnectionFactory myConnectionFactory;
 
+    /** The units for the ping sweep intervals. */
+    private volatile TimeUnit myIntervalUnits = TimeUnit.SECONDS;
+
+    /** The interval for a ping sweep across all of the servers. */
+    private volatile int myPingSweepInterval = DEFAULT_PING_INTERVAL_SECONDS;
+
     /** The thread that is pinging the servers for latency. */
     private final Thread myPingThread;
 
@@ -106,7 +103,6 @@ public class ConnectionPinger implements Runnable, Closeable {
         myPingThread.setDaemon(true);
         myPingThread.setName("MongoDB Pinger");
         myPingThread.setPriority(Thread.MIN_PRIORITY);
-        myPingThread.start();
     }
 
     /**
@@ -116,9 +112,27 @@ public class ConnectionPinger implements Runnable, Closeable {
      * </p>
      */
     @Override
-    public void close() throws IOException {
+    public void close() {
         myRunning = false;
         myPingThread.interrupt();
+    }
+
+    /**
+     * Returns the units for the ping sweep intervals.
+     * 
+     * @return The units for the ping sweep intervals.
+     */
+    public TimeUnit getIntervalUnits() {
+        return myIntervalUnits;
+    }
+
+    /**
+     * Returns the interval for a ping sweep across all of the servers..
+     * 
+     * @return The interval for a ping sweep across all of the servers..
+     */
+    public int getPingSweepInterval() {
+        return myPingSweepInterval;
     }
 
     /**
@@ -130,46 +144,105 @@ public class ConnectionPinger implements Runnable, Closeable {
      */
     @Override
     public void run() {
-        try {
-            int sleepSeconds = MIN_PING_INTERVAL_SECONDS;
-            while (myRunning) {
-                for (final ServerState server : myCluster.getServers()) {
-                    final InetSocketAddress addr = server.getServer();
-                    Connection conn = null;
-                    try {
-                        myPingThread.setName("MongoDB Pinger - " + addr);
+        while (myRunning) {
+            try {
+                final long interval = getIntervalUnits().toMillis(
+                        getPingSweepInterval());
+                final long perServerSleep = interval
+                        / myCluster.getServers().size();
 
-                        conn = myConnectionFactory.connect(server, myConfig);
+                for (final ServerState server : myCluster.getServers()) {
+                    final String name = server.getName();
+                    Connection conn = null;
+                    long connGeneration = 0;
+                    try {
+                        myPingThread.setName("MongoDB Pinger - " + name);
+
+                        // Does the server state have a connection we can use?
+                        conn = server.takeConnection();
+                        if (conn == null) {
+                            conn = myConnectionFactory
+                                    .connect(server, myConfig);
+                        }
 
                         final long start = System.nanoTime();
 
                         // Use a server status request to measure latency. It is
                         // a best case since it does not require any locks.
-                        if (PINGER.ping(addr, conn, server)) {
+                        if (PINGER.ping(server.getServer(), conn, server)) {
                             final long end = System.nanoTime();
 
                             server.updateAverageLatency(TimeUnit.NANOSECONDS
                                     .toMillis(end - start));
                         }
+
+                        // Give the connection to the server state for reuse.
+                        connGeneration = 0;
+                        if (server.addConnection(conn)) {
+                            conn = null;
+                            connGeneration = server.getConnectionGeneration();
+                        }
                     }
                     catch (final IOException e) {
-                        LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
+                        LOG.log(Level.INFO, "Could not ping '" + name + "'.", e);
                     }
                     finally {
                         myPingThread.setName("MongoDB Pinger - Idle");
                         IOUtils.close(conn);
                     }
-                }
 
-                // Sleep a little between sweeps.
-                Thread.sleep(TimeUnit.SECONDS.toMillis(sleepSeconds));
-                sleepSeconds = Math.min(MAX_PING_INTERVAL_SECONDS, sleepSeconds
-                        + PING_INTERVAL_INCREMENT_SECONDS);
+                    // Sleep a little between servers.
+                    Thread.sleep(TimeUnit.MILLISECONDS.toMillis(perServerSleep));
+
+                    // If the connection has not been used by the state then it
+                    // is likely idle and we should cleanup.
+                    // Note we just slept for a while.
+                    if ((connGeneration != 0)
+                            && (connGeneration == server
+                                    .getConnectionGeneration())) {
+                        IOUtils.close(server.takeConnection());
+                    }
+                }
+            }
+            catch (final InterruptedException ok) {
+                LOG.info("Closing pinger on interrupt.");
             }
         }
-        catch (final InterruptedException ok) {
-            LOG.info("Closing pinger on interrupt.");
-        }
+    }
+
+    /**
+     * Sets the value of units for the ping sweep intervals.
+     * 
+     * @param intervalUnits
+     *            The new value for the units for the ping sweep intervals.
+     */
+    public void setIntervalUnits(final TimeUnit intervalUnits) {
+        myIntervalUnits = intervalUnits;
+    }
+
+    /**
+     * Sets the interval for a ping sweep across all of the servers..
+     * 
+     * @param pingSweepInterval
+     *            The new value for the interval for a ping sweep across all of
+     *            the servers..
+     */
+    public void setPingSweepInterval(final int pingSweepInterval) {
+        myPingSweepInterval = pingSweepInterval;
+    }
+
+    /**
+     * Starts the background pinger.
+     */
+    public void start() {
+        myPingThread.start();
+    }
+
+    /**
+     * Stops the background pinger. Equivalent to {@link #close()}.
+     */
+    public void stop() {
+        close();
     }
 
     /**
@@ -198,7 +271,7 @@ public class ConnectionPinger implements Runnable, Closeable {
             try {
                 final FutureCallback<Reply> future = new FutureCallback<Reply>();
                 conn.send(future, new IsMaster());
-                final Reply reply = future.get(10, TimeUnit.MINUTES);
+                final Reply reply = future.get(1, TimeUnit.MINUTES);
 
                 if (state != null) {
                     state.setTags(extractTags(reply));

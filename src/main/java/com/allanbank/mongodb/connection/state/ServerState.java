@@ -56,6 +56,14 @@ public class ServerState {
      */
     private final AtomicReference<Connection> myConnection;
 
+    /**
+     * A generation value for the connection currently being held. This is
+     * incremented whenever a connection is set. This allows the
+     * {@link ConnectionPinger} to test if the connections it is creating are
+     * getting used.
+     */
+    private final AtomicLong myConnectionGeneration;
+
     /** The normalized name of the server being tracked. */
     private final String myName;
 
@@ -83,6 +91,7 @@ public class ServerState {
                 Double.doubleToLongBits(Double.MAX_VALUE));
         myTags = new AtomicReference<Document>(null);
         myConnection = new AtomicReference<Connection>(null);
+        myConnectionGeneration = new AtomicLong(0);
     }
 
     /**
@@ -99,7 +108,11 @@ public class ServerState {
      *         otherwise.
      */
     public boolean addConnection(final Connection connection) {
-        return myConnection.compareAndSet(null, connection);
+        final boolean result = myConnection.compareAndSet(null, connection);
+        if (result) {
+            myConnectionGeneration.incrementAndGet();
+        }
+        return result;
     }
 
     /**
@@ -115,12 +128,15 @@ public class ServerState {
     }
 
     /**
-     * Returns a {@link Connection} to the server if one is available.
+     * Returns a generation value for the connection currently being held. This
+     * is incremented whenever a connection is set. This allows the
+     * {@link ConnectionPinger} to test if the connections it is creating are
+     * getting used.
      * 
-     * @return A {@link Connection} to the server if one is available.
+     * @return The generation value for the connection currently being held.
      */
-    public Connection getConnection() {
-        return myConnection.getAndSet(null);
+    public long getConnectionGeneration() {
+        return myConnectionGeneration.get();
     }
 
     /**
@@ -190,6 +206,15 @@ public class ServerState {
      */
     public void setTags(final Document tags) {
         myTags.set(tags);
+    }
+
+    /**
+     * Returns a {@link Connection} to the server if one is available.
+     * 
+     * @return A {@link Connection} to the server if one is available.
+     */
+    public Connection takeConnection() {
+        return myConnection.getAndSet(null);
     }
 
     /**
