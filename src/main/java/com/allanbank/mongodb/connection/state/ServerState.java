@@ -49,21 +49,15 @@ public class ServerState {
      */
     private final AtomicLong myAverageLatency;
 
-    /** The normalized name of the server being tracked. */
-    private final String myName;
-
     /**
      * A connection that may be owned by a logical connection but can be used
      * for direct communication with the server. Primarily used by the
      * {@link ConnectionPinger}.
      */
-    private final AtomicReference<Connection> myPrimaryConnection;
+    private final AtomicReference<Connection> myConnection;
 
-    /**
-     * If true then the primary connection has been claimed by a logical
-     * connection and the state will not try and close it.
-     */
-    private final AtomicBoolean myPrimaryConnectionOwned;
+    /** The normalized name of the server being tracked. */
+    private final String myName;
 
     /** The server being tracked. */
     private final InetSocketAddress myServer;
@@ -88,8 +82,24 @@ public class ServerState {
         myAverageLatency = new AtomicLong(
                 Double.doubleToLongBits(Double.MAX_VALUE));
         myTags = new AtomicReference<Document>(null);
-        myPrimaryConnection = new AtomicReference<Connection>(null);
-        myPrimaryConnectionOwned = new AtomicBoolean(false);
+        myConnection = new AtomicReference<Connection>(null);
+    }
+
+    /**
+     * Adds a {@link Connection} to the state making it available for reuse.
+     * <p>
+     * Only a limited number of connections will be held (currently 1). If the
+     * connection is not added to the state false is returned.
+     * </p>
+     * 
+     * @param connection
+     *            A {@link Connection} to the server making it available to
+     *            other to use.
+     * @return True if the connection has been added to the state, false
+     *         otherwise.
+     */
+    public boolean addConnection(final Connection connection) {
+        return myConnection.compareAndSet(null, connection);
     }
 
     /**
@@ -102,6 +112,15 @@ public class ServerState {
      */
     public double getAverageLatency() {
         return Double.longBitsToDouble(myAverageLatency.get());
+    }
+
+    /**
+     * Returns a {@link Connection} to the server if one is available.
+     * 
+     * @return A {@link Connection} to the server if one is available.
+     */
+    public Connection getConnection() {
+        return myConnection.getAndSet(null);
     }
 
     /**

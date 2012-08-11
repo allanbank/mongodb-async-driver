@@ -5,9 +5,13 @@
 
 package com.allanbank.mongodb.connection.state;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.net.InetSocketAddress;
@@ -15,6 +19,7 @@ import java.net.InetSocketAddress;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.connection.Connection;
 
 /**
  * ServerStateTest provides tests for the {@link ServerState} class.
@@ -22,6 +27,33 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerStateTest {
+
+    /**
+     * Test method for {@link ServerState#addConnection} and
+     * {@link ServerState#getConnection}.
+     */
+    @Test
+    public void testAddConnectionGetConnection() {
+
+        final Connection mockConnection = createMock(Connection.class);
+        final Connection mockConnection2 = createMock(Connection.class);
+
+        replay(mockConnection, mockConnection2);
+
+        final ServerState state = new ServerState("foo");
+        assertNull(state.getConnection());
+
+        assertTrue(state.addConnection(mockConnection));
+        assertSame(mockConnection, state.getConnection());
+        assertNull(state.getConnection());
+
+        assertTrue(state.addConnection(mockConnection));
+        assertFalse(state.addConnection(mockConnection2));
+        assertSame(mockConnection, state.getConnection());
+        assertNull(state.getConnection());
+
+        verify(mockConnection, mockConnection2);
+    }
 
     /**
      * Test method for {@link ServerState#getAverageLatency()}.
