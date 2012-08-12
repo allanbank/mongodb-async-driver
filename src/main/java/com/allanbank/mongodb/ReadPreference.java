@@ -437,6 +437,50 @@ public class ReadPreference implements Serializable, DocumentAssignable {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a string representation of the read preference..
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append(myMode.name());
+
+        if (myServer != null) {
+            builder.append('[');
+            builder.append(myServer);
+            builder.append(']');
+        }
+        else if (!myTagMatchingDocuments.isEmpty()) {
+            builder.append('[');
+            boolean first = true;
+            for (final Document tagDoc : myTagMatchingDocuments) {
+                if (!first) {
+                    builder.append(", ");
+                }
+                first = false;
+
+                builder.append('{');
+                boolean firstElem = true;
+                for (final Element element : tagDoc) {
+                    if (!firstElem) {
+                        builder.append(", ");
+                    }
+                    firstElem = false;
+
+                    builder.append(element);
+                }
+                builder.append('}');
+            }
+            builder.append(']');
+        }
+
+        return builder.toString();
+    }
+
+    /**
      * Does a null safe equals comparison.
      * 
      * @param rhs

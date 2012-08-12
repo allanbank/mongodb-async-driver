@@ -30,6 +30,7 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.bootstrap.BootstrapConnectionFactory;
 import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.error.ConnectionLostException;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * Implementation of the internal {@link Client} interface which all requests to
@@ -115,6 +116,9 @@ public class ClientImpl extends AbstractClient {
                 close(conn);
             }
         }
+
+        // Shutdown the connections factory.
+        IOUtils.close(myConnectionFactory);
     }
 
     /**

@@ -18,7 +18,7 @@ been for buffer management within the I/O library and the complexity and perform
 
 [images/MongoDbPerf_2012_06_12.jpg] Figure 1 - Relative Performance of the 10gen (legacy) and Asynchronous drivers BSON libraries when reading and writing documents of various sizes.
 
-  {Figure 1} - Relative Performance of the 10gen (legacy) and Asynchronous drivers BSON libraries when reading and writing documents of various sizes.  Note log scale on X axis.
+  {Figure 1} - Relative Performance of the 10gen (legacy) and Asynchronous drivers BSON libraries when reading and writing documents of various sizes.
 
 Test Environment
 

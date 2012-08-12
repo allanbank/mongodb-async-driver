@@ -179,11 +179,11 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.pushArray("hosts").addString(serverName)
                 .addString("localhost:1234");
 
-        ourServer
-                .setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
+        ourServer.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
-                ourServer.getInetSocketAddress());
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.addServer(serverName);
         config.setAutoDiscoverServers(false);
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
@@ -418,7 +418,8 @@ public class ReplicaSetConnectionFactoryTest {
                 .andReturn(mockConnection).times(2);
 
         mockConnection.send(cb(), anyObject(IsMaster.class));
-        expectLastCall().andThrow(new MongoDbException("This is a test")).times(2);
+        expectLastCall().andThrow(new MongoDbException("This is a test"))
+                .times(2);
 
         mockConnection.close();
         expectLastCall();
@@ -480,7 +481,8 @@ public class ReplicaSetConnectionFactoryTest {
                 .andReturn(mockConnection).times(2);
 
         mockConnection.send(cb(), anyObject(IsMaster.class));
-        expectLastCall().andThrow(new MongoDbException("This is a test")).times(2);
+        expectLastCall().andThrow(new MongoDbException("This is a test"))
+                .times(2);
 
         mockConnection.close();
         expectLastCall();

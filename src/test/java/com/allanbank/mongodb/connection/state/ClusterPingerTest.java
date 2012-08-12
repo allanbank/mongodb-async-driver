@@ -135,7 +135,7 @@ public class ClusterPingerTest {
                 mockConnection.send(
                         cbAndCloseWithConn(reply, state, mockConnection),
                         anyObject(IsMaster.class))).andReturn(address);
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -178,7 +178,7 @@ public class ClusterPingerTest {
                 mockConnection.send(
                         cbAndCloseWithConn(reply, state, mockConnection),
                         anyObject(IsMaster.class))).andReturn(address);
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -419,7 +419,7 @@ public class ClusterPingerTest {
                 mockConnection.send(cbAndClose(reply),
                         anyObject(IsMaster.class))).andReturn(address);
 
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -460,7 +460,7 @@ public class ClusterPingerTest {
         expect(mockConnection.send(cbAndClose(), anyObject(IsMaster.class)))
                 .andReturn(address);
 
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -513,8 +513,8 @@ public class ClusterPingerTest {
                         cbAndCloseWithConn(reply, state, mockConnection),
                         anyObject(IsMaster.class))).andReturn(address);
 
-        // Have to close the connection since state won't accept it.
-        mockConnection.close();
+        // Have to shutdown the connection since state won't accept it.
+        mockConnection.shutdown();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -612,7 +612,7 @@ public class ClusterPingerTest {
                 mockConnection.send(cbAndClose(reply),
                         anyObject(IsMaster.class))).andReturn(address);
 
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -654,7 +654,7 @@ public class ClusterPingerTest {
                 mockConnection.send(cbAndCloseError(),
                         anyObject(IsMaster.class))).andReturn(address);
 
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -766,7 +766,7 @@ public class ClusterPingerTest {
                 mockConnection);
         expect(mockConnection.send(cb(reply), anyObject(IsMaster.class)))
                 .andReturn(address);
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         // Second Sweep.
@@ -777,7 +777,7 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(cbAndClose(reply),
                         anyObject(IsMaster.class))).andReturn(address);
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -828,14 +828,14 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(cbWithConn(reply, state, mockConnection),
                         anyObject(IsMaster.class))).andReturn(address);
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         // Second Sweep.
         expect(
                 mockConnection.send(cbAndClose(reply),
                         anyObject(IsMaster.class))).andReturn(address);
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -912,7 +912,7 @@ public class ClusterPingerTest {
                         anyObject(IsMaster.class))).andAnswer(
                 throwA(new MongoDbException("Injected")));
 
-        mockConnection.close();
+        mockConnection.shutdown();
         expectLastCall();
 
         replay(mockConnection, mockFactory);

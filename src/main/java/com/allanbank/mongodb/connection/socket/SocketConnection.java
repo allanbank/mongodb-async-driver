@@ -384,10 +384,10 @@ public class SocketConnection implements Connection {
     }
 
     /**
-     * Stops the socket connection by calling {@link #close()}.
+     * Stops the socket connection by calling {@link #shutdown()}.
      */
     public void stop() {
-        IOUtils.close(this);
+        shutdown();
     }
 
     /**

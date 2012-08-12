@@ -126,6 +126,9 @@ public class ClientImplTest {
 
         final Connection mockConnection = createMock(Connection.class);
 
+        myMockConnectionFactory.close();
+        expectLastCall();
+
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -142,6 +145,9 @@ public class ClientImplTest {
         expectLastCall();
 
         expect(mockConnection.isOpen()).andReturn(false);
+
+        myMockConnectionFactory.close();
+        expectLastCall();
 
         replay(mockConnection);
 
@@ -167,6 +173,9 @@ public class ClientImplTest {
 
         final Connection mockConnection = createMock(Connection.class);
 
+        myMockConnectionFactory.close();
+        expectLastCall();
+
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -187,6 +196,9 @@ public class ClientImplTest {
         expectLastCall();
         mockConnection
                 .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        myMockConnectionFactory.close();
         expectLastCall();
 
         replay(mockConnection);

@@ -197,19 +197,8 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                     final Connection primaryConn = connections.remove(server
                             .getServer());
                     final ReplicaSetConnection newRsConn = new ReplicaSetConnection(
-                            primaryConn, getConfig());
-
-                    // See if we have a suitable secondary server connection.
-                    final List<ServerState> servers = getSelector()
-                            .pickServers();
-                    for (final ServerState secondaryServer : servers) {
-                        final Connection secondaryConn = connections
-                                .remove(secondaryServer.getServer());
-                        if (secondaryConn != null) {
-                            newRsConn.setSecondaryConnection(secondaryConn);
-                            break;
-                        }
-                    }
+                            primaryConn, server, getState(),
+                            getConnectionFactory(), getConfig());
 
                     // Copy the pending messages.
                     copyPending(newRsConn, oldConnection);

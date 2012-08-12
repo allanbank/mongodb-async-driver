@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
@@ -25,7 +24,6 @@ import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * ClusterPinger pings each of the connections in the cluster and updates the
@@ -171,10 +169,12 @@ public class ClusterPinger implements Runnable, Closeable {
                 }
             }
             catch (final IOException e) {
-                LOG.log(Level.INFO, "Could not ping '" + name + "'.", e);
+                LOG.info("Could not ping '" + name + "': " + e.getMessage());
             }
             finally {
-                IOUtils.close(conn);
+                if (conn != null) {
+                    conn.shutdown();
+                }
             }
         }
 
@@ -266,20 +266,27 @@ public class ClusterPinger implements Runnable, Closeable {
                         if ((lastServer != null)
                                 && (lastGeneration == lastServer
                                         .getConnectionGeneration())) {
-                            IOUtils.close(lastServer.takeConnection());
+                            final Connection lastConn = lastServer
+                                    .takeConnection();
+                            if (lastConn != null) {
+                                lastConn.shutdown();
+                            }
                         }
                     }
                     catch (final IOException e) {
-                        LOG.log(Level.INFO, "Could not ping '" + name + "'.", e);
+                        LOG.info("Could not ping '" + name + "': "
+                                + e.getMessage());
                     }
                     finally {
                         myPingThread.setName("MongoDB Pinger - Idle");
-                        IOUtils.close(conn);
+                        if (conn != null) {
+                            conn.shutdown();
+                        }
                     }
                 }
             }
             catch (final InterruptedException ok) {
-                LOG.info("Closing pinger on interrupt.");
+                LOG.fine("Closing pinger on interrupt.");
             }
         }
     }
@@ -353,15 +360,15 @@ public class ClusterPinger implements Runnable, Closeable {
                 }
             }
             catch (final ExecutionException e) {
-                LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
+                LOG.info("Could not ping '" + addr + "': " + e.getMessage());
             }
             catch (final TimeoutException e) {
-                LOG.log(Level.INFO, "'" + addr
-                        + "' might be a zombie - not receiving "
-                        + "a response to ping.", e);
+                LOG.info("'" + addr + "' might be a zombie - not receiving "
+                        + "a response to ping: " + e.getMessage());
             }
             catch (final InterruptedException e) {
-                LOG.log(Level.INFO, "Interrupted pinging '" + addr + "'.", e);
+                LOG.info("Interrupted pinging '" + addr + "': "
+                        + e.getMessage());
             }
 
             return false;
@@ -395,7 +402,7 @@ public class ClusterPinger implements Runnable, Closeable {
                 return future;
             }
             catch (final MongoDbException e) {
-                LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
+                LOG.info("Could not ping '" + addr + "': " + e.getMessage());
             }
             return null;
         }

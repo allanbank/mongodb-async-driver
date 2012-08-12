@@ -175,7 +175,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                 final Connection primaryConn = myConnectionFactory.connect(
                         primary, myConfig);
 
-                return new ReplicaSetConnection(primaryConn, myConfig);
+                return new ReplicaSetConnection(primaryConn, primary,
+                        myClusterState, myConnectionFactory, myConfig);
             }
             catch (final IOException e) {
                 lastError = e;

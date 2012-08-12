@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * ReadPreferenceTest provides tests for the {@link ReadPreference} class.
@@ -472,6 +473,37 @@ public class ReadPreferenceTest {
             assertEquals(Arrays.asList(tags),
                     preference.getTagMatchingDocuments());
         }
+    }
+
+    /**
+     * Test method for {@link ReadPreference#toString()} .
+     */
+    @Test
+    public void testToString() {
+        assertEquals("NEAREST", ReadPreference.closest().toString());
+        assertEquals("PRIMARY_PREFERRED", ReadPreference.preferPrimary()
+                .toString());
+        assertEquals("SECONDARY_PREFERRED", ReadPreference.preferSecondary()
+                .toString());
+        assertEquals("PRIMARY_ONLY", ReadPreference.primary().toString());
+        assertEquals("SECONDARY_ONLY", ReadPreference.secondary().toString());
+        assertEquals("SERVER[localhost:1111]",
+                ReadPreference.server("localhost:1111").toString());
+
+        final DocumentBuilder b1 = BuilderFactory.start();
+        b1.addString("f", "3");
+
+        final DocumentBuilder b2 = BuilderFactory.start();
+        b2.addString("g", "2");
+        b2.addString("e", "1");
+
+        assertEquals("SECONDARY_ONLY[{\"f\" : \"3\"}]", ReadPreference
+                .secondary(b1.build()).toString());
+
+        assertEquals(
+                "SECONDARY_ONLY[{\"f\" : \"3\"}, {\"g\" : \"2\", \"e\" : \"1\"}]",
+                ReadPreference.secondary(b1.build(), b2.build()).toString());
+
     }
 
 }
