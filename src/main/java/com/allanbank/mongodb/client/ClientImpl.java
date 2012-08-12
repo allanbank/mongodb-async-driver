@@ -393,17 +393,20 @@ public class ClientImpl extends AbstractClient {
         synchronized (this) {
             wasReconnecting = (myActiveReconnects > 0);
             if (wasReconnecting) {
-                try {
-                    LOG.fine("Waiting for reconnect to MongoDB.");
-                    if (myConfig.getReconnectTimeout() <= 0) {
-                        wait();
+                long now = System.currentTimeMillis();
+                final long deadline = (myConfig.getReconnectTimeout() <= 0) ? Long.MAX_VALUE
+                        : now + myConfig.getReconnectTimeout();
+
+                while (now < deadline) {
+                    try {
+                        LOG.fine("Waiting for reconnect to MongoDB.");
+                        wait(deadline - now);
+
+                        now = System.currentTimeMillis();
                     }
-                    else {
-                        wait(myConfig.getReconnectTimeout());
+                    catch (final InterruptedException e) {
+                        // Ignored - Handled by the loop.
                     }
-                }
-                catch (final InterruptedException e) {
-                    // Ignored
                 }
             }
         }

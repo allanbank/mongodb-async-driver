@@ -25,7 +25,6 @@ import com.allanbank.mongodb.connection.message.ServerStatus;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.rs.ReplicaSetConnectionFactory;
 import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
-import com.allanbank.mongodb.connection.socket.SocketConnection;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.util.IOUtils;
@@ -81,65 +80,74 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * </p>
      */
     public void bootstrap() {
-        for (final String addr : myConfig.getServers()) {
-            SocketConnection conn = null;
-            final FutureCallback<Reply> future = new FutureCallback<Reply>();
-            try {
-                conn = new SocketConnection(new ServerState(addr), myConfig);
-                conn.send(future, new ServerStatus());
-                final Reply reply = future.get();
-
-                // Close the connection now that we have the reply.
-                IOUtils.close(conn);
-
-                final List<Document> results = reply.getResults();
-                if (!results.isEmpty()) {
-                    final Document doc = results.get(0);
-
-                    ProxiedConnectionFactory factory = new SocketConnectionFactory(
+        SocketConnectionFactory socketFactory = null;
+        try {
+            socketFactory = new SocketConnectionFactory(myConfig);
+            for (final String addr : myConfig.getServers()) {
+                Connection conn = null;
+                final FutureCallback<Reply> future = new FutureCallback<Reply>();
+                try {
+                    conn = socketFactory.connect(new ServerState(addr),
                             myConfig);
+                    conn.send(future, new ServerStatus());
+                    final Reply reply = future.get();
 
-                    // Authentication has to be right on top of the physical
-                    // connection.
-                    if (myConfig.isAuthenticating()) {
-                        factory = new AuthenticationConnectionFactory(factory,
-                                myConfig);
-                    }
+                    // Close the connection now that we have the reply.
+                    IOUtils.close(conn);
 
-                    if (isMongos(doc)) {
-                        LOG.info("Sharded bootstrap to " + addr + ".");
-                        myDelegate = new ShardedConnectionFactory(factory,
+                    final List<Document> results = reply.getResults();
+                    if (!results.isEmpty()) {
+                        final Document doc = results.get(0);
+
+                        ProxiedConnectionFactory factory = new SocketConnectionFactory(
                                 myConfig);
+
+                        // Authentication has to be right on top of the physical
+                        // connection.
+                        if (myConfig.isAuthenticating()) {
+                            factory = new AuthenticationConnectionFactory(
+                                    factory, myConfig);
+                        }
+
+                        if (isMongos(doc)) {
+                            LOG.info("Sharded bootstrap to " + addr + ".");
+                            myDelegate = new ShardedConnectionFactory(factory,
+                                    myConfig);
+                        }
+                        else if (isReplicationSet(doc)) {
+                            LOG.info("Replica-set bootstrap to " + addr + ".");
+                            myDelegate = new ReplicaSetConnectionFactory(
+                                    factory, myConfig);
+                        }
+                        else {
+                            LOG.info("Simple MongoDB bootstrap to " + addr
+                                    + ".");
+                            myDelegate = factory;
+                        }
+                        return;
                     }
-                    else if (isReplicationSet(doc)) {
-                        LOG.info("Replica-set bootstrap to " + addr + ".");
-                        myDelegate = new ReplicaSetConnectionFactory(factory,
-                                myConfig);
-                    }
-                    else {
-                        LOG.info("Simple MongoDB bootstrap to " + addr + ".");
-                        myDelegate = factory;
-                    }
-                    return;
+                }
+                catch (final IOException ioe) {
+                    LOG.log(Level.WARNING, "I/O error during bootstrap to "
+                            + addr + ".", ioe);
+                }
+                catch (final InterruptedException e) {
+                    LOG.log(Level.WARNING, "Interrupted during bootstrap to "
+                            + addr + ".", e);
+                }
+                catch (final ExecutionException e) {
+                    LOG.log(Level.WARNING, "Error during bootstrap to " + addr
+                            + ".", e);
+                }
+                finally {
+                    IOUtils.close(conn, Level.WARNING,
+                            "I/O error shutting down bootstrap connection to "
+                                    + addr + ".");
                 }
             }
-            catch (final IOException ioe) {
-                LOG.log(Level.WARNING, "I/O error during bootstrap to " + addr
-                        + ".", ioe);
-            }
-            catch (final InterruptedException e) {
-                LOG.log(Level.WARNING, "Interrupted during bootstrap to "
-                        + addr + ".", e);
-            }
-            catch (final ExecutionException e) {
-                LOG.log(Level.WARNING, "Error during bootstrap to " + addr
-                        + ".", e);
-            }
-            finally {
-                IOUtils.close(conn, Level.WARNING,
-                        "I/O error shutting down bootstrap connection to "
-                                + addr + ".");
-            }
+        }
+        finally {
+            IOUtils.close(socketFactory);
         }
     }
 

@@ -113,7 +113,12 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     @Override
     public Connection connect(final ServerState server,
             final MongoDbConfiguration config) throws IOException {
-        return new SocketConnection(server, myConfig);
+        final SocketConnection connection = new SocketConnection(server,
+                myConfig);
+
+        connection.start();
+
+        return connection;
     }
 
     /**

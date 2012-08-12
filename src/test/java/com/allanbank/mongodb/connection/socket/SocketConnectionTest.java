@@ -131,6 +131,7 @@ public class SocketConnectionTest {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -191,6 +192,7 @@ public class SocketConnectionTest {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -218,6 +220,7 @@ public class SocketConnectionTest {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -281,6 +284,7 @@ public class SocketConnectionTest {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -340,6 +344,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -401,6 +406,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -462,6 +468,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -525,6 +532,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -583,6 +591,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -649,6 +658,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -702,6 +712,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -757,6 +768,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -814,6 +826,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -878,6 +891,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -943,6 +957,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1008,6 +1023,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1073,6 +1089,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1138,6 +1155,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1203,6 +1221,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1268,6 +1287,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1360,6 +1380,7 @@ public class SocketConnectionTest {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1427,6 +1448,8 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
+
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
@@ -1483,6 +1506,7 @@ public class SocketConnectionTest {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1542,6 +1566,8 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
+
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
@@ -1611,6 +1637,8 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
+
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
@@ -1668,6 +1696,7 @@ public class SocketConnectionTest {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1697,6 +1726,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1750,6 +1780,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1798,6 +1829,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1864,6 +1896,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -1930,6 +1963,7 @@ public class SocketConnectionTest {
 
         myTestConnection = new SocketConnection(new ServerState(addr),
                 new MongoDbConfiguration());
+        myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));

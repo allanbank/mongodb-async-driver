@@ -163,12 +163,10 @@ public class SocketConnection implements Connection {
         myReceiver = config.getThreadFactory().newThread(new ReceiveRunnable());
         myReceiver.setName("MongoDB Receiver " + mySocket.getLocalPort()
                 + "-->" + myServer.getServer().toString());
-        myReceiver.start();
 
         mySender = config.getThreadFactory().newThread(new SendRunnable());
         mySender.setName("MongoDB Sender " + mySocket.getLocalPort() + "-->"
                 + myServer.getServer().toString());
-        mySender.start();
     }
 
     /**
@@ -375,6 +373,21 @@ public class SocketConnection implements Connection {
 
         // Force a message with a callback to wake the sender and receiver up.
         send(new NoopCallback(), new IsMaster());
+    }
+
+    /**
+     * Starts the connections read and write threads.
+     */
+    public void start() {
+        myReceiver.start();
+        mySender.start();
+    }
+
+    /**
+     * Stops the socket connection by calling {@link #close()}.
+     */
+    public void stop() {
+        IOUtils.close(this);
     }
 
     /**

@@ -18,11 +18,12 @@ import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.Insert;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
-import com.allanbank.mongodb.connection.socket.SocketConnection;
+import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
 
 /**
@@ -55,14 +56,17 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.authenticateAsAdmin(ADMIN_USER_NAME, PASSWORD);
 
-        SocketConnection socketConn = null;
+        Connection socketConn = null;
         AuthenticatingConnection authConn = null;
+        SocketConnectionFactory socketFactory = null;
         try {
+            socketFactory = new SocketConnectionFactory(config);
+
             final Document doc = BuilderFactory.start()
                     .addObjectId("_id", new ObjectId()).build();
 
-            socketConn = new SocketConnection(
-                    new ServerState("127.0.0.1:27017"), config);
+            socketConn = socketFactory.connect(new ServerState(
+                    "127.0.0.1:27017"), config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();
@@ -79,6 +83,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         finally {
             close(authConn);
             close(socketConn);
+            close(socketFactory);
         }
     }
 
@@ -96,14 +101,17 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.authenticate(USER_NAME, PASSWORD);
 
-        SocketConnection socketConn = null;
+        Connection socketConn = null;
         AuthenticatingConnection authConn = null;
+        SocketConnectionFactory socketFactory = null;
         try {
+            socketFactory = new SocketConnectionFactory(config);
+
             final Document doc = BuilderFactory.start()
                     .addObjectId("_id", new ObjectId()).build();
 
-            socketConn = new SocketConnection(
-                    new ServerState("127.0.0.1:27017"), config);
+            socketConn = socketFactory.connect(new ServerState(
+                    "127.0.0.1:27017"), config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();
@@ -120,6 +128,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         finally {
             close(authConn);
             close(socketConn);
+            close(socketFactory);
         }
     }
 }
