@@ -24,6 +24,7 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.connection.state.ClusterPinger;
 import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.LatencyServerSelector;
 import com.allanbank.mongodb.connection.state.ServerSelector;
@@ -51,6 +52,9 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /** The MongoDB client configuration. */
     private final MongoDbConfiguration myConfig;
 
+    /** Pings the servers in the cluster collecting latency and tags. */
+    private final ClusterPinger myPinger;
+
     /** The slector for the mongos instance to use. */
     private final ServerSelector mySelector;
 
@@ -68,6 +72,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         myConfig = config;
         myClusterState = new ClusterState();
         mySelector = new LatencyServerSelector(myClusterState, true);
+        myPinger = new ClusterPinger(myClusterState, factory, config);
+
         for (final String address : config.getServers()) {
             final ServerState state = myClusterState.add(address);
 
@@ -162,6 +168,24 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                 }
             }
         }
+
+        // Last thing is to start the ping of servers. This will get the tags
+        // and latencies updated.
+        myPinger.start();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to close the cluster state and the
+     * {@link ProxiedConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public void close() {
+        IOUtils.close(myPinger);
+        IOUtils.close(myClusterState);
+        IOUtils.close(myConnectionFactory);
     }
 
     /**

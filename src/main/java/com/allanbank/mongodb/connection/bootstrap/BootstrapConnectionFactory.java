@@ -146,6 +146,17 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to close the delegate {@link ConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public void close() {
+        IOUtils.close(myDelegate);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Delegates the connection to the setup delegate.
      * </p>
      */

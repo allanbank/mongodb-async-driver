@@ -22,6 +22,7 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.connection.state.ClusterPinger;
 import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.LatencyServerSelector;
 import com.allanbank.mongodb.connection.state.ServerState;
@@ -47,6 +48,9 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
     /** The MongoDB client configuration. */
     private final MongoDbConfiguration myConfig;
 
+    /** Pings the servers in the cluster collecting latency and tags. */
+    private final ClusterPinger myPinger;
+
     /**
      * Creates a new {@link ReplicaSetConnectionFactory}.
      * 
@@ -60,6 +64,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
         myConnectionFactory = factory;
         myConfig = config;
         myClusterState = new ClusterState();
+        myPinger = new ClusterPinger(myClusterState, factory, config);
         for (final String address : config.getServers()) {
             final ServerState state = myClusterState.add(address);
 
@@ -106,7 +111,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                         myClusterState.markWritable(myClusterState.get(primary
                                 .getValue()));
 
-                        return;
+                        break;
                     }
                 }
             }
@@ -135,6 +140,24 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                                 + addr + ".");
             }
         }
+
+        // Last thing is to start the ping of servers. This will get the tags
+        // and latencies updated.
+        myPinger.start();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to close the cluster state and the
+     * {@link ProxiedConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public void close() {
+        IOUtils.close(myPinger);
+        IOUtils.close(myClusterState);
+        IOUtils.close(myConnectionFactory);
     }
 
     /**

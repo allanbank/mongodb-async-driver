@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -80,6 +81,9 @@ public class ShardedConnectionFactoryTest {
         ourServer = null;
     }
 
+    /** The factory being tested. */
+    private ShardedConnectionFactory myTestFactory;
+
     /**
      * Cleans up the test connection.
      * 
@@ -88,6 +92,8 @@ public class ShardedConnectionFactoryTest {
      */
     @After
     public void tearDown() throws IOException {
+        IOUtils.close(myTestFactory);
+        myTestFactory = null;
         ourServer.clear();
     }
 
@@ -114,10 +120,9 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ShardedConnectionFactory factory = new ShardedConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ShardedConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = factory.getClusterState()
+        final List<ServerState> servers = myTestFactory.getClusterState()
                 .getServers();
         assertEquals(2, servers.size());
     }
@@ -136,14 +141,58 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ShardedConnectionFactory factory = new ShardedConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ShardedConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = factory.getClusterState()
+        final List<ServerState> servers = myTestFactory.getClusterState()
                 .getServers();
         assertEquals(1, servers.size());
 
         assertEquals(0, ourServer.getRequests().size());
+    }
+
+    /**
+     * Test method for {@link ShardedConnectionFactory#close()} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testClose() throws IOException {
+        final String serverName = "localhost:"
+                + ourServer.getInetSocketAddress().getPort();
+
+        ourServer.setReplies(
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")),
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")));
+
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                ourServer.getInetSocketAddress());
+        config.setAutoDiscoverServers(true);
+
+        final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
+                config);
+
+        myTestFactory = new ShardedConnectionFactory(socketFactory, config);
+
+        final List<ServerState> servers = myTestFactory.getClusterState()
+                .getServers();
+        assertEquals(2, servers.size());
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection);
+
+        servers.get(0).addConnection(mockConnection);
+        myTestFactory.close();
+
+        verify(mockConnection);
     }
 
     /**
@@ -172,10 +221,9 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ShardedConnectionFactory factory = new ShardedConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ShardedConnectionFactory(socketFactory, config);
 
-        final Connection connection = factory.connect();
+        final Connection connection = myTestFactory.connect();
         IOUtils.close(connection);
 
         assertThat(connection, instanceOf(ShardedConnection.class));
@@ -207,12 +255,11 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ShardedConnectionFactory factory = new ShardedConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ShardedConnectionFactory(socketFactory, config);
 
         tearDownAfterClass();
         try {
-            final Connection connection = factory.connect();
+            final Connection connection = myTestFactory.connect();
             IOUtils.close(connection);
             fail("Should have failed to connect.");
         }
@@ -236,17 +283,19 @@ public class ShardedConnectionFactoryTest {
 
         replay(mockFactory);
 
-        final ShardedConnectionFactory factory = new ShardedConnectionFactory(
-                mockFactory, config);
+        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
 
         try {
-            factory.connect();
+            myTestFactory.connect();
         }
         catch (final IOException ioe) {
             // Good.
         }
 
         verify(mockFactory);
+
+        // Reset the mock for the close() in teardown.
+        reset(mockFactory);
     }
 
     /**
@@ -274,11 +323,13 @@ public class ShardedConnectionFactoryTest {
 
         replay(mockFactory, mockConnection);
 
-        final ShardedConnectionFactory factory = new ShardedConnectionFactory(
-                mockFactory, config);
-        assertNotNull(factory);
+        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
 
         verify(mockFactory, mockConnection);
+
+        // Reset the mock for the close() in teardown.
+        reset(mockFactory);
     }
 
     /**
@@ -300,11 +351,13 @@ public class ShardedConnectionFactoryTest {
 
         replay(mockFactory, mockConnection);
 
-        final ShardedConnectionFactory factory = new ShardedConnectionFactory(
-                mockFactory, config);
-        assertNotNull(factory);
+        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
 
         verify(mockFactory, mockConnection);
+
+        // Reset the mock for the close() in teardown.
+        reset(mockFactory);
     }
 
     /**
@@ -332,11 +385,13 @@ public class ShardedConnectionFactoryTest {
 
         replay(mockFactory, mockConnection);
 
-        final ShardedConnectionFactory factory = new ShardedConnectionFactory(
-                mockFactory, config);
-        assertNotNull(factory);
+        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
 
         verify(mockFactory, mockConnection);
+
+        // Reset the mock for the close() in teardown.
+        reset(mockFactory);
     }
 
     /**
@@ -364,10 +419,9 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ShardedConnectionFactory factory = new ShardedConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ShardedConnectionFactory(socketFactory, config);
 
-        final ReconnectStrategy strategy = factory.getReconnectStrategy();
+        final ReconnectStrategy strategy = myTestFactory.getReconnectStrategy();
 
         assertThat(strategy, instanceOf(SimpleReconnectStrategy.class));
 

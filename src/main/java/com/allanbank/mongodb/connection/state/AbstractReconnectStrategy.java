@@ -132,7 +132,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
      */
     protected boolean isConnected(final ServerState server,
             final Connection connection) {
-        return ConnectionPinger.ping(server.getServer(), connection);
+        return ClusterPinger.ping(server.getServer(), connection);
     }
 
 }

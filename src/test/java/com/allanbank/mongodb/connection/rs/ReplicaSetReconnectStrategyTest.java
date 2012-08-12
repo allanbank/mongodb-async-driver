@@ -85,6 +85,9 @@ public class ReplicaSetReconnectStrategyTest {
     /** The test connection. */
     private ReplicaSetConnection myTestConnection;
 
+    /** The factory being tested. */
+    private ReplicaSetConnectionFactory myTestFactory;
+
     /**
      * Cleans up the test connection.
      * 
@@ -99,6 +102,11 @@ public class ReplicaSetReconnectStrategyTest {
 
         IOUtils.close(myTestConnection);
         IOUtils.close(myNewTestConnection);
+        IOUtils.close(myTestFactory);
+
+        myTestConnection = null;
+        myNewTestConnection = null;
+        myTestFactory = null;
     }
 
     /**
@@ -138,10 +146,9 @@ public class ReplicaSetReconnectStrategyTest {
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        List<ServerState> servers = factory.getClusterState()
+        List<ServerState> servers = myTestFactory.getClusterState()
                 .getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
@@ -165,13 +172,13 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(replStatusBuilder));
         ourServer3.setReplies(reply(replStatusBuilder));
 
-        myTestConnection = (ReplicaSetConnection) factory.connect();
-        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) factory
+        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
+        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
                 .getReconnectStrategy();
 
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
-        servers = factory.getClusterState().getWritableServers();
+        servers = myTestFactory.getClusterState().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer2.getInetSocketAddress(), servers.get(0)
                 .getServer());
@@ -214,10 +221,9 @@ public class ReplicaSetReconnectStrategyTest {
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        List<ServerState> servers = factory.getClusterState()
+        List<ServerState> servers = myTestFactory.getClusterState()
                 .getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
@@ -254,13 +260,13 @@ public class ReplicaSetReconnectStrategyTest {
         ourServer3.setReplies(reply(replStatusBuilder), reply(replyUnknown),
                 reply(reply2), reply(reply2));
 
-        myTestConnection = (ReplicaSetConnection) factory.connect();
-        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) factory
+        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
+        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
                 .getReconnectStrategy();
 
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
-        servers = factory.getClusterState().getWritableServers();
+        servers = myTestFactory.getClusterState().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer3.getInetSocketAddress(), servers.get(0)
                 .getServer());
@@ -303,10 +309,9 @@ public class ReplicaSetReconnectStrategyTest {
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        List<ServerState> servers = factory.getClusterState()
+        List<ServerState> servers = myTestFactory.getClusterState()
                 .getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
@@ -336,13 +341,13 @@ public class ReplicaSetReconnectStrategyTest {
         ourServer3.setReplies(reply(replStatusBuilder), reply(reply2),
                 reply(reply2));
 
-        myTestConnection = (ReplicaSetConnection) factory.connect();
-        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) factory
+        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
+        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
                 .getReconnectStrategy();
 
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
-        servers = factory.getClusterState().getWritableServers();
+        servers = myTestFactory.getClusterState().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer3.getInetSocketAddress(), servers.get(0)
                 .getServer());
@@ -386,10 +391,9 @@ public class ReplicaSetReconnectStrategyTest {
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        List<ServerState> servers = factory.getClusterState()
+        List<ServerState> servers = myTestFactory.getClusterState()
                 .getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
@@ -444,14 +448,14 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
 
-        myTestConnection = (ReplicaSetConnection) factory.connect();
-        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) factory
+        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
+        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
                 .getReconnectStrategy();
 
         myNewTestConnection = strategy.reconnect(myTestConnection);
         assertNull(myNewTestConnection);
 
-        servers = factory.getClusterState().getWritableServers();
+        servers = myTestFactory.getClusterState().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
                 .getServer());

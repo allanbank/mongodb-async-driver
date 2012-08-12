@@ -55,12 +55,32 @@ public class SocketConnectionFactoryTest {
         ourServer = null;
     }
 
+    /** The factory under test. */
+    private SocketConnectionFactory myTestFactory;
+
     /**
      * Cleans up the test server.
      */
     @After
     public void tearDown() {
         ourServer.clear();
+        myTestFactory = null;
+    }
+
+    /**
+     * Test method for {@link SocketConnectionFactory#close()} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testClose() throws IOException {
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+        final MongoDbConfiguration config = new MongoDbConfiguration(addr);
+        myTestFactory = new SocketConnectionFactory(config);
+
+        myTestFactory.close();
+
     }
 
     /**
@@ -73,12 +93,11 @@ public class SocketConnectionFactoryTest {
     public void testConnect() throws IOException {
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
         final MongoDbConfiguration config = new MongoDbConfiguration(addr);
-        final SocketConnectionFactory factory = new SocketConnectionFactory(
-                config);
+        myTestFactory = new SocketConnectionFactory(config);
 
         Connection conn = null;
         try {
-            conn = factory.connect();
+            conn = myTestFactory.connect();
 
             assertTrue("Should have connected to the server.",
                     ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -111,12 +130,11 @@ public class SocketConnectionFactoryTest {
                 addr.getPort() + 1);
         final MongoDbConfiguration config = new MongoDbConfiguration(bad);
 
-        final SocketConnectionFactory factory = new SocketConnectionFactory(
-                config);
+        myTestFactory = new SocketConnectionFactory(config);
 
         Connection conn = null;
         try {
-            conn = factory.connect();
+            conn = myTestFactory.connect();
         }
         finally {
             if (conn != null) {
@@ -137,12 +155,11 @@ public class SocketConnectionFactoryTest {
         // Force to the wrong port.
         final MongoDbConfiguration config = new MongoDbConfiguration();
 
-        final SocketConnectionFactory factory = new SocketConnectionFactory(
-                config);
+        myTestFactory = new SocketConnectionFactory(config);
 
         Connection conn = null;
         try {
-            conn = factory.connect();
+            conn = myTestFactory.connect();
         }
         finally {
             if (conn != null) {

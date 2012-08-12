@@ -15,7 +15,9 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertSame;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
+import org.junit.After;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
@@ -32,6 +34,45 @@ import com.allanbank.mongodb.connection.state.ServerState;
  */
 public class AuthenticationConnectionFactoryTest {
 
+    /** The factory being tested. */
+    private AuthenticationConnectionFactory myTestFactory;
+
+    /**
+     * Cleans up the test connection.
+     * 
+     * @throws IOException
+     *             On a failure to shutdown the test connection.
+     */
+    @After
+    public void tearDown() throws IOException {
+        myTestFactory = null;
+    }
+
+    /**
+     * Test method for {@link AuthenticationConnectionFactory#close()} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testClose() throws IOException {
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                new InetSocketAddress("127.0.0.1", 27017));
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        myTestFactory = new AuthenticationConnectionFactory(mockFactory, config);
+
+        mockFactory.close();
+        expectLastCall();
+
+        replay(mockFactory);
+
+        myTestFactory.close();
+
+        verify(mockFactory);
+    }
+
     /**
      * Test method for {@link AuthenticationConnectionFactory#connect()}.
      * 
@@ -44,14 +85,13 @@ public class AuthenticationConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        final AuthenticationConnectionFactory testFactory = new AuthenticationConnectionFactory(
-                mockFactory, config);
+        myTestFactory = new AuthenticationConnectionFactory(mockFactory, config);
 
         expect(mockFactory.connect()).andReturn(mockConnection);
 
         replay(mockFactory, mockConnection);
 
-        final AuthenticatingConnection conn = testFactory.connect();
+        final AuthenticatingConnection conn = myTestFactory.connect();
         assertSame(mockConnection, conn.getProxiedConnection());
 
         verify(mockFactory, mockConnection);
@@ -74,15 +114,14 @@ public class AuthenticationConnectionFactoryTest {
 
         final String socketAddr = "localhost:27017";
 
-        final AuthenticationConnectionFactory testFactory = new AuthenticationConnectionFactory(
-                mockFactory, config);
+        myTestFactory = new AuthenticationConnectionFactory(mockFactory, config);
 
         expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
                 .andReturn(mockConnection);
 
         replay(mockFactory, mockConnection);
 
-        final AuthenticatingConnection conn = testFactory.connect(
+        final AuthenticatingConnection conn = myTestFactory.connect(
                 new ServerState(socketAddr), config);
         assertSame(mockConnection, conn.getProxiedConnection());
 
@@ -99,16 +138,15 @@ public class AuthenticationConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ReconnectStrategy mockStrategy = createMock(ReconnectStrategy.class);
 
-        final AuthenticationConnectionFactory testFactory = new AuthenticationConnectionFactory(
-                mockFactory, config);
+        myTestFactory = new AuthenticationConnectionFactory(mockFactory, config);
 
         expect(mockFactory.getReconnectStrategy()).andReturn(mockStrategy);
-        mockStrategy.setConnectionFactory(testFactory);
+        mockStrategy.setConnectionFactory(myTestFactory);
         expectLastCall();
 
         replay(mockFactory, mockStrategy);
 
-        assertSame(mockStrategy, testFactory.getReconnectStrategy());
+        assertSame(mockStrategy, myTestFactory.getReconnectStrategy());
 
         verify(mockFactory, mockStrategy);
     }

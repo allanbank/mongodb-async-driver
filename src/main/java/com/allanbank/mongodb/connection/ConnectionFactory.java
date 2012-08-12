@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.connection;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import com.allanbank.mongodb.connection.bootstrap.BootstrapConnectionFactory;
@@ -25,7 +26,7 @@ import com.allanbank.mongodb.connection.socket.SocketConnection;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface ConnectionFactory {
+public interface ConnectionFactory extends Closeable {
 
     /**
      * Creates a connection to the address provided.

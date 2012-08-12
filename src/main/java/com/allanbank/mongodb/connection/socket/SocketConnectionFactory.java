@@ -19,6 +19,7 @@ import com.allanbank.mongodb.connection.state.LatencyServerSelector;
 import com.allanbank.mongodb.connection.state.ServerSelector;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * {@link ConnectionFactory} to create direct socket connections to the servers.
@@ -54,6 +55,17 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
             myState.markWritable(state);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to close the cluster state.
+     * </p>
+     */
+    @Override
+    public void close() {
+        IOUtils.close(myState);
     }
 
     /**

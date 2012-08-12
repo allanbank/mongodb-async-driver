@@ -27,11 +27,16 @@ import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
  */
 public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
 
+    /** The factory being tested. */
+    private BootstrapConnectionFactory myTestFactory;
+
     /**
      * Stops all of the background processes started.
      */
     @After
     public void tearDown() {
+        myTestFactory = null;
+
         stopReplicaSet();
         stopSharded();
         stopStandAlone();
@@ -46,10 +51,9 @@ public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
-        final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                config);
+        myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertThat("Wrong type of factory.", factory.getDelegate(),
+        assertThat("Wrong type of myTestFactory.", myTestFactory.getDelegate(),
                 CoreMatchers.instanceOf(ReplicaSetConnectionFactory.class));
     }
 
@@ -62,10 +66,9 @@ public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
-        final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                config);
+        myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertThat("Wrong type of factory.", factory.getDelegate(),
+        assertThat("Wrong type of myTestFactory.", myTestFactory.getDelegate(),
                 CoreMatchers.instanceOf(ShardedConnectionFactory.class));
     }
 
@@ -78,10 +81,9 @@ public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
-        final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                config);
+        myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertThat("Wrong type of factory.", factory.getDelegate(),
+        assertThat("Wrong type of myTestFactory.", myTestFactory.getDelegate(),
                 CoreMatchers.instanceOf(SocketConnectionFactory.class));
     }
 
@@ -96,10 +98,9 @@ public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
                 new InetSocketAddress("127.0.0.1", 27017));
         config.authenticate(USER_NAME, PASSWORD);
 
-        final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                config);
+        myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertThat("Wrong type of factory.", factory.getDelegate(),
+        assertThat("Wrong type of myTestFactory.", myTestFactory.getDelegate(),
                 CoreMatchers.instanceOf(AuthenticationConnectionFactory.class));
     }
 }

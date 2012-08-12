@@ -1,10 +1,11 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012, Allanbank Consulting, InmyState. 
  *           All Rights Reserved
  */
 
 package com.allanbank.mongodb.connection.state;
 
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
@@ -16,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,28 +26,40 @@ import java.util.List;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.junit.After;
 import org.junit.Test;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.connection.Connection;
 
 /**
  * ClusterStateTest provides tests for the {@link ClusterState}.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012, Allanbank Consulting, InmyState., All Rights Reserved
  */
 public class ClusterStateTest {
+    /** The pinger being tested. */
+    protected ClusterState myState = null;
+
+    /**
+     * Cleans up the pinger.
+     */
+    @After
+    public void tearDown() {
+        myState = null;
+    }
 
     /**
      * Test method for {@link ClusterState#add(String)}.
      */
     @Test
     public void testAdd() {
-        final ClusterState state = new ClusterState();
+        myState = new ClusterState();
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
-        state.addListener(mockListener);
+        myState.addListener(mockListener);
 
         // Should only get notified of the new server once.
         final Capture<PropertyChangeEvent> event = new Capture<PropertyChangeEvent>();
@@ -54,17 +68,17 @@ public class ClusterStateTest {
 
         replay(mockListener);
 
-        final ServerState ss = state.add("foo");
+        final ServerState ss = myState.add("foo");
         assertEquals("foo", ss.getServer().getHostName());
         assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
 
-        assertSame(ss, state.add("foo"));
+        assertSame(ss, myState.add("foo"));
 
         verify(mockListener);
 
         assertTrue(event.hasCaptured());
         assertEquals("server", event.getValue().getPropertyName());
-        assertSame(state, event.getValue().getSource());
+        assertSame(myState, event.getValue().getSource());
         assertNull(event.getValue().getOldValue());
         assertSame(ss, event.getValue().getNewValue());
     }
@@ -98,9 +112,9 @@ public class ClusterStateTest {
 
         final double relativeSum = 1 + 1 + 2 + 2 + 10;
 
-        final ClusterState state = new ClusterState();
+        myState = new ClusterState();
         Collections.shuffle(servers);
-        final double[] cdf = state.cdf(servers);
+        final double[] cdf = myState.cdf(servers);
 
         assertEquals((1D / relativeSum), cdf[0], 0.00001);
         assertEquals(((1D / relativeSum) + (1D / relativeSum)), cdf[1], 0.00001);
@@ -117,23 +131,46 @@ public class ClusterStateTest {
     }
 
     /**
+     * Test method for {@link ClusterState#close}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mock connection.
+     */
+    @Test
+    public void testClose() throws IOException {
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection);
+
+        myState = new ClusterState();
+        myState.add("localhost:27017").addConnection(mockConnection);
+        myState.close();
+
+        verify(mockConnection);
+    }
+
+    /**
      * Test method for {@link ClusterState#findCandidateServers}.
      */
     @Test
     public void testFindCandidateServersNearest() {
-        final ClusterState c = new ClusterState();
-        final ServerState s1 = c.add("localhost:27017");
-        final ServerState s2 = c.add("localhost:27018");
-        final ServerState s3 = c.add("localhost:27019");
+        myState = new ClusterState();
+        final ServerState s1 = myState.add("localhost:27017");
+        final ServerState s2 = myState.add("localhost:27018");
+        final ServerState s3 = myState.add("localhost:27019");
 
         s1.setAverageLatency(1);
         s2.setAverageLatency(10);
         s3.setAverageLatency(100);
 
-        c.markNotWritable(s1);
-        c.markWritable(s2);
+        myState.markNotWritable(s1);
+        myState.markWritable(s2);
 
-        List<ServerState> servers = c.findCandidateServers(ReadPreference
+        List<ServerState> servers = myState.findCandidateServers(ReadPreference
                 .closest());
         assertEquals(3, servers.size());
         final double last = Double.NEGATIVE_INFINITY;
@@ -149,9 +186,9 @@ public class ClusterStateTest {
         // Exclude on tags.
         s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
         s2.setTags(BuilderFactory.start().addInteger("g", 1).build());
-        servers = c.findCandidateServers(ReadPreference.closest(BuilderFactory
-                .start().addInteger("f", 1).build(), BuilderFactory.start()
-                .addInteger("g", 1).build()));
+        servers = myState.findCandidateServers(ReadPreference.closest(
+                BuilderFactory.start().addInteger("f", 1).build(),
+                BuilderFactory.start().addInteger("g", 1).build()));
         assertEquals(2, servers.size());
         assertTrue(servers.contains(s1));
         assertTrue(servers.contains(s2));
@@ -162,32 +199,32 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersPrimary() {
-        final ClusterState c = new ClusterState();
-        final ServerState s1 = c.add("localhost:27017");
-        final ServerState s2 = c.add("localhost:27018");
-        final ServerState s3 = c.add("localhost:27019");
+        myState = new ClusterState();
+        final ServerState s1 = myState.add("localhost:27017");
+        final ServerState s2 = myState.add("localhost:27018");
+        final ServerState s3 = myState.add("localhost:27019");
 
         assertEquals(Collections.emptyList(),
-                c.findCandidateServers(ReadPreference.PRIMARY));
+                myState.findCandidateServers(ReadPreference.PRIMARY));
 
-        c.markWritable(s2);
+        myState.markWritable(s2);
         assertEquals(Collections.singletonList(s2),
-                c.findCandidateServers(ReadPreference.PRIMARY));
+                myState.findCandidateServers(ReadPreference.PRIMARY));
 
-        c.markWritable(s3);
+        myState.markWritable(s3);
         assertEquals(
                 new HashSet<ServerState>(Arrays.asList(s2, s3)),
-                new HashSet<ServerState>(c
+                new HashSet<ServerState>(myState
                         .findCandidateServers(ReadPreference.PRIMARY)));
 
-        c.markNotWritable(s2);
+        myState.markNotWritable(s2);
         assertEquals(Collections.singletonList(s3),
-                c.findCandidateServers(ReadPreference.PRIMARY));
+                myState.findCandidateServers(ReadPreference.PRIMARY));
 
-        c.markWritable(s1);
-        c.markNotWritable(s3);
+        myState.markWritable(s1);
+        myState.markNotWritable(s3);
         assertEquals(Collections.singletonList(s1),
-                c.findCandidateServers(ReadPreference.PRIMARY));
+                myState.findCandidateServers(ReadPreference.PRIMARY));
     }
 
     /**
@@ -195,20 +232,20 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersPrimaryPreferred() {
-        final ClusterState c = new ClusterState();
-        final ServerState s1 = c.add("localhost:27017");
-        final ServerState s2 = c.add("localhost:27018");
-        final ServerState s3 = c.add("localhost:27019");
+        myState = new ClusterState();
+        final ServerState s1 = myState.add("localhost:27017");
+        final ServerState s2 = myState.add("localhost:27018");
+        final ServerState s3 = myState.add("localhost:27019");
 
         s1.setAverageLatency(1);
         s2.setAverageLatency(10);
         s3.setAverageLatency(100);
 
-        c.markNotWritable(s1);
-        c.markNotWritable(s2);
-        c.markWritable(s3);
+        myState.markNotWritable(s1);
+        myState.markNotWritable(s2);
+        myState.markWritable(s3);
 
-        List<ServerState> servers = c.findCandidateServers(ReadPreference
+        List<ServerState> servers = myState.findCandidateServers(ReadPreference
                 .preferPrimary());
         assertEquals(3, servers.size());
         assertEquals(s3, servers.get(0)); // Writable first.
@@ -218,31 +255,31 @@ public class ClusterStateTest {
         // Exclude on tags.
         s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
         s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
-        servers = c.findCandidateServers(ReadPreference.preferPrimary(
+        servers = myState.findCandidateServers(ReadPreference.preferPrimary(
                 BuilderFactory.start().addInteger("f", 1).build(),
                 BuilderFactory.start().addInteger("g", 1).build()));
         assertEquals(2, servers.size());
         assertEquals(s3, servers.get(0));
         assertEquals(s1, servers.get(1));
 
-        c.markNotWritable(s1);
-        c.markNotWritable(s2);
-        c.markNotWritable(s3);
+        myState.markNotWritable(s1);
+        myState.markNotWritable(s2);
+        myState.markNotWritable(s3);
         s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
         s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
-        servers = c.findCandidateServers(ReadPreference.preferPrimary(
+        servers = myState.findCandidateServers(ReadPreference.preferPrimary(
                 BuilderFactory.start().addInteger("f", 1).build(),
                 BuilderFactory.start().addInteger("g", 1).build()));
         assertEquals(2, servers.size());
         assertTrue(servers.contains(s1));
         assertTrue(servers.contains(s3));
 
-        c.markWritable(s1);
-        c.markWritable(s2);
-        c.markWritable(s3);
+        myState.markWritable(s1);
+        myState.markWritable(s2);
+        myState.markWritable(s3);
         s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
         s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
-        servers = c.findCandidateServers(ReadPreference.preferPrimary(
+        servers = myState.findCandidateServers(ReadPreference.preferPrimary(
                 BuilderFactory.start().addInteger("f", 1).build(),
                 BuilderFactory.start().addInteger("g", 1).build()));
         assertEquals(2, servers.size());
@@ -252,7 +289,7 @@ public class ClusterStateTest {
         // Exclude all on tags.
         s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
         s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
-        servers = c.findCandidateServers(ReadPreference.preferPrimary(
+        servers = myState.findCandidateServers(ReadPreference.preferPrimary(
                 BuilderFactory.start().addInteger("Z", 1).build(),
                 BuilderFactory.start().addInteger("Y", 1).build()));
         assertEquals(0, servers.size());
@@ -263,47 +300,48 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersSecondary() {
-        final ClusterState c = new ClusterState();
-        final ServerState s1 = c.add("localhost:27017");
-        final ServerState s2 = c.add("localhost:27018");
-        final ServerState s3 = c.add("localhost:27019");
+        myState = new ClusterState();
+        final ServerState s1 = myState.add("localhost:27017");
+        final ServerState s2 = myState.add("localhost:27018");
+        final ServerState s3 = myState.add("localhost:27019");
 
-        c.markWritable(s1);
-        c.markWritable(s2);
-        c.markWritable(s3);
+        myState.markWritable(s1);
+        myState.markWritable(s2);
+        myState.markWritable(s3);
 
         assertEquals(Collections.emptyList(),
-                c.findCandidateServers(ReadPreference.secondary()));
+                myState.findCandidateServers(ReadPreference.secondary()));
 
-        c.markNotWritable(s2);
+        myState.markNotWritable(s2);
         assertEquals(Collections.singletonList(s2),
-                c.findCandidateServers(ReadPreference.secondary()));
+                myState.findCandidateServers(ReadPreference.secondary()));
 
-        c.markNotWritable(s3);
+        myState.markNotWritable(s3);
         assertEquals(
                 new HashSet<ServerState>(Arrays.asList(s2, s3)),
-                new HashSet<ServerState>(c.findCandidateServers(ReadPreference
-                        .secondary())));
+                new HashSet<ServerState>(myState
+                        .findCandidateServers(ReadPreference.secondary())));
 
-        c.markWritable(s2);
+        myState.markWritable(s2);
         assertEquals(Collections.singletonList(s3),
-                c.findCandidateServers(ReadPreference.secondary()));
+                myState.findCandidateServers(ReadPreference.secondary()));
 
-        c.markNotWritable(s1);
-        c.markWritable(s3);
+        myState.markNotWritable(s1);
+        myState.markWritable(s3);
         assertEquals(Collections.singletonList(s1),
-                c.findCandidateServers(ReadPreference.secondary()));
+                myState.findCandidateServers(ReadPreference.secondary()));
 
         // Exclude on tags.
-        c.markNotWritable(s1);
-        c.markNotWritable(s2);
-        c.markNotWritable(s3);
+        myState.markNotWritable(s1);
+        myState.markNotWritable(s2);
+        myState.markNotWritable(s3);
 
         s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
         s3.setTags(BuilderFactory.start().addInteger("A", 1).build());
-        final List<ServerState> servers = c.findCandidateServers(ReadPreference
-                .secondary(BuilderFactory.start().addInteger("f", 1).build(),
-                        BuilderFactory.start().addInteger("g", 1).build()));
+        final List<ServerState> servers = myState
+                .findCandidateServers(ReadPreference.secondary(BuilderFactory
+                        .start().addInteger("f", 1).build(), BuilderFactory
+                        .start().addInteger("g", 1).build()));
         assertEquals(1, servers.size());
         assertEquals(s1, servers.get(0));
 
@@ -314,20 +352,20 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersSecondaryPreferred() {
-        final ClusterState c = new ClusterState();
-        final ServerState s1 = c.add("localhost:27017");
-        final ServerState s2 = c.add("localhost:27018");
-        final ServerState s3 = c.add("localhost:27019");
+        myState = new ClusterState();
+        final ServerState s1 = myState.add("localhost:27017");
+        final ServerState s2 = myState.add("localhost:27018");
+        final ServerState s3 = myState.add("localhost:27019");
 
         s1.setAverageLatency(1);
         s2.setAverageLatency(10);
         s3.setAverageLatency(100);
 
-        c.markWritable(s1);
-        c.markWritable(s2);
-        c.markNotWritable(s3);
+        myState.markWritable(s1);
+        myState.markWritable(s2);
+        myState.markNotWritable(s3);
 
-        List<ServerState> servers = c.findCandidateServers(ReadPreference
+        List<ServerState> servers = myState.findCandidateServers(ReadPreference
                 .preferSecondary());
         assertEquals(3, servers.size());
         assertEquals(s3, servers.get(0)); // Non-Writable first.
@@ -337,7 +375,7 @@ public class ClusterStateTest {
         // Exclude on tags.
         s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
         s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
-        servers = c.findCandidateServers(ReadPreference.preferSecondary(
+        servers = myState.findCandidateServers(ReadPreference.preferSecondary(
                 BuilderFactory.start().addInteger("f", 1).build(),
                 BuilderFactory.start().addInteger("g", 1).build()));
         assertEquals(2, servers.size());
@@ -347,7 +385,7 @@ public class ClusterStateTest {
         // Exclude all on tags.
         s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
         s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
-        servers = c.findCandidateServers(ReadPreference.preferSecondary(
+        servers = myState.findCandidateServers(ReadPreference.preferSecondary(
                 BuilderFactory.start().addInteger("Z", 1).build(),
                 BuilderFactory.start().addInteger("Y", 1).build()));
         assertEquals(0, servers.size());
@@ -358,26 +396,26 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersServer() {
-        final ClusterState c = new ClusterState();
-        final ServerState s1 = c.add("localhost:27017");
-        final ServerState s2 = c.add("localhost:27018");
-        final ServerState s3 = c.add("localhost:27019");
+        myState = new ClusterState();
+        final ServerState s1 = myState.add("localhost:27017");
+        final ServerState s2 = myState.add("localhost:27018");
+        final ServerState s3 = myState.add("localhost:27019");
 
-        assertEquals(
-                Collections.singletonList(s1),
-                c.findCandidateServers(ReadPreference.server("localhost:27017")));
-        assertEquals(
-                Collections.singletonList(s2),
-                c.findCandidateServers(ReadPreference.server("localhost:27018")));
-        assertEquals(
-                Collections.singletonList(s3),
-                c.findCandidateServers(ReadPreference.server("localhost:27019")));
-        assertSame(
-                Collections.emptyList(),
-                c.findCandidateServers(ReadPreference.server("localhost:27020")));
-        assertSame(
-                Collections.emptyList(),
-                c.findCandidateServers(ReadPreference.server("localhost:27020")));
+        assertEquals(Collections.singletonList(s1),
+                myState.findCandidateServers(ReadPreference
+                        .server("localhost:27017")));
+        assertEquals(Collections.singletonList(s2),
+                myState.findCandidateServers(ReadPreference
+                        .server("localhost:27018")));
+        assertEquals(Collections.singletonList(s3),
+                myState.findCandidateServers(ReadPreference
+                        .server("localhost:27019")));
+        assertSame(Collections.emptyList(),
+                myState.findCandidateServers(ReadPreference
+                        .server("localhost:27020")));
+        assertSame(Collections.emptyList(),
+                myState.findCandidateServers(ReadPreference
+                        .server("localhost:27020")));
     }
 
     /**
@@ -385,11 +423,11 @@ public class ClusterStateTest {
      */
     @Test
     public void testGet() {
-        final ClusterState state = new ClusterState();
+        myState = new ClusterState();
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
-        state.addListener(mockListener);
+        myState.addListener(mockListener);
 
         // Should only get notified of the new server once.
         final Capture<PropertyChangeEvent> event = new Capture<PropertyChangeEvent>();
@@ -398,17 +436,17 @@ public class ClusterStateTest {
 
         replay(mockListener);
 
-        final ServerState ss = state.add("foo");
+        final ServerState ss = myState.add("foo");
         assertEquals("foo", ss.getServer().getHostName());
         assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
 
-        assertSame(ss, state.add("foo"));
+        assertSame(ss, myState.add("foo"));
 
         verify(mockListener);
 
         assertTrue(event.hasCaptured());
         assertEquals("server", event.getValue().getPropertyName());
-        assertSame(state, event.getValue().getSource());
+        assertSame(myState, event.getValue().getSource());
         assertNull(event.getValue().getOldValue());
         assertSame(ss, event.getValue().getNewValue());
     }
@@ -418,26 +456,27 @@ public class ClusterStateTest {
      */
     @Test
     public void testGetNonWritableServers() {
-        final ClusterState state = new ClusterState();
+        myState = new ClusterState();
 
-        final ServerState ss = state.add("foo");
+        final ServerState ss = myState.add("foo");
         assertEquals("foo", ss.getServer().getHostName());
         assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
 
-        state.markWritable(ss);
+        myState.markWritable(ss);
         assertTrue(ss.isWritable());
 
-        assertEquals(Collections.singletonList(ss), state.getServers());
-        assertEquals(Collections.singletonList(ss), state.getWritableServers());
-        assertEquals(0, state.getNonWritableServers().size());
+        assertEquals(Collections.singletonList(ss), myState.getServers());
+        assertEquals(Collections.singletonList(ss),
+                myState.getWritableServers());
+        assertEquals(0, myState.getNonWritableServers().size());
 
-        state.markNotWritable(ss);
+        myState.markNotWritable(ss);
         assertFalse(ss.isWritable());
 
-        assertEquals(Collections.singletonList(ss), state.getServers());
+        assertEquals(Collections.singletonList(ss), myState.getServers());
         assertEquals(Collections.singletonList(ss),
-                state.getNonWritableServers());
-        assertEquals(0, state.getWritableServers().size());
+                myState.getNonWritableServers());
+        assertEquals(0, myState.getWritableServers().size());
 
     }
 
@@ -446,7 +485,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testMarkNotWritable() {
-        final ClusterState state = new ClusterState();
+        myState = new ClusterState();
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -458,26 +497,26 @@ public class ClusterStateTest {
 
         replay(mockListener);
 
-        final ServerState ss = state.add("foo");
+        final ServerState ss = myState.add("foo");
         assertEquals("foo", ss.getServer().getHostName());
         assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
 
-        state.markWritable(ss);
+        myState.markWritable(ss);
 
         assertTrue(ss.isWritable());
 
-        state.addListener(mockListener);
+        myState.addListener(mockListener);
 
-        state.markNotWritable(ss);
+        myState.markNotWritable(ss);
         assertFalse(ss.isWritable());
 
-        state.markNotWritable(ss);
+        myState.markNotWritable(ss);
 
         verify(mockListener);
 
         assertTrue(event.hasCaptured());
         assertEquals("writable", event.getValue().getPropertyName());
-        assertSame(state, event.getValue().getSource());
+        assertSame(myState, event.getValue().getSource());
         assertEquals(Boolean.TRUE, event.getValue().getOldValue());
         assertEquals(Boolean.FALSE, event.getValue().getNewValue());
     }
@@ -487,7 +526,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testMarkWritable() {
-        final ClusterState state = new ClusterState();
+        myState = new ClusterState();
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -499,25 +538,25 @@ public class ClusterStateTest {
 
         replay(mockListener);
 
-        final ServerState ss = state.add("foo");
+        final ServerState ss = myState.add("foo");
         assertEquals("foo", ss.getServer().getHostName());
         assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
 
-        state.markNotWritable(ss);
+        myState.markNotWritable(ss);
 
         assertFalse(ss.isWritable());
 
-        state.addListener(mockListener);
+        myState.addListener(mockListener);
 
-        state.markWritable(ss);
+        myState.markWritable(ss);
         assertTrue(ss.isWritable());
-        state.markWritable(ss);
+        myState.markWritable(ss);
 
         verify(mockListener);
 
         assertTrue(event.hasCaptured());
         assertEquals("writable", event.getValue().getPropertyName());
-        assertSame(state, event.getValue().getSource());
+        assertSame(myState, event.getValue().getSource());
         assertEquals(Boolean.FALSE, event.getValue().getOldValue());
         assertEquals(Boolean.TRUE, event.getValue().getNewValue());
     }
@@ -528,7 +567,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testRemoveListener() {
-        final ClusterState state = new ClusterState();
+        myState = new ClusterState();
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -540,29 +579,29 @@ public class ClusterStateTest {
 
         replay(mockListener);
 
-        final ServerState ss = state.add("foo");
+        final ServerState ss = myState.add("foo");
         assertEquals("foo", ss.getServer().getHostName());
         assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
 
-        state.markNotWritable(ss);
+        myState.markNotWritable(ss);
 
         assertFalse(ss.isWritable());
 
-        state.addListener(mockListener);
+        myState.addListener(mockListener);
 
-        state.markWritable(ss);
+        myState.markWritable(ss);
         assertTrue(ss.isWritable());
-        state.markWritable(ss);
+        myState.markWritable(ss);
 
-        state.removeListener(mockListener);
+        myState.removeListener(mockListener);
 
-        state.markNotWritable(ss);
+        myState.markNotWritable(ss);
 
         verify(mockListener);
 
         assertTrue(event.hasCaptured());
         assertEquals("writable", event.getValue().getPropertyName());
-        assertSame(state, event.getValue().getSource());
+        assertSame(myState, event.getValue().getSource());
         assertEquals(Boolean.FALSE, event.getValue().getOldValue());
         assertEquals(Boolean.TRUE, event.getValue().getNewValue());
     }
@@ -584,11 +623,11 @@ public class ClusterStateTest {
             servers.add(server);
         }
 
-        final ClusterState state = new ClusterState();
+        myState = new ClusterState();
         for (int i = 0; i < 100; ++i) {
             Collections.shuffle(servers);
 
-            state.sort(servers);
+            myState.sort(servers);
 
             // Verify that the list is sorted EXCEPT the first server.
             final double last = Double.NEGATIVE_INFINITY;

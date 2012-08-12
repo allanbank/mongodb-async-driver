@@ -52,14 +52,14 @@ public class ServerState {
     /**
      * A connection that may be owned by a logical connection but can be used
      * for direct communication with the server. Primarily used by the
-     * {@link ConnectionPinger}.
+     * {@link ClusterPinger}.
      */
     private final AtomicReference<Connection> myConnection;
 
     /**
      * A generation value for the connection currently being held. This is
      * incremented whenever a connection is set. This allows the
-     * {@link ConnectionPinger} to test if the connections it is creating are
+     * {@link ClusterPinger} to test if the connections it is creating are
      * getting used.
      */
     private final AtomicLong myConnectionGeneration;
@@ -130,7 +130,7 @@ public class ServerState {
     /**
      * Returns a generation value for the connection currently being held. This
      * is incremented whenever a connection is set. This allows the
-     * {@link ConnectionPinger} to test if the connections it is creating are
+     * {@link ClusterPinger} to test if the connections it is creating are
      * getting used.
      * 
      * @return The generation value for the connection currently being held.

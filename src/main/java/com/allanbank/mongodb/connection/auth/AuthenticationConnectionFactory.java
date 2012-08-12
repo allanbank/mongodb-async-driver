@@ -8,9 +8,11 @@ package com.allanbank.mongodb.connection.auth;
 import java.io.IOException;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * AuthenticationConnectionFactory wraps all of the connections with
@@ -41,6 +43,17 @@ public class AuthenticationConnectionFactory implements
             final MongoDbConfiguration config) {
         myProxiedConnectionFactory = factory;
         myConfig = config;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to close the proxied {@link ConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public void close() {
+        IOUtils.close(myProxiedConnectionFactory);
     }
 
     /**

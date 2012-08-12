@@ -7,6 +7,7 @@ package com.allanbank.mongodb.connection.state;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,6 +17,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
@@ -37,7 +40,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ClusterState {
+public class ClusterState implements Closeable {
 
     /** The complete list of servers. */
     protected final ConcurrentMap<String, ServerState> myServers;
@@ -85,6 +88,23 @@ public class ClusterState {
     public void addListener(final PropertyChangeListener listener) {
         synchronized (this) {
             myChangeSupport.addPropertyChangeListener(listener);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to ensure all of the {@link ServerState} connections are
+     * closed.
+     * </p>
+     */
+    @Override
+    public void close() {
+        for (final ServerState state : getServers()) {
+            final Connection conn = state.takeConnection();
+            if (conn != null) {
+                IOUtils.close(conn);
+            }
         }
     }
 

@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -40,6 +41,7 @@ import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.util.IOUtils;
@@ -80,6 +82,9 @@ public class ReplicaSetConnectionFactoryTest {
         ourServer = null;
     }
 
+    /** The factory being tested. */
+    private ReplicaSetConnectionFactory myTestFactory;
+
     /**
      * Cleans up the test connection.
      * 
@@ -88,6 +93,9 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @After
     public void tearDown() throws IOException {
+        IOUtils.close(myTestFactory);
+        myTestFactory = null;
+
         ourServer.clear();
     }
 
@@ -115,10 +123,9 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = factory.getClusterState()
+        final List<ServerState> servers = myTestFactory.getClusterState()
                 .getServers();
         assertEquals(2, servers.size());
     }
@@ -149,10 +156,9 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = factory.getClusterState()
+        final List<ServerState> servers = myTestFactory.getClusterState()
                 .getServers();
         assertEquals(2, servers.size());
     }
@@ -183,10 +189,9 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = factory.getClusterState()
+        final List<ServerState> servers = myTestFactory.getClusterState()
                 .getServers();
         assertEquals(1, servers.size());
     }
@@ -215,10 +220,9 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = factory.getClusterState()
+        final List<ServerState> servers = myTestFactory.getClusterState()
                 .getServers();
         assertEquals(1, servers.size());
         assertFalse(servers.get(0).isWritable());
@@ -239,13 +243,58 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = factory.getClusterState()
+        final List<ServerState> servers = myTestFactory.getClusterState()
                 .getServers();
         assertEquals(1, servers.size());
         assertFalse(servers.get(0).isWritable());
+    }
+
+    /**
+     * Test method for {@link ShardedConnectionFactory#close()} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testClose() throws IOException {
+        final String serverName = "localhost:"
+                + ourServer.getInetSocketAddress().getPort();
+
+        final DocumentBuilder replStatusBuilder = BuilderFactory.start();
+        replStatusBuilder.push("repl");
+        replStatusBuilder.addString("primary", serverName);
+        replStatusBuilder.pushArray("hosts").addString(serverName)
+                .addString("localhost:1234");
+
+        ourServer
+                .setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
+
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                ourServer.getInetSocketAddress());
+        config.setAutoDiscoverServers(true);
+
+        final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
+                config);
+
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
+
+        final List<ServerState> servers = myTestFactory.getClusterState()
+                .getServers();
+        assertEquals(2, servers.size());
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection);
+
+        servers.get(0).addConnection(mockConnection);
+        myTestFactory.close();
+
+        verify(mockConnection);
     }
 
     /**
@@ -274,10 +323,9 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final Connection connection = factory.connect();
+        final Connection connection = myTestFactory.connect();
         IOUtils.close(connection);
 
         assertThat(connection, instanceOf(ReplicaSetConnection.class));
@@ -309,12 +357,11 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                socketFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
         tearDownAfterClass();
         try {
-            final Connection connection = factory.connect();
+            final Connection connection = myTestFactory.connect();
             IOUtils.close(connection);
             fail("Should have failed to connect.");
         }
@@ -337,17 +384,19 @@ public class ReplicaSetConnectionFactoryTest {
 
         replay(mockFactory);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                mockFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(mockFactory, config);
 
         try {
-            factory.connect();
+            myTestFactory.connect();
         }
         catch (final IOException ioe) {
             // Good.
         }
 
         verify(mockFactory);
+
+        // Reset the mock factory for a close in tearDown.
+        reset(mockFactory);
     }
 
     /**
@@ -375,11 +424,13 @@ public class ReplicaSetConnectionFactoryTest {
 
         replay(mockFactory, mockConnection);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                mockFactory, config);
-        assertNotNull(factory);
+        myTestFactory = new ReplicaSetConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
 
         verify(mockFactory, mockConnection);
+
+        // Reset the mock factory for a close in tearDown.
+        reset(mockFactory);
     }
 
     /**
@@ -401,11 +452,13 @@ public class ReplicaSetConnectionFactoryTest {
 
         replay(mockFactory, mockConnection);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                mockFactory, config);
-        assertNotNull(factory);
+        myTestFactory = new ReplicaSetConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
 
         verify(mockFactory, mockConnection);
+
+        // Reset the mock factory for a close in tearDown.
+        reset(mockFactory);
     }
 
     /**
@@ -433,11 +486,13 @@ public class ReplicaSetConnectionFactoryTest {
 
         replay(mockFactory, mockConnection);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                mockFactory, config);
-        assertNotNull(factory);
+        myTestFactory = new ReplicaSetConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
 
         verify(mockFactory, mockConnection);
+
+        // Reset the mock factory for a close in tearDown.
+        reset(mockFactory);
     }
 
     /**
@@ -453,10 +508,9 @@ public class ReplicaSetConnectionFactoryTest {
 
         replay(mockFactory);
 
-        final ReplicaSetConnectionFactory factory = new ReplicaSetConnectionFactory(
-                mockFactory, config);
+        myTestFactory = new ReplicaSetConnectionFactory(mockFactory, config);
 
-        final ReconnectStrategy strategy = factory.getReconnectStrategy();
+        final ReconnectStrategy strategy = myTestFactory.getReconnectStrategy();
 
         assertThat(strategy, instanceOf(ReplicaSetReconnectStrategy.class));
 
@@ -465,5 +519,8 @@ public class ReplicaSetConnectionFactoryTest {
         assertSame(mockFactory, rsStrategy.getConnectionFactory());
 
         verify(mockFactory);
+
+        // Reset the mock factory for a close in tearDown.
+        reset(mockFactory);
     }
 }

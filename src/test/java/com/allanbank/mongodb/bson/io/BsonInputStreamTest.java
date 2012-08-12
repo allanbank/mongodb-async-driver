@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -112,6 +113,78 @@ public class BsonInputStreamTest {
      *             On a failure reading the test document.
      */
     @Test
+    public void testReadBigUtf8StringWorldDocument() throws IOException {
+        final StringBuilder builder = new StringBuilder(128);
+        builder.append('\u1234'); // Have no idea but its not ASCII!
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+
+        final String value = builder.toString();
+        final byte[] valueBytes = value.getBytes(BsonInputStream.UTF8);
+
+        // From the BSON specification.
+        final byte[] helloWorld = new byte[17 + valueBytes.length];
+        helloWorld[0] = (byte) ((17 + valueBytes.length) & 0xFF);
+        helloWorld[1] = (byte) (((17 + valueBytes.length) >> 8) & 0xFF);
+        helloWorld[2] = (byte) (((17 + valueBytes.length) >> 16) & 0xFF);
+        helloWorld[3] = (byte) (((17 + valueBytes.length) >> 24) & 0xFF);
+        helloWorld[4] = (byte) 0x02;
+        System.arraycopy(valueBytes, 0, helloWorld, 5, valueBytes.length);
+        helloWorld[valueBytes.length + 5] = (byte) 0x00;
+        helloWorld[valueBytes.length + 6] = (byte) 0x06;
+        helloWorld[valueBytes.length + 7] = (byte) 0x00;
+        helloWorld[valueBytes.length + 8] = (byte) 0x00;
+        helloWorld[valueBytes.length + 9] = (byte) 0x00;
+        helloWorld[valueBytes.length + 10] = (byte) 'h';
+        helloWorld[valueBytes.length + 11] = (byte) 'e';
+        helloWorld[valueBytes.length + 12] = (byte) 'l';
+        helloWorld[valueBytes.length + 13] = (byte) 'l';
+        helloWorld[valueBytes.length + 14] = (byte) 'o';
+        helloWorld[helloWorld.length - 2] = (byte) 0x00;
+        helloWorld[helloWorld.length - 1] = (byte) 0x00;
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(helloWorld);
+        final BsonInputStream reader = new BsonInputStream(in);
+
+        final Document doc = reader.readDocument();
+        reader.close();
+
+        assertTrue("Should be a RootDocument.", doc instanceof RootDocument);
+        assertTrue("Should contain a 'hello' element.", doc.contains(value));
+
+        final Iterator<Element> iter = doc.iterator();
+        assertTrue("Should contain a single element.", iter.hasNext());
+        iter.next();
+        assertFalse("Should contain a single element.", iter.hasNext());
+
+        final Element element = doc.get(value);
+        assertNotNull("'hello' element should not be null.", element);
+        assertTrue("'hello' element should be a StringElement",
+                element instanceof StringElement);
+
+        final StringElement worldElement = (StringElement) element;
+        assertEquals("'hello' elements value should be 'hello'.", "hello",
+                worldElement.getValue());
+
+    }
+
+    /**
+     * Test method for {@link BsonInputStream#readDocument()}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
+    @Test
     public void testReadHelloWorldDocument() throws IOException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
@@ -142,6 +215,64 @@ public class BsonInputStreamTest {
         assertEquals("'hello' elements value should be 'world'.", "world",
                 worldElement.getValue());
 
+    }
+
+    /**
+     * Test method for {@link BsonInputStream#readDocument()}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
+    @Test
+    public void testReadThrowsEof() throws IOException {
+        final StringBuilder builder = new StringBuilder(128);
+        builder.append('\u1234'); // Have no idea but its not ASCII!
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+
+        final String value = builder.toString();
+        final byte[] valueBytes = value.getBytes(BsonInputStream.UTF8);
+
+        // From the BSON specification.
+        final byte[] helloWorld = new byte[13 + valueBytes.length];
+        helloWorld[0] = (byte) ((17 + valueBytes.length) & 0xFF);
+        helloWorld[1] = (byte) (((17 + valueBytes.length) >> 8) & 0xFF);
+        helloWorld[2] = (byte) (((17 + valueBytes.length) >> 16) & 0xFF);
+        helloWorld[3] = (byte) (((17 + valueBytes.length) >> 24) & 0xFF);
+        helloWorld[4] = (byte) 0x02;
+        helloWorld[5] = (byte) 'h';
+        helloWorld[6] = (byte) 'e';
+        helloWorld[7] = (byte) 'l';
+        helloWorld[8] = (byte) 'l';
+        helloWorld[9] = (byte) 'o';
+        helloWorld[10] = (byte) 0x00;
+        helloWorld[11] = (byte) ((1 + valueBytes.length) & 0xFF);
+        helloWorld[12] = (byte) (((1 + valueBytes.length) >> 8) & 0xFF);
+        helloWorld[13] = (byte) (((1 + valueBytes.length) >> 16) & 0xFF);
+        helloWorld[14] = (byte) (((1 + valueBytes.length) >> 24) & 0xFF);
+        System.arraycopy(valueBytes, 0, helloWorld, 15, valueBytes.length - 2);
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(helloWorld);
+        final BsonInputStream reader = new BsonInputStream(in);
+        try {
+            reader.readDocument();
+        }
+        catch (final EOFException good) {
+            // Expected.
+        }
+        finally {
+            reader.close();
+        }
     }
 
     /**

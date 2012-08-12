@@ -27,18 +27,18 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
- * ConnectionPinger pings each of the connections in the cluster and updates the
+ * ClusterPinger pings each of the connections in the cluster and updates the
  * latency of the server from this client.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ConnectionPinger implements Runnable, Closeable {
+public class ClusterPinger implements Runnable, Closeable {
 
     /** The default interval between ping sweeps in seconds. */
     public static final int DEFAULT_PING_INTERVAL_SECONDS = 600;
 
-    /** The logger for the {@link ConnectionPinger}. */
-    protected static final Logger LOG = Logger.getLogger(ConnectionPinger.class
+    /** The logger for the {@link ClusterPinger}. */
+    protected static final Logger LOG = Logger.getLogger(ClusterPinger.class
             .getCanonicalName());
 
     /** Instance of the inner class containing the ping logic. */
@@ -80,7 +80,7 @@ public class ConnectionPinger implements Runnable, Closeable {
     private volatile boolean myRunning;
 
     /**
-     * Creates a new ConnectionPinger.
+     * Creates a new ClusterPinger.
      * 
      * @param cluster
      *            The state of the cluster.
@@ -89,7 +89,7 @@ public class ConnectionPinger implements Runnable, Closeable {
      * @param config
      *            The configuration for the connections.
      */
-    public ConnectionPinger(final ClusterState cluster,
+    public ClusterPinger(final ClusterState cluster,
             final ProxiedConnectionFactory factory,
             final MongoDbConfiguration config) {
         super();
@@ -144,6 +144,9 @@ public class ConnectionPinger implements Runnable, Closeable {
      */
     @Override
     public void run() {
+        long lastGeneration = 0;
+        ServerState lastServer = null;
+
         while (myRunning) {
             try {
                 final long interval = getIntervalUnits().toMillis(
@@ -152,9 +155,24 @@ public class ConnectionPinger implements Runnable, Closeable {
                         / myCluster.getServers().size();
 
                 for (final ServerState server : myCluster.getServers()) {
+
+                    // Sleep a little before the servers. We do it first to give
+                    // tests time to finish without a sweep in the middle
+                    // messing things up.
+                    Thread.sleep(TimeUnit.MILLISECONDS.toMillis(perServerSleep));
+
+                    // If the last connection has not been used by the state
+                    // then it is likely idle and we should cleanup.
+                    // Note we just slept for a while.
+                    if ((lastServer != null)
+                            && (lastGeneration == lastServer
+                                    .getConnectionGeneration())) {
+                        IOUtils.close(lastServer.takeConnection());
+                    }
+
+                    // Now ping the current server.
                     final String name = server.getName();
                     Connection conn = null;
-                    long connGeneration = 0;
                     try {
                         myPingThread.setName("MongoDB Pinger - " + name);
 
@@ -177,10 +195,11 @@ public class ConnectionPinger implements Runnable, Closeable {
                         }
 
                         // Give the connection to the server state for reuse.
-                        connGeneration = 0;
+                        lastServer = null;
                         if (server.addConnection(conn)) {
                             conn = null;
-                            connGeneration = server.getConnectionGeneration();
+                            lastGeneration = server.getConnectionGeneration();
+                            lastServer = server;
                         }
                     }
                     catch (final IOException e) {
@@ -189,18 +208,6 @@ public class ConnectionPinger implements Runnable, Closeable {
                     finally {
                         myPingThread.setName("MongoDB Pinger - Idle");
                         IOUtils.close(conn);
-                    }
-
-                    // Sleep a little between servers.
-                    Thread.sleep(TimeUnit.MILLISECONDS.toMillis(perServerSleep));
-
-                    // If the connection has not been used by the state then it
-                    // is likely idle and we should cleanup.
-                    // Note we just slept for a while.
-                    if ((connGeneration != 0)
-                            && (connGeneration == server
-                                    .getConnectionGeneration())) {
-                        IOUtils.close(server.takeConnection());
                     }
                 }
             }

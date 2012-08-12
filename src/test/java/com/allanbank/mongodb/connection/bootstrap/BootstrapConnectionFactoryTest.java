@@ -8,6 +8,7 @@ package com.allanbank.mongodb.connection.bootstrap;
 import static com.allanbank.mongodb.connection.CallbackReply.reply;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -78,6 +79,9 @@ public class BootstrapConnectionFactoryTest {
         ourServer = null;
     }
 
+    /** The factory being tested. */
+    private BootstrapConnectionFactory myTestFactory;
+
     /**
      * Cleans up the test connection.
      * 
@@ -86,6 +90,7 @@ public class BootstrapConnectionFactoryTest {
      */
     @After
     public void tearDown() throws IOException {
+        myTestFactory = null;
         ourServer.clear();
     }
 
@@ -103,10 +108,9 @@ public class BootstrapConnectionFactoryTest {
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
-        final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                config);
+        myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertNull("Wrong type of factory.", factory.getDelegate());
+        assertNull("Wrong type of myTestFactory.", myTestFactory.getDelegate());
     }
 
     /**
@@ -129,12 +133,11 @@ public class BootstrapConnectionFactoryTest {
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 ourServer.getInetSocketAddress());
-        final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                config);
+        myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertThat("Wrong type of factory.", factory.getDelegate(),
+        assertThat("Wrong type of myTestFactory.", myTestFactory.getDelegate(),
                 instanceOf(ReplicaSetConnectionFactory.class));
-        assertThat(factory.getReconnectStrategy(),
+        assertThat(myTestFactory.getReconnectStrategy(),
                 instanceOf(ReplicaSetReconnectStrategy.class));
     }
 
@@ -153,12 +156,11 @@ public class BootstrapConnectionFactoryTest {
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
-        final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                config);
+        myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertThat("Wrong type of factory.", factory.getDelegate(),
+        assertThat("Wrong type of myTestFactory.", myTestFactory.getDelegate(),
                 instanceOf(ShardedConnectionFactory.class));
-        assertThat(factory.getReconnectStrategy(),
+        assertThat(myTestFactory.getReconnectStrategy(),
                 instanceOf(SimpleReconnectStrategy.class));
     }
 
@@ -176,12 +178,11 @@ public class BootstrapConnectionFactoryTest {
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
-        final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                config);
+        myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertThat("Wrong type of factory.", factory.getDelegate(),
+        assertThat("Wrong type of myTestFactory.", myTestFactory.getDelegate(),
                 instanceOf(SocketConnectionFactory.class));
-        assertThat(factory.getReconnectStrategy(),
+        assertThat(myTestFactory.getReconnectStrategy(),
                 instanceOf(SimpleReconnectStrategy.class));
     }
 
@@ -203,10 +204,9 @@ public class BootstrapConnectionFactoryTest {
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
-        final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                config);
+        myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertThat("Wrong type of factory.", factory.getDelegate(),
+        assertThat("Wrong type of myTestFactory.", myTestFactory.getDelegate(),
                 CoreMatchers.instanceOf(SocketConnectionFactory.class));
     }
 
@@ -224,11 +224,35 @@ public class BootstrapConnectionFactoryTest {
                 ourServer.getInetSocketAddress());
         config.authenticate(USER_NAME, PASSWORD);
 
-        final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                config);
+        myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertThat("Wrong type of factory.", factory.getDelegate(),
+        assertThat("Wrong type of myTestFactory.", myTestFactory.getDelegate(),
                 CoreMatchers.instanceOf(AuthenticationConnectionFactory.class));
+    }
+
+    /**
+     * Test method for {@link BootstrapConnectionFactory#close()} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testClose() throws IOException {
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                new InetSocketAddress("127.0.0.1", 27017));
+        myTestFactory = new BootstrapConnectionFactory(config);
+
+        final ConnectionFactory mockFactory = createMock(ConnectionFactory.class);
+
+        mockFactory.close();
+        expectLastCall();
+
+        replay(mockFactory);
+
+        myTestFactory.setDelegate(mockFactory);
+        myTestFactory.close();
+
+        verify(mockFactory);
     }
 
     /**
@@ -239,8 +263,7 @@ public class BootstrapConnectionFactoryTest {
         try {
             final MongoDbConfiguration config = new MongoDbConfiguration(
                     new InetSocketAddress("127.0.0.1", 27017));
-            final BootstrapConnectionFactory factory = new BootstrapConnectionFactory(
-                    config);
+            myTestFactory = new BootstrapConnectionFactory(config);
 
             final Connection mockConnection = createMock(Connection.class);
             final ConnectionFactory mockFactory = createMock(ConnectionFactory.class);
@@ -249,8 +272,8 @@ public class BootstrapConnectionFactoryTest {
 
             replay(mockConnection, mockFactory);
 
-            factory.setDelegate(mockFactory);
-            assertSame(mockConnection, factory.connect());
+            myTestFactory.setDelegate(mockFactory);
+            assertSame(mockConnection, myTestFactory.connect());
 
             verify(mockConnection, mockFactory);
         }
@@ -260,4 +283,5 @@ public class BootstrapConnectionFactoryTest {
             throw error;
         }
     }
+
 }

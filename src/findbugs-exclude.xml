@@ -5,7 +5,7 @@
 		<Bug code="SC" />
 	</And>
 	<And>
-		<Class name="com.allanbank.mongodb.connection.state.ConnectionPinger" />
+		<Class name="com.allanbank.mongodb.connection.state.ClusterPinger" />
 		<Bug code="SC" />
 	</And>
 	<And>

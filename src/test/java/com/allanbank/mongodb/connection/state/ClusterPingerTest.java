@@ -40,13 +40,13 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
- * ConnectionPingerTest provides tests for the {@link ConnectionPinger} class.
+ * ClusterPingerTest provides tests for the {@link ClusterPinger} class.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ConnectionPingerTest {
+public class ClusterPingerTest {
     /** The pinger being tested. */
-    protected ConnectionPinger myPinger = null;
+    protected ClusterPinger myPinger = null;
 
     /**
      * Cleans up the pinger.
@@ -58,7 +58,7 @@ public class ConnectionPingerTest {
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -90,8 +90,10 @@ public class ConnectionPingerTest {
 
         replay(mockConnection, mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(1);
         myPinger.run();
 
         verify(mockConnection, mockFactory);
@@ -102,7 +104,7 @@ public class ConnectionPingerTest {
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -126,8 +128,10 @@ public class ConnectionPingerTest {
 
         replay(mockConnection, mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(1);
         myPinger.run();
 
         verify(mockConnection, mockFactory);
@@ -138,7 +142,7 @@ public class ConnectionPingerTest {
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -178,8 +182,10 @@ public class ConnectionPingerTest {
 
         replay(mockConnection, mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(1);
         myPinger.run();
 
         verify(mockConnection, mockFactory);
@@ -190,7 +196,7 @@ public class ConnectionPingerTest {
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -226,21 +232,24 @@ public class ConnectionPingerTest {
 
         replay(mockConnection, mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(30);
         myPinger.start();
-        Thread.sleep(100);
+        Thread.sleep(40);
+        assertSame(mockConnection, state.takeConnection()); // stop will clear
+                                                            // so check before.
         myPinger.stop();
 
         verify(mockConnection, mockFactory);
 
         assertEquals(reply.build().get("tags"), state.getTags());
         assertTrue(state.getAverageLatency() < 100);
-        assertSame(mockConnection, state.takeConnection());
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -268,8 +277,10 @@ public class ConnectionPingerTest {
 
         replay(mockConnection, mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(1);
         myPinger.run();
 
         verify(mockConnection, mockFactory);
@@ -280,7 +291,7 @@ public class ConnectionPingerTest {
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -305,8 +316,10 @@ public class ConnectionPingerTest {
 
         replay(mockConnection, mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(1);
         myPinger.run();
         IOUtils.close(myPinger);
 
@@ -318,7 +331,7 @@ public class ConnectionPingerTest {
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -365,7 +378,7 @@ public class ConnectionPingerTest {
 
         replay(mockConnection, mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
@@ -379,7 +392,7 @@ public class ConnectionPingerTest {
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -425,7 +438,7 @@ public class ConnectionPingerTest {
 
         replay(mockConnection, mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
@@ -439,7 +452,7 @@ public class ConnectionPingerTest {
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -481,7 +494,7 @@ public class ConnectionPingerTest {
 
         replay(mockConnection, mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
@@ -495,7 +508,7 @@ public class ConnectionPingerTest {
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -516,9 +529,10 @@ public class ConnectionPingerTest {
 
         replay(mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
-        Thread.currentThread().interrupt();
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(1);
         myPinger.run();
 
         verify(mockFactory);
@@ -528,7 +542,7 @@ public class ConnectionPingerTest {
     }
 
     /**
-     * Test method for {@link ConnectionPinger#run()}.
+     * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
      *             On a failure setting up the mocks.
@@ -554,8 +568,10 @@ public class ConnectionPingerTest {
 
         replay(mockConnection, mockFactory);
 
-        myPinger = new ConnectionPinger(cluster, mockFactory,
+        myPinger = new ClusterPinger(cluster, mockFactory,
                 new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(1);
         myPinger.run();
         IOUtils.close(myPinger);
 
@@ -789,7 +805,6 @@ public class ConnectionPingerTest {
         @Override
         public C answer() throws Throwable {
             myPinger.close();
-            Thread.currentThread().interrupt();
 
             if (myError != null) {
                 throw myError;
@@ -839,7 +854,6 @@ public class ConnectionPingerTest {
         public void setValue(final Callback<Reply> value) {
             super.setValue(value);
             myPinger.close();
-            Thread.currentThread().interrupt();
         }
 
     }
