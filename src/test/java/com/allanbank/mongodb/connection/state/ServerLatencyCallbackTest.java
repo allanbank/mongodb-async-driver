@@ -5,14 +5,18 @@
 
 package com.allanbank.mongodb.connection.state;
 
-import static org.easymock.EasyMock.capture;
+import static com.allanbank.mongodb.connection.CallbackReply.reply;
+import static org.easymock.EasyMock.captureLong;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.isNull;
 import static org.junit.Assert.assertTrue;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Test;
+
+import com.allanbank.mongodb.bson.Document;
 
 /**
  * ServerLatencyCallbackTest provides tests for the
@@ -30,13 +34,15 @@ public class ServerLatencyCallbackTest {
         final Capture<Long> latencyUpdate = new Capture<Long>();
 
         final ServerState state = createMock(ServerState.class);
-        state.updateAverageLatency(capture(latencyUpdate));
+        state.updateAverageLatency(captureLong(latencyUpdate));
+        expectLastCall();
+        state.setTags((Document) isNull());
         expectLastCall();
 
         EasyMock.replay(state);
 
         final ServerLatencyCallback callback = new ServerLatencyCallback(state);
-        callback.callback(null);
+        callback.callback(reply());
 
         EasyMock.verify(state);
 
@@ -59,14 +65,16 @@ public class ServerLatencyCallbackTest {
         final Capture<Long> latencyUpdate = new Capture<Long>();
 
         final ServerState state = createMock(ServerState.class);
-        state.updateAverageLatency(capture(latencyUpdate));
+        state.updateAverageLatency(captureLong(latencyUpdate));
+        expectLastCall();
+        state.setTags((Document) isNull());
         expectLastCall();
 
         EasyMock.replay(state);
 
         final ServerLatencyCallback callback = new ServerLatencyCallback(state);
         Thread.sleep(50);
-        callback.callback(null);
+        callback.callback(reply());
 
         EasyMock.verify(state);
 

@@ -1811,7 +1811,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(boolean, Document[])} .
+     * {@link AbstractMongoCollection#insertAsync(boolean, Document...)} .
      * 
      * @throws Exception
      *             On an error.
@@ -1844,7 +1844,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(boolean, Durability, Document[])}
+     * {@link AbstractMongoCollection#insertAsync(boolean, Durability, Document...)}
      * .
      * 
      * @throws Exception
@@ -1877,7 +1877,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Callback, boolean, Document[])}
+     * {@link AbstractMongoCollection#insertAsync(Callback, boolean, Document...)}
      * .
      */
     @Test
@@ -1905,7 +1905,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#insertAsync(Callback, boolean, Durability, Document[])}
+     * {@link MongoCollectionImpl#insertAsync(Callback, boolean, Durability, Document...)}
      * .
      */
     @Test
@@ -1933,7 +1933,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Callback, Document[])} .
+     * {@link AbstractMongoCollection#insertAsync(Callback, Document...)} .
      */
     @Test
     public void testInsertAsyncCallbackOfIntegerDocumentArray() {
@@ -1960,7 +1960,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Callback, Durability, Document[])}
+     * {@link AbstractMongoCollection#insertAsync(Callback, Durability, Document...)}
      * .
      */
     @Test
@@ -1986,7 +1986,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#insertAsync(Document[])} .
+     * Test method for {@link AbstractMongoCollection#insertAsync(Document...)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -2011,7 +2012,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Durability, Document[])} .
+     * {@link AbstractMongoCollection#insertAsync(Durability, Document...)} .
      * 
      * @throws Exception
      *             On an error.
@@ -2042,7 +2043,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(boolean, Document[])} .
+     * {@link AbstractMongoCollection#insert(boolean, Document...)} .
      */
     @Test
     public void testInsertBooleanDocumentArray() {
@@ -2070,7 +2071,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(boolean, Durability, Document[])} .
+     * {@link AbstractMongoCollection#insert(boolean, Durability, Document...)}
+     * .
      */
     @Test
     public void testInsertBooleanDurabilityDocumentArray() {
@@ -2096,7 +2098,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#insert(Document[])} .
+     * Test method for {@link AbstractMongoCollection#insert(Document...)} .
      */
     @Test
     public void testInsertDocumentArray() {
@@ -2124,7 +2126,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(Durability, Document[])} .
+     * {@link AbstractMongoCollection#insert(Durability, Document...)} .
      */
     @Test
     public void testInsertDurabilityDocumentArray() {

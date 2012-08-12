@@ -5,9 +5,12 @@
 
 package com.allanbank.mongodb.connection.state;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.element.DocumentElement;
+import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.Reply;
 
 /**
@@ -16,7 +19,7 @@ import com.allanbank.mongodb.connection.message.Reply;
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ServerLatencyCallback implements Callback<Reply> {
+public class ServerLatencyCallback extends FutureCallback<Reply> {
 
     /** The server to update the latency for. */
     private final ServerState myServer;
@@ -49,18 +52,35 @@ public class ServerLatencyCallback implements Callback<Reply> {
         final long milliDelta = TimeUnit.NANOSECONDS.toMillis(end
                 - myStartTimeNanos);
 
-        myServer.updateAverageLatency(milliDelta);
+        if (myServer != null) {
+            myServer.updateAverageLatency(milliDelta);
+            myServer.setTags(extractTags(result));
+        }
+
+        super.callback(result);
     }
 
+    // Do not override the exception(Throwable) since we cannot determine the
+    // latency or tags from an exception.
+
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to ignore the error - we cannot be sure if it was a local
-     * error or an error from the server.
-     * </p>
+     * Extract any tags from the reply.
+     * 
+     * @param reply
+     *            The reply.
+     * @return The tags document, which may be <code>null</code>.
      */
-    @Override
-    public void exception(final Throwable thrown) {
-        // Nothing. Cannot determine the latency from an exception.
+    private Document extractTags(final Reply reply) {
+        Document result = null;
+        final List<Document> replyDocs = reply.getResults();
+        if (replyDocs.size() >= 1) {
+            final Document doc = replyDocs.get(0);
+            final List<DocumentElement> tags = doc.queryPath(
+                    DocumentElement.class, "tags");
+            if (!tags.isEmpty()) {
+                result = tags.get(0).asDocument();
+            }
+        }
+        return result;
     }
 }

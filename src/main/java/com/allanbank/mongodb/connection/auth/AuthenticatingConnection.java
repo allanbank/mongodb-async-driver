@@ -21,8 +21,6 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.bson.element.DoubleElement;
-import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
@@ -101,13 +99,14 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
      */
     @Override
     protected Connection getProxiedConnection() {
-        return super.getProxiedConnection();
+        final Connection proxied = super.getProxiedConnection();
+
+        return proxied;
     }
 
     /**
-     * Converts a {@link DoubleElement} or {@link IntegerElement} into an
-     * <tt>int</tt> value. If not a {@link DoubleElement} of
-     * {@link IntegerElement} then -1 is returned.
+     * Converts a {@link NumericElement} into an <tt>int</tt> value. If not a
+     * {@link NumericElement} then -1 is returned.
      * 
      * @param element
      *            The element to convert.
@@ -183,13 +182,13 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                 // Send an authenticate request.
                 final MessageDigest md5 = MessageDigest.getInstance("MD5");
                 final byte[] bytes = md5
-                        .digest((nonce + myConfig.getUsername() + myConfig
+                        .digest((nonce + myConfig.getUserName() + myConfig
                                 .getPasswordHash())
                                 .getBytes(MongoDbConfiguration.UTF8));
 
                 builder = BuilderFactory.start();
                 builder.addInteger("authenticate", 1);
-                builder.addString("user", myConfig.getUsername());
+                builder.addString("user", myConfig.getUserName());
                 builder.addString("nonce", nonce);
                 builder.addString("key", IOUtils.toHex(bytes));
 

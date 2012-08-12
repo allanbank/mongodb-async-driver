@@ -61,33 +61,37 @@ public class QueryTest {
                                     .asList(-1, 3, 8, 0xFF)) {
                                 for (final int numberToSkip : Arrays.asList(0,
                                         1, 2, 0xFFF)) {
-                                    final boolean tailable = random
-                                            .nextBoolean();
-                                    final ReadPreference readPreference = random
-                                            .nextBoolean() ? ReadPreference.CLOSEST
-                                            : ReadPreference.SECONDARY;
-                                    final boolean noCursorTimeout = random
-                                            .nextBoolean();
-                                    final boolean awaitData = random
-                                            .nextBoolean();
-                                    final boolean exhaust = random
-                                            .nextBoolean();
-                                    final boolean partial = random
-                                            .nextBoolean();
 
-                                    objs1.add(new Query(databaseName,
-                                            collectionName, query,
-                                            returnFields, batchSize, limit,
-                                            numberToSkip, tailable,
-                                            readPreference, noCursorTimeout,
-                                            awaitData, exhaust, partial));
-                                    objs2.add(new Query(databaseName,
-                                            collectionName, query,
-                                            returnFields, batchSize, limit,
-                                            numberToSkip, tailable,
-                                            readPreference, noCursorTimeout,
-                                            awaitData, exhaust, partial));
+                                    if (random.nextInt(10) == 1) {
+                                        final boolean tailable = random
+                                                .nextBoolean();
+                                        final ReadPreference readPreference = random
+                                                .nextBoolean() ? ReadPreference.CLOSEST
+                                                : ReadPreference.SECONDARY;
+                                        final boolean noCursorTimeout = random
+                                                .nextBoolean();
+                                        final boolean awaitData = random
+                                                .nextBoolean();
+                                        final boolean exhaust = random
+                                                .nextBoolean();
+                                        final boolean partial = random
+                                                .nextBoolean();
 
+                                        objs1.add(new Query(databaseName,
+                                                collectionName, query,
+                                                returnFields, batchSize, limit,
+                                                numberToSkip, tailable,
+                                                readPreference,
+                                                noCursorTimeout, awaitData,
+                                                exhaust, partial));
+                                        objs2.add(new Query(databaseName,
+                                                collectionName, query,
+                                                returnFields, batchSize, limit,
+                                                numberToSkip, tailable,
+                                                readPreference,
+                                                noCursorTimeout, awaitData,
+                                                exhaust, partial));
+                                    }
                                 }
                             }
                         }

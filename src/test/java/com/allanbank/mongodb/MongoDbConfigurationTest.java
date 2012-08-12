@@ -68,13 +68,13 @@ public class MongoDbConfigurationTest {
         final MongoDbConfiguration config = new MongoDbConfiguration();
 
         assertFalse(config.isAuthenticating());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertNull(config.getPasswordHash());
 
         config.authenticate("allanbank", "super_secret_password");
 
         assertTrue(config.isAuthenticating());
-        assertEquals("allanbank", config.getUsername());
+        assertEquals("allanbank", config.getUserName());
         assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
                 config.getPasswordHash());
         assertFalse(config.isAdminUser());
@@ -90,13 +90,13 @@ public class MongoDbConfigurationTest {
         final MongoDbConfiguration config = new MongoDbConfiguration();
 
         assertFalse(config.isAuthenticating());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertNull(config.getPasswordHash());
 
         config.authenticateAsAdmin("allanbank", "super_secret_password");
 
         assertTrue(config.isAuthenticating());
-        assertEquals("allanbank", config.getUsername());
+        assertEquals("allanbank", config.getUserName());
         assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
                 config.getPasswordHash());
         assertTrue(config.isAdminUser());
@@ -123,7 +123,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -146,7 +146,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(0, config.getServers().size());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -174,7 +174,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
@@ -201,7 +201,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
@@ -228,7 +228,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -256,7 +256,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -284,7 +284,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -312,7 +312,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -338,7 +338,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -364,7 +364,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -391,7 +391,7 @@ public class MongoDbConfigurationTest {
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertTrue(config.isAuthenticating());
-        assertEquals("user", config.getUsername());
+        assertEquals("user", config.getUserName());
         assertEquals("3c80f7cd19bca626d409b336def9ec35",
                 config.getPasswordHash());
         assertTrue(config.isAdminUser());
@@ -420,7 +420,7 @@ public class MongoDbConfigurationTest {
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertFalse(config.isAuthenticating());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertNull(config.getPasswordHash());
         assertFalse(config.isAdminUser());
         assertFalse(config.isAutoDiscoverServers());
@@ -456,7 +456,7 @@ public class MongoDbConfigurationTest {
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertTrue(config.isAuthenticating());
-        assertEquals("user", config.getUsername());
+        assertEquals("user", config.getUserName());
         assertEquals("3c80f7cd19bca626d409b336def9ec35",
                 config.getPasswordHash());
         assertTrue(config.isAdminUser());
@@ -523,7 +523,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -550,7 +550,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -579,7 +579,7 @@ public class MongoDbConfigurationTest {
         assertEquals(0, config.getReadTimeout());
         assertEquals(Arrays.asList(addr1, addr2), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUsername());
+        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
@@ -605,7 +605,7 @@ public class MongoDbConfigurationTest {
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertTrue(config.isAuthenticating());
-        assertEquals("user", config.getUsername());
+        assertEquals("user", config.getUserName());
         assertEquals("3c80f7cd19bca626d409b336def9ec35",
                 config.getPasswordHash());
         assertFalse(config.isAdminUser());

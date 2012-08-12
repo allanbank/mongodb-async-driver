@@ -6,7 +6,9 @@
 package com.allanbank.mongodb.connection.state;
 
 import static com.allanbank.mongodb.connection.CallbackReply.cb;
+import static com.allanbank.mongodb.connection.CallbackReply.reply;
 import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
@@ -15,6 +17,7 @@ import static org.easymock.EasyMock.makeThreadSafe;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -22,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.After;
@@ -58,6 +62,333 @@ public class ClusterPingerTest {
     }
 
     /**
+     * Test method for {@link ClusterPinger#initialSweep()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testInitialSweep() throws IOException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(mockConnection.send(cb(reply), anyObject(IsMaster.class)))
+                .andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ClusterPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.initialSweep();
+
+        verify(mockConnection, mockFactory);
+
+        assertEquals(reply.build().get("tags"), state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ClusterPinger#initialSweep()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testInitialSweepCannotGiveBackConnection() throws IOException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(
+                        cbAndCloseWithConn(reply, state, mockConnection),
+                        anyObject(IsMaster.class))).andReturn(address);
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ClusterPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.initialSweep();
+
+        verify(mockConnection, mockFactory);
+
+        assertEquals(reply.build().get("tags"), state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ClusterPinger#initialSweep()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testInitialSweepConnectionAlreadyOpen() throws IOException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockConnection.send(
+                        cbAndCloseWithConn(reply, state, mockConnection),
+                        anyObject(IsMaster.class))).andReturn(address);
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ClusterPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        state.addConnection(mockConnection);
+        myPinger.initialSweep();
+
+        verify(mockConnection, mockFactory);
+
+        assertEquals(reply.build().get("tags"), state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ClusterPinger#initialSweep()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testInitialSweepFails() throws IOException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(cb(new MongoDbException("Error")),
+                        anyObject(IsMaster.class))).andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ClusterPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.initialSweep();
+
+        verify(mockConnection, mockFactory);
+
+        assertNull(state.getTags());
+        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ClusterPinger#initialSweep()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testInitialSweepThrowsIOException() throws IOException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andThrow(
+                new IOException("Injected"));
+
+        replay(mockFactory);
+
+        myPinger = new ClusterPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.initialSweep();
+
+        verify(mockFactory);
+
+        assertNull(state.getTags());
+        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+    }
+
+    /**
+     * Test method for {@link ClusterPinger#initialSweep()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testInitialSweepThrowsMongoDdException() throws IOException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(anyObject(ServerLatencyCallback.class),
+                        anyObject(IsMaster.class))).andThrow(
+                new MongoDbException("Injected"));
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ClusterPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.initialSweep();
+
+        verify(mockConnection, mockFactory);
+
+        assertNull(state.getTags());
+        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+    }
+
+    /**
+     * Test method for {@link ClusterPinger#initialSweep()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     * @throws InterruptedException
+     *             On a failure to sleep in the test.
+     */
+    @Test
+    public void testInitialSweepWhenInterrupted() throws IOException,
+            InterruptedException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        makeThreadSafe(mockFactory, true);
+        makeThreadSafe(mockConnection, true);
+
+        final Capture<ServerLatencyCallback> catureReply = new Capture<ServerLatencyCallback>();
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(capture(catureReply),
+                        anyObject(IsMaster.class))).andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ClusterPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        final Thread t = new Thread() {
+            @Override
+            public void run() {
+                myPinger.initialSweep();
+            }
+        };
+        t.start();
+        Thread.sleep(20);
+        t.interrupt();
+        Thread.sleep(50);
+
+        verify(mockConnection, mockFactory);
+
+        catureReply.getValue().callback(reply(reply));
+
+        t.join(1000);
+
+        assertFalse(t.isAlive());
+
+        assertEquals(reply.build().get("tags"), state.getTags());
+        assertTrue(state.getAverageLatency() < 100);
+        assertSame(mockConnection, state.takeConnection());
+    }
+
+    /**
      * Test method for {@link ClusterPinger#run()}.
      * 
      * @throws IOException
@@ -88,6 +419,9 @@ public class ClusterPingerTest {
                 mockConnection.send(cbAndClose(reply),
                         anyObject(IsMaster.class))).andReturn(address);
 
+        mockConnection.close();
+        expectLastCall();
+
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, mockFactory,
@@ -100,7 +434,7 @@ public class ClusterPingerTest {
 
         assertEquals(reply.build().get("tags"), state.getTags());
         assertTrue(state.getAverageLatency() < 100);
-        assertSame(mockConnection, state.takeConnection());
+        assertNull(state.takeConnection());
     }
 
     /**
@@ -126,6 +460,9 @@ public class ClusterPingerTest {
         expect(mockConnection.send(cbAndClose(), anyObject(IsMaster.class)))
                 .andReturn(address);
 
+        mockConnection.close();
+        expectLastCall();
+
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, mockFactory,
@@ -138,7 +475,7 @@ public class ClusterPingerTest {
 
         assertNull(state.getTags());
         assertTrue(state.getAverageLatency() < 100);
-        assertSame(mockConnection, state.takeConnection());
+        assertNull(state.takeConnection());
     }
 
     /**
@@ -150,7 +487,7 @@ public class ClusterPingerTest {
      *             On a failure to sleep.
      */
     @Test
-    public void testRunCannottGiveConnectionBack() throws IOException,
+    public void testRunCannotGiveConnectionBack() throws IOException,
             InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
@@ -275,6 +612,9 @@ public class ClusterPingerTest {
                 mockConnection.send(cbAndClose(reply),
                         anyObject(IsMaster.class))).andReturn(address);
 
+        mockConnection.close();
+        expectLastCall();
+
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, mockFactory,
@@ -287,7 +627,7 @@ public class ClusterPingerTest {
 
         assertNull(state.getTags());
         assertTrue(state.getAverageLatency() < 100);
-        assertSame(mockConnection, state.takeConnection());
+        assertNull(state.takeConnection());
     }
 
     /**
@@ -314,6 +654,9 @@ public class ClusterPingerTest {
                 mockConnection.send(cbAndCloseError(),
                         anyObject(IsMaster.class))).andReturn(address);
 
+        mockConnection.close();
+        expectLastCall();
+
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, mockFactory,
@@ -327,7 +670,7 @@ public class ClusterPingerTest {
 
         assertNull(state.getTags());
         assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
-        assertSame(mockConnection, state.takeConnection());
+        assertNull(state.takeConnection());
     }
 
     /**
@@ -423,7 +766,6 @@ public class ClusterPingerTest {
                 mockConnection);
         expect(mockConnection.send(cb(reply), anyObject(IsMaster.class)))
                 .andReturn(address);
-
         mockConnection.close();
         expectLastCall();
 
@@ -435,6 +777,8 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(cbAndClose(reply),
                         anyObject(IsMaster.class))).andReturn(address);
+        mockConnection.close();
+        expectLastCall();
 
         replay(mockConnection, mockFactory);
 
@@ -448,7 +792,7 @@ public class ClusterPingerTest {
 
         assertEquals(reply.build().get("tags"), state.getTags());
         assertTrue(state.getAverageLatency() < 100);
-        assertSame(mockConnection, state.takeConnection());
+        assertNull(state.takeConnection());
     }
 
     /**
@@ -491,6 +835,8 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(cbAndClose(reply),
                         anyObject(IsMaster.class))).andReturn(address);
+        mockConnection.close();
+        expectLastCall();
 
         replay(mockConnection, mockFactory);
 
@@ -504,7 +850,7 @@ public class ClusterPingerTest {
 
         assertEquals(reply.build().get("tags"), state.getTags());
         assertTrue(state.getAverageLatency() < 100);
-        assertSame(mockConnection, state.takeConnection());
+        assertNull(state.takeConnection());
     }
 
     /**
@@ -566,6 +912,9 @@ public class ClusterPingerTest {
                         anyObject(IsMaster.class))).andAnswer(
                 throwA(new MongoDbException("Injected")));
 
+        mockConnection.close();
+        expectLastCall();
+
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, mockFactory,
@@ -579,7 +928,69 @@ public class ClusterPingerTest {
 
         assertNull(state.getTags());
         assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
-        assertSame(mockConnection, state.takeConnection());
+        assertNull(state.takeConnection());
+    }
+
+    /**
+     * Test method for {@link ClusterPinger#run()}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testRunWhenInterrupted() throws IOException,
+            InterruptedException {
+
+        final DocumentBuilder tags = BuilderFactory.start();
+        tags.addInteger("f", 1).addInteger("b", 1);
+
+        final DocumentBuilder reply = BuilderFactory.start();
+        reply.addDocument("tags", tags.build());
+
+        final String address = "localhost:27017";
+
+        final ClusterState cluster = new ClusterState();
+        final ServerState state = cluster.add(address);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        makeThreadSafe(mockConnection, true);
+        makeThreadSafe(mockFactory, true);
+
+        final Capture<ServerLatencyCallback> catureReply = new Capture<ServerLatencyCallback>();
+        expect(
+                mockFactory.connect(eq(state),
+                        anyObject(MongoDbConfiguration.class))).andReturn(
+                mockConnection);
+        expect(
+                mockConnection.send(capture(catureReply),
+                        anyObject(IsMaster.class))).andReturn(address);
+
+        replay(mockConnection, mockFactory);
+
+        myPinger = new ClusterPinger(cluster, mockFactory,
+                new MongoDbConfiguration());
+        myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
+        myPinger.setPingSweepInterval(20);
+        final Thread t = new Thread(myPinger);
+        t.start();
+        Thread.sleep(50); // Wait on a reply.
+        t.interrupt();
+        Thread.sleep(10);
+
+        myPinger.stop();
+        t.interrupt();
+
+        verify(mockConnection, mockFactory);
+
+        t.join(1000);
+        assertFalse(t.isAlive());
+
+        assertNull(state.getTags());
+        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
     }
 
     /**

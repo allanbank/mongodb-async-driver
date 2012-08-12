@@ -82,7 +82,7 @@ public class AuthenticatingConnectionTest {
 
         myAuthRequest = BuilderFactory.start();
         myAuthRequest.addInteger("authenticate", 1);
-        myAuthRequest.addString("user", myConfig.getUsername());
+        myAuthRequest.addString("user", myConfig.getUserName());
         myAuthRequest.addString("nonce", "deadbeef4bee");
         myAuthRequest.addString("key", "d74c03a816dee3427c7459dce9c94e54");
 

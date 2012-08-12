@@ -8,8 +8,11 @@ package com.allanbank.mongodb.connection.state;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -17,8 +20,6 @@ import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.IsMaster;
@@ -136,6 +137,76 @@ public class ClusterPinger implements Runnable, Closeable {
     }
 
     /**
+     * Performs a single sweep through the servers sending a ping with a
+     * callback to set the latency and tags for each server.
+     * <p>
+     * This method will not return until at least 50% of the servers have
+     * replied (which may be a failure) to the initial ping.
+     * </p>
+     */
+    public void initialSweep() {
+        final List<ServerState> servers = myCluster.getServers();
+        final List<Future<Reply>> replies = new ArrayList<Future<Reply>>(
+                servers.size());
+        for (final ServerState server : servers) {
+            // Ping the current server.
+            final String name = server.getName();
+            Connection conn = null;
+            try {
+                // Does the server state have a connection we can use?
+                conn = server.takeConnection();
+                if (conn == null) {
+                    conn = myConnectionFactory.connect(server, myConfig);
+                }
+
+                // Use a server status request to measure latency. It is
+                // a best case since it does not require any locks.
+                final Future<Reply> reply = PINGER.pingAsync(
+                        server.getServer(), conn, server);
+                replies.add(reply);
+
+                // Give the connection to the server state for reuse.
+                if (server.addConnection(conn)) {
+                    conn = null;
+                }
+            }
+            catch (final IOException e) {
+                LOG.log(Level.INFO, "Could not ping '" + name + "'.", e);
+            }
+            finally {
+                IOUtils.close(conn);
+            }
+        }
+
+        final int maxRemaining = Math.max(1, replies.size() / 2);
+        while (maxRemaining <= replies.size()) {
+            final Iterator<Future<Reply>> iter = replies.iterator();
+            while (iter.hasNext()) {
+                final Future<Reply> future = iter.next();
+                try {
+                    if (future != null) {
+                        // Pause...
+                        future.get(10, TimeUnit.MILLISECONDS);
+                    }
+
+                    // A good reply or we could not connect to the server.
+                    iter.remove();
+                }
+                catch (final ExecutionException e) {
+                    // We got a reply. Its a failure but its a reply.
+                    iter.remove();
+                }
+                catch (final TimeoutException e) {
+                    // No reply yet.
+                }
+                catch (final InterruptedException e) {
+                    // No reply yet.
+                }
+            }
+        }
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to periodically wake-up and ping the servers. At first this
@@ -144,9 +215,6 @@ public class ClusterPinger implements Runnable, Closeable {
      */
     @Override
     public void run() {
-        long lastGeneration = 0;
-        ServerState lastServer = null;
-
         while (myRunning) {
             try {
                 final long interval = getIntervalUnits().toMillis(
@@ -154,23 +222,14 @@ public class ClusterPinger implements Runnable, Closeable {
                 final long perServerSleep = interval
                         / myCluster.getServers().size();
 
+                // Sleep a little before starting. We do it first to give
+                // tests time to finish without a sweep in the middle
+                // causing confusion and delay.
+                Thread.sleep(TimeUnit.MILLISECONDS.toMillis(perServerSleep));
+
                 for (final ServerState server : myCluster.getServers()) {
 
-                    // Sleep a little before the servers. We do it first to give
-                    // tests time to finish without a sweep in the middle
-                    // messing things up.
-                    Thread.sleep(TimeUnit.MILLISECONDS.toMillis(perServerSleep));
-
-                    // If the last connection has not been used by the state
-                    // then it is likely idle and we should cleanup.
-                    // Note we just slept for a while.
-                    if ((lastServer != null)
-                            && (lastGeneration == lastServer
-                                    .getConnectionGeneration())) {
-                        IOUtils.close(lastServer.takeConnection());
-                    }
-
-                    // Now ping the current server.
+                    // Ping the current server.
                     final String name = server.getName();
                     Connection conn = null;
                     try {
@@ -183,23 +242,29 @@ public class ClusterPinger implements Runnable, Closeable {
                                     .connect(server, myConfig);
                         }
 
-                        final long start = System.nanoTime();
-
-                        // Use a server status request to measure latency. It is
-                        // a best case since it does not require any locks.
-                        if (PINGER.ping(server.getServer(), conn, server)) {
-                            final long end = System.nanoTime();
-
-                            server.updateAverageLatency(TimeUnit.NANOSECONDS
-                                    .toMillis(end - start));
-                        }
+                        // Ping to update the latency and tags.
+                        PINGER.ping(server.getServer(), conn, server);
 
                         // Give the connection to the server state for reuse.
-                        lastServer = null;
+                        long lastGeneration = 0;
+                        ServerState lastServer = null;
                         if (server.addConnection(conn)) {
                             conn = null;
                             lastGeneration = server.getConnectionGeneration();
                             lastServer = server;
+                        }
+
+                        // Sleep a little between the servers.
+                        Thread.sleep(TimeUnit.MILLISECONDS
+                                .toMillis(perServerSleep));
+
+                        // If the last connection has not been used by the state
+                        // then it is likely idle and we should cleanup.
+                        // Note we just slept for a while.
+                        if ((lastServer != null)
+                                && (lastGeneration == lastServer
+                                        .getConnectionGeneration())) {
+                            IOUtils.close(lastServer.takeConnection());
                         }
                     }
                     catch (final IOException e) {
@@ -260,7 +325,7 @@ public class ClusterPinger implements Runnable, Closeable {
     protected static final class Pinger {
         /**
          * Pings the server and suppresses all exceptions. Updates the server
-         * state with the tags found in the response, if any.
+         * state with a latency and the tags found in the response, if any.
          * 
          * @param addr
          *            The address of the server. Used for logging.
@@ -276,18 +341,14 @@ public class ClusterPinger implements Runnable, Closeable {
         public boolean ping(final InetSocketAddress addr,
                 final Connection conn, final ServerState state) {
             try {
-                final FutureCallback<Reply> future = new FutureCallback<Reply>();
-                conn.send(future, new IsMaster());
-                final Reply reply = future.get(1, TimeUnit.MINUTES);
+                final Future<Reply> future = pingAsync(addr, conn, state);
 
-                if (state != null) {
-                    state.setTags(extractTags(reply));
+                // Wait for the reply.
+                if (future != null) {
+                    future.get(1, TimeUnit.MINUTES);
+
+                    return true;
                 }
-
-                return true;
-            }
-            catch (final MongoDbException e) {
-                LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
             }
             catch (final ExecutionException e) {
                 LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
@@ -305,24 +366,36 @@ public class ClusterPinger implements Runnable, Closeable {
         }
 
         /**
-         * Extract any tags from the ping reply.
+         * Pings the server and suppresses all exceptions. Returns a future that
+         * can be used to determine if a response has been received. The future
+         * will update the {@link ServerState} latency and tags if found.
          * 
-         * @param reply
-         *            The reply.
-         * @return The tags document, which may be <code>null</code>.
+         * @param addr
+         *            The address of the server. Used for logging.
+         * @param conn
+         *            The connection to ping.
+         * @param state
+         *            The server state to update with the results of the ping.
+         *            If <code>false</code> is returned then the state will not
+         *            have been updated. Passing <code>null</code> for the state
+         *            is allowed.
+         * @return A {@link Future} that will be updated once the reply is
+         *         received.
          */
-        private Document extractTags(final Reply reply) {
-            Document result = null;
-            final List<Document> replyDocs = reply.getResults();
-            if (replyDocs.size() >= 1) {
-                final Document doc = replyDocs.get(0);
-                final List<DocumentElement> tags = doc.queryPath(
-                        DocumentElement.class, "tags");
-                if (!tags.isEmpty()) {
-                    result = tags.get(0).asDocument();
-                }
+        public Future<Reply> pingAsync(final InetSocketAddress addr,
+                final Connection conn, final ServerState state) {
+            try {
+                final FutureCallback<Reply> future = new ServerLatencyCallback(
+                        state);
+
+                conn.send(future, new IsMaster());
+
+                return future;
             }
-            return result;
+            catch (final MongoDbException e) {
+                LOG.log(Level.INFO, "Could not ping '" + addr + "'.", e);
+            }
+            return null;
         }
     }
 }

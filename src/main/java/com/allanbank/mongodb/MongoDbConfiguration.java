@@ -138,8 +138,8 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     private List<String> myServers = new ArrayList<String>();
 
-    /** The username for authentication with the servers. */
-    private String myUsername = null;
+    /** The user name for authentication with the servers. */
+    private String myUserName = null;
 
     /**
      * Determines if the {@link java.net.Socket#setKeepAlive(boolean)
@@ -395,22 +395,22 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * should be done before using this configuration to instantiate a
      * {@link Mongo} instance.
      * 
-     * @param username
-     *            The username.
+     * @param userName
+     *            The user name.
      * @param password
      *            the password.
      * @throws MongoDbAuthenticationException
      *             On a failure initializing the authentication information.
      */
-    public void authenticate(final String username, final String password)
+    public void authenticate(final String userName, final String password)
             throws MongoDbAuthenticationException {
         try {
             final MessageDigest md5 = MessageDigest.getInstance("MD5");
-            final byte[] digest = md5.digest((username + ":mongo:" + password)
+            final byte[] digest = md5.digest((userName + ":mongo:" + password)
                     .getBytes(UTF8));
 
             myAdminUser = false;
-            myUsername = username;
+            myUserName = userName;
             myPasswordHash = IOUtils.toHex(digest);
         }
         catch (final NoSuchAlgorithmException e) {
@@ -423,16 +423,16 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * should be done before using this configuration to instantiate a
      * {@link Mongo} instance.
      * 
-     * @param username
-     *            The username.
+     * @param userName
+     *            The user name.
      * @param password
      *            the password.
      * @throws MongoDbAuthenticationException
      *             On a failure initializing the authentication information.
      */
-    public void authenticateAsAdmin(final String username, final String password)
+    public void authenticateAsAdmin(final String userName, final String password)
             throws MongoDbAuthenticationException {
-        authenticate(username, password);
+        authenticate(userName, password);
         myAdminUser = true;
     }
 
@@ -588,12 +588,12 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
-     * Gets the username for authenticating with the database.
+     * Gets the user name for authenticating with the database.
      * 
-     * @return The username for authenticating with the database.
+     * @return The user name for authenticating with the database.
      */
-    public String getUsername() {
-        return myUsername;
+    public String getUserName() {
+        return myUserName;
     }
 
     /**
