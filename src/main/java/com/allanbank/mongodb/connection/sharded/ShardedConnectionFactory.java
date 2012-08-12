@@ -171,6 +171,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
         // Last thing is to start the ping of servers. This will get the tags
         // and latencies updated.
+        myPinger.initialSweep();
         myPinger.start();
     }
 

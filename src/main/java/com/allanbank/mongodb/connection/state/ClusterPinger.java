@@ -217,17 +217,19 @@ public class ClusterPinger implements Runnable, Closeable {
     public void run() {
         while (myRunning) {
             try {
+                final List<ServerState> servers = myCluster.getServers();
+
                 final long interval = getIntervalUnits().toMillis(
                         getPingSweepInterval());
-                final long perServerSleep = interval
-                        / myCluster.getServers().size();
+                final long perServerSleep = servers.isEmpty() ? interval
+                        : interval / servers.size();
 
                 // Sleep a little before starting. We do it first to give
                 // tests time to finish without a sweep in the middle
                 // causing confusion and delay.
                 Thread.sleep(TimeUnit.MILLISECONDS.toMillis(perServerSleep));
 
-                for (final ServerState server : myCluster.getServers()) {
+                for (final ServerState server : servers) {
 
                     // Ping the current server.
                     final String name = server.getName();

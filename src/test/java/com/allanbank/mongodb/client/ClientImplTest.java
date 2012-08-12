@@ -260,7 +260,7 @@ public class ClientImplTest {
             ourServer.disconnectClient();
             assertTrue(ourServer.waitForDisconnect(10000));
 
-            assertTrue(ourServer.waitForClient(10000));
+            assertTrue(ourServer.waitForClient(100000000));
             ourServer.waitForRequest(2, 10000); // ping.
 
             // Give a pause for the reconnect to finish on out side.

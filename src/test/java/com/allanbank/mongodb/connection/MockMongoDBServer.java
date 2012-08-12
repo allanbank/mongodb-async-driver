@@ -16,10 +16,10 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
@@ -46,22 +46,22 @@ public class MockMongoDBServer extends Thread {
     public static final byte[] EMPTY_BYTES = new byte[0];
 
     /** Set to true when a client is connected. */
-    private boolean myClientConnected = false;
+    protected int myClientConnected = 0;
 
-    /** The active client connection. */
-    private Socket myConnection = null;
+    /** The thread acting as the server. */
+    private final List<Socket> myActiveClients;
 
     /** The replies to send when a message is received. */
-    private final List<Reply> myReplies = new ArrayList<Reply>();
+    private final List<Reply> myReplies = new CopyOnWriteArrayList<Reply>();
 
     /** The requests received. */
-    private final List<Message> myRequests = new ArrayList<Message>();
+    private final List<Message> myRequests = new CopyOnWriteArrayList<Message>();
 
     /** Set to false to stop the server. */
     private boolean myRunning;
 
     /** The thread acting as the server. */
-    private Thread myRunningThread;
+    private final List<Thread> myRunningThreads;
 
     /** The server socket we are listening on. */
     private final ServerSocket myServerSocket;
@@ -74,6 +74,9 @@ public class MockMongoDBServer extends Thread {
      */
     public MockMongoDBServer() throws IOException {
         super("MockMongoDBServer");
+
+        myRunningThreads = new CopyOnWriteArrayList<Thread>();
+        myActiveClients = new CopyOnWriteArrayList<Socket>();
 
         myServerSocket = new ServerSocket();
         myServerSocket.bind(new InetSocketAddress(InetAddress
@@ -98,8 +101,8 @@ public class MockMongoDBServer extends Thread {
      */
     public void close() throws IOException {
         myRunning = false;
-        if (myRunningThread != null) {
-            myRunningThread.interrupt();
+        for (final Thread t : myRunningThreads) {
+            t.interrupt();
         }
         myServerSocket.close();
     }
@@ -110,11 +113,14 @@ public class MockMongoDBServer extends Thread {
      * @return True if a client is connected, false otherwise.
      */
     public boolean disconnectClient() {
-        final Socket socket = myConnection;
+        boolean close = false;
 
-        IOUtils.close(socket);
+        for (final Socket client : myActiveClients) {
+            IOUtils.close(client);
+            close = true;
+        }
 
-        return (socket != null);
+        return close;
     }
 
     /**
@@ -160,27 +166,18 @@ public class MockMongoDBServer extends Thread {
      */
     @Override
     public void run() {
-        myRunningThread = Thread.currentThread();
+        myRunningThreads.add(Thread.currentThread());
         myRunning = true;
         try {
             while (myRunning) {
-                myConnection = myServerSocket.accept();
-                if (myConnection != null) {
-                    try {
-                        synchronized (this) {
-                            myClientConnected = true;
-                            notifyAll();
-                        }
-
-                        handleClient(myConnection);
-                    }
-                    finally {
-                        synchronized (this) {
-                            myClientConnected = false;
-                            notifyAll();
-                        }
-                        myConnection = null;
-                    }
+                final Socket conn = myServerSocket.accept();
+                if (conn != null) {
+                    final Thread client = new Thread(new ClientRunnable(conn));
+                    myRunningThreads.add(client);
+                    myActiveClients.add(conn);
+                    client.setName("MongoDBServer Client: "
+                            + conn.getRemoteSocketAddress());
+                    client.start();
                 }
                 else {
                     sleep();
@@ -242,7 +239,7 @@ public class MockMongoDBServer extends Thread {
 
         boolean result = false;
         synchronized (this) {
-            while (!myClientConnected && (now < deadline)) {
+            while ((myClientConnected <= 0) && (now < deadline)) {
                 try {
                     notifyAll();
                     wait(deadline - now);
@@ -252,7 +249,7 @@ public class MockMongoDBServer extends Thread {
                 }
                 now = System.currentTimeMillis();
             }
-            result = myClientConnected;
+            result = (myClientConnected >= 0);
         }
 
         return result;
@@ -271,7 +268,7 @@ public class MockMongoDBServer extends Thread {
 
         boolean result;
         synchronized (this) {
-            while (myClientConnected && (now < deadline)) {
+            while ((myClientConnected > 0) && (now < deadline)) {
                 try {
                     notifyAll();
                     wait(deadline - now);
@@ -281,7 +278,7 @@ public class MockMongoDBServer extends Thread {
                 }
                 now = System.currentTimeMillis();
             }
-            result = !myClientConnected;
+            result = (myClientConnected <= 0);
         }
         return result;
     }
@@ -472,6 +469,48 @@ public class MockMongoDBServer extends Thread {
         }
         catch (final InterruptedException e) {
             // Ignore.
+        }
+    }
+
+    /**
+     * ClientRunnable provides the handling for a single client.
+     * 
+     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    private final class ClientRunnable implements Runnable {
+        /** The client connection. */
+        private final Socket myConn;
+
+        /**
+         * Creates a new ClientRunnable.
+         * 
+         * @param conn
+         *            The client connection.
+         */
+        public ClientRunnable(final Socket conn) {
+            myConn = conn;
+        }
+
+        @Override
+        public void run() {
+            try {
+                synchronized (MockMongoDBServer.this) {
+                    myClientConnected += 1;
+                    MockMongoDBServer.this.notifyAll();
+                }
+
+                handleClient(myConn);
+            }
+            catch (final IOException error) {
+                // OK. Just close.
+            }
+            finally {
+                synchronized (MockMongoDBServer.this) {
+                    myClientConnected -= 1;
+                    MockMongoDBServer.this.notifyAll();
+                }
+                IOUtils.close(myConn);
+            }
         }
     }
 }

@@ -132,7 +132,7 @@ public class ShardedConnectionFactoryTest {
      */
     @Test
     public void testBootstrapNoDiscover() {
-        ourServer.setReplies();
+        ourServer.setReplies(reply());
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 ourServer.getInetSocketAddress());
@@ -147,7 +147,7 @@ public class ShardedConnectionFactoryTest {
                 .getServers();
         assertEquals(1, servers.size());
 
-        assertEquals(0, ourServer.getRequests().size());
+        assertEquals(1, ourServer.getRequests().size()); // For ping.
     }
 
     /**
@@ -173,15 +173,6 @@ public class ShardedConnectionFactoryTest {
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
-        final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
-                config);
-
-        myTestFactory = new ShardedConnectionFactory(socketFactory, config);
-
-        final List<ServerState> servers = myTestFactory.getClusterState()
-                .getServers();
-        assertEquals(2, servers.size());
-
         final Connection mockConnection = createMock(Connection.class);
 
         mockConnection.close();
@@ -189,6 +180,15 @@ public class ShardedConnectionFactoryTest {
 
         replay(mockConnection);
 
+        final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
+                config);
+        myTestFactory = new ShardedConnectionFactory(socketFactory, config);
+
+        final List<ServerState> servers = myTestFactory.getClusterState()
+                .getServers();
+        assertEquals(2, servers.size());
+
+        IOUtils.close(servers.get(0).takeConnection());
         servers.get(0).addConnection(mockConnection);
         myTestFactory.close();
 
@@ -313,10 +313,11 @@ public class ShardedConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
-                .andReturn(mockConnection);
+                .andReturn(mockConnection).times(2);
 
         mockConnection.send(cb(), anyObject(IsMaster.class));
-        expectLastCall().andThrow(new MongoDbException("This is a test"));
+        expectLastCall().andThrow(new MongoDbException("This is a test"))
+                .times(2);
 
         mockConnection.close();
         expectLastCall();
@@ -329,7 +330,7 @@ public class ShardedConnectionFactoryTest {
         verify(mockFactory, mockConnection);
 
         // Reset the mock for the close() in teardown.
-        reset(mockFactory);
+        reset(mockFactory, mockConnection);
     }
 
     /**
@@ -347,7 +348,7 @@ public class ShardedConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
-                .andThrow(new IOException("This is a test"));
+                .andThrow(new IOException("This is a test")).times(2);
 
         replay(mockFactory, mockConnection);
 
@@ -375,10 +376,11 @@ public class ShardedConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
-                .andReturn(mockConnection);
+                .andReturn(mockConnection).times(2);
 
         mockConnection.send(cb(), anyObject(IsMaster.class));
-        expectLastCall().andThrow(new MongoDbException("This is a test"));
+        expectLastCall().andThrow(new MongoDbException("This is a test"))
+                .times(2);
 
         mockConnection.close();
         expectLastCall();
@@ -391,7 +393,7 @@ public class ShardedConnectionFactoryTest {
         verify(mockFactory, mockConnection);
 
         // Reset the mock for the close() in teardown.
-        reset(mockFactory);
+        reset(mockFactory, mockConnection);
     }
 
     /**
@@ -410,7 +412,7 @@ public class ShardedConnectionFactoryTest {
                                 "localhost:1234")),
                 reply(BuilderFactory.start().addString("_id", serverName),
                         BuilderFactory.start().addString("_id",
-                                "localhost:1234")));
+                                "localhost:1234")), reply(), reply());
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 ourServer.getInetSocketAddress());

@@ -10,6 +10,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertNull;
@@ -90,6 +91,7 @@ public class BootstrapConnectionFactoryTest {
      */
     @After
     public void tearDown() throws IOException {
+        myTestFactory.close();
         myTestFactory = null;
         ourServer.clear();
     }
@@ -150,7 +152,7 @@ public class BootstrapConnectionFactoryTest {
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.addString("process", "mongos");
 
-        ourServer.setReplies(reply(replStatusBuilder));
+        ourServer.setReplies(reply(replStatusBuilder), reply());
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 ourServer.getInetSocketAddress());
@@ -253,6 +255,9 @@ public class BootstrapConnectionFactoryTest {
         myTestFactory.close();
 
         verify(mockFactory);
+
+        // Reset the mock for a close in tearDown.
+        reset(mockFactory);
     }
 
     /**
@@ -276,6 +281,9 @@ public class BootstrapConnectionFactoryTest {
             assertSame(mockConnection, myTestFactory.connect());
 
             verify(mockConnection, mockFactory);
+
+            // Reset the mock for a close in tearDown.
+            reset(mockFactory);
         }
         catch (final IOException ioe) {
             final AssertionError error = new AssertionError(ioe.getMessage());
