@@ -130,8 +130,8 @@ public class BootstrapConnectionFactoryTest {
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName);
 
-        ourServer
-                .setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
+        ourServer.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder));
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 ourServer.getInetSocketAddress());

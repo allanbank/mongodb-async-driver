@@ -291,6 +291,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         replay(mockConnection);
 
+        IOUtils.close(servers.get(0).takeConnection());
         servers.get(0).addConnection(mockConnection);
         myTestFactory.close();
 
@@ -414,10 +415,10 @@ public class ReplicaSetConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
-                .andReturn(mockConnection);
+                .andReturn(mockConnection).times(2);
 
         mockConnection.send(cb(), anyObject(IsMaster.class));
-        expectLastCall().andThrow(new MongoDbException("This is a test"));
+        expectLastCall().andThrow(new MongoDbException("This is a test")).times(2);
 
         mockConnection.close();
         expectLastCall();
@@ -430,7 +431,7 @@ public class ReplicaSetConnectionFactoryTest {
         verify(mockFactory, mockConnection);
 
         // Reset the mock factory for a close in tearDown.
-        reset(mockFactory);
+        reset(mockFactory, mockConnection);
     }
 
     /**
@@ -448,7 +449,7 @@ public class ReplicaSetConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
-                .andThrow(new IOException("This is a test"));
+                .andThrow(new IOException("This is a test")).times(2);
 
         replay(mockFactory, mockConnection);
 
@@ -476,10 +477,10 @@ public class ReplicaSetConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
-                .andReturn(mockConnection);
+                .andReturn(mockConnection).times(2);
 
         mockConnection.send(cb(), anyObject(IsMaster.class));
-        expectLastCall().andThrow(new MongoDbException("This is a test"));
+        expectLastCall().andThrow(new MongoDbException("This is a test")).times(2);
 
         mockConnection.close();
         expectLastCall();
@@ -492,7 +493,7 @@ public class ReplicaSetConnectionFactoryTest {
         verify(mockFactory, mockConnection);
 
         // Reset the mock factory for a close in tearDown.
-        reset(mockFactory);
+        reset(mockFactory, mockConnection);
     }
 
     /**
