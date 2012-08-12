@@ -56,7 +56,7 @@ public class ServerNameUtils {
         if (colonIndex > 0) {
             final String portString = server.substring(colonIndex + 1);
             try {
-                port = Integer.parseInt(portString);
+                Integer.parseInt(portString);
 
                 // Its a good name no need to create another string.
                 return server;

@@ -5,10 +5,6 @@
 		<Bug code="SC" />
 	</And>
 	<And>
-		<Class name="com.allanbank.mongodb.connection.state.ClusterPinger" />
-		<Bug code="SC" />
-	</And>
-	<And>
 		<Class name="com.allanbank.mongodb.client.ClientImpl" />
 		<Method name="waitForReconnect" signature="()V" />
 		<Bug code="Wa" />

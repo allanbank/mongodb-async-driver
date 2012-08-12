@@ -270,8 +270,7 @@ public class SocketConnection implements Connection {
     @Override
     public boolean isCompatibleWith(final ReadPreference readPreference) {
         if (readPreference.getMode() == Mode.SERVER) {
-            return mySocket.getRemoteSocketAddress().equals(
-                    readPreference.getServer())
+            return myServer.getName().equals(readPreference.getServer())
                     && readPreference.matches(myServer.getTags());
         }
         return readPreference.matches(myServer.getTags());
