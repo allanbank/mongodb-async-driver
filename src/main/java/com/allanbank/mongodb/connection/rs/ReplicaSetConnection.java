@@ -215,10 +215,8 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
                 }
             }
             finally {
-                if (conn != null) {
-                    if (!server.addConnection(conn)) {
-                        conn.shutdown();
-                    }
+                if ((conn != null) && !server.addConnection(conn)) {
+                    conn.shutdown();
                 }
             }
         }
@@ -266,10 +264,8 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
                 }
             }
             finally {
-                if (conn != null) {
-                    if (!server.addConnection(conn)) {
-                        conn.shutdown();
-                    }
+                if ((conn != null) && !server.addConnection(conn)) {
+                    conn.shutdown();
                 }
             }
         }

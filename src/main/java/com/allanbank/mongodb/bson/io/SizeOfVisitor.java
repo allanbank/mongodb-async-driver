@@ -35,13 +35,13 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 /* package */class SizeOfVisitor implements Visitor {
 
     /** The head of the list of cached sizes. */
-    private CachedSizeNode myHead = CachedSizeNode.NULL;
+    private CachedSizeNode myHead = null;
 
     /** The computed size. */
     private int mySize;
 
     /** The tail of the list of cached sizes. */
-    private CachedSizeNode myTail = CachedSizeNode.NULL;
+    private CachedSizeNode myTail = null;
 
     /**
      * Creates a new SizeOfVisitor.
@@ -89,7 +89,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     public void reset() {
         mySize = 0;
-        myHead = myTail = CachedSizeNode.NULL;
+        myHead = myTail = null;
     }
 
     /**
@@ -98,7 +98,9 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     public void rewind() {
         mySize = 0;
-        myHead = myHead.myNext;
+        if (myHead != null) {
+            myHead = myHead.myNext;
+        }
     }
 
     /**
@@ -165,7 +167,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
     @Override
     public void visit(final List<Element> elements) {
 
-        if (myHead.myElements == elements) {
+        if ((myHead != null) && (myHead.myElements == elements)) {
             mySize += myHead.mySize;
         }
         else {
@@ -174,7 +176,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
             // byte
 
             final CachedSizeNode mine = new CachedSizeNode(elements);
-            if (myHead == CachedSizeNode.NULL) {
+            if (myHead == null) {
                 myHead = myTail = mine;
             }
             else {
@@ -411,12 +413,6 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected static final class CachedSizeNode {
-        /** A self referencing terminal node. */
-        /* package */static final CachedSizeNode NULL;
-        static {
-            NULL = new CachedSizeNode(null);
-            NULL.setNext(NULL);
-        }
 
         /** The elements we are caching the size of. */
         /* package */List<Element> myElements;
@@ -436,7 +432,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
         public CachedSizeNode(final List<Element> elements) {
             myElements = elements;
             mySize = 0;
-            myNext = NULL;
+            myNext = null;
         }
 
         /**

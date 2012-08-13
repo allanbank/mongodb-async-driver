@@ -182,7 +182,7 @@ public class ClusterPinger implements Runnable, Closeable {
         while (maxRemaining <= replies.size()) {
             final Iterator<Future<Reply>> iter = replies.iterator();
             while (iter.hasNext()) {
-                final Future<Reply> future = iter.next();
+                Future<Reply> future = iter.next();
                 try {
                     if (future != null) {
                         // Pause...
@@ -198,9 +198,11 @@ public class ClusterPinger implements Runnable, Closeable {
                 }
                 catch (final TimeoutException e) {
                     // No reply yet.
+                    future = null;
                 }
                 catch (final InterruptedException e) {
                     // No reply yet.
+                    future = null;
                 }
             }
         }
