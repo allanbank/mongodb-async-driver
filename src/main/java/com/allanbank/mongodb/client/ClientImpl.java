@@ -271,10 +271,8 @@ public class ClientImpl extends AbstractClient {
 
                 // Get the new connection in the rotation.
                 myConnections.remove(connection);
-                connection.removePropertyChangeListener(myConnectionListener);
-
                 myConnections.add(newConnection);
-
+                connection.removePropertyChangeListener(myConnectionListener);
             }
             else {
                 // Reconnect failed.
