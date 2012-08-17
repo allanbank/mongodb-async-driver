@@ -8,6 +8,9 @@ package com.allanbank.mongodb.builder;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.IntegerElement;
 
 /**
  * Represents the state of a single {@link MongoCollection#findAndModify}
@@ -239,6 +242,41 @@ public class FindAndModify {
         }
 
         /**
+         * Sets the sort to apply if multiple docs match, choose the first one
+         * as the object to manipulate.
+         * <p>
+         * This method is intended to be used with the {@link Sort} class's
+         * static methods: <blockquote>
+         * 
+         * <pre>
+         * <code>
+         * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+         * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+         * 
+         * FindAndModify.Builder builder = new Find.Builder();
+         * 
+         * builder.setSort( asc("f"), desc("g") );
+         * ...
+         * </code>
+         * </pre>
+         * 
+         * </blockquote>
+         * 
+         * @param sortFields
+         *            The sort to apply if multiple docs match, choose the first
+         *            one as the object to manipulate.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setSort(final IntegerElement... sortFields) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            for (final IntegerElement sortField : sortFields) {
+                builder.add(sortField);
+            }
+            mySort = builder.build();
+            return this;
+        }
+
+        /**
          * Sets the updates to be applied to the document.
          * 
          * @param update
@@ -261,6 +299,5 @@ public class FindAndModify {
             myUpsert = upsert;
             return this;
         }
-
     }
 }

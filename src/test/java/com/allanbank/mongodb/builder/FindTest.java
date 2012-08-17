@@ -33,6 +33,8 @@ public class FindTest {
         final Document query = BuilderFactory.start().build();
         final Document fields = BuilderFactory.start().addInteger("foo", 3)
                 .build();
+        final Document sort = BuilderFactory.start().addInteger("foo", 1)
+                .build();
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(query);
@@ -42,6 +44,7 @@ public class FindTest {
         builder.setNumberToSkip(123456);
         builder.setPartialOk(true);
         builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.setSort(sort);
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
@@ -51,6 +54,7 @@ public class FindTest {
         assertEquals(123456, request.getNumberToSkip());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertSame(sort, request.getSort());
 
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
 
@@ -96,5 +100,47 @@ public class FindTest {
         catch (final AssertionError expected) {
             // Good.
         }
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithSort() {
+        final Document query = BuilderFactory.start().build();
+        final Document fields = BuilderFactory.start().addInteger("foo", 3)
+                .build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.setSort(Sort.desc("f"));
+
+        Find request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertEquals(BuilderFactory.start().addInteger("f", -1).build(),
+                request.getSort());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+
+        request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.PREFER_SECONDARY, request.getReadPreference());
     }
 }

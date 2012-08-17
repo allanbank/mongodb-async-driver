@@ -8,6 +8,9 @@ package com.allanbank.mongodb.builder;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.IntegerElement;
 
 /**
  * Find provides an immutable container for all of the options for a query.
@@ -38,7 +41,7 @@ public class Find {
     private final Document myReturnFields;
 
     /** The fields to order the document by. */
-    private final Document mySortFields;
+    private final Document mySort;
 
     /**
      * Creates a new Find.
@@ -54,7 +57,7 @@ public class Find {
         myNumberToSkip = builder.myNumberToSkip;
         myPartialOk = builder.myPartialOk;
         myReadPreference = builder.myReadPreference;
-        mySortFields = builder.mySortFields;
+        mySort = builder.mySort;
     }
 
     /**
@@ -120,8 +123,8 @@ public class Find {
      * 
      * @return The fields to order document by.
      */
-    public Document getSortFields() {
-        return mySortFields;
+    public Document getSort() {
+        return mySort;
     }
 
     /**
@@ -165,7 +168,7 @@ public class Find {
         protected Document myReturnFields;
 
         /** The fields to order the document on. */
-        protected Document mySortFields;
+        protected Document mySort;
 
         /**
          * Creates a new Builder.
@@ -302,8 +305,42 @@ public class Find {
          *            by.
          * @return This builder for chaining method calls.
          */
-        public Builder setSortFields(final DocumentAssignable sortFields) {
-            mySortFields = sortFields.asDocument();
+        public Builder setSort(final DocumentAssignable sortFields) {
+            mySort = sortFields.asDocument();
+            return this;
+        }
+
+        /**
+         * Sets the value of the fields to to sort matching documents by.
+         * <p>
+         * This method is intended to be used with the {@link Sort} class's
+         * static methods: <blockquote>
+         * 
+         * <pre>
+         * <code>
+         * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+         * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+         * 
+         * Find.Builder builder = new Find.Builder();
+         * 
+         * builder.setSort( asc("f"), desc("g") );
+         * ...
+         * </code>
+         * </pre>
+         * 
+         * </blockquote>
+         * 
+         * @param sortFields
+         *            The new value for the fields to sort matching documents
+         *            by.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setSort(final IntegerElement... sortFields) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            for (final IntegerElement sortField : sortFields) {
+                builder.add(sortField);
+            }
+            mySort = builder.build();
             return this;
         }
     }

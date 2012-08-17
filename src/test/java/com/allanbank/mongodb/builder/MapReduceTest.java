@@ -241,4 +241,42 @@ public class MapReduceTest {
             // Good.
         }
     }
+
+    /**
+     * Test method for {@link MapReduce#MapReduce}.
+     */
+    @Test
+    public void testMapReduceWithSort() {
+        final Document query = BuilderFactory.start().build();
+        final Document scope = BuilderFactory.start().addBoolean("foo", true)
+                .build();
+        final Document sort = BuilderFactory.start().addInteger("foo", 1)
+                .addInteger("bar", -1).build();
+
+        final MapReduce.Builder builder = new MapReduce.Builder();
+        builder.setMapFunction("map");
+        builder.setReduceFunction("reduce");
+        builder.setOutputType(MapReduce.OutputType.INLINE);
+        builder.setFinalizeFunction("finalize");
+        builder.setJsMode(true);
+        builder.setKeepTemp(true);
+        builder.setLimit(10);
+        builder.setQuery(query);
+        builder.setScope(scope);
+        builder.setSort(Sort.asc("foo"), Sort.desc("bar"));
+        builder.setVerbose(true);
+
+        final MapReduce mr = builder.build();
+        assertEquals("map", mr.getMapFunction());
+        assertEquals("reduce", mr.getReduceFunction());
+        assertSame(MapReduce.OutputType.INLINE, mr.getOutputType());
+        assertEquals("finalize", mr.getFinalizeFunction());
+        assertTrue(mr.isJsMode());
+        assertTrue(mr.isKeepTemp());
+        assertEquals(10, mr.getLimit());
+        assertSame(query, mr.getQuery());
+        assertSame(scope, mr.getScope());
+        assertEquals(sort, mr.getSort());
+        assertTrue(mr.isVerbose());
+    }
 }

@@ -5,9 +5,7 @@
 
 package com.allanbank.mongodb.client;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.Callback;
@@ -21,6 +19,7 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -189,32 +188,31 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #createIndex(String, LinkedHashMap, boolean)} method with
-     * <code>false</code> for <tt>unique</tt>.
+     * {@link #createIndex(String, boolean, IntegerElement...)} method with
+     * <code>null</code> for the name.
      * </p>
      * 
-     * @see #createIndex(LinkedHashMap, boolean)
+     * @see #createIndex(String, boolean, IntegerElement...)
      */
     @Override
-    public void createIndex(final LinkedHashMap<String, Integer> keys)
+    public void createIndex(final boolean unique, final IntegerElement... keys)
             throws MongoDbException {
-        createIndex(keys, false);
+        createIndex(null, unique, keys);
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #createIndex(String, LinkedHashMap, boolean)} method with
-     * <code>null</code> for the name.
+     * Overridden to call the {@link #createIndex(boolean, IntegerElement...)}
+     * method with <code>false</code> for <tt>unique</tt>.
      * </p>
      * 
-     * @see #createIndex(String, LinkedHashMap, boolean)
+     * @see #createIndex(boolean, IntegerElement...)
      */
     @Override
-    public void createIndex(final LinkedHashMap<String, Integer> keys,
-            final boolean unique) throws MongoDbException {
-        createIndex(null, keys, unique);
+    public void createIndex(final IntegerElement... keys)
+            throws MongoDbException {
+        createIndex(false, keys);
     }
 
     /**
@@ -224,12 +222,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * implementations must override.
      * </p>
      * 
-     * @see MongoCollection#createIndex(String, LinkedHashMap, boolean)
+     * @see MongoCollection#createIndex(String, boolean, IntegerElement...)
      */
     @Override
-    public abstract void createIndex(String name,
-            LinkedHashMap<String, Integer> keys, boolean unique)
-            throws MongoDbException;
+    public abstract void createIndex(final String name, final boolean unique,
+            final IntegerElement... keys) throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -493,7 +490,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public boolean dropIndex(final LinkedHashMap<String, Integer> keys)
+    public boolean dropIndex(final IntegerElement... keys)
             throws MongoDbException {
         return dropIndex(buildIndexName(keys));
     }
@@ -1291,14 +1288,14 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *            The keys for the index.
      * @return The name for the index.
      */
-    protected String buildIndexName(final LinkedHashMap<String, Integer> keys) {
+    protected String buildIndexName(final IntegerElement... keys) {
         String indexName;
         final StringBuilder nameBuilder = new StringBuilder();
         nameBuilder.append(myName.replace(' ', '_'));
-        for (final Map.Entry<String, Integer> key : keys.entrySet()) {
+        for (final IntegerElement key : keys) {
             nameBuilder.append('_');
-            nameBuilder.append(key.getKey().replace(' ', '_'));
-            nameBuilder.append(key.getValue().toString());
+            nameBuilder.append(key.getName().replace(' ', '_'));
+            nameBuilder.append(key.getValue());
         }
         indexName = nameBuilder.toString();
         return indexName;

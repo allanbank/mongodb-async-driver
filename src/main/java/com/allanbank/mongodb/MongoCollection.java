@@ -5,13 +5,13 @@
 
 package com.allanbank.mongodb;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -119,35 +119,88 @@ public interface MongoCollection {
             ReadPreference readPreference) throws MongoDbException;
 
     /**
-     * Creates an index with a generated name, across the keys specified
-     * allowing duplicate entries.
-     * 
-     * @param keys
-     *            The keys to use for the index.
-     * @throws MongoDbException
-     *             On a failure building the index.
-     */
-    public void createIndex(LinkedHashMap<String, Integer> keys)
-            throws MongoDbException;
-
-    /**
      * Creates an index with a generated name, across the keys specified and if
      * <tt>unique</tt> is true ensuring entries are unique.
+     * <p>
+     * This method is intended to be used with the
+     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * <blockquote>
      * 
-     * @param keys
-     *            The keys to use for the index.
+     * <pre>
+     * <code>
+     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * 
+     * MongoCollection collection = ...;
+     * 
+     * collection.createIndex( true, asc("f"), desc("g") );
+     * ...
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * 
      * @param unique
      *            If true then the index created will enforce entries are
      *            unique.
+     * @param keys
+     *            The keys to use for the index.
      * @throws MongoDbException
      *             On a failure building the index.
      */
-    public void createIndex(LinkedHashMap<String, Integer> keys, boolean unique)
+    public void createIndex(boolean unique, IntegerElement... keys)
             throws MongoDbException;
+
+    /**
+     * Creates an index with a generated name, across the keys specified
+     * allowing duplicate entries.
+     * <p>
+     * This method is intended to be used with the
+     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * 
+     * MongoCollection collection = ...;
+     * 
+     * collection.createIndex( asc("f"), desc("g") );
+     * ...
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * 
+     * @param keys
+     *            The keys to use for the index.
+     * @throws MongoDbException
+     *             On a failure building the index.
+     */
+    public void createIndex(IntegerElement... keys) throws MongoDbException;
 
     /**
      * Creates an index with the specified name, across the keys specified and
      * if <tt>unique</tt> is true ensuring entries are unique.
+     * <p>
+     * This method is intended to be used with the
+     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * 
+     * MongoCollection collection = ...;
+     * 
+     * collection.createIndex( "f_and_g", false, asc("f"), desc("g") );
+     * ...
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
      * 
      * @param name
      *            The name of the index. If <code>null</code> then a name is
@@ -160,8 +213,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On a failure building the index.
      */
-    public void createIndex(String name, LinkedHashMap<String, Integer> keys,
-            boolean unique) throws MongoDbException;
+    public void createIndex(String name, boolean unique, IntegerElement... keys)
+            throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -407,6 +460,24 @@ public interface MongoCollection {
 
     /**
      * Deletes the indexes matching the keys specified.
+     * <p>
+     * This method is intended to be used with the
+     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * 
+     * MongoCollection collection = ...;
+     * 
+     * collection.dropIndex( asc("f"), desc("g") );
+     * ...
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
      * 
      * @param keys
      *            The keys for the index to be dropped.
@@ -414,8 +485,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error deleting the indexes.
      */
-    public boolean dropIndex(LinkedHashMap<String, Integer> keys)
-            throws MongoDbException;
+    public boolean dropIndex(IntegerElement... keys) throws MongoDbException;
 
     /**
      * Deletes the indexes with the provided name.

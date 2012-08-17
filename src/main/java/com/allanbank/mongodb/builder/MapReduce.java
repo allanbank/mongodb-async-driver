@@ -8,6 +8,9 @@ package com.allanbank.mongodb.builder;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.IntegerElement;
 
 /**
  * Represents the state of a single {@link MongoCollection#mapReduce} command.
@@ -483,6 +486,42 @@ public class MapReduce {
          */
         public Builder setSort(final DocumentAssignable sort) {
             mySort = sort.asDocument();
+            return this;
+        }
+
+        /**
+         * Sets the sort to apply to the input objects. Useful for optimization,
+         * like sorting by the emit key for fewer reduces.
+         * <p>
+         * This method is intended to be used with the {@link Sort} class's
+         * static methods: <blockquote>
+         * 
+         * <pre>
+         * <code>
+         * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+         * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+         * 
+         * MapReduce.Builder builder = new Find.Builder();
+         * 
+         * builder.setSort( asc("f"), desc("g") );
+         * ...
+         * </code>
+         * </pre>
+         * 
+         * </blockquote>
+         * 
+         * @param sortFields
+         *            The sort to apply to the input objects. Useful for
+         *            optimization, like sorting by the emit key for fewer
+         *            reduces.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setSort(final IntegerElement... sortFields) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            for (final IntegerElement sortField : sortFields) {
+                builder.add(sortField);
+            }
+            mySort = builder.build();
             return this;
         }
 

@@ -18,7 +18,6 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.junit.After;
@@ -48,6 +47,7 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.Sort;
 
 /**
  * BasicAcceptanceTestCases provides the base tests for the interactions with
@@ -155,11 +155,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testCreateIndex() {
-        final LinkedHashMap<String, Integer> keys = new LinkedHashMap<String, Integer>();
-        keys.put("foo", Integer.valueOf(1));
-        keys.put("bar", Integer.valueOf(1));
 
-        myCollection.createIndex(keys);
+        myCollection.createIndex(Sort.asc("foo"), Sort.asc("bar"));
 
         // Adjust the configuration to keep the connection count down
         // and let the inserts happen asynchronously.
@@ -311,18 +308,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testDropIndex() {
-        final LinkedHashMap<String, Integer> keys = new LinkedHashMap<String, Integer>();
-        keys.put("foo", Integer.valueOf(1));
-        keys.put("bar", Integer.valueOf(1));
-
-        myCollection.createIndex(keys);
+        myCollection.createIndex(Sort.asc("foo"), Sort.asc("bar"));
 
         Document found = myDb.getCollection("system.indexes").findOne(
                 BuilderFactory.start()
                         .addRegularExpression("name", ".*foo.*", "").build());
         assertNotNull(found);
 
-        myCollection.dropIndex(keys);
+        myCollection.dropIndex(Sort.asc("foo"), Sort.asc("bar"));
         found = myDb.getCollection("system.indexes").findOne(
                 BuilderFactory.start()
                         .addRegularExpression("name", ".*foo.*", "").build());
@@ -364,7 +357,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * { domain: "www.mongodb.org"
      * , invoked_at: {d:"2009-11-03", t:"17:14:05"}
      * , response_time: 0.05
-     * , http_action: "GET /display/DOCS/Aggregation"
+     * , http_action: "GET /display/DOCS/Aggregate"
      * }
      *  
      * db.test.group(
@@ -377,7 +370,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * 
      * [
      *   {
-     *     "http_action" : "GET /display/DOCS/Aggregation",
+     *     "http_action" : "GET /display/DOCS/Aggregate",
      *     "count" : 1,
      *     "total_time" : 0.05,
      *     "avg_time" : 0.05
@@ -396,7 +389,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc.push("invoked_at").addString("d", "2009-11-03")
                 .addString("t", "17:14:05");
         doc.addDouble("response_time", 0.05);
-        doc.addString("http_action", "GET /display/DOCS/Aggregation");
+        doc.addString("http_action", "GET /display/DOCS/Aggregate");
 
         myCollection.insert(Durability.ACK, doc.build());
 
@@ -420,7 +413,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         final DocumentElement result = (DocumentElement) entry;
         assertEquals(new StringElement("http_action",
-                "GET /display/DOCS/Aggregation"), result.get("http_action"));
+                "GET /display/DOCS/Aggregate"), result.get("http_action"));
         assertEquals(new DoubleElement("count", 1.0), result.get("count"));
         assertEquals(new DoubleElement("total_time", 0.05),
                 result.get("total_time"));

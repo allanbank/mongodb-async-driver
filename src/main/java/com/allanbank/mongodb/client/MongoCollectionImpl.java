@@ -6,9 +6,7 @@
 package com.allanbank.mongodb.client;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
@@ -24,6 +22,7 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -88,9 +87,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void createIndex(final String name,
-            final LinkedHashMap<String, Integer> keys, final boolean unique)
-            throws MongoDbException {
+    public void createIndex(final String name, final boolean unique,
+            final IntegerElement... keys) throws MongoDbException {
 
         String indexName = name;
         if ((name == null) || name.isEmpty()) {
@@ -105,8 +103,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         final DocumentBuilder keyBuilder = indexEntryBuilder.push("key");
-        for (final Map.Entry<String, Integer> key : keys.entrySet()) {
-            keyBuilder.addInteger(key.getKey(), key.getValue().intValue());
+        for (final IntegerElement key : keys) {
+            keyBuilder.add(key);
         }
 
         final MongoCollection indexCollection = new MongoCollectionImpl(
@@ -256,14 +254,14 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         Document queryDoc = query.getQuery();
-        if ((query.getSortFields() != null) || !readPreference.isLegacy()) {
+        if ((query.getSort() != null) || !readPreference.isLegacy()) {
             final DocumentBuilder builder = BuilderFactory.start();
             for (final Element e : queryDoc) {
                 builder.add(e);
             }
 
-            if (query.getSortFields() != null) {
-                builder.addDocument("orderby", query.getSortFields());
+            if (query.getSort() != null) {
+                builder.addDocument("orderby", query.getSort());
             }
 
             if (!readPreference.isLegacy()) {

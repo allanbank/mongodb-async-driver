@@ -177,8 +177,7 @@ public class GridFs {
         queryDoc.add(queryElement);
 
         final Find.Builder findBuilder = new Find.Builder(queryDoc.build());
-        findBuilder.setSortFields(BuilderFactory.start().addInteger("n", 1)
-                .build());
+        findBuilder.setSort(BuilderFactory.start().addInteger("n", 1).build());
 
         // Small batch size since the docs are big and we can do parallel I/O.
         findBuilder.setBatchSize(2);

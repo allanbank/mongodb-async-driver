@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -41,11 +40,13 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.Sort;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Delete;
 import com.allanbank.mongodb.connection.message.GetLastError;
@@ -374,13 +375,10 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#createIndex(java.util.LinkedHashMap)} .
+     * {@link AbstractMongoCollection#createIndex(IntegerElement...)} .
      */
     @Test
     public void testCreateIndexLinkedHashMapOfStringInteger() {
-        final LinkedHashMap<String, Integer> keySet = new LinkedHashMap<String, Integer>();
-        keySet.put("k", Integer.valueOf(1));
-        keySet.put("l", Integer.valueOf(-1));
 
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
         indexDocBuilder.addString("name", "test_k1_l-1");
@@ -403,21 +401,17 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex(keySet);
+        myTestInstance.createIndex(Sort.asc("k"), Sort.desc("l"));
 
         verify();
     }
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#createIndex(java.util.LinkedHashMap, boolean)}
-     * .
+     * {@link AbstractMongoCollection#createIndex(boolean, IntegerElement...)} .
      */
     @Test
     public void testCreateIndexLinkedHashMapOfStringIntegerBoolean() {
-        final LinkedHashMap<String, Integer> keySet = new LinkedHashMap<String, Integer>();
-        keySet.put("k", Integer.valueOf(1));
-        keySet.put("l", Integer.valueOf(-1));
 
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
         indexDocBuilder.addString("name", "test_k1_l-1");
@@ -441,21 +435,18 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex(keySet, true);
+        myTestInstance.createIndex(true, Sort.asc("k"), Sort.desc("l"));
 
         verify();
     }
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(java.lang.String, java.util.LinkedHashMap, boolean)}
+     * {@link MongoCollectionImpl#createIndex(String, boolean, IntegerElement...)}
      * .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBoolean() {
-
-        final LinkedHashMap<String, Integer> keySet = new LinkedHashMap<String, Integer>();
-        keySet.put("k", Integer.valueOf(1));
 
         final Durability expectedDur = Durability.ACK;
         final GetLastError expectedLastError = new GetLastError("test",
@@ -490,21 +481,18 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex("name", keySet, false);
+        myTestInstance.createIndex("name", false, Sort.asc("k"));
 
         verify();
     }
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(java.lang.String, java.util.LinkedHashMap, boolean)}
+     * {@link MongoCollectionImpl#createIndex(String, boolean, IntegerElement...)}
      * .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExists() {
-
-        final LinkedHashMap<String, Integer> keySet = new LinkedHashMap<String, Integer>();
-        keySet.put("k", Integer.valueOf(1));
 
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
         indexDocBuilder.addString("name", "name");
@@ -527,23 +515,19 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex("name", keySet, false);
+        myTestInstance.createIndex("name", false, Sort.asc("k"));
 
         verify();
     }
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(java.lang.String, java.util.LinkedHashMap, boolean)}
+     * {@link MongoCollectionImpl#createIndex(String, boolean, IntegerElement...)}
      * .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExistsEmptyName() {
 
-        final LinkedHashMap<String, Integer> keySet = new LinkedHashMap<String, Integer>();
-        keySet.put("k", Integer.valueOf(1));
-        keySet.put("l", Integer.valueOf(-1));
-
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
         indexDocBuilder.addString("name", "test_k1_l-1");
         indexDocBuilder.addString("ns", "test.test");
@@ -565,22 +549,18 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex("", keySet, false);
+        myTestInstance.createIndex("", false, Sort.asc("k"), Sort.desc("l"));
 
         verify();
     }
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(java.lang.String, java.util.LinkedHashMap, boolean)}
+     * {@link MongoCollectionImpl#createIndex(String, boolean, IntegerElement...)}
      * .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExistsNullName() {
-
-        final LinkedHashMap<String, Integer> keySet = new LinkedHashMap<String, Integer>();
-        keySet.put("k", Integer.valueOf(1));
-        keySet.put("l", Integer.valueOf(-1));
 
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
         indexDocBuilder.addString("name", "test_k1_l-1");
@@ -603,7 +583,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex(null, keySet, false);
+        myTestInstance.createIndex(null, false, Sort.asc("k"), Sort.desc("l"));
 
         verify();
     }
@@ -1564,7 +1544,7 @@ public class MongoCollectionImplTest {
         builder.setNumberToSkip(123456);
         builder.setPartialOk(true);
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
-        builder.setSortFields(sort);
+        builder.setSort(sort);
 
         final Find request = builder.build();
 
