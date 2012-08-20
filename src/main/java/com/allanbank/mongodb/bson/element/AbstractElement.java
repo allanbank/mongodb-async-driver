@@ -40,6 +40,17 @@ public abstract class AbstractElement implements Element {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns this element.
+     * </p>
+     */
+    @Override
+    public Element asElement() {
+        return this;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

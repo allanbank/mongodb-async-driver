@@ -6,7 +6,9 @@
 package com.allanbank.mongodb.builder;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -36,6 +38,7 @@ import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.builder.expression.Constant;
 
 /**
  * ConditionBuilder provides tracking for the condition of a single field within
@@ -99,6 +102,32 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder all(final ArrayBuilder elements) {
         return all(elements.build());
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * Only a single {@link #all(Element[])} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final Constant... values) {
+        myEqualsComparison = null;
+
+        final List<Element> elements = new ArrayList<Element>(values.length);
+        for (int i = 0; i < values.length; ++i) {
+            elements.add(values[i].toElement(String.valueOf(i)));
+        }
+        myOtherComparisons.put(MiscellaneousOperator.ALL, new ArrayElement(
+                MiscellaneousOperator.ALL.getToken(), elements));
+
+        return this;
     }
 
     /**
@@ -1087,6 +1116,32 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder in(final ArrayBuilder elements) {
         return in(elements.build());
+    }
+
+    /**
+     * Specify the values that one must match the fields value.
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final Constant... values) {
+        myEqualsComparison = null;
+
+        final List<Element> elements = new ArrayList<Element>(values.length);
+        for (int i = 0; i < values.length; ++i) {
+            elements.add(values[i].toElement(String.valueOf(i)));
+        }
+        myOtherComparisons.put(MiscellaneousOperator.IN, new ArrayElement(
+                MiscellaneousOperator.IN.getToken(), elements));
+
+        return this;
     }
 
     /**
@@ -2414,6 +2469,33 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder notIn(final ArrayBuilder elements) {
         return notIn(elements.build());
+    }
+
+    /**
+     * Specify the values that must <em>not</em> must not match the fields
+     * value.
+     * <p>
+     * Only a single {@link #notIn(Element[])} comparison can be used. Calling
+     * multiple <tt>notIn(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final Constant... values) {
+        myEqualsComparison = null;
+
+        final List<Element> elements = new ArrayList<Element>(values.length);
+        for (int i = 0; i < values.length; ++i) {
+            elements.add(values[i].toElement(String.valueOf(i)));
+        }
+        myOtherComparisons.put(MiscellaneousOperator.NIN, new ArrayElement(
+                MiscellaneousOperator.NIN.getToken(), elements));
+
+        return this;
     }
 
     /**

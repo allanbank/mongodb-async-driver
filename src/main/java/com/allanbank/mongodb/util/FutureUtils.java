@@ -35,7 +35,7 @@ public final class FutureUtils {
             throw new MongoDbException(e);
         }
         catch (final ExecutionException e) {
-            Throwable cause = e.getCause();
+            final Throwable cause = e.getCause();
             if (cause instanceof MongoDbException) {
                 throw (MongoDbException) cause;
             }

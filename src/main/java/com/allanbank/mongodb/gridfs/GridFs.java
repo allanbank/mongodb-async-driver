@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.gridfs;
 
 import static com.allanbank.mongodb.builder.QueryBuilder.where;
+import static com.allanbank.mongodb.builder.Sort.asc;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -177,7 +178,7 @@ public class GridFs {
         queryDoc.add(queryElement);
 
         final Find.Builder findBuilder = new Find.Builder(queryDoc.build());
-        findBuilder.setSort(BuilderFactory.start().addInteger("n", 1).build());
+        findBuilder.setSort(asc("n"));
 
         // Small batch size since the docs are big and we can do parallel I/O.
         findBuilder.setBatchSize(2);

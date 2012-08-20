@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.BinaryElement;
@@ -62,7 +63,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final Element element) {
+    public DocumentBuilder add(final ElementAssignable elementRef) {
+        final Element element = elementRef.asElement();
         myElements.add(element);
         if ("_id".equals(element.getName())) {
             myIdPresent = true;

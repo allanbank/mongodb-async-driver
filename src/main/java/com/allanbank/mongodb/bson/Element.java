@@ -13,7 +13,7 @@ import java.util.List;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface Element extends Serializable {
+public interface Element extends Serializable, ElementAssignable {
 
     /**
      * Accepts the visitor and calls the appropriate method on the visitor based

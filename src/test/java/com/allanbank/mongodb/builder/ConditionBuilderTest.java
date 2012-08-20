@@ -42,6 +42,7 @@ import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.builder.expression.Expressions;
 
 /**
  * ConditionBuilderTest provides tests for the {@link ConditionBuilder} class.
@@ -87,6 +88,28 @@ public class ConditionBuilderTest {
 
         // Should not change the results.
         ab.addInteger(1);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).addBoolean(false)
+                .addBoolean(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllConstantArray() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(Expressions.constant(false), Expressions.constant(true));
 
         final Element e = b.buildFieldCondition();
 
@@ -1132,6 +1155,28 @@ public class ConditionBuilderTest {
 
         // Should not change the results.
         ab.addInteger(1);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).addBoolean(false)
+                .addBoolean(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInConstantArray() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(Expressions.constant(false), Expressions.constant(true));
 
         final Element e = b.buildFieldCondition();
 
@@ -2474,6 +2519,29 @@ public class ConditionBuilderTest {
 
         // Should not change the results.
         ab.addInteger(1);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).addBoolean(false)
+                .addBoolean(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#notIn(com.allanbank.mongodb.bson.Element[])}.
+     */
+    @Test
+    public void testNotInCOnstantArray() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(Expressions.constant(false), Expressions.constant(true));
 
         final Element e = b.buildFieldCondition();
 

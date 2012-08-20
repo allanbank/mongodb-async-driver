@@ -107,9 +107,21 @@ public class GroupByTest {
         builder.setQuery(query);
         builder.setReduceFunction("reduce");
 
-        final GroupBy g = builder.build();
+        GroupBy g = builder.build();
         assertNull(g.getKeyFunction());
         assertEquals(keys, g.getKeys());
+        assertEquals("finalize", g.getFinalizeFunction());
+        assertSame(initial, g.getInitialValue());
+        assertSame(query, g.getQuery());
+        assertEquals("reduce", g.getReduceFunction());
+
+        // Zap the keys and switch to a function
+        builder.setKeys(null);
+        builder.setKeyFunction("function f() {}");
+
+        g = builder.build();
+        assertEquals("function f() {}", g.getKeyFunction());
+        assertEquals(0, g.getKeys().size());
         assertEquals("finalize", g.getFinalizeFunction());
         assertSame(initial, g.getInitialValue());
         assertSame(query, g.getQuery());

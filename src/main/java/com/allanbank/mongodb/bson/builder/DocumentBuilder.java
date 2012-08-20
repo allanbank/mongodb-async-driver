@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
-import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
@@ -24,7 +24,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      *            The element to add.
      * @return This {@link DocumentBuilder} for method chaining.
      */
-    public DocumentBuilder add(Element element);
+    public DocumentBuilder add(ElementAssignable element);
 
     /**
      * Adds a binary element using sub-type zero (the default).
