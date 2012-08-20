@@ -6,6 +6,7 @@ package com.allanbank.mongodb.bson.builder;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
@@ -14,6 +15,15 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface ArrayBuilder extends Builder {
+
+    /**
+     * Adds a pre-built element to the document.
+     * 
+     * @param element
+     *            The element to add.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(ElementAssignable element);
 
     /**
      * Adds a binary element.
@@ -216,5 +226,4 @@ public interface ArrayBuilder extends Builder {
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder pushArray();
-
 }

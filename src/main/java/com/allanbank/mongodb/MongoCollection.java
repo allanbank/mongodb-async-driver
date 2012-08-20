@@ -12,6 +12,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -24,6 +25,42 @@ import com.allanbank.mongodb.builder.MapReduce;
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface MongoCollection {
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param command
+     *            The details of the aggregation request.
+     * @return The aggregation results returned.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     */
+    public List<Document> aggregate(Aggregate command) throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param command
+     *            The details of the aggregation request.
+     * @return Future for the aggregation results returned.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     */
+    public Future<List<Document>> aggregateAsync(Aggregate command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     */
+    public void aggregateAsync(Callback<List<Document>> results,
+            Aggregate command) throws MongoDbException;
+
     /**
      * Counts the set of documents matching the query document in the
      * collection.

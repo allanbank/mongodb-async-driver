@@ -41,6 +41,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -100,6 +101,108 @@ public class MongoCollectionImplTest {
 
         myTestInstance = null;
         myAddress = null;
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#aggregate(Aggregate)} .
+     */
+    @Test
+    public void testAggregate() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.limit(5);
+
+        final Aggregate request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(callback(reply(result.build())), eq(message)))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Collections.singletonList(value.build()),
+                myTestInstance.aggregate(request));
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#aggregateAsync(Aggregate)}
+     * .
+     * 
+     * @throws Exception
+     *             On a failure.
+     */
+    @Test
+    public void testAggregateAsyncAggregate() throws Exception {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.limit(5);
+
+        final Aggregate request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(callback(reply(result.build())), eq(message)))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Collections.singletonList(value.build()), myTestInstance
+                .aggregateAsync(request).get());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregate)} .
+     */
+    @Test
+    public void testAggregateAsyncCallbackOfListOfDocumentAggregate() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.limit(5);
+
+        final Aggregate request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(
+                myMockClient.send(anyObject(ReplyResultCallback.class),
+                        eq(message))).andReturn(myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.aggregateAsync(mockCallback, request);
+
+        verify(mockCallback);
     }
 
     /**
@@ -381,7 +484,7 @@ public class MongoCollectionImplTest {
     public void testCreateIndexLinkedHashMapOfStringInteger() {
 
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
-        indexDocBuilder.addString("name", "test_k1_l-1");
+        indexDocBuilder.addString("name", "k_1_l_-1");
         indexDocBuilder.addString("ns", "test.test");
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
@@ -414,7 +517,7 @@ public class MongoCollectionImplTest {
     public void testCreateIndexLinkedHashMapOfStringIntegerBoolean() {
 
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
-        indexDocBuilder.addString("name", "test_k1_l-1");
+        indexDocBuilder.addString("name", "k_1_l_-1");
         indexDocBuilder.addString("ns", "test.test");
         indexDocBuilder.addBoolean("unique", true);
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
@@ -529,7 +632,7 @@ public class MongoCollectionImplTest {
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExistsEmptyName() {
 
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
-        indexDocBuilder.addString("name", "test_k1_l-1");
+        indexDocBuilder.addString("name", "k_1_l_-1");
         indexDocBuilder.addString("ns", "test.test");
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
@@ -563,7 +666,7 @@ public class MongoCollectionImplTest {
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExistsNullName() {
 
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
-        indexDocBuilder.addString("name", "test_k1_l-1");
+        indexDocBuilder.addString("name", "k_1_l_-1");
         indexDocBuilder.addString("ns", "test.test");
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
 
@@ -1118,12 +1221,17 @@ public class MongoCollectionImplTest {
                 .andReturn(badResult);
         expect(myMockDatabase.runCommand("deleteIndexes", "test", options))
                 .andReturn(missingOkResult);
+        expect(
+                myMockDatabase.runCommand("deleteIndexes", "test",
+                        BuilderFactory.start().addString("index", "f_1")
+                                .build())).andReturn(goodResult);
 
         replay();
 
         assertTrue(myTestInstance.dropIndex("foo"));
         assertFalse(myTestInstance.dropIndex("foo"));
         assertFalse(myTestInstance.dropIndex("foo"));
+        assertTrue(myTestInstance.dropIndex(Sort.asc("f")));
 
         verify();
     }
@@ -2191,7 +2299,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(
-                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                myMockClient.send(anyObject(ReplyResultCallback.class),
                         eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
@@ -2281,7 +2389,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(
-                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                myMockClient.send(anyObject(ReplyResultCallback.class),
                         eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
@@ -2316,7 +2424,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(
-                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                myMockClient.send(anyObject(ReplyResultCallback.class),
                         eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
@@ -2353,7 +2461,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(
-                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                myMockClient.send(anyObject(ReplyResultCallback.class),
                         eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
@@ -2388,7 +2496,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(
-                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                myMockClient.send(anyObject(ReplyResultCallback.class),
                         eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
@@ -2425,7 +2533,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(
-                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                myMockClient.send(anyObject(ReplyResultCallback.class),
                         eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
@@ -2460,7 +2568,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(
-                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                myMockClient.send(anyObject(ReplyResultCallback.class),
                         eq(message))).andReturn(myAddress);
 
         replay(mockCallback);
@@ -2497,7 +2605,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(
-                myMockClient.send(anyObject(MapReduceReplyCallback.class),
+                myMockClient.send(anyObject(ReplyResultCallback.class),
                         eq(message))).andReturn(myAddress);
 
         replay(mockCallback);

@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
@@ -52,6 +53,16 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      */
     public ArrayBuilderImpl(final AbstractBuilder outerBuilder) {
         super(outerBuilder);
+    }
+
+    /**
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final ElementAssignable element) {
+        myElements.add(element.asElement().withName(nextIndex()));
+        return this;
     }
 
     /**

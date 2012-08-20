@@ -19,11 +19,13 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
+import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
+import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -55,6 +57,32 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     public MongoCollectionImpl(final Client client,
             final MongoDatabase database, final String name) {
         super(client, database, name);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to construct a aggregate command and send it to the server.
+     * </p>
+     * 
+     * @see MongoCollection#aggregateAsync(Callback, Aggregate)
+     */
+    @Override
+    public void aggregateAsync(final Callback<List<Document>> results,
+            final Aggregate command) throws MongoDbException {
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        builder.addString("aggregate", getName());
+
+        final ArrayBuilder pipeline = builder.pushArray("pipeline");
+        for (final Element e : command.getPipeline()) {
+            pipeline.add(e);
+        }
+
+        final Command commandMsg = new Command(getDatabaseName(),
+                builder.build());
+        myClient.send(new ReplyResultCallback("result", results), commandMsg);
+
     }
 
     /**
@@ -470,7 +498,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build());
-        myClient.send(new MapReduceReplyCallback(results), commandMsg);
+        myClient.send(new ReplyResultCallback(results), commandMsg);
     }
 
     /**

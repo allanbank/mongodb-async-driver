@@ -20,6 +20,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -84,6 +85,51 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         myDatabase = database;
         myName = name;
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #aggregateAsync(Aggregate)}.
+     * </p>
+     * 
+     * @see #aggregateAsync(Aggregate)
+     */
+    @Override
+    public List<Document> aggregate(final Aggregate command)
+            throws MongoDbException {
+        return FutureUtils.unwrap(aggregateAsync(command));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #aggregateAsync(Callback, Aggregate)}.
+     * </p>
+     * 
+     * @see #aggregateAsync(Callback, Aggregate)
+     */
+    @Override
+    public Future<List<Document>> aggregateAsync(final Aggregate command)
+            throws MongoDbException {
+        final FutureCallback<List<Document>> future = new FutureCallback<List<Document>>();
+
+        aggregateAsync(future, command);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>aggregate</code> method that implementations
+     * must override.
+     * </p>
+     * 
+     * @see MongoCollection#aggregateAsync(Callback, Aggregate)
+     */
+    @Override
+    public abstract void aggregateAsync(Callback<List<Document>> results,
+            Aggregate command) throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -1007,8 +1053,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #findAndModifyAsync(Callback, FindAndModify)}.
+     * Overridden to call the {@link #mapReduceAsync(Callback, MapReduce)}.
      * </p>
      * 
      * @see #mapReduceAsync(Callback, MapReduce)
@@ -1289,16 +1334,16 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @return The name for the index.
      */
     protected String buildIndexName(final IntegerElement... keys) {
-        String indexName;
         final StringBuilder nameBuilder = new StringBuilder();
-        nameBuilder.append(myName.replace(' ', '_'));
         for (final IntegerElement key : keys) {
-            nameBuilder.append('_');
+            if (nameBuilder.length() > 0) {
+                nameBuilder.append('_');
+            }
             nameBuilder.append(key.getName().replace(' ', '_'));
+            nameBuilder.append("_");
             nameBuilder.append(key.getValue());
         }
-        indexName = nameBuilder.toString();
-        return indexName;
+        return nameBuilder.toString();
     }
 
     /**

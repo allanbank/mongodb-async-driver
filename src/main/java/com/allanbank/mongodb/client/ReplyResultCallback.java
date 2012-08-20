@@ -16,21 +16,37 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.connection.message.Reply;
 
 /**
- * Callback to extract the map/reduce results from the reply.
+ * Callback to extract the map/reduce and aggregation results from the reply.
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MapReduceReplyCallback extends
-        AbstractReplyCallback<List<Document>> {
+public class ReplyResultCallback extends AbstractReplyCallback<List<Document>> {
+
+    /** The field in the reply holding the results. */
+    private final String myReplyField;
 
     /**
-     * Create a new MapReduceReplyCallback.
+     * Create a new ReplyResultCallback.
      * 
      * @param forwardCallback
      *            The callback to forward the result documents to.
      */
-    public MapReduceReplyCallback(final Callback<List<Document>> forwardCallback) {
+    public ReplyResultCallback(final Callback<List<Document>> forwardCallback) {
+        this("results", forwardCallback);
+    }
+
+    /**
+     * Create a new ReplyResultCallback.
+     * 
+     * @param field
+     *            The field in the reply holding the results.
+     * @param forwardCallback
+     *            The callback to forward the result documents to.
+     */
+    public ReplyResultCallback(final String field,
+            final Callback<List<Document>> forwardCallback) {
         super(forwardCallback);
+        myReplyField = field;
     }
 
     /**
@@ -50,7 +66,7 @@ public class MapReduceReplyCallback extends
             final Document doc = replyDocs.get(0);
 
             final List<DocumentElement> resultsElems = doc.queryPath(
-                    DocumentElement.class, "results", ".*");
+                    DocumentElement.class, myReplyField, ".*");
             if (!resultsElems.isEmpty()) {
                 results = new ArrayList<Document>();
                 for (final DocumentElement resultElem : resultsElems) {
