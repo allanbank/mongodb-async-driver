@@ -144,6 +144,17 @@ public class MongoIterator implements ClosableIterator<Document> {
     }
 
     /**
+     * Returns the iterator's read preference which points to the original
+     * server performing the query.
+     * 
+     * @return The iterator's read preference which points to the original
+     *         server performing the query.
+     */
+    public ReadPreference getReadPerference() {
+        return myReadPerference;
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to return true if there are more documents.
