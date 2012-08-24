@@ -2661,6 +2661,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding polygon.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -2706,6 +2710,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding circular region.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -2728,6 +2736,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is within the specified
      * bounding circular region.
+     * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
@@ -2766,6 +2778,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding rectangular region.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -2790,6 +2806,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is within the specified
      * bounding rectangular region.
+     * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
@@ -2830,6 +2850,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding circular region.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -2851,6 +2875,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is within the specified
      * bounding circular region.
+     * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
@@ -2889,6 +2917,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding rectangular region.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -2913,6 +2945,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is within the specified
      * bounding rectangular region.
+     * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
@@ -2955,6 +2991,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding circular region.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -2976,6 +3016,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is within the specified
      * bounding circular region.
+     * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
@@ -3014,6 +3058,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding rectangular region.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -3038,6 +3086,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is within the specified
      * bounding rectangular region.
+     * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
@@ -3078,6 +3130,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding polygon.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -3103,6 +3159,15 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding circular region on a sphere.
      * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE 2:</b> The <tt>x</tt>, <tt>y</tt> and <tt>radius</tt> must not
+     * wrap since that has not been implemented yet within MongoDB.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
      * values. In addition any {@link #equals(boolean) equals(...)} condition is
@@ -3125,6 +3190,15 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is within the specified
      * bounding circular region on a sphere.
+     * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE 2:</b> The <tt>x</tt>, <tt>y</tt> and <tt>radius</tt> must not
+     * wrap since that has not been implemented yet within MongoDB.
+     * </p>
      * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
@@ -3164,6 +3238,15 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding circular region on a sphere.
      * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE 2:</b> The <tt>x</tt>, <tt>y</tt> and <tt>radius</tt> must not
+     * wrap since that has not been implemented yet within MongoDB.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
      * values. In addition any {@link #equals(boolean) equals(...)} condition is
@@ -3186,6 +3269,15 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is within the specified
      * bounding circular region on a sphere.
+     * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE 2:</b> The <tt>x</tt>, <tt>y</tt> and <tt>radius</tt> must not
+     * wrap since that has not been implemented yet within MongoDB.
+     * </p>
      * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
@@ -3225,6 +3317,15 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is within the specified
      * bounding circular region on a sphere.
      * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE 2:</b> The <tt>x</tt>, <tt>y</tt> and <tt>radius</tt> must not
+     * wrap since that has not been implemented yet within MongoDB.
+     * </p>
+     * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
      * values. In addition any {@link #equals(boolean) equals(...)} condition is
@@ -3247,6 +3348,15 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is within the specified
      * bounding circular region on a sphere.
+     * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE 2:</b> The <tt>x</tt>, <tt>y</tt> and <tt>radius</tt> must not
+     * wrap since that has not been implemented yet within MongoDB.
+     * </p>
      * <p>
      * Only a single {@link #within(int, int, int, int)} comparison can be used.
      * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous

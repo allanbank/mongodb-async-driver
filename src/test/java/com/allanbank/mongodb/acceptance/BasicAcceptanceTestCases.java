@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.ClosableIterator;
@@ -4378,18 +4377,94 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * .
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinBooleanPoint2DPoint2DPoint2DPoint2DArray() {
-        fail("Not yet implemented");
+        final double x1 = myRandom.nextDouble() * 170.0;
+        final double y1 = myRandom.nextDouble() * 170.0;
+        final double x2 = myRandom.nextDouble() * 170.0;
+        final double y2 = myRandom.nextDouble() * 170.0;
+
+        final double minx = Math.min(x1, x2);
+        final double maxx = Math.max(x1, x2);
+        final double deltax = Math.abs(x1 - x2);
+        final double miny = Math.min(y1, y2);
+        final double maxy = Math.max(y1, y2);
+        final double deltay = Math.abs(y1 - y2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addDouble(minx).addDouble(miny);
+        ab.pushArray().addDouble(minx + (deltax / 2))
+                .addDouble(miny + (deltay / 2));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(minx + (deltax / 2))
+                .addDouble(miny + (deltay / 2));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(minx - 1).addDouble(miny - 1);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        // Find on a slightly deformed square
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(false, new Point2D.Double(minx - 0.5, miny),
+                        new Point2D.Double(maxx, miny),
+                        new Point2D.Double(maxx, maxy + 0.75),
+                        new Point2D.Double(minx, maxy)));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
      * Test method for {@link ConditionBuilder#within(double, double, double)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinDoubleDoubleDouble() {
-        fail("Not yet implemented");
+        final double x = myRandom.nextDouble() * 170.0;
+        final double y = myRandom.nextDouble() * 170.0;
+        final double radius = Math.sqrt(4.0 + 4.0);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addDouble(x + 1).addDouble(y + 1);
+        ab.pushArray().addDouble(x + 2).addDouble(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 3).addDouble(y + 3);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x, y, radius));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4397,9 +4472,41 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#within(double, double, double, boolean)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinDoubleDoubleDoubleBoolean() {
-        fail("Not yet implemented");
+        final double x = myRandom.nextDouble() * 170.0;
+        final double y = myRandom.nextDouble() * 170.0;
+        final double radius = Math.sqrt(4.0 + 4.0) + .1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addDouble(x + 1).addDouble(y + 1);
+        ab.pushArray().addDouble(x + 2).addDouble(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 3).addDouble(y + 3);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x, y, radius, false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next()); // Note duplicate.
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4407,9 +4514,47 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#within(double, double, double, double)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinDoubleDoubleDoubleDouble() {
-        fail("Not yet implemented");
+        final double x1 = myRandom.nextDouble() * 170.0;
+        final double y1 = myRandom.nextDouble() * 170.0;
+        final double x2 = myRandom.nextDouble() * 170.0;
+        final double y2 = myRandom.nextDouble() * 170.0;
+
+        final double minx = Math.min(x1, x2);
+        final double deltax = Math.abs(x1 - x2);
+        final double miny = Math.min(y1, y2);
+        final double deltay = Math.abs(y1 - y2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addDouble(minx).addDouble(miny);
+        ab.pushArray().addDouble(minx + (deltax / 2))
+                .addDouble(miny + (deltay / 2));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(minx + (deltax / 2))
+                .addDouble(miny + (deltay / 2));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(minx - 1).addDouble(miny - 1);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x1, y1, x2, y2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4417,36 +4562,176 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#within(double, double, double, double, boolean)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinDoubleDoubleDoubleDoubleBoolean() {
-        fail("Not yet implemented");
+        final double x1 = myRandom.nextDouble() * 170.0;
+        final double y1 = myRandom.nextDouble() * 170.0;
+        final double x2 = myRandom.nextDouble() * 170.0;
+        final double y2 = myRandom.nextDouble() * 170.0;
+
+        final double minx = Math.min(x1, x2);
+        final double deltax = Math.abs(x1 - x2);
+        final double miny = Math.min(y1, y2);
+        final double deltay = Math.abs(y1 - y2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addDouble(minx).addDouble(miny);
+        ab.pushArray().addDouble(minx + (deltax / 2))
+                .addDouble(miny + (deltay / 2));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(minx + (deltax / 2))
+                .addDouble(miny + (deltay / 2));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(minx - 1).addDouble(miny - 1);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x1, y1, x2, y2, false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
      * Test method for {@link ConditionBuilder#within(int, int, int)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinIntIntInt() {
-        fail("Not yet implemented");
+        final int x = (int) (myRandom.nextDouble() * 170.0);
+        final int y = (int) (myRandom.nextDouble() * 170.0);
+        final int radius = (int) Math.ceil(Math.sqrt(4.0 + 4.0));
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addInteger(x + 1).addInteger(y + 1);
+        ab.pushArray().addInteger(x + 2).addInteger(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addInteger(x + 2).addInteger(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addInteger(x + 3).addInteger(y + 3);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x, y, radius));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
      * Test method for {@link ConditionBuilder#within(int, int, int, boolean)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinIntIntIntBoolean() {
-        fail("Not yet implemented");
+        final int x = (int) (myRandom.nextDouble() * 170.0);
+        final int y = (int) (myRandom.nextDouble() * 170.0);
+        final int radius = (int) Math.ceil(Math.sqrt(4.0 + 4.0));
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addInteger(x + 1).addInteger(y + 1);
+        ab.pushArray().addInteger(x + 2).addInteger(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addInteger(x + 2).addInteger(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addInteger(x + 3).addInteger(y + 3);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x, y, radius, false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next()); // Note duplicate.
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
      * Test method for {@link ConditionBuilder#within(int, int, int, int)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinIntIntIntInt() {
-        fail("Not yet implemented");
+        final int x1 = (int) (myRandom.nextDouble() * 170.0);
+        final int y1 = (int) (myRandom.nextDouble() * 170.0);
+        final int x2 = (int) (myRandom.nextDouble() * 170.0);
+        final int y2 = (int) (myRandom.nextDouble() * 170.0);
+
+        final int minx = Math.min(x1, x2);
+        final int deltax = Math.abs(x1 - x2);
+        final int miny = Math.min(y1, y2);
+        final int deltay = Math.abs(y1 - y2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addInteger(minx).addInteger(miny);
+        ab.pushArray().addInteger(minx + (deltax / 2))
+                .addInteger(miny + (deltay / 2));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addInteger(minx + (deltax / 2))
+                .addInteger(miny + (deltay / 2));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addInteger(minx - 1).addInteger(miny - 1);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x1, y1, x2, y2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4454,18 +4739,88 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#within(int, int, int, int, boolean)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinIntIntIntIntBoolean() {
-        fail("Not yet implemented");
+        final int x1 = (int) (myRandom.nextDouble() * 170.0);
+        final int y1 = (int) (myRandom.nextDouble() * 170.0);
+        final int x2 = (int) (myRandom.nextDouble() * 170.0);
+        final int y2 = (int) (myRandom.nextDouble() * 170.0);
+
+        final int minx = Math.min(x1, x2);
+        final int deltax = Math.abs(x1 - x2);
+        final int miny = Math.min(y1, y2);
+        final int deltay = Math.abs(y1 - y2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addInteger(minx).addInteger(miny);
+        ab.pushArray().addInteger(minx + (deltax / 2))
+                .addInteger(miny + (deltay / 2));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addInteger(minx + (deltax / 2))
+                .addInteger(miny + (deltay / 2));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addInteger(minx - 1).addInteger(miny - 1);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x1, y1, x2, y2, false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
      * Test method for {@link ConditionBuilder#within(long, long, long)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinLongLongLong() {
-        fail("Not yet implemented");
+        final long x = (long) (myRandom.nextDouble() * 170.0);
+        final long y = (long) (myRandom.nextDouble() * 170.0);
+        final long radius = (long) Math.ceil(Math.sqrt(4.0 + 4.0));
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addLong(x + 1).addLong(y + 1);
+        ab.pushArray().addLong(x + 2).addLong(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addLong(x + 2).addLong(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addLong(x + 3).addLong(y + 3);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x, y, radius));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4473,18 +4828,88 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#within(long, long, long, boolean)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinLongLongLongBoolean() {
-        fail("Not yet implemented");
+        final long x = (long) (myRandom.nextDouble() * 170.0);
+        final long y = (long) (myRandom.nextDouble() * 170.0);
+        final long radius = (long) Math.ceil(Math.sqrt(4.0 + 4.0));
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addLong(x + 1).addLong(y + 1);
+        ab.pushArray().addLong(x + 2).addLong(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addLong(x + 2).addLong(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addLong(x + 3).addLong(y + 3);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x, y, radius, false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next()); // Note duplicate.
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
      * Test method for {@link ConditionBuilder#within(long, long, long, long)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinLongLongLongLong() {
-        fail("Not yet implemented");
+        final long x1 = (long) (myRandom.nextDouble() * 170.0);
+        final long y1 = (long) (myRandom.nextDouble() * 170.0);
+        final long x2 = (long) (myRandom.nextDouble() * 170.0);
+        final long y2 = (long) (myRandom.nextDouble() * 170.0);
+
+        final long minx = Math.min(x1, x2);
+        final long deltax = Math.abs(x1 - x2);
+        final long miny = Math.min(y1, y2);
+        final long deltay = Math.abs(y1 - y2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addLong(minx).addLong(miny);
+        ab.pushArray().addLong(minx + (deltax / 2))
+                .addLong(miny + (deltay / 2));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addLong(minx + (deltax / 2))
+                .addLong(miny + (deltay / 2));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addLong(minx - 1).addLong(miny - 1);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x1, y1, x2, y2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4492,9 +4917,49 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#within(long, long, long, long, boolean)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinLongLongLongLongBoolean() {
-        fail("Not yet implemented");
+        final long x1 = (long) (myRandom.nextDouble() * 170.0);
+        final long y1 = (long) (myRandom.nextDouble() * 170.0);
+        final long x2 = (long) (myRandom.nextDouble() * 170.0);
+        final long y2 = (long) (myRandom.nextDouble() * 170.0);
+
+        final long minx = Math.min(x1, x2);
+        final long deltax = Math.abs(x1 - x2);
+        final long miny = Math.min(y1, y2);
+        final long deltay = Math.abs(y1 - y2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addLong(minx).addLong(miny);
+        ab.pushArray().addLong(minx + (deltax / 2))
+                .addLong(miny + (deltay / 2));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addLong(minx + (deltax / 2))
+                .addLong(miny + (deltay / 2));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addLong(minx - 1).addLong(miny - 1);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(x1, y1, x2, y2, false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4502,9 +4967,39 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#withinOnSphere(double, double, double)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinOnSphereDoubleDoubleDouble() {
-        fail("Not yet implemented");
+        final double x = myRandom.nextDouble() * 10.0;
+        final double y = myRandom.nextDouble() * 10.0;
+        final double radius = 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addDouble(x + 1).addDouble(y + 1);
+        ab.pushArray().addDouble(x + 2).addDouble(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 50).addDouble(y + 50);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").withinOnSphere(x, y, radius));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4512,18 +5007,80 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#withinOnSphere(double, double, double, boolean)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinOnSphereDoubleDoubleDoubleBoolean() {
-        fail("Not yet implemented");
+        final double x = myRandom.nextDouble() * 40.0;
+        final double y = myRandom.nextDouble() * 10.0;
+        final double radius = 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addDouble(x + 1).addDouble(y + 1);
+        ab.pushArray().addDouble(x + 2).addDouble(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 50).addDouble(y + 50);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").withinOnSphere(x, y, radius, false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
      * Test method for {@link ConditionBuilder#withinOnSphere(int, int, int)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinOnSphereIntIntInt() {
-        fail("Not yet implemented");
+        final int x = (int) (myRandom.nextDouble() * 40.0);
+        final int y = (int) (myRandom.nextDouble() * 10.0);
+        final int radius = 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addInteger(x + 1).addInteger(y + 1);
+        ab.pushArray().addInteger(x + 2).addInteger(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addInteger(x + 2).addInteger(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addInteger(x + 50).addInteger(y + 50);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").withinOnSphere(x, y, radius));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4531,9 +5088,41 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#withinOnSphere(int, int, int, boolean)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinOnSphereIntIntIntBoolean() {
-        fail("Not yet implemented");
+        final int x = (int) (myRandom.nextDouble() * 40.0);
+        final int y = (int) (myRandom.nextDouble() * 10.0);
+        final int radius = 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addInteger(x + 1).addInteger(y + 1);
+        ab.pushArray().addInteger(x + 2).addInteger(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addInteger(x + 2).addInteger(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addInteger(x + 50).addInteger(y + 50);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").withinOnSphere(x, y, radius, false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4541,9 +5130,39 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * .
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinOnSphereLongLongLong() {
-        fail("Not yet implemented");
+        final long x = (long) (myRandom.nextDouble() * 40.0);
+        final long y = (long) (myRandom.nextDouble() * 10.0);
+        final long radius = 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addLong(x + 1).addLong(y + 1);
+        ab.pushArray().addLong(x + 2).addLong(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addLong(x + 2).addLong(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addLong(x + 50).addLong(y + 50);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").withinOnSphere(x, y, radius));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -4551,9 +5170,84 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#withinOnSphere(long, long, long, boolean)}.
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinOnSphereLongLongLongBoolean() {
-        fail("Not yet implemented");
+        final long x = (long) (myRandom.nextDouble() * 40.0);
+        final long y = (long) (myRandom.nextDouble() * 10.0);
+        final long radius = 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addLong(x + 1).addLong(y + 1);
+        ab.pushArray().addLong(x + 2).addLong(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addLong(x + 2).addLong(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addLong(x + 50).addLong(y + 50);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").withinOnSphere(x, y, radius, false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#withinOnSphere(double, double, double)}.
+     */
+    @Test
+    public void testQueryWithWithinOnSphereWrapDoesNotWork() {
+        final double x = 100;
+        final double y = 70;
+        final double radius = 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addDouble(x + 1).addDouble(y + 1);
+        ab.pushArray().addDouble(x + 2).addDouble(y + 2);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 50).addDouble(y + 50);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        ClosableIterator<Document> iter = null;
+        try {
+            iter = getGeoCollection().find(
+                    where("p").withinOnSphere(x, y, radius));
+
+            fail("$withinSphere wrapping now works!");
+        }
+        catch (final QueryFailedException expected) {
+            // OK, I guess.
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
     }
 
     /**
@@ -4561,9 +5255,53 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#within(Point2D, Point2D, Point2D, Point2D[])} .
      */
     @Test
-    @Ignore("For now.")
     public void testQueryWithWithinPoint2DPoint2DPoint2DPoint2DArray() {
-        fail("Not yet implemented");
+        final double x1 = myRandom.nextDouble() * 170.0;
+        final double y1 = myRandom.nextDouble() * 170.0;
+        final double x2 = myRandom.nextDouble() * 170.0;
+        final double y2 = myRandom.nextDouble() * 170.0;
+
+        final double minx = Math.min(x1, x2);
+        final double maxx = Math.max(x1, x2);
+        final double deltax = Math.abs(x1 - x2);
+        final double miny = Math.min(y1, y2);
+        final double maxy = Math.max(y1, y2);
+        final double deltay = Math.abs(y1 - y2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        final ArrayBuilder ab = doc1.pushArray("p");
+        ab.pushArray().addDouble(minx).addDouble(miny);
+        ab.pushArray().addDouble(minx + (deltax / 2))
+                .addDouble(miny + (deltay / 2));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(minx + (deltax / 2))
+                .addDouble(miny + (deltay / 2));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(minx - 1).addDouble(miny - 1);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        // Find on a slightly deformed square
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").within(new Point2D.Double(minx - 0.5, miny),
+                        new Point2D.Double(maxx, miny),
+                        new Point2D.Double(maxx, maxy + 0.5),
+                        new Point2D.Double(minx, maxy)));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
