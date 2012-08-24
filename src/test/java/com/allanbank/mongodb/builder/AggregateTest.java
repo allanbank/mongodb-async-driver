@@ -38,6 +38,10 @@ public class AggregateTest {
 
     /**
      * Test method for {@link Aggregate.Builder} usability.
+     * 
+     * @see <a
+     *      href="https://groups.google.com/d/topic/mongodb-user/1cYch580h0w/discussion">Inspired
+     *      By</a>
      */
     @Test
     public void testUsability() {

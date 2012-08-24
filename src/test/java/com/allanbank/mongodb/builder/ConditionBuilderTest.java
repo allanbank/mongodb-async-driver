@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
@@ -207,17 +208,16 @@ public class ConditionBuilderTest {
     }
 
     /**
-     * Test method for {@link ConditionBuilder#elementMatches(Document)} .
+     * Test method for
+     * {@link ConditionBuilder#elementMatches(DocumentAssignable)} .
      */
     @Test
     public void testElementMatchesDocument() {
 
         final ConditionBuilder b = QueryBuilder.where("foo");
 
-        final Document value = BuilderFactory
-                .start()
-                .addInteger(String.valueOf(myRandom.nextInt()),
-                        myRandom.nextInt()).build();
+        final DocumentAssignable value = BuilderFactory.start().addInteger(
+                String.valueOf(myRandom.nextInt()), myRandom.nextInt());
 
         b.equals(false); // Make sure equals is removed.
         b.elementMatches(value);
@@ -227,15 +227,14 @@ public class ConditionBuilderTest {
         assertThat(e, instanceOf(DocumentElement.class));
 
         final DocumentBuilder db = BuilderFactory.start();
-        db.addDocument(MiscellaneousOperator.ELEMENT_MATCH.getToken(), value);
+        db.addDocument(MiscellaneousOperator.ELEMENT_MATCH.getToken(),
+                value.asDocument());
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
 
     /**
-     * Test method for
-     * {@link ConditionBuilder#elementMatches(com.allanbank.mongodb.builder.QueryBuilder)}
-     * .
+     * Test method for {@link ConditionBuilder#elementMatches} .
      */
     @Test
     public void testElementMatchesQueryBuilder() {
@@ -324,7 +323,7 @@ public class ConditionBuilderTest {
     }
 
     /**
-     * Test method for {@link ConditionBuilder#equals(Document)}.
+     * Test method for {@link ConditionBuilder#equals(DocumentAssignable)}.
      */
     @Test
     public void testEqualsDocument() {
@@ -2154,7 +2153,7 @@ public class ConditionBuilderTest {
     }
 
     /**
-     * Test method for {@link ConditionBuilder#notEqualTo(Document)}.
+     * Test method for {@link ConditionBuilder#notEqualTo(DocumentAssignable)}.
      */
     @Test
     public void testNotEqualToDocument() {

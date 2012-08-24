@@ -18,8 +18,11 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -233,15 +236,14 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #createIndex(String, boolean, IntegerElement...)} method with
-     * <code>null</code> for the name.
+     * Overridden to call the {@link #createIndex(String, boolean, Element...)}
+     * method with <code>null</code> for the name.
      * </p>
      * 
-     * @see #createIndex(String, boolean, IntegerElement...)
+     * @see #createIndex(String, boolean, Element...)
      */
     @Override
-    public void createIndex(final boolean unique, final IntegerElement... keys)
+    public void createIndex(final boolean unique, final Element... keys)
             throws MongoDbException {
         createIndex(null, unique, keys);
     }
@@ -249,15 +251,14 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #createIndex(boolean, IntegerElement...)}
-     * method with <code>false</code> for <tt>unique</tt>.
+     * Overridden to call the {@link #createIndex(boolean, Element...)} method
+     * with <code>false</code> for <tt>unique</tt>.
      * </p>
      * 
-     * @see #createIndex(boolean, IntegerElement...)
+     * @see #createIndex(boolean, Element...)
      */
     @Override
-    public void createIndex(final IntegerElement... keys)
-            throws MongoDbException {
+    public void createIndex(final Element... keys) throws MongoDbException {
         createIndex(false, keys);
     }
 
@@ -268,11 +269,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * implementations must override.
      * </p>
      * 
-     * @see MongoCollection#createIndex(String, boolean, IntegerElement...)
+     * @see MongoCollection#createIndex(String, boolean, Element...)
      */
     @Override
     public abstract void createIndex(final String name, final boolean unique,
-            final IntegerElement... keys) throws MongoDbException;
+            final Element... keys) throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -1333,15 +1334,20 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *            The keys for the index.
      * @return The name for the index.
      */
-    protected String buildIndexName(final IntegerElement... keys) {
+    protected String buildIndexName(final Element... keys) {
         final StringBuilder nameBuilder = new StringBuilder();
-        for (final IntegerElement key : keys) {
+        for (final Element key : keys) {
             if (nameBuilder.length() > 0) {
                 nameBuilder.append('_');
             }
             nameBuilder.append(key.getName().replace(' ', '_'));
             nameBuilder.append("_");
-            nameBuilder.append(key.getValue());
+            if (key instanceof NumericElement) {
+                nameBuilder.append(((NumericElement) key).getIntValue());
+            }
+            else if (key instanceof StringElement) {
+                nameBuilder.append(((StringElement) key).getValue());
+            }
         }
         return nameBuilder.toString();
     }

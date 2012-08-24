@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.builder.Aggregate;
@@ -185,7 +186,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On a failure building the index.
      */
-    public void createIndex(boolean unique, IntegerElement... keys)
+    public void createIndex(boolean unique, Element... keys)
             throws MongoDbException;
 
     /**
@@ -215,7 +216,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On a failure building the index.
      */
-    public void createIndex(IntegerElement... keys) throws MongoDbException;
+    public void createIndex(Element... keys) throws MongoDbException;
 
     /**
      * Creates an index with the specified name, across the keys specified and
@@ -250,7 +251,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On a failure building the index.
      */
-    public void createIndex(String name, boolean unique, IntegerElement... keys)
+    public void createIndex(String name, boolean unique, Element... keys)
             throws MongoDbException;
 
     /**

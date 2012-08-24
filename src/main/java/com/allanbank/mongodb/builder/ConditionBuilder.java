@@ -39,6 +39,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
 import com.allanbank.mongodb.builder.expression.Constant;
+import com.allanbank.mongodb.error.QueryFailedException;
 
 /**
  * ConditionBuilder provides tracking for the condition of a single field within
@@ -192,8 +193,8 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Query to match a single element in the array field.
      * <p>
-     * Only a single {@link #elementMatches(QueryBuilder)} comparison can be
-     * used. Calling multiple <tt>elementMatches(...)</tt> methods overwrites
+     * Only a single {@link #elementMatches(DocumentAssignable)} comparison can
+     * be used. Calling multiple <tt>elementMatches(...)</tt> methods overwrites
      * previous values. In addition any {@link #equals(boolean) equals(...)}
      * condition is removed since no equality operator is supported by MongoDB.
      * </p>
@@ -204,36 +205,13 @@ public class ConditionBuilder implements DocumentAssignable {
      *            reflected in the comparison.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder elementMatches(final Document arrayElementQuery) {
+    public ConditionBuilder elementMatches(
+            final DocumentAssignable arrayElementQuery) {
         myEqualsComparison = null;
         myOtherComparisons.put(
                 MiscellaneousOperator.ELEMENT_MATCH,
                 new DocumentElement(MiscellaneousOperator.ELEMENT_MATCH
-                        .getToken(), arrayElementQuery));
-        return this;
-    }
-
-    /**
-     * Query to match a single element in the array field.
-     * <p>
-     * Only a single {@link #elementMatches(QueryBuilder)} comparison can be
-     * used. Calling multiple <tt>elementMatches(...)</tt> methods overwrites
-     * previous values. In addition any {@link #equals(boolean) equals(...)}
-     * condition is removed since no equality operator is supported by MongoDB.
-     * </p>
-     * 
-     * @param arrayElementQuery
-     *            A builder for the query to match a sub element. Any changes to
-     *            the {@link QueryBuilder} after this method is called are not
-     *            reflected in the comparison.
-     * @return The condition builder for chaining method calls.
-     */
-    public ConditionBuilder elementMatches(final QueryBuilder arrayElementQuery) {
-        myEqualsComparison = null;
-        myOtherComparisons.put(
-                MiscellaneousOperator.ELEMENT_MATCH,
-                new DocumentElement(MiscellaneousOperator.ELEMENT_MATCH
-                        .getToken(), arrayElementQuery.build()));
+                        .getToken(), arrayElementQuery.asDocument()));
         return this;
     }
 
@@ -313,14 +291,20 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder equals(final Document value) {
+    public ConditionBuilder equals(final DocumentAssignable value) {
         myOtherComparisons.clear();
-        myEqualsComparison = new DocumentElement(getFieldName(), value);
+        myEqualsComparison = new DocumentElement(getFieldName(),
+                value.asDocument());
         return this;
     }
 
     /**
      * Checks if the value equals the specified <tt>value</tt>.
+     * <p>
+     * <b>NOTE:</b> Queries for matching a double value that closely
+     * approximates an integer value (e.g., 1.00) will compare equal to a stored
+     * integer or long value.
+     * </p>
      * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
@@ -342,6 +326,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Checks if the value equals the specified <tt>value</tt>.
      * <p>
+     * <b>NOTE:</b> Queries for matching a integer value will compare equals to
+     * an equivalent stored long or closely matching double value.
+     * </p>
+     * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
      * overwrites previous values. In addition <tt>equals(...)</tt> removes all
@@ -361,6 +349,10 @@ public class ConditionBuilder implements DocumentAssignable {
 
     /**
      * Checks if the value equals the specified <tt>value</tt>.
+     * <p>
+     * <b>NOTE:</b> Queries for matching a long value will compare equals to an
+     * equivalent stored integer or closely matching double value.
+     * </p>
      * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
@@ -402,8 +394,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Checks if the value equals the specified <tt>value</tt>.
      * <p>
-     * NOTE: This checks if the value is a regular expression not if it matches
-     * the regular expression. See {@link #matches(Pattern)}.
+     * <b>NOTE:</b> This checks if the value <b>is</b> a regular expression
+     * <b>or</b> if it is a string or symbol that matches the regular
+     * expression. It is functionally equivalent to {@link #matches(Pattern)}.
+     * </p>
      * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
@@ -426,6 +420,10 @@ public class ConditionBuilder implements DocumentAssignable {
 
     /**
      * Checks if the value equals the specified <tt>value</tt>.
+     * <p>
+     * <b>NOTE:</b> This method will match against a string or a symbol type
+     * element.
+     * </p>
      * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
@@ -467,6 +465,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Checks if the value equals the specified <tt>value</tt>.
      * <p>
+     * <b>NOTE:</b> Testing has shown that the <tt>scope</tt> is ignored when
+     * performing the comparison.
+     * </p>
+     * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
      * overwrites previous values. In addition <tt>equals(...)</tt> removes all
@@ -491,6 +493,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Checks if the value is a max key element.
      * <p>
+     * <b>WARNING:</b> Testing has shown that this query matches all documents
+     * even if they do not contain any value for the field.
+     * </p>
+     * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
      * overwrites previous values. In addition <tt>equals(...)</tt> removes all
@@ -509,6 +515,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Checks if the value is a min key element.
      * <p>
+     * <b>WARNING:</b> Testing has shown that this query matches all documents
+     * even if they do not contain any value for the field.
+     * </p>
+     * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
      * overwrites previous values. In addition <tt>equals(...)</tt> removes all
@@ -526,6 +536,11 @@ public class ConditionBuilder implements DocumentAssignable {
 
     /**
      * Checks if the value equals the specified <tt>value</tt>.
+     * <p>
+     * <b>WARNING:</b> Testing has shown that this query will throw a
+     * {@link QueryFailedException} if a document contains a field with the same
+     * name but of type {@link ElementType#UTC_TIMESTAMP}.
+     * </p>
      * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
@@ -546,6 +561,11 @@ public class ConditionBuilder implements DocumentAssignable {
 
     /**
      * Checks if the value is a null value.
+     * <p>
+     * <b>Note:</b> A field is considered to be <code>null</code> if it is a
+     * literal <code>null</code> value in the document <b>OR</b> it does not
+     * contain the field.
+     * </p>
      * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
@@ -584,6 +604,10 @@ public class ConditionBuilder implements DocumentAssignable {
 
     /**
      * Checks if the value equals the specified <tt>value</tt>.
+     * <p>
+     * <b>NOTE:</b> Queries for matching a timestamp value will compare equals
+     * to an equivalent stored MongoTimestamp value.
+     * </p>
      * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
      * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
@@ -1626,8 +1650,9 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Checks if the value matches the specified <tt>pattern</tt>.
      * <p>
-     * NOTE: This checks if the value matches a regular expression not if it
-     * equals the regular expression. See {@link #equals(Pattern)}. </
+     * NOTE: This checks if the value <b>is</b> a regular expression <b>or</b>
+     * if it is a string or symbol that matches the regular expression. It is
+     * functionally equivalent to {@link #equals(Pattern)}.
      * <p>
      * Only a single {@link #matches(Pattern)} comparison can be used. Calling
      * multiple {@link #matches(Pattern)} methods overwrites previous values. In
@@ -1715,6 +1740,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
      * multiple <tt>near(...)</tt> methods overwrites previous values. In
      * addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -1740,6 +1769,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates.
+     * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
      * multiple <tt>near(...)</tt> methods overwrites previous values. In
@@ -1774,6 +1807,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
      * multiple <tt>near(...)</tt> methods overwrites previous values. In
      * addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -1799,6 +1836,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates.
+     * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
      * multiple <tt>near(...)</tt> methods overwrites previous values. In
@@ -1832,6 +1873,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates.
      * <p>
+     * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
      * multiple <tt>near(...)</tt> methods overwrites previous values. In
      * addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -1857,6 +1902,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates.
+     * <p>
+     * <b>NOTE:</b> The <tt>x</tt> and <tt>y</tt> values must be in the range
+     * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
      * multiple <tt>near(...)</tt> methods overwrites previous values. In
@@ -1891,6 +1940,11 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates on a sphere.
      * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
      * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
      * values. In addition any {@link #equals(boolean) equals(...)} condition is
@@ -1916,6 +1970,11 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates on a sphere.
+     * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
      * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
@@ -1950,6 +2009,11 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates on a sphere.
      * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
      * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
      * values. In addition any {@link #equals(boolean) equals(...)} condition is
@@ -1976,6 +2040,11 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates on a sphere.
+     * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
      * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
@@ -2011,6 +2080,11 @@ public class ConditionBuilder implements DocumentAssignable {
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates on a sphere.
      * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
+     * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
      * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
      * values. In addition any {@link #equals(boolean) equals(...)} condition is
@@ -2036,6 +2110,11 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates on a sphere.
+     * <p>
+     * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
+     * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
+     * a {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
      * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
@@ -2145,10 +2224,10 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder notEqualTo(final Document value) {
+    public ConditionBuilder notEqualTo(final DocumentAssignable value) {
         myEqualsComparison = null;
         myOtherComparisons.put(ComparisonOperator.NE, new DocumentElement(
-                ComparisonOperator.NE.getToken(), value));
+                ComparisonOperator.NE.getToken(), value.asDocument()));
         return this;
     }
 
@@ -2239,8 +2318,9 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Checks if the value is not equal to the specified <tt>value</tt>.
      * <p>
-     * NOTE: This checks if the value is a regular expression not if it matches
-     * the regular expression. See {@link #matches(Pattern)}.
+     * <b>WARNING:</b> Testing has shown that this query will throw a
+     * {@link QueryFailedException}.
+     * </p>
      * <p>
      * Only a single {@link #notEqualTo(boolean) notEqualTo(...)} comparison can
      * be used. Calling multiple {@link #notEqualTo(byte[]) equals(...)} methods
@@ -2308,6 +2388,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Checks if the value is not equal to the specified <tt>value</tt>.
      * <p>
+     * <b>NOTE:</b> Testing has shown that the <tt>scope</tt> is ignored when
+     * performing the comparison.
+     * </p>
+     * <p>
      * Only a single {@link #notEqualTo(boolean) notEqualTo(...)} comparison can
      * be used. Calling multiple {@link #notEqualTo(byte[]) equals(...)} methods
      * overwrites previous values. In addition any {@link #equals(boolean)
@@ -2333,6 +2417,10 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Checks if the value is not equal to the specified <tt>value</tt>.
      * <p>
+     * <b>WARNING:</b> Testing has shown that this query matches all documents
+     * even if the value of the field is a {@link ElementType#MIN_KEY}.
+     * </p>
+     * <p>
      * Only a single {@link #notEqualTo(boolean) notEqualTo(...)} comparison can
      * be used. Calling multiple {@link #notEqualTo(byte[]) equals(...)} methods
      * overwrites previous values. In addition any {@link #equals(boolean)
@@ -2351,6 +2439,10 @@ public class ConditionBuilder implements DocumentAssignable {
 
     /**
      * Checks if the value is not equal to the specified <tt>value</tt>.
+     * <p>
+     * <b>WARNING:</b> Testing has shown that this query matches all documents
+     * even if the value of the field is a {@link ElementType#MIN_KEY}.
+     * </p>
      * <p>
      * Only a single {@link #notEqualTo(boolean) notEqualTo(...)} comparison can
      * be used. Calling multiple {@link #notEqualTo(byte[]) equals(...)} methods

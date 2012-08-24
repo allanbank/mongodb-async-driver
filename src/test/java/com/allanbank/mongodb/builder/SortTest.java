@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
  * SortTest provides tests for the Sort helper class.
@@ -32,5 +33,13 @@ public class SortTest {
     @Test
     public void testDesc() {
         assertEquals(new IntegerElement("g", -1), Sort.desc("g"));
+    }
+
+    /**
+     * Test method for {@link Sort#geo2d(String)}.
+     */
+    @Test
+    public void testGeo2d() {
+        assertEquals(new StringElement("h", "2d"), Sort.geo2d("h"));
     }
 }

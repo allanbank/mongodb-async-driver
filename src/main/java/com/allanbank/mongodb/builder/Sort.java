@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
  * Provides the ability to easily specify the sort direction for an index or
@@ -37,6 +38,18 @@ public final class Sort {
      */
     public static IntegerElement desc(final String field) {
         return new IntegerElement(field, -1);
+    }
+
+    /**
+     * Creates an 2D index specification, e.g.,
+     * <tt>{ &lt;field&gt; : "2d" }</tt>.
+     * 
+     * @param field
+     *            The field to create the
+     * @return The 2D index specification.
+     */
+    public static StringElement geo2d(final String field) {
+        return new StringElement(field, "2d");
     }
 
     /**

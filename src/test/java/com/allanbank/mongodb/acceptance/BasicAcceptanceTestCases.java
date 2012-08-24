@@ -5,6 +5,9 @@
 
 package com.allanbank.mongodb.acceptance;
 
+import static com.allanbank.mongodb.builder.QueryBuilder.and;
+import static com.allanbank.mongodb.builder.QueryBuilder.where;
+import static com.allanbank.mongodb.builder.expression.Expressions.constant;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -12,16 +15,21 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.ClosableIterator;
@@ -34,20 +42,26 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoFactory;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementType;
+import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Sort;
+import com.allanbank.mongodb.error.QueryFailedException;
 
 /**
  * BasicAcceptanceTestCases provides the base tests for the interactions with
@@ -62,6 +76,9 @@ import com.allanbank.mongodb.builder.Sort;
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
+
+    /** The name of the test collection to use. */
+    public static final String GEO_TEST_COLLECTION_NAME = "geo";
 
     /** One million - used when we want a large collection of document. */
     public static final int LARGE_COLLECTION_COUNT = 1000000;
@@ -84,8 +101,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /** The default database to use for the test. */
     protected MongoDatabase myDb = null;
 
+    /** The Geospatial collection for the test. */
+    protected MongoCollection myGeoCollection = null;
+
     /** The connection to MongoDB for the test. */
     protected Mongo myMongo = null;
+
+    /** A source of random for the tests. */
+    protected Random myRandom = null;
 
     /**
      * Sets up to create a connection to MongoDB.
@@ -98,6 +121,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myMongo = MongoFactory.create(myConfig);
         myDb = myMongo.getDatabase(TEST_DB_NAME);
         myCollection = myDb.getCollection(TEST_COLLECTION_NAME);
+        getGeoCollection();
+
+        myRandom = new Random(System.currentTimeMillis());
     }
 
     /**
@@ -108,6 +134,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         try {
             if (myCollection != null) {
                 myCollection.delete(BuilderFactory.start().build(),
+                        Durability.ACK);
+            }
+            if (myGeoCollection != null) {
+                myGeoCollection.delete(BuilderFactory.start().build(),
                         Durability.ACK);
             }
             if (myMongo != null) {
@@ -124,7 +154,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             myMongo = null;
             myDb = null;
             myCollection = null;
+            myGeoCollection = null;
             myConfig = null;
+            myRandom = null;
+
         }
     }
 
@@ -552,13 +585,20 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         mr.insert(doc1.build(), doc2.build(), doc3.build(), doc4.build());
 
         final MapReduce.Builder mrBuilder = new MapReduce.Builder();
-        mrBuilder.setMapFunction("function() { " + "this.tags.forEach( "
-                + "function(z){ " + "emit( z , { count : 1 } ); " + "} ); };");
-        mrBuilder.setReduceFunction("function( key , values ){ "
-                + "var total = 0; "
-                + "for ( var i=0; i<values.length; i++ ) { "
-                + "total += values[i].count; } "
-                + "return { count : total }; };");
+        mrBuilder.setMapFunction("function() {                              "
+                + "    this.tags.forEach(                                   "
+                + "               function(z){                              "
+                + "                       emit( z , { count : 1 } );        "
+                + "               }                                         "
+                + "    );                                                   "
+                + "};");
+        mrBuilder.setReduceFunction("function( key , values ){              "
+                + "    var total = 0;                                       "
+                + "    for ( var i=0; i<values.length; i++ ) {              "
+                + "        total += values[i].count;                        "
+                + "    }                                                    "
+                + "    return { count : total };                            "
+                + "};");
         mrBuilder.setOutputName("myoutput");
         mrBuilder.setOutputType(MapReduce.OutputType.REPLACE);
 
@@ -670,6 +710,3863 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testQueryWithAll() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("a").addInteger(1).addString("b").addBoolean(true);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("a").addInteger(1).addString("c").addBoolean(true);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .all(constant(true), constant("b")));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#and}.
+     */
+    @Test
+    public void testQueryWithAnd() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addInteger("a", 1);
+        doc1.addInteger("b", 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addInteger("a", 1);
+        doc2.addInteger("b", 2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        ClosableIterator<Document> iter = myCollection.find(and(where("a")
+                .equals(1), where("b").equals(1)));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+
+        iter = myCollection.find(where("a").equals(1).and("b").equals(2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#elementMatches}.
+     */
+    @Test
+    public void testQueryWithElementMatches() {
+        ArrayBuilder ab = null;
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        ab = doc1.pushArray("a");
+        ab.push().addInteger("b", -1);
+        ab.push().addInteger("c", 1);
+        ab.push().addInteger("b", 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        ab = doc2.pushArray("a");
+        ab.push().addInteger("b", -1);
+        ab.push().addInteger("c", 1);
+        ab.push().addInteger("d", 1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .elementMatches(where("b").equals(1)));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(boolean)}.
+     */
+    @Test
+    public void testQueryWithEqualsBoolean() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBoolean("a", true);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBoolean("a", false);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals(true));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(byte[])}.
+     */
+    @Test
+    public void testQueryWithEqualsByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[myRandom.nextInt(100) + 1];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", bytes2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals(bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(byte, byte[])}.
+     */
+    @Test
+    public void testQueryWithEqualsByteByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[myRandom.nextInt(100) + 1];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", (byte) 12, bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", (byte) 12, bytes2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addBinary("a", (byte) 13, bytes1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals((byte) 12, bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(DocumentAssignable)} .
+     */
+    @Test
+    public void testQueryWithEqualsDocumentAssignable() {
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.push("a").addInteger("b", 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.push("a").addInteger("b", 2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals(BuilderFactory.start().addInteger("b", 1)));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(double)}.
+     */
+    @Test
+    public void testQueryWithEqualsDoubleCloseToInteger() {
+        final double d1 = myRandom.nextInt();
+        final double d2 = Double.longBitsToDouble(myRandom.nextLong());
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addDouble("a", d1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addDouble("a", d2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", (int) d1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addLong("a", (long) d1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals(d1));
+        try {
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc3.build());
+            expected.add(doc4.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(double)}.
+     */
+    @Test
+    public void testQueryWithEqualsDoubleNotCloseToInt() {
+        final double d1 = myRandom.nextInt() + 0.5;
+        final double d2 = Double.longBitsToDouble(myRandom.nextLong());
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addDouble("a", d1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addDouble("a", d2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", (int) d1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addLong("a", (long) d1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals(d1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(int)}.
+     */
+    @Test
+    public void testQueryWithEqualsInt() {
+        final int v1 = myRandom.nextInt();
+        final int v2 = myRandom.nextInt();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addInteger("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addInteger("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addLong("a", v1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addDouble("a", v1);
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addDouble("a", 0.1 + v1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals(v1));
+        try {
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc3.build());
+            expected.add(doc4.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equalsJavaScript(String)}.
+     */
+    @Test
+    public void testQueryWithEqualsJavaScriptString() {
+        final String v1 = "a == 1";
+        final String v2 = "b == 1";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addJavaScript("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addJavaScript("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addJavaScript("a", v1, BuilderFactory.start().asDocument());
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addString("a", v1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equalsJavaScript(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#equalsJavaScript(String, Document)} .
+     */
+    @Test
+    public void testQueryWithEqualsJavaScriptStringDocument() {
+        final String v1 = "a == 1";
+        final String v2 = "b == 1";
+        final Document d1 = BuilderFactory.start().addInteger("a", 1)
+                .asDocument();
+        final Document d2 = BuilderFactory.start().addInteger("a", 2)
+                .asDocument();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addJavaScript("a", v1, d1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addJavaScript("a", v2, d1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addJavaScript("a", v1, d2);
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addString("a", v1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equalsJavaScript(v1, d1));
+        try {
+            // Bug in MongoDB? - Scope is being ignored.
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc4.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(long)}.
+     */
+    @Test
+    public void testQueryWithEqualsLong() {
+        final long v1 = myRandom.nextInt(); // Keep on integer scale.
+        final long v2 = myRandom.nextLong();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addLong("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addLong("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", (int) v1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addDouble("a", v1);
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addDouble("a", 0.1 + v1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals(v1));
+        try {
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc3.build());
+            expected.add(doc4.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equalsMaxKey()}.
+     */
+    @Test
+    public void testQueryWithEqualsMaxKey() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addMaxKey("a");
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMinKey("a");
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addNull("a");
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addInteger("b", 1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equalsMaxKey());
+        try {
+            // Bug in MongoDB? - Matching all documents.
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+            expected.add(doc3.build());
+            expected.add(doc4.build());
+            expected.add(doc5.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equalsMinKey()}.
+     */
+    @Test
+    public void testQueryWithEqualsMinKey() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addMaxKey("a");
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMinKey("a");
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addNull("a");
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addInteger("b", 1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equalsMinKey());
+        try {
+            // Bug in MongoDB? - Matching all documents.
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+            expected.add(doc3.build());
+            expected.add(doc4.build());
+            expected.add(doc5.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equalsMongoTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithEqualsMongoTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = myRandom.nextLong();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addMongoTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMongoTimestamp("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addLong("a", v1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equalsMongoTimestamp(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equalsMongoTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithEqualsMongoTimestampFailsWhenEncountersATimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = myRandom.nextLong();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addMongoTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMongoTimestamp("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addLong("a", v1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addTimestamp("a", v1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4);
+
+        ClosableIterator<Document> iter = null;
+        try {
+            iter = myCollection.find(where("a").equalsMongoTimestamp(v1));
+            iter.hasNext();
+            fail("Expected to throw.");
+        }
+        catch (final QueryFailedException expected) {
+            // Bug in MongoDB!
+            assertEquals("wrong type for field (a) 17 != 9",
+                    expected.getMessage());
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equalsNull()}.
+     */
+    @Test
+    public void testQueryWithEqualsNull() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addNull("a");
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMinKey("a");
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addMaxKey("a");
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addInteger("b", 1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equalsNull());
+        try {
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc5.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(ObjectId)} .
+     */
+    @Test
+    public void testQueryWithEqualsObjectId() {
+        final ObjectId v1 = new ObjectId();
+        final ObjectId v2 = new ObjectId();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addObjectId("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addObjectId("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(java.util.regex.Pattern)}.
+     */
+    @Test
+    public void testQueryWithEqualsPattern() {
+        final Pattern v1 = Pattern.compile("abc.*f");
+        final Pattern v2 = Pattern.compile("abc.*def");
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addRegularExpression("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addRegularExpression("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addString("a", "abcdef"); // Chosen to match!
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addString("a", "hello"); // Chosen to not match!
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addSymbol("a", "abcdef"); // Chosen to match!
+
+        final DocumentBuilder doc6 = BuilderFactory.start();
+        doc6.addObjectId("_id", new ObjectId());
+        doc6.addSymbol("a", "hello"); // Chosen to not match!
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5, doc6);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals(v1));
+        try {
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc3.build());
+            expected.add(doc5.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(String)}.
+     */
+    @Test
+    public void testQueryWithEqualsString() {
+        final String v1 = "v1";
+        final String v2 = "v2";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addString("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addString("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addSymbol("a", v1);
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addJavaScript("a", v1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equals(v1));
+        try {
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc4.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equalsSymbol(String)}.
+     */
+    @Test
+    public void testQueryWithEqualsSymbol() {
+        final String v1 = "v1";
+        final String v2 = "v2";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addSymbol("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addString("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addString("a", v1);
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addJavaScript("a", v1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equalsSymbol(v1));
+        try {
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc4.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equalsTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithEqualsTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = myRandom.nextLong();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMongoTimestamp("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addLong("a", v1);
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addMongoTimestamp("a", v1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .equalsTimestamp(v1));
+        try {
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc4.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#exists}.
+     */
+    @Test
+    public void testQueryWithExists() {
+        final ObjectId v1 = new ObjectId();
+        final ObjectId v2 = new ObjectId();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addObjectId("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addObjectId("b", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        ClosableIterator<Document> iter = myCollection
+                .find(where("a").exists());
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+
+        iter = myCollection.find(where("b").exists(false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThan(byte[])}.
+     */
+    @Test
+    public void testQueryWithGreaterThanByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[bytes1.length];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        bytes1[0] = 1;
+        bytes2[0] = 0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", bytes2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThan(bytes2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThan(byte, byte[])}.
+     */
+    @Test
+    public void testQueryWithGreaterThanByteByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[bytes1.length];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        bytes1[0] = 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", (byte) 12, bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", (byte) 11, bytes1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThan((byte) 11, bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+
+        bytes2[0] = 0;
+        iter = myCollection.find(where("a").greaterThan((byte) 12, bytes2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThan(double)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanDouble() {
+        final double d1 = myRandom.nextInt();
+        final double d2 = d1 - 0.1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addDouble("a", d1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addDouble("a", d2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThan(d2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThan(int)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanInt() {
+        final int v1 = myRandom.nextInt();
+        final int v2 = v1 - 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addInteger("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addInteger("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThan(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThan(long)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanLong() {
+        final long v1 = myRandom.nextInt();
+        final long v2 = v1 - 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addLong("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addLong("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThan(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThanMongoTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanMongoTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = v1 - 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addMongoTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMongoTimestamp("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanMongoTimestamp(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThan(ObjectId)} .
+     */
+    @Test
+    public void testQueryWithGreaterThanObjectId() {
+        // ObjectId's increase in time.
+        final ObjectId v2 = new ObjectId();
+        final ObjectId v1 = new ObjectId();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addObjectId("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addObjectId("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThan(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThanOrEqualTo(byte[])}.
+     */
+    @Test
+    public void testQueryWithGreaterThanOrEqualToByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[bytes1.length];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        bytes1[0] = 2;
+        bytes2[0] = 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", bytes2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanOrEqualTo(bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#greaterThanOrEqualTo(byte, byte[])}.
+     */
+    @Test
+    public void testQueryWithGreaterThanOrEqualToByteByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[bytes1.length];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        bytes1[0] = 1;
+        bytes2[0] = 0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", (byte) 12, bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", (byte) 11, bytes2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanOrEqualTo((byte) 11, bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+
+        iter = myCollection.find(where("a").greaterThanOrEqualTo((byte) 12,
+                bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThanOrEqualTo(double)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanOrEqualToDouble() {
+        final double d1 = myRandom.nextInt();
+        final double d2 = d1 - 0.1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addDouble("a", d1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addDouble("a", d2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanOrEqualTo(d1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThanOrEqualTo(int)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanOrEqualToInt() {
+        final int v1 = myRandom.nextInt();
+        final int v2 = v1 - 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addInteger("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addInteger("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanOrEqualTo(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThanOrEqualTo(long)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanOrEqualToLong() {
+        final long v1 = myRandom.nextInt();
+        final long v2 = v1 - 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addLong("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addLong("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanOrEqualTo(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#greaterThanOrEqualToMongoTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanOrEqualToMongoTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = v1 - 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addMongoTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMongoTimestamp("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanOrEqualToMongoTimestamp(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThanOrEqualTo(ObjectId)} .
+     */
+    @Test
+    public void testQueryWithGreaterThanOrEqualToObjectId() {
+        // ObjectId's increase in time.
+        final ObjectId v2 = new ObjectId();
+        final ObjectId v1 = new ObjectId();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addObjectId("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addObjectId("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanOrEqualTo(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThanOrEqualTo(String)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanOrEqualToString() {
+        final String v1 = "b";
+        final String v2 = "a";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addString("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addString("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanOrEqualTo(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#greaterThanOrEqualToSymbol(String)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanOrEqualToSymbol() {
+        final String v1 = "b";
+        final String v2 = "a";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addSymbol("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addSymbol("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanOrEqualToSymbol(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#greaterThanOrEqualToTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanOrEqualToTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = v1 - 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addTimestamp("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanOrEqualToTimestamp(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThan(String)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanString() {
+        final String v1 = "b";
+        final String v2 = "a";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addString("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addString("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThan(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThanSymbol(String)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanSymbol() {
+        final String v1 = "b";
+        final String v2 = "a";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addSymbol("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addSymbol("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanSymbol(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#greaterThanTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithGreaterThanTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = v1 - 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addTimestamp("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .greaterThanTimestamp(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testQueryWithIn() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addString("a", "b");
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBoolean("a", false);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addInteger("a", 1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .in(constant(true), constant("b")));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#instanceOf(ElementType)}.
+     */
+    @Test
+    public void testQueryWithInstanceOf() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addString("a", "b");
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBoolean("a", false);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addSymbol("a", "a");
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .instanceOf(ElementType.STRING));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThan(byte[])}.
+     */
+    @Test
+    public void testQueryWithLessThanByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[bytes1.length];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        bytes1[0] = 1;
+        bytes2[0] = 2;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", bytes2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThan(bytes2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThan(byte, byte[])}.
+     */
+    @Test
+    public void testQueryWithLessThanByteByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[bytes1.length];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        bytes1[0] = 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", (byte) 12, bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", (byte) 13, bytes1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThan((byte) 13, bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+
+        bytes2[0] = 2;
+        iter = myCollection.find(where("a").lessThan((byte) 12, bytes2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThan(double)}.
+     */
+    @Test
+    public void testQueryWithLessThanDouble() {
+        final double d1 = myRandom.nextInt();
+        final double d2 = d1 + 0.1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addDouble("a", d1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addDouble("a", d2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThan(d2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThan(int)}.
+     */
+    @Test
+    public void testQueryWithLessThanInt() {
+        final int v1 = myRandom.nextInt();
+        final int v2 = v1 + 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addInteger("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addInteger("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThan(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThan(long)}.
+     */
+    @Test
+    public void testQueryWithLessThanLong() {
+        final long v1 = myRandom.nextInt();
+        final long v2 = v1 + 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addLong("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addLong("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThan(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanMongoTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithLessThanMongoTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = v1 + 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addMongoTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMongoTimestamp("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanMongoTimestamp(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThan(ObjectId)} .
+     */
+    @Test
+    public void testQueryWithLessThanObjectId() {
+        // ObjectId's increase in time.
+        final ObjectId v1 = new ObjectId();
+        final ObjectId v2 = new ObjectId();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addObjectId("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addObjectId("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThan(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanOrEqualTo(byte[])}.
+     */
+    @Test
+    public void testQueryWithLessThanOrEqualToByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[bytes1.length];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        bytes1[0] = 2;
+        bytes2[0] = 3;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", bytes2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanOrEqualTo(bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanOrEqualTo(byte, byte[])}.
+     */
+    @Test
+    public void testQueryWithLessThanOrEqualToByteByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[bytes1.length];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        bytes1[0] = 1;
+        bytes2[0] = 2;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", (byte) 12, bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", (byte) 13, bytes2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanOrEqualTo((byte) 13, bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+
+        iter = myCollection.find(where("a")
+                .lessThanOrEqualTo((byte) 12, bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanOrEqualTo(double)}.
+     */
+    @Test
+    public void testQueryWithLessThanOrEqualToDouble() {
+        final double d1 = myRandom.nextInt();
+        final double d2 = d1 + 0.1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addDouble("a", d1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addDouble("a", d2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanOrEqualTo(d1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanOrEqualTo(int)}.
+     */
+    @Test
+    public void testQueryWithLessThanOrEqualToInt() {
+        final int v1 = myRandom.nextInt();
+        final int v2 = v1 + 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addInteger("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addInteger("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanOrEqualTo(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanOrEqualTo(long)}.
+     */
+    @Test
+    public void testQueryWithLessThanOrEqualToLong() {
+        final long v1 = myRandom.nextInt();
+        final long v2 = v1 + 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addLong("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addLong("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanOrEqualTo(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#lessThanOrEqualToMongoTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithLessThanOrEqualToMongoTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = v1 + 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addMongoTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMongoTimestamp("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanOrEqualToMongoTimestamp(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanOrEqualTo(ObjectId)} .
+     */
+    @Test
+    public void testQueryWithLessThanOrEqualToObjectId() {
+        // ObjectId's increase in time.
+        final ObjectId v1 = new ObjectId();
+        final ObjectId v2 = new ObjectId();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addObjectId("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addObjectId("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanOrEqualTo(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanOrEqualTo(String)}.
+     */
+    @Test
+    public void testQueryWithLessThanOrEqualToString() {
+        final String v1 = "b";
+        final String v2 = "c";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addString("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addString("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanOrEqualTo(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanOrEqualToSymbol(String)}.
+     */
+    @Test
+    public void testQueryWithLessThanOrEqualToSymbol() {
+        final String v1 = "b";
+        final String v2 = "c";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addSymbol("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addSymbol("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanOrEqualToSymbol(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanOrEqualToTimestamp(long)}
+     * .
+     */
+    @Test
+    public void testQueryWithLessThanOrEqualToTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = v1 + 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addTimestamp("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanOrEqualToTimestamp(v1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThan(String)}.
+     */
+    @Test
+    public void testQueryWithLessThanString() {
+        final String v1 = "b";
+        final String v2 = "c";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addString("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addString("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThan(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanSymbol(String)} .
+     */
+    @Test
+    public void testQueryWithLessThanSymbol() {
+        final String v1 = "b";
+        final String v2 = "c";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addSymbol("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addSymbol("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanSymbol(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithLessThanTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = v1 + 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addTimestamp("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .lessThanTimestamp(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#matches(java.util.regex.Pattern)}
+     * .
+     */
+    @Test
+    public void testQueryWithMatches() {
+        final Pattern v1 = Pattern.compile("abc.*f");
+        final Pattern v2 = Pattern.compile("abc.*def");
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addRegularExpression("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addRegularExpression("a", v2);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addString("a", "abcdef"); // Chosen to match!
+
+        final DocumentBuilder doc4 = BuilderFactory.start();
+        doc4.addObjectId("_id", new ObjectId());
+        doc4.addString("a", "hello"); // Chosen to not match!
+
+        final DocumentBuilder doc5 = BuilderFactory.start();
+        doc5.addObjectId("_id", new ObjectId());
+        doc5.addSymbol("a", "abcdef"); // Chosen to match!
+
+        final DocumentBuilder doc6 = BuilderFactory.start();
+        doc6.addObjectId("_id", new ObjectId());
+        doc6.addSymbol("a", "hello"); // Chosen to not match!
+
+        myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5, doc6);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .matches(v1));
+        try {
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc3.build());
+            expected.add(doc5.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#mod(int, int)}.
+     */
+    @Test
+    public void testQueryWithModWithInt() {
+        final int v1 = myRandom.nextInt();
+        final int v2 = v1 + 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addInteger("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addInteger("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .mod(10, v1 % 10));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#mod(long, long)}.
+     */
+    @Test
+    public void testQueryWithModWithLong() {
+        final long v1 = myRandom.nextInt();
+        final long v2 = v1 + 1;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addLong("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addLong("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .mod(100, v1 % 100));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#near(double, double)}.
+     */
+    @Test
+    public void testQueryWithNearDoubleDouble() {
+        final double x = myRandom.nextDouble() * 170.0;
+        final double y = myRandom.nextDouble() * 170.0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addDouble(x + 1).addDouble(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 2).addDouble(y + 2);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").near(x, y));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc3.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#near(double, double, double)}.
+     */
+    @Test
+    public void testQueryWithNearDoubleDoubleDouble() {
+        final double x = myRandom.nextDouble() * 170.0;
+        final double y = myRandom.nextDouble() * 170.0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addDouble(x + 1).addDouble(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 2).addDouble(y + 2);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").near(x, y, 2.3));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#near(int, int)}.
+     */
+    @Test
+    public void testQueryWithNearIntInt() {
+        final int x = (int) (myRandom.nextDouble() * 170);
+        final int y = (int) (myRandom.nextDouble() * 170);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addInteger(x + 1).addInteger(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addInteger(x + 2).addInteger(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addInteger(x + 2).addInteger(y + 2);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").near(x, y));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc3.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#near(int, int, int)}.
+     */
+    @Test
+    public void testQueryWithNearIntIntInt() {
+        final int x = (int) (myRandom.nextDouble() * 170);
+        final int y = (int) (myRandom.nextDouble() * 170);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addInteger(x + 1).addInteger(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addInteger(x + 2).addInteger(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addInteger(x + 2).addInteger(y + 3);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").near(x, y, 3));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#near(long, long)}.
+     */
+    @Test
+    public void testQueryWithNearLongLong() {
+        final long x = (long) (myRandom.nextDouble() * 170);
+        final long y = (long) (myRandom.nextDouble() * 170);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addLong(x + 1).addLong(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addLong(x + 2).addLong(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addLong(x + 2).addLong(y + 2);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").near(x, y));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc3.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#near(long, long, long)}.
+     */
+    @Test
+    public void testQueryWithNearLongLongLong() {
+        final long x = (long) (myRandom.nextDouble() * 170);
+        final long y = (long) (myRandom.nextDouble() * 170);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addLong(x + 1).addLong(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addLong(x + 2).addLong(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addLong(x + 2).addLong(y + 3);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").near(x, y, 3));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#nearSphere(double, double)}.
+     */
+    @Test
+    public void testQueryWithNearSphereDoubleDouble() {
+        final double x = myRandom.nextDouble() * 170.0;
+        final double y = myRandom.nextDouble() * 80.0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addDouble(x + 1).addDouble(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 2).addDouble(y + 2);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").near(x, y));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc3.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#nearSphere(double, double, double)}.
+     */
+    @Test
+    public void testQueryWithNearSphereDoubleDoubleDouble() {
+        final double x = myRandom.nextDouble() * 160.0;
+        final double y = myRandom.nextDouble() * 70.0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addDouble(x + 1).addDouble(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 20.0).addDouble(y + 20);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").nearSphere(x, y, 0.1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#nearSphere(int, int)}.
+     */
+    @Test
+    public void testQueryWithNearSphereIntInt() {
+        final int x = (int) (myRandom.nextDouble() * 170);
+        final int y = (int) (myRandom.nextDouble() * 80);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addInteger(x + 1).addInteger(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addInteger(x + 2).addInteger(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addInteger(x + 2).addInteger(y + 2);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").nearSphere(x, y));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc3.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#nearSphere(int, int, int)}.
+     */
+    @Test
+    public void testQueryWithNearSphereIntIntInt() {
+        final int x = (int) (myRandom.nextDouble() * 20);
+        final int y = (int) (myRandom.nextDouble() * 20);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addInteger(x + 1).addInteger(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addInteger(x + 2).addInteger(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addInteger(x + 50).addInteger(y + 50);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").nearSphere(x, y, 1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#nearSphere(long, long)}.
+     */
+    @Test
+    public void testQueryWithNearSphereLongLong() {
+        final long x = (long) (myRandom.nextDouble() * 170);
+        final long y = (long) (myRandom.nextDouble() * 80);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addLong(x + 1).addLong(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addLong(x + 2).addLong(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addLong(x + 10).addLong(y + 10);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").nearSphere(x, y));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc3.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#nearSphere(long, long, long)}.
+     */
+    @Test
+    public void testQueryWithNearSphereLongLongLong() {
+        final long x = (long) (myRandom.nextDouble() * 20);
+        final long y = (long) (myRandom.nextDouble() * 20);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addLong(x + 1).addLong(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addLong(x + 2).addLong(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addLong(x + 50).addLong(y + 50);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        final ClosableIterator<Document> iter = getGeoCollection().find(
+                where("p").nearSphere(x, y, 1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(boolean)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToBoolean() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBoolean("a", true);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBoolean("a", false);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualTo(false));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(byte[])}.
+     */
+    @Test
+    public void testQueryWithNotEqualToByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[myRandom.nextInt(100) + 1];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", bytes2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualTo(bytes2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(byte, byte[])}.
+     */
+    @Test
+    public void testQueryWithNotEqualToByteByteArray() {
+        final byte[] bytes1 = new byte[myRandom.nextInt(100) + 1];
+        final byte[] bytes2 = new byte[myRandom.nextInt(100) + 1];
+        myRandom.nextBytes(bytes1);
+        myRandom.nextBytes(bytes2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addBinary("a", (byte) 12, bytes1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", (byte) 13, bytes1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualTo((byte) 13, bytes1));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+
+        myCollection.delete(doc2);
+        doc2.reset();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBinary("a", (byte) 12, bytes2);
+        myCollection.insert(Durability.ACK, doc2);
+
+        iter = myCollection.find(where("a").notEqualTo((byte) 12, bytes2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(DocumentAssignable)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToDocumentAssignable() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.push("a").addInteger("b", 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.push("a").addInteger("b", 2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualTo(BuilderFactory.start().addInteger("b", 2)));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(double)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToDouble() {
+        final double v1 = Double.longBitsToDouble(myRandom.nextLong());
+        final double v2 = Double.longBitsToDouble(myRandom.nextLong());
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addDouble("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addDouble("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualTo(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(int)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToInt() {
+        final int v1 = myRandom.nextInt();
+        final int v2 = myRandom.nextInt();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addInteger("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addInteger("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualTo(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualToJavaScript(String)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToJavaScriptString() {
+        final String v1 = "a == 1";
+        final String v2 = "b == 1";
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addJavaScript("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addJavaScript("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualToJavaScript(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#notEqualToJavaScript(String, Document)} .
+     */
+    @Test
+    public void testQueryWithNotEqualToJavaScriptStringDocument() {
+        final String v1 = "a == 1";
+        final String v2 = "b == 1";
+        final Document d1 = BuilderFactory.start().addInteger("a", 1)
+                .asDocument();
+        final Document d2 = BuilderFactory.start().addInteger("a", 2)
+                .asDocument();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addJavaScript("a", v1, d1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addJavaScript("a", v2, d1);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualToJavaScript(v2, d1));
+        try {
+            // Bug in MongoDB? - Scope is being ignored.
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+
+        myCollection.delete(doc2);
+        doc2.reset();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addJavaScript("a", v1, d2);
+        myCollection.insert(Durability.ACK, doc2);
+
+        iter = myCollection.find(where("a").notEqualToJavaScript(v1, d2));
+        try {
+            // Bug in MongoDB? - Scope is being ignored.
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(long)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToLong() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = myRandom.nextLong();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addLong("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addLong("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualTo(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualToMaxKey()}.
+     */
+    @Test
+    public void testQueryWithNotEqualToMaxKey() {
+        final long v1 = myRandom.nextLong();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addLong("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMaxKey("a");
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualToMaxKey());
+        try {
+            // Bug in MongoDB? - Matching all documents.
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualToMinKey()}.
+     */
+    @Test
+    public void testQueryWithNotEqualToMinKey() {
+        final long v1 = myRandom.nextLong();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addLong("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMinKey("a");
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualToMinKey());
+        try {
+            // Bug in MongoDB? - Matching all documents.
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualToMongoTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToMongoTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = myRandom.nextLong();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addMongoTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addMongoTimestamp("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualToMongoTimestamp(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualToNull()}.
+     */
+    @Test
+    public void testQueryWithNotEqualToNull() {
+        final long v1 = myRandom.nextLong();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addLong("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addNull("a");
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualToNull());
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(ObjectId)} .
+     */
+    @Test
+    public void testQueryWithNotEqualToObjectId() {
+        final ObjectId v1 = new ObjectId();
+        final ObjectId v2 = new ObjectId();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addObjectId("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addObjectId("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualTo(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(Pattern)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToPattern() {
+        final Pattern v1 = Pattern.compile("abc.*def");
+        final Pattern v2 = Pattern.compile("abc.def");
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addRegularExpression("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addRegularExpression("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        ClosableIterator<Document> iter = null;
+        try {
+            iter = myCollection.find(where("a").notEqualTo(v2));
+            fail("Expect a QueryFailedException.");
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        catch (final QueryFailedException qfe) {
+            // Bug in MongoDB?
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(String)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToString() {
+        final String v1 = String.valueOf(myRandom.nextDouble());
+        final String v2 = String.valueOf(myRandom.nextDouble());
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addString("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addString("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualTo(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualToSymbol(String)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToSymbol() {
+        final String v1 = String.valueOf(myRandom.nextDouble());
+        final String v2 = String.valueOf(myRandom.nextDouble());
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addSymbol("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addSymbol("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualToSymbol(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualToTimestamp(long)}.
+     */
+    @Test
+    public void testQueryWithNotEqualToTimestamp() {
+        final long v1 = myRandom.nextLong();
+        final long v2 = myRandom.nextLong();
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addTimestamp("a", v1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addTimestamp("a", v2);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notEqualToTimestamp(v2));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testQueryWithNotIn() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addString("a", "c");
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBoolean("a", true);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addString("a", "b");
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .notIn(constant(true), constant("b")));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#size(int)}.
+     */
+    @Test
+    public void testQueryWithSize() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("a").addInteger(1).addString("b").addBoolean(true);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("a").addInteger(1).addBoolean(true);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .size(3));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#where(String)}.
+     */
+    @Test
+    public void testQueryWithWhere() {
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.addString("a", "c");
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.addBoolean("a", true);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.addString("a", "b");
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final ClosableIterator<Document> iter = myCollection.find(where("a")
+                .where("this.a == 'c'"));
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#within(boolean, Point2D, Point2D, Point2D, Point2D[])}
+     * .
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinBooleanPoint2DPoint2DPoint2DPoint2DArray() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#within(double, double, double)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinDoubleDoubleDouble() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#within(double, double, double, boolean)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinDoubleDoubleDoubleBoolean() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#within(double, double, double, double)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinDoubleDoubleDoubleDouble() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#within(double, double, double, double, boolean)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinDoubleDoubleDoubleDoubleBoolean() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#within(int, int, int)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinIntIntInt() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#within(int, int, int, boolean)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinIntIntIntBoolean() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#within(int, int, int, int)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinIntIntIntInt() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#within(int, int, int, int, boolean)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinIntIntIntIntBoolean() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#within(long, long, long)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinLongLongLong() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#within(long, long, long, boolean)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinLongLongLongBoolean() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#within(long, long, long, long)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinLongLongLongLong() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#within(long, long, long, long, boolean)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinLongLongLongLongBoolean() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#withinOnSphere(double, double, double)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinOnSphereDoubleDoubleDouble() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#withinOnSphere(double, double, double, boolean)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinOnSphereDoubleDoubleDoubleBoolean() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#withinOnSphere(int, int, int)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinOnSphereIntIntInt() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#withinOnSphere(int, int, int, boolean)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinOnSphereIntIntIntBoolean() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#withinOnSphere(long, long, long)}
+     * .
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinOnSphereLongLongLong() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#withinOnSphere(long, long, long, boolean)}.
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinOnSphereLongLongLongBoolean() {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#within(Point2D, Point2D, Point2D, Point2D[])} .
+     */
+    @Test
+    @Ignore("For now.")
+    public void testQueryWithWithinPoint2DPoint2DPoint2DPoint2DArray() {
+        fail("Not yet implemented");
+    }
+
+    /**
      * Verifies performing updates on documents.
      */
     @Test
@@ -708,5 +4605,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(found.contains("i"));
             assertEquals(new IntegerElement("i", i + 1), found.get("i"));
         }
+    }
+
+    /**
+     * Returns a collection with a geospatial 2D index on the 'p' field.
+     * 
+     * @return The collection with a geospatial 2D index on the 'p' field.
+     */
+    protected MongoCollection getGeoCollection() {
+        if (myGeoCollection == null) {
+            myGeoCollection = myDb.getCollection(GEO_TEST_COLLECTION_NAME);
+            myGeoCollection.createIndex(Sort.geo2d("p"));
+        }
+        return myGeoCollection;
     }
 }

@@ -23,7 +23,6 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
-import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
@@ -116,7 +115,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      */
     @Override
     public void createIndex(final String name, final boolean unique,
-            final IntegerElement... keys) throws MongoDbException {
+            final Element... keys) throws MongoDbException {
 
         String indexName = name;
         if ((name == null) || name.isEmpty()) {
@@ -131,7 +130,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         final DocumentBuilder keyBuilder = indexEntryBuilder.push("key");
-        for (final IntegerElement key : keys) {
+        for (final Element key : keys) {
             keyBuilder.add(key);
         }
 
