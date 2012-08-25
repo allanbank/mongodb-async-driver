@@ -57,6 +57,16 @@ function waitfor {
 #
 # Starts the shard servers.
 function start {
+    if [[ -n "${MONGODB_HOME}" ]] ; then
+       mongod="${MONGODB_HOME}/bin/mongod"
+       mongos="${MONGODB_HOME}/bin/mongos"
+       mongo="${MONGODB_HOME}/bin/mongo"
+    else 
+       mongod=mongod
+       mongos=mongos
+       mongo=mongo
+    fi
+
 	# Make sure there are no process left over.
 	stop
 	
@@ -71,7 +81,7 @@ function start {
 	# A Single config server.
 	server=config
 	port=27019
-	mongod --configsvr --port ${port} --fork --dbpath "${dir}/${server}" \
+	"${mongod}" --configsvr --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--nojournal \
 				>> ${dir}/${server}.out 2>&1
@@ -80,7 +90,7 @@ function start {
 	# A two mongos.
 	server=mongos
 	port=27017
-	mongos --port ${port} --fork \
+	"${mongos}" --port ${port} --fork \
 				--logpath ${dir}/${server}.log \
 				--configdb localhost:27019 \
 				>> ${dir}/${server}.out 2>&1
@@ -88,7 +98,7 @@ function start {
 
 	server=mongos_2
 	port=27016
-	mongos --port ${port} --fork \
+	"${mongos}" --port ${port} --fork \
 				--logpath ${dir}/${server}.log \
 				--configdb localhost:27019 \
 				>> ${dir}/${server}.out 2>&1
@@ -97,7 +107,7 @@ function start {
 	# 3 Mongod shard servers.
 	server=shard1
 	port=27018
-	mongod --shardsvr --port ${port} --fork --dbpath "${dir}/${server}" \
+	"${mongod}" --shardsvr --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--nojournal \
 				>> ${dir}/${server}.out 2>&1
@@ -105,7 +115,7 @@ function start {
 	
 	server=shard2
 	port=27020
-	mongod --shardsvr --port ${port} --fork --dbpath "${dir}/${server}" \
+	"${mongod}" --shardsvr --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--nojournal \
 				>> ${dir}/${server}.out 2>&1
@@ -113,16 +123,16 @@ function start {
 	
 	server=shard3
 	port=27021
-	mongod --shardsvr --port ${port} --fork --dbpath "${dir}/${server}" \
+	"${mongod}" --shardsvr --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--nojournal \
 				>> ${dir}/${server}.out 2>&1
 	waitfor "${port}" "${dir}/${server}.log"
 						
 	# Add the shards
-	mongo localhost:27017/admin -eval "db.runCommand( { addshard : \"localhost:27018\" } );"
-	mongo localhost:27017/admin -eval "db.runCommand( { addshard : \"localhost:27020\" } );"
-	mongo localhost:27017/admin -eval "db.runCommand( { addshard : \"localhost:27021\" } );"
+	"${mongo}" localhost:27017/admin -eval "db.runCommand( { addshard : \"localhost:27018\" } );"
+	"${mongo}" localhost:27017/admin -eval "db.runCommand( { addshard : \"localhost:27020\" } );"
+	"${mongo}" localhost:27017/admin -eval "db.runCommand( { addshard : \"localhost:27021\" } );"
 	
 	# Let things calm down.
 	sleep 1	

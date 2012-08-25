@@ -97,6 +97,16 @@ function waitForSecondaries {
 #
 # Starts the shard servers.
 function start {
+    if [[ -n "${MONGODB_HOME}" ]] ; then
+       mongod="${MONGODB_HOME}/bin/mongod"
+       mongos="${MONGODB_HOME}/bin/mongos"
+       mongo="${MONGODB_HOME}/bin/mongo"
+    else 
+       mongod=mongod
+       mongos=mongos
+       mongo=mongo
+    fi
+    
 	# Make sure there are no process left over.
 	stop
 	
@@ -111,7 +121,7 @@ function start {
 	# A single arbiter.
 	server=arbiter
 	port=27017
-	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
+	"${mongod}" --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
 				--nojournal --oplogSize 2 \
@@ -121,7 +131,7 @@ function start {
 	# 4 Mongod replicas servers.
 	server=replica1
 	port=27018
-	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
+	"${mongod}" --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
 				--nojournal --oplogSize 512 \
@@ -130,7 +140,7 @@ function start {
 	
 	server=replica2
 	port=27019
-	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
+	"${mongod}" --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
 				--nojournal --oplogSize 512 \
@@ -139,7 +149,7 @@ function start {
 	
 	server=replica3
 	port=27020
-	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
+	"${mongod}" --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
 				--nojournal --oplogSize 512 \
@@ -148,7 +158,7 @@ function start {
 						
 	server=replica4
 	port=27021
-	mongod --port ${port} --fork --dbpath "${dir}/${server}" \
+	"${mongod}" --port ${port} --fork --dbpath "${dir}/${server}" \
 				--smallfiles --logpath ${dir}/${server}.log \
 				--replSet ${dirname} \
 				--nojournal --oplogSize 512 \
@@ -184,7 +194,7 @@ function start {
 		]
 	})
 END
-	mongo localhost:27018/admin ${dir}/config.js
+	"${mongo}" localhost:27018/admin ${dir}/config.js
 	
 	waitforPrimary ${dir}/arbiter.log
 	

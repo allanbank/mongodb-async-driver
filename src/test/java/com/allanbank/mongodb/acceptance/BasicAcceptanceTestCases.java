@@ -5,9 +5,16 @@
 
 package com.allanbank.mongodb.acceptance;
 
+import static com.allanbank.mongodb.builder.AggregationGroupField.set;
+import static com.allanbank.mongodb.builder.AggregationGroupId.id;
+import static com.allanbank.mongodb.builder.AggregationProjectFields.includeWithoutId;
 import static com.allanbank.mongodb.builder.QueryBuilder.and;
 import static com.allanbank.mongodb.builder.QueryBuilder.where;
+import static com.allanbank.mongodb.builder.Sort.asc;
+import static com.allanbank.mongodb.builder.Sort.desc;
 import static com.allanbank.mongodb.builder.expression.Expressions.constant;
+import static com.allanbank.mongodb.builder.expression.Expressions.field;
+import static com.allanbank.mongodb.builder.expression.Expressions.set;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -16,13 +23,16 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -53,6 +63,7 @@ import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -61,6 +72,7 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Sort;
 import com.allanbank.mongodb.error.QueryFailedException;
+import com.allanbank.mongodb.error.ReplyException;
 
 /**
  * BasicAcceptanceTestCases provides the base tests for the interactions with
@@ -157,6 +169,252 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             myConfig = null;
             myRandom = null;
 
+        }
+    }
+
+    /**
+     * Verifies the function of Aggregation framework.
+     * <p>
+     * Using the drivers support classes: <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static {@link com.allanbank.mongodb.builder.AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
+     * import static {@link com.allanbank.mongodb.builder.AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
+     * import static {@link com.allanbank.mongodb.builder.AggregationProjectFields#includeWithoutId com.allanbank.mongodb.builder.AggregationProjectFields.includeWithoutId};
+     * import static {@link com.allanbank.mongodb.builder.QueryBuilder#where com.allanbank.mongodb.builder.QueryBuilder.where};
+     * import static {@link com.allanbank.mongodb.builder.Sort#asc com.allanbank.mongodb.builder.Sort.asc};
+     * import static {@link com.allanbank.mongodb.builder.Sort#desc com.allanbank.mongodb.builder.Sort.desc};
+     * import static {@link com.allanbank.mongodb.builder.expression.Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
+     * import static {@link com.allanbank.mongodb.builder.expression.Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
+     * import static {@link com.allanbank.mongodb.builder.expression.Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
+     * 
+     * DocumentBuilder b1 = BuilderFactory.start();
+     * DocumentBuilder b2 = BuilderFactory.start();
+     * Aggregate.Builder builder = new Aggregate.Builder();
+     * 
+     * builder.match(where("state").notEqualTo("NZ"))
+     *         .group(id().addField("state").addField("city"),
+     *                 set("pop").sum("pop"))
+     *         .sort(asc("pop"))
+     *         .group(id("_id.state"), set("biggestcity").last("_id.city"),
+     *                 set("biggestpop").last("pop"),
+     *                 set("smallestcity").first("_id.city"),
+     *                 set("smallestpop").first("pop"))
+     *         .project(
+     *                 includeWithoutId(),
+     *                 set("state", field("_id")),
+     *                 set("biggestCity",
+     *                         b1.add(set("name", field("biggestcity"))).add(
+     *                                 set("pop", field("biggestpop")))),
+     *                 set("smallestCity",
+     *                         b2.add(set("name", field("smallestcity"))).add(
+     *                                 set("pop", field("smallestpop")))))
+     *         .sort(desc("biggestCity.pop"));
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * Using the MongoDB Shell: <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * > db.things.insert( { state : "NZ", city : "big", pop : 1000  } );
+     * > db.things.insert( { state : "MD", city : "big", pop : 1000  } );
+     * > db.things.insert( { state : "MD", city : "medium", pop : 10  } );
+     * > db.things.insert( { state : "MD", city : "small", pop : 1  } );
+     * > db.things.insert( { state : "CA", city : "big", pop : 10000  } );
+     * > db.things.insert( { state : "CA", city : "small", pop : 11  } );
+     * > db.things.insert( { state : "CA", city : "small", pop : 10  } );
+     * > db.things.insert( { state : "NY", city : "big", pop : 100000  } );
+     * > db.things.insert( { state : "NY", city : "small", pop : 20  } );
+     * > db.things.insert( { state : "NY", city : "small", pop : 5  } );
+     * > db.things.aggregate( [
+     *              { $match : { state : { $ne : "NZ" } } },
+     *              { $group :
+     *                { _id : { state : "$state", city : "$city" },
+     *                  pop : { $sum : "$pop" } } },
+     *              { $sort : { pop : 1 } },
+     *              { $group :
+     *                { _id : "$_id.state",
+     *                  biggestcity : { $last : "$_id.city" },
+     *                  biggestpop : { $last : "$pop" },
+     *                  smallestcity : { $first : "$_id.city" },
+     *                  smallestpop : { $first : "$pop" } } },
+     *              { $project :
+     *                { _id : 0,
+     *                  state : "$_id",
+     *                  biggestCity : { name : "$biggestcity", pop: "$biggestpop" },
+     *                  smallestCity : { name : "$smallestcity", pop : "$smallestpop" } } }
+     *              { $sort : { "biggestCity.pop : -1 } }
+     *            ] );     
+     * {
+     *     "result" : [
+     *         {
+     *             "state" : "NY",
+     *             "biggestCity" : {
+     *                 "name" : "big",
+     *                 "pop" : 100000
+     *             },
+     *             "smallestCity" : {
+     *                 "name" : "small",
+     *                 "pop" : 25
+     *             }
+     *         },
+     *         {
+     *             "state" : "CA",
+     *             "biggestCity" : {
+     *                 "name" : "big",
+     *                 "pop" : 10000
+     *             },
+     *             "smallestCity" : {
+     *                 "name" : "small",
+     *                 "pop" : 21
+     *             }
+     *         },
+     *         {
+     *             "state" : "MD",
+     *             "biggestCity" : {
+     *                 "name" : "big",
+     *                 "pop" : 1000
+     *             },
+     *             "smallestCity" : {
+     *                 "name" : "small",
+     *                 "pop" : 1
+     *             }
+     *         }
+     *     ],
+     *     "ok" : 1
+     * }
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state">Inspired
+     *      By</a>
+     */
+    @Test
+    public void testAggregate() {
+        final DocumentBuilder doc = BuilderFactory.start();
+        final MongoCollection aggregate = myDb.getCollection("aggregate");
+
+        // > db.things.insert( { state : "NZ", city : "big", pop : 1000 } );
+        doc.addString("state", "NZ").addString("city", "big")
+                .addInteger("pop", 1000);
+        aggregate.insert(doc);
+        doc.reset();
+
+        // > db.things.insert( { state : "MD", city : "big", pop : 1000 } );
+        // > db.things.insert( { state : "MD", city : "medium", pop : 10 } );
+        // > db.things.insert( { state : "MD", city : "small", pop : 1 } );
+        doc.addString("state", "MD").addString("city", "big")
+                .addInteger("pop", 1000);
+        aggregate.insert(doc);
+        doc.reset();
+        doc.addString("state", "MD").addString("city", "medium")
+                .addInteger("pop", 10);
+        aggregate.insert(doc);
+        doc.reset();
+        doc.addString("state", "MD").addString("city", "small")
+                .addInteger("pop", 1);
+        aggregate.insert(doc);
+        doc.reset();
+
+        // > db.things.insert( { state : "CA", city : "big", pop : 10000 } );
+        // > db.things.insert( { state : "CA", city : "medium", pop : 11 } );
+        // > db.things.insert( { state : "CA", city : "small", pop : 10 } );
+        doc.addString("state", "CA").addString("city", "big")
+                .addInteger("pop", 10000);
+        aggregate.insert(doc);
+        doc.reset();
+        doc.addString("state", "CA").addString("city", "small")
+                .addInteger("pop", 11);
+        aggregate.insert(doc);
+        doc.reset();
+        doc.addString("state", "CA").addString("city", "small")
+                .addInteger("pop", 10);
+        aggregate.insert(doc);
+        doc.reset();
+
+        // > db.things.insert( { state : "NY", city : "big", pop : 100000 } );
+        // > db.things.insert( { state : "NY", city : "medium", pop : 20 } );
+        // > db.things.insert( { state : "NY", city : "small", pop : 5 } );
+        doc.addString("state", "NY").addString("city", "big")
+                .addInteger("pop", 100000);
+        aggregate.insert(doc);
+        doc.reset();
+        doc.addString("state", "NY").addString("city", "small")
+                .addInteger("pop", 20);
+        aggregate.insert(doc);
+        doc.reset();
+        doc.addString("state", "NY").addString("city", "small")
+                .addInteger("pop", 5);
+        aggregate.insert(doc);
+        doc.reset();
+
+        final DocumentBuilder b1 = BuilderFactory.start();
+        final DocumentBuilder b2 = BuilderFactory.start();
+        final Aggregate.Builder builder = new Aggregate.Builder();
+
+        builder.match(where("state").notEqualTo("NZ"))
+                .group(id().addField("state").addField("city"),
+                        set("pop").sum("pop"))
+                .sort(asc("pop"))
+                .group(id("_id.state"), set("biggestcity").last("_id.city"),
+                        set("biggestpop").last("pop"),
+                        set("smallestcity").first("_id.city"),
+                        set("smallestpop").first("pop"))
+                .project(
+                        includeWithoutId(),
+                        set("state", field("_id")),
+                        set("biggestCity",
+                                b1.add(set("name", field("biggestcity"))).add(
+                                        set("pop", field("biggestpop")))),
+                        set("smallestCity",
+                                b2.add(set("name", field("smallestcity"))).add(
+                                        set("pop", field("smallestpop")))))
+                .sort(desc("biggestCity.pop"));
+
+        final DocumentBuilder expected1 = BuilderFactory.start();
+        expected1.addString("state", "NY");
+        expected1.push("biggestCity").addString("name", "big")
+                .addInteger("pop", 100000);
+        expected1.push("smallestCity").addString("name", "small")
+                .addInteger("pop", 25);
+
+        final DocumentBuilder expected2 = BuilderFactory.start();
+        expected2.addString("state", "CA");
+        expected2.push("biggestCity").addString("name", "big")
+                .addInteger("pop", 10000);
+        expected2.push("smallestCity").addString("name", "small")
+                .addInteger("pop", 21);
+
+        final DocumentBuilder expected3 = BuilderFactory.start();
+        expected3.addString("state", "MD");
+        expected3.push("biggestCity").addString("name", "big")
+                .addInteger("pop", 1000);
+        expected3.push("smallestCity").addString("name", "small")
+                .addInteger("pop", 1);
+
+        final List<Document> expected = new ArrayList<Document>();
+        expected.add(expected1.build());
+        expected.add(expected2.build());
+        expected.add(expected3.build());
+
+        try {
+            final List<Document> results = aggregate.aggregate(builder.build());
+
+            assertEquals(expected, results);
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a recent MongoDB instance.
+            assumeTrue(!re.getMessage().contains("no such cmd: aggregate"));
+
+            throw re;
         }
     }
 
@@ -4415,13 +4673,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                         new Point2D.Double(maxx, maxy + 0.75),
                         new Point2D.Double(minx, maxy)));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -4496,13 +4760,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius, false));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next()); // Note duplicate.
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -4594,13 +4864,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2, false));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -4674,13 +4950,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius, false));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next()); // Note duplicate.
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -4771,13 +5053,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2, false));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -4852,13 +5140,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius, false));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next()); // Note duplicate.
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -4949,13 +5243,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2, false));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -5008,7 +5308,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereDoubleDoubleDoubleBoolean() {
-        final double x = myRandom.nextDouble() * 40.0;
+        final double x = myRandom.nextDouble() * 10.0;
         final double y = myRandom.nextDouble() * 10.0;
         final double radius = 1;
 
@@ -5031,13 +5331,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius, false));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -5049,7 +5355,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereIntIntInt() {
-        final int x = (int) (myRandom.nextDouble() * 40.0);
+        final int x = (int) (myRandom.nextDouble() * 10.0);
         final int y = (int) (myRandom.nextDouble() * 10.0);
         final int radius = 1;
 
@@ -5089,7 +5395,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereIntIntIntBoolean() {
-        final int x = (int) (myRandom.nextDouble() * 40.0);
+        final int x = (int) (myRandom.nextDouble() * 10.0);
         final int y = (int) (myRandom.nextDouble() * 10.0);
         final int radius = 1;
 
@@ -5112,13 +5418,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius, false));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -5131,7 +5443,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereLongLongLong() {
-        final long x = (long) (myRandom.nextDouble() * 40.0);
+        final long x = (long) (myRandom.nextDouble() * 10.0);
         final long y = (long) (myRandom.nextDouble() * 10.0);
         final long radius = 1;
 
@@ -5171,7 +5483,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereLongLongLongBoolean() {
-        final long x = (long) (myRandom.nextDouble() * 40.0);
+        final long x = (long) (myRandom.nextDouble() * 10.0);
         final long y = (long) (myRandom.nextDouble() * 10.0);
         final long radius = 1;
 
@@ -5194,13 +5506,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius, false));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -5293,11 +5611,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                         new Point2D.Double(maxx, maxy + 0.5),
                         new Point2D.Double(minx, maxy)));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();

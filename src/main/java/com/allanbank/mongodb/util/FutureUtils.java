@@ -32,10 +32,12 @@ public final class FutureUtils {
             return future.get();
         }
         catch (final InterruptedException e) {
+            e.fillInStackTrace();
             throw new MongoDbException(e);
         }
         catch (final ExecutionException e) {
             final Throwable cause = e.getCause();
+            cause.fillInStackTrace();
             if (cause instanceof MongoDbException) {
                 throw (MongoDbException) cause;
             }

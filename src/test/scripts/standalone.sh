@@ -55,13 +55,23 @@ function waitfor {
 #
 # Starts the shard servers.
 function start {
+    if [[ -n "${MONGODB_HOME}" ]] ; then
+       mongod="${MONGODB_HOME}/bin/mongod"
+       mongos="${MONGODB_HOME}/bin/mongos"
+       mongo="${MONGODB_HOME}/bin/mongo"
+    else 
+       mongod=mongod
+       mongos=mongos
+       mongo=mongo
+    fi
+
 	# Make sure there are no process left over.
 	stop
 	
 	dir=$( mktemp --directory -p "${tmpdir}" "${dirname}-XXXXXXXX" )
 	
 	port=27017
-	mongod --port ${port} --fork --dbpath "${dir}" \
+	"${mongod}" --port ${port} --fork --dbpath "${dir}" \
 				--logpath ${dir}/mongod.log \
 				--nojournal \
 				"$@" \
