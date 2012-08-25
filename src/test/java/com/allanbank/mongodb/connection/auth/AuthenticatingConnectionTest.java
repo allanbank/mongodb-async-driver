@@ -555,6 +555,51 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
+     * Test method for {@link AuthenticatingConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @Test
+    public void testSendAdminMessageArrayAsNonAdmin() throws IOException {
+
+        myConfig.authenticate("allanbank", "super_secret_password");
+        myConfig.setDefaultDatabase("foo");
+
+        final Delete msg = new Delete(MongoDbConfiguration.ADMIN_DB_NAME,
+                "collection", EMPTY_DOC, true);
+
+        final Connection mockConnetion = createMock(Connection.class);
+
+        // Nonce.
+        expect(
+                mockConnetion.send(cb(myNonceReply), eq(new Command("foo",
+                        myNonceRequest.build())))).andReturn(myAddress);
+
+        // Auth.
+        expect(
+                mockConnetion.send(cb(myAuthReply), eq(new Command("foo",
+                        myAuthRequest.build())))).andReturn(myAddress);
+
+        // Message.
+        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
+
+        mockConnetion.close();
+        expectLastCall();
+
+        replay(mockConnetion);
+
+        final AuthenticatingConnection conn = new AuthenticatingConnection(
+                mockConnetion, myConfig);
+
+        conn.send(null, msg);
+
+        IOUtils.close(conn);
+
+        verify(mockConnetion);
+    }
+
+    /**
      * Test method for
      * {@link AuthenticatingConnection#send(Callback, Message[])} .
      * 

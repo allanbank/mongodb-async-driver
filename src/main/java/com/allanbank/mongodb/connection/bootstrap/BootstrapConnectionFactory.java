@@ -80,15 +80,19 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * </p>
      */
     public void bootstrap() {
-        SocketConnectionFactory socketFactory = null;
+        ProxiedConnectionFactory factory = new SocketConnectionFactory(myConfig);
+        // Authentication has to be right on top of the physical
+        // connection.
+        if (myConfig.isAuthenticating()) {
+            factory = new AuthenticationConnectionFactory(factory, myConfig);
+        }
         try {
-            socketFactory = new SocketConnectionFactory(myConfig);
             for (final String addr : myConfig.getServers()) {
                 Connection conn = null;
                 final FutureCallback<Reply> future = new FutureCallback<Reply>();
                 try {
-                    conn = socketFactory.connect(new ServerState(addr),
-                            myConfig);
+                    conn = factory.connect(new ServerState(addr), myConfig);
+
                     conn.send(future, new ServerStatus());
                     final Reply reply = future.get();
 
@@ -98,16 +102,6 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                     final List<Document> results = reply.getResults();
                     if (!results.isEmpty()) {
                         final Document doc = results.get(0);
-
-                        ProxiedConnectionFactory factory = new SocketConnectionFactory(
-                                myConfig);
-
-                        // Authentication has to be right on top of the physical
-                        // connection.
-                        if (myConfig.isAuthenticating()) {
-                            factory = new AuthenticationConnectionFactory(
-                                    factory, myConfig);
-                        }
 
                         if (isMongos(doc)) {
                             LOG.info("Sharded bootstrap to " + addr + ".");
@@ -124,6 +118,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                                     + ".");
                             myDelegate = factory;
                         }
+                        factory = null; // Don't close.
                         return;
                     }
                 }
@@ -147,7 +142,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
             }
         }
         finally {
-            IOUtils.close(socketFactory);
+            IOUtils.close(factory);
         }
     }
 

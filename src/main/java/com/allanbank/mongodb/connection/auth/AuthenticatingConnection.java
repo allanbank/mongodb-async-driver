@@ -39,6 +39,9 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class AuthenticatingConnection extends AbstractProxyConnection {
 
+    /** The name of the administration database. */
+    public static final String ADMIN_DB_NAME = MongoDbConfiguration.ADMIN_DB_NAME;
+
     /** Map containing the Futures for the reply to the authenticate requests. */
     private final ConcurrentMap<String, Future<Reply>> myAuthReplys;
 
@@ -132,7 +135,10 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
             throws MongoDbAuthenticationException {
         final String name;
         if (myConfig.isAdminUser()) {
-            name = "admin";
+            name = ADMIN_DB_NAME;
+        }
+        else if (ADMIN_DB_NAME.equals(message.getDatabaseName())) {
+            name = myConfig.getDefaultDatabase();
         }
         else {
             name = message.getDatabaseName();

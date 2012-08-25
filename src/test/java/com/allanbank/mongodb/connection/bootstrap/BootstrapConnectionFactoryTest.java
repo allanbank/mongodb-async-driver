@@ -217,10 +217,17 @@ public class BootstrapConnectionFactoryTest {
      */
     @Test
     public void testBootstrapStandaloneWithAuth() {
+        final DocumentBuilder nonceReply = BuilderFactory.start();
+        nonceReply.addString("nonce", "deadbeef4bee");
+
+        final DocumentBuilder authReply = BuilderFactory.start();
+        authReply.addInteger("ok", 1);
+
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.addString("process", "mongod");
 
-        ourServer.setReplies(reply(replStatusBuilder));
+        ourServer.setReplies(reply(nonceReply), reply(authReply),
+                reply(replStatusBuilder));
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 ourServer.getInetSocketAddress());

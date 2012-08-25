@@ -55,6 +55,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
 
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.authenticateAsAdmin(ADMIN_USER_NAME, PASSWORD);
+        config.setDefaultDatabase(USER_DB);
 
         Connection socketConn = null;
         AuthenticatingConnection authConn = null;
@@ -100,6 +101,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
 
         final MongoDbConfiguration config = new MongoDbConfiguration();
         config.authenticate(USER_NAME, PASSWORD);
+        config.setDefaultDatabase(USER_DB);
 
         Connection socketConn = null;
         AuthenticatingConnection authConn = null;

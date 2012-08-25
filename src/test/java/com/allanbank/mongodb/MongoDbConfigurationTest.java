@@ -343,6 +343,9 @@ public class MongoDbConfigurationTest {
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
+        assertEquals(MongoDbConfiguration.DEFAULT_DB_NAME,
+                config.getDefaultDatabase());
+
     }
 
     /**
@@ -370,6 +373,7 @@ public class MongoDbConfigurationTest {
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
         assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
+        assertEquals("db", config.getDefaultDatabase());
     }
 
     /**
@@ -649,6 +653,22 @@ public class MongoDbConfigurationTest {
         assertEquals(30000, config.getConnectTimeout());
         config.setConnectTimeout(0);
         assertEquals(0, config.getConnectTimeout());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#setDefaultDatabase}.
+     */
+    @Test
+    public void testSetDefaultDataabse() {
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+
+        assertEquals(MongoDbConfiguration.DEFAULT_DB_NAME,
+                config.getDefaultDatabase());
+        config.setDefaultDatabase("foo");
+        assertEquals("foo", config.getDefaultDatabase());
+        config.setDefaultDatabase(MongoDbConfiguration.DEFAULT_DB_NAME);
+        assertEquals(MongoDbConfiguration.DEFAULT_DB_NAME,
+                config.getDefaultDatabase());
     }
 
     /**

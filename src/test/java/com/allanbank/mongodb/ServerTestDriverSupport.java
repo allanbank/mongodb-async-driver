@@ -178,11 +178,20 @@ public class ServerTestDriverSupport {
             docBuilder.addString("user", ADMIN_USER_NAME);
             docBuilder.addString("pwd", adminConfig.getPasswordHash());
             docBuilder.addBoolean("readOnly", false);
-
-            collection.insert(Durability.ACK, docBuilder.build());
-
-            // Shutdown the connection.
-            close(mongo);
+            try {
+                collection.insert(Durability.ACK, docBuilder.build());
+            }
+            catch (final MongoDbException error) {
+                // Check if it is just MongoDB telling us authentication is now
+                // active.
+                if (!error.getMessage().equals("need to login")) {
+                    throw error;
+                }
+            }
+            finally {
+                // Shutdown the connection.
+                close(mongo);
+            }
 
             // Start a new connection authenticating as the admin user to add
             // the non-admin user...

@@ -31,6 +31,9 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     /** The name of the administration database. */
     public static final String ADMIN_DB_NAME = "admin";
 
+    /** The default database. */
+    public static final String DEFAULT_DB_NAME = "local";
+
     /** The ASCII character encoding. */
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
@@ -41,7 +44,7 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     /** The serialization version for the class. */
     private static final long serialVersionUID = 2964127883934086509L;
 
-    /** If true then the user should be authenticated as an anministrative user. */
+    /** If true then the user should be authenticated as an administrative user. */
     private boolean myAdminUser = false;
 
     /**
@@ -61,6 +64,15 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * </p>
      */
     private int myConnectTimeout = 0;
+
+    /**
+     * The default database for the connection. This is used as the database to
+     * authenticate against if the user is not an administrative user.
+     * <p>
+     * Defaults to {@value #DEFAULT_DB_NAME}.
+     * </p>
+     */
+    private String myDefaultDatabase = DEFAULT_DB_NAME;
 
     /**
      * The default durability for write operations on the server.
@@ -218,8 +230,12 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
                     "Must provide at least 1 host to connect to.");
         }
 
+        final String database = mongoDbUri.getDatabase();
+        if (!database.isEmpty()) {
+            setDefaultDatabase(database);
+        }
+
         if (mongoDbUri.getUserName() != null) {
-            final String database = mongoDbUri.getDatabase();
             if (database.isEmpty() || database.equals(ADMIN_DB_NAME)) {
                 authenticateAsAdmin(mongoDbUri.getUserName(),
                         mongoDbUri.getPassword());
@@ -471,6 +487,22 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the default database for the connection.
+     * <p>
+     * This is used as the database to authenticate against if the user is not
+     * an administrative user.
+     * </p>
+     * <p>
+     * Defaults to {@value #DEFAULT_DB_NAME}.
+     * </p>
+     * 
+     * @return The default database value.
+     */
+    public String getDefaultDatabase() {
+        return myDefaultDatabase;
+    }
+
+    /**
      * Returns the default durability for write operations on the server.
      * <p>
      * Defaults to {@link Durability#NONE}.
@@ -665,6 +697,23 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      */
     public void setConnectTimeout(final int connectTimeout) {
         myConnectTimeout = connectTimeout;
+    }
+
+    /**
+     * Sets the default database for the connection.
+     * <p>
+     * This is used as the database to authenticate against if the user is not
+     * an administrative user.
+     * </p>
+     * <p>
+     * Defaults to {@value #DEFAULT_DB_NAME}.
+     * </p>
+     * 
+     * @param defaultDatabase
+     *            The new default database value.
+     */
+    public void setDefaultDatabase(final String defaultDatabase) {
+        myDefaultDatabase = defaultDatabase;
     }
 
     /**

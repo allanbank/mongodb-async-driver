@@ -97,6 +97,7 @@ public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
         config.authenticate(USER_NAME, PASSWORD);
+        config.setDefaultDatabase(USER_DB);
 
         myTestFactory = new BootstrapConnectionFactory(config);
 

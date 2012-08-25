@@ -4720,11 +4720,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -4816,11 +4821,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -4911,11 +4921,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -5005,11 +5020,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -5100,11 +5120,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -5195,11 +5220,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -5291,11 +5321,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -5378,11 +5413,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
@@ -5466,11 +5506,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ClosableIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius));
         try {
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
             assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
+            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         finally {
             iter.close();
