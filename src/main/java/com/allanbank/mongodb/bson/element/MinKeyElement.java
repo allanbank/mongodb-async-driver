@@ -28,7 +28,7 @@ public class MinKeyElement extends AbstractElement {
      *            The name for the BSON minimum key.
      */
     public MinKeyElement(final String name) {
-        super(TYPE, name);
+        super(name);
     }
 
     /**
@@ -39,6 +39,14 @@ public class MinKeyElement extends AbstractElement {
     @Override
     public void accept(final Visitor visitor) {
         visitor.visitMinKey(getName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

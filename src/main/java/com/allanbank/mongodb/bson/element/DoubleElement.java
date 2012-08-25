@@ -34,7 +34,7 @@ public class DoubleElement extends AbstractElement implements NumericElement {
      *            The BSON double value.
      */
     public DoubleElement(final String name, final double value) {
-        super(TYPE, name);
+        super(name);
 
         myValue = value;
     }
@@ -103,6 +103,14 @@ public class DoubleElement extends AbstractElement implements NumericElement {
     @Override
     public long getLongValue() {
         return (long) myValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

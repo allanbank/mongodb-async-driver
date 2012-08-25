@@ -15,6 +15,9 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class BooleanElement extends AbstractElement {
 
+    /** The BSON type for a Object Id. */
+    public static final ElementType TYPE = ElementType.BOOLEAN;
+
     /** Serialization version for the class. */
     private static final long serialVersionUID = -3534279865960686134L;
 
@@ -30,7 +33,7 @@ public class BooleanElement extends AbstractElement {
      *            The BSON boolean value.
      */
     public BooleanElement(final String name, final boolean value) {
-        super(ElementType.BOOLEAN, name);
+        super(name);
         myValue = value;
     }
 
@@ -65,6 +68,14 @@ public class BooleanElement extends AbstractElement {
             result = super.equals(object) && (myValue == other.myValue);
         }
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

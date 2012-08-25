@@ -33,24 +33,10 @@ public class JavaScriptElement extends AbstractElement {
      *            The BSON JavaScript value.
      */
     public JavaScriptElement(final String name, final String javaScript) {
-        this(TYPE, name, javaScript);
-    }
-
-    /**
-     * Constructs a new {@link JavaScriptElement}.
-     * 
-     * @param type
-     *            The type of the inherited element.
-     * @param name
-     *            The name for the BSON string.
-     * @param javaScript
-     *            The BSON JavaScript value.
-     */
-    protected JavaScriptElement(final ElementType type, final String name,
-            final String javaScript) {
-        super(type, name);
+        super(name);
 
         myJavaScript = javaScript;
+
     }
 
     /**
@@ -95,6 +81,14 @@ public class JavaScriptElement extends AbstractElement {
      */
     public String getJavaScript() {
         return myJavaScript;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

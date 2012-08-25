@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.ElementType;
 
 /**
  * A base class for the basic BSON types.
@@ -23,19 +22,13 @@ public abstract class AbstractElement implements Element {
     /** The name for the BSON type. */
     private final String myName;
 
-    /** The token for the concrete BSON type. */
-    private final ElementType myType;
-
     /**
      * Constructs a new {@link AbstractElement}.
      * 
-     * @param type
-     *            The type for the concrete BSON type.
      * @param name
      *            The name for the BSON type.
      */
-    public AbstractElement(final ElementType type, final String name) {
-        myType = type;
+    public AbstractElement(final String name) {
         myName = name;
     }
 
@@ -68,8 +61,7 @@ public abstract class AbstractElement implements Element {
         else if ((object != null) && (getClass() == object.getClass())) {
             final AbstractElement other = (AbstractElement) object;
 
-            result = nullSafeEquals(myName, other.myName)
-                    && nullSafeEquals(myType, other.myType);
+            result = nullSafeEquals(myName, other.myName);
         }
         return result;
     }
@@ -85,16 +77,6 @@ public abstract class AbstractElement implements Element {
     }
 
     /**
-     * Returns the type for the BSON type.
-     * 
-     * @return The type for the BSON type.
-     */
-    @Override
-    public ElementType getType() {
-        return myType;
-    }
-
-    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.
@@ -103,7 +85,6 @@ public abstract class AbstractElement implements Element {
     public int hashCode() {
         int result = 1;
         result = (31 * result) + ((myName == null) ? 0 : myName.hashCode());
-        result = (31 * result) + ((myType == null) ? 0 : myType.hashCode());
         return result;
     }
 
@@ -150,7 +131,7 @@ public abstract class AbstractElement implements Element {
      */
     @Override
     public String toString() {
-        return "AbstractElement [myName=" + myName + ", myType=" + myType + "]";
+        return "AbstractElement [name=" + myName + ", type=" + getType() + "]";
     }
 
     /**

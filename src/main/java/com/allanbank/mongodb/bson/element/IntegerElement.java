@@ -34,7 +34,7 @@ public class IntegerElement extends AbstractElement implements NumericElement {
      *            The BSON integer value.
      */
     public IntegerElement(final String name, final int value) {
-        super(TYPE, name);
+        super(name);
 
         myValue = value;
     }
@@ -103,6 +103,14 @@ public class IntegerElement extends AbstractElement implements NumericElement {
     @Override
     public long getLongValue() {
         return myValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

@@ -228,7 +228,7 @@ public class RegularExpressionElement extends AbstractElement {
      */
     public RegularExpressionElement(final String name, final String pattern,
             final int options) {
-        super(TYPE, name);
+        super(name);
 
         myPattern = pattern;
         myOptions = options;
@@ -301,6 +301,14 @@ public class RegularExpressionElement extends AbstractElement {
      */
     public String getPattern() {
         return myPattern;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

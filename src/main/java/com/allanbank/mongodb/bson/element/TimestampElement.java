@@ -33,7 +33,7 @@ public class TimestampElement extends AbstractElement {
      *            The BSON timestamp value as the milliseconds since the epoch.
      */
     public TimestampElement(final String name, final long value) {
-        super(TYPE, name);
+        super(name);
 
         myTimestamp = value;
     }
@@ -78,6 +78,14 @@ public class TimestampElement extends AbstractElement {
      */
     public long getTime() {
         return myTimestamp;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

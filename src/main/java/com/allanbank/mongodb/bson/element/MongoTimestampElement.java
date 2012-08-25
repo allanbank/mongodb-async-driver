@@ -35,7 +35,7 @@ public class MongoTimestampElement extends AbstractElement {
      *            timestamp.
      */
     public MongoTimestampElement(final String name, final long value) {
-        super(TYPE, name);
+        super(name);
 
         myTimestamp = value;
     }
@@ -83,6 +83,14 @@ public class MongoTimestampElement extends AbstractElement {
      */
     public long getTime() {
         return myTimestamp;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

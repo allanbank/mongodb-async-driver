@@ -38,7 +38,7 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
      */
     public JavaScriptWithScopeElement(final String name,
             final String javaScript, final Document scope) {
-        super(TYPE, name, javaScript);
+        super(name, javaScript);
 
         myScope = scope;
     }
@@ -85,6 +85,14 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
      */
     public Document getScope() {
         return myScope;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

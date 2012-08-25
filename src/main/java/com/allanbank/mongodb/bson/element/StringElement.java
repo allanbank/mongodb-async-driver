@@ -33,7 +33,7 @@ public class StringElement extends AbstractElement {
      *            The BSON string value.
      */
     public StringElement(final String name, final String value) {
-        super(TYPE, name);
+        super(name);
 
         myValue = value;
     }
@@ -70,6 +70,14 @@ public class StringElement extends AbstractElement {
                     && nullSafeEquals(myValue, other.myValue);
         }
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

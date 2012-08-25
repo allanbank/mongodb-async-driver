@@ -28,7 +28,7 @@ public class NullElement extends AbstractElement {
      *            The name for the BSON null.
      */
     public NullElement(final String name) {
-        super(TYPE, name);
+        super(name);
     }
 
     /**
@@ -39,6 +39,14 @@ public class NullElement extends AbstractElement {
     @Override
     public void accept(final Visitor visitor) {
         visitor.visitNull(getName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

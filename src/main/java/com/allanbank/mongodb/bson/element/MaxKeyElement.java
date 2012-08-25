@@ -28,7 +28,7 @@ public class MaxKeyElement extends AbstractElement {
      *            The name for the BSON maximum key.
      */
     public MaxKeyElement(final String name) {
-        super(TYPE, name);
+        super(name);
     }
 
     /**
@@ -39,6 +39,14 @@ public class MaxKeyElement extends AbstractElement {
     @Override
     public void accept(final Visitor visitor) {
         visitor.visitMaxKey(getName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

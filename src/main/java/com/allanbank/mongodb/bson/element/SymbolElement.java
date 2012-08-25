@@ -33,7 +33,7 @@ public class SymbolElement extends AbstractElement {
      *            The BSON symbol value.
      */
     public SymbolElement(final String name, final String symbol) {
-        super(TYPE, name);
+        super(name);
 
         mySymbol = symbol;
     }
@@ -79,6 +79,14 @@ public class SymbolElement extends AbstractElement {
      */
     public String getSymbol() {
         return mySymbol;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

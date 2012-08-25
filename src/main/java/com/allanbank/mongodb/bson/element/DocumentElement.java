@@ -56,7 +56,7 @@ public class DocumentElement extends AbstractElement implements Document {
      */
     public DocumentElement(final String name, final Collection<Element> elements) {
 
-        super(TYPE, name);
+        super(name);
 
         if ((elements != null) && !elements.isEmpty()) {
             myElements = Collections.unmodifiableList(new ArrayList<Element>(
@@ -76,7 +76,7 @@ public class DocumentElement extends AbstractElement implements Document {
      *            The document to copy elements from.
      */
     public DocumentElement(final String name, final Document value) {
-        super(TYPE, name);
+        super(name);
 
         final List<Element> elements = new ArrayList<Element>();
         for (final Element element : value) {
@@ -94,7 +94,7 @@ public class DocumentElement extends AbstractElement implements Document {
      *            The sub-elements for the document.
      */
     public DocumentElement(final String name, final Element... elements) {
-        super(TYPE, name);
+        super(name);
 
         if (elements.length > 0) {
             myElements = Collections.unmodifiableList(new ArrayList<Element>(
@@ -131,7 +131,7 @@ public class DocumentElement extends AbstractElement implements Document {
     public DocumentElement(final String name, final List<Element> elements,
             final boolean takeOwnership) {
 
-        super(TYPE, name);
+        super(name);
 
         if ((elements != null) && !elements.isEmpty()) {
             if (takeOwnership) {
@@ -230,6 +230,14 @@ public class DocumentElement extends AbstractElement implements Document {
      */
     public List<Element> getElements() {
         return myElements;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

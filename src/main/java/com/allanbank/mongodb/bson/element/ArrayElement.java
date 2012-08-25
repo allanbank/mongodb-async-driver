@@ -43,7 +43,7 @@ public class ArrayElement extends AbstractElement {
      *            The entries in the array.
      */
     public ArrayElement(final String name, final Element... entries) {
-        super(TYPE, name);
+        super(name);
 
         myEntries = Collections.unmodifiableList(new ArrayList<Element>(Arrays
                 .asList(entries)));
@@ -58,7 +58,7 @@ public class ArrayElement extends AbstractElement {
      *            The entries in the array.
      */
     public ArrayElement(final String name, final List<Element> entries) {
-        super(TYPE, name);
+        super(name);
 
         if ((entries != null) && !entries.isEmpty()) {
             myEntries = Collections.unmodifiableList(new ArrayList<Element>(
@@ -112,6 +112,14 @@ public class ArrayElement extends AbstractElement {
      */
     public List<Element> getEntries() {
         return myEntries;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

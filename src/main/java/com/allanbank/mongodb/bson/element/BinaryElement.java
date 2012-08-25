@@ -47,7 +47,7 @@ public class BinaryElement extends AbstractElement {
      */
     public BinaryElement(final String name, final byte subType,
             final byte[] value) {
-        super(TYPE, name);
+        super(name);
         mySubType = subType;
         if (value != null) {
             myValue = value.clone();
@@ -109,10 +109,20 @@ public class BinaryElement extends AbstractElement {
     }
 
     /**
-     * @return the subType
+     * Return the binary sub-type.
+     * 
+     * @return The binary sub-type.
      */
     public byte getSubType() {
         return mySubType;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

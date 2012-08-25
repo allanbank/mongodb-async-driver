@@ -36,7 +36,7 @@ public class ObjectIdElement extends AbstractElement {
      *            The object id.
      */
     public ObjectIdElement(final String name, final ObjectId id) {
-        super(TYPE, name);
+        super(name);
 
         assert (id != null) : "The Object id cannot be null.";
 
@@ -83,6 +83,14 @@ public class ObjectIdElement extends AbstractElement {
      */
     public ObjectId getId() {
         return myId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

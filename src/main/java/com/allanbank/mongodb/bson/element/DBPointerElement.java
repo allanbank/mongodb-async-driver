@@ -46,7 +46,7 @@ public class DBPointerElement extends AbstractElement {
      */
     public DBPointerElement(final String name, final String dbName,
             final String collectionName, final ObjectId id) {
-        super(TYPE, name);
+        super(name);
 
         myDatabaseName = dbName;
         myCollectionName = collectionName;
@@ -116,6 +116,14 @@ public class DBPointerElement extends AbstractElement {
      */
     public ObjectId getId() {
         return myId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementType getType() {
+        return TYPE;
     }
 
     /**

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.Builder;
@@ -164,7 +165,7 @@ public abstract class AbstractBuilder implements Builder {
          *            The Builder doing the building.
          */
         public BuilderElement(final String name, final AbstractBuilder builder) {
-            super(null, name);
+            super(name);
             myBuilder = builder;
         }
 
@@ -184,6 +185,14 @@ public abstract class AbstractBuilder implements Builder {
          */
         public Element build() {
             return myBuilder.build(getName());
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementType getType() {
+            return null;
         }
 
         /**
