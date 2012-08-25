@@ -4,9 +4,11 @@
  */
 package com.allanbank.mongodb.bson.builder.impl;
 
+import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
-import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
@@ -56,6 +58,54 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final boolean value) {
+        return addBoolean(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final byte subType, final byte[] data) {
+        return addBinary(subType, data);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final byte[] data) {
+        return addBinary(data);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final Date timestamp) {
+        return addTimestamp(timestamp.getTime());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final DocumentAssignable document) {
+        return addDocument(document);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final double value) {
+        return addDouble(value);
+    }
+
+    /**
      * 
      * {@inheritDoc}
      */
@@ -63,6 +113,56 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     public ArrayBuilder add(final ElementAssignable element) {
         myElements.add(element.asElement().withName(nextIndex()));
         return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final int value) {
+        return addInteger(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final long value) {
+        return addLong(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final ObjectId id) {
+        return addObjectId(id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final Pattern pattern) {
+        return addRegularExpression(pattern);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final String value) {
+        return addString(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Deprecated
+    public ArrayBuilder add(final String databaseName,
+            final String collectionName, final ObjectId id) {
+        return addDBPointer(databaseName, collectionName, id);
     }
 
     /**
@@ -108,8 +208,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder addDocument(final Document document) {
-        myElements.add(new DocumentElement(nextIndex(), document));
+    public ArrayBuilder addDocument(final DocumentAssignable document) {
+        myElements.add(new DocumentElement(nextIndex(), document.asDocument()));
         return this;
     }
 
@@ -144,9 +244,10 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder addJavaScript(final String code, final Document scope) {
-        myElements
-                .add(new JavaScriptWithScopeElement(nextIndex(), code, scope));
+    public ArrayBuilder addJavaScript(final String code,
+            final DocumentAssignable scope) {
+        myElements.add(new JavaScriptWithScopeElement(nextIndex(), code, scope
+                .asDocument()));
         return this;
     }
 
@@ -201,6 +302,15 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     @Override
     public ArrayBuilder addObjectId(final ObjectId id) {
         myElements.add(new ObjectIdElement(nextIndex(), id));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder addRegularExpression(final Pattern pattern) {
+        myElements.add(new RegularExpressionElement(nextIndex(), pattern));
         return this;
     }
 

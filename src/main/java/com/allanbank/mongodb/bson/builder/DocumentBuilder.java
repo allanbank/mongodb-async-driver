@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb.bson.builder;
 
+import java.util.Date;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
@@ -25,6 +26,195 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * @return This {@link DocumentBuilder} for method chaining.
      */
     public DocumentBuilder add(ElementAssignable element);
+
+    /**
+     * Adds a boolean element.
+     * <p>
+     * This is a equivalent to {@link #addBoolean(String,boolean)} but less
+     * verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param value
+     *            The boolean value.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, boolean value);
+
+    /**
+     * Adds a binary element.
+     * <p>
+     * This is a equivalent to {@link #addBinary(String,byte, byte[])} but less
+     * verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param subType
+     *            The sub-type for the binary data.
+     * @param data
+     *            The binary value.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, byte subType, byte[] data);
+
+    /**
+     * Adds a binary element using sub-type zero (the default).
+     * <p>
+     * This is a equivalent to {@link #addBinary(String,byte[])} but less
+     * verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param data
+     *            The binary value.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, byte[] data);
+
+    /**
+     * Adds a timestamp element. The timestamp is the number of milliseconds
+     * since the Unix epoch.
+     * <p>
+     * This is a equivalent to {@link #addTimestamp(String,long)
+     * addTimeStamp(timestamp.getTime())} but less verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param timestamp
+     *            The number of milliseconds since the Unix epoch.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, Date timestamp);
+
+    /**
+     * Adds a pre-constructed document to the array.
+     * <p>
+     * This is a equivalent to {@link #addDocument(String,DocumentAssignable)}
+     * but less verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param document
+     *            The document to add to the array.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, DocumentAssignable document);
+
+    /**
+     * Adds a double element.
+     * <p>
+     * This is a equivalent to {@link #addDouble(String,double)} but less
+     * verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param value
+     *            The double value.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, double value);
+
+    /**
+     * Adds a integer (32-bit signed) element.
+     * <p>
+     * This is a equivalent to {@link #addInteger(String,int)} but less verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param value
+     *            The integer value.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, int value);
+
+    /**
+     * Adds a long (64-bit signed) element.
+     * <p>
+     * This is a equivalent to {@link #addLong(String,long)} but less verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param value
+     *            The long value.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, long value);
+
+    /**
+     * Adds an ObjectId element.
+     * <p>
+     * This is a equivalent to {@link #addObjectId(String,ObjectId)} but less
+     * verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param id
+     *            The ObjectId to add.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, ObjectId id);
+
+    /**
+     * Adds an ObjectId element.
+     * <p>
+     * This is a equivalent to {@link #addRegularExpression(String,Pattern)} but
+     * less verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param pattern
+     *            The pattern for the regular expression.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, Pattern pattern);
+
+    /**
+     * Adds a string element.
+     * <p>
+     * This is a equivalent to {@link #addString(String,String)} but less
+     * verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param value
+     *            The string value.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder add(String name, String value);
+
+    /**
+     * Adds a deprecated DBPointer element.
+     * <p>
+     * This is a equivalent to
+     * {@link #addDBPointer(String,String, String, ObjectId)} but less verbose.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param databaseName
+     *            The name of the database containing the document.
+     * @param collectionName
+     *            The name of the collection containing the document.
+     * @param id
+     *            The id for the document.
+     * @return This {@link DocumentBuilder} for method chaining.
+     * 
+     * @deprecated See BSON specification.
+     */
+    @Deprecated
+    public DocumentBuilder add(String name, String databaseName,
+            String collectionName, ObjectId id);
 
     /**
      * Adds a binary element using sub-type zero (the default).
@@ -90,7 +280,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      *            The document value.
      * @return This {@link DocumentBuilder} for method chaining.
      */
-    public DocumentBuilder addDocument(String name, Document value);
+    public DocumentBuilder addDocument(String name, DocumentAssignable value);
 
     /**
      * Adds a double element.
@@ -137,7 +327,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * @return This {@link DocumentBuilder} for method chaining.
      */
     public DocumentBuilder addJavaScript(String name, String code,
-            Document scope);
+            DocumentAssignable scope);
 
     /**
      * Adds a long (64-bit signed) element.

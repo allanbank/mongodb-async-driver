@@ -4,9 +4,11 @@
  */
 package com.allanbank.mongodb.bson.builder.impl;
 
+import java.util.Date;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
@@ -76,6 +78,106 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
+    public DocumentBuilder add(final String name, final boolean value) {
+        return addBoolean(name, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final byte subType,
+            final byte[] data) {
+        return addBinary(name, subType, data);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final byte[] data) {
+        return addBinary(name, data);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final Date timestamp) {
+        return addTimestamp(name, timestamp.getTime());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name,
+            final DocumentAssignable document) {
+        return addDocument(name, document);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final double value) {
+        return addDouble(name, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final int value) {
+        return addInteger(name, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final long value) {
+        return addLong(name, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final ObjectId id) {
+        return addObjectId(name, id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final Pattern pattern) {
+        return addRegularExpression(name, pattern);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final String value) {
+        return addString(name, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Deprecated
+    public DocumentBuilder add(final String name, final String databaseName,
+            final String collectionName, final ObjectId id) {
+        return addDBPointer(name, databaseName, collectionName, id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public DocumentBuilder addBinary(final String name, final byte subType,
             final byte[] value) {
         return add(new BinaryElement(name, subType, value));
@@ -113,8 +215,9 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addDocument(final String name, final Document value) {
-        return add(new DocumentElement(name, value));
+    public DocumentBuilder addDocument(final String name,
+            final DocumentAssignable value) {
+        return add(new DocumentElement(name, value.asDocument()));
     }
 
     /**
@@ -146,8 +249,9 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addJavaScript(final String name, final String code,
-            final Document scope) {
-        return add(new JavaScriptWithScopeElement(name, code, scope));
+            final DocumentAssignable scope) {
+        return add(new JavaScriptWithScopeElement(name, code,
+                scope.asDocument()));
     }
 
     /**

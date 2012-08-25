@@ -4,7 +4,10 @@
  */
 package com.allanbank.mongodb.bson.builder;
 
-import com.allanbank.mongodb.bson.Document;
+import java.util.Date;
+import java.util.regex.Pattern;
+
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.element.ObjectId;
@@ -17,6 +20,84 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 public interface ArrayBuilder extends Builder {
 
     /**
+     * Adds a boolean element.
+     * <p>
+     * This is a equivalent to {@link #addBoolean(boolean)} but less verbose.
+     * </p>
+     * 
+     * @param value
+     *            The boolean value.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(boolean value);
+
+    /**
+     * Adds a binary element.
+     * <p>
+     * This is a equivalent to {@link #addBinary(byte, byte[])} but less
+     * verbose.
+     * </p>
+     * 
+     * @param subType
+     *            The sub-type for the binary data.
+     * @param data
+     *            The binary value.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(byte subType, byte[] data);
+
+    /**
+     * Adds a binary element using sub-type zero (the default).
+     * <p>
+     * This is a equivalent to {@link #addBinary(byte[])} but less verbose.
+     * </p>
+     * 
+     * @param data
+     *            The binary value.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(byte[] data);
+
+    /**
+     * Adds a timestamp element. The timestamp is the number of milliseconds
+     * since the Unix epoch.
+     * <p>
+     * This is a equivalent to {@link #addTimestamp(long)
+     * addTimeStamp(timestamp.getTime())} but less verbose.
+     * </p>
+     * 
+     * @param timestamp
+     *            The number of milliseconds since the Unix epoch.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(Date timestamp);
+
+    /**
+     * Adds a pre-constructed document to the array.
+     * <p>
+     * This is a equivalent to {@link #addDocument(DocumentAssignable)} but less
+     * verbose.
+     * </p>
+     * 
+     * @param document
+     *            The document to add to the array.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(DocumentAssignable document);
+
+    /**
+     * Adds a double element.
+     * <p>
+     * This is a equivalent to {@link #addDouble(double)} but less verbose.
+     * </p>
+     * 
+     * @param value
+     *            The double value.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(double value);
+
+    /**
      * Adds a pre-built element to the document.
      * 
      * @param element
@@ -24,6 +105,88 @@ public interface ArrayBuilder extends Builder {
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder add(ElementAssignable element);
+
+    /**
+     * Adds a integer (32-bit signed) element.
+     * <p>
+     * This is a equivalent to {@link #addInteger(int)} but less verbose.
+     * </p>
+     * 
+     * @param value
+     *            The integer value.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(int value);
+
+    /**
+     * Adds a long (64-bit signed) element.
+     * <p>
+     * This is a equivalent to {@link #addLong(long)} but less verbose.
+     * </p>
+     * 
+     * @param value
+     *            The long value.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(long value);
+
+    /**
+     * Adds an ObjectId element.
+     * <p>
+     * This is a equivalent to {@link #addObjectId(ObjectId)} but less verbose.
+     * </p>
+     * 
+     * @param id
+     *            The ObjectId to add.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(ObjectId id);
+
+    /**
+     * Adds an ObjectId element.
+     * <p>
+     * This is a equivalent to {@link #addRegularExpression(Pattern)} but less
+     * verbose.
+     * </p>
+     * 
+     * @param pattern
+     *            The pattern for the regular expression.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(Pattern pattern);
+
+    /**
+     * Adds a string element.
+     * <p>
+     * This is a equivalent to {@link #addString(String)} but less verbose.
+     * </p>
+     * 
+     * @param value
+     *            The string value.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(String value);
+
+    /**
+     * Adds a deprecated DBPointer element.
+     * <p>
+     * This is a equivalent to {@link #addDBPointer(String, String, ObjectId)}
+     * but less verbose.
+     * </p>
+     * 
+     * @param databaseName
+     *            The name of the database containing the document.
+     * @param collectionName
+     *            The name of the collection containing the document.
+     * @param id
+     *            The id for the document.
+     * @return This {@link ArrayBuilder} for method chaining.
+     * 
+     * @deprecated See BSON specification.
+     */
+    @Deprecated
+    public ArrayBuilder add(String databaseName, String collectionName,
+            ObjectId id);
 
     /**
      * Adds a binary element.
@@ -78,7 +241,7 @@ public interface ArrayBuilder extends Builder {
      *            The document to add to the array.
      * @return This {@link ArrayBuilder} for method chaining.
      */
-    public ArrayBuilder addDocument(Document document);
+    public ArrayBuilder addDocument(DocumentAssignable document);
 
     /**
      * Adds a double element.
@@ -116,7 +279,7 @@ public interface ArrayBuilder extends Builder {
      *            The scope for the JacaScript code.
      * @return This {@link ArrayBuilder} for method chaining.
      */
-    public ArrayBuilder addJavaScript(String code, Document scope);
+    public ArrayBuilder addJavaScript(String code, DocumentAssignable scope);
 
     /**
      * Adds a long (64-bit signed) element.
@@ -165,6 +328,15 @@ public interface ArrayBuilder extends Builder {
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder addObjectId(ObjectId id);
+
+    /**
+     * Adds a regular expression element.
+     * 
+     * @param pattern
+     *            The pattern for the regular expression.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder addRegularExpression(Pattern pattern);
 
     /**
      * Adds a regular expression element.

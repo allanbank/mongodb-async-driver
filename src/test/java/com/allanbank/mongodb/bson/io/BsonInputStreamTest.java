@@ -13,8 +13,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.junit.Test;
 
@@ -291,54 +293,59 @@ public class BsonInputStreamTest {
 
         builder = BuilderFactory.start();
         builder.add(new BooleanElement("_id", false));
-        builder.addBinary("binary", new byte[20]);
-        builder.addBinary("binary-2", (byte) 2, new byte[40]);
-        builder.addBoolean("true", true);
+        builder.add("binary", new byte[20]);
+        builder.add("binary-2", (byte) 2, new byte[40]);
+        builder.add("true", true);
         builder.addBoolean("false", false);
-        builder.addDBPointer("DBPointer", "db", "collection", new ObjectId(1,
-                2L));
-        builder.addDouble(
+        builder.add("DBPointer", "db", "collection", new ObjectId(1, 2L));
+        builder.add(
                 "double_with_a_really_long_name_to_force_reading_over_multiple_decodes",
                 4884.45345);
-        builder.addDocument("simple", simple);
-        builder.addInteger("int", 123456);
+        builder.add("simple", simple);
+        builder.add("int", 123456);
         builder.addJavaScript("javascript", "function foo() { }");
         builder.addJavaScript("javascript_with_code", "function foo() { }",
                 simple);
-        builder.addLong("long", 1234567890L);
+        builder.add("long", 1234567890L);
         builder.addMaxKey("max");
         builder.addMinKey("min");
         builder.addMongoTimestamp("mongo-time", System.currentTimeMillis());
         builder.addNull("null");
-        builder.addObjectId("object-id",
-                new ObjectId((int) System.currentTimeMillis() / 1000, 1234L));
+        builder.add("object-id", new ObjectId(
+                (int) System.currentTimeMillis() / 1000, 1234L));
         builder.addRegularExpression("regex", ".*", "");
-        builder.addString("string", "string\u0090\ufffe");
+        builder.add("regex2", Pattern.compile(".*"));
+        builder.add("string", "string\u0090\ufffe");
         builder.addSymbol("symbol", "symbol");
         builder.addTimestamp("timestamp", System.currentTimeMillis());
+        builder.add("timestamp2", new Date());
         builder.push("sub-doc").addBoolean("true", true).pop();
 
         final ArrayBuilder aBuilder = builder.pushArray("array");
-        aBuilder.addBinary(new byte[20]);
-        aBuilder.addBinary((byte) 2, new byte[40]);
-        aBuilder.addBoolean(true);
+        aBuilder.add(new byte[20]);
+        aBuilder.add((byte) 2, new byte[40]);
+        aBuilder.add(true);
+        aBuilder.add(simple);
         aBuilder.addBoolean(false);
-        aBuilder.addDBPointer("db", "collection", new ObjectId(1, 2L));
-        aBuilder.addDouble(4884.45345);
-        aBuilder.addInteger(123456);
+        aBuilder.add("db", "collection", new ObjectId(1, 2L));
+        aBuilder.add(4884.45345);
+        aBuilder.add(123456);
         aBuilder.addJavaScript("function foo() { }");
         aBuilder.addJavaScript("function foo() { }", simple);
-        aBuilder.addLong(1234567890L);
+        aBuilder.add(1234567890L);
         aBuilder.addMaxKey();
         aBuilder.addMinKey();
         aBuilder.addMongoTimestamp(System.currentTimeMillis());
         aBuilder.addNull();
-        aBuilder.addObjectId(new ObjectId(
-                (int) System.currentTimeMillis() / 1000, 1234L));
+        aBuilder.add(new ObjectId((int) System.currentTimeMillis() / 1000,
+                1234L));
         aBuilder.addRegularExpression(".*", "");
-        aBuilder.addString("string");
+        aBuilder.addRegularExpression(Pattern.compile(".*"));
+        aBuilder.add(Pattern.compile(".*"));
+        aBuilder.add("string");
         aBuilder.addSymbol("symbol");
         aBuilder.addTimestamp(System.currentTimeMillis());
+        aBuilder.add(new Date());
         aBuilder.push().addBoolean("true", true).pop();
 
         final Document doc = builder.build();
