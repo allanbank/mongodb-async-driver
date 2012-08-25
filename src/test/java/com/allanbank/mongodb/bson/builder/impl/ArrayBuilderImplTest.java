@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.bson.builder.impl;
 
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class ArrayBuilderImplTest {
         assertTrue(((ArrayElement) element.getEntries().get(0)).getEntries()
                 .size() == 0);
 
-        builder.reset();
+        assertSame(builder, builder.reset());
 
         element = builder.build("foo");
         assertTrue(element.getEntries().size() == 0);

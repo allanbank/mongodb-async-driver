@@ -21,7 +21,57 @@ import com.allanbank.mongodb.builder.expression.Expressions;
 /**
  * Aggregate provides support for the <tt>aggregate</tt> command supporting a
  * pipeline of commands to execute.
+ * <p>
+ * Instances of this class are constructed via the inner {@link Builder} class.
+ * Due to the potential complexity of pipelines and the associated operators the
+ * <tt>Builder</tt> is intended to be used with the various support classes
+ * including the {@link Expressions} library. For example:<blockquote>
  * 
+ * <pre>
+ * <code>
+ *  import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
+ *  import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
+ *  import static {@link AggregationProjectFields#includeWithoutId com.allanbank.mongodb.builder.AggregationProjectFields.includeWithoutId};
+ *  import static {@link QueryBuilder#where com.allanbank.mongodb.builder.QueryBuilder.where};
+ *  import static {@link Sort#asc com.allanbank.mongodb.builder.Sort.asc};
+ *  import static {@link Sort#desc com.allanbank.mongodb.builder.Sort.desc};
+ *  import static {@link Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
+ *  import static {@link Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
+ *  
+ *  DocumentBuilder b1 = BuilderFactory.start();
+ *  DocumentBuilder b2 = BuilderFactory.start();
+ *  Aggregate.Builder builder = new Aggregate.Builder();
+ *  
+ *  builder.match(where("state").notEqualTo("NZ"))
+ *          .group(id().addField("state")
+ *                     .addField("city"),
+ *                 set("pop").sum("pop"))
+ *          .sort(asc("pop"))
+ *          .group(id("_id.state"), 
+ *                 set("biggestcity").last("_id.city"),
+ *                 set("biggestpop").last("pop"),
+ *                 set("smallestcity").first("_id.city"),
+ *                 set("smallestpop").first("pop"))
+ *          .project(
+ *                  includeWithoutId(),
+ *                  set("state", field("_id")),
+ *                  set("biggestCity",
+ *                          b1.add(set("name", field("biggestcity"))).add(
+ *                                  set("pop", field("biggestpop")))),
+ *                  set("smallestCity",
+ *                          b2.add(set("name", field("smallestcity"))).add(
+ *                                  set("pop", field("smallestpop")))))
+ *          .sort(desc("biggestCity.pop"));
+ * </code>
+ * </pre>
+ * 
+ * </blockquote>
+ * </p>
+ * 
+ * 
+ * @see <a
+ *      href="http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state">Example
+ *      Inspired By</a>
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class Aggregate {
@@ -53,11 +103,57 @@ public class Aggregate {
      * Builder provides the ability to construct aggregate command pipelines.
      * <p>
      * Methods are provided for all existing pipeline operators and generic
-     * {@link #step(String, DocumentAssignable)} methods are provided to support
-     * future pipeline operators while in development or before the driver is
-     * updated.
+     * {@link #step} methods are provided to support future pipeline operators
+     * while in development or before the driver is updated.
+     * </p>
+     * <p>
+     * This builder is intended to be used with the various support classes
+     * including the {@link Expressions} library. For example:<blockquote>
+     * 
+     * <pre>
+     * <code>
+     *  import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
+     *  import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
+     *  import static {@link AggregationProjectFields#includeWithoutId com.allanbank.mongodb.builder.AggregationProjectFields.includeWithoutId};
+     *  import static {@link QueryBuilder#where com.allanbank.mongodb.builder.QueryBuilder.where};
+     *  import static {@link Sort#asc com.allanbank.mongodb.builder.Sort.asc};
+     *  import static {@link Sort#desc com.allanbank.mongodb.builder.Sort.desc};
+     *  import static {@link Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
+     *  import static {@link Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
+     *  
+     *  DocumentBuilder b1 = BuilderFactory.start();
+     *  DocumentBuilder b2 = BuilderFactory.start();
+     *  Aggregate.Builder builder = new Aggregate.Builder();
+     *  
+     *  builder.match(where("state").notEqualTo("NZ"))
+     *          .group(id().addField("state")
+     *                     .addField("city"),
+     *                 set("pop").sum("pop"))
+     *          .sort(asc("pop"))
+     *          .group(id("_id.state"), 
+     *                 set("biggestcity").last("_id.city"),
+     *                 set("biggestpop").last("pop"),
+     *                 set("smallestcity").first("_id.city"),
+     *                 set("smallestpop").first("pop"))
+     *          .project(
+     *                  includeWithoutId(),
+     *                  set("state", field("_id")),
+     *                  set("biggestCity",
+     *                          b1.add(set("name", field("biggestcity"))).add(
+     *                                  set("pop", field("biggestpop")))),
+     *                  set("smallestCity",
+     *                          b2.add(set("name", field("smallestcity"))).add(
+     *                                  set("pop", field("smallestpop")))))
+     *          .sort(desc("biggestCity.pop"));
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
      * </p>
      * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state">Example
+     *      Inspired By</a>
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {

@@ -67,8 +67,9 @@ public abstract class AbstractBuilder implements Builder {
      * {@inheritDoc}
      */
     @Override
-    public void reset() {
+    public Builder reset() {
         myElements.clear();
+        return this;
     }
 
     /**

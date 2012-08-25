@@ -282,6 +282,15 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder reset() {
+        super.reset();
+        return this;
+    }
+
+    /**
      * Returns the next index value for an element.
      * 
      * @return The next index value for an element.

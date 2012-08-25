@@ -226,4 +226,13 @@ public interface ArrayBuilder extends Builder {
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder pushArray();
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return an {@link ArrayBuilder} instance.
+     * </p>
+     */
+    @Override
+    public ArrayBuilder reset();
 }

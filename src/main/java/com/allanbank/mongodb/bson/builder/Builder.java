@@ -21,6 +21,8 @@ public interface Builder {
 
     /**
      * Resets the builder back to an empty state.
+     * 
+     * @return This builder for method call chaining.
      */
-    public void reset();
+    public Builder reset();
 }

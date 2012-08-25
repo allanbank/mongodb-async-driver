@@ -283,4 +283,13 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * @return A {@link ArrayBuilder} for constructing the sub-array.
      */
     public ArrayBuilder pushArray(String name);
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return an {@link DocumentBuilder} instance.
+     * </p>
+     */
+    @Override
+    public DocumentBuilder reset();
 }

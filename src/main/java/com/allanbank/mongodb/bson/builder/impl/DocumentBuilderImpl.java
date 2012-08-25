@@ -279,6 +279,15 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder reset() {
+        super.reset();
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
      * <p>
      * Overridden to return an {@link DocumentElement}.
      * </p>
