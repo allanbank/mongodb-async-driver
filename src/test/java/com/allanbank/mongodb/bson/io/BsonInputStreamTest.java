@@ -13,6 +13,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -373,5 +375,97 @@ public class BsonInputStreamTest {
 
         assertTrue("Should be a RootDocument.", read instanceof RootDocument);
         assertEquals("Should equal the orginal document.", doc, read);
+    }
+
+    /**
+     * Test method for {@link BsonInputStream#readDocument()}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     * @throws ClassNotFoundException
+     *             On a failure reading the documents.
+     */
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testSerializeCompleteDocument() throws IOException,
+            ClassNotFoundException {
+        DocumentBuilder builder = BuilderFactory.start();
+
+        builder.addBoolean("true", true);
+        final Document simple = builder.build();
+
+        builder = BuilderFactory.start();
+        builder.add(new BooleanElement("_id", false));
+        builder.add("binary", new byte[20]);
+        builder.add("binary-2", (byte) 2, new byte[40]);
+        builder.add("true", true);
+        builder.addBoolean("false", false);
+        builder.add("DBPointer", "db", "collection", new ObjectId(1, 2L));
+        builder.add(
+                "double_with_a_really_long_name_to_force_reading_over_multiple_decodes",
+                4884.45345);
+        builder.add("simple", simple);
+        builder.add("int", 123456);
+        builder.addJavaScript("javascript", "function foo() { }");
+        builder.addJavaScript("javascript_with_code", "function foo() { }",
+                simple);
+        builder.add("long", 1234567890L);
+        builder.addMaxKey("max");
+        builder.addMinKey("min");
+        builder.addMongoTimestamp("mongo-time", System.currentTimeMillis());
+        builder.addNull("null");
+        builder.add("object-id", new ObjectId(
+                (int) System.currentTimeMillis() / 1000, 1234L));
+        builder.addRegularExpression("regex", ".*", "");
+        builder.add("regex2", Pattern.compile(".*"));
+        builder.add("string", "string\u0090\ufffe");
+        builder.addSymbol("symbol", "symbol");
+        builder.addTimestamp("timestamp", System.currentTimeMillis());
+        builder.add("timestamp2", new Date());
+        builder.push("sub-doc").addBoolean("true", true).pop();
+
+        final ArrayBuilder aBuilder = builder.pushArray("array");
+        aBuilder.add(new byte[20]);
+        aBuilder.add((byte) 2, new byte[40]);
+        aBuilder.add(true);
+        aBuilder.add(simple);
+        aBuilder.addBoolean(false);
+        aBuilder.add("db", "collection", new ObjectId(1, 2L));
+        aBuilder.add(4884.45345);
+        aBuilder.add(123456);
+        aBuilder.addJavaScript("function foo() { }");
+        aBuilder.addJavaScript("function foo() { }", simple);
+        aBuilder.add(1234567890L);
+        aBuilder.addMaxKey();
+        aBuilder.addMinKey();
+        aBuilder.addMongoTimestamp(System.currentTimeMillis());
+        aBuilder.addNull();
+        aBuilder.add(new ObjectId((int) System.currentTimeMillis() / 1000,
+                1234L));
+        aBuilder.addRegularExpression(".*", "");
+        aBuilder.addRegularExpression(Pattern.compile(".*"));
+        aBuilder.add(Pattern.compile(".*"));
+        aBuilder.add("string");
+        aBuilder.addSymbol("symbol");
+        aBuilder.addTimestamp(System.currentTimeMillis());
+        aBuilder.add(new Date());
+        aBuilder.push().addBoolean("true", true).pop();
+
+        final Document doc = builder.build();
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ObjectOutputStream writer = new ObjectOutputStream(out);
+
+        writer.writeObject(doc);
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(
+                out.toByteArray());
+        final ObjectInputStream reader = new ObjectInputStream(in);
+        final Object read = reader.readObject();
+        reader.close();
+
+        assertTrue("Should be a RootDocument.", read instanceof RootDocument);
+        assertEquals("Should equal the orginal document.", doc, read);
+
     }
 }

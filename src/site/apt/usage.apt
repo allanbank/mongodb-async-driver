@@ -1,0 +1,204 @@
+            ------
+            MongoDB Asynchronous Java Driver Usage
+            ------
+            ------
+
+BSON Library
+
+  The driver includes a strongly typed {{{./apidocs/index.html?com/allanbank/mongodb/bson/package-summary.html}BSON implementation}}.  
+The BSON package (and driver in general) make extensive use of 
+{{{./apidocs/index.html?com/allanbank/mongodb/bson/builder/package-summary.html}builders}}
+for constructing BSON Documents.
+
+  Building a document is done via the builder and then adding the appropriate fields to document in the
+desired order.  The builder support method call chaining for quick document construction.
+
++----------------------------------------+
+DocumentBuilder builder = BuilderFactory.start();
+
+builder.add("a", 123).add("b", 123L).add("c", "123");
+
+Document document = builder.build();
++----------------------------------------+
+
+  Most of the API methods of the driver accept a 
+{{{./apidocs/index.html?com/allanbank/mongodb/bson/DocumentAssignable.html}DocumentAssignable}} where a 
+{{{./apidocs/index.html?com/allanbank/mongodb/bson/Document.html}Document}} is needed.  This
+allows passing a {{{./apidocs/index.html?com/allanbank/mongodb/bson/DocumentBuilder.html}DocumentBuilder}} 
+directly instead of manually calling the <<<build()>>> method. 
+
+  To facilitate easier iteration over the elements of a document the interface extends the <<<Iterable>>>
+interface so the document can be used in enhanced for loops over its contained 
+{{{./apidocs/index.html?com/allanbank/mongodb/bson/Element.html}Elements}}.
+
++----------------------------------------+
+Document document = ...;
+
+for( Element element : document ) {
+  // Process the element.
+}
++----------------------------------------+
+
+Getting Connected - Mongo Interface
+
+  Now that we can create and process documents we start looking at how to connect and interact with
+a MongoDB server via the driver's API. The main interface to the driver is via the 
+{{{./apidocs/index.html?com/allanbank/mongodb/Mongo.html}Mongo}} interface.  The 
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory}} provides the ability
+to create a Mongo instance from either a 
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoDbConfiguration.html}MongoDbConfiguration}} or a
+{{{http://www.mongodb.org/display/DOCS/Connections}MongoDB Connection String}}.
+
++----------------------------------------+
+Mongo mongo = MongoFactory.create( "mongodb://server:port/db?maxConnectionCount=10" );
+
+MongoDbConfiguration config = new MongoDbConfiguration();
+config.addServer("server:port");
+config.setMaxConnectionCount(10);
+
+Mongo mongo2 = MongoFactory.create( config );
++----------------------------------------+
+
+  The <<<Mongo>>> instance returned represents the logical connection to the MongoDB servers.  The 
+{{{./apidocs/index.html?com/allanbank/mongodb/Mongo.html}close()}} method should be used to cleanly
+shutdown the connections to the server.
+
+Talking to the Server - MongoDatabase and MongoCollection
+
+  Once a Mongo instance has been created then 
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoDatabase.html}MongoDatabase}} and 
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} objects can be 
+easily created.
+
++----------------------------------------+
+Mongo mongo = ...;
+
+MongoDatabase db = mongo.getDatabase( "database_name" );
+MongoCollection collection = db.getCollection( "collection_name" );
++----------------------------------------+
+
+  Most non-administrative methods on the <<<MongoCollection>>> interfaces will have three forms:
+
+  [[1]] Synchronous - Normal method call semantics.  The response to the request is the return value of the method.\
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}Document findOne(Document)}}
+  
+  [[2]] Asynchronous Future - The response to the request can be retrieved from a Future.\
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}Future\<Document\> findOneAsync(Document)}}
+  
+  
+  [[3]] Asynchronous Callback - The response to the request will be provided via a {{{./apidocs/index.html?com/allanbank/mongodb/Callback.html}callback}}. \
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}void findOneAsync(Callback\<Document\>, Document)}}
+
+  []
+  
+  Use of the asynchronous variants is optional but provides the ability to send multiple requests to the server without
+blocking for each reply.  In the example below we submit 10,000 delete requests to the server and then collect the 
+result of each delete after sending the last request.  We expect the first request to finish while we are still sending 
+requests and to only need to wait for the last few replies in the second loop. 
+
++----------------------------------------+
+MongoCollection collection = ...;
+
+List<Future<Long>> deleteReplies = new ArrayList<Future<Long>>();
+for( int i = 0; i < 10000; ++i ) {
+	Future<Long> future = collections.deleteAsync(where("_id").equals(i));
+	deleteReplies.add(future);
+}
+long totalCount = 0;
+for( Future<Long> future : deleteReplies ) {
+  totalCount += future.get().longValue();
+}
+System.out.println("Deleted " + totalCount + " documents.");
++----------------------------------------+
+
+  When querying for documents a {{{./apidocs/index.html?com/allanbank/mongodb/ClosableIterator.html}ClosableIterator}} 
+is returned.  It is important to close the iterator if the documents are not exhausted.  This can be done with a 
+traditional try/finally block or the, new in Java 7, try-with-resource block.
+ 
++----------------------------------------+
+MongoCollection collection = ...;
+try ( ClosableIterator iter = collection.find( where("_id").lessThan(42) ) )
+{
+   for( Document document : iter ) {
+       // Process the document.
+   }
+}
++----------------------------------------+
+
+  Under the hood the iterator uses the power of the asynchronous driver to request more documents from the
+server while the application is iterating over the current set of documents.  This can have a significant 
+positive impact on performance.  Even greater performance improvements can be achieved if the batch size 
+for the iterator is tuned such that the time to receive each batch matches the time to process each batch.
+  
+Query and Command Support
+
+  For queries and common commands a set of domain objects and associated 
+{{{./apidocs/index.html?com/allanbank/mongodb/builder/package-summary.html}builders}} are provided.  The 
+{{{./apidocs/index.html?com/allanbank/mongodb/builder/QueryBuilder.html}query builder}} 
+provides a natural mechanism for defining event the most complicated of queries.
+
++----------------------------------------+
+ import static com.allanbank.mongodb.builder.QueryBuilder.and;
+ import static com.allanbank.mongodb.builder.QueryBuilder.or;
+ import static com.allanbank.mongodb.builder.QueryBuilder.not;
+ import static com.allanbank.mongodb.builder.QueryBuilder.where;
+ 
+ Document query = 
+           or( 
+              where("f").greaterThan(23).lessThan(42).and("g").lessThan(3),
+              and( 
+                where("f").greaterThanOrEqualTo(42),
+                not( where("g").lessThan(3) ) 
+              )
+           );
++----------------------------------------+
+
+Aggregate Pipeline Support
+
+  A more complex example of the builder support is provided by the aggregate command. A a set of helper 
+methods and classes have been created to ease the effort required to construct complex pipelines of operators 
+including the structures and expressions they contain.  The 
+{{{./apidocs/index.html?com/allanbank/mongodb/builder/Aggregate.Builder.html}aggregate builder}} extends and integrates with 
+the BSON 
+{{{./apidocs/index.html?com/allanbank/mongodb/bson/builder/DocumentBuilder.html}DocumentBuilder}}, 
+{{{./apidocs/index.html?com/allanbank/mongodb/builder/QueryBuilder.html}QueryBuilder}} and 
+{{{./apidocs/index.html?com/allanbank/mongodb/builder/expression/Expressions.html}Expressions}} support.  Consider the following 
+pipeline inspired by an 
+{{{http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state}example}} in 
+the MongoDB documentation:
+
++----------------------------------------+
+ import static com.allanbank.mongodb.builder.AggregationGroupField.set;
+ import static com.allanbank.mongodb.builder.AggregationGroupId.id;
+ import static com.allanbank.mongodb.builder.AggregationProjectFields.includeWithoutId;
+ import static com.allanbank.mongodb.builder.QueryBuilder.where;
+ import static com.allanbank.mongodb.builder.Sort.asc;
+ import static com.allanbank.mongodb.builder.Sort.desc;
+ import static com.allanbank.mongodb.builder.expression.Expressions.field;
+ import static com.allanbank.mongodb.builder.expression.Expressions.set;
+ 
+ DocumentBuilder b1 = BuilderFactory.start();
+ DocumentBuilder b2 = BuilderFactory.start();
+ Aggregate.Builder builder = new Aggregate.Builder();
+ 
+ builder.match(where("state").notEqualTo("NZ"))
+         .group(id().addField("state")
+                    .addField("city"),
+                set("pop").sum("pop"))
+         .sort(asc("pop"))
+         .group(id("_id.state"), 
+                set("biggestcity").last("_id.city"),
+                set("biggestpop").last("pop"),
+                set("smallestcity").first("_id.city"),
+                set("smallestpop").first("pop"))
+         .project(
+                 includeWithoutId(),
+                 set("state", field("_id")),
+                 set("biggestCity",
+                         b1.add(set("name", field("biggestcity"))).add(
+                                 set("pop", field("biggestpop")))),
+                 set("smallestCity",
+                         b2.add(set("name", field("smallestcity"))).add(
+                                 set("pop", field("smallestpop")))))
+         .sort(desc("biggestCity.pop"));
++----------------------------------------+

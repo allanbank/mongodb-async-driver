@@ -5,16 +5,129 @@
 
   The MongoDB Asynchronous Java Driver provides a high performance alternative to the
 10gen provided Java driver.  The driver has been created to ensure maximum utilization of
-resources on the client, in the network, and on the server.
+resources on the client, in the network, on the server, and in the developer's IDE.
+
+Usability
+
+  The main motivation for the driver is performance.  Part of the performance consideration
+is not just it's {{{Performance}raw performance}} but also the driver's ease of use 
+and expressive power. These usability factor provide benefits in developer productivity.
+Considerable effort has been put into making the library easy to use and clearly express the
+developer's intent.
+
+  More details on {{{./usage.html}getting started}} with the driver are available in addition to the
+complete driver {{{./apidocs/index.html}JavaDoc}}.
+    
+* Query and Command Support
+
+  For the more common non-trivial commands to the server a set of domain objects and associated 
+{{{./apidocs/index.html?com/allanbank/mongodb/builder/package-summary.html}builders}} are provided.  
+In addition  to the commands there is also a 
+{{{./apidocs/index.html?com/allanbank/mongodb/builder/QueryBuilder.html}query builder}} 
+that provides a very natural mechanism for defining queries:
+
++----------------------------------------+
+ Document query =  where("f").greaterThan(23).lessThan(42).and("g").lessThan(3);
++----------------------------------------+
+
+  Similar effort has been placed in making sure that command construction is as clear as possible.
+A good example is the aggregate command which presents a lot of functionality in a single command 
+but is also complex and difficult to construct in a clear and concise way.  Consider the 10gen example
+provided
+{{{http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state}here}}
+and compare to the same pipeline using the expressive power of this drivers helper classes.
+
++----------------------------------------+
+ DocumentBuilder b1 = BuilderFactory.start();
+ DocumentBuilder b2 = BuilderFactory.start();
+ Aggregate.Builder builder = new Aggregate.Builder(); 
+ builder.group(id().addField("state").addField("city"),
+               set("pop").sum("pop"))
+         .sort(asc("pop"))
+         .group(id("_id.state"), 
+                set("biggestcity").last("_id.city"),
+                set("biggestpop").last("pop"),
+                set("smallestcity").first("_id.city"),
+                set("smallestpop").first("pop"))
+         .project(
+                 includeWithoutId(),
+                 set("state", field("_id")),
+                 set("biggestCity",
+                         b1.add(set("name", field("biggestcity")))
+                           .add(set("pop", field("biggestpop")))),
+                 set("smallestCity",
+                         b2.add(set("name", field("smallestcity")))
+                           .add(set("pop", field("smallestpop"))))));
++----------------------------------------+
+
+
+Performance
+
+  While the usability of the driver is critical, its primary reason for existing is to enable maximum
+performance from a MongoDB server.  The performance for the driver's {{{./bson_performance.html}BSON library}} 
+and {{{./performance.html}overall}} performance have been benchmarked against the 10gen supported
+driver showing favorable performance in both cases.  
 
   The driver is designed for use in highly threaded applications and makes extensive use of 
 immutable objects to remove as much thread contention as possible.  In support of this goal the 
 driver provides a high performance, thread safe, strongly typed BSON implementation.
 
+Quality
+
+  A driver cannot be judged simply on the usability and performance alone.  It also has to work and keep working. 
+The MongoDB Asynchronous Driver has an extensive test suite that ensures that each release works as intended and 
+limits regressions.
+
+* Unit Tests
+
+  The driver has an extensive set of over 1,000 {{{./surefire-report.html}unit}} tests. The unit tests provide 
+95% line and 93% branch coverage and are designed to verify the behavior of each class and method.  To make sure
+that developers run the unit tests often it is important that they run quickly.  To achieve this goal the 
+tests make extensive use of the {{{http://www.easymock.org/}EasyMock}} mocking support library.  The result 
+is a unit test suite with 95% coverage (as measured by {{{http://cobertura.sourceforge.net/}Cobertura}}) 
+that finishes in under 10 seconds.
+
+* Integration Tests
+
+  Unit testing only proves that the driver does what the developer intended and continues to do the same thing
+as changes are made.  The driver's {{{./failsafe-report.html}integration}} tests have been created to ensure
+that the developer's and driver's interpretation of various MongoDb provided documentation matches the MongoDB 
+server's implementation. These tests tend to be focused on specific functionality of the MongoDB servers such as 
+authentication or cluster configuration detection.  For these tests a local MongoDB instance in the appropriate 
+configuration is started as part of the test.  
+
+* Acceptance Tests 
+
+  The last suite of tests is the {{{./failsafe-report.html#com.allanbank.mongodb.acceptance}acceptance}} tests 
+that are designed to exercise both the interfaces provided by the driver but also the interaction of the driver 
+with the various MongoDB applications and configurations.  Similar to the integration tests the acceptance tests 
+start various configurations of MongoDB as part of the test but the goal of the acceptance tests is to exercise 
+as much of the functional breadth of the driver as possible including common failure modes. 
+
+  As an example of the sufficiency of the test suite: When porting the driver to the 2.2 version of MongoDB it was 
+discovered, via failing integration and acceptance tests, that the MongoDB servers now required all connections to
+be authenticated, even for <<<serverStatus>>> commands.  A simple change to the server that had not been clearly 
+documented was quickly caught and the driver updated to work with the new requirements.
+
+* Static Analysis
+
+  In addition to the unit, integration, and acceptance tests we have also used the {{{./findbugs.html}FindBugs}}, 
+{{{./pmd.html}PMD}} and {{{./pmd.html}CPD}} static analysis tools to perform checks for common errors and defects. 
+The driver's source code reports zero issues across all 3 tools with zero filters and maximal effort.
+
+* Application Testing Support
+
+  By using Java interfaces for all of the primary APIs the driver enables easier unit testing for application's
+by either a mock support library or the creation of stubs.
+
 Motivation
 
-  The 10gen supported Java driver request model is to maintain a set of open connections 
-and when a processing thread sends a request it:
+  Why expend the effort to create a new driver?  Why not use the effort to improve the 10gen 
+supported (legacy) Java driver? Those are very good questions.  To get to the answer we have 
+to look at the very core of the legacy driver's processing model.  
+
+  The legacy driver maintains a set of open connections and when a processing thread sends a 
+request the following actions are performed:
 
     [[1]] Checks a connection out of the pool of open connections.
 
@@ -35,66 +148,6 @@ Java Driver instead creates a completely new driver that at its very core is asy
 interface to the driver still provides synchronous methods but they are implemented using the 
 asynchronous variants of the methods.
 
-Usage
-
-  The driver includes a strongly types {{{./apidocs/com/allanbank/mongodb/bson/package-summary.html}BSON implementation}}.  
-The BSON package (and driver in general) make extensive use of 
-{{{./apidocs/com/allanbank/mongodb/bson/builder/package-summary.html}builders}}
-for constructing BSON Documents. 
-
-  The main interface to the driver is via the 
-{{{./apidocs/com/allanbank/mongodb/Mongo.html}Mongo}} interface.  The 
-{{{./apidocs/com/allanbank/mongodb/MongoFactory.html}MongoFactory}} provides the ability
-to create a Mongo instance from either a 
-{{{./apidocs/com/allanbank/mongodb/MongoDbConfiguration.html}MongoDbConfiguration}} or a
-{{{http://www.mongodb.org/display/DOCS/Connections}MongoDB Connection String}}.
-
-  Once a Mongo instance has been created then 
-{{{./apidocs/com/allanbank/mongodb/MongoDatabase.html}MongoDatabase}} and 
-{{{./apidocs/com/allanbank/mongodb/MongoCollection.html}MongoCollection}} objects can be easily created.
-
-  Most non-administrative methods will have three forms:
-
-  [[1]] Synchronous - Normal method call semantics.  The response to the request is the return value of the method.\
-{{{./apidocs/com/allanbank/mongodb/MongoCollection.html}Document findOne(Document)}}
-  
-  [[2]] Asynchronous Future - The response to the request can be retrieved from a Future.\
-{{{./apidocs/com/allanbank/mongodb/MongoCollection.html}Future\<Document\> findOneAsync(Document)}}
-  
-  
-  [[3]] Asynchronous Callback - The response to the request will be provided via a {{{./apidocs/com/allanbank/mongodb/Callback.html}callback}}. \
-{{{./apidocs/com/allanbank/mongodb/MongoCollection.html}void findOneAsync(Callback\<Document\>, Document)}}
-
-  []
-  
-  For the more common non-trivial commands to the server a set of domain objects and associated 
-{{{./apidocs/com/allanbank/mongodb/builder/package-summary.html}builders}} are provided.  In addition 
-to the commands there is also a {{{./apidocs/com/allanbank/mongodb/builder/QueryBuilder.html}query builder}} 
-that provides a very natural mechanism for defining queries.
-
-+----------------------------------------+
- import static com.allanbank.mongodb.builder.QueryBuilder.and
- import static com.allanbank.mongodb.builder.QueryBuilder.or
- import static com.allanbank.mongodb.builder.QueryBuilder.not
- import static com.allanbank.mongodb.builder.QueryBuilder.where
- 
- Document query = 
-           or( 
-              where("f").greaterThan(23).lessThan(42).and("g").lessThan(3),
-              and( 
-                where("f").greaterThanOrEqualTo(42),
-                not( where("g").lessThan(3) ) 
-              )
-           );
-+----------------------------------------+
-
-Performance
-
-  While the usability of the driver is critical, its primary reason for existing is to enable maximum
-performance from a MongoDB server.  The performance for the driver's {{{./bson_performance.html}BSON library}} 
-and {{{./performance.html}overall}} performance have been benchmarked against the 10gen supported
-driver showing favorable performance in both cases.
-
 Thread Model
 
   For each physical sockets connection a pair of threads is created.  The first is responsible for
@@ -103,26 +156,13 @@ and matching them with the appropriate request callback (if any).  This simple r
 provides for simplicity of programming and has been shown to perform as well if not better than 
 using Java's NIO package for using a single thread across multiple connections.
 
-  Because of the asynchronous nature of the core of the driver and its default behavior of trying to
-balance requests across all open connections the driver can not guarantee that two requests to the server,
-even from a single thread, will be executed in the order they are submitted on the client.  For client's
-that need to serialize requests to the server can create a serial version of a
-{{{./apidocs/com/allanbank/mongodb/Mongo.html#asSerializedMongo}Mongo}} implementation.  The only difference
-between a serialized version and the non-serialized version is that the serialized version will only use
-a single connection to the server.  The asSerializedMongo() and creation of the MongoDatabase 
-and MongoCollection client side objects are extremely lightweight and have no server interaction 
-to make even per request creation feasible.
-  
-Testing
+  The driver can not guarantee that two requests to the server, even from a single thread, will be 
+executed in the order they are submitted on the client. This is due to the asynchronous nature of the 
+core of the driver and its default behavior of trying to balance requests across all open connections.
+For client's that need to serialize requests to the server they can create a serial version of a
+{{{./apidocs/index.html?com/allanbank/mongodb/Mongo.html#asSerializedMongo}Mongo}} implementation.  The 
+only difference between a serialized version and the non-serialized version is that the serialized version 
+will only use a single connection to the server.  The asSerializedMongo() method and creation of the 
+MongoDatabase  and MongoCollection client side objects are extremely lightweight and have no server 
+interaction to make even per transaction creation feasible.
 
-  The driver has an extensive set of {{{./surefire-report.html}unit}}, {{{./failsafe-report.html}integration}} 
-and {{{./failsafe-report.html#com.allanbank.mongodb.acceptance}acceptance}} tests. The unit tests alone provide 
-line and branch coverage of over 95% and 90% respectively of the driver's source code.  
-
-  The integration tests have been created to ensure that the driver's interpretation of various MongoDb provided 
-documentation matches the server's implementation. For these tests a local MongoDB instance in the appropriate 
-configuration is started as part of the test.  
-
-  The acceptable tests exercise both the interfaces provided by the driver but also the interaction of the 
-driver with the various MongoDB applications and configurations.  Similar to the integration tests the acceptance 
-tests start various configurations of MongoDB as part of the test.

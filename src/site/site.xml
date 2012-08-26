@@ -11,6 +11,7 @@
 		<menu name="Overview">
 			<item name="Introduction" href="index.html" />
 			<item name="Download" href="download.html" />
+			<item name="Getting Started" href="usage.html" />
 			<item name="BSON Performance" href="bson_performance.html" />
 			<item name="Performance" href="performance.html" />
 		</menu>

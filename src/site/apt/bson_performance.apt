@@ -9,12 +9,17 @@ JUnit tests have been created to compare the driver to the 10gen supported (lega
 benchmarks are provided as part of the tests for the driver.
 
   {{Figure_1}} shows the relative performance of the legacy driver's BSON library vs. the Asynchronous
-drivers BSON library.  The Asynchronous driver provides two methods for writing BSON documents.  The 
-first buffers all of the data being written for the document so that the sizes of various documents and
-fields can be written at the start of each.  The second uses a visitor across the BSON AST (abstract 
-syntax tree) to compute the sizes needed for the size prefixes in the BSON document specification.  
-This use of a visitor with careful caching of the intermediate results for reuse completely removes the
-been for buffer management within the I/O library and the complexity and performance impacts it has.
+drivers BSON library when using the unbuffered I/O library.
+
+  The Asynchronous driver provides two methods for writing BSON documents.  The 
+first (BufferedBsonStream) buffers all of the data being written for the document so that the 
+sizes of various documents and fields can be written at the start of each.  The second 
+(BsonStream) uses a visitor across the BSON AST (abstract syntax tree) to compute the sizes 
+needed for the size prefixes in the BSON document specification. This use of a visitor with 
+careful caching of the intermediate results for reuse completely removes the been for buffer 
+management within the I/O library and the complexity and performance impacts it has. As can 
+be seen in  {{Figure_1}} the unbuffered I/O library out performs the legacy 10gen driver's 
+library for both reading and writing even highly complex documents. 
 
 [images/MongoDbPerf_2012_06_12.jpg] Figure 1 - Relative Performance of the 10gen (legacy) and Asynchronous drivers BSON libraries when reading and writing documents of various sizes.
 
