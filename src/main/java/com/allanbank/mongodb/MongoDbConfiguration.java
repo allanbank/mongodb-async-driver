@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
@@ -122,6 +123,16 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * </p>
      */
     private int myMaxPendingOperationsPerConnection = 1024;
+
+    /**
+     * Determines the maximum number of milliseconds that a secondary can be
+     * behind the primary before they will be excluded from being used for
+     * queries on secondaries.
+     * <p>
+     * Defaults to 5 minutes (300,000).
+     * </p>
+     */
+    private long myMaxSecondaryLag = TimeUnit.MINUTES.toMillis(5);
 
     /** The password for authentication with the servers. */
     private String myPasswordHash = null;
@@ -567,6 +578,22 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the maximum number of milliseconds that a secondary can be behind
+     * the primary before they will be excluded from being used for queries on
+     * secondaries.
+     * <p>
+     * Defaults to 5 minutes (300,000).
+     * </p>
+     * 
+     * @return The maximum number of milliseconds that a secondary can be behind
+     *         the primary before they will be excluded from being used for
+     *         queries on secondaries.
+     */
+    public long getMaxSecondaryLag() {
+        return myMaxSecondaryLag;
+    }
+
+    /**
      * Gets the password hash for authentication with the database.
      * 
      * @return The password hash for authentication with the database.
@@ -779,6 +806,23 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     public void setMaxPendingOperationsPerConnection(
             final int maxPendingOperationsPerConnection) {
         myMaxPendingOperationsPerConnection = maxPendingOperationsPerConnection;
+    }
+
+    /**
+     * Sets the maximum number of milliseconds that a secondary can be behind
+     * the primary before they will be excluded from being used for queries on
+     * secondaries.
+     * <p>
+     * Defaults to 5 minutes (300,000).
+     * </p>
+     * 
+     * @param maxSecondaryLag
+     *            The new value for the maximum number of milliseconds that a
+     *            secondary can be behind the primary before they will be
+     *            excluded from being used for queries on secondaries.
+     */
+    public void setMaxSecondaryLag(final long maxSecondaryLag) {
+        myMaxSecondaryLag = maxSecondaryLag;
     }
 
     /**

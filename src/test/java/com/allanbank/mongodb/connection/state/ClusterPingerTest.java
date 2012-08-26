@@ -80,7 +80,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -123,7 +124,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -170,7 +172,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -214,7 +217,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -258,7 +262,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -304,7 +309,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -343,7 +349,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -390,7 +397,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -454,7 +462,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -496,7 +505,8 @@ public class ClusterPingerTest {
     public void testRunBadPingReply() throws IOException {
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -547,7 +557,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -600,7 +611,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -647,7 +659,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -689,7 +702,8 @@ public class ClusterPingerTest {
     public void testRunPingFails() throws IOException {
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -741,7 +755,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         cluster.myServers.put(address, new ServerState(address) {
             @Override
             public long getConnectionGeneration() {
@@ -803,7 +818,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -864,7 +880,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -912,7 +929,8 @@ public class ClusterPingerTest {
     public void testRunThrowsIOException() throws IOException {
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -946,7 +964,8 @@ public class ClusterPingerTest {
     public void testRunThrowsMongoDbException() throws IOException {
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -1000,7 +1019,8 @@ public class ClusterPingerTest {
 
         final String address = "localhost:27017";
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);

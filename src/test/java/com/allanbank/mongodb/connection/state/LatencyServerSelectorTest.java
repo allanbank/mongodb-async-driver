@@ -14,6 +14,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.MongoDbConfiguration;
+
 /**
  * LatencyServerSelectorTest provides tests for the
  * {@link LatencyServerSelector} class.
@@ -28,7 +30,8 @@ public class LatencyServerSelectorTest {
     @Test
     public void testPickServersAll() {
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
 
         cluster.add("localhost:27017").setAverageLatency(100);
         cluster.add("localhost:27018").setAverageLatency(50);
@@ -63,7 +66,8 @@ public class LatencyServerSelectorTest {
     @Test
     public void testPickServersNone() {
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
 
         cluster.add("localhost:27017").setAverageLatency(100);
         cluster.add("localhost:27018").setAverageLatency(50);
@@ -90,7 +94,8 @@ public class LatencyServerSelectorTest {
     @Test
     public void testPickServersWriteableOnly() {
 
-        final ClusterState cluster = new ClusterState();
+        final ClusterState cluster = new ClusterState(
+                new MongoDbConfiguration());
 
         cluster.add("localhost:27017").setAverageLatency(100);
         cluster.add("localhost:27018").setAverageLatency(50);

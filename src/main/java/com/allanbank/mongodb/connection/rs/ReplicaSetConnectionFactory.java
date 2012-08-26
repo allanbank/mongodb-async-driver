@@ -64,7 +64,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
             final MongoDbConfiguration config) {
         myConnectionFactory = factory;
         myConfig = config;
-        myClusterState = new ClusterState();
+        myClusterState = new ClusterState(config);
         myPinger = new ClusterPinger(myClusterState, ClusterType.REPLICA_SET,
                 factory, config);
         for (final String address : config.getServers()) {

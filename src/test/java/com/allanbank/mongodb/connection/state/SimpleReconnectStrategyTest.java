@@ -151,7 +151,8 @@ public class SimpleReconnectStrategyTest {
     @Test
     public void testReconnectFirstFails() throws IOException {
         final MongoDbConfiguration config = new MongoDbConfiguration();
-        final ClusterState clusterState = new ClusterState();
+        final ClusterState clusterState = new ClusterState(
+                new MongoDbConfiguration());
         final ServerState server = clusterState.add("localhost:27017");
 
         final Connection mockOldConnection = createMock(Connection.class);

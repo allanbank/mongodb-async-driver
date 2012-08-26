@@ -71,7 +71,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
             final MongoDbConfiguration config) {
         myConnectionFactory = factory;
         myConfig = config;
-        myClusterState = new ClusterState();
+        myClusterState = new ClusterState(config);
         mySelector = new LatencyServerSelector(myClusterState, true);
         myPinger = new ClusterPinger(myClusterState, ClusterType.SHARDED,
                 factory, config);

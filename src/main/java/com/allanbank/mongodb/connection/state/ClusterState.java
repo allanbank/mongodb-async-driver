@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.util.IOUtils;
@@ -48,6 +49,9 @@ public class ClusterState implements Closeable {
     /** Support for firing property change events. */
     private final PropertyChangeSupport myChangeSupport;
 
+    /** The configuration for connecting to the servers. */
+    private final MongoDbConfiguration myConfig;
+
     /** The complete list of non-writable servers. */
     private final List<ServerState> myNonWritableServers;
 
@@ -56,8 +60,12 @@ public class ClusterState implements Closeable {
 
     /**
      * Creates a new CLusterState.
+     * 
+     * @param config
+     *            The configuration for the cluster.
      */
-    public ClusterState() {
+    public ClusterState(final MongoDbConfiguration config) {
+        myConfig = config;
         myChangeSupport = new PropertyChangeSupport(this);
         myServers = new ConcurrentHashMap<String, ServerState>();
         myWritableServers = new CopyOnWriteArrayList<ServerState>();
@@ -391,7 +399,8 @@ public class ClusterState implements Closeable {
         final List<ServerState> results = new ArrayList<ServerState>(
                 myNonWritableServers.size());
         for (final ServerState server : myNonWritableServers) {
-            if (readPreference.matches(server.getTags())) {
+            if (readPreference.matches(server.getTags())
+                    && isRecentEnough(server.getSecondsBehind())) {
                 results.add(server);
             }
         }
@@ -472,6 +481,18 @@ public class ClusterState implements Closeable {
 
         // Swap the lucky winner into the first position.
         Collections.swap(servers, 0, index);
+    }
+
+    /**
+     * Returns true if the server is recent enough to be queried.
+     * 
+     * @param secondsBehind
+     *            The number of seconds the server is behind.
+     * @return True if the server is recent enough to be queried, false
+     *         otherwise.
+     */
+    private boolean isRecentEnough(final double secondsBehind) {
+        return ((secondsBehind * 1000) < myConfig.getMaxSecondaryLag());
     }
 
     /**

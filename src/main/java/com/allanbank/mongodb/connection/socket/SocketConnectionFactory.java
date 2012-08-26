@@ -47,7 +47,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     public SocketConnectionFactory(final MongoDbConfiguration config) {
         super();
         myConfig = config;
-        myState = new ClusterState();
+        myState = new ClusterState(config);
         myServerSelector = new LatencyServerSelector(myState, true);
 
         // Add all of the servers as writable by default.

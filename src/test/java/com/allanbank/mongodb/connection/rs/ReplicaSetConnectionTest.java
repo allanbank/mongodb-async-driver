@@ -64,8 +64,8 @@ public class ReplicaSetConnectionTest {
      */
     @Before
     public void setUp() {
-        myCluster = new ClusterState();
         myConfig = new MongoDbConfiguration();
+        myCluster = new ClusterState(myConfig);
 
         myServer = myCluster.get("localhost:27017");
         myCluster.markWritable(myServer);

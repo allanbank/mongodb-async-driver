@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -813,6 +814,20 @@ public class MongoDbConfigurationTest {
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         config.setMaxPendingOperationsPerConnection(256);
         assertEquals(256, config.getMaxPendingOperationsPerConnection());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#setMaxSecondaryLag(long)}.
+     */
+    @Test
+    public void testSetMaxSecondaryLag() {
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+
+        assertEquals(TimeUnit.MINUTES.toMillis(5), config.getMaxSecondaryLag());
+        config.setMaxSecondaryLag(TimeUnit.MINUTES.toMillis(25));
+        assertEquals(TimeUnit.MINUTES.toMillis(25), config.getMaxSecondaryLag());
+        config.setMaxSecondaryLag(TimeUnit.MINUTES.toMillis(5));
+        assertEquals(TimeUnit.MINUTES.toMillis(5), config.getMaxSecondaryLag());
     }
 
     /**
