@@ -1,0 +1,35 @@
+            ------
+            MongoDB Asynchronous Java Driver - Licenses
+            ------
+            ------
+
+Overview 
+
+  Licenses listed for the MongoDB Asynchronous Java Driver, not of dependencies.
+  
+Project Licenses
+
+  This project is provided under multiple licenses:
+
+  * {{Commercial}}
+  
+  * {{{Creative_Commons_Attribution-NonCommercial_3.0_Unported}Creative Commons Attribution-NonCommercial 3.0 Unported}}
+  
+  []
+
+* Commercial
+  
+  * Provides complete source for the driver and test suite.
+  
+  * Per node and per developer/tester pricing available.
+  
+  * For more information contact {{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Commercial%20License%20Inquiry}Allanbank Consulting, Inc.}}.
+
+* Creative Commons Attribution-NonCommercial 3.0 Unported 
+
+  * For non-profit organizations, students, universities, public schools and non-commercial applications.
+
+  * For all other use cases and organizations you may only develop and test applications under the 
+{{{http://creativecommons.org/licenses/by-nc/3.0/legalcode}Creative Commons Attribution-NonCommercial 3.0 Unported}} license.
+
+

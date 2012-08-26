@@ -61,14 +61,14 @@ public class ServerNameUtils {
         if (0 <= colonIndex) {
             final int previousColon = server.lastIndexOf(':', colonIndex - 1);
             if (0 <= previousColon) {
-                // Colon in the host name. Might be an IPV6 address. Try to
+                // Colon in the host name. Might be an IPv6 address. Try to
                 // parse the whole thing as an address and if it works then
                 // assume no port.
                 try {
                     final InetAddress addr = InetAddress.getByName(server);
                     final byte[] bytes = addr.getAddress();
 
-                    // Is it an IPV6 address?
+                    // Is it an IPv6 address?
                     if (bytes.length == IPV6_LENGTH) {
                         // Yep - add the default port.
                         return server + ':' + DEFAULT_PORT;
@@ -76,6 +76,7 @@ public class ServerNameUtils {
                 }
                 catch (final UnknownHostException uhe) {
                     // OK - fall through to being a port.
+                    uhe.getMessage(); // - Quiet PMD.
                 }
             }
 

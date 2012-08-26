@@ -3,7 +3,31 @@
             ------
             ------
 
-BSON Library
+Getting Connected - Mongo Interface
+
+  Now that we can create and process documents we start looking at how to connect and interact with
+a MongoDB server via the driver's API. The main interface to the driver is via the 
+{{{./apidocs/index.html?com/allanbank/mongodb/Mongo.html}Mongo}} interface.  The 
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory}} provides the ability
+to create a Mongo instance from either a 
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoDbConfiguration.html}MongoDbConfiguration}} or a
+{{{http://www.mongodb.org/display/DOCS/Connections}MongoDB Connection String}}.
+
++----------------------------------------+
+Mongo mongo = MongoFactory.create( "mongodb://server:port/db?maxConnectionCount=10" );
+
+MongoDbConfiguration config = new MongoDbConfiguration();
+config.addServer("server:port");
+config.setMaxConnectionCount(10);
+
+Mongo mongo2 = MongoFactory.create( config );
++----------------------------------------+
+
+  The <<<Mongo>>> instance returned represents the logical connection to the MongoDB servers.  The 
+{{{./apidocs/index.html?com/allanbank/mongodb/Mongo.html}close()}} method should be used to cleanly
+shutdown the connections to the server.
+
+Manipulating Documents - The BSON Library
 
   The driver includes a strongly typed {{{./apidocs/index.html?com/allanbank/mongodb/bson/package-summary.html}BSON implementation}}.  
 The BSON package (and driver in general) make extensive use of 
@@ -39,36 +63,12 @@ for( Element element : document ) {
 }
 +----------------------------------------+
 
-Getting Connected - Mongo Interface
-
-  Now that we can create and process documents we start looking at how to connect and interact with
-a MongoDB server via the driver's API. The main interface to the driver is via the 
-{{{./apidocs/index.html?com/allanbank/mongodb/Mongo.html}Mongo}} interface.  The 
-{{{./apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory}} provides the ability
-to create a Mongo instance from either a 
-{{{./apidocs/index.html?com/allanbank/mongodb/MongoDbConfiguration.html}MongoDbConfiguration}} or a
-{{{http://www.mongodb.org/display/DOCS/Connections}MongoDB Connection String}}.
-
-+----------------------------------------+
-Mongo mongo = MongoFactory.create( "mongodb://server:port/db?maxConnectionCount=10" );
-
-MongoDbConfiguration config = new MongoDbConfiguration();
-config.addServer("server:port");
-config.setMaxConnectionCount(10);
-
-Mongo mongo2 = MongoFactory.create( config );
-+----------------------------------------+
-
-  The <<<Mongo>>> instance returned represents the logical connection to the MongoDB servers.  The 
-{{{./apidocs/index.html?com/allanbank/mongodb/Mongo.html}close()}} method should be used to cleanly
-shutdown the connections to the server.
-
 Talking to the Server - MongoDatabase and MongoCollection
 
-  Once a Mongo instance has been created then 
+  Commands, queries, updates and deletes are sent to the server via the  
 {{{./apidocs/index.html?com/allanbank/mongodb/MongoDatabase.html}MongoDatabase}} and 
-{{{./apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} objects can be 
-easily created.
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} interfaces.  They 
+are created from a <<<Mongo>>> instance. 
 
 +----------------------------------------+
 Mongo mongo = ...;

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.allanbank</groupId>
 	<artifactId>mongodb-async-driver</artifactId>
@@ -23,11 +24,12 @@
 		<license>
 			<name>Attribution-NonCommercial 3.0 Unported</name>
 			<url>http://creativecommons.org/licenses/by-nc/3.0/legalcode</url>
-			<comments>
-				For non-profit organizations, students, universities, public schools and 
-				non-commercial applications.  For developing and testing applications.
-				Binary only.
-			</comments>
+			<comments><![CDATA[
+			    * For non-profit organizations, students, universities, public schools and 
+				  non-commercial applications.
+				* For all other use cases and organization you may develop and test applications 
+				  under the Attribution-NonCommercial 3.0 Unported license
+			]]></comments>
 		</license>
 	</licenses>
 	<developers>

@@ -78,11 +78,11 @@ public class SecondsBehindCallback extends FutureCallback<Reply> {
                     myServer.getName());
             for (final DocumentElement member : doc.queryPath(
                     DocumentElement.class, "members", ".*")) {
-                if (expectedName.equals(member.get("name"))) {
-                    if (member.get("optimeDate") instanceof TimestampElement) {
-                        serverTimestamp = (TimestampElement) member
-                                .get("optimeDate");
-                    }
+                if (expectedName.equals(member.get("name"))
+                        && (member.get("optimeDate") instanceof TimestampElement)) {
+                    
+                    serverTimestamp = (TimestampElement) member
+                            .get("optimeDate");
                 }
             }
 
