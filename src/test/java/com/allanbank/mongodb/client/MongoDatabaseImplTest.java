@@ -26,6 +26,7 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.connection.message.Command;
@@ -167,7 +168,7 @@ public class MongoDatabaseImplTest {
 
     /**
      * Test method for
-     * {@link MongoDatabaseImpl#runAdminCommand(String, Document)}.
+     * {@link MongoDatabaseImpl#runAdminCommand(String, DocumentAssignable)}.
      */
     @Test
     public void testRunAdminCommandStringDocument() {
@@ -199,7 +200,8 @@ public class MongoDatabaseImplTest {
 
     /**
      * Test method for
-     * {@link MongoDatabaseImpl#runAdminCommand(String, String, Document)}.
+     * {@link MongoDatabaseImpl#runAdminCommand(String, String, DocumentAssignable)}
+     * .
      */
     @Test
     public void testRunAdminCommandStringStringDocument() {
@@ -246,7 +248,8 @@ public class MongoDatabaseImplTest {
 
     /**
      * Test method for
-     * {@link MongoDatabaseImpl#runCommandAsync(Callback, String, Document)}.
+     * {@link MongoDatabaseImpl#runCommandAsync(Callback, String, DocumentAssignable)}
+     * .
      */
     @Test
     public void testRunCommandAsyncCallbackOfDocumentStringDocument() {
@@ -276,7 +279,7 @@ public class MongoDatabaseImplTest {
 
     /**
      * Test method for
-     * {@link MongoDatabaseImpl#runCommandAsync(Callback, String, String, Document)}
+     * {@link MongoDatabaseImpl#runCommandAsync(Callback, String, String, DocumentAssignable)}
      * .
      */
     @Test
@@ -332,7 +335,7 @@ public class MongoDatabaseImplTest {
 
     /**
      * Test method for
-     * {@link MongoDatabaseImpl#runCommandAsync(String, Document)}.
+     * {@link MongoDatabaseImpl#runCommandAsync(String, DocumentAssignable)}.
      * 
      * @throws Exception
      *             On a failure.
@@ -364,7 +367,8 @@ public class MongoDatabaseImplTest {
 
     /**
      * Test method for
-     * {@link MongoDatabaseImpl#runCommandAsync(String, String, Document)}.
+     * {@link MongoDatabaseImpl#runCommandAsync(String, String, DocumentAssignable)}
+     * .
      * 
      * @throws Exception
      *             On a failure.
@@ -418,7 +422,8 @@ public class MongoDatabaseImplTest {
     }
 
     /**
-     * Test method for {@link MongoDatabaseImpl#runCommand(String, Document)}.
+     * Test method for
+     * {@link MongoDatabaseImpl#runCommand(String, DocumentAssignable)}.
      */
     @Test
     public void testRunCommandStringDocument() {
@@ -446,7 +451,7 @@ public class MongoDatabaseImplTest {
 
     /**
      * Test method for
-     * {@link MongoDatabaseImpl#runCommand(String, String, Document)}.
+     * {@link MongoDatabaseImpl#runCommand(String, String, DocumentAssignable)}.
      */
     @Test
     public void testRunCommandStringStringDocument() {

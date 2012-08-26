@@ -36,11 +36,11 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
-import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -477,8 +477,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for
-     * {@link AbstractMongoCollection#createIndex(IntegerElement...)} .
+     * Test method for {@link AbstractMongoCollection#createIndex(Element...)} .
      */
     @Test
     public void testCreateIndexLinkedHashMapOfStringInteger() {
@@ -511,7 +510,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#createIndex(boolean, IntegerElement...)} .
+     * {@link AbstractMongoCollection#createIndex(boolean, Element...)} .
      */
     @Test
     public void testCreateIndexLinkedHashMapOfStringIntegerBoolean() {
@@ -545,8 +544,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, IntegerElement...)}
-     * .
+     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBoolean() {
@@ -591,8 +589,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, IntegerElement...)}
-     * .
+     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExists() {
@@ -625,8 +622,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, IntegerElement...)}
-     * .
+     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExistsEmptyName() {
@@ -659,8 +655,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, IntegerElement...)}
-     * .
+     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExistsNullName() {
@@ -1899,7 +1894,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(boolean, Document...)} .
+     * {@link AbstractMongoCollection#insertAsync(boolean, DocumentAssignable...)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -1932,7 +1928,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(boolean, Durability, Document...)}
+     * {@link AbstractMongoCollection#insertAsync(boolean, Durability, DocumentAssignable...)}
      * .
      * 
      * @throws Exception
@@ -1965,7 +1961,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Callback, boolean, Document...)}
+     * {@link AbstractMongoCollection#insertAsync(Callback, boolean, DocumentAssignable...)}
      * .
      */
     @Test
@@ -1993,7 +1989,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#insertAsync(Callback, boolean, Durability, Document...)}
+     * {@link MongoCollectionImpl#insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * .
      */
     @Test
@@ -2021,7 +2017,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Callback, Document...)} .
+     * {@link AbstractMongoCollection#insertAsync(Callback, DocumentAssignable...)}
+     * .
      */
     @Test
     public void testInsertAsyncCallbackOfIntegerDocumentArray() {
@@ -2048,7 +2045,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Callback, Durability, Document...)}
+     * {@link AbstractMongoCollection#insertAsync(Callback, Durability, DocumentAssignable...)}
      * .
      */
     @Test
@@ -2074,8 +2071,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#insertAsync(Document...)}
-     * .
+     * Test method for
+     * {@link AbstractMongoCollection#insertAsync(DocumentAssignable...)} .
      * 
      * @throws Exception
      *             On an error.
@@ -2100,7 +2097,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Durability, Document...)} .
+     * {@link AbstractMongoCollection#insertAsync(Durability, DocumentAssignable...)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -2131,7 +2129,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(boolean, Document...)} .
+     * {@link AbstractMongoCollection#insert(boolean, DocumentAssignable...)} .
      */
     @Test
     public void testInsertBooleanDocumentArray() {
@@ -2159,7 +2157,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(boolean, Durability, Document...)}
+     * {@link AbstractMongoCollection#insert(boolean, Durability, DocumentAssignable...)}
      * .
      */
     @Test
@@ -2186,7 +2184,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#insert(Document...)} .
+     * Test method for
+     * {@link AbstractMongoCollection#insert(DocumentAssignable...)} .
      */
     @Test
     public void testInsertDocumentArray() {
@@ -2214,7 +2213,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(Durability, Document...)} .
+     * {@link AbstractMongoCollection#insert(Durability, DocumentAssignable...)}
+     * .
      */
     @Test
     public void testInsertDurabilityDocumentArray() {
