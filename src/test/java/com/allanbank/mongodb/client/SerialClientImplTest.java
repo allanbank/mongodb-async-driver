@@ -9,6 +9,7 @@ import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
@@ -26,6 +27,7 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.Message;
@@ -119,6 +121,25 @@ public class SerialClientImplTest {
         myTestInstance.send(message);
 
         verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link SerialClientImpl#getClusterType()}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testGetClusterType() throws IOException {
+
+        expect(myMockConnectionFactory.getClusterType()).andReturn(
+                ClusterType.STAND_ALONE);
+
+        replay();
+
+        assertEquals(ClusterType.STAND_ALONE, myTestInstance.getClusterType());
+
+        verify();
     }
 
     /**
@@ -356,11 +377,6 @@ public class SerialClientImplTest {
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.send(null, message)).andReturn(myAddress);
 
-        if (SerialClientImpl.ASSERTIONS_ENABLED) {
-            expect(mockConnection.isCompatibleWith(message.getReadPreference()))
-                    .andReturn(Boolean.TRUE);
-        }
-
         replay(mockConnection);
 
         myTestInstance.send(message);
@@ -397,11 +413,6 @@ public class SerialClientImplTest {
         // First pass for idle.
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.send(null, message)).andReturn(myAddress);
-
-        if (SerialClientImpl.ASSERTIONS_ENABLED) {
-            expect(mockConnection.isCompatibleWith(message.getReadPreference()))
-                    .andReturn(Boolean.TRUE).times(2);
-        }
 
         replay(mockConnection);
 

@@ -31,7 +31,6 @@ import org.junit.Test;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.connection.Connection;
@@ -526,73 +525,6 @@ public class AbstractProxyConnectionTest {
                 mockConnetion, new MongoDbConfiguration());
 
         assertSame(mockConnetion, conn.getProxiedConnection());
-
-        IOUtils.close(conn);
-
-        verify(mockConnetion);
-    }
-
-    /**
-     * Test method for {@link AbstractProxyConnection#isCompatibleWith} .
-     * 
-     * @throws IOException
-     *             On a failure setting up the mocks for the test.
-     */
-    @SuppressWarnings("boxing")
-    @Test
-    public void testIsCompatibleWith() throws IOException {
-        final Connection mockConnetion = createMock(Connection.class);
-
-        // Message.
-        expect(mockConnetion.isCompatibleWith(ReadPreference.PRIMARY))
-                .andReturn(false);
-
-        mockConnetion.close();
-        expectLastCall();
-
-        replay(mockConnetion);
-
-        final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoDbConfiguration());
-
-        assertEquals(false, conn.isCompatibleWith(ReadPreference.PRIMARY));
-
-        IOUtils.close(conn);
-
-        verify(mockConnetion);
-    }
-
-    /**
-     * Test method for {@link AbstractProxyConnection#isCompatibleWith} .
-     * 
-     * @throws IOException
-     *             On a failure setting up the mocks for the test.
-     */
-    @SuppressWarnings("boxing")
-    @Test
-    public void testIsCompatibleWithOnThrow() throws IOException {
-        final MongoDbException thrown = new MongoDbException();
-        final Connection mockConnetion = createMock(Connection.class);
-
-        // Message.
-        expect(mockConnetion.isCompatibleWith(ReadPreference.SECONDARY))
-                .andThrow(thrown);
-
-        mockConnetion.close();
-        expectLastCall().times(2);
-
-        replay(mockConnetion);
-
-        final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoDbConfiguration());
-
-        try {
-            conn.isCompatibleWith(ReadPreference.SECONDARY);
-            fail("Should have thrown the exception.");
-        }
-        catch (final MongoDbException good) {
-            assertSame(thrown, good);
-        }
 
         IOUtils.close(conn);
 

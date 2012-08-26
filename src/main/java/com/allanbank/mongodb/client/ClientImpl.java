@@ -23,6 +23,7 @@ import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.Message;
@@ -119,6 +120,18 @@ public class ClientImpl extends AbstractClient {
 
         // Shutdown the connections factory.
         IOUtils.close(myConnectionFactory);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the {@link ClusterType} of the
+     * {@link ConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public ClusterType getClusterType() {
+        return myConnectionFactory.getClusterType();
     }
 
     /**

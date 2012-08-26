@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.connection.socket;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 
 /**
@@ -166,6 +168,21 @@ public class SocketConnectionFactoryTest {
                 conn.close();
             }
         }
+    }
+
+    /**
+     * Test method for {@link SocketConnectionFactory#getClusterType()}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testGetClusterType() throws IOException {
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+        final MongoDbConfiguration config = new MongoDbConfiguration(addr);
+        myTestFactory = new SocketConnectionFactory(config);
+
+        assertEquals(ClusterType.STAND_ALONE, myTestFactory.getClusterType());
     }
 
 }

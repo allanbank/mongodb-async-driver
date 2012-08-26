@@ -35,6 +35,7 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
@@ -394,6 +395,34 @@ public class ShardedConnectionFactoryTest {
 
         // Reset the mock for the close() in teardown.
         reset(mockFactory, mockConnection);
+    }
+
+    /**
+     * Test method for {@link ShardedConnectionFactory#getClusterType()}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testGetClusterType() throws IOException {
+        final String serverName = "localhost:"
+                + ourServer.getInetSocketAddress().getPort();
+
+        ourServer.setReplies(
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")),
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")));
+
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                ourServer.getInetSocketAddress());
+        final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
+                config);
+        myTestFactory = new ShardedConnectionFactory(socketFactory, config);
+
+        assertEquals(ClusterType.SHARDED, myTestFactory.getClusterType());
     }
 
     /**

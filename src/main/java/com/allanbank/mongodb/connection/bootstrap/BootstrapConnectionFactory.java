@@ -15,6 +15,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.FutureCallback;
@@ -166,6 +167,18 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     @Override
     public Connection connect() throws IOException {
         return getDelegate().connect();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the cluster type of the delegate
+     * {@link ConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public ClusterType getClusterType() {
+        return getDelegate().getClusterType();
     }
 
     /**

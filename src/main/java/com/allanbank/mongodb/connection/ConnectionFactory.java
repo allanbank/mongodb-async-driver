@@ -38,6 +38,13 @@ public interface ConnectionFactory extends Closeable {
     public Connection connect() throws IOException;
 
     /**
+     * Returns the type of cluster the connection factory connects to.
+     * 
+     * @return The type of cluster the connection factory connects to.
+     */
+    public ClusterType getClusterType();
+
+    /**
      * Returns the reconnection strategy for the type of connections.
      * 
      * @return The reconnection strategy for the type of connections.

@@ -8,6 +8,7 @@ package com.allanbank.mongodb.connection.auth;
 import java.io.IOException;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
@@ -81,6 +82,18 @@ public class AuthenticationConnectionFactory implements
             final MongoDbConfiguration config) throws IOException {
         return new AuthenticatingConnection(myProxiedConnectionFactory.connect(
                 server, config), config);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the cluster type of the proxied
+     * {@link ConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public ClusterType getClusterType() {
+        return myProxiedConnectionFactory.getClusterType();
     }
 
     /**

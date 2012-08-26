@@ -324,93 +324,6 @@ public class MongoDbConfigurationTest {
      * .
      */
     @Test
-    public void testMongoUriWithIPV6() {
-        final String addr1 = "fe80::868f:69ff:feb2:95d4";
-
-        final MongoDbConfiguration config = new MongoDbConfiguration(
-                "mongodb://" + addr1);
-
-        assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
-        assertEquals(3, config.getMaxConnectionCount());
-        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
-        assertEquals(0, config.getReadTimeout());
-        assertEquals(Collections.singletonList(addr1 + ":27017"), config.getServers());
-        assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
-        assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
-        assertTrue(config.isAutoDiscoverServers());
-        assertTrue(config.isUsingSoKeepalive());
-        assertEquals(MongoDbConfiguration.DEFAULT_DB_NAME,
-                config.getDefaultDatabase());
-
-    }
-
-    /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
-     */
-    @Test
-    public void testMongoUriWithIPV6LastTupleLooksLikePort() {
-        final String addr1 = "fe80::868f:69ff:feb2:9534";
-
-        final MongoDbConfiguration config = new MongoDbConfiguration(
-                "mongodb://" + addr1);
-
-        assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
-        assertEquals(3, config.getMaxConnectionCount());
-        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
-        assertEquals(0, config.getReadTimeout());
-        assertEquals(Collections.singletonList(addr1 + ":27017"), config.getServers());
-        assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
-        assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
-        assertTrue(config.isAutoDiscoverServers());
-        assertTrue(config.isUsingSoKeepalive());
-        assertEquals(MongoDbConfiguration.DEFAULT_DB_NAME,
-                config.getDefaultDatabase());
-
-    }
-
-    /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
-     */
-    @Test
-    public void testMongoUriWithIPV6WithPort() {
-        final String addr1 = "fe80::868f:69ff:feb2:9534:12345";
-
-        final MongoDbConfiguration config = new MongoDbConfiguration(
-                "mongodb://" + addr1);
-
-        assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
-        assertEquals(3, config.getMaxConnectionCount());
-        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
-        assertEquals(0, config.getReadTimeout());
-        assertEquals(Collections.singletonList(addr1), config.getServers());
-        assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
-        assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
-        assertTrue(config.isAutoDiscoverServers());
-        assertTrue(config.isUsingSoKeepalive());
-        assertEquals(MongoDbConfiguration.DEFAULT_DB_NAME,
-                config.getDefaultDatabase());
-
-    }
-
-    /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
-     */
-    @Test
     public void testMongoUri() {
         final String addr1 = "foo:27017";
 
@@ -702,6 +615,95 @@ public class MongoDbConfigurationTest {
         assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @Test
+    public void testMongoUriWithIPV6() {
+        final String addr1 = "fe80::868f:69ff:feb2:95d4";
+
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                "mongodb://" + addr1);
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(3, config.getMaxConnectionCount());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+        assertNull(config.getPasswordHash());
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1 + ":27017"),
+                config.getServers());
+        assertNotNull(config.getThreadFactory());
+        assertNull(config.getUserName());
+        assertFalse(config.isAuthenticating());
+        assertFalse(config.isAdminUser());
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+        assertEquals(MongoDbConfiguration.DEFAULT_DB_NAME,
+                config.getDefaultDatabase());
+
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @Test
+    public void testMongoUriWithIPV6LastTupleLooksLikePort() {
+        final String addr1 = "fe80::868f:69ff:feb2:9534";
+
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                "mongodb://" + addr1);
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(3, config.getMaxConnectionCount());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+        assertNull(config.getPasswordHash());
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1 + ":27017"),
+                config.getServers());
+        assertNotNull(config.getThreadFactory());
+        assertNull(config.getUserName());
+        assertFalse(config.isAuthenticating());
+        assertFalse(config.isAdminUser());
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+        assertEquals(MongoDbConfiguration.DEFAULT_DB_NAME,
+                config.getDefaultDatabase());
+
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
+     * .
+     */
+    @Test
+    public void testMongoUriWithIPV6WithPort() {
+        final String addr1 = "fe80::868f:69ff:feb2:9534:12345";
+
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                "mongodb://" + addr1);
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(3, config.getMaxConnectionCount());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+        assertNull(config.getPasswordHash());
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1), config.getServers());
+        assertNotNull(config.getThreadFactory());
+        assertNull(config.getUserName());
+        assertFalse(config.isAuthenticating());
+        assertFalse(config.isAdminUser());
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+        assertEquals(MongoDbConfiguration.DEFAULT_DB_NAME,
+                config.getDefaultDatabase());
+
     }
 
     /**

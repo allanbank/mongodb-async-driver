@@ -35,12 +35,12 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.util.IOUtils;
@@ -249,7 +249,7 @@ public class ReplicaSetConnectionFactoryTest {
     }
 
     /**
-     * Test method for {@link ShardedConnectionFactory#close()} .
+     * Test method for {@link ReplicaSetConnectionFactory#close()} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -490,6 +490,37 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Reset the mock factory for a close in tearDown.
         reset(mockFactory, mockConnection);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnectionFactory#getClusterType()}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testGetClusterType() throws IOException {
+        final String serverName = "localhost:"
+                + myServer.getInetSocketAddress().getPort();
+
+        final DocumentBuilder replStatusBuilder = BuilderFactory.start();
+        replStatusBuilder.push("repl");
+        replStatusBuilder.addString("primary", serverName);
+        replStatusBuilder.pushArray("hosts").addString(serverName)
+                .addString("localhost:1234");
+
+        myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
+
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                myServer.getInetSocketAddress());
+        config.setAutoDiscoverServers(true);
+
+        final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
+                config);
+
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
+
+        assertEquals(ClusterType.REPLICA_SET, myTestFactory.getClusterType());
     }
 
     /**

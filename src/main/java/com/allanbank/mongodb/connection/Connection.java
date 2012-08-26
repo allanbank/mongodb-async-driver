@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Reply;
 
@@ -64,17 +63,6 @@ public interface Connection extends Closeable, Flushable {
      * @return The number of messages pending responses from the server.
      */
     public int getPendingCount();
-
-    /**
-     * Returns true if the connection can send a message with the provided
-     * {@link ReadPreference}.
-     * 
-     * @param readPreference
-     *            The read preference to check the connection against.
-     * @return True if the connection can send a message with the provided
-     *         {@link ReadPreference}, false otherwise.
-     */
-    public boolean isCompatibleWith(ReadPreference readPreference);
 
     /**
      * Determines if the connection is idle.

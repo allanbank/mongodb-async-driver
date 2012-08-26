@@ -12,6 +12,7 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
@@ -126,6 +128,30 @@ public class AuthenticationConnectionFactoryTest {
         assertSame(mockConnection, conn.getProxiedConnection());
 
         verify(mockFactory, mockConnection);
+    }
+
+    /**
+     * Test method for {@link AuthenticationConnectionFactory#getClusterType()}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testGetClusterType() throws IOException {
+        final MongoDbConfiguration config = new MongoDbConfiguration(
+                new InetSocketAddress("127.0.0.1", 27017));
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        myTestFactory = new AuthenticationConnectionFactory(mockFactory, config);
+
+        expect(mockFactory.getClusterType()).andReturn(ClusterType.STAND_ALONE);
+
+        replay(mockFactory);
+
+        assertEquals(ClusterType.STAND_ALONE, myTestFactory.getClusterType());
+
+        verify(mockFactory);
     }
 
     /**

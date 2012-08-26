@@ -16,11 +16,11 @@ import java.net.UnknownHostException;
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerNameUtils {
-    /** The length of an IPv6 address in bytes. */
-    public static final int IPV6_LENGTH = 16;
-
     /** The default MongoDB port. */
     public static final int DEFAULT_PORT = 27017;
+
+    /** The length of an IPv6 address in bytes. */
+    public static final int IPV6_LENGTH = 16;
 
     /**
      * Creates a normalized form of the {@link InetSocketAddress} in the form
@@ -65,8 +65,8 @@ public class ServerNameUtils {
                 // parse the whole thing as an address and if it works then
                 // assume no port.
                 try {
-                    InetAddress addr = InetAddress.getByName(server);
-                    byte[] bytes = addr.getAddress();
+                    final InetAddress addr = InetAddress.getByName(server);
+                    final byte[] bytes = addr.getAddress();
 
                     // Is it an IPV6 address?
                     if (bytes.length == IPV6_LENGTH) {
@@ -74,7 +74,7 @@ public class ServerNameUtils {
                         return server + ':' + DEFAULT_PORT;
                     }
                 }
-                catch (UnknownHostException uhe) {
+                catch (final UnknownHostException uhe) {
                     // OK - fall through to being a port.
                 }
             }

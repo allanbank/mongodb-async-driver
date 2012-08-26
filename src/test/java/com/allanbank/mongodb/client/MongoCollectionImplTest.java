@@ -48,6 +48,7 @@ import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Sort;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Delete;
 import com.allanbank.mongodb.connection.message.GetLastError;
@@ -1661,6 +1662,65 @@ public class MongoCollectionImplTest {
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(
+                myMockClient.send(callback(reply(result1, result2)),
+                        eq(message))).andReturn(myAddress);
+
+        replay();
+
+        final Future<ClosableIterator<Document>> future = myTestInstance
+                .findAsync(request);
+        final ClosableIterator<Document> iter = future.get();
+        assertTrue(iter.hasNext());
+        assertSame(result1, iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(result2, iter.next());
+        assertFalse(iter.hasNext());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testFindWithAllOptionsNonSharded() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final DocumentBuilder sort = BuilderFactory.start()
+                .addInteger("baz", 1);
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder);
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        builder.setSort(sort);
+
+        final Find request = builder.build();
+
+        qBuilder.addDocument("orderby", sort.asDocument());
+
+        final Query message = new Query("test", "test", qBuilder.build(),
+                request.getReturnFields(), request.getBatchSize(),
+                request.getLimit(), request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
         expect(
                 myMockClient.send(callback(reply(result1, result2)),
                         eq(message))).andReturn(myAddress);
@@ -1714,6 +1774,59 @@ public class MongoCollectionImplTest {
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(
+                myMockClient.send(callback(reply(result1, result2)),
+                        eq(message))).andReturn(myAddress);
+
+        replay();
+
+        final Future<ClosableIterator<Document>> future = myTestInstance
+                .findAsync(request);
+        final ClosableIterator<Document> iter = future.get();
+        assertTrue(iter.hasNext());
+        assertSame(result1, iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(result2, iter.next());
+        assertFalse(iter.hasNext());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testFindWithNonLegacyOptionsAndNonSharded() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder.build());
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+
+        final Find request = builder.build();
+
+        final Query message = new Query("test", "test", qBuilder.asDocument(),
+                request.getReturnFields(), request.getBatchSize(),
+                request.getLimit(), request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
         expect(
                 myMockClient.send(callback(reply(result1, result2)),
                         eq(message))).andReturn(myAddress);

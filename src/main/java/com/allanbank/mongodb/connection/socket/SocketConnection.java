@@ -26,8 +26,6 @@ import java.util.logging.Logger;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.ReadPreference;
-import com.allanbank.mongodb.ReadPreference.Mode;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.connection.Connection;
@@ -251,27 +249,6 @@ public class SocketConnection implements Connection {
     @Override
     public int getPendingCount() {
         return myPendingQueue.size() + myToSendQueue.size();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * If the {@link ReadPreference#getMode() mode} is {@link Mode#SERVER} then
-     * verifies this connections remote address matches the address in the
-     * {@link ReadPreference}.
-     * </p>
-     * <p>
-     * If not in the {@link Mode#SERVER} mode then returns the results of
-     * {@link ReadPreference#matches}.
-     * </p>
-     */
-    @Override
-    public boolean isCompatibleWith(final ReadPreference readPreference) {
-        if (readPreference.getMode() == Mode.SERVER) {
-            return myServer.getName().equals(readPreference.getServer())
-                    && readPreference.matches(myServer.getTags());
-        }
-        return readPreference.matches(myServer.getTags());
     }
 
     /**

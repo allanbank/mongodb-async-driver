@@ -10,6 +10,7 @@ import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -31,6 +32,7 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.Message;
@@ -208,6 +210,25 @@ public class ClientImplTest {
         myTestInstance.close();
 
         verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link ClientImpl#getClusterType()}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testGetClusterType() throws IOException {
+
+        expect(myMockConnectionFactory.getClusterType()).andReturn(
+                ClusterType.STAND_ALONE);
+
+        replay();
+
+        assertEquals(ClusterType.STAND_ALONE, myTestInstance.getClusterType());
+
+        verify();
     }
 
     /**

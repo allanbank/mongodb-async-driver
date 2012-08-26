@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
@@ -119,6 +120,17 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         connection.start();
 
         return connection;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return {@link ClusterType#STAND_ALONE} cluster type.
+     * </p>
+     */
+    @Override
+    public ClusterType getClusterType() {
+        return ClusterType.STAND_ALONE;
     }
 
     /**

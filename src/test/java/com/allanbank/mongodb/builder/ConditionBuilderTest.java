@@ -2249,7 +2249,8 @@ public class ConditionBuilderTest {
 
     /**
      * Test method for
-     * {@link ConditionBuilder#notEqualToJavaScript(String, DocumentAssignable)} .
+     * {@link ConditionBuilder#notEqualToJavaScript(String, DocumentAssignable)}
+     * .
      */
     @Test
     public void testNotEqualToJavaScriptStringDocument() {

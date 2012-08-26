@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.PendingMessage;
@@ -143,23 +142,6 @@ public abstract class AbstractProxyConnection implements Connection {
     public int getPendingCount() {
         try {
             return myProxiedConnection.getPendingCount();
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Forwards the call to the proxied {@link Connection}.
-     * </p>
-     */
-    @Override
-    public boolean isCompatibleWith(final ReadPreference readPreference) {
-        try {
-            return myProxiedConnection.isCompatibleWith(readPreference);
         }
         catch (final MongoDbException error) {
             onExceptin(error);

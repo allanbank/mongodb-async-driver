@@ -17,6 +17,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.FutureCallback;
@@ -215,6 +216,17 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
         throw new IOException(
                 "Could not determine a shard server to connect to.");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return {@link ClusterType#SHARDED} cluster type.
+     * </p>
+     */
+    @Override
+    public ClusterType getClusterType() {
+        return ClusterType.SHARDED;
     }
 
     /**

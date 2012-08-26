@@ -59,6 +59,9 @@ public class ReadPreference implements Serializable, DocumentAssignable {
     public static final ReadPreference CLOSEST = new ReadPreference(
             Mode.NEAREST);
 
+    /** The name of the field in the query document for the read preferences. */
+    public static final String FIELD_NAME = "$readPreference";
+
     /**
      * {@link ReadPreference} to prefer reading from the primary but to fallback
      * to a secondary if the primary is not available.
@@ -103,7 +106,8 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      *            used.
      * @return The creates {@link ReadPreference}.
      */
-    public static ReadPreference closest(final DocumentAssignable... tagMatchDocuments) {
+    public static ReadPreference closest(
+            final DocumentAssignable... tagMatchDocuments) {
         if (tagMatchDocuments.length == 0) {
             return CLOSEST;
         }
@@ -186,7 +190,8 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      *            servers are used.
      * @return The creates {@link ReadPreference}.
      */
-    public static ReadPreference secondary(final DocumentAssignable... tagMatchDocuments) {
+    public static ReadPreference secondary(
+            final DocumentAssignable... tagMatchDocuments) {
         if (tagMatchDocuments.length == 0) {
             return SECONDARY;
         }
@@ -251,12 +256,13 @@ public class ReadPreference implements Serializable, DocumentAssignable {
             myTagMatchingDocuments = Collections.emptyList();
         }
         else {
-            myTagMatchingDocuments = new ArrayList<Document>(tagMatchDocuments.length);
+            myTagMatchingDocuments = new ArrayList<Document>(
+                    tagMatchDocuments.length);
 
             final ArrayBuilder tagsBuilder = builder.pushArray("tags");
             for (final DocumentAssignable assignable : tagMatchDocuments) {
-                Document tags = assignable.asDocument();
-                
+                final Document tags = assignable.asDocument();
+
                 myTagMatchingDocuments.add(tags);
                 tagsBuilder.addDocument(tags);
             }

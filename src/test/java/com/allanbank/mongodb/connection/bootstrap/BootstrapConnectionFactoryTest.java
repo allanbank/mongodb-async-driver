@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
@@ -141,6 +143,7 @@ public class BootstrapConnectionFactoryTest {
                 instanceOf(ReplicaSetConnectionFactory.class));
         assertThat(myTestFactory.getReconnectStrategy(),
                 instanceOf(ReplicaSetReconnectStrategy.class));
+        assertEquals(ClusterType.REPLICA_SET, myTestFactory.getClusterType());
     }
 
     /**
@@ -164,6 +167,7 @@ public class BootstrapConnectionFactoryTest {
                 instanceOf(ShardedConnectionFactory.class));
         assertThat(myTestFactory.getReconnectStrategy(),
                 instanceOf(SimpleReconnectStrategy.class));
+        assertEquals(ClusterType.SHARDED, myTestFactory.getClusterType());
     }
 
     /**
@@ -186,6 +190,7 @@ public class BootstrapConnectionFactoryTest {
                 instanceOf(SocketConnectionFactory.class));
         assertThat(myTestFactory.getReconnectStrategy(),
                 instanceOf(SimpleReconnectStrategy.class));
+        assertEquals(ClusterType.STAND_ALONE, myTestFactory.getClusterType());
     }
 
     /**

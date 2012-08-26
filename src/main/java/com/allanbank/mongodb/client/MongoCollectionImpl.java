@@ -30,6 +30,7 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Delete;
 import com.allanbank.mongodb.connection.message.Insert;
@@ -291,8 +292,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 builder.addDocument("orderby", query.getSort());
             }
 
-            if (!readPreference.isLegacy()) {
-                builder.addDocument("$readPreference",
+            if (!readPreference.isLegacy()
+                    && (myClient.getClusterType() == ClusterType.SHARDED)) {
+                builder.addDocument(ReadPreference.FIELD_NAME,
                         readPreference.asDocument());
             }
             queryDoc = builder.build();

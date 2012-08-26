@@ -10,6 +10,7 @@ import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Reply;
 
@@ -23,6 +24,13 @@ public interface Client {
      * Closes the client.
      */
     public void close();
+
+    /**
+     * Returns the type of cluster the client is connected to.
+     * 
+     * @return The type of cluster the client is connected to.
+     */
+    public ClusterType getClusterType();
 
     /**
      * Returns the configuration being used by the logical MongoDB connection.

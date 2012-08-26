@@ -12,6 +12,7 @@ import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
 
@@ -66,6 +67,18 @@ public class SerialClientImpl extends AbstractClient {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the {@link ClusterType} of delegate
+     * {@link ClientImpl}.
+     * </p>
+     */
+    @Override
+    public ClusterType getClusterType() {
+        return myDelegate.getClusterType();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return the configuration used when the client was
      * constructed.
      * </p>
@@ -115,21 +128,6 @@ public class SerialClientImpl extends AbstractClient {
             throws MongoDbException {
         if ((myConnection == null) || !myConnection.isOpen()) {
             myConnection = myDelegate.findConnection(messages);
-        }
-        else {
-            // Verify that the connection is compatible with the message's
-            // read preferences. This is almost certain to be the case unless
-            // the user is doing weird things with read preferences so only do
-            // the check when assertions are enabled.
-            if (ASSERTIONS_ENABLED) {
-                for (final Message message : messages) {
-                    final ReadPreference readPref = message.getReadPreference();
-
-                    assert myConnection.isCompatibleWith(readPref) : "The serial connection "
-                            + "cannot send a message with a read preference of : "
-                            + message.getReadPreference();
-                }
-            }
         }
 
         return myConnection;

@@ -15,6 +15,7 @@ import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.FutureCallback;
@@ -189,6 +190,17 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
         throw new IOException(
                 "Could not determine the primary server in the replica set.");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return {@link ClusterType#REPLICA_SET} cluster type.
+     * </p>
+     */
+    @Override
+    public ClusterType getClusterType() {
+        return ClusterType.REPLICA_SET;
     }
 
     /**
