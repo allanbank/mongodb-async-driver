@@ -5,7 +5,9 @@
 
 package com.allanbank.mongodb.util;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 /**
  * ServerNameUtils provides the ability to generate a normalized name for a
@@ -14,6 +16,9 @@ import java.net.InetSocketAddress;
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerNameUtils {
+    /** The length of an IPv6 address in bytes. */
+    public static final int IPV6_LENGTH = 16;
+
     /** The default MongoDB port. */
     public static final int DEFAULT_PORT = 27017;
 
@@ -53,7 +58,27 @@ public class ServerNameUtils {
         int port = DEFAULT_PORT;
 
         final int colonIndex = server.lastIndexOf(':');
-        if (colonIndex > 0) {
+        if (0 <= colonIndex) {
+            final int previousColon = server.lastIndexOf(':', colonIndex - 1);
+            if (0 <= previousColon) {
+                // Colon in the host name. Might be an IPV6 address. Try to
+                // parse the whole thing as an address and if it works then
+                // assume no port.
+                try {
+                    InetAddress addr = InetAddress.getByName(server);
+                    byte[] bytes = addr.getAddress();
+
+                    // Is it an IPV6 address?
+                    if (bytes.length == IPV6_LENGTH) {
+                        // Yep - add the default port.
+                        return server + ':' + DEFAULT_PORT;
+                    }
+                }
+                catch (UnknownHostException uhe) {
+                    // OK - fall through to being a port.
+                }
+            }
+
             final String portString = server.substring(colonIndex + 1);
             try {
                 Integer.parseInt(portString);
@@ -64,7 +89,6 @@ public class ServerNameUtils {
             catch (final NumberFormatException nfe) {
                 // Not a port after the colon. Move on.
                 port = DEFAULT_PORT;
-
             }
         }
 
