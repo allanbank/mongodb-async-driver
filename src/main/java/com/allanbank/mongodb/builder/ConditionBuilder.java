@@ -483,10 +483,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder equalsJavaScript(final String value,
-            final Document scope) {
+            final DocumentAssignable scope) {
         myOtherComparisons.clear();
         myEqualsComparison = new JavaScriptWithScopeElement(getFieldName(),
-                value, scope);
+                value, scope.asDocument());
         return this;
     }
 
@@ -2406,11 +2406,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder notEqualToJavaScript(final String value,
-            final Document scope) {
+            final DocumentAssignable scope) {
         myEqualsComparison = null;
-        myOtherComparisons.put(ComparisonOperator.NE,
+        myOtherComparisons.put(
+                ComparisonOperator.NE,
                 new JavaScriptWithScopeElement(
-                        ComparisonOperator.NE.getToken(), value, scope));
+                        ComparisonOperator.NE.getToken(), value, scope
+                                .asDocument()));
         return this;
     }
 

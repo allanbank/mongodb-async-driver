@@ -6,7 +6,7 @@
 package com.allanbank.mongodb;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -103,7 +103,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      *            used.
      * @return The creates {@link ReadPreference}.
      */
-    public static ReadPreference closest(final Document... tagMatchDocuments) {
+    public static ReadPreference closest(final DocumentAssignable... tagMatchDocuments) {
         if (tagMatchDocuments.length == 0) {
             return CLOSEST;
         }
@@ -128,7 +128,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * @return The creates {@link ReadPreference}.
      */
     public static ReadPreference preferPrimary(
-            final Document... tagMatchDocuments) {
+            final DocumentAssignable... tagMatchDocuments) {
         if (tagMatchDocuments.length == 0) {
             return PREFER_PRIMARY;
         }
@@ -153,7 +153,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * @return The creates {@link ReadPreference}.
      */
     public static ReadPreference preferSecondary(
-            final Document... tagMatchDocuments) {
+            final DocumentAssignable... tagMatchDocuments) {
         if (tagMatchDocuments.length == 0) {
             return PREFER_SECONDARY;
         }
@@ -186,7 +186,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      *            servers are used.
      * @return The creates {@link ReadPreference}.
      */
-    public static ReadPreference secondary(final Document... tagMatchDocuments) {
+    public static ReadPreference secondary(final DocumentAssignable... tagMatchDocuments) {
         if (tagMatchDocuments.length == 0) {
             return SECONDARY;
         }
@@ -241,7 +241,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      *            servers are used.
      */
     protected ReadPreference(final Mode mode,
-            final Document... tagMatchDocuments) {
+            final DocumentAssignable... tagMatchDocuments) {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("mode", mode.getToken());
 
@@ -251,11 +251,13 @@ public class ReadPreference implements Serializable, DocumentAssignable {
             myTagMatchingDocuments = Collections.emptyList();
         }
         else {
-            myTagMatchingDocuments = Collections.unmodifiableList(Arrays
-                    .asList(tagMatchDocuments));
+            myTagMatchingDocuments = new ArrayList<Document>(tagMatchDocuments.length);
 
             final ArrayBuilder tagsBuilder = builder.pushArray("tags");
-            for (final Document tags : tagMatchDocuments) {
+            for (final DocumentAssignable assignable : tagMatchDocuments) {
+                Document tags = assignable.asDocument();
+                
+                myTagMatchingDocuments.add(tags);
                 tagsBuilder.addDocument(tags);
             }
         }

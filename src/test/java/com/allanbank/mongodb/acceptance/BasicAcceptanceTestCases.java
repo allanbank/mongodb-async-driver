@@ -1391,7 +1391,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Test method for
-     * {@link ConditionBuilder#equalsJavaScript(String, Document)} .
+     * {@link ConditionBuilder#equalsJavaScript(String, DocumentAssignable)} .
      */
     @Test
     public void testQueryWithEqualsJavaScriptStringDocument() {
@@ -4168,7 +4168,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Test method for
-     * {@link ConditionBuilder#notEqualToJavaScript(String, Document)} .
+     * {@link ConditionBuilder#notEqualToJavaScript(String, DocumentAssignable)} .
      */
     @Test
     public void testQueryWithNotEqualToJavaScriptStringDocument() {
