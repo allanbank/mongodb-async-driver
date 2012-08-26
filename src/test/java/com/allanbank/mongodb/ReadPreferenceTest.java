@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
@@ -62,7 +63,7 @@ public class ReadPreferenceTest {
     }
 
     /**
-     * Test method for {@link ReadPreference#closest(Document[])} .
+     * Test method for {@link ReadPreference#closest(DocumentAssignable[])} .
      */
     @Test
     public void testClosest() {
@@ -362,7 +363,7 @@ public class ReadPreferenceTest {
     }
 
     /**
-     * Test method for {@link ReadPreference#preferPrimary(Document[])} .
+     * Test method for {@link ReadPreference#preferPrimary(DocumentAssignable[])} .
      */
     @Test
     public void testPreferPrimary() {
@@ -383,7 +384,7 @@ public class ReadPreferenceTest {
     }
 
     /**
-     * Test method for {@link ReadPreference#preferSecondary(Document[])} .
+     * Test method for {@link ReadPreference#preferSecondary(DocumentAssignable[])} .
      */
     @Test
     public void testPreferSecondary() {
@@ -456,7 +457,7 @@ public class ReadPreferenceTest {
     }
 
     /**
-     * Test method for {@link ReadPreference#secondary(Document[])} .
+     * Test method for {@link ReadPreference#secondary(DocumentAssignable[])} .
      */
     @Test
     public void testSecondary() {
