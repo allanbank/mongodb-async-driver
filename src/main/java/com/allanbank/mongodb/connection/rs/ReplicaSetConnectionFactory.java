@@ -65,7 +65,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
         myConnectionFactory = factory;
         myConfig = config;
         myClusterState = new ClusterState();
-        myPinger = new ClusterPinger(myClusterState, factory, config);
+        myPinger = new ClusterPinger(myClusterState, ClusterType.REPLICA_SET,
+                factory, config);
         for (final String address : config.getServers()) {
             final ServerState state = myClusterState.add(address);
 

@@ -67,6 +67,12 @@ public class ServerState {
     /** The normalized name of the server being tracked. */
     private final String myName;
 
+    /**
+     * Tracks the last report of how many seconds the server is behind the
+     * primary. We store the value (a double) as long bits.
+     */
+    private final AtomicLong mySecondsBehind;
+
     /** The server being tracked. */
     private final InetSocketAddress myServer;
 
@@ -89,6 +95,7 @@ public class ServerState {
         myWritable = new AtomicBoolean(false);
         myAverageLatency = new AtomicLong(
                 Double.doubleToLongBits(Double.MAX_VALUE));
+        mySecondsBehind = new AtomicLong(Double.doubleToLongBits(0.0));
         myTags = new AtomicReference<Document>(null);
         myConnection = new AtomicReference<Connection>(null);
         myConnectionGeneration = new AtomicLong(0);
@@ -149,6 +156,15 @@ public class ServerState {
     }
 
     /**
+     * Sets the last reported seconds behind the primary.
+     * 
+     * @return The seconds behind the primary server.
+     */
+    public double getSecondsBehind() {
+        return Double.longBitsToDouble(mySecondsBehind.get());
+    }
+
+    /**
      * Returns the address of the server being tracked.
      * 
      * @return The address of the server being tracked.
@@ -196,6 +212,16 @@ public class ServerState {
      */
     public void setAverageLatency(final double latency) {
         myAverageLatency.set(Double.doubleToLongBits(latency));
+    }
+
+    /**
+     * Sets the last reported seconds behind the primary.
+     * 
+     * @param secondsBehind
+     *            The seconds behind the primary server.
+     */
+    public void setSecondsBehind(final double secondsBehind) {
+        mySecondsBehind.set(Double.doubleToLongBits(secondsBehind));
     }
 
     /**

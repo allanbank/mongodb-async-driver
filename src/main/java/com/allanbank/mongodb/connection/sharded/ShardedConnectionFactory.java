@@ -73,7 +73,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         myConfig = config;
         myClusterState = new ClusterState();
         mySelector = new LatencyServerSelector(myClusterState, true);
-        myPinger = new ClusterPinger(myClusterState, factory, config);
+        myPinger = new ClusterPinger(myClusterState, ClusterType.SHARDED,
+                factory, config);
 
         for (final String address : config.getServers()) {
             final ServerState state = myClusterState.add(address);

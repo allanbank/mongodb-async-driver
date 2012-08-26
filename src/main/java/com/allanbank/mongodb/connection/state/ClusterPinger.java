@@ -19,9 +19,11 @@ import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.IsMaster;
+import com.allanbank.mongodb.connection.message.ReplicaSetStatus;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 
@@ -60,6 +62,9 @@ public class ClusterPinger implements Runnable, Closeable {
     /** The state of the cluster. */
     private final ClusterState myCluster;
 
+    /** The type of the cluster. */
+    private final ClusterType myClusterType;
+
     /** The configuration for the connections. */
     private final MongoDbConfiguration myConfig;
 
@@ -83,17 +88,21 @@ public class ClusterPinger implements Runnable, Closeable {
      * 
      * @param cluster
      *            The state of the cluster.
+     * @param clusterType
+     *            The type of cluster being managed.
      * @param factory
      *            The factory for creating connections to the servers.
      * @param config
      *            The configuration for the connections.
      */
     public ClusterPinger(final ClusterState cluster,
+            final ClusterType clusterType,
             final ProxiedConnectionFactory factory,
             final MongoDbConfiguration config) {
         super();
 
         myCluster = cluster;
+        myClusterType = clusterType;
         myConnectionFactory = factory;
         myConfig = config;
         myRunning = true;
@@ -159,7 +168,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
                 // Use a server status request to measure latency. It is
                 // a best case since it does not require any locks.
-                final Future<Reply> reply = PINGER.pingAsync(
+                final Future<Reply> reply = PINGER.pingAsync(myClusterType,
                         server.getServer(), conn, server);
                 replies.add(reply);
 
@@ -247,7 +256,8 @@ public class ClusterPinger implements Runnable, Closeable {
                         }
 
                         // Ping to update the latency and tags.
-                        PINGER.ping(server.getServer(), conn, server);
+                        PINGER.pingAsync(myClusterType, server.getServer(),
+                                conn, server);
 
                         // Give the connection to the server state for reuse.
                         long lastGeneration = 0;
@@ -352,7 +362,8 @@ public class ClusterPinger implements Runnable, Closeable {
         public boolean ping(final InetSocketAddress addr,
                 final Connection conn, final ServerState state) {
             try {
-                final Future<Reply> future = pingAsync(addr, conn, state);
+                final Future<Reply> future = pingAsync(ClusterType.STAND_ALONE,
+                        addr, conn, state);
 
                 // Wait for the reply.
                 if (future != null) {
@@ -381,6 +392,8 @@ public class ClusterPinger implements Runnable, Closeable {
          * can be used to determine if a response has been received. The future
          * will update the {@link ServerState} latency and tags if found.
          * 
+         * @param type
+         *            The type of cluster to ping.
          * @param addr
          *            The address of the server. Used for logging.
          * @param conn
@@ -393,13 +406,18 @@ public class ClusterPinger implements Runnable, Closeable {
          * @return A {@link Future} that will be updated once the reply is
          *         received.
          */
-        public Future<Reply> pingAsync(final InetSocketAddress addr,
-                final Connection conn, final ServerState state) {
+        public Future<Reply> pingAsync(final ClusterType type,
+                final InetSocketAddress addr, final Connection conn,
+                final ServerState state) {
             try {
                 final FutureCallback<Reply> future = new ServerLatencyCallback(
                         state);
 
                 conn.send(future, new IsMaster());
+                if (type == ClusterType.REPLICA_SET) {
+                    conn.send(new SecondsBehindCallback(state),
+                            new ReplicaSetStatus());
+                }
 
                 return future;
             }
