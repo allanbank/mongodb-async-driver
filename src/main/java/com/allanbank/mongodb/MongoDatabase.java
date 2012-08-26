@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * Interface for interacting with a MongoDB database. Primarily used to
@@ -87,7 +88,7 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error issuing the command or in running the command
      */
-    public Document runAdminCommand(String command, Document options)
+    public Document runAdminCommand(String command, DocumentAssignable options)
             throws MongoDbException;
 
     /**
@@ -104,7 +105,7 @@ public interface MongoDatabase {
      *             On an error issuing the command or in running the command
      */
     public Document runAdminCommand(String commandName, String commandValue,
-            Document options) throws MongoDbException;
+            DocumentAssignable options) throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -128,7 +129,7 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error issuing the command or in running the command
      */
-    public Document runCommand(String command, Document options)
+    public Document runCommand(String command, DocumentAssignable options)
             throws MongoDbException;
 
     /**
@@ -145,7 +146,7 @@ public interface MongoDatabase {
      *             On an error issuing the command or in running the command
      */
     public Document runCommand(String commandName, String commandValue,
-            Document options) throws MongoDbException;
+            DocumentAssignable options) throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -173,7 +174,7 @@ public interface MongoDatabase {
      *             On an error issuing the command or in running the command
      */
     public void runCommandAsync(Callback<Document> reply, String command,
-            Document options) throws MongoDbException;
+            DocumentAssignable options) throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -190,7 +191,8 @@ public interface MongoDatabase {
      *             On an error issuing the command or in running the command
      */
     public void runCommandAsync(Callback<Document> reply, String commandName,
-            String commandValue, Document options) throws MongoDbException;
+            String commandValue, DocumentAssignable options)
+            throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -215,8 +217,8 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error issuing the command or in running the command
      */
-    public Future<Document> runCommandAsync(String command, Document options)
-            throws MongoDbException;
+    public Future<Document> runCommandAsync(String command,
+            DocumentAssignable options) throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -232,6 +234,7 @@ public interface MongoDatabase {
      *             On an error issuing the command or in running the command
      */
     public Future<Document> runCommandAsync(String commandName,
-            String commandValue, Document options) throws MongoDbException;
+            String commandValue, DocumentAssignable options)
+            throws MongoDbException;
 
 }
