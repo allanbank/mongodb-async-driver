@@ -363,7 +363,8 @@ public class ReadPreferenceTest {
     }
 
     /**
-     * Test method for {@link ReadPreference#preferPrimary(DocumentAssignable[])} .
+     * Test method for
+     * {@link ReadPreference#preferPrimary(DocumentAssignable[])} .
      */
     @Test
     public void testPreferPrimary() {
@@ -384,7 +385,8 @@ public class ReadPreferenceTest {
     }
 
     /**
-     * Test method for {@link ReadPreference#preferSecondary(DocumentAssignable[])} .
+     * Test method for
+     * {@link ReadPreference#preferSecondary(DocumentAssignable[])} .
      */
     @Test
     public void testPreferSecondary() {
