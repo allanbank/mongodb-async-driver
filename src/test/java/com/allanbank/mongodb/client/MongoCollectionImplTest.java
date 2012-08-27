@@ -1624,6 +1624,70 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
+     * {@link AbstractMongoCollection#findOne(DocumentAssignable)} .
+     */
+    @Test
+    public void testFindOneNonLegacyOptions() {
+        final Callback<Document> mockCountCallback = createMock(Callback.class);
+        final Document doc = BuilderFactory
+                .start()
+                .addDocument(ReadPreference.FIELD_NAME,
+                        ReadPreference.PREFER_SECONDARY.asDocument()).build();
+        final Document replyDoc = BuilderFactory.start().addInteger("foo", 2)
+                .build();
+
+        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
+                false, ReadPreference.PREFER_SECONDARY, false, false, false,
+                false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(myMockClient.getDefaultReadPreference()).andReturn(
+                ReadPreference.PREFER_SECONDARY);
+        expect(myMockClient.send(callback(reply(replyDoc)), eq(message)))
+                .andReturn(myAddress);
+
+        replay(mockCountCallback);
+
+        assertSame(replyDoc, myTestInstance.findOne(BuilderFactory.start()));
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#findOne(DocumentAssignable)} .
+     */
+    @Test
+    public void testFindOneNonSharded() {
+        final Callback<Document> mockCountCallback = createMock(Callback.class);
+        final Document doc = BuilderFactory.start().build();
+        final Document replyDoc = BuilderFactory.start().addInteger("foo", 2)
+                .build();
+
+        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
+                false, ReadPreference.PREFER_SECONDARY, false, false, false,
+                false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        expect(myMockClient.getDefaultReadPreference()).andReturn(
+                ReadPreference.PREFER_SECONDARY);
+        expect(myMockClient.send(callback(reply(replyDoc)), eq(message)))
+                .andReturn(myAddress);
+
+        replay(mockCountCallback);
+
+        assertSame(replyDoc, myTestInstance.findOne(BuilderFactory.start()));
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for
      * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
      * 
      * @throws Exception

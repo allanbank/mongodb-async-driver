@@ -335,10 +335,11 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 builder.add(e);
             }
 
-            if (!readPreference.isLegacy()) {
-                builder.addDocument("$readPreference",
+            if (myClient.getClusterType() == ClusterType.SHARDED) {
+                builder.addDocument(ReadPreference.FIELD_NAME,
                         readPreference.asDocument());
             }
+
             queryDoc = builder.build();
         }
 
