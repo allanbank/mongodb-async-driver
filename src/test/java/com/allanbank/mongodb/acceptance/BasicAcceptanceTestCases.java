@@ -132,7 +132,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myMongo = MongoFactory.create(myConfig);
         myDb = myMongo.getDatabase(TEST_DB_NAME);
         myCollection = myDb.getCollection(TEST_COLLECTION_NAME);
-        getGeoCollection();
 
         myRandom = new Random(System.currentTimeMillis());
     }
