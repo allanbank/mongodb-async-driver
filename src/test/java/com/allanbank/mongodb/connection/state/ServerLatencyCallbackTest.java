@@ -6,7 +6,7 @@
 package com.allanbank.mongodb.connection.state;
 
 import static com.allanbank.mongodb.connection.CallbackReply.reply;
-import static org.easymock.EasyMock.captureLong;
+import static org.easymock.EasyMock.captureDouble;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isNull;
@@ -31,10 +31,10 @@ public class ServerLatencyCallbackTest {
      */
     @Test
     public void testCallback() {
-        final Capture<Long> latencyUpdate = new Capture<Long>();
+        final Capture<Double> latencyUpdate = new Capture<Double>();
 
         final ServerState state = createMock(ServerState.class);
-        state.updateAverageLatency(captureLong(latencyUpdate));
+        state.updateAverageLatency(captureDouble(latencyUpdate));
         expectLastCall();
         state.setTags((Document) isNull());
         expectLastCall();
@@ -62,10 +62,10 @@ public class ServerLatencyCallbackTest {
      */
     @Test
     public void testDelayCallback() throws InterruptedException {
-        final Capture<Long> latencyUpdate = new Capture<Long>();
+        final Capture<Double> latencyUpdate = new Capture<Double>();
 
         final ServerState state = createMock(ServerState.class);
-        state.updateAverageLatency(captureLong(latencyUpdate));
+        state.updateAverageLatency(captureDouble(latencyUpdate));
         expectLastCall();
         state.setTags((Document) isNull());
         expectLastCall();

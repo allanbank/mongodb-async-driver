@@ -112,7 +112,7 @@ public class ClusterStateTest {
         server.setAverageLatency(1000);
         servers.add(server);
 
-        final double relativeSum = 1 + 1 + 2 + 2 + 10;
+        final double relativeSum = 1 + 1 + (1D / 2) + (1D / 2) + (1D / 10);
 
         myState = new ClusterState(new MongoDbConfiguration());
         Collections.shuffle(servers);
@@ -121,14 +121,15 @@ public class ClusterStateTest {
         assertEquals((1D / relativeSum), cdf[0], 0.00001);
         assertEquals(((1D / relativeSum) + (1D / relativeSum)), cdf[1], 0.00001);
         assertEquals(
-                ((1D / relativeSum) + (1D / relativeSum) + (2D / relativeSum)),
+                ((1D / relativeSum) + (1D / relativeSum) + ((1D / 2D) / relativeSum)),
                 cdf[2], 0.00001);
         assertEquals(((1D / relativeSum) + (1D / relativeSum)
-                + (2D / relativeSum) + (2D / relativeSum)), cdf[3], 0.00001);
+                + ((1D / 2D) / relativeSum) + ((1D / 2D) / relativeSum)),
+                cdf[3], 0.00001);
         assertEquals(
-                ((1D / relativeSum) + (1D / relativeSum) + (2D / relativeSum)
-                        + (2D / relativeSum) + (10D / relativeSum)), cdf[4],
-                0.00001);
+                ((1D / relativeSum) + (1D / relativeSum)
+                        + ((1D / 2D) / relativeSum) + ((1D / 2D) / relativeSum) + ((1D / 10D) / relativeSum)),
+                cdf[4], 0.00001);
         assertEquals(1.0, cdf[4], 0.000001); // CDF should always end at 1.0
     }
 
