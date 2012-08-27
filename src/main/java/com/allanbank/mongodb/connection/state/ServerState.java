@@ -250,7 +250,7 @@ public class ServerState {
      *            The latency seen sending a request and receiving a reply from
      *            the server.
      */
-    public void updateAverageLatency(final long latency) {
+    public void updateAverageLatency(final double latency) {
         final double oldAverage = Double.longBitsToDouble(myAverageLatency
                 .get());
         if (Double.MAX_VALUE == oldAverage) {

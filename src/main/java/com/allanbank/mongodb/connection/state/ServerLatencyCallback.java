@@ -49,8 +49,8 @@ public class ServerLatencyCallback extends FutureCallback<Reply> {
     @Override
     public void callback(final Reply result) {
         final long end = System.nanoTime();
-        final long milliDelta = TimeUnit.NANOSECONDS.toMillis(end
-                - myStartTimeNanos);
+        final double delta = end - myStartTimeNanos;
+        final double milliDelta = delta / TimeUnit.MILLISECONDS.toNanos(1);
 
         if (myServer != null) {
             myServer.updateAverageLatency(milliDelta);

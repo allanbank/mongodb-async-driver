@@ -321,6 +321,7 @@ public class ClusterState implements Closeable {
                 latency /= first;
             }
 
+            latency = (1 / latency); // 4 times as long is 1/4 as likely.
             relativeLatency[i] = latency;
             sum += latency;
         }
