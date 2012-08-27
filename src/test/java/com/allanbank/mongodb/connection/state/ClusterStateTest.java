@@ -93,23 +93,23 @@ public class ClusterStateTest {
 
         final List<ServerState> servers = new ArrayList<ServerState>(5);
         ServerState server = new ServerState("localhost:1024");
-        server.setAverageLatency(100);
+        server.updateAverageLatency(100);
         servers.add(server);
 
         server = new ServerState("localhost:1025");
-        server.setAverageLatency(100);
+        server.updateAverageLatency(100);
         servers.add(server);
 
         server = new ServerState("localhost:1026");
-        server.setAverageLatency(200);
+        server.updateAverageLatency(200);
         servers.add(server);
 
         server = new ServerState("localhost:1027");
-        server.setAverageLatency(200);
+        server.updateAverageLatency(200);
         servers.add(server);
 
         server = new ServerState("localhost:1028");
-        server.setAverageLatency(1000);
+        server.updateAverageLatency(1000);
         servers.add(server);
 
         final double relativeSum = 1 + 1 + (1D / 2) + (1D / 2) + (1D / 10);
@@ -166,9 +166,9 @@ public class ClusterStateTest {
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
 
-        s1.setAverageLatency(1);
-        s2.setAverageLatency(10);
-        s3.setAverageLatency(100);
+        s1.updateAverageLatency(1);
+        s2.updateAverageLatency(10);
+        s3.updateAverageLatency(100);
 
         myState.markNotWritable(s1);
         myState.markWritable(s2);
@@ -240,9 +240,9 @@ public class ClusterStateTest {
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
 
-        s1.setAverageLatency(1);
-        s2.setAverageLatency(10);
-        s3.setAverageLatency(100);
+        s1.updateAverageLatency(1);
+        s2.updateAverageLatency(10);
+        s3.updateAverageLatency(100);
 
         myState.markNotWritable(s1);
         myState.markNotWritable(s2);
@@ -360,9 +360,9 @@ public class ClusterStateTest {
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
 
-        s1.setAverageLatency(1);
-        s2.setAverageLatency(10);
-        s3.setAverageLatency(100);
+        s1.updateAverageLatency(1);
+        s2.updateAverageLatency(10);
+        s3.updateAverageLatency(100);
 
         myState.markWritable(s1);
         myState.markWritable(s2);
@@ -404,9 +404,9 @@ public class ClusterStateTest {
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
 
-        s1.setAverageLatency(1);
-        s2.setAverageLatency(10);
-        s3.setAverageLatency(100);
+        s1.updateAverageLatency(1);
+        s2.updateAverageLatency(10);
+        s3.updateAverageLatency(100);
 
         // Should not be used. Too old.
         s1.setSecondsBehind(TimeUnit.HOURS.toSeconds(1));
@@ -650,7 +650,7 @@ public class ClusterStateTest {
 
             final ServerState server = new ServerState("localhost:"
                     + (i + 1024));
-            server.setAverageLatency(Math.random() * 100000);
+            server.updateAverageLatency(Math.random() * 100000);
 
             servers.add(server);
         }

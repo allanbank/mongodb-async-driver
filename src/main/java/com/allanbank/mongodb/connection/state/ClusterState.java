@@ -246,6 +246,7 @@ public class ClusterState implements Closeable {
     public void markWritable(final ServerState server) {
         synchronized (this) {
             if (!server.setWritable(true)) {
+                server.setSecondsBehind(0.0);
                 myNonWritableServers.remove(server);
                 myWritableServers.add(server);
                 myChangeSupport.firePropertyChange("writable", false, true);

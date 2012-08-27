@@ -77,6 +77,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -121,6 +122,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -169,6 +171,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -259,6 +262,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -394,6 +398,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -459,6 +464,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -533,7 +539,7 @@ public class ClusterPingerTest {
         verify(mockConnection, mockFactory);
 
         assertNull(state.getTags());
-        assertTrue(state.getAverageLatency() < 100);
+        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
         assertNull(state.takeConnection());
     }
 
@@ -554,6 +560,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -608,6 +615,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -656,6 +664,7 @@ public class ClusterPingerTest {
     public void testRunNoTags() throws IOException {
 
         final DocumentBuilder reply = BuilderFactory.start();
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -752,6 +761,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -815,6 +825,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 
@@ -877,6 +888,7 @@ public class ClusterPingerTest {
 
         final DocumentBuilder reply = BuilderFactory.start();
         reply.addDocument("tags", tags.build());
+        reply.add("ismaster", true);
 
         final String address = "localhost:27017";
 

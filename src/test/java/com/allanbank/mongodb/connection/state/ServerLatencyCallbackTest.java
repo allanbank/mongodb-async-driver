@@ -10,6 +10,8 @@ import static org.easymock.EasyMock.captureDouble;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isNull;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertTrue;
 
 import org.easymock.Capture;
@@ -17,6 +19,8 @@ import org.easymock.EasyMock;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * ServerLatencyCallbackTest provides tests for the
@@ -31,6 +35,9 @@ public class ServerLatencyCallbackTest {
      */
     @Test
     public void testCallback() {
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("secondary", true);
+
         final Capture<Double> latencyUpdate = new Capture<Double>();
 
         final ServerState state = createMock(ServerState.class);
@@ -42,7 +49,7 @@ public class ServerLatencyCallbackTest {
         EasyMock.replay(state);
 
         final ServerLatencyCallback callback = new ServerLatencyCallback(state);
-        callback.callback(reply());
+        callback.callback(reply(builder));
 
         EasyMock.verify(state);
 
@@ -56,12 +63,35 @@ public class ServerLatencyCallbackTest {
 
     /**
      * Test method for {@link ServerLatencyCallback#callback} .
+     */
+    @Test
+    public void testCallbackNotReadable() {
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("ismaster", false);
+        builder.add("secondary", false);
+
+        final ServerState state = createMock(ServerState.class);
+
+        replay(state);
+
+        final ServerLatencyCallback callback = new ServerLatencyCallback(state);
+        callback.callback(reply(builder));
+
+        verify(state);
+
+    }
+
+    /**
+     * Test method for {@link ServerLatencyCallback#callback} .
      * 
      * @throws InterruptedException
      *             On a failure to sleep.
      */
     @Test
     public void testDelayCallback() throws InterruptedException {
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("ismaster", true);
+
         final Capture<Double> latencyUpdate = new Capture<Double>();
 
         final ServerState state = createMock(ServerState.class);
@@ -74,7 +104,7 @@ public class ServerLatencyCallbackTest {
 
         final ServerLatencyCallback callback = new ServerLatencyCallback(state);
         Thread.sleep(50);
-        callback.callback(reply());
+        callback.callback(reply(builder));
 
         EasyMock.verify(state);
 

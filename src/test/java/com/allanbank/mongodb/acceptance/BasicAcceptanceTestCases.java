@@ -340,7 +340,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc.reset();
 
         // > db.things.insert( { state : "NY", city : "big", pop : 100000 } );
-        // > db.things.insert( { state : "NY", city : "medium", pop : 20 } );
+        // > db.things.insert( { state : "NY", city : "small", pop : 20 } );
         // > db.things.insert( { state : "NY", city : "small", pop : 5 } );
         doc.addString("state", "NY").addString("city", "big")
                 .addInteger("pop", 100000);

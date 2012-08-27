@@ -95,7 +95,8 @@ public class ServerState {
         myWritable = new AtomicBoolean(false);
         myAverageLatency = new AtomicLong(
                 Double.doubleToLongBits(Double.MAX_VALUE));
-        mySecondsBehind = new AtomicLong(Double.doubleToLongBits(0.0));
+        mySecondsBehind = new AtomicLong(
+                Double.doubleToLongBits(Double.MAX_VALUE));
         myTags = new AtomicReference<Document>(null);
         myConnection = new AtomicReference<Connection>(null);
         myConnectionGeneration = new AtomicLong(0);
@@ -255,6 +256,9 @@ public class ServerState {
                 .get());
         if (Double.MAX_VALUE == oldAverage) {
             myAverageLatency.set(Double.doubleToLongBits(latency));
+            mySecondsBehind.compareAndSet(
+                    Double.doubleToLongBits(Double.MAX_VALUE),
+                    Double.doubleToLongBits(0.0));
         }
         else {
             final double newAverage = (DECAY_ALPHA * latency)

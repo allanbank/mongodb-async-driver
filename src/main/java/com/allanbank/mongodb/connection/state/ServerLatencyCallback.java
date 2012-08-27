@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.Reply;
@@ -52,7 +53,7 @@ public class ServerLatencyCallback extends FutureCallback<Reply> {
         final double delta = end - myStartTimeNanos;
         final double milliDelta = delta / TimeUnit.MILLISECONDS.toNanos(1);
 
-        if (myServer != null) {
+        if ((myServer != null) && isReadable(result)) {
             myServer.updateAverageLatency(milliDelta);
             myServer.setTags(extractTags(result));
         }
@@ -82,5 +83,27 @@ public class ServerLatencyCallback extends FutureCallback<Reply> {
             }
         }
         return result;
+    }
+
+    /**
+     * Returns true if the ismaster or secondary fields are true.
+     * 
+     * @param reply
+     *            The reply.
+     * @return The tags document, which may be <code>null</code>.
+     */
+    private boolean isReadable(final Reply reply) {
+        final List<Document> replyDocs = reply.getResults();
+        if (replyDocs.size() >= 1) {
+            final Document doc = replyDocs.get(0);
+            final List<BooleanElement> tags = doc.queryPath(
+                    BooleanElement.class, "ismaster|secondary");
+            for (final BooleanElement tag : tags) {
+                if (tag.getValue()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

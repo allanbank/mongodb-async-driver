@@ -351,6 +351,13 @@ public class ReplicaSetConnectionTest {
         final ServerState s5 = myCluster.add("bau:12345");
         final ServerState s6 = myCluster.add("bav:12345");
 
+        s1.updateAverageLatency(1.0);
+        s2.updateAverageLatency(1.0);
+        s3.updateAverageLatency(1.0);
+        s4.updateAverageLatency(1.0);
+        s5.updateAverageLatency(1.0);
+        s6.updateAverageLatency(1.0);
+
         final Connection mockConnection = createMock(Connection.class);
         final Connection mockConnection2 = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -404,6 +411,13 @@ public class ReplicaSetConnectionTest {
         final ServerState s4 = myCluster.add("bat:12345");
         final ServerState s5 = myCluster.add("bau:12345");
         final ServerState s6 = myCluster.add("bav:12345");
+
+        s1.updateAverageLatency(1.0);
+        s2.updateAverageLatency(1.0);
+        s3.updateAverageLatency(1.0);
+        s4.updateAverageLatency(1.0);
+        s5.updateAverageLatency(1.0);
+        s6.updateAverageLatency(1.0);
 
         final Connection mockConnection = createMock(Connection.class);
         final Connection mockConnection2 = createMock(Connection.class);
@@ -489,6 +503,13 @@ public class ReplicaSetConnectionTest {
         final ServerState s4 = myCluster.add("bat:12345");
         final ServerState s5 = myCluster.add("bau:12345");
         final ServerState s6 = myCluster.add("bav:12345");
+
+        s1.updateAverageLatency(1.0);
+        s2.updateAverageLatency(1.0);
+        s3.updateAverageLatency(1.0);
+        s4.updateAverageLatency(1.0);
+        s5.updateAverageLatency(1.0);
+        s6.updateAverageLatency(1.0);
 
         final Connection mockConnection = createMock(Connection.class);
         final Connection mockConnection2 = createMock(Connection.class);
@@ -580,6 +601,13 @@ public class ReplicaSetConnectionTest {
         final ServerState s5 = myCluster.add("bau:12345");
         final ServerState s6 = myCluster.add("bav:12345");
 
+        s1.updateAverageLatency(1.0);
+        s2.updateAverageLatency(1.0);
+        s3.updateAverageLatency(1.0);
+        s4.updateAverageLatency(1.0);
+        s5.updateAverageLatency(1.0);
+        s6.updateAverageLatency(1.0);
+
         final Connection mockConnection = createMock(Connection.class);
         final Connection mockConnection2 = createMock(Connection.class);
         final Connection mockConnection3 = createMock(Connection.class);
@@ -668,11 +696,12 @@ public class ReplicaSetConnectionTest {
                 false, false);
 
         final ServerState second = myCluster.add("foo:12345");
-        myCluster.add("bar:12345");
-        myCluster.add("bas:12345");
-        myCluster.add("bat:12345");
-        myCluster.add("bau:12345");
-        myCluster.add("bav:12345");
+        second.updateAverageLatency(1.0);
+        myCluster.add("bar:12345").updateAverageLatency(1.0);
+        myCluster.add("bas:12345").updateAverageLatency(1.0);
+        myCluster.add("bat:12345").updateAverageLatency(1.0);
+        myCluster.add("bau:12345").updateAverageLatency(1.0);
+        myCluster.add("bav:12345").updateAverageLatency(1.0);
 
         final Connection mockConnection = createMock(Connection.class);
         final Connection mockConnection2 = createMock(Connection.class);
@@ -713,11 +742,12 @@ public class ReplicaSetConnectionTest {
                 false, false);
 
         final ServerState second = myCluster.add("foo:12345");
-        myCluster.add("bar:12345");
-        myCluster.add("bas:12345");
-        myCluster.add("bat:12345");
-        myCluster.add("bau:12345");
-        myCluster.add("bav:12345");
+        second.updateAverageLatency(1.0);
+        myCluster.add("bar:12345").updateAverageLatency(1.0);
+        myCluster.add("bas:12345").updateAverageLatency(1.0);
+        myCluster.add("bat:12345").updateAverageLatency(1.0);
+        myCluster.add("bau:12345").updateAverageLatency(1.0);
+        myCluster.add("bav:12345").updateAverageLatency(1.0);
 
         final Connection mockConnection = createMock(Connection.class);
         final Connection mockConnection2 = createMock(Connection.class);
@@ -763,11 +793,12 @@ public class ReplicaSetConnectionTest {
                 false, false);
 
         final ServerState second = myCluster.add("foo:12345");
-        myCluster.add("bar:12345");
-        myCluster.add("bas:12345");
-        myCluster.add("bat:12345");
-        myCluster.add("bau:12345");
-        myCluster.add("bav:12345");
+        second.updateAverageLatency(1.0);
+        myCluster.add("bar:12345").updateAverageLatency(1.0);
+        myCluster.add("bas:12345").updateAverageLatency(1.0);
+        myCluster.add("bat:12345").updateAverageLatency(1.0);
+        myCluster.add("bau:12345").updateAverageLatency(1.0);
+        myCluster.add("bav:12345").updateAverageLatency(1.0);
 
         final Connection mockConnection = createMock(Connection.class);
         final Connection mockConnection2 = createMock(Connection.class);
