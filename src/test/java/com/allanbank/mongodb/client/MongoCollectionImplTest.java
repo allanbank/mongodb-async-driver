@@ -519,8 +519,8 @@ public class MongoCollectionImplTest {
         final DocumentBuilder indexDocBuilder = BuilderFactory.start();
         indexDocBuilder.addString("name", "k_1_l_-1");
         indexDocBuilder.addString("ns", "test.test");
-        indexDocBuilder.addBoolean("unique", true);
         indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
+        indexDocBuilder.addBoolean("unique", true);
 
         final Query queryMessage = new Query("test", "system.indexes",
                 indexDocBuilder.build(), null, 1 /* batchSize */,
@@ -683,6 +683,75 @@ public class MongoCollectionImplTest {
         replay();
 
         myTestInstance.createIndex(null, false, Sort.asc("k"), Sort.desc("l"));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#createIndex(boolean, Element...)} .
+     */
+    @Test
+    public void testCreateIndexWithOptions() {
+
+        final DocumentBuilder indexDocBuilder = BuilderFactory.start();
+        indexDocBuilder.addString("name", "k_1_l_-1");
+        indexDocBuilder.addString("ns", "test.test");
+        indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
+        indexDocBuilder.addBoolean("unique", true);
+
+        final Query queryMessage = new Query("test", "system.indexes",
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                ReadPreference.PRIMARY, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getDefaultReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(callback(reply(indexDocBuilder.build())),
+                        eq(queryMessage))).andReturn(myAddress);
+
+        replay();
+
+        myTestInstance.createIndex(
+                AbstractMongoCollection.UNIQUE_INDEX_OPTIONS, Sort.asc("k"),
+                Sort.desc("l"));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#createIndex(boolean, Element...)} .
+     */
+    @Test
+    public void testCreateIndexWithUniqueFalse() {
+
+        final DocumentBuilder indexDocBuilder = BuilderFactory.start();
+        indexDocBuilder.addString("name", "k_1_l_-1");
+        indexDocBuilder.addString("ns", "test.test");
+        indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
+
+        final Query queryMessage = new Query("test", "system.indexes",
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                ReadPreference.PRIMARY, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getDefaultReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(callback(reply(indexDocBuilder.build())),
+                        eq(queryMessage))).andReturn(myAddress);
+
+        replay();
+
+        myTestInstance.createIndex(false, Sort.asc("k"), Sort.desc("l"));
 
         verify();
     }

@@ -113,10 +113,13 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * Overridden to insert the index document into the 'system.indexes'
      * collection.
      * </p>
+     * 
+     * @see MongoCollection#createIndex(String,DocumentAssignable,Element...)
      */
     @Override
-    public void createIndex(final String name, final boolean unique,
-            final Element... keys) throws MongoDbException {
+    public void createIndex(final String name,
+            final DocumentAssignable options, final Element... keys)
+            throws MongoDbException {
 
         String indexName = name;
         if ((name == null) || name.isEmpty()) {
@@ -126,13 +129,14 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final DocumentBuilder indexEntryBuilder = BuilderFactory.start();
         indexEntryBuilder.addString("name", indexName);
         indexEntryBuilder.addString("ns", getDatabaseName() + "." + getName());
-        if (unique) {
-            indexEntryBuilder.addBoolean("unique", unique);
-        }
 
         final DocumentBuilder keyBuilder = indexEntryBuilder.push("key");
         for (final Element key : keys) {
             keyBuilder.add(key);
+        }
+
+        for (final Element option : options.asDocument()) {
+            indexEntryBuilder.add(option);
         }
 
         final MongoCollection indexCollection = new MongoCollectionImpl(

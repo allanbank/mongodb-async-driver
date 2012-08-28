@@ -20,6 +20,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.StringElement;
@@ -52,8 +53,16 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      */
     public static final boolean DELETE_SINGLE_DELETE_DEFAULT = false;
 
+    /** The default empty index options. */
+    public static final Document EMPTY_INDEX_OPTIONS = BuilderFactory.start()
+            .build();
+
     /** The default for if an insert should continue on an error. */
     public static final boolean INSERT_CONTINUE_ON_ERROR_DEFAULT = false;
+
+    /** The default for a UNIQUE index options. */
+    public static final Document UNIQUE_INDEX_OPTIONS = BuilderFactory.start()
+            .add("unique", true).build();
 
     /** The default for doing a multiple-update on an update. */
     public static final boolean UPDATE_MULTIUPDATE_DEFAULT = false;
@@ -251,15 +260,50 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #createIndex(boolean, Element...)} method
-     * with <code>false</code> for <tt>unique</tt>.
+     * Overridden to call the
+     * {@link #createIndex(String,DocumentAssignable,Element...)} method with
+     * <code>null</code> for <tt>name</tt>.
      * </p>
      * 
-     * @see #createIndex(boolean, Element...)
+     * @see #createIndex(String,DocumentAssignable,Element...)
+     */
+    @Override
+    public void createIndex(final DocumentAssignable options,
+            final Element... keys) throws MongoDbException {
+        createIndex(null, options, keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #createIndex(DocumentAssignable, Element...)} method with
+     * {@link #EMPTY_INDEX_OPTIONS} for <tt>options</tt>.
+     * </p>
+     * 
+     * @see #createIndex(DocumentAssignable, Element...)
      */
     @Override
     public void createIndex(final Element... keys) throws MongoDbException {
-        createIndex(false, keys);
+        createIndex(EMPTY_INDEX_OPTIONS, keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #createIndex(String,DocumentAssignable,Element...)} method with
+     * {@link #UNIQUE_INDEX_OPTIONS} if {@code unique} is <code>true</code> or
+     * {@link #EMPTY_INDEX_OPTIONS} id {@code unique} is <code>false</code>.
+     * </p>
+     * 
+     * @see #createIndex(String, DocumentAssignable, Element...)
+     */
+    @Override
+    public void createIndex(final String name, final boolean unique,
+            final Element... keys) throws MongoDbException {
+        createIndex(name, unique ? UNIQUE_INDEX_OPTIONS : EMPTY_INDEX_OPTIONS,
+                keys);
     }
 
     /**
@@ -269,10 +313,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * implementations must override.
      * </p>
      * 
-     * @see MongoCollection#createIndex(String, boolean, Element...)
+     * @see MongoCollection#createIndex(String,DocumentAssignable,Element...)
      */
     @Override
-    public abstract void createIndex(final String name, final boolean unique,
+    public abstract void createIndex(String name, DocumentAssignable options,
             final Element... keys) throws MongoDbException;
 
     /**

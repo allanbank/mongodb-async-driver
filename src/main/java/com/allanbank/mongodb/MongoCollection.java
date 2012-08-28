@@ -199,6 +199,42 @@ public interface MongoCollection {
      * 
      * <pre>
      * <code>
+     * import static {@link com.allanbank.mongodb.bson.builder.BuilderFactory#start com.allanbank.mongodb.bson.builder.BuilderFactory.start};
+     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * 
+     * MongoCollection collection = ...;
+     * 
+     * collection.createIndex(start().add("sparse", true), asc("f") );
+     * ...
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * 
+     * @param options
+     *            The options for the index.
+     * @param keys
+     *            The keys to use for the index.
+     * @throws MongoDbException
+     *             On a failure building the index.
+     * @see <a
+     *      href="http://www.mongodb.org/display/DOCS/Indexes#Indexes-CreationOptions">Index
+     *      Options Documentation</a>
+     */
+    public void createIndex(DocumentAssignable options, Element... keys)
+            throws MongoDbException;
+
+    /**
+     * Creates an index with a generated name, across the keys specified
+     * allowing duplicate entries.
+     * <p>
+     * This method is intended to be used with the
+     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * <blockquote>
+     * 
+     * <pre>
+     * <code>
      * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
      * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
      * 
@@ -253,6 +289,45 @@ public interface MongoCollection {
      */
     public void createIndex(String name, boolean unique, Element... keys)
             throws MongoDbException;
+
+    /**
+     * Creates an index with a generated name, across the keys specified
+     * allowing duplicate entries.
+     * <p>
+     * This method is intended to be used with the
+     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static {@link com.allanbank.mongodb.bson.builder.BuilderFactory#start com.allanbank.mongodb.bson.builder.BuilderFactory.start};
+     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * 
+     * MongoCollection collection = ...;
+     * 
+     * collection.createIndex("sparse_f", start().add("sparse", true), asc("f") );
+     * ...
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * 
+     * @param name
+     *            The name of the index. If <code>null</code> then a name is
+     *            generated based on the keys.
+     * @param options
+     *            The options for the index.
+     * @param keys
+     *            The keys to use for the index.
+     * @throws MongoDbException
+     *             On a failure building the index.
+     * @see <a
+     *      href="http://www.mongodb.org/display/DOCS/Indexes#Indexes-CreationOptions">Index
+     *      Options Documentation</a>
+     */
+    public void createIndex(String name, DocumentAssignable options,
+            Element... keys) throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
