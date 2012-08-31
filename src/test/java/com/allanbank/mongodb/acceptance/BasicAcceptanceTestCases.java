@@ -411,7 +411,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
         catch (final ReplyException re) {
             // Check if we are talking to a recent MongoDB instance.
-            assumeTrue(!re.getMessage().contains("no such cmd: aggregate"));
+            String message = re.getMessage();
+
+            assumeTrue(!message.contains("no such cmd: aggregate")
+                    && !message.contains("unrecognized command: aggregate"));
 
             throw re;
         }
