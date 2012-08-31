@@ -298,6 +298,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testAggregate() {
+        myConfig.setDefaultDurability(Durability.ACK);
+        
         final DocumentBuilder doc = BuilderFactory.start();
         final MongoCollection aggregate = myDb.getCollection("aggregate");
 
