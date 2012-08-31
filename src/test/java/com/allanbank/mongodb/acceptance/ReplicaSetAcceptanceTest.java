@@ -150,11 +150,14 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         final int[] ports = new int[] { 27018, 27019, 27020, 27021 };
         final SocketConnection[] conns = new SocketConnection[ports.length];
 
+        disconnect();
+        connect();
         myConfig.setAutoDiscoverServers(true);
         myConfig.setMaxConnectionCount(5);
         myConfig.setDefaultReadPreference(ReadPreference.preferSecondary());
         myConfig.setDefaultDurability(Durability.replicaDurable(2, 1000));
 
+        
         for (int i = 0; i < ports.length; ++i) {
             final int port = ports[i];
 
