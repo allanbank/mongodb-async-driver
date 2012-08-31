@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.connection.state;
@@ -39,7 +39,9 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * events are seen.
  * </p>
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterState implements Closeable {
 

@@ -26,6 +26,8 @@ import com.allanbank.mongodb.error.ShardConfigStaleException;
  * @param <F>
  *            The type for the converted {@link Reply}.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractReplyCallback<F> implements Callback<Reply> {

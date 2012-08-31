@@ -35,6 +35,8 @@ import com.allanbank.mongodb.util.IOUtils;
  * AuthenticatingConnection provides a connection that authenticated with the
  * server for each database before it is used.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticatingConnection extends AbstractProxyConnection {

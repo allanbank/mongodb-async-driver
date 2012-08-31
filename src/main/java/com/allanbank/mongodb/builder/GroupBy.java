@@ -17,6 +17,10 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  * command. A {@link Builder} is provided to assist in creating a
  * {@link GroupBy}.
  * 
+ * @api.yes This class is part of the driver's API. Public and protected members
+ *          will be deprecated for at least 1 non-bugfix release (version
+ *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
+ *          removed or modified.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class GroupBy {
@@ -130,6 +134,10 @@ public class GroupBy {
     /**
      * Builder provides a builder for Group commands.
      * 
+     * @api.yes This class is part of the driver's API. Public and protected
+     *          members will be deprecated for at least 1 non-bugfix release
+     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
+     *          before being removed or modified.
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {

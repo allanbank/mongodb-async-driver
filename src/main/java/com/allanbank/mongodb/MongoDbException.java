@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb;
@@ -7,7 +7,11 @@ package com.allanbank.mongodb;
 /**
  * Exception base class for all MongoDB exceptions.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @api.yes This class is part of the driver's API. Public and protected members
+ *          will be deprecated for at least 1 non-bugfix release (version
+ *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
+ *          removed or modified.
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoDbException extends RuntimeException {
 

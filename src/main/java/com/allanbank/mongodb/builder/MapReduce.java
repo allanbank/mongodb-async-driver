@@ -16,6 +16,10 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
  * Represents the state of a single {@link MongoCollection#mapReduce} command.
  * Objects of this class are created using the nested {@link Builder}.
  * 
+ * @api.yes This class is part of the driver's API. Public and protected members
+ *          will be deprecated for at least 1 non-bugfix release (version
+ *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
+ *          removed or modified.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MapReduce {
@@ -246,7 +250,11 @@ public class MapReduce {
     /**
      * Helper for creating immutable {@link MapReduce} commands.
      * 
-     * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+     * @api.yes This class is part of the driver's API. Public and protected
+     *          members will be deprecated for at least 1 non-bugfix release
+     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
+     *          before being removed or modified.
+     * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {
         /**
@@ -541,7 +549,12 @@ public class MapReduce {
     /**
      * Enumeration of the possible output types.
      * 
-     * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+     * @api.yes This enumeration is part of the driver's API. Public and
+     *          protected members will be deprecated for at least 1 non-bugfix
+     *          release (version numbers are
+     *          &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being removed
+     *          or modified.
+     * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
      */
     public enum OutputType {
         /** Returns the results inline to the reply to the map/reduce command. */

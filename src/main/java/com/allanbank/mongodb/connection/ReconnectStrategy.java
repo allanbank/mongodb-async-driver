@@ -14,6 +14,8 @@ import com.allanbank.mongodb.connection.state.ServerSelector;
  * ReconnectStrategy provides a common interface for a strategy for reconnecting
  * to a MongoDB server.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface ReconnectStrategy {

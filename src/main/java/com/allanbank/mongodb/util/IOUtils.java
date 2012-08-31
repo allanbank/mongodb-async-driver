@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 /**
  * IOUtils provides helper methods for dealing with I/O operations.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class IOUtils {

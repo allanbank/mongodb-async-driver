@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -18,7 +18,9 @@ import com.allanbank.mongodb.connection.message.Reply;
 /**
  * Callback to extract the map/reduce and aggregation results from the reply.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyResultCallback extends AbstractReplyCallback<List<Document>> {
 

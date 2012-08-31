@@ -12,6 +12,10 @@ import com.allanbank.mongodb.bson.element.StringElement;
  * Provides the ability to easily specify the sort direction for an index or
  * sort specification.
  * 
+ * @api.yes This class is part of the driver's API. Public and protected members
+ *          will be deprecated for at least 1 non-bugfix release (version
+ *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
+ *          removed or modified.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class Sort {

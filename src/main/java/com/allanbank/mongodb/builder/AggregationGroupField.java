@@ -19,6 +19,10 @@ import com.allanbank.mongodb.bson.element.StringElement;
  * @see <a href=
  *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
  *      Aggregate Command $group Operator</a>
+ * @api.yes This class is part of the driver's API. Public and protected members
+ *          will be deprecated for at least 1 non-bugfix release (version
+ *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
+ *          removed or modified.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AggregationGroupField {
@@ -99,6 +103,10 @@ public class AggregationGroupField {
      * each field.
      * </p>
      * 
+     * @api.yes This class is part of the driver's API. Public and protected
+     *          members will be deprecated for at least 1 non-bugfix release
+     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
+     *          before being removed or modified.
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {

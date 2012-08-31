@@ -18,6 +18,8 @@ import com.allanbank.mongodb.error.ReplyException;
  * Callback to expect and extract a single document from the reply and then
  * extract its contained document.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 /* package */class ReplyDocumentCallback extends

@@ -10,6 +10,8 @@ import com.allanbank.mongodb.bson.Element;
 /**
  * Represents constant value in an expression.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class Constant implements Expression {

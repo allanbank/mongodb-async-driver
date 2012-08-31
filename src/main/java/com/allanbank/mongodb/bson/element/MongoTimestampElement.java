@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.element;
@@ -12,7 +12,11 @@ import com.allanbank.mongodb.bson.Visitor;
  * A wrapper for a BSON (signed 64-bit) Mongo timestamp as 4 byte increment and
  * 4 byte timestamp.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @api.yes This class is part of the driver's API. Public and protected members
+ *          will be deprecated for at least 1 non-bugfix release (version
+ *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
+ *          removed or modified.
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoTimestampElement extends AbstractElement {
 

@@ -17,6 +17,8 @@ import com.allanbank.mongodb.util.IOUtils;
  * SimpleReconnectStrategy provides a reconnection strategy to simply attempt to
  * connect to the server again.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SimpleReconnectStrategy extends AbstractReconnectStrategy {

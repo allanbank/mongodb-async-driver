@@ -20,6 +20,8 @@ import com.allanbank.mongodb.connection.Message;
  * A specialization of the {@link ClientImpl} to always try to use the same
  * connection.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SerialClientImpl extends AbstractClient {

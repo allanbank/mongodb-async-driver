@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2012, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.builder;
@@ -15,7 +15,11 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 /**
  * Interface for a builder used to construct a BSON document.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @api.yes This interface is part of the driver's API. Public and protected
+ *          members will be deprecated for at least 1 non-bugfix release
+ *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
+ *          before being removed or modified.
+ * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface DocumentBuilder extends Builder, DocumentAssignable {
     /**

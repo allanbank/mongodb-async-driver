@@ -24,6 +24,8 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * updated via a {@link ClusterState}.
  * </p>
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerState {

@@ -18,6 +18,8 @@ import com.allanbank.mongodb.connection.message.Reply;
  * ServerLatencyCallback provides a special callback to measure the latency of
  * requests to a server.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerLatencyCallback extends FutureCallback<Reply> {

@@ -12,6 +12,8 @@ import com.allanbank.mongodb.MongoDbException;
 /**
  * FutureUtils provides helper methods for dealing with {@link Future}s.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class FutureUtils {

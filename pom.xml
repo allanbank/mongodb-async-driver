@@ -280,6 +280,16 @@
 					<quiet>true</quiet>
 					<tags>
 						<tag>
+							<name>api.yes</name>
+							<placement>a</placement>
+							<head>API Notice:</head>
+						</tag>
+						<tag>
+							<name>api.no</name>
+							<placement>a</placement>
+							<head>API Warning:</head>
+						</tag>
+						<tag>
 							<name>copyright</name>
 							<placement>a</placement>
 							<head>Copyright ©:</head>

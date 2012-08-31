@@ -19,6 +19,8 @@ import com.allanbank.mongodb.error.ReplyException;
  * Callback to expect and extract a single document from the reply and then
  * extract a contained {@link NumericElement} and coerce it to a integer value.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 /* package */class ReplyIntegerCallback extends AbstractReplyCallback<Integer> {

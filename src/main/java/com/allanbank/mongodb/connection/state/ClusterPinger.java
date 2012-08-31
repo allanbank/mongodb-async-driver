@@ -31,6 +31,8 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
  * ClusterPinger pings each of the connections in the cluster and updates the
  * latency of the server from this client.
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterPinger implements Runnable, Closeable {
