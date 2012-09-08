@@ -138,9 +138,17 @@ public class ReplicaSetReconnectStrategyTest {
                 .addString(serverName2).addString(serverName3);
 
         ourServer1.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replStatusBuilder)); // For ping.
-        ourServer3.setReplies(reply(replStatusBuilder)); // For ping.
+        ourServer2.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder)); // For ping/close.
+        ourServer3.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder)); // For ping/close.
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 ourServer1.getInetSocketAddress());
@@ -215,9 +223,24 @@ public class ReplicaSetReconnectStrategyTest {
                 .addString(serverName2).addString(serverName3);
 
         ourServer1.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replStatusBuilder)); // For ping.
-        ourServer3.setReplies(reply(replStatusBuilder)); // For ping.
+        ourServer2.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder));
+        ourServer3.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder));
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 ourServer1.getInetSocketAddress());
@@ -258,11 +281,14 @@ public class ReplicaSetReconnectStrategyTest {
                 .addString(serverName3);
 
         // Note sure who will get asked first... server2 should be asked twice.
-        ourServer1.setReplies(reply(replStatusBuilder), reply(replyUnknown));
-        ourServer2.setReplies(reply(replyUnknown), reply(replyUnknown),
+        ourServer1.setReplies(reply(replStatusBuilder), reply(replyUnknown),
                 reply(replyUnknown), reply(replyUnknown));
+        ourServer2.setReplies(reply(replyUnknown), reply(replyUnknown),
+                reply(replyUnknown), reply(replyUnknown), reply(replyUnknown),
+                reply(replyUnknown));
         ourServer3.setReplies(reply(replStatusBuilder), reply(replyUnknown),
-                reply(reply2), reply(reply2));
+                reply(reply2), reply(reply2), reply(reply2), reply(reply2),
+                reply(reply2));
 
         myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
         final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
@@ -305,9 +331,12 @@ public class ReplicaSetReconnectStrategyTest {
                 .addString(serverName2).addString(serverName3);
 
         ourServer1.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replStatusBuilder)); // For ping.
-        ourServer3.setReplies(reply(replStatusBuilder)); // For ping.
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder));
+        ourServer2.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder)); // For ping/close.
+        ourServer3.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder)); // For ping/close.
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 ourServer1.getInetSocketAddress());
@@ -388,9 +417,12 @@ public class ReplicaSetReconnectStrategyTest {
                 .addString(serverName2).addString(serverName3);
 
         ourServer1.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replStatusBuilder)); // For ping.
-        ourServer3.setReplies(reply(replStatusBuilder)); // For ping.
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder));
+        ourServer2.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder)); // For ping/close.
+        ourServer3.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder)); // For ping/close.
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
                 ourServer1.getInetSocketAddress());

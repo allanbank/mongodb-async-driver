@@ -14,6 +14,7 @@ import java.util.regex.PatternSyntaxException;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.util.PatternUtils;
 
 /**
  * A wrapper for a BSON array.
@@ -157,13 +158,12 @@ public class ArrayElement extends AbstractElement {
             final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
                     nameRegexs.length);
             try {
-                final Pattern pattern = Pattern.compile(nameRegex);
+                final Pattern pattern = PatternUtils.toPattern(nameRegex);
                 for (final Element element : myEntries) {
                     if (pattern.matcher(element.getName()).matches()) {
                         elements.addAll(element.queryPath(clazz, subNameRegexs));
                     }
                 }
-
             }
             catch (final PatternSyntaxException pse) {
                 // Assume a non-pattern?

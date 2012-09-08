@@ -126,10 +126,10 @@ public class SerialClientImpl extends AbstractClient {
      *             On a failure to talk to the MongoDB servers.
      */
     @Override
-    protected Connection findConnection(final Message[] messages)
-            throws MongoDbException {
+    protected Connection findConnection(final Message message1,
+            final Message message2) throws MongoDbException {
         if ((myConnection == null) || !myConnection.isOpen()) {
-            myConnection = myDelegate.findConnection(messages);
+            myConnection = myDelegate.findConnection(message1, message2);
         }
 
         return myConnection;

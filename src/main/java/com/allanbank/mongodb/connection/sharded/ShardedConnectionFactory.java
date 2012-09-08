@@ -128,7 +128,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                     // Send the request...
                     conn = myConnectionFactory.connect(
                             myClusterState.add(addr), myConfig);
-                    conn.send(future, query);
+                    conn.send(query, future);
 
                     // Receive the response.
                     final Reply reply = future.get();

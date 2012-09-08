@@ -56,12 +56,13 @@ public class Find {
     protected Find(final Builder builder) {
         myQuery = builder.myQuery;
         myReturnFields = builder.myReturnFields;
-        myBatchSize = builder.myBatchSize;
-        myLimit = builder.myLimit;
         myNumberToSkip = builder.myNumberToSkip;
         myPartialOk = builder.myPartialOk;
         myReadPreference = builder.myReadPreference;
         mySort = builder.mySort;
+
+        myLimit = builder.myLimit;
+        myBatchSize = builder.myBatchSize;
     }
 
     /**

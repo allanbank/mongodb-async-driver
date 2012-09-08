@@ -83,7 +83,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -96,7 +96,7 @@ public class ReplicaSetConnectionTest {
 
         final Message msg = new IsMaster();
 
-        expect(mockConnection.send(isNull(Callback.class), eq(msg))).andReturn(
+        expect(mockConnection.send(eq(msg), isNull(Callback.class))).andReturn(
                 "foo");
         mockConnection.close();
         expectLastCall();
@@ -106,7 +106,7 @@ public class ReplicaSetConnectionTest {
         final ReplicaSetConnection testConnection = new ReplicaSetConnection(
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
-        assertEquals("foo", testConnection.send(null, msg));
+        assertEquals("foo", testConnection.send(msg, null));
 
         testConnection.close();
 
@@ -114,7 +114,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -139,7 +139,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         try {
-            testConnection.send(null, q);
+            testConnection.send(q, null);
             fail("Should not have found any available server for the read preference.");
         }
         catch (final MongoDbException good) {
@@ -154,7 +154,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -164,7 +164,7 @@ public class ReplicaSetConnectionTest {
         final Connection mockConnection = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
 
-        expect(mockConnection.send(null, new Message[0])).andReturn("foo");
+        expect(mockConnection.send(null, null)).andReturn("foo");
         mockConnection.close();
         expectLastCall();
 
@@ -173,7 +173,7 @@ public class ReplicaSetConnectionTest {
         final ReplicaSetConnection testConnection = new ReplicaSetConnection(
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
-        assertEquals("foo", testConnection.send(null));
+        assertEquals("foo", testConnection.send(null, null));
 
         testConnection.close();
 
@@ -181,7 +181,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -195,9 +195,6 @@ public class ReplicaSetConnectionTest {
                 null, 0, 0, 0, false, ReadPreference.primary(), false, false,
                 false, false);
         final Query q3 = new Query("db", "c", BuilderFactory.start().build(),
-                null, 0, 0, 0, false, ReadPreference.primary(), false, false,
-                false, false);
-        final Query q2 = new Query("db", "c", BuilderFactory.start().build(),
                 null, 0, 0, 0, false, ReadPreference.secondary(), false, false,
                 false, false);
 
@@ -210,14 +207,14 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         try {
-            testConnection.send(null, q1, q2, q3);
+            testConnection.send(q1, q3, null);
             fail("Should not have found any available server for the read preference.");
         }
         catch (final MongoDbException good) {
             assertTrue(good.getMessage().contains(
                     q1.getReadPreference().toString()));
             assertTrue(good.getMessage().contains(
-                    q2.getReadPreference().toString()));
+                    q3.getReadPreference().toString()));
 
             final int indexof = good.getMessage().indexOf(
                     q1.getReadPreference().toString());
@@ -232,7 +229,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -258,7 +255,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         try {
-            testConnection.send(null, q1, q2);
+            testConnection.send(q1, q2, null);
             fail("Should not have found any available server for the read preference.");
         }
         catch (final MongoDbException good) {
@@ -275,7 +272,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -319,7 +316,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         try {
-            testConnection.send(null, q);
+            testConnection.send(q, null);
             fail("Should have failed completely.");
         }
         catch (final MongoDbException error) {
@@ -333,7 +330,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -373,7 +370,7 @@ public class ReplicaSetConnectionTest {
         expect(mockFactory.connect(s5, myConfig)).andThrow(
                 new IOException("Oops.")).times(0, 1);
         expect(mockFactory.connect(s6, myConfig)).andReturn(mockConnection2);
-        expect(mockConnection2.send(null, q)).andReturn("foo");
+        expect(mockConnection2.send(q, null)).andReturn("foo");
 
         mockConnection.close();
         expectLastCall();
@@ -383,7 +380,7 @@ public class ReplicaSetConnectionTest {
         final ReplicaSetConnection testConnection = new ReplicaSetConnection(
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
-        assertEquals("foo", testConnection.send(null, q));
+        assertEquals("foo", testConnection.send(q, null));
         assertSame(mockConnection2, s6.takeConnection());
 
         testConnection.close();
@@ -392,7 +389,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -459,7 +456,7 @@ public class ReplicaSetConnectionTest {
                 .times(0, 1);
 
         expect(mockConnection3.isOpen()).andReturn(Boolean.TRUE);
-        expect(mockConnection3.send(null, q)).andReturn("foo");
+        expect(mockConnection3.send(q, null)).andReturn("foo");
 
         mockConnection.close();
         expectLastCall();
@@ -471,7 +468,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         s1.addConnection(mockConnection2);
-        assertEquals("foo", testConnection.send(null, q));
+        assertEquals("foo", testConnection.send(q, null));
 
         for (final ServerState s : Arrays.asList(s1, s2, s3, s4, s5, s6)) {
             assertSame(mockConnection3, s.takeConnection());
@@ -484,7 +481,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -552,9 +549,9 @@ public class ReplicaSetConnectionTest {
 
         expect(mockConnection3.isOpen()).andReturn(Boolean.TRUE);
         expect(
-                mockConnection3.send(
-                        cbAndSetConn(mockConnection3, s1, s2, s3, s4, s5, s6),
-                        eq(q))).andReturn("foo");
+                mockConnection3.send(eq(q),
+                        cbAndSetConn(mockConnection3, s1, s2, s3, s4, s5, s6)))
+                .andReturn("foo");
         mockConnection3.shutdown();
         expectLastCall();
 
@@ -568,7 +565,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         s1.addConnection(mockConnection2);
-        assertEquals("foo", testConnection.send(new FutureCallback<Reply>(), q));
+        assertEquals("foo", testConnection.send(q, new FutureCallback<Reply>()));
 
         for (final ServerState s : Arrays.asList(s1, s2, s3, s4, s5, s6)) {
             assertSame(mockConnection3, s.takeConnection());
@@ -581,7 +578,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -653,7 +650,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection4);
         mockConnection3.close();
         expectLastCall();
-        expect(mockConnection4.send(null, q)).andReturn("foo");
+        expect(mockConnection4.send(q, null)).andReturn("foo");
 
         mockConnection.close();
         expectLastCall();
@@ -665,7 +662,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         s1.addConnection(mockConnection2);
-        assertEquals("foo", testConnection.send(null, q));
+        assertEquals("foo", testConnection.send(q, null));
 
         boolean found = false;
         for (final ServerState s : Arrays.asList(s1, s2, s3, s4, s5, s6)) {
@@ -683,7 +680,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -708,7 +705,7 @@ public class ReplicaSetConnectionTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
 
         expect(mockConnection2.isOpen()).andReturn(Boolean.TRUE);
-        expect(mockConnection2.send(null, q)).andReturn("foo");
+        expect(mockConnection2.send(q, null)).andReturn("foo");
 
         mockConnection.close();
         expectLastCall();
@@ -719,7 +716,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         second.addConnection(mockConnection2);
-        assertEquals("foo", testConnection.send(null, q));
+        assertEquals("foo", testConnection.send(q, null));
         assertSame(mockConnection2, second.takeConnection());
 
         testConnection.close();
@@ -728,7 +725,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -755,8 +752,8 @@ public class ReplicaSetConnectionTest {
 
         expect(mockConnection2.isOpen()).andReturn(Boolean.TRUE);
         expect(
-                mockConnection2.send(cbAndSetConn(mockConnection, second),
-                        eq(q))).andReturn("foo");
+                mockConnection2.send(eq(q),
+                        cbAndSetConn(mockConnection, second))).andReturn("foo");
 
         mockConnection2.shutdown();
         expectLastCall();
@@ -770,7 +767,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         second.addConnection(mockConnection2);
-        assertEquals("foo", testConnection.send(new FutureCallback<Reply>(), q));
+        assertEquals("foo", testConnection.send(q, new FutureCallback<Reply>()));
         assertSame(mockConnection, second.takeConnection());
 
         testConnection.close();
@@ -779,7 +776,7 @@ public class ReplicaSetConnectionTest {
     }
 
     /**
-     * Test method for {@link ReplicaSetConnection#send(Callback, Message[])} .
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
      * 
      * @throws IOException
      *             On a failure setting up mocks.
@@ -812,7 +809,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection3);
         mockConnection2.close();
         expectLastCall();
-        expect(mockConnection3.send(null, q)).andReturn("foo");
+        expect(mockConnection3.send(q, null)).andReturn("foo");
 
         mockConnection.close();
         expectLastCall();
@@ -824,7 +821,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         second.addConnection(mockConnection2);
-        assertEquals("foo", testConnection.send(null, q));
+        assertEquals("foo", testConnection.send(q, null));
         assertSame(mockConnection3, second.takeConnection());
 
         testConnection.close();

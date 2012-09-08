@@ -57,7 +57,8 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public void addPending(final List<PendingMessage> pending) {
+    public void addPending(final List<PendingMessage> pending)
+            throws InterruptedException {
         try {
             myProxiedConnection.addPending(pending);
         }
@@ -219,10 +220,28 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public String send(final Callback<Reply> reply, final Message... messages)
-            throws MongoDbException {
+    public String send(final Message message,
+            final Callback<Reply> replyCallback) throws MongoDbException {
         try {
-            return myProxiedConnection.send(reply, messages);
+            return myProxiedConnection.send(message, replyCallback);
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the proxied {@link Connection}.
+     * </p>
+     */
+    @Override
+    public String send(final Message message1, final Message message2,
+            final Callback<Reply> replyCallback) throws MongoDbException {
+        try {
+            return myProxiedConnection.send(message1, message2, replyCallback);
         }
         catch (final MongoDbException error) {
             onExceptin(error);

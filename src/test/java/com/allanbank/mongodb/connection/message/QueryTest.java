@@ -404,7 +404,7 @@ public class QueryTest {
 
         assertEquals(batchSize, message.getBatchSize());
         assertEquals(limit, message.getLimit());
-        assertEquals(0, message.getNumberToReturn());
+        assertEquals(-5, message.getNumberToReturn());
 
     }
 

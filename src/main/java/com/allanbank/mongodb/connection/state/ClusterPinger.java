@@ -415,10 +415,10 @@ public class ClusterPinger implements Runnable, Closeable {
                 final FutureCallback<Reply> future = new ServerLatencyCallback(
                         state);
 
-                conn.send(future, new IsMaster());
+                conn.send(new IsMaster(), future);
                 if (type == ClusterType.REPLICA_SET) {
-                    conn.send(new SecondsBehindCallback(state),
-                            new ReplicaSetStatus());
+                    conn.send(new ReplicaSetStatus(),
+                            new SecondsBehindCallback(state));
                 }
 
                 return future;

@@ -96,7 +96,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                 try {
                     conn = factory.connect(new ServerState(addr), myConfig);
 
-                    conn.send(future, new ServerStatus());
+                    conn.send(new ServerStatus(), future);
                     final Reply reply = future.get();
 
                     // Close the connection now that we have the reply.

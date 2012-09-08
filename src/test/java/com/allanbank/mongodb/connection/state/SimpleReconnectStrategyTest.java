@@ -66,10 +66,12 @@ public class SimpleReconnectStrategyTest {
      * 
      * @throws IOException
      *             On a Failure setting up the mock configuration for the test.
+     * @throws InterruptedException
+     *             On a Failure setting up the mock configuration for the test.
      */
     @SuppressWarnings("unchecked")
     @Test
-    public void testReconnect() throws IOException {
+    public void testReconnect() throws IOException, InterruptedException {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         final ServerState server = new ServerState("localhost:27017");
 
@@ -96,8 +98,8 @@ public class SimpleReconnectStrategyTest {
             }
         };
         expect(
-                mockNewConnection.send(capture(callbackCapture),
-                        anyObject(ServerStatus.class))).andReturn(myAddress);
+                mockNewConnection.send(anyObject(ServerStatus.class),
+                        capture(callbackCapture))).andReturn(myAddress);
 
         mockOldConnection.drainPending((List<PendingMessage>) anyObject());
         mockNewConnection.addPending((List<PendingMessage>) anyObject());
@@ -146,10 +148,13 @@ public class SimpleReconnectStrategyTest {
      * 
      * @throws IOException
      *             On a Failure setting up the mock configuration for the test.
+     * @throws InterruptedException
+     *             On a Failure setting up the mock configuration for the test.
      */
     @SuppressWarnings("unchecked")
     @Test
-    public void testReconnectFirstFails() throws IOException {
+    public void testReconnectFirstFails() throws IOException,
+            InterruptedException {
         final MongoDbConfiguration config = new MongoDbConfiguration();
         final ClusterState clusterState = new ClusterState(
                 new MongoDbConfiguration());
@@ -179,8 +184,8 @@ public class SimpleReconnectStrategyTest {
             }
         };
         expect(
-                mockNewConnection.send(capture(callbackCapture),
-                        anyObject(ServerStatus.class))).andReturn(myAddress);
+                mockNewConnection.send(anyObject(ServerStatus.class),
+                        capture(callbackCapture))).andReturn(myAddress);
 
         mockOldConnection.drainPending((List<PendingMessage>) anyObject());
         mockNewConnection.addPending((List<PendingMessage>) anyObject());
@@ -238,8 +243,8 @@ public class SimpleReconnectStrategyTest {
             }
         };
         expect(
-                mockNewConnection.send(capture(callbackCapture),
-                        anyObject(ServerStatus.class))).andReturn(myAddress);
+                mockNewConnection.send(anyObject(ServerStatus.class),
+                        capture(callbackCapture))).andReturn(myAddress);
 
         mockNewConnection.close();
 

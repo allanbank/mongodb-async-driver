@@ -31,42 +31,47 @@ public abstract class AbstractClient implements Client {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to locate the .
+     * Overridden to locate the a connection to send the message and then
+     * forward the message to that connection.
      * </p>
-     * 
-     * @see Client#send(Callback,Message[])
      */
     @Override
-    public String send(final Callback<Reply> callback,
-            final Message... messages) {
-        return findConnection(messages).send(callback, messages);
+    public String send(final Message message,
+            final Callback<Reply> replyCallback) throws MongoDbException {
+        return findConnection(message, null).send(message, replyCallback);
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to locate the .
+     * Overridden to locate the a connection to send the messages and then
+     * forward the messages to that connection.
      * </p>
-     * 
-     * @see Client#send(Message[])
      */
     @Override
-    public String send(final Message... messages) {
-        return findConnection(messages).send(null, messages);
+    public String send(final Message message1, final Message message2,
+            final Callback<Reply> replyCallback) throws MongoDbException {
+        return findConnection(message1, message2).send(message1, message2,
+                replyCallback);
     }
 
     /**
      * Locates a {@link Connection} to send a message on.
      * 
-     * @param messages
-     *            The messages that will be sent. The connection return should
-     *            be compatible with all of the messages {@link ReadPreference}.
+     * @param message1
+     *            The first message that will be sent. The connection return
+     *            should be compatible with all of the messages
+     *            {@link ReadPreference}.
+     * @param message2
+     *            The second message that will be sent. The connection return
+     *            should be compatible with all of the messages
+     *            {@link ReadPreference}. May be <code>null</code>.
      * 
      * @return The {@link Connection} to send a message on.
      * @throws MongoDbException
      *             In the case of an error finding a {@link Connection}.
      */
-    protected abstract Connection findConnection(Message[] messages)
-            throws MongoDbException;
+    protected abstract Connection findConnection(Message message1,
+            Message message2) throws MongoDbException;
 
 }

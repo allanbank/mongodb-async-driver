@@ -111,8 +111,10 @@ public class MongoIterator implements ClosableIterator<Document> {
                     final Reply reply = replyFuture.get();
 
                     if (reply.getCursorId() != 0) {
-                        myClient.send(new KillCursors(new long[] { reply
-                                .getCursorId() }, myReadPerference));
+                        myClient.send(
+                                new KillCursors(new long[] { reply
+                                        .getCursorId() }, myReadPerference),
+                                null);
                     }
                 }
                 catch (final InterruptedException e) {
@@ -129,7 +131,7 @@ public class MongoIterator implements ClosableIterator<Document> {
         }
         else {
             myClient.send(new KillCursors(new long[] { cursorId },
-                    myReadPerference));
+                    myReadPerference), null);
         }
     }
 
@@ -262,7 +264,8 @@ public class MongoIterator implements ClosableIterator<Document> {
                     if (myCursorId != 0) {
                         // Kill the cursor.
                         myClient.send(new KillCursors(
-                                new long[] { myCursorId }, myReadPerference));
+                                new long[] { myCursorId }, myReadPerference),
+                                null);
                         myCursorId = 0;
                     }
                 }
@@ -278,7 +281,7 @@ public class MongoIterator implements ClosableIterator<Document> {
                         nextBatchSize(), myReadPerference);
 
                 myNextReply = new FutureCallback<Reply>();
-                myClient.send(myNextReply, getMore);
+                myClient.send(getMore, myNextReply);
             }
             else {
                 // Exhausted the cursor - no more results.

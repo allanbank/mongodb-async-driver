@@ -107,18 +107,18 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         expect(mockConnection.isOpen()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(0);
 
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         replay(mockConnection);
 
-        myTestInstance.send(message);
+        myTestInstance.send(message, null);
         myTestInstance.close();
-        myTestInstance.send(message);
+        myTestInstance.send(message, null);
 
         verify(mockConnection);
     }
@@ -182,11 +182,11 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        expect(mockConnection.send(callback, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, callback)).andReturn(myAddress);
 
         replay(mockConnection);
 
-        myTestInstance.send(callback, message);
+        myTestInstance.send(message, callback);
 
         verify(mockConnection);
     }
@@ -209,11 +209,11 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         replay(mockConnection);
 
-        myTestInstance.send(message);
+        myTestInstance.send(message, null);
 
         verify(mockConnection);
     }
@@ -236,7 +236,7 @@ public class SerialClientImplTest {
         replay(mockConnection);
 
         try {
-            myTestInstance.send(message);
+            myTestInstance.send(message, null);
             fail("Should have thrown a MongoDbException.");
         }
         catch (final MongoDbException good) {
@@ -264,7 +264,7 @@ public class SerialClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         expect(mockConnection.isOpen()).andReturn(false);
         expect(mockConnection.isOpen()).andReturn(false);
@@ -273,12 +273,12 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         replay(mockConnection);
 
-        myTestInstance.send(message);
-        myTestInstance.send(message);
+        myTestInstance.send(message, null);
+        myTestInstance.send(message, null);
 
         verify(mockConnection);
     }
@@ -305,7 +305,7 @@ public class SerialClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         expect(mockConnection.isOpen()).andReturn(false);
         expect(mockConnection.isOpen()).andReturn(false);
@@ -313,12 +313,12 @@ public class SerialClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection2.send(null, message)).andReturn(myAddress);
+        expect(mockConnection2.send(message, null)).andReturn(myAddress);
 
         replay(mockConnection, mockConnection2);
 
-        myTestInstance.send(message);
-        myTestInstance.send(message);
+        myTestInstance.send(message, null);
+        myTestInstance.send(message, null);
 
         verify(mockConnection, mockConnection2);
     }
@@ -344,12 +344,12 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        expect(mockConnection.send(callback, message, lastError)).andReturn(
+        expect(mockConnection.send(message, lastError, callback)).andReturn(
                 myAddress);
 
         replay(mockConnection);
 
-        myTestInstance.send(callback, message, lastError);
+        myTestInstance.send(message, lastError, callback);
 
         verify(mockConnection);
     }
@@ -373,14 +373,14 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         replay(mockConnection);
 
-        myTestInstance.send(message);
-        myTestInstance.send(message);
+        myTestInstance.send(message, null);
+        myTestInstance.send(message, null);
 
         verify(mockConnection);
     }
@@ -405,20 +405,20 @@ public class SerialClientImplTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         // First pass for idle.
         expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.send(null, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         replay(mockConnection);
 
-        myTestInstance.send(message);
-        myTestInstance.send(message);
-        myTestInstance.send(message);
+        myTestInstance.send(message, null);
+        myTestInstance.send(message, null);
+        myTestInstance.send(message, null);
 
         verify(mockConnection);
     }
@@ -442,11 +442,11 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        expect(mockConnection.send(callback, message)).andReturn(myAddress);
+        expect(mockConnection.send(message, callback)).andReturn(myAddress);
 
         replay(mockConnection);
 
-        myTestInstance.send(callback, message);
+        myTestInstance.send(message, callback);
 
         verify(mockConnection);
     }

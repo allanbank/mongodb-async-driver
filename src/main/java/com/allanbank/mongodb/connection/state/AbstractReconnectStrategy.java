@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.PendingMessage;
@@ -125,7 +126,16 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
         final List<PendingMessage> pending = new ArrayList<PendingMessage>();
 
         oldConnection.drainPending(pending);
-        newConnection.addPending(pending);
+        try {
+            newConnection.addPending(pending);
+        }
+        catch (final InterruptedException e) {
+            // Fail the messages.
+            final MongoDbException failed = new MongoDbException(e);
+            for (final PendingMessage pm : pending) {
+                pm.raiseError(failed);
+            }
+        }
     }
 
     /**

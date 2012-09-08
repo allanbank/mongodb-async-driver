@@ -20,13 +20,20 @@ import com.allanbank.mongodb.connection.Message;
 public class PendingMessage {
 
     /** The message sent. */
-    private final Message myMessage;
+    private Message myMessage;
 
     /** The message id assigned to the sent message. */
-    private final int myMessageId;
+    private int myMessageId;
 
     /** The callback for the reply to the message. */
-    private final Callback<Reply> myReplyCallback;
+    private Callback<Reply> myReplyCallback;
+
+    /**
+     * Create a new PendingMessage.
+     */
+    public PendingMessage() {
+        this(0, null, null);
+    }
 
     /**
      * Create a new PendingMessage.
@@ -56,6 +63,16 @@ public class PendingMessage {
         myMessageId = messageId;
         myMessage = message;
         myReplyCallback = replyCallback;
+    }
+
+    /**
+     * Clears the state of the message allowing the referenced objects to be
+     * garbage collected.
+     */
+    public void clear() {
+        myMessageId = 0;
+        myMessage = null;
+        myReplyCallback = null;
     }
 
     /**
@@ -107,5 +124,34 @@ public class PendingMessage {
         if (myReplyCallback != null) {
             myReplyCallback.callback(reply);
         }
+    }
+
+    /**
+     * Sets the state of the pending message.
+     * 
+     * @param messageId
+     *            The id of the sent message.
+     * @param message
+     *            The sent message.
+     * @param replyCallback
+     *            The callback for the message. May be null.
+     */
+    public void set(final int messageId, final Message message,
+            final Callback<Reply> replyCallback) {
+        myMessageId = messageId;
+        myMessage = message;
+        myReplyCallback = replyCallback;
+    }
+
+    /**
+     * Sets the state of the pending message.
+     * 
+     * @param other
+     *            The pending message to copy from.
+     */
+    public void set(final PendingMessage other) {
+        myMessageId = other.getMessageId();
+        myMessage = other.getMessage();
+        myReplyCallback = other.getReplyCallback();
     }
 }

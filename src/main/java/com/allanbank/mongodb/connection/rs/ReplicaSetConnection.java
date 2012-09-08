@@ -7,6 +7,7 @@ package com.allanbank.mongodb.connection.rs;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -84,16 +85,32 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      * </p>
      */
     @Override
-    public String send(final Callback<Reply> reply, final Message... messages)
-            throws MongoDbException {
+    public String send(final Message message,
+            final Callback<Reply> replyCallback) throws MongoDbException {
+        return send(message, null, replyCallback);
+    }
 
-        final List<ServerState> servers = findPotentialServers(messages);
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Locates all of the potential servers that can receive all of the
+     * messages. Tries to then send the messages to a server with a connection
+     * already open or failing that tries to open a connection to open of the
+     * servers.
+     * </p>
+     */
+    @Override
+    public String send(final Message message1, final Message message2,
+            final Callback<Reply> replyCallback) throws MongoDbException {
+        final List<ServerState> servers = findPotentialServers(message1,
+                message2);
 
         // First we try and send to a server with a connection already open.
-        String result = trySendToOpenConnection(servers, reply, messages);
+        String result = trySendToOpenConnection(servers, message1, message2,
+                replyCallback);
         if (result == null) {
             // Just get it out the door.
-            result = trySend(servers, reply, messages);
+            result = trySend(servers, message1, message2, replyCallback);
         }
 
         if (result == null) {
@@ -116,45 +133,69 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
     }
 
     /**
+     * Sends the message on the connection.
+     * 
+     * @param conn
+     *            The connection to send on.
+     * @param message1
+     *            The first message to send.
+     * @param message2
+     *            The second message to send, may be <code>null</code>.
+     * @param reply
+     *            The reply {@link Callback}.
+     * @return The server the message was sent to.
+     */
+    protected String doSend(final Connection conn, final Message message1,
+            final Message message2, final Callback<Reply> reply) {
+        if (message2 == null) {
+            return conn.send(message1, reply);
+        }
+        return conn.send(message1, message2, reply);
+
+    }
+
+    /**
      * Locates the set of servers that can be used to send the specified
      * messages.
      * 
-     * @param messages
-     *            The messages to be sent.
+     * @param message1
+     *            The first message to send.
+     * @param message2
+     *            The second message to send. May be <code>null</code>.
      * @return The servers that can be used.
      * @throws MongoDbException
      *             On a failure to locate a server that all messages can be sent
      *             to.
      */
-    protected List<ServerState> findPotentialServers(final Message... messages)
-            throws MongoDbException {
+    protected List<ServerState> findPotentialServers(final Message message1,
+            final Message message2) throws MongoDbException {
         List<ServerState> servers;
-        if (0 < messages.length) {
+        if (message1 != null) {
             List<ServerState> potentialServers = myCluster
-                    .findCandidateServers(messages[0].getReadPreference());
+                    .findCandidateServers(message1.getReadPreference());
             servers = potentialServers;
 
-            if (1 < messages.length) {
+            if (message2 != null) {
                 servers = new ArrayList<ServerState>(potentialServers);
-                for (int i = 1; i < messages.length; ++i) {
-                    potentialServers = myCluster
-                            .findCandidateServers(messages[i]
-                                    .getReadPreference());
-                    servers.retainAll(potentialServers);
-                }
+                potentialServers = myCluster.findCandidateServers(message2
+                        .getReadPreference());
+                servers.retainAll(potentialServers);
             }
 
             if (servers.isEmpty()) {
                 final StringBuilder builder = new StringBuilder();
                 builder.append("Could not find any servers for the following set of read preferences: ");
                 final Set<ReadPreference> seen = new HashSet<ReadPreference>();
-                for (final Message message : messages) {
-                    final ReadPreference prefs = message.getReadPreference();
-                    if (seen.add(prefs)) {
-                        if (seen.size() == 1) {
-                            builder.append(", ");
+                for (final Message message : Arrays.asList(message1, message2)) {
+                    if (message != null) {
+                        final ReadPreference prefs = message
+                                .getReadPreference();
+                        if (seen.add(prefs)) {
+                            if (seen.size() == 1) {
+                                builder.append(", ");
+                            }
+                            builder.append(prefs);
                         }
-                        builder.append(prefs);
                     }
                 }
 
@@ -170,20 +211,37 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
     }
 
     /**
+     * Reconnects the connection.
+     * 
+     * @param conn
+     *            The connection to reconnect.
+     * @return The new connection if the reconnect was successful.
+     */
+    protected Connection reconnect(final Connection conn) {
+        final ReconnectStrategy strategy = myFactory.getReconnectStrategy();
+        final Connection newConn = strategy.reconnect(conn);
+        IOUtils.close(conn);
+        return newConn;
+    }
+
+    /**
      * Tries to send the messages to the first server with either an open
      * connection or that we can open a connection to.
      * 
      * @param servers
      *            The servers the messages can be sent to.
+     * @param message1
+     *            The first message to send.
+     * @param message2
+     *            The second message to send. May be <code>null</code>.
      * @param reply
      *            The callback for the replies.
-     * @param messages
-     *            The messages to send.
      * @return The token for the server that the messages were sent to or
      *         <code>null</code> if the messages could not be sent.
      */
     protected String trySend(final List<ServerState> servers,
-            final Callback<Reply> reply, final Message... messages) {
+            final Message message1, final Message message2,
+            final Callback<Reply> reply) {
         for (final ServerState server : servers) {
 
             // No need to check for primary here. Already looked.
@@ -203,17 +261,12 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
                     }
                 }
                 else if (!conn.isOpen()) {
-                    // Oops. Closed while we were not looking.
-                    // Do a reconnect.
-                    final ReconnectStrategy strategy = myFactory
-                            .getReconnectStrategy();
-                    final Connection newConn = strategy.reconnect(conn);
-                    IOUtils.close(conn);
+                    final Connection newConn = reconnect(conn);
                     conn = newConn;
                 }
 
                 if (conn != null) {
-                    return conn.send(reply, messages);
+                    return doSend(conn, message1, message2, reply);
                 }
             }
             finally {
@@ -231,20 +284,26 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      * 
      * @param servers
      *            The servers the messages can be sent to.
+     * @param message1
+     *            The first message to send.
+     * @param message2
+     *            The second message to send. May be <code>null</code>.
      * @param reply
      *            The callback for the replies.
-     * @param messages
-     *            The messages to send.
      * @return The token for the server that the messages were sent to or
      *         <code>null</code> if the messages could not be sent.
      */
     protected String trySendToOpenConnection(final List<ServerState> servers,
-            final Callback<Reply> reply, final Message... messages) {
+            final Message message1, final Message message2,
+            final Callback<Reply> reply) {
         for (final ServerState server : servers) {
 
             // Check if sending to the primary.
             if (server.equals(myPrimaryServer)) {
-                return super.send(reply, messages);
+                if (message2 == null) {
+                    return super.send(message1, reply);
+                }
+                return super.send(message1, message2, reply);
             }
 
             Connection conn = null;
@@ -254,15 +313,11 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
                 if ((conn != null) && !conn.isOpen()) {
                     // Oops. Closed while we were not looking.
                     // Do a reconnect.
-                    final ReconnectStrategy strategy = myFactory
-                            .getReconnectStrategy();
-                    final Connection newConn = strategy.reconnect(conn);
-                    IOUtils.close(conn);
-                    conn = newConn;
+                    conn = reconnect(conn);
                 }
 
                 if (conn != null) {
-                    return conn.send(reply, messages);
+                    return doSend(conn, message1, message2, reply);
                 }
             }
             finally {

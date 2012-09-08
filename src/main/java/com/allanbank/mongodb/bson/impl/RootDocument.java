@@ -20,6 +20,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.ObjectIdElement;
+import com.allanbank.mongodb.util.PatternUtils;
 
 /**
  * A root level document.
@@ -236,7 +237,7 @@ public class RootDocument implements Document {
 
             elements = new ArrayList<E>();
             try {
-                final Pattern pattern = Pattern.compile(nameRegex);
+                final Pattern pattern = PatternUtils.toPattern(nameRegex);
                 for (final Element element : docElements) {
                     if (pattern.matcher(element.getName()).matches()) {
                         elements.addAll(element.queryPath(clazz, subNameRegexs));

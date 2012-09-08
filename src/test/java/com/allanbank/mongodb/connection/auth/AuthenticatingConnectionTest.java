@@ -123,13 +123,15 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -140,7 +142,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -148,7 +150,7 @@ public class AuthenticatingConnectionTest {
         }
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
         }
         catch (final MongoDbAuthenticationException good) {
             // Good. Ask once. Keep failing.
@@ -177,13 +179,15 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -194,7 +198,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -202,7 +206,7 @@ public class AuthenticatingConnectionTest {
         }
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
         }
         catch (final MongoDbAuthenticationException good) {
             // Good. Ask once. Keep failing.
@@ -231,8 +235,9 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -243,7 +248,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -270,8 +275,8 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(),
-                        eq(new Command("db", myNonceRequest.build()))))
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())), cb()))
                 .andReturn(myAddress);
 
         mockConnetion.close();
@@ -283,7 +288,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -311,21 +316,24 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(injected), eq(new Command("db",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(injected))).andReturn(myAddress);
 
         // Retry.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         // Message.
-        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
+        expect(mockConnetion.send(msg, null)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -336,7 +344,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbException good) {
@@ -344,7 +352,7 @@ public class AuthenticatingConnectionTest {
             assertSame(injected, good.getCause());
         }
 
-        conn.send(null, msg);
+        conn.send(msg, null);
 
         IOUtils.close(conn);
 
@@ -367,21 +375,24 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
-                        myAuthRequest.build())))).andThrow(injected);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(myAuthReply))).andThrow(injected);
 
         // Retry.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         // Message.
-        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
+        expect(mockConnetion.send(msg, null)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -392,7 +403,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbException good) {
@@ -400,7 +411,7 @@ public class AuthenticatingConnectionTest {
             assertSame(injected, good);
         }
 
-        conn.send(null, msg);
+        conn.send(msg, null);
 
         IOUtils.close(conn);
 
@@ -422,13 +433,14 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(),
-                        eq(new Command("db", myAuthRequest.build()))))
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())), cb()))
                 .andReturn(myAddress);
 
         mockConnetion.close();
@@ -440,7 +452,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -469,13 +481,15 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -486,7 +500,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbAuthenticationException good) {
@@ -514,21 +528,24 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andThrow(injected);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andThrow(injected);
 
         // Retry.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         // Message.
-        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
+        expect(mockConnetion.send(msg, null)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -539,7 +556,7 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         try {
-            conn.send(null, msg);
+            conn.send(msg, null);
             fail("Should throw an exception when authentication falis.");
         }
         catch (final MongoDbException good) {
@@ -547,7 +564,7 @@ public class AuthenticatingConnectionTest {
             assertSame(injected, good);
         }
 
-        conn.send(null, msg);
+        conn.send(msg, null);
 
         IOUtils.close(conn);
 
@@ -573,16 +590,18 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("foo",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("foo", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("foo",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("foo", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         // Message.
-        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
+        expect(mockConnetion.send(msg, null)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -592,7 +611,7 @@ public class AuthenticatingConnectionTest {
         final AuthenticatingConnection conn = new AuthenticatingConnection(
                 mockConnetion, myConfig);
 
-        conn.send(null, msg);
+        conn.send(msg, null);
 
         IOUtils.close(conn);
 
@@ -600,8 +619,8 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link AuthenticatingConnection#send(Callback, Message[])} .
+     * Test method for {@link AuthenticatingConnection#send(Message, Callback)}
+     * .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -616,16 +635,18 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         // Message.
-        expect(mockConnetion.send(reply, msg)).andReturn(myAddress);
+        expect(mockConnetion.send(msg, reply)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -635,7 +656,7 @@ public class AuthenticatingConnectionTest {
         final AuthenticatingConnection conn = new AuthenticatingConnection(
                 mockConnetion, myConfig);
 
-        conn.send(reply, msg);
+        conn.send(msg, reply);
 
         IOUtils.close(conn);
 
@@ -657,16 +678,18 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         // Message.
-        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
+        expect(mockConnetion.send(msg, null)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -676,7 +699,7 @@ public class AuthenticatingConnectionTest {
         final AuthenticatingConnection conn = new AuthenticatingConnection(
                 mockConnetion, myConfig);
 
-        conn.send(null, msg);
+        conn.send(msg, null);
 
         IOUtils.close(conn);
 
@@ -700,16 +723,18 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("admin",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("admin", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("admin",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("admin", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         // Message.
-        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
+        expect(mockConnetion.send(msg, null)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -719,7 +744,7 @@ public class AuthenticatingConnectionTest {
         final AuthenticatingConnection conn = new AuthenticatingConnection(
                 mockConnetion, myConfig);
 
-        conn.send(null, msg);
+        conn.send(msg, null);
 
         IOUtils.close(conn);
 
@@ -741,19 +766,21 @@ public class AuthenticatingConnectionTest {
 
         // Nonce.
         expect(
-                mockConnetion.send(cb(myNonceReply), eq(new Command("db",
-                        myNonceRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
 
         // Auth.
         expect(
-                mockConnetion.send(cb(myAuthReply), eq(new Command("db",
-                        myAuthRequest.build())))).andReturn(myAddress);
+                mockConnetion.send(
+                        eq(new Command("db", myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
 
         // Message.
-        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
+        expect(mockConnetion.send(msg, null)).andReturn(myAddress);
 
         // Message, again.
-        expect(mockConnetion.send(null, msg)).andReturn(myAddress);
+        expect(mockConnetion.send(msg, null)).andReturn(myAddress);
 
         mockConnetion.close();
         expectLastCall();
@@ -763,8 +790,8 @@ public class AuthenticatingConnectionTest {
         final AuthenticatingConnection conn = new AuthenticatingConnection(
                 mockConnetion, myConfig);
 
-        conn.send(null, msg);
-        conn.send(null, msg);
+        conn.send(msg, null);
+        conn.send(msg, null);
 
         IOUtils.close(conn);
 

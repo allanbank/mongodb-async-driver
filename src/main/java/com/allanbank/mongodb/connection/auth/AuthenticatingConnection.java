@@ -77,12 +77,27 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
      * </p>
      */
     @Override
-    public String send(final Callback<Reply> reply, final Message... messages)
-            throws MongoDbException {
-        for (final Message message : messages) {
-            ensureAuthenticated(message);
-        }
-        return super.send(reply, messages);
+    public String send(final Message message,
+            final Callback<Reply> replyCallback) throws MongoDbException {
+        ensureAuthenticated(message);
+
+        return super.send(message, replyCallback);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Makes sure the connection is authenticated for the current database
+     * before forwarding to the proxied connection.
+     * </p>
+     */
+    @Override
+    public String send(final Message message1, final Message message2,
+            final Callback<Reply> replyCallback) throws MongoDbException {
+        ensureAuthenticated(message1);
+        ensureAuthenticated(message2);
+
+        return super.send(message1, message2, replyCallback);
     }
 
     /**
@@ -157,8 +172,8 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                 replyCallback = new FutureCallback<Reply>();
                 alreadySent = myAuthTokens.putIfAbsent(name, replyCallback);
                 if (alreadySent == null) {
-                    getProxiedConnection().send(replyCallback,
-                            new Command(name, builder.build()));
+                    getProxiedConnection().send(
+                            new Command(name, builder.build()), replyCallback);
                     alreadySent = replyCallback;
                     replyCallback = null;
                 }
@@ -203,8 +218,8 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                 replyCallback = new FutureCallback<Reply>();
                 alreadySent = myAuthReplys.putIfAbsent(name, replyCallback);
                 if (alreadySent == null) {
-                    getProxiedConnection().send(replyCallback,
-                            new Command(name, builder.build()));
+                    getProxiedConnection().send(
+                            new Command(name, builder.build()), replyCallback);
                     alreadySent = replyCallback;
                     replyCallback = null;
                 }

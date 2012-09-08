@@ -20,6 +20,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.impl.RootDocument;
+import com.allanbank.mongodb.util.PatternUtils;
 
 /**
  * Wraps a single BSON document that may contain nested documents.
@@ -288,13 +289,12 @@ public class DocumentElement extends AbstractElement implements Document {
 
             elements = new ArrayList<E>();
             try {
-                final Pattern pattern = Pattern.compile(nameRegex);
+                final Pattern pattern = PatternUtils.toPattern(nameRegex);
                 for (final Element element : myElements) {
                     if (pattern.matcher(element.getName()).matches()) {
                         elements.addAll(element.queryPath(clazz, subNameRegexs));
                     }
                 }
-
             }
             catch (final PatternSyntaxException pse) {
                 // Assume a non-pattern?

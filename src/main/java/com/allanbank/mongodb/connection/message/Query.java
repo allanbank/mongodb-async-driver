@@ -44,6 +44,9 @@ public class Query extends AbstractMessage {
     /** Flag bit for the await data. */
     public static final int AWAIT_DATA_FLAG_BIT = 0x20;
 
+    /** The default batch size for a MongoDB query. */
+    public static final int DEFAULT_BATCH_SIZE = 101;
+
     /** Flag bit for the exhaust results. */
     public static final int EXHAUST_FLAG_BIT = 0x40;
 
@@ -206,6 +209,9 @@ public class Query extends AbstractMessage {
             else {
                 myNumberToReturn = myBatchSize;
             }
+        }
+        else if (isLimitSet() && (myLimit <= DEFAULT_BATCH_SIZE)) {
+            myNumberToReturn = -myLimit;
         }
         else {
             myNumberToReturn = 0;

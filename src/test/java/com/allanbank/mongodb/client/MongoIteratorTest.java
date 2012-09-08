@@ -9,6 +9,7 @@ import static com.allanbank.mongodb.connection.CallbackReply.cb;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isNull;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
@@ -25,6 +26,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -125,7 +127,7 @@ public class MongoIteratorTest {
         final Reply reply2 = new Reply(0, 0, 0, myDocs, false, false, false,
                 false);
 
-        expect(mockClient.send(cb(reply2), anyObject(GetMore.class)))
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
                 .andReturn(myAddress);
 
         replay(mockClient);
@@ -204,14 +206,16 @@ public class MongoIteratorTest {
     /**
      * Test method for {@link MongoIterator#close()}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testCloseWithoutReading() {
         final Client mockClient = createMock(Client.class);
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        expect(mockClient.send(anyObject(KillCursors.class))).andReturn(
-                myAddress);
+        expect(
+                mockClient.send(anyObject(KillCursors.class),
+                        isNull(Callback.class))).andReturn(myAddress);
 
         replay(mockClient);
 
@@ -226,6 +230,7 @@ public class MongoIteratorTest {
     /**
      * Test method for {@link MongoIterator#close()}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testCloseWithPending() {
         final Client mockClient = createMock(Client.class);
@@ -234,10 +239,11 @@ public class MongoIteratorTest {
         final Reply reply2 = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        expect(mockClient.send(cb(reply2), anyObject(GetMore.class)))
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
                 .andReturn(myAddress);
-        expect(mockClient.send(anyObject(KillCursors.class))).andReturn(
-                myAddress);
+        expect(
+                mockClient.send(anyObject(KillCursors.class),
+                        isNull(Callback.class))).andReturn(myAddress);
 
         replay(mockClient);
 
@@ -301,6 +307,7 @@ public class MongoIteratorTest {
      * Test method for
      * {@link MongoIterator#MongoIterator(Query, Client, String, Reply)} .
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testOverLimit() {
         final int batchSize = 5;
@@ -313,8 +320,9 @@ public class MongoIteratorTest {
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        expect(mockClient.send(anyObject(KillCursors.class))).andReturn(
-                myAddress);
+        expect(
+                mockClient.send(anyObject(KillCursors.class),
+                        isNull(Callback.class))).andReturn(myAddress);
 
         replay(mockClient);
 

@@ -71,11 +71,12 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();
-            authConn.send(reply,
+            authConn.send(
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
-                            false), new Query(USER_DB, "bar", BuilderFactory
-                            .start().build(), null, 1, 1, 0, false,
-                            ReadPreference.PRIMARY, false, false, false, false));
+                            false),
+                    new Query(USER_DB, "bar", BuilderFactory.start().build(),
+                            null, 1, 1, 0, false, ReadPreference.PRIMARY,
+                            false, false, false, false), reply);
             final Reply r = reply.get();
 
             assertEquals(1, r.getResults().size());
@@ -117,11 +118,12 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();
-            authConn.send(reply,
+            authConn.send(
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
-                            false), new Query(USER_DB, "bar", BuilderFactory
-                            .start().build(), null, 1, 1, 0, false,
-                            ReadPreference.PRIMARY, false, false, false, false));
+                            false),
+                    new Query(USER_DB, "bar", BuilderFactory.start().build(),
+                            null, 1, 1, 0, false, ReadPreference.PRIMARY,
+                            false, false, false, false), reply);
             final Reply r = reply.get();
 
             assertEquals(1, r.getResults().size());

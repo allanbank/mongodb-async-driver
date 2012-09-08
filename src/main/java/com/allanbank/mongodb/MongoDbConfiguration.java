@@ -99,6 +99,15 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     private transient ThreadFactory myFactory = null;
 
     /**
+     * Determines the type of hand off lock to use between threads in the core
+     * of the driver.
+     * <p>
+     * Defaults to {@link LockType#MUTEX}.
+     * </p>
+     */
+    private LockType myLockType = LockType.MUTEX;
+
+    /**
      * Determines the maximum number of connections to use.
      * <p>
      * Defaults to 3.
@@ -542,6 +551,19 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the type of hand off lock to use between threads in the core of
+     * the driver.
+     * <p>
+     * Defaults to {@link LockType#MUTEX}.
+     * </p>
+     * 
+     * @return The type of hand off lock used.
+     */
+    public LockType getLockType() {
+        return myLockType;
+    }
+
+    /**
      * Returns the maximum number of connections to use.
      * <p>
      * Defaults to 3.
@@ -775,6 +797,20 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
         else {
             myDefaultReadPreference = defaultReadPreference;
         }
+    }
+
+    /**
+     * Sets the type of hand off lock to use between threads in the core of the
+     * driver.
+     * <p>
+     * Defaults to {@link LockType#MUTEX}.
+     * </p>
+     * 
+     * @param lockType
+     *            The new value for the type of hand off lock used.
+     */
+    public void setLockType(final LockType lockType) {
+        myLockType = lockType;
     }
 
     /**

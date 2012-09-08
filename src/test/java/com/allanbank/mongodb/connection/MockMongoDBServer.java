@@ -91,6 +91,8 @@ public class MockMongoDBServer extends Thread {
     public void clear() {
         myReplies.clear();
         myRequests.clear();
+
+        disconnectClient();
     }
 
     /**
@@ -331,7 +333,7 @@ public class MockMongoDBServer extends Thread {
         BufferedOutputStream buffOut = null;
         BsonOutputStream bout = null;
 
-        int count = 1;
+        int count = 0;
         try {
             in = clientSocket.getInputStream();
             buffIn = new BufferedInputStream(in);
@@ -350,18 +352,20 @@ public class MockMongoDBServer extends Thread {
                     notifyAll();
                 }
 
-                if (!myReplies.isEmpty()) {
-                    final Reply reply = myReplies.remove(0);
+                if (count < myReplies.size()) {
+                    final Reply reply = myReplies.get(count);
                     final Reply fixed = new Reply(header.getRequestId(),
                             reply.getCursorId(), reply.getCursorOffset(),
                             reply.getResults(), reply.isAwaitCapable(),
                             reply.isCursorNotFound(), reply.isQueryFailed(),
                             reply.isShardConfigStale());
 
-                    fixed.write(count++, bout);
+                    fixed.write(count, bout);
 
                     buffOut.flush();
                 }
+
+                count += 1;
             }
         }
         catch (final EOFException eof) {

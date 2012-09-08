@@ -175,6 +175,8 @@ public class ClientImpl extends AbstractClient {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
      * Tries to locate a connection that can quickly dispatch the message to a
      * MongoDB server. The basic metrics for determining if a connection is idle
      * is to look at the number of messages waiting to be sent. The basic logic
@@ -190,18 +192,10 @@ public class ClientImpl extends AbstractClient {
      * based on a snapshot of pending messages and use the connection with the
      * least messages.</li>
      * <ul>
-     * 
-     * @param messages
-     *            The messages to be sent on the connection. The read preference
-     *            for each message should be verified as compatible with the
-     *            connection.
-     * @return The found connection.
-     * @throws MongoDbException
-     *             On a failure to talk to the MongoDB servers.
      */
     @Override
-    protected Connection findConnection(final Message[] messages)
-            throws MongoDbException {
+    protected Connection findConnection(final Message message1,
+            final Message message2) throws MongoDbException {
         // Make sure we shrink connections when the max changes.
         final int limit = Math.max(1, myConfig.getMaxConnectionCount());
         if (limit < myConnections.size()) {
@@ -222,7 +216,7 @@ public class ClientImpl extends AbstractClient {
             if (conn == null) {
                 conn = findMostIdleConnection();
                 if (conn == null) {
-                    conn = waitForReconnect(messages);
+                    conn = waitForReconnect(message1, message2);
                 }
             }
         }
@@ -397,14 +391,19 @@ public class ClientImpl extends AbstractClient {
      * Checks if there is an active reconnect attempt on-going. If so waits for
      * it to finish (with a timeout) and then searches for a connection again.
      * 
-     * @param messages
-     *            The messages to be sent on the connection. The read preference
-     *            for each message should be verified as compatible with the
-     *            connection.
+     * @param message1
+     *            The first message that will be sent. The connection return
+     *            should be compatible with all of the messages
+     *            {@link ReadPreference}.
+     * @param message2
+     *            The second message that will be sent. The connection return
+     *            should be compatible with all of the messages
+     *            {@link ReadPreference}. May be <code>null</code>.
      * @return The connection found after waiting or <code>null</code> if there
      *         was no active reconnect or there was still no connection.
      */
-    private Connection waitForReconnect(final Message[] messages) {
+    private Connection waitForReconnect(final Message message1,
+            final Message message2) {
         Connection conn = null;
         boolean wasReconnecting = false;
         synchronized (this) {
@@ -430,7 +429,7 @@ public class ClientImpl extends AbstractClient {
 
         if (wasReconnecting) {
             // Look again now that we may have reconnected.
-            conn = findConnection(messages);
+            conn = findConnection(message1, message2);
         }
         return conn;
     }

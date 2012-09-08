@@ -157,7 +157,6 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig.setDefaultReadPreference(ReadPreference.preferSecondary());
         myConfig.setDefaultDurability(Durability.replicaDurable(2, 1000));
 
-        
         for (int i = 0; i < ports.length; ++i) {
             final int port = ports[i];
 
@@ -175,7 +174,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         for (int i = 0; i < ports.length; ++i) {
 
             final FutureCallback<Reply> replyFuture = new FutureCallback<Reply>();
-            conns[i].send(replyFuture, new ServerStatus());
+            conns[i].send(new ServerStatus(), replyFuture);
 
             final Reply reply = replyFuture.get();
             assertEquals(1, reply.getResults().size());
@@ -232,7 +231,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             for (int i = 0; i < ports.length; ++i) {
 
                 final FutureCallback<Reply> replyFuture = new FutureCallback<Reply>();
-                conns[i].send(replyFuture, new ServerStatus());
+                conns[i].send(new ServerStatus(), replyFuture);
 
                 final Reply reply = replyFuture.get();
                 assertEquals(1, reply.getResults().size());

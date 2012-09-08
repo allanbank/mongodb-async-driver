@@ -411,7 +411,7 @@ public class ReplicaSetConnectionFactoryTest {
         expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
                 .andReturn(mockConnection).times(2);
 
-        mockConnection.send(cb(), anyObject(IsMaster.class));
+        mockConnection.send(anyObject(IsMaster.class), cb());
         expectLastCall().andThrow(new MongoDbException("This is a test"))
                 .times(2);
 
@@ -474,7 +474,7 @@ public class ReplicaSetConnectionFactoryTest {
         expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
                 .andReturn(mockConnection).times(2);
 
-        mockConnection.send(cb(), anyObject(IsMaster.class));
+        mockConnection.send(anyObject(IsMaster.class), cb());
         expectLastCall().andThrow(new MongoDbException("This is a test"))
                 .times(2);
 

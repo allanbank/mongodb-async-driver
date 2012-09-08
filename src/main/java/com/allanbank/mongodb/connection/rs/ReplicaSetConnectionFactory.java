@@ -91,7 +91,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
             try {
                 conn = myConnectionFactory.connect(new ServerState(addr),
                         myConfig);
-                conn.send(future, new IsMaster());
+                conn.send(new IsMaster(), future);
                 final Reply reply = future.get();
                 final List<Document> results = reply.getResults();
                 if (!results.isEmpty()) {

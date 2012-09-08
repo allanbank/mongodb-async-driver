@@ -792,6 +792,20 @@ public class MongoDbConfigurationTest {
     }
 
     /**
+     * Test method for {@link MongoDbConfiguration#setLockType(LockType)}.
+     */
+    @Test
+    public void testSetLockType() {
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+
+        assertEquals(LockType.MUTEX, config.getLockType());
+        config.setLockType(LockType.LOW_LATENCY_SPIN);
+        assertEquals(LockType.LOW_LATENCY_SPIN, config.getLockType());
+        config.setLockType(LockType.MUTEX);
+        assertEquals(LockType.MUTEX, config.getLockType());
+    }
+
+    /**
      * Test method for {@link MongoDbConfiguration#setMaxConnectionCount(int)}.
      */
     @Test

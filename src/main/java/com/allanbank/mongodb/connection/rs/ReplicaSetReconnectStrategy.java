@@ -294,7 +294,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                 LOG.fine("Sending reconnect(rs) query to " + server.getServer());
 
                 final FutureCallback<Reply> replyCallback = new FutureCallback<Reply>();
-                conn.send(replyCallback, new IsMaster());
+                conn.send(new IsMaster(), replyCallback);
 
                 reply = replyCallback;
                 answers.put(addr, reply);

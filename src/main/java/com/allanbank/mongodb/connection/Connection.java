@@ -38,8 +38,11 @@ public interface Connection extends Closeable, Flushable {
      * 
      * @param pending
      *            The list to populate the pending list with.
+     * @throws InterruptedException
+     *             On the thread being interrupted while copying the messages.
      */
-    public void addPending(List<PendingMessage> pending);
+    public void addPending(List<PendingMessage> pending)
+            throws InterruptedException;
 
     /**
      * Adds a {@link PropertyChangeListener} to this connection. Events are
@@ -104,19 +107,34 @@ public interface Connection extends Closeable, Flushable {
     /**
      * Sends a message on the connection.
      * 
-     * @param reply
+     * @param message
+     *            The message to send on the connection.
+     * @param replyCallback
      *            The callback to notify of responses to the messages. May be
      *            <code>null</code>.
-     * @param messages
-     *            The messages to send on the connection. The messages will be
-     *            sent one after the other and are guaranteed to be contiguous
-     *            and have sequential message ids.
      * @return The server that was sent the request.
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public String send(Callback<Reply> reply, Message... messages)
+    public String send(Message message, Callback<Reply> replyCallback)
             throws MongoDbException;
+
+    /**
+     * Sends a message on the connection.
+     * 
+     * @param message1
+     *            The first message to send on the connection.
+     * @param message2
+     *            The second message to send on the connection.
+     * @param replyCallback
+     *            The callback to notify of responses to the {@code message2}.
+     *            May be <code>null</code>.
+     * @return The server that was sent the request.
+     * @throws MongoDbException
+     *             On an error sending the message.
+     */
+    public String send(Message message1, Message message2,
+            Callback<Reply> replyCallback) throws MongoDbException;
 
     /**
      * Notifies the connection that once all outstanding requests have been sent
