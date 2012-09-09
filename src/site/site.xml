@@ -12,8 +12,11 @@
 			<item name="Introduction" href="index.html" />
 			<item name="Download" href="download.html" />
 			<item name="Getting Started" href="usage.html" />
-			<item name="BSON Performance" href="bson_performance.html" />
-			<item name="Performance" href="performance.html" />
+			<item name="Performance" href="index.html#Performance">
+				<item name="YCSB Results" href="performance/ycsb.html" />
+				<item name="Performance" href="performance/performance.html" />
+				<item name="BSON Performance" href="performance/bson_performance.html" />
+			</item>
 		</menu>
 		<menu ref="reports" />
 	</body>

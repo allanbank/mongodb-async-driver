@@ -8,7 +8,7 @@ to ensuring that the driver has the best possible performance.  A series of perf
 JUnit tests have been created to compare the driver to the 10gen supported (legacy) driver.  These
 benchmarks are provided as part of the tests for the driver.
 
-  {{Figure_1}} shows the relative performance of the legacy driver's BSON library vs. the Asynchronous
+  The chart below shows the relative performance of the legacy driver's BSON library vs. the Asynchronous
 drivers BSON library when using the unbuffered I/O library.
 
   The Asynchronous driver provides two methods for writing BSON documents.  The 
@@ -21,9 +21,7 @@ management within the I/O library and the complexity and performance impacts it 
 be seen in  {{Figure_1}} the unbuffered I/O library out performs the legacy 10gen driver's 
 library for both reading and writing even highly complex documents. 
 
-[images/MongoDbPerf_2012_06_12.jpg] Figure 1 - Relative Performance of the 10gen (legacy) and Asynchronous drivers BSON libraries when reading and writing documents of various sizes.
-
-  {Figure 1} - Relative Performance of the 10gen (legacy) and Asynchronous drivers BSON libraries when reading and writing documents of various sizes.
+[../images/MongoDbPerf_2012_06_12.jpg] Figure 1 - Relative Performance of the 10gen (legacy) and Asynchronous drivers BSON libraries when reading and writing documents of various sizes.
 
 Test Environment
 

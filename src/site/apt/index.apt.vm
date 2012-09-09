@@ -4,14 +4,14 @@
             ------
 
   The MongoDB Asynchronous Java Driver provides a high performance alternative to the
-10gen provided Java driver.  The driver has been created to ensure maximum utilization of
+10gen driver.  This driver has been created to ensure maximum utilization of
 resources on the client, in the network, on the server, and in the developer's IDE.
 
 Usability
 
   The main motivation for the driver is performance.  Part of the performance consideration
-is not just it's {{{Performance}raw performance}} but also the driver's ease of use 
-and expressive power. These usability factor provide benefits in developer productivity.
+is not just it's {{{Performance}raw performance}}, but also the driver's ease of use 
+and expressive power. These usability factors provide benefits in developer productivity.
 Considerable effort has been put into making the library easy to use and clearly express the
 developer's intent.
 
@@ -64,13 +64,32 @@ and compare to the same pipeline using the expressive power of this drivers help
 Performance
 
   While the usability of the driver is critical, its primary reason for existing is to enable maximum
-performance from a MongoDB server.  The performance for the driver's {{{./bson_performance.html}BSON library}} 
-and {{{./performance.html}overall}} performance have been benchmarked against the 10gen supported
-driver showing favorable performance in both cases.  
+performance from a MongoDB server.  A series of benchmarks have been created to measure the performance 
+of the Asynchronous driver relative to the 10gen supported (legacy) driver.
 
-  The driver is designed for use in highly threaded applications and makes extensive use of 
-immutable objects to remove as much thread contention as possible.  In support of this goal the 
-driver provides a high performance, thread safe, strongly typed BSON implementation.
+  YCSB (Yahoo! Cloud Server Benchmark) provides a standard set of workloads to try and compare the performance
+of various data stores.  Instead of benchmarking different data stores we have used the benchmark to compare
+the relative performance of the legacy MongoDB Java Driver and the MongoDB Asynchronous Java Driver.  The 
+{{{./performance/ycsb.html}YCSB results}} show MongoDB Asynchronous Java Driver has <<lower latency>>, 
+<<lower variability in latency>> and <<higher throughput>> across <<all>> of the benchmark scenarios.  
+In addition, this driver has a much lower slope for increasing latency as contention for the available connections
+increases.
+
+  In addition to the workload based benchmark we have also create two micro-benchmarks.  
+  
+  The first attempts to isolate the performance of the driver performing a very simple insert and update 
+operation. The {{{./performance/performance.html}benchmark demonstrates}} the throughput of the two drivers
+using various durability/write concerns.  Of particular note is that the Asynchronous Java Driver <<can maintain 
+throughput even for increasing levels for durability/write concern>>.
+
+  The last micro-benchmark compares the efficiency of the BSON libraries bundled with the two drivers.  The 
+benchmark serializes and de-serializes a series of increasingly complex documents and measures the time for each.
+The benchmark was originally intended to determine if pre-determining the size of objects written was better then 
+writing the objects and then filling in the size once the document was written.  It showed conclusively that the
+buffer management and copying overhead made pre-determining the object size better.  When the
+{{{./performance/bson_performance.html}benchmark}} was extended to the legacy driver's BSON library that the 
+Asynchronous Java Driver was always faster and for small documents <<orders of magnitude faster>>.
+
 
 Quality
 
@@ -85,7 +104,7 @@ limits regressions.
 that developers run the unit tests often it is important that they run quickly.  To achieve this goal the 
 tests make extensive use of the {{{http://www.easymock.org/}EasyMock}} mocking support library.  The result 
 is a unit test suite with 96% coverage (as measured by {{{http://cobertura.sourceforge.net/}Cobertura}}) 
-that finishes in under 10 seconds.
+that finishes in under 30 seconds.
 
 * Integration Tests
 
