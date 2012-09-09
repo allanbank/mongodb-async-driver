@@ -24,7 +24,7 @@ for the available connections increases.
 
 
   The following sections contain a high level description of each workload and the results for each.  The 
-full {{{../images/ycsb/run-tests.sh}launch script}}, {{{../images/ycsb/2012-09-02.tar.gz}output}}, and 
+full {{{../images/ycsb/run-tests.sh}launch script}}, {{{../images/ycsb/2012-09-08.tar.gz}output}}, and 
 {{{../images/ycsb/YCSB-2012-09.ods}analysis spreadsheet}} are also available for review.
 
   <<Note>>: The legacy driver did <<not>> successfully complete all of the test runs due to running out of 
