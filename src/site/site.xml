@@ -17,8 +17,8 @@
 				<item name="Asynchronous Performance" href="performance/performance.html" />
 				<item name="BSON Performance" href="performance/bson_performance.html" />
 			</item>
-			<item name="Motivation" href="index.html#Motivation">
-			<item name="Software Quality" href="index.html#Quality">
+			<item name="Motivation" href="index.html#Motivation" />
+			<item name="Software Quality" href="index.html#Quality" />
 		</menu>
 		<menu ref="reports" />
 	</body>

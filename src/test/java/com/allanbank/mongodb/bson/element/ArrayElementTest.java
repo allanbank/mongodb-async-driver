@@ -260,16 +260,15 @@ public class ArrayElementTest {
      * Test method for {@link ArrayElement#findFirst}.
      */
     @Test
-    public void testFindFirstWithPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final ArrayElement element = new ArrayElement("foo", subElement);
+    public void testFindFirstWithPathMatchingNonFirstSubelement() {
+        final BooleanElement subElement = new BooleanElement("123", false);
+        final ArrayElement element = new ArrayElement("f", new BooleanElement(
+                "2", false), subElement);
 
-        Element found = element.findFirst(Element.class, "1");
-        assertNotNull(found);
+        Element found = element.findFirst(Element.class, "123");
         assertSame(subElement, found);
 
-        found = element.findFirst(Element.class, ".");
-        assertNotNull(found);
+        found = element.findFirst(Element.class, "12.");
         assertSame(subElement, found);
     }
 
@@ -277,10 +276,10 @@ public class ArrayElementTest {
      * Test method for {@link ArrayElement#findFirst}.
      */
     @Test
-    public void testFindFirstWithPathMatchingNonFirstSubelement() {
+    public void testFindFirstWithPathMatchingNonLastSubelement() {
         final BooleanElement subElement = new BooleanElement("123", false);
-        final ArrayElement element = new ArrayElement("f", new BooleanElement(
-                "2", false), subElement);
+        final ArrayElement element = new ArrayElement("f", subElement,
+                new BooleanElement("2", false));
 
         Element found = element.findFirst(Element.class, "123");
         assertSame(subElement, found);
@@ -309,15 +308,16 @@ public class ArrayElementTest {
      * Test method for {@link ArrayElement#findFirst}.
      */
     @Test
-    public void testFindFirstWithPathMatchingNonLastSubelement() {
-        final BooleanElement subElement = new BooleanElement("123", false);
-        final ArrayElement element = new ArrayElement("f", subElement,
-                new BooleanElement("2", false));
+    public void testFindFirstWithPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final ArrayElement element = new ArrayElement("foo", subElement);
 
-        Element found = element.findFirst(Element.class, "123");
+        Element found = element.findFirst(Element.class, "1");
+        assertNotNull(found);
         assertSame(subElement, found);
 
-        found = element.findFirst(Element.class, "12.");
+        found = element.findFirst(Element.class, ".");
+        assertNotNull(found);
         assertSame(subElement, found);
     }
 

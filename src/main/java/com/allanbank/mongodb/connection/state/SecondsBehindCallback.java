@@ -42,20 +42,20 @@ import com.allanbank.mongodb.connection.message.Reply;
  */
 public class SecondsBehindCallback extends FutureCallback<Reply> {
 
-    /** The numeric element type. */
-    public static final Class<NumericElement> NUMERIC_TYPE = NumericElement.class;
-
-    /** The timestamp element type. */
-    public static final Class<TimestampElement> TIMESTAMP_TYPE = TimestampElement.class;
-
     /** The document element type. */
     public static final Class<DocumentElement> DOCUMENT_TYPE = DocumentElement.class;
+
+    /** The numeric element type. */
+    public static final Class<NumericElement> NUMERIC_TYPE = NumericElement.class;
 
     /** The value for a primary server's state. */
     public static final int PRIMARY_STATE = 1;
 
     /** The value for a secondary (actively replicating) server's state. */
     public static final int SECONDARY_STATE = 2;
+
+    /** The timestamp element type. */
+    public static final Class<TimestampElement> TIMESTAMP_TYPE = TimestampElement.class;
 
     /** The server to update the seconds behind for. */
     private final ServerState myServer;
@@ -113,7 +113,7 @@ public class SecondsBehindCallback extends FutureCallback<Reply> {
         if (replyDocs.size() >= 1) {
             final Document doc = replyDocs.get(0);
 
-            NumericElement state = doc.get(NUMERIC_TYPE, "myState");
+            final NumericElement state = doc.get(NUMERIC_TYPE, "myState");
             if ((state != null)
                     && ((state.getIntValue() == PRIMARY_STATE) || (state
                             .getIntValue() == SECONDARY_STATE))) {

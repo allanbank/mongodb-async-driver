@@ -97,7 +97,8 @@ public interface Element extends Serializable, ElementAssignable {
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The elements matching the path of regular expressions.
-     * @deprecated Use the clearer {@link #find(String...)} method instead.
+     * @deprecated Use the {@link #find(Class,String...)} method instead. Will
+     *             be removed after the 1.1.0 release.
      */
     @Deprecated
     public <E extends Element> List<E> queryPath(Class<E> clazz,
@@ -109,7 +110,8 @@ public interface Element extends Serializable, ElementAssignable {
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The elements matching the path of regular expressions.
-     * @deprecated Use the clearer {@link #find(String...)} method instead.
+     * @deprecated Use the {@link #find(String...)} method instead. Will be
+     *             removed after the 1.1.0 release.
      */
     @Deprecated
     public List<Element> queryPath(String... nameRegexs);

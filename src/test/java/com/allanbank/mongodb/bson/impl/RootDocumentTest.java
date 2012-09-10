@@ -272,21 +272,6 @@ public class RootDocumentTest {
      * Test method for {@link RootDocument#findFirst}.
      */
     @Test
-    public void testFindFirstWithPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
-
-        Element found = element.findFirst(Element.class, "1");
-        assertSame(subElement, found);
-
-        found = element.findFirst(Element.class, ".");
-        assertSame(subElement, found);
-    }
-
-    /**
-     * Test method for {@link RootDocument#findFirst}.
-     */
-    @Test
     public void testFindFirstWithPathMatchingNonFirstSubelement() {
         final BooleanElement subElement = new BooleanElement("123", false);
         final RootDocument element = new RootDocument(new BooleanElement("2",
@@ -328,6 +313,21 @@ public class RootDocumentTest {
         assertSame(subElement, found);
 
         found = element.findFirst(Element.class, "(");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link RootDocument#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        Element found = element.findFirst(Element.class, "1");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, ".");
         assertSame(subElement, found);
     }
 
@@ -423,6 +423,18 @@ public class RootDocumentTest {
     }
 
     /**
+     * Test method for {@link RootDocument#getElements()}.
+     */
+    @Test
+    public void testGetElements() {
+        final Element subElement = new BooleanElement("1", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        assertEquals(Collections.singletonList(subElement),
+                element.getElements());
+    }
+
+    /**
      * Test method for {@link RootDocument#get(Class,String)}.
      */
     @Test
@@ -433,18 +445,6 @@ public class RootDocumentTest {
         assertSame(subElement, element.get(BooleanElement.class, "1"));
         assertNull(element.get(IntegerElement.class, "1"));
         assertNull(element.get(BooleanElement.class, "2"));
-    }
-
-    /**
-     * Test method for {@link RootDocument#getElements()}.
-     */
-    @Test
-    public void testGetElements() {
-        final Element subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
-
-        assertEquals(Collections.singletonList(subElement),
-                element.getElements());
     }
 
     /**

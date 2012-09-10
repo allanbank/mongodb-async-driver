@@ -97,17 +97,6 @@ public interface Document extends Iterable<Element>, DocumentAssignable,
      * Returns the element with the specified name or null if no element with
      * that name exists.
      * 
-     * @param name
-     *            The name of the element to locate.
-     * @return The sub-element in the document with the given name or null if
-     *         element exists with the given name.
-     */
-    public Element get(String name);
-
-    /**
-     * Returns the element with the specified name or null if no element with
-     * that name exists.
-     * 
      * @param <E>
      *            The type of element to get.
      * @param clazz
@@ -120,6 +109,17 @@ public interface Document extends Iterable<Element>, DocumentAssignable,
     public <E extends Element> E get(Class<E> clazz, String name);
 
     /**
+     * Returns the element with the specified name or null if no element with
+     * that name exists.
+     * 
+     * @param name
+     *            The name of the element to locate.
+     * @return The sub-element in the document with the given name or null if
+     *         element exists with the given name.
+     */
+    public Element get(String name);
+
+    /**
      * Returns the elements matching the path of regular expressions.
      * 
      * @param <E>
@@ -129,7 +129,8 @@ public interface Document extends Iterable<Element>, DocumentAssignable,
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The elements matching the path of regular expressions.
-     * @deprecated Use the clearer {@link #find(String...)} method instead.
+     * @deprecated Use the {@link #find(Class,String...)} method instead. Will
+     *             be removed after the 1.1.0 release.
      */
     @Deprecated
     public <E extends Element> List<E> queryPath(Class<E> clazz,
@@ -141,7 +142,8 @@ public interface Document extends Iterable<Element>, DocumentAssignable,
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The elements matching the path of regular expressions.
-     * @deprecated Use the clearer {@link #find(String...)} method instead.
+     * @deprecated Use the {@link #find(String...)} method instead. Will be
+     *             removed after the 1.1.0 release.
      */
     @Deprecated
     public List<Element> queryPath(String... nameRegexs);

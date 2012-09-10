@@ -275,6 +275,21 @@ public class RootDocument implements Document {
     }
 
     /**
+     * Returns the element with the specified name and type or null if no
+     * element with that name and type exists.
+     * 
+     * @see Document#get(String)
+     */
+    @Override
+    public <E extends Element> E get(final Class<E> clazz, final String name) {
+        final Element element = get(name);
+        if ((element != null) && clazz.isAssignableFrom(element.getClass())) {
+            return clazz.cast(element);
+        }
+        return null;
+    }
+
+    /**
      * Returns the element with the specified name or null if no element with
      * that name exists.
      * 
@@ -283,21 +298,6 @@ public class RootDocument implements Document {
     @Override
     public Element get(final String name) {
         return getElementMap().get(name);
-    }
-
-    /**
-     * Returns the element with the specified name and type or null if no
-     * element with that name and type exists.
-     * 
-     * @see Document#get(String)
-     */
-    @Override
-    public <E extends Element> E get(Class<E> clazz, String name) {
-        Element element = get(name);
-        if ((element != null) && clazz.isAssignableFrom(element.getClass())) {
-            return clazz.cast(element);
-        }
-        return null;
     }
 
     /**
@@ -355,8 +355,11 @@ public class RootDocument implements Document {
      * </p>
      * 
      * @see Document#queryPath
+     * @deprecated Use the {@link #find(Class,String...)} method instead. Will
+     *             be removed after the 1.1.0 release.
      */
     @Override
+    @Deprecated
     public <E extends Element> List<E> queryPath(final Class<E> clazz,
             final String... nameRegexs) {
         return find(clazz, nameRegexs);
@@ -369,8 +372,11 @@ public class RootDocument implements Document {
      * </p>
      * 
      * @see Document#queryPath
+     * @deprecated Use the {@link #find(Class,String...)} method instead. Will
+     *             be removed after the 1.1.0 release.
      */
     @Override
+    @Deprecated
     public List<Element> queryPath(final String... nameRegexs) {
         return find(nameRegexs);
     }

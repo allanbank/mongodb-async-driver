@@ -335,30 +335,13 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for {@link DocumentElement#findFirst}.
-     */
-    @Test
-    public void testFindFirstWithPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
-
-        Element found = element.findFirst(Element.class, "1");
-        assertNotNull(found);
-        assertSame(subElement, found);
-
-        found = element.findFirst(Element.class, ".");
-        assertNotNull(found);
-        assertSame(subElement, found);
-    }
-
-    /**
      * Test method for {@link ArrayElement#findFirst}.
      */
     @Test
     public void testFindFirstWithPathMatchingNonFirstSubelement() {
         final BooleanElement subElement = new BooleanElement("123", false);
-        final DocumentElement element = new DocumentElement("f", new BooleanElement("2",
-                false), subElement);
+        final DocumentElement element = new DocumentElement("f",
+                new BooleanElement("2", false), subElement);
 
         Element found = element.findFirst(Element.class, "123");
         assertSame(subElement, found);
@@ -398,6 +381,24 @@ public class DocumentElementTest {
         found = element.findFirst(Element.class, "(");
         assertSame(subElement, found);
     }
+
+    /**
+     * Test method for {@link DocumentElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        Element found = element.findFirst(Element.class, "1");
+        assertNotNull(found);
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, ".");
+        assertNotNull(found);
+        assertSame(subElement, found);
+    }
+
     /**
      * Test method for {@link DocumentElement#findFirst}.
      */
@@ -509,6 +510,18 @@ public class DocumentElementTest {
     }
 
     /**
+     * Test method for {@link DocumentElement#getElements()}.
+     */
+    @Test
+    public void testGetElements() {
+        final Element subElement = new BooleanElement("1", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        assertEquals(Collections.singletonList(subElement),
+                element.getElements());
+    }
+
+    /**
      * Test method for {@link DocumentElement#get(Class,String)}.
      */
     @Test
@@ -519,18 +532,6 @@ public class DocumentElementTest {
         assertSame(subElement, element.get(BooleanElement.class, "1"));
         assertNull(element.get(IntegerElement.class, "1"));
         assertNull(element.get(BooleanElement.class, "2"));
-    }
-
-    /**
-     * Test method for {@link DocumentElement#getElements()}.
-     */
-    @Test
-    public void testGetElements() {
-        final Element subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
-
-        assertEquals(Collections.singletonList(subElement),
-                element.getElements());
     }
 
     /**

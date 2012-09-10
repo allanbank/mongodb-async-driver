@@ -172,6 +172,7 @@ public abstract class AbstractElement implements Element {
      * 
      * @see Document#queryPath
      * @deprecated Use the replacement method, {@link #find(Class, String...)}.
+     *             Will be removed after the 1.1.0 release.
      */
     @Override
     @Deprecated
@@ -187,7 +188,8 @@ public abstract class AbstractElement implements Element {
      * </p>
      * 
      * @see Document#queryPath
-     * @deprecated Use the replacement method, {@link #find(String...)}.
+     * @deprecated Use the replacement method, {@link #find(String...)}. Will be
+     *             removed after the 1.1.0 release.
      */
     @Override
     @Deprecated

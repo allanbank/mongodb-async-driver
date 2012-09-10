@@ -67,27 +67,6 @@ public class SecondsBehindCallbackTest {
      * Test method for {@link SecondsBehindCallback#callback} .
      */
     @Test
-    public void testCallbackNoServerState() {
-
-        final Date optime = new Date();
-
-        final DocumentBuilder builder = BuilderFactory.start();
-        builder.add("myState", 1);
-        final ArrayBuilder membersBuilder = builder.pushArray("members");
-        membersBuilder.push().add("name", "foo").add("optimeDate", optime);
-        membersBuilder.push().add("name", "bar")
-                .add("optimeDate", new Date(optime.getTime() - 1000));
-
-        final ServerState state = null;
-
-        final SecondsBehindCallback callback = new SecondsBehindCallback(state);
-        callback.callback(reply(builder));
-    }
-
-    /**
-     * Test method for {@link SecondsBehindCallback#callback} .
-     */
-    @Test
     public void testCallbackBehind() {
 
         final Date optime = new Date();
@@ -194,6 +173,27 @@ public class SecondsBehindCallbackTest {
         callback.callback(reply(builder));
 
         verify(state);
+    }
+
+    /**
+     * Test method for {@link SecondsBehindCallback#callback} .
+     */
+    @Test
+    public void testCallbackNoServerState() {
+
+        final Date optime = new Date();
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("myState", 1);
+        final ArrayBuilder membersBuilder = builder.pushArray("members");
+        membersBuilder.push().add("name", "foo").add("optimeDate", optime);
+        membersBuilder.push().add("name", "bar")
+                .add("optimeDate", new Date(optime.getTime() - 1000));
+
+        final ServerState state = null;
+
+        final SecondsBehindCallback callback = new SecondsBehindCallback(state);
+        callback.callback(reply(builder));
     }
 
     /**
