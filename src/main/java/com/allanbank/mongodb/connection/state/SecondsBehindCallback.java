@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
@@ -23,12 +24,38 @@ import com.allanbank.mongodb.connection.message.Reply;
  * value of zero to the "latest" optime and then subtract the remaining servers
  * from that optime.
  * </p>
+ * <p>
+ * In the case of an exception the seconds behind is set to
+ * {@link Integer#MAX_VALUE}. The value is configurable as a long so in theory a
+ * user can ignore this case using a large
+ * {@link com.allanbank.mongodb.MongoDbConfiguration#setMaxSecondaryLag(long)}.
+ * </p>
+ * <p>
+ * Lastly, the state of the server is also checked and the seconds behind is set
+ * to {@link Double#MAX_VALUE} if not in the primary ({@value #PRIMARY_STATE})
+ * or secondary ({@value #SECONDARY_STATE}).
+ * </p>
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SecondsBehindCallback extends FutureCallback<Reply> {
+
+    /** The numeric element type. */
+    public static final Class<NumericElement> NUMERIC_TYPE = NumericElement.class;
+
+    /** The timestamp element type. */
+    public static final Class<TimestampElement> TIMESTAMP_TYPE = TimestampElement.class;
+
+    /** The document element type. */
+    public static final Class<DocumentElement> DOCUMENT_TYPE = DocumentElement.class;
+
+    /** The value for a primary server's state. */
+    public static final int PRIMARY_STATE = 1;
+
+    /** The value for a secondary (actively replicating) server's state. */
+    public static final int SECONDARY_STATE = 2;
 
     /** The server to update the seconds behind for. */
     private final ServerState myServer;
@@ -60,8 +87,19 @@ public class SecondsBehindCallback extends FutureCallback<Reply> {
         super.callback(result);
     }
 
-    // Do not override the exception(Throwable) since we cannot determine the
-    // seconds behind from an exception.
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to mark the server as {@link Integer#MAX_VALUE} seconds behind
+     * the primary.
+     * </p>
+     */
+    @Override
+    public void exception(final Throwable error) {
+        if (myServer != null) {
+            myServer.setSecondsBehind(Integer.MAX_VALUE);
+        }
+    }
 
     /**
      * Extract the number of seconds this Server is behind the primary by
@@ -75,33 +113,45 @@ public class SecondsBehindCallback extends FutureCallback<Reply> {
         if (replyDocs.size() >= 1) {
             final Document doc = replyDocs.get(0);
 
-            TimestampElement serverTimestamp = null;
-            final StringElement expectedName = new StringElement("name",
-                    myServer.getName());
-            for (final DocumentElement member : doc.queryPath(
-                    DocumentElement.class, "members", ".*")) {
-                if (expectedName.equals(member.get("name"))
-                        && (member.get("optimeDate") instanceof TimestampElement)) {
+            NumericElement state = doc.get(NUMERIC_TYPE, "myState");
+            if ((state != null)
+                    && ((state.getIntValue() == PRIMARY_STATE) || (state
+                            .getIntValue() == SECONDARY_STATE))) {
 
-                    serverTimestamp = (TimestampElement) member
-                            .get("optimeDate");
-                }
-            }
+                TimestampElement serverTimestamp = null;
+                final StringElement expectedName = new StringElement("name",
+                        myServer.getName());
+                for (final DocumentElement member : doc.find(DOCUMENT_TYPE,
+                        "members", ".*")) {
+                    if (expectedName.equals(member.get("name"))
+                            && (member.get(TIMESTAMP_TYPE, "optimeDate") != null)) {
 
-            if (serverTimestamp != null) {
-                TimestampElement latestTimestamp = serverTimestamp;
-                for (final TimestampElement time : doc.queryPath(
-                        TimestampElement.class, "members", ".*", "optimeDate")) {
-                    if (latestTimestamp.getTime() < time.getTime()) {
-                        latestTimestamp = time;
+                        serverTimestamp = member.get(TIMESTAMP_TYPE,
+                                "optimeDate");
                     }
                 }
 
-                final double msBehind = latestTimestamp.getTime()
-                        - serverTimestamp.getTime();
-                myServer.setSecondsBehind(msBehind
-                        / TimeUnit.SECONDS.toMillis(1));
+                if (serverTimestamp != null) {
+                    TimestampElement latestTimestamp = serverTimestamp;
+                    for (final TimestampElement time : doc.find(TIMESTAMP_TYPE,
+                            "members", ".*", "optimeDate")) {
+                        if (latestTimestamp.getTime() < time.getTime()) {
+                            latestTimestamp = time;
+                        }
+                    }
+
+                    final double msBehind = latestTimestamp.getTime()
+                            - serverTimestamp.getTime();
+                    myServer.setSecondsBehind(msBehind
+                            / TimeUnit.SECONDS.toMillis(1));
+                }
+
             }
+            else {
+                // "myState" != 1 and "myState" != 2
+                myServer.setSecondsBehind(Double.MAX_VALUE);
+            }
+
         }
     }
 }

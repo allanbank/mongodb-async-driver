@@ -209,6 +209,100 @@ public class DocumentElement extends AbstractElement implements Document {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Searches this sub-elements for matching elements on the path and are of
+     * the right type.
+     * </p>
+     * 
+     * @see Element#queryPath
+     */
+    @Override
+    public <E extends Element> List<E> find(final Class<E> clazz,
+            final String... nameRegexs) {
+        List<E> elements = Collections.emptyList();
+
+        if (0 < nameRegexs.length) {
+            final String nameRegex = nameRegexs[0];
+            final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
+                    nameRegexs.length);
+
+            elements = new ArrayList<E>();
+            try {
+                final Pattern pattern = PatternUtils.toPattern(nameRegex);
+                for (final Element element : myElements) {
+                    if (pattern.matcher(element.getName()).matches()) {
+                        elements.addAll(element.find(clazz, subNameRegexs));
+                    }
+                }
+            }
+            catch (final PatternSyntaxException pse) {
+                // Assume a non-pattern?
+                for (final Element element : myElements) {
+                    if (nameRegex.equals(element.getName())) {
+                        elements.addAll(element.find(clazz, subNameRegexs));
+                    }
+                }
+            }
+        }
+        else {
+            // End of the path -- are we the right type/element?
+            if (clazz.isAssignableFrom(this.getClass())) {
+                elements = Collections.singletonList(clazz.cast(this));
+            }
+        }
+        return elements;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Searches this sub-elements for matching elements on the path and are of
+     * the right type.
+     * </p>
+     * 
+     * @see Document#queryPath
+     */
+    @Override
+    public <E extends Element> E findFirst(final Class<E> clazz,
+            final String... nameRegexs) {
+        E element = null;
+        if (0 < nameRegexs.length) {
+            final String nameRegex = nameRegexs[0];
+            final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
+                    nameRegexs.length);
+
+            try {
+                final Pattern pattern = PatternUtils.toPattern(nameRegex);
+                final Iterator<Element> iter = myElements.iterator();
+                while (iter.hasNext() && (element == null)) {
+                    final Element docElement = iter.next();
+                    if (pattern.matcher(docElement.getName()).matches()) {
+                        element = docElement.findFirst(clazz, subNameRegexs);
+                    }
+                }
+            }
+            catch (final PatternSyntaxException pse) {
+                // Assume a non-pattern?
+                final Iterator<Element> iter = myElements.iterator();
+                while (iter.hasNext() && (element == null)) {
+                    final Element docElement = iter.next();
+                    if (nameRegex.equals(docElement.getName())) {
+                        element = docElement.findFirst(clazz, subNameRegexs);
+                    }
+                }
+            }
+        }
+        else {
+            // End of the path -- are we the right type/element?
+            if (clazz.isAssignableFrom(this.getClass())) {
+                element = clazz.cast(this);
+            }
+        }
+        return element;
+    }
+
+    /**
      * Returns the element with the specified name or null if no element with
      * that name exists.
      * 
@@ -217,6 +311,21 @@ public class DocumentElement extends AbstractElement implements Document {
     @Override
     public Element get(final String name) {
         return getElementMap().get(name);
+    }
+
+    /**
+     * Returns the element with the specified name and type or null if no
+     * element with that name and type exists.
+     * 
+     * @see Document#get(String)
+     */
+    @Override
+    public <E extends Element> E get(Class<E> clazz, String name) {
+        Element element = get(name);
+        if ((element != null) && clazz.isAssignableFrom(element.getClass())) {
+            return clazz.cast(element);
+        }
+        return null;
     }
 
     /**
@@ -266,52 +375,6 @@ public class DocumentElement extends AbstractElement implements Document {
     @Override
     public Iterator<Element> iterator() {
         return getElements().iterator();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Searches this sub-elements for matching elements on the path and are of
-     * the right type.
-     * </p>
-     * 
-     * @see Element#queryPath
-     */
-    @Override
-    public <E extends Element> List<E> queryPath(final Class<E> clazz,
-            final String... nameRegexs) {
-        List<E> elements = Collections.emptyList();
-
-        if (0 < nameRegexs.length) {
-            final String nameRegex = nameRegexs[0];
-            final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
-                    nameRegexs.length);
-
-            elements = new ArrayList<E>();
-            try {
-                final Pattern pattern = PatternUtils.toPattern(nameRegex);
-                for (final Element element : myElements) {
-                    if (pattern.matcher(element.getName()).matches()) {
-                        elements.addAll(element.queryPath(clazz, subNameRegexs));
-                    }
-                }
-            }
-            catch (final PatternSyntaxException pse) {
-                // Assume a non-pattern?
-                for (final Element element : myElements) {
-                    if (nameRegex.equals(element.getName())) {
-                        elements.addAll(element.queryPath(clazz, subNameRegexs));
-                    }
-                }
-            }
-        }
-        else {
-            // End of the path -- are we the right type/element?
-            if (clazz.isAssignableFrom(this.getClass())) {
-                elements = Collections.singletonList(clazz.cast(this));
-            }
-        }
-        return elements;
     }
 
     /**

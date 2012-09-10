@@ -190,8 +190,8 @@ public class GridFs {
         final ClosableIterator<Document> iter = myChunksCollection
                 .find(findBuilder.build());
         for (final Document chunk : iter) {
-            for (final BinaryElement bytes : chunk.queryPath(
-                    BinaryElement.class, "data")) {
+            for (final BinaryElement bytes : chunk.find(BinaryElement.class,
+                    "data")) {
                 sink.write(bytes.getValue());
             }
         }

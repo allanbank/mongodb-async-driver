@@ -54,7 +54,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$add").addInteger(1).addInteger(2).addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$add").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$add").get(0), e.asElement());
     }
 
     /**
@@ -73,7 +73,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$and").addInteger(1).addInteger(2).addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$and").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$and").get(0), e.asElement());
     }
 
     /**
@@ -91,7 +91,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$cmp").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$cmp").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$cmp").get(0), e.asElement());
     }
 
     /**
@@ -112,7 +112,7 @@ public class ExpressionsTest {
         b.push("f").pushArray("$cond").addInteger(1).addInteger(2)
                 .addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$cond").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$cond").get(0), e.asElement());
     }
 
     /**
@@ -275,8 +275,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$divide").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$divide").get(0),
-                e.asElement());
+        assertEquals(b.build().find("f", "\\$divide").get(0), e.asElement());
     }
 
     /**
@@ -294,7 +293,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$eq").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$eq").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$eq").get(0), e.asElement());
     }
 
     /**
@@ -330,7 +329,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$gt").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$gt").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$gt").get(0), e.asElement());
     }
 
     /**
@@ -348,7 +347,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$gte").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$gte").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$gte").get(0), e.asElement());
     }
 
     /**
@@ -382,8 +381,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$ifNull").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$ifNull").get(0),
-                e.asElement());
+        assertEquals(b.build().find("f", "\\$ifNull").get(0), e.asElement());
     }
 
     /**
@@ -401,7 +399,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$lt").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$lt").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$lt").get(0), e.asElement());
     }
 
     /**
@@ -419,7 +417,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$lte").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$lte").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$lte").get(0), e.asElement());
     }
 
     /**
@@ -453,7 +451,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$mod").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$mod").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$mod").get(0), e.asElement());
     }
 
     /**
@@ -487,8 +485,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$multiply").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$multiply").get(0),
-                e.asElement());
+        assertEquals(b.build().find("f", "\\$multiply").get(0), e.asElement());
     }
 
     /**
@@ -506,7 +503,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$ne").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$ne").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$ne").get(0), e.asElement());
     }
 
     /**
@@ -550,7 +547,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$or").addInteger(1).addInteger(2).addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$or").get(0), e.asElement());
+        assertEquals(b.build().find("f", "\\$or").get(0), e.asElement());
     }
 
     /**
@@ -616,8 +613,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$strcasecmp").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$strcasecmp").get(0),
-                e.asElement());
+        assertEquals(b.build().find("f", "\\$strcasecmp").get(0), e.asElement());
     }
 
     /**
@@ -638,8 +634,7 @@ public class ExpressionsTest {
         b.push("f").pushArray("$substr").addInteger(1).addInteger(2)
                 .addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$substr").get(0),
-                e.asElement());
+        assertEquals(b.build().find("f", "\\$substr").get(0), e.asElement());
     }
 
     /**
@@ -657,8 +652,7 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$subtract").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
-        assertEquals(b.build().queryPath("f", "\\$subtract").get(0),
-                e.asElement());
+        assertEquals(b.build().find("f", "\\$subtract").get(0), e.asElement());
     }
 
     /**

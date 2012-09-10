@@ -73,8 +73,8 @@ public class MongoDatabaseImpl implements MongoDatabase {
     @Override
     public boolean drop() {
         final Document result = runCommand("dropDatabase");
-        final List<NumericElement> okElem = result.queryPath(
-                NumericElement.class, "ok");
+        final List<NumericElement> okElem = result.find(NumericElement.class,
+                "ok");
 
         return ((okElem.size() > 0) && (okElem.get(0).getIntValue() > 0));
     }
@@ -129,7 +129,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
         final Iterator<Document> iter = FutureUtils.unwrap(iterFuture);
         while (iter.hasNext()) {
             final Document collection = iter.next();
-            for (final StringElement nameElement : collection.queryPath(
+            for (final StringElement nameElement : collection.find(
                     StringElement.class, "name")) {
                 final String name = nameElement.getValue();
                 if ((name.indexOf('$') >= 0) && (name.indexOf(".oplog.$") < 0)) {

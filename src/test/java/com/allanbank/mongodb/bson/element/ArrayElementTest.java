@@ -6,6 +6,8 @@
 package com.allanbank.mongodb.bson.element;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
@@ -200,6 +202,224 @@ public class ArrayElementTest {
     }
 
     /**
+     * Test method for {@link ArrayElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithBadPatternPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("(", false);
+        final ArrayElement element = new ArrayElement("foo", subElement);
+
+        final Element found = element.findFirst(Element.class, "(");
+        assertNotNull(found);
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link ArrayElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithBadPatternPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final ArrayElement element = new ArrayElement("foo", subElement);
+
+        final Element found = element.findFirst(Element.class, "(");
+        assertNull(found);
+    }
+
+    /**
+     * Test method for {@link ArrayElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithEmptyPathMatchingType() {
+
+        final ArrayElement element = new ArrayElement("foo",
+                new BooleanElement("1", false));
+
+        final Element found = element.findFirst(Element.class);
+        assertNotNull(found);
+        assertSame(element, found);
+
+        final ArrayElement arrayFound = element.findFirst(ArrayElement.class);
+        assertNotNull(arrayFound);
+        assertSame(element, arrayFound);
+    }
+
+    /**
+     * Test method for {@link ArrayElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithEmptyPathNonMatchingType() {
+        final ArrayElement element = new ArrayElement("foo",
+                new BooleanElement("1", false));
+
+        final Element found = element.findFirst(BooleanElement.class);
+        assertNull(found);
+    }
+
+    /**
+     * Test method for {@link ArrayElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final ArrayElement element = new ArrayElement("foo", subElement);
+
+        Element found = element.findFirst(Element.class, "1");
+        assertNotNull(found);
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, ".");
+        assertNotNull(found);
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link ArrayElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingNonFirstSubelement() {
+        final BooleanElement subElement = new BooleanElement("123", false);
+        final ArrayElement element = new ArrayElement("f", new BooleanElement(
+                "2", false), subElement);
+
+        Element found = element.findFirst(Element.class, "123");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, "12.");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link ArrayElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingNonLastSubelementBadRegex() {
+        final BooleanElement subElement = new BooleanElement("(", false);
+        final ArrayElement element = new ArrayElement("f", subElement,
+                new BooleanElement("2", false));
+
+        Element found = element.findFirst(Element.class, "(");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, "(");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link ArrayElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingNonLastSubelement() {
+        final BooleanElement subElement = new BooleanElement("123", false);
+        final ArrayElement element = new ArrayElement("f", subElement,
+                new BooleanElement("2", false));
+
+        Element found = element.findFirst(Element.class, "123");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, "12.");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link ArrayElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final ArrayElement element = new ArrayElement("foo", subElement);
+
+        final Element found = element.findFirst(Element.class, "n.*");
+        assertNull(found);
+    }
+
+    /**
+     * Test method for {@link ArrayElement#find}.
+     */
+    @Test
+    public void testFindWithBadPatternPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("(", false);
+        final ArrayElement element = new ArrayElement("foo", subElement);
+
+        final List<Element> elements = element.find(Element.class, "(");
+        assertEquals(1, elements.size());
+        assertSame(subElement, elements.get(0));
+    }
+
+    /**
+     * Test method for {@link ArrayElement#find}.
+     */
+    @Test
+    public void testFindWithBadPatternPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final ArrayElement element = new ArrayElement("foo", subElement);
+
+        final List<Element> elements = element.find(Element.class, "(");
+        assertEquals(0, elements.size());
+    }
+
+    /**
+     * Test method for {@link ArrayElement#find}.
+     */
+    @Test
+    public void testFindWithEmptyPathMatchingType() {
+
+        final ArrayElement element = new ArrayElement("foo",
+                new BooleanElement("1", false));
+
+        final List<Element> elements = element.find(Element.class);
+        assertEquals(1, elements.size());
+        assertSame(element, elements.get(0));
+
+        final List<ArrayElement> arrayElements = element
+                .find(ArrayElement.class);
+        assertEquals(1, arrayElements.size());
+        assertSame(element, arrayElements.get(0));
+    }
+
+    /**
+     * Test method for {@link ArrayElement#find}.
+     */
+    @Test
+    public void testFindWithEmptyPathNonMatchingType() {
+        final ArrayElement element = new ArrayElement("foo",
+                new BooleanElement("1", false));
+
+        final List<BooleanElement> elements = element
+                .find(BooleanElement.class);
+        assertEquals(0, elements.size());
+    }
+
+    /**
+     * Test method for {@link ArrayElement#find}.
+     */
+    @Test
+    public void testFindWithPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final ArrayElement element = new ArrayElement("foo", subElement);
+
+        List<Element> elements = element.find(Element.class, "1");
+        assertEquals(1, elements.size());
+        assertSame(subElement, elements.get(0));
+
+        elements = element.find(Element.class, ".");
+        assertEquals(1, elements.size());
+        assertSame(subElement, elements.get(0));
+    }
+
+    /**
+     * Test method for {@link ArrayElement#find}.
+     */
+    @Test
+    public void testFindWithPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final ArrayElement element = new ArrayElement("foo", subElement);
+
+        final List<Element> elements = element.find(Element.class, "n.*");
+        assertEquals(0, elements.size());
+    }
+
+    /**
      * Test method for {@link ArrayElement#getEntries()}.
      */
     @Test
@@ -211,92 +431,6 @@ public class ArrayElementTest {
         assertEquals(ElementType.ARRAY, element.getType());
         assertEquals(Collections.singletonList(subElement),
                 element.getEntries());
-    }
-
-    /**
-     * Test method for {@link ArrayElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithBadPatternPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("(", false);
-        final ArrayElement element = new ArrayElement("foo", subElement);
-
-        final List<Element> elements = element.queryPath(Element.class, "(");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
-    }
-
-    /**
-     * Test method for {@link ArrayElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithBadPatternPathNotMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final ArrayElement element = new ArrayElement("foo", subElement);
-
-        final List<Element> elements = element.queryPath(Element.class, "(");
-        assertEquals(0, elements.size());
-    }
-
-    /**
-     * Test method for {@link ArrayElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithEmptyPathMatchingType() {
-
-        final ArrayElement element = new ArrayElement("foo",
-                new BooleanElement("1", false));
-
-        final List<Element> elements = element.queryPath(Element.class);
-        assertEquals(1, elements.size());
-        assertSame(element, elements.get(0));
-
-        final List<ArrayElement> arrayElements = element
-                .queryPath(ArrayElement.class);
-        assertEquals(1, arrayElements.size());
-        assertSame(element, arrayElements.get(0));
-    }
-
-    /**
-     * Test method for {@link ArrayElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithEmptyPathNonMatchingType() {
-        final ArrayElement element = new ArrayElement("foo",
-                new BooleanElement("1", false));
-
-        final List<BooleanElement> elements = element
-                .queryPath(BooleanElement.class);
-        assertEquals(0, elements.size());
-    }
-
-    /**
-     * Test method for {@link ArrayElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final ArrayElement element = new ArrayElement("foo", subElement);
-
-        List<Element> elements = element.queryPath(Element.class, "1");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
-
-        elements = element.queryPath(Element.class, ".");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
-    }
-
-    /**
-     * Test method for {@link ArrayElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithPathNotMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final ArrayElement element = new ArrayElement("foo", subElement);
-
-        final List<Element> elements = element.queryPath(Element.class, "n.*");
-        assertEquals(0, elements.size());
     }
 
     /**

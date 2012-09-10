@@ -183,7 +183,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                 Reply reply = alreadySent.get();
                 if (reply.getResults().size() > 0) {
                     final Document doc = reply.getResults().get(0);
-                    final List<StringElement> strElem = doc.queryPath(
+                    final List<StringElement> strElem = doc.find(
                             StringElement.class, "nonce");
                     if (strElem.size() > 0) {
                         nonce = strElem.get(0).getValue();

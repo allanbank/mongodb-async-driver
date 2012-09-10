@@ -207,8 +207,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public boolean drop() {
         final Document result = myDatabase.runCommand("drop", myName, null);
-        final List<NumericElement> okElem = result.queryPath(
-                NumericElement.class, "ok");
+        final List<NumericElement> okElem = result.find(NumericElement.class,
+                "ok");
 
         return ((okElem.size() > 0) && (okElem.get(0).getIntValue() > 0));
     }
@@ -228,8 +228,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final Document result = myDatabase.runCommand("deleteIndexes", myName,
                 options.build());
-        final List<NumericElement> okElem = result.queryPath(
-                NumericElement.class, "ok");
+        final List<NumericElement> okElem = result.find(NumericElement.class,
+                "ok");
 
         return ((okElem.size() > 0) && (okElem.get(0).getIntValue() > 0));
     }

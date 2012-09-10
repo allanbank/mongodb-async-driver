@@ -78,8 +78,8 @@ public class ServerLatencyCallback extends FutureCallback<Reply> {
         final List<Document> replyDocs = reply.getResults();
         if (replyDocs.size() >= 1) {
             final Document doc = replyDocs.get(0);
-            final List<DocumentElement> tags = doc.queryPath(
-                    DocumentElement.class, "tags");
+            final List<DocumentElement> tags = doc.find(DocumentElement.class,
+                    "tags");
             if (!tags.isEmpty()) {
                 result = tags.get(0).asDocument();
             }
@@ -98,8 +98,8 @@ public class ServerLatencyCallback extends FutureCallback<Reply> {
         final List<Document> replyDocs = reply.getResults();
         if (replyDocs.size() >= 1) {
             final Document doc = replyDocs.get(0);
-            final List<BooleanElement> tags = doc.queryPath(
-                    BooleanElement.class, "ismaster|secondary");
+            final List<BooleanElement> tags = doc.find(BooleanElement.class,
+                    "ismaster|secondary");
             for (final BooleanElement tag : tags) {
                 if (tag.getValue()) {
                     return true;

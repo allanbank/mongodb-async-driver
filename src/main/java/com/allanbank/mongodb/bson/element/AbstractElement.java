@@ -7,6 +7,7 @@ package com.allanbank.mongodb.bson.element;
 import java.util.Collections;
 import java.util.List;
 
+import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 
 /**
@@ -19,6 +20,9 @@ import com.allanbank.mongodb.bson.Element;
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractElement implements Element {
+
+    /** The base type (interface) for all elements. */
+    protected static final Class<Element> ELEMENT_TYPE = Element.class;
 
     /** Serialization version for the class. */
     private static final long serialVersionUID = 7537761445549731633L;
@@ -71,6 +75,74 @@ public abstract class AbstractElement implements Element {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a singleton list if the nameRegexs is empty and this element's
+     * type is assignable to E. An empty list otherwise.
+     * </p>
+     * 
+     * @see Element#queryPath
+     */
+    @Override
+    public <E extends Element> List<E> find(final Class<E> clazz,
+            final String... nameRegexs) {
+        if ((nameRegexs.length == 0) && clazz.isAssignableFrom(this.getClass())) {
+            // End of the path. Match this element.
+            return Collections.singletonList(clazz.cast(this));
+        }
+
+        return Collections.emptyList();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a singleton list if the nameRegexs is empty. An empty list
+     * otherwise.
+     * </p>
+     * 
+     * @see Element#queryPath
+     */
+    @Override
+    public List<Element> find(final String... nameRegexs) {
+        return find(ELEMENT_TYPE, nameRegexs);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a {@code this} if the nameRegexs is empty and this element's type
+     * is assignable to E. An empty list otherwise.
+     * </p>
+     * 
+     * @see Element#findFirst
+     */
+    @Override
+    public <E extends Element> E findFirst(final Class<E> clazz,
+            final String... nameRegexs) {
+        if ((nameRegexs.length == 0) && clazz.isAssignableFrom(this.getClass())) {
+            // End of the path. Match this element.
+            return clazz.cast(this);
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Searches this sub-elements for matching elements on the path and are of
+     * the right type.
+     * </p>
+     * 
+     * @see Document#queryPath
+     */
+    @Override
+    public Element findFirst(final String... nameRegexs) {
+        return findFirst(ELEMENT_TYPE, nameRegexs);
+    }
+
+    /**
      * Returns the name for the BSON type.
      * 
      * @return The name for the BSON type.
@@ -95,35 +167,32 @@ public abstract class AbstractElement implements Element {
     /**
      * {@inheritDoc}
      * <p>
-     * Returns a singleton list if the nameRegexs is empty and this element's
-     * type is assignable to E. An empty list otherwise.
+     * To call the replacement method, {@link #find(Class, String...)}.
      * </p>
      * 
-     * @see Element#queryPath
+     * @see Document#queryPath
+     * @deprecated Use the replacement method, {@link #find(Class, String...)}.
      */
     @Override
+    @Deprecated
     public <E extends Element> List<E> queryPath(final Class<E> clazz,
             final String... nameRegexs) {
-        if ((nameRegexs.length == 0) && clazz.isAssignableFrom(this.getClass())) {
-            // End of the path. Match this element.
-            return Collections.singletonList(clazz.cast(this));
-        }
-
-        return Collections.emptyList();
+        return find(clazz, nameRegexs);
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Returns a singleton list if the nameRegexs is empty. An empty list
-     * otherwise.
+     * To call the replacement method, {@link #find(String...)}.
      * </p>
      * 
-     * @see Element#queryPath
+     * @see Document#queryPath
+     * @deprecated Use the replacement method, {@link #find(String...)}.
      */
     @Override
+    @Deprecated
     public List<Element> queryPath(final String... nameRegexs) {
-        return queryPath(Element.class, nameRegexs);
+        return find(nameRegexs);
     }
 
     /**

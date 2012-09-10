@@ -120,8 +120,8 @@ public class MongoImpl implements Mongo {
         final Document result = db.runAdminCommand("listDatabases");
 
         final List<String> names = new ArrayList<String>();
-        for (final StringElement nameElement : result.queryPath(
-                StringElement.class, "databases", ".*", "name")) {
+        for (final StringElement nameElement : result.find(StringElement.class,
+                "databases", ".*", "name")) {
 
             names.add(nameElement.getValue());
         }

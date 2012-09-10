@@ -67,7 +67,7 @@ public class ReplyResultCallback extends AbstractReplyCallback<List<Document>> {
         if (replyDocs.size() == 1) {
             final Document doc = replyDocs.get(0);
 
-            final List<DocumentElement> resultsElems = doc.queryPath(
+            final List<DocumentElement> resultsElems = doc.find(
                     DocumentElement.class, myReplyField, ".*");
             if (!resultsElems.isEmpty()) {
                 results = new ArrayList<Document>();

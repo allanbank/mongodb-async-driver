@@ -64,8 +64,7 @@ public class DocumentElementTest {
 
     /**
      * Test method for
-     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
-     * .
+     * {@link DocumentElement#DocumentElement(String, java.util.List)} .
      */
     @Test
     public void testConstructEmptyDocument() {
@@ -88,8 +87,7 @@ public class DocumentElementTest {
 
     /**
      * Test method for
-     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
-     * .
+     * {@link DocumentElement#DocumentElement(String, java.util.List)} .
      */
     @Test
     public void testConstructEmptyDocumentCollectionEmpty() {
@@ -101,8 +99,7 @@ public class DocumentElementTest {
 
     /**
      * Test method for
-     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
-     * .
+     * {@link DocumentElement#DocumentElement(String, java.util.List)} .
      */
     @Test
     public void testConstructEmptyDocumentList() {
@@ -114,8 +111,7 @@ public class DocumentElementTest {
 
     /**
      * Test method for
-     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
-     * .
+     * {@link DocumentElement#DocumentElement(String, java.util.List)} .
      */
     @Test
     public void testConstructEmptyDocumentListEmpty() {
@@ -127,8 +123,7 @@ public class DocumentElementTest {
 
     /**
      * Test method for
-     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.List)}
-     * .
+     * {@link DocumentElement#DocumentElement(String, java.util.List)} .
      */
     @Test
     public void testConstructor() {
@@ -143,8 +138,7 @@ public class DocumentElementTest {
 
     /**
      * Test method for
-     * {@link DocumentElement#DocumentElement(java.lang.String, java.util.Collection)}
-     * .
+     * {@link DocumentElement#DocumentElement(String, java.util.Collection)} .
      */
     @Test
     public void testConstructorWithCollection() {
@@ -158,7 +152,7 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for {@link DocumentElement#contains(java.lang.String)}.
+     * Test method for {@link DocumentElement#contains(String)}.
      */
     @Test
     public void testContains() {
@@ -170,7 +164,7 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for {@link DocumentElement#equals(java.lang.Object)}.
+     * Test method for {@link DocumentElement#equals(Object)}.
      */
     @SuppressWarnings("deprecation")
     @Test
@@ -285,7 +279,225 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for {@link DocumentElement#get(java.lang.String)}.
+     * Test method for {@link DocumentElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithBadPatternPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("(", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        final Element found = element.findFirst(Element.class, "(");
+        assertNotNull(found);
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link DocumentElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithBadPatternPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        final Element found = element.findFirst(Element.class, "(");
+        assertNull(found);
+    }
+
+    /**
+     * Test method for {@link DocumentElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithEmptyPathMatchingType() {
+
+        final DocumentElement element = new DocumentElement("foo",
+                new BooleanElement("1", false));
+
+        final Element found = element.findFirst(Element.class);
+        assertNotNull(found);
+        assertSame(element, found);
+
+        final DocumentElement arrayFound = element
+                .findFirst(DocumentElement.class);
+        assertNotNull(arrayFound);
+        assertSame(element, arrayFound);
+    }
+
+    /**
+     * Test method for {@link DocumentElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithEmptyPathNonMatchingType() {
+        final DocumentElement element = new DocumentElement("foo",
+                new BooleanElement("1", false));
+
+        final Element found = element.findFirst(BooleanElement.class);
+        assertNull(found);
+    }
+
+    /**
+     * Test method for {@link DocumentElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        Element found = element.findFirst(Element.class, "1");
+        assertNotNull(found);
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, ".");
+        assertNotNull(found);
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link ArrayElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingNonFirstSubelement() {
+        final BooleanElement subElement = new BooleanElement("123", false);
+        final DocumentElement element = new DocumentElement("f", new BooleanElement("2",
+                false), subElement);
+
+        Element found = element.findFirst(Element.class, "123");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, "12.");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link DocumentElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingNonLastSubelement() {
+        final BooleanElement subElement = new BooleanElement("123", false);
+        final DocumentElement element = new DocumentElement("f", subElement,
+                new BooleanElement("2", false));
+
+        Element found = element.findFirst(Element.class, "123");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, "12.");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link DocumentElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingNonLastSubelementBadRegex() {
+        final BooleanElement subElement = new BooleanElement("(", false);
+        final DocumentElement element = new DocumentElement("f", subElement,
+                new BooleanElement("2", false));
+
+        Element found = element.findFirst(Element.class, "(");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, "(");
+        assertSame(subElement, found);
+    }
+    /**
+     * Test method for {@link DocumentElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        final Element found = element.findFirst(Element.class, "n.*");
+        assertNull(found);
+    }
+
+    /**
+     * Test method for {@link DocumentElement#find}.
+     */
+    @Test
+    public void testFindWithBadPatternPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("(", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        final List<Element> elements = element.find(Element.class, "(");
+        assertEquals(1, elements.size());
+        assertSame(subElement, elements.get(0));
+    }
+
+    /**
+     * Test method for {@link DocumentElement#find}.
+     */
+    @Test
+    public void testFindWithBadPatternPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        final List<Element> elements = element.find(Element.class, "(");
+        assertEquals(0, elements.size());
+    }
+
+    /**
+     * Test method for {@link DocumentElement#find}.
+     */
+    @Test
+    public void testFindWithEmptyPathMatchingType() {
+
+        final DocumentElement element = new DocumentElement("foo",
+                new BooleanElement("1", false));
+
+        final List<Element> elements = element.find(Element.class);
+        assertEquals(1, elements.size());
+        assertSame(element, elements.get(0));
+
+        final List<DocumentElement> arrayElements = element
+                .find(DocumentElement.class);
+        assertEquals(1, arrayElements.size());
+        assertSame(element, arrayElements.get(0));
+    }
+
+    /**
+     * Test method for {@link DocumentElement#find}.
+     */
+    @Test
+    public void testFindWithEmptyPathNonMatchingType() {
+        final DocumentElement element = new DocumentElement("foo",
+                new BooleanElement("1", false));
+
+        final List<BooleanElement> elements = element
+                .find(BooleanElement.class);
+        assertEquals(0, elements.size());
+    }
+
+    /**
+     * Test method for {@link DocumentElement#find}.
+     */
+    @Test
+    public void testFindWithPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        List<Element> elements = element.find(Element.class, "1");
+        assertEquals(1, elements.size());
+        assertSame(subElement, elements.get(0));
+
+        elements = element.find(Element.class, ".");
+        assertEquals(1, elements.size());
+        assertSame(subElement, elements.get(0));
+    }
+
+    /**
+     * Test method for {@link DocumentElement#find}.
+     */
+    @Test
+    public void testFindWithPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        final List<Element> elements = element.find(Element.class, "n.*");
+        assertEquals(0, elements.size());
+    }
+
+    /**
+     * Test method for {@link DocumentElement#get(String)}.
      */
     @Test
     public void testGet() {
@@ -294,6 +506,19 @@ public class DocumentElementTest {
 
         assertSame(subElement, element.get("1"));
         assertNull(element.get("2"));
+    }
+
+    /**
+     * Test method for {@link DocumentElement#get(Class,String)}.
+     */
+    @Test
+    public void testGetWithType() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final DocumentElement element = new DocumentElement("f", subElement);
+
+        assertSame(subElement, element.get(BooleanElement.class, "1"));
+        assertNull(element.get(IntegerElement.class, "1"));
+        assertNull(element.get(BooleanElement.class, "2"));
     }
 
     /**
@@ -327,64 +552,8 @@ public class DocumentElementTest {
      * Test method for {@link DocumentElement#queryPath}.
      */
     @Test
-    public void testQueryPathWithBadPatternPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("(", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
-
-        final List<Element> elements = element.queryPath(Element.class, "(");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
-    }
-
-    /**
-     * Test method for {@link DocumentElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithBadPatternPathNotMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
-
-        final List<Element> elements = element.queryPath(Element.class, "(");
-        assertEquals(0, elements.size());
-    }
-
-    /**
-     * Test method for {@link DocumentElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithEmptyPathMatchingType() {
-
-        final DocumentElement element = new DocumentElement("foo",
-                new BooleanElement("1", false));
-
-        final List<Element> elements = element.queryPath(Element.class);
-        assertEquals(1, elements.size());
-        assertSame(element, elements.get(0));
-
-        final List<DocumentElement> arrayElements = element
-                .queryPath(DocumentElement.class);
-        assertEquals(1, arrayElements.size());
-        assertSame(element, arrayElements.get(0));
-    }
-
-    /**
-     * Test method for {@link DocumentElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithEmptyPathNonMatchingType() {
-        final DocumentElement element = new DocumentElement("foo",
-                new BooleanElement("1", false));
-
-        final List<BooleanElement> elements = element
-                .queryPath(BooleanElement.class);
-        assertEquals(0, elements.size());
-    }
-
-    /**
-     * Test method for {@link DocumentElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithPathMatchingSubelement() {
+    @Deprecated
+    public void testQueryPath() {
         final BooleanElement subElement = new BooleanElement("1", false);
         final DocumentElement element = new DocumentElement("foo", subElement);
 
@@ -395,18 +564,6 @@ public class DocumentElementTest {
         elements = element.queryPath(Element.class, ".");
         assertEquals(1, elements.size());
         assertSame(subElement, elements.get(0));
-    }
-
-    /**
-     * Test method for {@link DocumentElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithPathNotMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
-
-        final List<Element> elements = element.queryPath(Element.class, "n.*");
-        assertEquals(0, elements.size());
     }
 
     /**

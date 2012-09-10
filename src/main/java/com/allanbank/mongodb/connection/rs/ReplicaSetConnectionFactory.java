@@ -101,7 +101,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                     // See if we can add the other servers also.
                     if (myConfig.isAutoDiscoverServers()) {
                         // Pull them all in.
-                        final List<StringElement> hosts = doc.queryPath(
+                        final List<StringElement> hosts = doc.find(
                                 StringElement.class, "hosts", ".*");
                         for (final StringElement host : hosts) {
                             myClusterState.add(host.getValue());
@@ -109,7 +109,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                     }
 
                     // Add and mark the primary as writable.
-                    for (final StringElement primary : doc.queryPath(
+                    for (final StringElement primary : doc.find(
                             StringElement.class, "primary")) {
 
                         myClusterState.markWritable(myClusterState.get(primary

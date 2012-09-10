@@ -29,6 +29,51 @@ public interface Element extends Serializable, ElementAssignable {
     public void accept(Visitor visitor);
 
     /**
+     * Returns the elements matching the path of regular expressions.
+     * 
+     * @param <E>
+     *            The type of element to match.
+     * @param clazz
+     *            The class of elements to match.
+     * @param nameRegexs
+     *            The path of regular expressions.
+     * @return The elements matching the path of regular expressions.
+     */
+    public <E extends Element> List<E> find(Class<E> clazz,
+            String... nameRegexs);
+
+    /**
+     * Returns the elements matching the path of regular expressions.
+     * 
+     * @param nameRegexs
+     *            The path of regular expressions.
+     * @return The elements matching the path of regular expressions.
+     */
+    public List<Element> find(String... nameRegexs);
+
+    /**
+     * Returns the first element matching the path of regular expressions.
+     * 
+     * @param <E>
+     *            The type of element to match.
+     * @param clazz
+     *            The class of element to match.
+     * @param nameRegexs
+     *            The path of regular expressions.
+     * @return The first element matching the path of regular expressions.
+     */
+    public <E extends Element> E findFirst(Class<E> clazz, String... nameRegexs);
+
+    /**
+     * Returns the first element matching the path of regular expressions.
+     * 
+     * @param nameRegexs
+     *            The path of regular expressions.
+     * @return The first element matching the path of regular expressions.
+     */
+    public Element findFirst(String... nameRegexs);
+
+    /**
      * Returns the name for the BSON type.
      * 
      * @return The name for the BSON type.
@@ -52,7 +97,9 @@ public interface Element extends Serializable, ElementAssignable {
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The elements matching the path of regular expressions.
+     * @deprecated Use the clearer {@link #find(String...)} method instead.
      */
+    @Deprecated
     public <E extends Element> List<E> queryPath(Class<E> clazz,
             String... nameRegexs);
 
@@ -62,7 +109,9 @@ public interface Element extends Serializable, ElementAssignable {
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The elements matching the path of regular expressions.
+     * @deprecated Use the clearer {@link #find(String...)} method instead.
      */
+    @Deprecated
     public List<Element> queryPath(String... nameRegexs);
 
     /**

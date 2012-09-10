@@ -77,7 +77,7 @@ import com.allanbank.mongodb.error.ReplyException;
                         "Should only be a single document in the reply.");
             }
             else if (reply.getResults().get(0)
-                    .queryPath(DocumentElement.class, myName).isEmpty()) {
+                    .find(DocumentElement.class, myName).isEmpty()) {
                 error = new ReplyException(reply, "No '" + myName
                         + "' document in the reply.");
             }
@@ -97,8 +97,8 @@ import com.allanbank.mongodb.error.ReplyException;
     protected Document convert(final Reply reply) throws MongoDbException {
         final List<Document> results = reply.getResults();
         if (results.size() == 1) {
-            return results.get(0).queryPath(DocumentElement.class, myName)
-                    .get(0).getDocument();
+            return results.get(0).find(DocumentElement.class, myName).get(0)
+                    .getDocument();
         }
 
         return null;

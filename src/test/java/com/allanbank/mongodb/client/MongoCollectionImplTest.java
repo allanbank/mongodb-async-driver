@@ -1130,8 +1130,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(result.build().queryPath(ArrayElement.class, "values")
-                .get(0), myTestInstance.distinct(request));
+        assertEquals(result.build().find(ArrayElement.class, "values").get(0),
+                myTestInstance.distinct(request));
 
         verify();
     }
@@ -1202,8 +1202,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(result.build().queryPath(ArrayElement.class, "values")
-                .get(0), myTestInstance.distinctAsync(request).get());
+        assertEquals(result.build().find(ArrayElement.class, "values").get(0),
+                myTestInstance.distinctAsync(request).get());
 
         verify();
     }
@@ -2036,8 +2036,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(result.build().queryPath(ArrayElement.class, "retval")
-                .get(0), myTestInstance.groupBy(request));
+        assertEquals(result.build().find(ArrayElement.class, "retval").get(0),
+                myTestInstance.groupBy(request));
 
         verify();
     }
@@ -2104,8 +2104,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(result.build().queryPath(ArrayElement.class, "retval")
-                .get(0), myTestInstance.groupByAsync(request).get());
+        assertEquals(result.build().find(ArrayElement.class, "retval").get(0),
+                myTestInstance.groupByAsync(request).get());
 
         verify();
     }

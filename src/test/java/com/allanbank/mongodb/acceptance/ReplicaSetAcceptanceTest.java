@@ -357,7 +357,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
      * @return The operation count or -1 if it is not found.
      */
     private int extractOpCounter(final Document doc, final String op) {
-        final List<NumericElement> es = doc.queryPath(NumericElement.class,
+        final List<NumericElement> es = doc.find(NumericElement.class,
                 "opcounters", op);
         if (es.isEmpty()) {
             return -1;

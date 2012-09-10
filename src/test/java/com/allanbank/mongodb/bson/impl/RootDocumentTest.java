@@ -33,6 +33,7 @@ import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.impl.DocumentBuilderImpl;
 import com.allanbank.mongodb.bson.element.BooleanElement;
+import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.ObjectIdElement;
 
@@ -108,7 +109,7 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#contains(java.lang.String)}.
+     * Test method for {@link RootDocument#contains(String)}.
      */
     @Test
     public void testContains() {
@@ -120,7 +121,7 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#equals(java.lang.Object)}.
+     * Test method for {@link RootDocument#equals(Object)}.
      */
     @SuppressWarnings("deprecation")
     @Test
@@ -232,7 +233,185 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#get(java.lang.String)}.
+     * Test method for {@link RootDocument#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithBadPatternPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("(", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        final Element found = element.findFirst("(");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link RootDocument#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithBadPatternPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        final Element found = element.findFirst(Element.class, "(");
+        assertNull(found);
+    }
+
+    /**
+     * Test method for {@link RootDocument#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithEmptyPathNonMatchingType() {
+        final RootDocument element = new RootDocument(new BooleanElement("1",
+                false));
+
+        final BooleanElement found = element.findFirst(BooleanElement.class);
+        assertNull(found);
+    }
+
+    /**
+     * Test method for {@link RootDocument#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        Element found = element.findFirst(Element.class, "1");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, ".");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link RootDocument#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingNonFirstSubelement() {
+        final BooleanElement subElement = new BooleanElement("123", false);
+        final RootDocument element = new RootDocument(new BooleanElement("2",
+                false), subElement);
+
+        Element found = element.findFirst(Element.class, "123");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, "12.");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link RootDocument#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingNonLastSubelement() {
+        final BooleanElement subElement = new BooleanElement("123", false);
+        final RootDocument element = new RootDocument(subElement,
+                new BooleanElement("2", false));
+
+        Element found = element.findFirst(Element.class, "123");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, "12.");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link RootDocument#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathMatchingNonLastSubelementBadRegex() {
+        final BooleanElement subElement = new BooleanElement("(", false);
+        final RootDocument element = new RootDocument(subElement,
+                new BooleanElement("2", false));
+
+        Element found = element.findFirst(Element.class, "(");
+        assertSame(subElement, found);
+
+        found = element.findFirst(Element.class, "(");
+        assertSame(subElement, found);
+    }
+
+    /**
+     * Test method for {@link RootDocument#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        final Element found = element.findFirst(Element.class, "n.*");
+        assertNull(found);
+    }
+
+    /**
+     * Test method for {@link RootDocument#find}.
+     */
+    @Test
+    public void testFindWithBadPatternPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("(", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        final List<Element> elements = element.find("(");
+        assertEquals(1, elements.size());
+        assertSame(subElement, elements.get(0));
+    }
+
+    /**
+     * Test method for {@link RootDocument#find}.
+     */
+    @Test
+    public void testFindWithBadPatternPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        final List<Element> elements = element.find(Element.class, "(");
+        assertEquals(0, elements.size());
+    }
+
+    /**
+     * Test method for {@link RootDocument#find}.
+     */
+    @Test
+    public void testFindWithEmptyPathNonMatchingType() {
+        final RootDocument element = new RootDocument(new BooleanElement("1",
+                false));
+
+        final List<BooleanElement> elements = element
+                .find(BooleanElement.class);
+        assertEquals(0, elements.size());
+    }
+
+    /**
+     * Test method for {@link RootDocument#find}.
+     */
+    @Test
+    public void testFindWithPathMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        List<Element> elements = element.find(Element.class, "1");
+        assertEquals(1, elements.size());
+        assertSame(subElement, elements.get(0));
+
+        elements = element.find(Element.class, ".");
+        assertEquals(1, elements.size());
+        assertSame(subElement, elements.get(0));
+    }
+
+    /**
+     * Test method for {@link RootDocument#find}.
+     */
+    @Test
+    public void testFindWithPathNotMatchingSubelement() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        final List<Element> elements = element.find(Element.class, "n.*");
+        assertEquals(0, elements.size());
+    }
+
+    /**
+     * Test method for {@link RootDocument#get(String)}.
      */
     @Test
     public void testGet() {
@@ -241,6 +420,19 @@ public class RootDocumentTest {
 
         assertSame(subElement, element.get("1"));
         assertNull(element.get("2"));
+    }
+
+    /**
+     * Test method for {@link RootDocument#get(Class,String)}.
+     */
+    @Test
+    public void testGetWithType() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final RootDocument element = new RootDocument(subElement);
+
+        assertSame(subElement, element.get(BooleanElement.class, "1"));
+        assertNull(element.get(IntegerElement.class, "1"));
+        assertNull(element.get(BooleanElement.class, "2"));
     }
 
     /**
@@ -319,45 +511,8 @@ public class RootDocumentTest {
      * Test method for {@link RootDocument#queryPath}.
      */
     @Test
-    public void testQueryPathWithBadPatternPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("(", false);
-        final RootDocument element = new RootDocument(subElement);
-
-        final List<Element> elements = element.queryPath("(");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
-    }
-
-    /**
-     * Test method for {@link RootDocument#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithBadPatternPathNotMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
-
-        final List<Element> elements = element.queryPath(Element.class, "(");
-        assertEquals(0, elements.size());
-    }
-
-    /**
-     * Test method for {@link RootDocument#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithEmptyPathNonMatchingType() {
-        final RootDocument element = new RootDocument(new BooleanElement("1",
-                false));
-
-        final List<BooleanElement> elements = element
-                .queryPath(BooleanElement.class);
-        assertEquals(0, elements.size());
-    }
-
-    /**
-     * Test method for {@link RootDocument#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithPathMatchingSubelement() {
+    @Deprecated
+    public void testQueryPath() {
         final BooleanElement subElement = new BooleanElement("1", false);
         final RootDocument element = new RootDocument(subElement);
 
@@ -368,18 +523,10 @@ public class RootDocumentTest {
         elements = element.queryPath(Element.class, ".");
         assertEquals(1, elements.size());
         assertSame(subElement, elements.get(0));
-    }
 
-    /**
-     * Test method for {@link RootDocument#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithPathNotMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
-
-        final List<Element> elements = element.queryPath(Element.class, "n.*");
-        assertEquals(0, elements.size());
+        elements = element.queryPath(".");
+        assertEquals(1, elements.size());
+        assertSame(subElement, elements.get(0));
     }
 
     /**

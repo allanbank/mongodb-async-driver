@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.bson.element;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
@@ -162,6 +163,135 @@ public class BinaryElementTest {
     }
 
     /**
+     * Test method for {@link BinaryElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithoutTypeMatch() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        final Element found = element.findFirst();
+        assertSame(element, found);
+    }
+
+    /**
+     * Test method for {@link BinaryElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithoutTypeNoMatch() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        final Element found = element.findFirst("anything");
+        assertNull(found);
+    }
+
+    /**
+     * Test method for {@link BinaryElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithoutTypeNotMatch() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        final BinaryElement bFound = element.findFirst(BinaryElement.class);
+        assertSame(element, bFound);
+
+        final Element found = element.findFirst(Element.class);
+        assertSame(element, found);
+    }
+
+    /**
+     * Test method for {@link BinaryElement#findFirst}.
+     */
+    @Test
+    public void testFindFirstWithTypeNotMatch() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        final Element found = element.findFirst(Element.class, "foo");
+        assertNull(found);
+
+        final BooleanElement bFound = element.findFirst(BooleanElement.class);
+        assertNull(bFound);
+    }
+
+    /**
+     * Test method for {@link BinaryElement#find}.
+     */
+    @Test
+    public void testFindWithoutTypeMatch() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        final List<Element> elements = element.find();
+        assertEquals(1, elements.size());
+        assertSame(element, elements.get(0));
+    }
+
+    /**
+     * Test method for {@link BinaryElement#queryPath}.
+     */
+    @Test
+    @Deprecated
+    public void testQueryPath() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        List<Element> elements = element.queryPath();
+        assertEquals(1, elements.size());
+        assertSame(element, elements.get(0));
+
+        elements = element.queryPath(Element.class);
+        assertEquals(1, elements.size());
+        assertSame(element, elements.get(0));
+    }
+
+    /**
+     * Test method for {@link BinaryElement#find}.
+     */
+    @Test
+    public void testFindWithoutTypeNoMatch() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        final List<Element> elements = element.find("anything");
+        assertEquals(0, elements.size());
+    }
+
+    /**
+     * Test method for {@link BinaryElement#find}.
+     */
+    @Test
+    public void testFindWithoutTypeNotMatch() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        final List<BinaryElement> bElements = element.find(BinaryElement.class);
+        assertEquals(1, bElements.size());
+        assertSame(element, bElements.get(0));
+
+        final List<Element> elements = element.find(Element.class);
+        assertEquals(1, elements.size());
+        assertSame(element, elements.get(0));
+    }
+
+    /**
+     * Test method for {@link BinaryElement#find}.
+     */
+    @Test
+    public void testFindWithTypeNotMatch() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        final List<Element> found = element.find(Element.class, "foo");
+        assertEquals(0, found.size());
+
+        final List<BooleanElement> bFound = element.find(BooleanElement.class);
+        assertEquals(0, bFound.size());
+    }
+
+    /**
      * Test method for {@link BinaryElement#getSubType()} and
      * {@link BinaryElement#getValue()}.
      */
@@ -172,65 +302,6 @@ public class BinaryElementTest {
 
         assertEquals((byte) 0x01, element.getSubType());
         assertArrayEquals(new byte[] { 0x01, 0x02, 0x03 }, element.getValue());
-    }
-
-    /**
-     * Test method for {@link BinaryElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithoutTypeMatch() {
-        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
-                new byte[] { 0x01, 0x02, 0x03 });
-
-        final List<Element> elements = element.queryPath();
-        assertEquals(1, elements.size());
-        assertSame(element, elements.get(0));
-    }
-
-    /**
-     * Test method for {@link BinaryElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithoutTypeNoMatch() {
-        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
-                new byte[] { 0x01, 0x02, 0x03 });
-
-        final List<Element> elements = element.queryPath("anything");
-        assertEquals(0, elements.size());
-    }
-
-    /**
-     * Test method for {@link BinaryElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithoutTypeNotMatch() {
-        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
-                new byte[] { 0x01, 0x02, 0x03 });
-
-        final List<BinaryElement> bElements = element
-                .queryPath(BinaryElement.class);
-        assertEquals(1, bElements.size());
-        assertSame(element, bElements.get(0));
-
-        final List<Element> elements = element.queryPath(Element.class);
-        assertEquals(1, elements.size());
-        assertSame(element, elements.get(0));
-    }
-
-    /**
-     * Test method for {@link BinaryElement#queryPath}.
-     */
-    @Test
-    public void testQueryPathWithTypeNotMatch() {
-        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
-                new byte[] { 0x01, 0x02, 0x03 });
-
-        final List<Element> elements = element.queryPath(Element.class, "foo");
-        assertEquals(0, elements.size());
-
-        final List<BooleanElement> bElements = element
-                .queryPath(BooleanElement.class);
-        assertEquals(0, bElements.size());
     }
 
     /**

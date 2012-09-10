@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.Date;
 
 import org.easymock.Capture;
-import org.easymock.EasyMock;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
@@ -41,6 +40,7 @@ public class SecondsBehindCallbackTest {
         final Date optime = new Date();
 
         final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("myState", 1);
         final ArrayBuilder membersBuilder = builder.pushArray("members");
         membersBuilder.push().add("name", "foo").add("optimeDate", optime);
         membersBuilder.push().add("name", "bar")
@@ -67,11 +67,33 @@ public class SecondsBehindCallbackTest {
      * Test method for {@link SecondsBehindCallback#callback} .
      */
     @Test
+    public void testCallbackNoServerState() {
+
+        final Date optime = new Date();
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("myState", 1);
+        final ArrayBuilder membersBuilder = builder.pushArray("members");
+        membersBuilder.push().add("name", "foo").add("optimeDate", optime);
+        membersBuilder.push().add("name", "bar")
+                .add("optimeDate", new Date(optime.getTime() - 1000));
+
+        final ServerState state = null;
+
+        final SecondsBehindCallback callback = new SecondsBehindCallback(state);
+        callback.callback(reply(builder));
+    }
+
+    /**
+     * Test method for {@link SecondsBehindCallback#callback} .
+     */
+    @Test
     public void testCallbackBehind() {
 
         final Date optime = new Date();
 
         final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("myState", 1);
         final ArrayBuilder membersBuilder = builder.pushArray("members");
         membersBuilder.push().add("name", "bar").add("optimeDate", optime);
         membersBuilder.push().add("name", "foo")
@@ -98,11 +120,65 @@ public class SecondsBehindCallbackTest {
      * Test method for {@link SecondsBehindCallback#callback} .
      */
     @Test
+    public void testCallbackBehindNoState() {
+
+        final Date optime = new Date();
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder membersBuilder = builder.pushArray("members");
+        membersBuilder.push().add("name", "bar").add("optimeDate", optime);
+        membersBuilder.push().add("name", "foo")
+                .add("optimeDate", new Date(optime.getTime() - 1500));
+
+        final ServerState state = createMock(ServerState.class);
+        state.setSecondsBehind(Double.MAX_VALUE);
+        expectLastCall();
+
+        replay(state);
+
+        final SecondsBehindCallback callback = new SecondsBehindCallback(state);
+        callback.callback(reply(builder));
+
+        verify(state);
+    }
+
+    /**
+     * Test method for {@link SecondsBehindCallback#callback} .
+     */
+    @Test
+    public void testCallbackBehindNotPrimaryOrSecondary() {
+
+        final Date optime = new Date();
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("myState", 3);
+        final ArrayBuilder membersBuilder = builder.pushArray("members");
+        membersBuilder.push().add("name", "bar").add("optimeDate", optime);
+        membersBuilder.push().add("name", "foo")
+                .add("optimeDate", new Date(optime.getTime() - 1500));
+
+        final ServerState state = createMock(ServerState.class);
+        state.setSecondsBehind(Double.MAX_VALUE);
+        expectLastCall();
+
+        replay(state);
+
+        final SecondsBehindCallback callback = new SecondsBehindCallback(state);
+        callback.callback(reply(builder));
+
+        verify(state);
+    }
+
+    /**
+     * Test method for {@link SecondsBehindCallback#callback} .
+     */
+    @Test
     public void testCallbackNoOptime() {
 
         final Date optime = new Date();
 
         final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("myState", 2);
         final ArrayBuilder membersBuilder = builder.pushArray("members");
         membersBuilder.push().add("name", "foo");
         membersBuilder.push().add("name", "bar").add("optimeDate", optime);
@@ -129,6 +205,7 @@ public class SecondsBehindCallbackTest {
         final Date optime = new Date();
 
         final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("myState", 1);
         final ArrayBuilder membersBuilder = builder.pushArray("members");
         membersBuilder.push().add("name", "bar").add("optimeDate", optime);
         membersBuilder.push().add("name", "baz")
@@ -154,6 +231,7 @@ public class SecondsBehindCallbackTest {
         final Date optime = new Date();
 
         final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("myState", 1);
         final ArrayBuilder membersBuilder = builder.pushArray("members");
         membersBuilder.push().add("name", "foo").add("optimeDate", 1);
         membersBuilder.push().add("name", "bar").add("optimeDate", optime);
@@ -172,20 +250,31 @@ public class SecondsBehindCallbackTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.connection.state.SecondsBehindCallback#exception(java.lang.Throwable)}
-     * .
+     * Test method for {@link SecondsBehindCallback#exception} .
      */
     @Test
     public void testException() {
         final ServerState state = createMock(ServerState.class);
 
-        EasyMock.replay(state);
+        state.setSecondsBehind(Integer.MAX_VALUE);
+        expectLastCall();
 
-        final ServerLatencyCallback callback = new ServerLatencyCallback(state);
+        replay(state);
+
+        final SecondsBehindCallback callback = new SecondsBehindCallback(state);
         callback.exception(null);
 
-        EasyMock.verify(state);
+        verify(state);
     }
 
+    /**
+     * Test method for {@link SecondsBehindCallback#exception} .
+     */
+    @Test
+    public void testExceptionNoServerState() {
+        final ServerState state = null;
+
+        final SecondsBehindCallback callback = new SecondsBehindCallback(state);
+        callback.exception(null);
+    }
 }

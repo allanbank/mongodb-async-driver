@@ -559,8 +559,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ArrayElement items = myCollection.distinct(builder.build());
 
         final Set<String> actual = new HashSet<String>();
-        for (final StringElement element : items.queryPath(StringElement.class,
-                ".*")) {
+        for (final StringElement element : items
+                .find(StringElement.class, ".*")) {
             actual.add(element.getValue());
         }
 

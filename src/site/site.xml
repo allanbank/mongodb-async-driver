@@ -14,9 +14,11 @@
 			<item name="Getting Started" href="usage.html" />
 			<item name="Performance" href="index.html#Performance">
 				<item name="YCSB Results" href="performance/ycsb.html" />
-				<item name="Performance" href="performance/performance.html" />
+				<item name="Asynchronous Performance" href="performance/performance.html" />
 				<item name="BSON Performance" href="performance/bson_performance.html" />
 			</item>
+			<item name="Motivation" href="index.html#Motivation">
+			<item name="Software Quality" href="index.html#Quality">
 		</menu>
 		<menu ref="reports" />
 	</body>

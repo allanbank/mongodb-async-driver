@@ -7,10 +7,12 @@ package com.allanbank.mongodb.bson.element;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -109,6 +111,98 @@ public class ArrayElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Searches this sub-elements for matching elements on the path and are of
+     * the right type.
+     * </p>
+     * 
+     * @see Element#queryPath
+     */
+    @Override
+    public <E extends Element> List<E> find(final Class<E> clazz,
+            final String... nameRegexs) {
+        if (0 < nameRegexs.length) {
+            final List<E> elements = new ArrayList<E>();
+            final String nameRegex = nameRegexs[0];
+            final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
+                    nameRegexs.length);
+            try {
+                final Pattern pattern = PatternUtils.toPattern(nameRegex);
+                for (final Element element : myEntries) {
+                    if (pattern.matcher(element.getName()).matches()) {
+                        elements.addAll(element.find(clazz, subNameRegexs));
+                    }
+                }
+            }
+            catch (final PatternSyntaxException pse) {
+                // Assume a non-pattern?
+                for (final Element element : myEntries) {
+                    if (nameRegex.equals(element.getName())) {
+                        elements.addAll(element.find(clazz, subNameRegexs));
+                    }
+                }
+            }
+
+            return elements;
+        }
+
+        // End of the path -- are we the right type
+        if (clazz.isAssignableFrom(this.getClass())) {
+            return Collections.singletonList(clazz.cast(this));
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Searches this sub-elements for matching elements on the path and are of
+     * the right type.
+     * </p>
+     * 
+     * @see Document#queryPath
+     */
+    @Override
+    public <E extends Element> E findFirst(final Class<E> clazz,
+            final String... nameRegexs) {
+        E element = null;
+        if (0 < nameRegexs.length) {
+            final String nameRegex = nameRegexs[0];
+            final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
+                    nameRegexs.length);
+
+            try {
+                final Pattern pattern = PatternUtils.toPattern(nameRegex);
+                final Iterator<Element> iter = myEntries.iterator();
+                while (iter.hasNext() && (element == null)) {
+                    final Element docElement = iter.next();
+                    if (pattern.matcher(docElement.getName()).matches()) {
+                        element = docElement.findFirst(clazz, subNameRegexs);
+                    }
+                }
+            }
+            catch (final PatternSyntaxException pse) {
+                // Assume a non-pattern?
+                final Iterator<Element> iter = myEntries.iterator();
+                while (iter.hasNext() && (element == null)) {
+                    final Element docElement = iter.next();
+                    if (nameRegex.equals(docElement.getName())) {
+                        element = docElement.findFirst(clazz, subNameRegexs);
+                    }
+                }
+            }
+        }
+        else {
+            // End of the path -- are we the right type/element?
+            if (clazz.isAssignableFrom(this.getClass())) {
+                element = clazz.cast(this);
+            }
+        }
+        return element;
+    }
+
+    /**
      * Returns the entries in the array. The name attribute will be ignored when
      * encoding the elements. When decoded the names will be the strings 0, 1,
      * 2, 3, etc..
@@ -138,50 +232,6 @@ public class ArrayElement extends AbstractElement {
         result = (31 * result) + super.hashCode();
         result = (31 * result) + myEntries.hashCode();
         return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Searches this sub-elements for matching elements on the path and are of
-     * the right type.
-     * </p>
-     * 
-     * @see Element#queryPath
-     */
-    @Override
-    public <E extends Element> List<E> queryPath(final Class<E> clazz,
-            final String... nameRegexs) {
-        if (0 < nameRegexs.length) {
-            final List<E> elements = new ArrayList<E>();
-            final String nameRegex = nameRegexs[0];
-            final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
-                    nameRegexs.length);
-            try {
-                final Pattern pattern = PatternUtils.toPattern(nameRegex);
-                for (final Element element : myEntries) {
-                    if (pattern.matcher(element.getName()).matches()) {
-                        elements.addAll(element.queryPath(clazz, subNameRegexs));
-                    }
-                }
-            }
-            catch (final PatternSyntaxException pse) {
-                // Assume a non-pattern?
-                for (final Element element : myEntries) {
-                    if (nameRegex.equals(element.getName())) {
-                        elements.addAll(element.queryPath(clazz, subNameRegexs));
-                    }
-                }
-            }
-
-            return elements;
-        }
-
-        // End of the path -- are we the right type
-        if (clazz.isAssignableFrom(this.getClass())) {
-            return Collections.singletonList(clazz.cast(this));
-        }
-        return Collections.emptyList();
     }
 
     /**

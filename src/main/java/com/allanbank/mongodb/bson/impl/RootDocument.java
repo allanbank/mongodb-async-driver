@@ -34,6 +34,9 @@ public class RootDocument implements Document {
     /** The empty list of elements. */
     public static final List<Element> EMPTY_ELEMENTS = Collections.emptyList();
 
+    /** The base type (interface) for all elements. */
+    protected static final Class<Element> ELEMENT_TYPE = Element.class;
+
     /** Serialization version for the class. */
     private static final long serialVersionUID = -2875918328146027036L;
 
@@ -158,6 +161,120 @@ public class RootDocument implements Document {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Searches this sub-elements for matching elements on the path and are of
+     * the right type.
+     * </p>
+     * 
+     * @see Document#queryPath
+     */
+    @Override
+    public <E extends Element> List<E> find(final Class<E> clazz,
+            final String... nameRegexs) {
+        List<E> elements = Collections.emptyList();
+        if (0 < nameRegexs.length) {
+            final List<Element> docElements = myElements.get();
+            final String nameRegex = nameRegexs[0];
+            final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
+                    nameRegexs.length);
+
+            elements = new ArrayList<E>();
+            try {
+                final Pattern pattern = PatternUtils.toPattern(nameRegex);
+                for (final Element element : docElements) {
+                    if (pattern.matcher(element.getName()).matches()) {
+                        elements.addAll(element.find(clazz, subNameRegexs));
+                    }
+                }
+            }
+            catch (final PatternSyntaxException pse) {
+                // Assume a non-pattern?
+                for (final Element element : docElements) {
+                    if (nameRegex.equals(element.getName())) {
+                        elements.addAll(element.find(clazz, subNameRegexs));
+                    }
+                }
+            }
+        }
+
+        // End of the path but we are a document?
+        return elements;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Searches this sub-elements for matching elements on the path.
+     * </p>
+     * 
+     * @see Document#queryPath
+     */
+    @Override
+    public List<Element> find(final String... nameRegexs) {
+        return find(ELEMENT_TYPE, nameRegexs);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Searches this sub-elements for matching elements on the path and are of
+     * the right type.
+     * </p>
+     * 
+     * @see Document#queryPath
+     */
+    @Override
+    public <E extends Element> E findFirst(final Class<E> clazz,
+            final String... nameRegexs) {
+        E element = null;
+        if (0 < nameRegexs.length) {
+            final List<Element> docElements = myElements.get();
+            final String nameRegex = nameRegexs[0];
+            final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
+                    nameRegexs.length);
+
+            try {
+                final Pattern pattern = PatternUtils.toPattern(nameRegex);
+                final Iterator<Element> iter = docElements.iterator();
+                while (iter.hasNext() && (element == null)) {
+                    final Element docElement = iter.next();
+                    if (pattern.matcher(docElement.getName()).matches()) {
+                        element = docElement.findFirst(clazz, subNameRegexs);
+                    }
+                }
+            }
+            catch (final PatternSyntaxException pse) {
+                // Assume a non-pattern?
+                final Iterator<Element> iter = docElements.iterator();
+                while (iter.hasNext() && (element == null)) {
+                    final Element docElement = iter.next();
+                    if (nameRegex.equals(docElement.getName())) {
+                        element = docElement.findFirst(clazz, subNameRegexs);
+                    }
+                }
+            }
+        }
+
+        // End of the path but we are a document?
+        return element;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Searches this sub-elements for matching elements on the path and are of
+     * the right type.
+     * </p>
+     * 
+     * @see Document#queryPath
+     */
+    @Override
+    public Element findFirst(final String... nameRegexs) {
+        return findFirst(ELEMENT_TYPE, nameRegexs);
+    }
+
+    /**
      * Returns the element with the specified name or null if no element with
      * that name exists.
      * 
@@ -166,6 +283,21 @@ public class RootDocument implements Document {
     @Override
     public Element get(final String name) {
         return getElementMap().get(name);
+    }
+
+    /**
+     * Returns the element with the specified name and type or null if no
+     * element with that name and type exists.
+     * 
+     * @see Document#get(String)
+     */
+    @Override
+    public <E extends Element> E get(Class<E> clazz, String name) {
+        Element element = get(name);
+        if ((element != null) && clazz.isAssignableFrom(element.getClass())) {
+            return clazz.cast(element);
+        }
+        return null;
     }
 
     /**
@@ -219,8 +351,7 @@ public class RootDocument implements Document {
     /**
      * {@inheritDoc}
      * <p>
-     * Searches this sub-elements for matching elements on the path and are of
-     * the right type.
+     * To call the replacement method, {@link #find(Class, String...)}.
      * </p>
      * 
      * @see Document#queryPath
@@ -228,47 +359,20 @@ public class RootDocument implements Document {
     @Override
     public <E extends Element> List<E> queryPath(final Class<E> clazz,
             final String... nameRegexs) {
-        List<E> elements = Collections.emptyList();
-        if (0 < nameRegexs.length) {
-            final List<Element> docElements = myElements.get();
-            final String nameRegex = nameRegexs[0];
-            final String[] subNameRegexs = Arrays.copyOfRange(nameRegexs, 1,
-                    nameRegexs.length);
-
-            elements = new ArrayList<E>();
-            try {
-                final Pattern pattern = PatternUtils.toPattern(nameRegex);
-                for (final Element element : docElements) {
-                    if (pattern.matcher(element.getName()).matches()) {
-                        elements.addAll(element.queryPath(clazz, subNameRegexs));
-                    }
-                }
-            }
-            catch (final PatternSyntaxException pse) {
-                // Assume a non-pattern?
-                for (final Element element : docElements) {
-                    if (nameRegex.equals(element.getName())) {
-                        elements.addAll(element.queryPath(clazz, subNameRegexs));
-                    }
-                }
-            }
-        }
-
-        // End of the path but we are a document?
-        return elements;
+        return find(clazz, nameRegexs);
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Searches this sub-elements for matching elements on the path.
+     * To call the replacement method, {@link #find(String...)}.
      * </p>
      * 
      * @see Document#queryPath
      */
     @Override
     public List<Element> queryPath(final String... nameRegexs) {
-        return queryPath(Element.class, nameRegexs);
+        return find(nameRegexs);
     }
 
     /**
