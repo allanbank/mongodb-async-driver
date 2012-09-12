@@ -11,14 +11,15 @@
 		<menu name="Overview">
 			<item name="Introduction" href="index.html" />
 			<item name="Download" href="download.html" />
+			<item name="JavaDocs" href="apidocs/index.html" />
 			<item name="Getting Started" href="usage.html" />
 			<item name="Performance" href="index.html#Performance">
 				<item name="YCSB Results" href="performance/ycsb.html" />
 				<item name="Asynchronous Performance" href="performance/performance.html" />
 				<item name="BSON Performance" href="performance/bson_performance.html" />
 			</item>
-			<item name="Motivation" href="index.html#Motivation" />
 			<item name="Software Quality" href="index.html#Quality" />
+			<item name="Motivation" href="index.html#Motivation" />
 		</menu>
 		<menu ref="reports" />
 	</body>

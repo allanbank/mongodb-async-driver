@@ -5,10 +5,10 @@
 
 Getting Connected - Mongo Interface
 
-  Now that we can create and process documents we start looking at how to connect and interact with
-a MongoDB server via the driver's API. The main interface to the driver is via the 
+  We start looking at how to connect to a MongoDB server via the driver's API. The main interface to 
+the driver is via the 
 {{{./apidocs/index.html?com/allanbank/mongodb/Mongo.html}Mongo}} interface.  The 
-{{{./apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory}} provides the ability
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory}} class provides the ability
 to create a Mongo instance from either a 
 {{{./apidocs/index.html?com/allanbank/mongodb/MongoDbConfiguration.html}MongoDbConfiguration}} or a
 {{{http://www.mongodb.org/display/DOCS/Connections}MongoDB Connection String}}.
@@ -29,20 +29,21 @@ shutdown the connections to the server.
 
 Manipulating Documents - The BSON Library
 
-  The driver includes a strongly typed {{{./apidocs/index.html?com/allanbank/mongodb/bson/package-summary.html}BSON implementation}}.  
+  The driver includes a strongly typed 
+{{{./apidocs/index.html?com/allanbank/mongodb/bson/package-summary.html}BSON implementation}}.  
 The BSON package (and driver in general) make extensive use of 
 {{{./apidocs/index.html?com/allanbank/mongodb/bson/builder/package-summary.html}builders}}
 for constructing BSON Documents.
 
   Building a document is done via the builder and then adding the appropriate fields to document in the
-desired order.  The builder support method call chaining for quick document construction.
+desired order.  The builder supports method call chaining for quick document construction.
 
 +----------------------------------------+
 DocumentBuilder builder = BuilderFactory.start();
 
 builder.add("a", 123).add("b", 123L).add("c", "123");
 
-Document document = builder.build();
+Document        document = builder.build();
 +----------------------------------------+
 
   Most of the API methods of the driver accept a 
@@ -61,6 +62,72 @@ Document document = ...;
 for( Element element : document ) {
   // Process the element.
 }
++----------------------------------------+
+
+  For accessing individual fields of the document there are two versions of the <<<get(...)>>> method.  The
+{{{./apidocs/index.html?com/allanbank/mongodb/bson/Document.html}Document.get(String)}} method takes the name of 
+the element to retrieve and returns that element, if it exists in the document.  The 
+{{{./apidocs/index.html?com/allanbank/mongodb/bson/Document.html}Document.get(Class, String)}} method
+takes the class of element and the name and returns the element, if it exists, and is assignable to the class's type.
+
++----------------------------------------+
+//{
+//  field : "abc",
+//  intField : 123
+//}
+Document       document = BuilderFactory.start().add("field",    "abc")
+                                                .add("intField", 123).build();
+
+Element        field    = document.get("field");
+IntegerElement intField = document.get(IntegerElement.class, "intField");
++----------------------------------------+
+
+  That is good for looking at a single field of a document but what about nested fields? Consider a document
+in the next code block's comments.  In order to access all of the comment "text" field I would need to 
+write something to pull out the comments, iterate over the sub document to pull out each text field and 
+then save those in a list.  Since this is such a common pattern the driver provides a helper method to 
+do the iteration for you: 
+{{{./apidocs/index.html?com/allanbank/mongodb/bson/Document.html}Document.find(String...)}}.
+
++----------------------------------------+
+//{
+//  comments : [
+//     { text : "Now is the time...",       user : "alice" },
+//     { text : "Well, it was the time.",   user : "bob"   },
+//     { text : "Could be the time again.", user : "carol" },
+//     { text : "Let me know when.",        user : "david" },
+//     { text : "Now is the time...",       user : "edith" }
+//  ]
+//}
+DocumentBuilder docBuilder = BuilderFactory.start();
+ArrayBuilder    comments   = docBuilder.pushArray("comments");
+comments.push().add("text", "Now is the time...").add("user", "alice");
+comments.push().add("text", "Well, it was the time.").add("user", "bob");
+comments.push().add("text", "Could be the time again.").add("user", "carol");
+comments.push().add("text", "Let me know when.").add("user", "david");
+comments.push().add("text", "Now is the time...").add("user", "edith");
+
+Document            document = docBuilder.build();
+
+List<Element>       elements = document.find("comments", ".*", "text");
+List<StringElement> stringElements = document.find(StringElement.class, "comments", ".*", "text");
++----------------------------------------+
+
+  Both <<<find(...)>>> methods takes a "query path" to follow and find the elements of interest.  The 
+components of the query path may be regular expressions for greater flexibility.  As stated in the 
+Javadoc for both methods they may return empty lists but will never return <<<null>>>.  The sister method 
+<<<findFirst(...)>>> return the first element matching the query path.
+
+  So we can easily loop over all of the first level elements in the document and pick out specific fields. 
+What if we need to process the entire tree of elements in the document?  In that case you can implement the 
+{{{./apidocs/index.html?com/allanbank/mongodb/bson/Visitor.html}Visitor}} interface and receive callbacks 
+as the document is traversed.
+
++----------------------------------------+
+Document document = ...;
+Visitor  visitor = ...;
+
+document.visit(visitor);
 +----------------------------------------+
 
 Talking to the Server - MongoDatabase and MongoCollection
@@ -97,7 +164,7 @@ result of each delete after sending the last request.  We expect the first reque
 requests and to only need to wait for the last few replies in the second loop. 
 
 +----------------------------------------+
-MongoCollection collection = ...;
+MongoCollection    collection = ...;
 
 List<Future<Long>> deleteReplies = new ArrayList<Future<Long>>();
 for( int i = 0; i < 10000; ++i ) {
