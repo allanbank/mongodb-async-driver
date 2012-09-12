@@ -47,7 +47,8 @@ public interface Document extends Iterable<Element>, DocumentAssignable,
      *            The class of elements to match.
      * @param nameRegexs
      *            The path of regular expressions.
-     * @return The elements matching the path of regular expressions.
+     * @return The elements matching the path of regular expressions. May be an
+     *         empty list but will never be <code>null</code>.
      */
     public <E extends Element> List<E> find(Class<E> clazz,
             String... nameRegexs);
@@ -57,7 +58,8 @@ public interface Document extends Iterable<Element>, DocumentAssignable,
      * 
      * @param nameRegexs
      *            The path of regular expressions.
-     * @return The elements matching the path of regular expressions.
+     * @return The elements matching the path of regular expressions. May be an
+     *         empty list but will never be <code>null</code>.
      */
     public List<Element> find(String... nameRegexs);
 
