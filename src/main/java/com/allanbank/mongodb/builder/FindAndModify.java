@@ -59,7 +59,7 @@ public class FindAndModify {
      */
     protected FindAndModify(final Builder builder) {
         assert (builder.myQuery != null) : "The findAndModify's query document cannot be null or empty.";
-        assert (builder.myUpdate != null) : "The findAndModify's update document cannot be null or empty.";
+        assert ((builder.myUpdate != null) || builder.myRemove) : "The findAndModify must have an update document or be a remove.";
 
         myQuery = builder.myQuery;
         myUpdate = builder.myUpdate;

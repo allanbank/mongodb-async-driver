@@ -1337,6 +1337,185 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
+     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     */
+    @Test
+    public void testFindAndModifyAsRemove() {
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setRemove(true);
+
+        final FindAndModify request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.push("value");
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("findAndModify", "test");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.add("remove", true);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(value.build(), myTestInstance.findAndModify(request));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     */
+    @Test
+    public void testFindAndModifyWithSort() {
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
+        builder.setSort(Sort.asc("f"));
+
+        final FindAndModify request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.push("value");
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("findAndModify", "test");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.addDocument("update", request.getUpdate());
+        expectedCommand.addDocument("sort", BuilderFactory.start().add("f", 1));
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(value.build(), myTestInstance.findAndModify(request));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     */
+    @Test
+    public void testFindAndModifyWithFields() {
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
+        builder.setFields(BuilderFactory.start().add("f", 1));
+
+        final FindAndModify request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.push("value");
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("findAndModify", "test");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.addDocument("update", request.getUpdate());
+        expectedCommand.addDocument("fields", BuilderFactory.start()
+                .add("f", 1));
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(value.build(), myTestInstance.findAndModify(request));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     */
+    @Test
+    public void testFindAndModifyWithNew() {
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
+        builder.setReturnNew(true);
+
+        final FindAndModify request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.push("value");
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("findAndModify", "test");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.addDocument("update", request.getUpdate());
+        expectedCommand.add("new", true);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(value.build(), myTestInstance.findAndModify(request));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     */
+    @Test
+    public void testFindAndModifyWithUpsert() {
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
+        builder.setUpsert(true);
+
+        final FindAndModify request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.push("value");
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("findAndModify", "test");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.addDocument("update", request.getUpdate());
+        expectedCommand.add("upsert", true);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(value.build(), myTestInstance.findAndModify(request));
+
+        verify();
+    }
+
+    /**
+     * Test method for
      * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
      */
     @Test
@@ -1706,6 +1885,7 @@ public class MongoCollectionImplTest {
         final Callback<Document> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory
                 .start()
+                .addDocument("query", BuilderFactory.start())
                 .addDocument(ReadPreference.FIELD_NAME,
                         ReadPreference.PREFER_SECONDARY.asDocument()).build();
         final Document replyDoc = BuilderFactory.start().addInteger("foo", 2)
@@ -1791,13 +1971,16 @@ public class MongoCollectionImplTest {
 
         final Find request = builder.build();
 
-        qBuilder.addDocument("orderby", sort.asDocument());
-        qBuilder.addDocument("$readPreference",
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.addDocument("$readPreference",
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
-        final Query message = new Query("test", "test", qBuilder.build(),
-                request.getReturnFields(), request.getBatchSize(),
-                request.getLimit(), request.getNumberToSkip(), false,
+        final Query message = new Query("test", "test",
+                qRequestBuilder.build(), request.getReturnFields(),
+                request.getBatchSize(), request.getLimit(),
+                request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -1851,11 +2034,14 @@ public class MongoCollectionImplTest {
 
         final Find request = builder.build();
 
-        qBuilder.addDocument("orderby", sort.asDocument());
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.addDocument("orderby", sort.asDocument());
 
-        final Query message = new Query("test", "test", qBuilder.build(),
-                request.getReturnFields(), request.getBatchSize(),
-                request.getLimit(), request.getNumberToSkip(), false,
+        final Query message = new Query("test", "test",
+                qRequestBuilder.build(), request.getReturnFields(),
+                request.getBatchSize(), request.getLimit(),
+                request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -1906,12 +2092,15 @@ public class MongoCollectionImplTest {
 
         final Find request = builder.build();
 
-        qBuilder.addDocument("$readPreference",
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.addDocument("$readPreference",
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
-        final Query message = new Query("test", "test", qBuilder.asDocument(),
-                request.getReturnFields(), request.getBatchSize(),
-                request.getLimit(), request.getNumberToSkip(), false,
+        final Query message = new Query("test", "test",
+                qRequestBuilder.asDocument(), request.getReturnFields(),
+                request.getBatchSize(), request.getLimit(),
+                request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
         expect(myMockDatabase.getName()).andReturn("test");

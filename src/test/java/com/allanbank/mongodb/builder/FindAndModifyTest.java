@@ -66,15 +66,27 @@ public class FindAndModifyTest {
         final Document update = BuilderFactory.start().addInteger("foo", 3)
                 .build();
 
-        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.setQuery(query);
         builder.setUpdate(update);
 
-        final FindAndModify request = builder.build();
+        FindAndModify request = builder.build();
         assertSame(query, request.getQuery());
         assertSame(update, request.getUpdate());
         assertNull(request.getSort());
         assertFalse(request.isRemove());
+        assertFalse(request.isReturnNew());
+        assertFalse(request.isUpsert());
+
+        builder = new FindAndModify.Builder();
+        builder.setQuery(query);
+        builder.setRemove(true);
+
+        request = builder.build();
+        assertSame(query, request.getQuery());
+        assertNull(request.getUpdate());
+        assertNull(request.getSort());
+        assertTrue(request.isRemove());
         assertFalse(request.isReturnNew());
         assertFalse(request.isUpsert());
     }

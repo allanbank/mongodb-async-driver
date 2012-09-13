@@ -55,6 +55,10 @@ public class FindTest {
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
         assertSame(sort, request.getSort());
+        assertFalse(request.isExplain());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
 
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
 
@@ -66,6 +70,10 @@ public class FindTest {
         assertEquals(123456, request.getNumberToSkip());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.PREFER_SECONDARY, request.getReadPreference());
+        assertFalse(request.isExplain());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
     }
 
     /**
@@ -85,6 +93,20 @@ public class FindTest {
         assertEquals(0, request.getNumberToSkip());
         assertFalse(request.isPartialOk());
         assertNull(request.getReadPreference());
+        assertFalse(request.isExplain());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+
+        assertEquals(request.getQuery(), request.toQueryRequest());
+        assertEquals(
+                BuilderFactory
+                        .start()
+                        .add("query", request.getQuery())
+                        .add(ReadPreference.FIELD_NAME,
+                                ReadPreference.CLOSEST.asDocument()).build(),
+                request.toQueryRequest(ReadPreference.CLOSEST));
+
     }
 
     /**
@@ -132,6 +154,10 @@ public class FindTest {
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
 
+        assertEquals(BuilderFactory.start().add("query", request.getQuery())
+                .add("orderby", request.getSort()).build(),
+                request.toQueryRequest());
+
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
 
         request = builder.build();
@@ -142,5 +168,302 @@ public class FindTest {
         assertEquals(123456, request.getNumberToSkip());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.PREFER_SECONDARY, request.getReadPreference());
+
+        assertEquals(BuilderFactory.start().add("query", request.getQuery())
+                .add("orderby", request.getSort()).build(),
+                request.toQueryRequest());
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithExplain() {
+        final Document query = BuilderFactory.start().build();
+        final Document fields = BuilderFactory.start().addInteger("foo", 3)
+                .build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.explain();
+
+        Find request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertNull(request.getSort());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertTrue(request.isExplain());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+
+        assertEquals(BuilderFactory.start().add("query", request.getQuery())
+                .add("$explain", true).build(), request.toQueryRequest());
+
+        builder.reset();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+
+        request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertNull(request.getSort());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertFalse(request.isExplain());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+
+        assertEquals(request.getQuery(), request.toQueryRequest());
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithSnapshot() {
+        final Document query = BuilderFactory.start().build();
+        final Document fields = BuilderFactory.start().addInteger("foo", 3)
+                .build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.partialOk();
+        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.snapshot();
+
+        Find request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertNull(request.getSort());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertFalse(request.isExplain());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertTrue(request.isSnapshot());
+
+        assertEquals(BuilderFactory.start().add("query", request.getQuery())
+                .add("$snapshot", true).build(), request.toQueryRequest());
+
+        builder.reset();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+
+        request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertNull(request.getSort());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertFalse(request.isExplain());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+
+        assertEquals(request.getQuery(), request.toQueryRequest());
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithHintName() {
+        final Document query = BuilderFactory.start().build();
+        final Document fields = BuilderFactory.start().addInteger("foo", 3)
+                .build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.partialOk();
+        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.setHint(Sort.asc("f"));
+        builder.setHint("_id_1");
+
+        Find request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertNull(request.getSort());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertFalse(request.isExplain());
+        assertNull(request.getHint());
+        assertEquals("_id_1", request.getHintName());
+        assertFalse(request.isSnapshot());
+
+        assertEquals(BuilderFactory.start().add("query", request.getQuery())
+                .add("$hint", "_id_1").build(), request.toQueryRequest());
+
+        builder.reset();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+
+        request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertNull(request.getSort());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertFalse(request.isExplain());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+
+        assertEquals(request.getQuery(), request.toQueryRequest());
+
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithHint() {
+        final Document query = BuilderFactory.start().build();
+        final Document fields = BuilderFactory.start().addInteger("foo", 3)
+                .build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.partialOk();
+        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.setHint("_id_1");
+        builder.setHint(Sort.asc("f"));
+
+        Find request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertNull(request.getSort());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertFalse(request.isExplain());
+        assertEquals(BuilderFactory.start().addInteger("f", 1).build(),
+                request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+
+        assertEquals(
+                BuilderFactory
+                        .start()
+                        .add("query", request.getQuery())
+                        .add("$hint",
+                                BuilderFactory.start().addInteger("f", 1)
+                                        .build()).build(),
+                request.toQueryRequest());
+
+        builder.reset();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.setHint("_id_1");
+        builder.setHint(BuilderFactory.start().addInteger("f", 1));
+
+        request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertNull(request.getSort());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertFalse(request.isExplain());
+        assertEquals(BuilderFactory.start().addInteger("f", 1).build(),
+                request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+
+        assertEquals(
+                BuilderFactory
+                        .start()
+                        .add("query", request.getQuery())
+                        .add("$hint",
+                                BuilderFactory.start().addInteger("f", 1)
+                                        .build()).build(),
+                request.toQueryRequest());
+
+        builder.reset();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+
+        request = builder.build();
+        assertSame(query, request.getQuery());
+        assertSame(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertNull(request.getSort());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertFalse(request.isExplain());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+
+        assertEquals(request.getQuery(), request.toQueryRequest());
     }
 }

@@ -26,6 +26,18 @@ public class Find {
     /** The number of documents to be returned in each batch of results. */
     private final int myBatchSize;
 
+    /**
+     * If set to true then explain the query procedure instead of returning
+     * results.
+     */
+    private final boolean myExplain;
+
+    /** The hint for which index to use. */
+    private final Document myHint;
+
+    /** The hint for which index to use by name. */
+    private final String myHintName;
+
     /** The total number of documents to be returned. */
     private final int myLimit;
 
@@ -44,6 +56,12 @@ public class Find {
     /** The fields to be returned from the matching documents. */
     private final Document myReturnFields;
 
+    /**
+     * If set to true then use snapshot mode to ensure document are only
+     * returned once.
+     */
+    private final boolean mySnapshot;
+
     /** The fields to order the document by. */
     private final Document mySort;
 
@@ -54,15 +72,58 @@ public class Find {
      *            The builder to copy the query fields from.
      */
     protected Find(final Builder builder) {
-        myQuery = builder.myQuery;
-        myReturnFields = builder.myReturnFields;
+        myBatchSize = builder.myBatchSize;
+        myExplain = builder.myExplain;
+        myHint = builder.myHint;
+        myHintName = builder.myHintName;
+        myLimit = builder.myLimit;
         myNumberToSkip = builder.myNumberToSkip;
         myPartialOk = builder.myPartialOk;
+        myQuery = builder.myQuery;
         myReadPreference = builder.myReadPreference;
+        myReturnFields = builder.myReturnFields;
+        mySnapshot = builder.mySnapshot;
         mySort = builder.mySort;
+    }
 
-        myLimit = builder.myLimit;
-        myBatchSize = builder.myBatchSize;
+    /**
+     * Returns true then explain the query procedure instead of returning
+     * results.
+     * 
+     * @return If true then explain the query procedure instead of returning
+     *         results.
+     */
+    public boolean isExplain() {
+        return myExplain;
+    }
+
+    /**
+     * Returns the hint for which index to use.
+     * 
+     * @return The hint for which index to use.
+     */
+    public Document getHint() {
+        return myHint;
+    }
+
+    /**
+     * Returns the hint for which index to use by name.
+     * 
+     * @return The hint for which index to use by name.
+     */
+    public String getHintName() {
+        return myHintName;
+    }
+
+    /**
+     * If returns true then use snapshot mode to ensure document are only
+     * returned once.
+     * 
+     * @return True then use snapshot mode to ensure document are only returned
+     *         once.
+     */
+    public boolean isSnapshot() {
+        return mySnapshot;
     }
 
     /**
@@ -144,6 +205,62 @@ public class Find {
     }
 
     /**
+     * Converts the {@link Find} into a query request document to send to the
+     * MongoDB server including the provided read preferences.
+     * 
+     * @param readPreference
+     *            The read preference to include in the query request document.
+     * @return The query request document to send to the MongoDB server.
+     */
+    public Document toQueryRequest(ReadPreference readPreference) {
+
+        if (myExplain || mySnapshot || (mySort != null) || (myHint != null)
+                || (myHintName != null) || (readPreference != null)) {
+            final DocumentBuilder builder = BuilderFactory.start();
+
+            builder.add("query", myQuery);
+
+            if (mySort != null) {
+                builder.add("orderby", mySort);
+            }
+
+            if (myHint != null) {
+                builder.add("$hint", myHint);
+            }
+            else if (myHintName != null) {
+                builder.add("$hint", myHintName);
+            }
+
+            if (myExplain) {
+                builder.add("$explain", true);
+            }
+
+            if (mySnapshot) {
+                builder.add("$snapshot", true);
+            }
+
+            if (readPreference != null) {
+                builder.add(ReadPreference.FIELD_NAME,
+                        readPreference.asDocument());
+            }
+
+            return builder.build();
+        }
+
+        return myQuery;
+    }
+
+    /**
+     * Converts the {@link Find} into a query request document to send to the
+     * MongoDB server.
+     * 
+     * @return The query request document to send to the MongoDB server.
+     */
+    public Document toQueryRequest() {
+        return toQueryRequest(null);
+    }
+
+    /**
      * Helper for creating immutable {@link Find} queries.
      * 
      * @api.yes This class is part of the driver's API. Public and protected
@@ -155,6 +272,18 @@ public class Find {
     public static class Builder {
         /** The number of documents to be returned in each batch of results. */
         protected int myBatchSize;
+
+        /**
+         * If set to true then explain the query procedure instead of returning
+         * results.
+         */
+        protected boolean myExplain;
+
+        /** The hint for which index to use. */
+        protected Document myHint;
+
+        /** The hint for which index to use. */
+        protected String myHintName;
 
         /** The total number of documents to be returned. */
         protected int myLimit;
@@ -176,6 +305,12 @@ public class Find {
         /** The fields to be returned from the matching documents. */
         protected Document myReturnFields;
 
+        /**
+         * If set to true then use snapshot mode to ensure document are only
+         * returned once.
+         */
+        protected boolean mySnapshot;
+
         /** The fields to order the document on. */
         protected Document mySort;
 
@@ -183,13 +318,7 @@ public class Find {
          * Creates a new Builder.
          */
         public Builder() {
-            myQuery = null;
-            myReturnFields = null;
-            myBatchSize = 0;
-            myLimit = 0;
-            myNumberToSkip = 0;
-            myPartialOk = false;
-            myReadPreference = null;
+            reset();
         }
 
         /**
@@ -213,6 +342,47 @@ public class Find {
         }
 
         /**
+         * Sets that the query procedure should be returned instead of results.
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder explain() {
+            return setExplain(true);
+        }
+
+        /**
+         * Sets that if there is an error then the query should return any
+         * partial results.
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder partialOk() {
+            return setPartialOk(true);
+        }
+
+        /**
+         * Resets the builder back to its initial state for reuse.
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder reset() {
+            myBatchSize = 0;
+            myExplain = false;
+            myHint = null;
+            myHintName = null;
+            myLimit = 0;
+            myNumberToSkip = 0;
+            myPartialOk = false;
+            myQuery = null;
+            myReadPreference = null;
+            myReturnFields = null;
+            mySnapshot = false;
+            mySort = null;
+
+            return this;
+        }
+
+        /**
          * Sets the value of the number of documents to be returned in each
          * batch.
          * 
@@ -223,6 +393,85 @@ public class Find {
          */
         public Builder setBatchSize(final int batchSize) {
             myBatchSize = batchSize;
+            return this;
+        }
+
+        /**
+         * Sets the value of explain to the new value. If set to true then
+         * explain the query procedure instead of returning results.
+         * 
+         * @param explain
+         *            The new value for the explain.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setExplain(final boolean explain) {
+            myExplain = explain;
+            return this;
+        }
+
+        /**
+         * Sets the value of hint as to which index should be used to execute
+         * the query.
+         * 
+         * @param indexFields
+         *            The new value for the fields of the index to use to
+         *            execute the query.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setHint(final DocumentAssignable indexFields) {
+            myHintName = null;
+            myHint = indexFields.asDocument();
+            return this;
+        }
+
+        /**
+         * Sets the value of hint as to which index should be used to execute
+         * the query.
+         * <p>
+         * This method is intended to be used with the {@link Sort} class's
+         * static methods: <blockquote>
+         * 
+         * <pre>
+         * <code>
+         * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+         * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+         * 
+         * Find.Builder builder = new Find.Builder();
+         * 
+         * builder.setHint( asc("f"), desc("g") );
+         * ...
+         * </code>
+         * </pre>
+         * 
+         * </blockquote>
+         * 
+         * @param indexFields
+         *            The new value for the fields of the index to use to
+         *            execute the query.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setHint(final IntegerElement... indexFields) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            for (final IntegerElement sortField : indexFields) {
+                builder.add(sortField);
+            }
+            myHintName = null;
+            myHint = builder.build();
+            return this;
+        }
+
+        /**
+         * Sets the value of hint as to which index should be used to execute
+         * the query.
+         * 
+         * @param indexName
+         *            The new value for the name of the index to use to execute
+         *            the query.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setHint(final String indexName) {
+            myHintName = indexName;
+            myHint = null;
             return this;
         }
 
@@ -307,6 +556,19 @@ public class Find {
         }
 
         /**
+         * Sets the value of snapshot to the new value. If set to true then use
+         * snapshot mode to ensure document are only returned once.
+         * 
+         * @param snapshot
+         *            The new value for the partial okay.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setSnapshot(final boolean snapshot) {
+            mySnapshot = snapshot;
+            return this;
+        }
+
+        /**
          * Sets the value of the fields to to sort matching documents by.
          * 
          * @param sortFields
@@ -351,6 +613,16 @@ public class Find {
             }
             mySort = builder.build();
             return this;
+        }
+
+        /**
+         * Sets that the query should ensure that documents are only returned
+         * once.
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder snapshot() {
+            return setSnapshot(true);
         }
     }
 }

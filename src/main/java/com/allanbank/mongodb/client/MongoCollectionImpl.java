@@ -250,7 +250,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         builder.addString("findAndModify", getName());
         builder.addDocument("query", command.getQuery());
-        builder.addDocument("update", command.getUpdate());
+        if (command.getUpdate() != null) {
+            builder.addDocument("update", command.getUpdate());
+        }
         if (command.getSort() != null) {
             builder.addDocument("sort", command.getSort());
         }
@@ -287,23 +289,13 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             readPreference = getDefaultReadPreference();
         }
 
-        Document queryDoc = query.getQuery();
-        if ((query.getSort() != null) || !readPreference.isLegacy()) {
-            final DocumentBuilder builder = BuilderFactory.start();
-            for (final Element e : queryDoc) {
-                builder.add(e);
-            }
-
-            if (query.getSort() != null) {
-                builder.addDocument("orderby", query.getSort());
-            }
-
-            if (!readPreference.isLegacy()
-                    && (myClient.getClusterType() == ClusterType.SHARDED)) {
-                builder.addDocument(ReadPreference.FIELD_NAME,
-                        readPreference.asDocument());
-            }
-            queryDoc = builder.build();
+        Document queryDoc;
+        if (!readPreference.isLegacy()
+                && (myClient.getClusterType() == ClusterType.SHARDED)) {
+            queryDoc = query.toQueryRequest(readPreference);
+        }
+        else {
+            queryDoc = query.toQueryRequest();
         }
 
         final Query queryMessage = new Query(getDatabaseName(), myName,
@@ -335,16 +327,13 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final ReadPreference readPreference = getDefaultReadPreference();
 
         Document queryDoc = query.asDocument();
-        if (!readPreference.isLegacy()) {
+        if (!readPreference.isLegacy()
+                && (myClient.getClusterType() == ClusterType.SHARDED)) {
             final DocumentBuilder builder = BuilderFactory.start();
-            for (final Element e : queryDoc) {
-                builder.add(e);
-            }
 
-            if (myClient.getClusterType() == ClusterType.SHARDED) {
-                builder.addDocument(ReadPreference.FIELD_NAME,
-                        readPreference.asDocument());
-            }
+            builder.add("query", queryDoc);
+            builder.addDocument(ReadPreference.FIELD_NAME,
+                    readPreference.asDocument());
 
             queryDoc = builder.build();
         }
