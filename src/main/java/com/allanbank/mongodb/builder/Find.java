@@ -26,12 +26,6 @@ public class Find {
     /** The number of documents to be returned in each batch of results. */
     private final int myBatchSize;
 
-    /**
-     * If set to true then explain the query procedure instead of returning
-     * results.
-     */
-    private final boolean myExplain;
-
     /** The hint for which index to use. */
     private final Document myHint;
 
@@ -73,7 +67,6 @@ public class Find {
      */
     protected Find(final Builder builder) {
         myBatchSize = builder.myBatchSize;
-        myExplain = builder.myExplain;
         myHint = builder.myHint;
         myHintName = builder.myHintName;
         myLimit = builder.myLimit;
@@ -84,17 +77,6 @@ public class Find {
         myReturnFields = builder.myReturnFields;
         mySnapshot = builder.mySnapshot;
         mySort = builder.mySort;
-    }
-
-    /**
-     * Returns true then explain the query procedure instead of returning
-     * results.
-     * 
-     * @return If true then explain the query procedure instead of returning
-     *         results.
-     */
-    public boolean isExplain() {
-        return myExplain;
     }
 
     /**
@@ -208,13 +190,17 @@ public class Find {
      * Converts the {@link Find} into a query request document to send to the
      * MongoDB server including the provided read preferences.
      * 
+     * @param explain
+     *            If true then explain the query procedure instead of returning
+     *            results.
      * @param readPreference
      *            The read preference to include in the query request document.
      * @return The query request document to send to the MongoDB server.
      */
-    public Document toQueryRequest(ReadPreference readPreference) {
+    public Document toQueryRequest(boolean explain,
+            ReadPreference readPreference) {
 
-        if (myExplain || mySnapshot || (mySort != null) || (myHint != null)
+        if (explain || mySnapshot || (mySort != null) || (myHint != null)
                 || (myHintName != null) || (readPreference != null)) {
             final DocumentBuilder builder = BuilderFactory.start();
 
@@ -231,7 +217,7 @@ public class Find {
                 builder.add("$hint", myHintName);
             }
 
-            if (myExplain) {
+            if (explain) {
                 builder.add("$explain", true);
             }
 
@@ -254,10 +240,13 @@ public class Find {
      * Converts the {@link Find} into a query request document to send to the
      * MongoDB server.
      * 
+     * @param explain
+     *            If true then explain the query procedure instead of returning
+     *            results.
      * @return The query request document to send to the MongoDB server.
      */
-    public Document toQueryRequest() {
-        return toQueryRequest(null);
+    public Document toQueryRequest(boolean explain) {
+        return toQueryRequest(explain, null);
     }
 
     /**
@@ -272,12 +261,6 @@ public class Find {
     public static class Builder {
         /** The number of documents to be returned in each batch of results. */
         protected int myBatchSize;
-
-        /**
-         * If set to true then explain the query procedure instead of returning
-         * results.
-         */
-        protected boolean myExplain;
 
         /** The hint for which index to use. */
         protected Document myHint;
@@ -342,15 +325,6 @@ public class Find {
         }
 
         /**
-         * Sets that the query procedure should be returned instead of results.
-         * 
-         * @return This builder for chaining method calls.
-         */
-        public Builder explain() {
-            return setExplain(true);
-        }
-
-        /**
          * Sets that if there is an error then the query should return any
          * partial results.
          * 
@@ -367,7 +341,6 @@ public class Find {
          */
         public Builder reset() {
             myBatchSize = 0;
-            myExplain = false;
             myHint = null;
             myHintName = null;
             myLimit = 0;
@@ -393,19 +366,6 @@ public class Find {
          */
         public Builder setBatchSize(final int batchSize) {
             myBatchSize = batchSize;
-            return this;
-        }
-
-        /**
-         * Sets the value of explain to the new value. If set to true then
-         * explain the query procedure instead of returning results.
-         * 
-         * @param explain
-         *            The new value for the explain.
-         * @return This builder for chaining method calls.
-         */
-        public Builder setExplain(final boolean explain) {
-            myExplain = explain;
             return this;
         }
 

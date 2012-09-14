@@ -292,10 +292,10 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         Document queryDoc;
         if (!readPreference.isLegacy()
                 && (myClient.getClusterType() == ClusterType.SHARDED)) {
-            queryDoc = query.toQueryRequest(readPreference);
+            queryDoc = query.toQueryRequest(false, readPreference);
         }
         else {
-            queryDoc = query.toQueryRequest();
+            queryDoc = query.toQueryRequest(false);
         }
 
         final Query queryMessage = new Query(getDatabaseName(), myName,
@@ -310,6 +310,41 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final String address = myClient.send(queryMessage, callback);
 
         callback.setAddress(address);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to send a {@link Query} message to the server to explain the
+     * {@link Find}'s query.
+     * </p>
+     */
+    @Override
+    public void explainAsync(final Callback<Document> results, final Find query)
+            throws MongoDbException {
+
+        ReadPreference readPreference = query.getReadPreference();
+        if (readPreference == null) {
+            readPreference = getDefaultReadPreference();
+        }
+
+        Document queryDoc;
+        if (!readPreference.isLegacy()
+                && (myClient.getClusterType() == ClusterType.SHARDED)) {
+            queryDoc = query.toQueryRequest(true, readPreference);
+        }
+        else {
+            queryDoc = query.toQueryRequest(true);
+        }
+
+        final Query queryMessage = new Query(getDatabaseName(), myName,
+                queryDoc, query.getReturnFields(), query.getBatchSize(),
+                query.getLimit(), query.getNumberToSkip(),
+                false /* tailable */, readPreference,
+                false /* noCursorTimeout */, false /* awaitData */,
+                false /* exhaust */, query.isPartialOk());
+
+        myClient.send(queryMessage, new QueryOneCallback(results));
     }
 
     /**

@@ -55,6 +55,37 @@ public interface MongoDatabase {
     public MongoCollection getCollection(String name);
 
     /**
+     * Creates the collection with the specified name on the server.
+     * 
+     * @param name
+     *            The name of the collection.
+     * @param options
+     *            The options for the collection being created.
+     * @return True if the collection was created, false otherwise (including it
+     *         already exists).
+     * @throws MongoDbException
+     *             On a failure to create the collection.
+     */
+    public boolean createCollection(String name, DocumentAssignable options)
+            throws MongoDbException;
+
+    /**
+     * Creates the capped collection with the specified name and size on the
+     * server.
+     * 
+     * @param name
+     *            The name of the collection.
+     * @param size
+     *            The size of the collection in bytes.
+     * @return True if the collection was created, false otherwise (including it
+     *         already exists).
+     * @throws MongoDbException
+     *             On a failure to create the collection.
+     */
+    public boolean createCappedCollection(String name, long size)
+            throws MongoDbException;
+
+    /**
      * Returns the name of the database.
      * 
      * @return The name of the database.

@@ -616,6 +616,56 @@ public interface MongoCollection {
     public boolean dropIndex(String name) throws MongoDbException;
 
     /**
+     * Explains the way that the document will be performed.
+     * 
+     * @param query
+     *            The query document.
+     * @return The document describing the method used to execute the query.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Document explain(DocumentAssignable query) throws MongoDbException;
+
+    /**
+     * Explains the way that the document will be performed.
+     * <p>
+     * This is equivalent to calling {@link #explainAsync(Find)
+     * explainAsync(...).get()}
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The document describing the method used to execute the query.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Document explain(Find query) throws MongoDbException;
+
+    /**
+     * Explains the way that the document will be performed.
+     * 
+     * @param query
+     *            The query details.
+     * @param results
+     *            Callback that will be notified of the results of the explain.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void explainAsync(Callback<Document> results, Find query)
+            throws MongoDbException;
+
+    /**
+     * Explains the way that the document will be performed.
+     * 
+     * @param query
+     *            The query details.
+     * @return The document describing the method used to execute the query.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<Document> explainAsync(Find query) throws MongoDbException;
+
+    /**
      * Finds the set of documents matching the query document in the collection.
      * <p>
      * This is equivalent to calling {@link #findAsync(DocumentAssignable)

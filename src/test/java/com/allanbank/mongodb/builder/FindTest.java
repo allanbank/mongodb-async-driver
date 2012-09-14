@@ -55,7 +55,6 @@ public class FindTest {
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
         assertSame(sort, request.getSort());
-        assertFalse(request.isExplain());
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
@@ -70,7 +69,6 @@ public class FindTest {
         assertEquals(123456, request.getNumberToSkip());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.PREFER_SECONDARY, request.getReadPreference());
-        assertFalse(request.isExplain());
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
@@ -93,19 +91,18 @@ public class FindTest {
         assertEquals(0, request.getNumberToSkip());
         assertFalse(request.isPartialOk());
         assertNull(request.getReadPreference());
-        assertFalse(request.isExplain());
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
 
-        assertEquals(request.getQuery(), request.toQueryRequest());
+        assertEquals(request.getQuery(), request.toQueryRequest(false));
         assertEquals(
                 BuilderFactory
                         .start()
                         .add("query", request.getQuery())
                         .add(ReadPreference.FIELD_NAME,
                                 ReadPreference.CLOSEST.asDocument()).build(),
-                request.toQueryRequest(ReadPreference.CLOSEST));
+                request.toQueryRequest(false, ReadPreference.CLOSEST));
 
     }
 
@@ -156,7 +153,7 @@ public class FindTest {
 
         assertEquals(BuilderFactory.start().add("query", request.getQuery())
                 .add("orderby", request.getSort()).build(),
-                request.toQueryRequest());
+                request.toQueryRequest(false));
 
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
 
@@ -171,7 +168,7 @@ public class FindTest {
 
         assertEquals(BuilderFactory.start().add("query", request.getQuery())
                 .add("orderby", request.getSort()).build(),
-                request.toQueryRequest());
+                request.toQueryRequest(false));
     }
 
     /**
@@ -191,7 +188,6 @@ public class FindTest {
         builder.setNumberToSkip(123456);
         builder.setPartialOk(true);
         builder.setReadPreference(ReadPreference.CLOSEST);
-        builder.explain();
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
@@ -202,13 +198,12 @@ public class FindTest {
         assertNull(request.getSort());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
-        assertTrue(request.isExplain());
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
 
         assertEquals(BuilderFactory.start().add("query", request.getQuery())
-                .add("$explain", true).build(), request.toQueryRequest());
+                .add("$explain", true).build(), request.toQueryRequest(true));
 
         builder.reset();
         builder.setQuery(query);
@@ -228,12 +223,11 @@ public class FindTest {
         assertNull(request.getSort());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
-        assertFalse(request.isExplain());
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
 
-        assertEquals(request.getQuery(), request.toQueryRequest());
+        assertEquals(request.getQuery(), request.toQueryRequest(true));
     }
 
     /**
@@ -264,13 +258,12 @@ public class FindTest {
         assertNull(request.getSort());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
-        assertFalse(request.isExplain());
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertTrue(request.isSnapshot());
 
         assertEquals(BuilderFactory.start().add("query", request.getQuery())
-                .add("$snapshot", true).build(), request.toQueryRequest());
+                .add("$snapshot", true).build(), request.toQueryRequest(false));
 
         builder.reset();
         builder.setQuery(query);
@@ -290,12 +283,11 @@ public class FindTest {
         assertNull(request.getSort());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
-        assertFalse(request.isExplain());
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
 
-        assertEquals(request.getQuery(), request.toQueryRequest());
+        assertEquals(request.getQuery(), request.toQueryRequest(false));
     }
 
     /**
@@ -327,13 +319,12 @@ public class FindTest {
         assertNull(request.getSort());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
-        assertFalse(request.isExplain());
         assertNull(request.getHint());
         assertEquals("_id_1", request.getHintName());
         assertFalse(request.isSnapshot());
 
         assertEquals(BuilderFactory.start().add("query", request.getQuery())
-                .add("$hint", "_id_1").build(), request.toQueryRequest());
+                .add("$hint", "_id_1").build(), request.toQueryRequest(false));
 
         builder.reset();
         builder.setQuery(query);
@@ -353,12 +344,11 @@ public class FindTest {
         assertNull(request.getSort());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
-        assertFalse(request.isExplain());
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
 
-        assertEquals(request.getQuery(), request.toQueryRequest());
+        assertEquals(request.getQuery(), request.toQueryRequest(false));
 
     }
 
@@ -391,7 +381,6 @@ public class FindTest {
         assertNull(request.getSort());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
-        assertFalse(request.isExplain());
         assertEquals(BuilderFactory.start().addInteger("f", 1).build(),
                 request.getHint());
         assertNull(request.getHintName());
@@ -404,7 +393,7 @@ public class FindTest {
                         .add("$hint",
                                 BuilderFactory.start().addInteger("f", 1)
                                         .build()).build(),
-                request.toQueryRequest());
+                request.toQueryRequest(false));
 
         builder.reset();
         builder.setQuery(query);
@@ -426,7 +415,6 @@ public class FindTest {
         assertNull(request.getSort());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
-        assertFalse(request.isExplain());
         assertEquals(BuilderFactory.start().addInteger("f", 1).build(),
                 request.getHint());
         assertNull(request.getHintName());
@@ -439,7 +427,7 @@ public class FindTest {
                         .add("$hint",
                                 BuilderFactory.start().addInteger("f", 1)
                                         .build()).build(),
-                request.toQueryRequest());
+                request.toQueryRequest(false));
 
         builder.reset();
         builder.setQuery(query);
@@ -459,11 +447,10 @@ public class FindTest {
         assertNull(request.getSort());
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
-        assertFalse(request.isExplain());
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
 
-        assertEquals(request.getQuery(), request.toQueryRequest());
+        assertEquals(request.getQuery(), request.toQueryRequest(false));
     }
 }

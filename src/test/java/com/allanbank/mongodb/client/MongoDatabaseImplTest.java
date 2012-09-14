@@ -103,6 +103,68 @@ public class MongoDatabaseImplTest {
     }
 
     /**
+     * Test method for
+     * {@link MongoDatabaseImpl#createCollection(String, DocumentAssignable)}.
+     */
+    @Test
+    public void testCreateCollection() {
+        final Document goodResult = BuilderFactory.start().addDouble("ok", 1.0)
+                .build();
+        final Document badResult = BuilderFactory.start().addLong("ok", 0)
+                .build();
+        final Document missingOkResult = BuilderFactory.start().build();
+
+        final Command command = new Command("test", BuilderFactory.start()
+                .add("create", "f").build());
+
+        expect(myMockClient.send(eq(command), callback(reply(goodResult))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(command), callback(reply(badResult))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(command), callback(reply(missingOkResult))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertTrue(myTestInstance.createCollection("f", null));
+        assertFalse(myTestInstance.createCollection("f", null));
+        assertFalse(myTestInstance.createCollection("f", null));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoDatabaseImpl#createCappedCollection(String, long)}.
+     */
+    @Test
+    public void testCreateCappedCollection() {
+        final Document goodResult = BuilderFactory.start().addDouble("ok", 1.0)
+                .build();
+        final Document badResult = BuilderFactory.start().addLong("ok", 0)
+                .build();
+        final Document missingOkResult = BuilderFactory.start().build();
+
+        final Command command = new Command("test", BuilderFactory.start()
+                .add("create", "f").add("size", 10000L).build());
+
+        expect(myMockClient.send(eq(command), callback(reply(goodResult))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(command), callback(reply(badResult))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(command), callback(reply(missingOkResult))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertTrue(myTestInstance.createCappedCollection("f", 10000L));
+        assertFalse(myTestInstance.createCappedCollection("f", 10000L));
+        assertFalse(myTestInstance.createCappedCollection("f", 10000L));
+
+        verify();
+    }
+
+    /**
      * Test method for {@link MongoDatabaseImpl#getCollection(String)}.
      */
     @Test

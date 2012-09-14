@@ -65,6 +65,35 @@ public class MongoDatabaseImpl implements MongoDatabase {
     /**
      * {@inheritDoc}
      * <p>
+     * Issues a command to create the collection with the specified name and
+     * options.
+     * </p>
+     */
+    @Override
+    public boolean createCollection(String name, DocumentAssignable options)
+            throws MongoDbException {
+        Document result = runCommand("create", name, options);
+        NumericElement okElem = result.get(NumericElement.class, "ok");
+
+        return ((okElem != null) && (okElem.getIntValue() > 0));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Issues a command to create the collection with the specified name and
+     * options.
+     * </p>
+     */
+    @Override
+    public boolean createCappedCollection(String name, long size)
+            throws MongoDbException {
+        return createCollection(name, BuilderFactory.start().add("size", size));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to issue a "dropDatabase" command.
      * </p>
      * 
@@ -73,10 +102,9 @@ public class MongoDatabaseImpl implements MongoDatabase {
     @Override
     public boolean drop() {
         final Document result = runCommand("dropDatabase");
-        final List<NumericElement> okElem = result.find(NumericElement.class,
-                "ok");
+        final NumericElement okElem = result.get(NumericElement.class, "ok");
 
-        return ((okElem.size() > 0) && (okElem.get(0).getIntValue() > 0));
+        return ((okElem != null) && (okElem.getIntValue() > 0));
     }
 
     /**
@@ -299,7 +327,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
         final Command commandMessage = new Command(myName, builder.build());
 
-        myClient.send(commandMessage, new ReplyCallback(reply));
+        myClient.send(commandMessage, new ReplyCommandCallback(reply));
     }
 
     /**

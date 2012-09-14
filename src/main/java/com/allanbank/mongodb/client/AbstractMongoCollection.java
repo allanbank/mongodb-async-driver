@@ -601,6 +601,62 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #explain(Find)} method.
+     * </p>
+     * 
+     * @see #explain(Find)
+     */
+    @Override
+    public Document explain(final DocumentAssignable query)
+            throws MongoDbException {
+        return explain(new Find.Builder(query).build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #explainAsync(Find)} method.
+     * </p>
+     * 
+     * @see #explainAsync(Find)
+     */
+    @Override
+    public Document explain(final Find query) throws MongoDbException {
+        return FutureUtils.unwrap(explainAsync(query));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>count</code> method that implementations must
+     * override.
+     * </p>
+     */
+    @Override
+    public abstract void explainAsync(Callback<Document> results, Find query)
+            throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #explainAsync(Callback,Find)} method.
+     * </p>
+     * 
+     * @see #explainAsync(Callback,Find)
+     */
+    @Override
+    public Future<Document> explainAsync(final Find query)
+            throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>();
+
+        explainAsync(future, query);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #findAsync(DocumentAssignable)} method.
      * </p>
      * 

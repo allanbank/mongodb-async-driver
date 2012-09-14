@@ -1720,6 +1720,40 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test method for {@link AbstractMongoCollection#explainAsync(Find)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testExplainAsyncFind() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+
+        final Document query = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().add("query", query)
+                .add("$explain", true).build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.SECONDARY, false, false, false, false);
+
+        final Find.Builder findBuilder = new Find.Builder(query);
+        findBuilder.setReadPreference(ReadPreference.SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result1))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Future<Document> future = myTestInstance.explainAsync(findBuilder
+                .build());
+        assertSame(result1, future.get());
+
+        verify();
+    }
+
+    /**
      * Test method for {@link AbstractMongoCollection#find(DocumentAssignable)}
      * .
      */
@@ -1750,6 +1784,37 @@ public class MongoCollectionImplTest {
         assertTrue(iter.hasNext());
         assertSame(result2, iter.next());
         assertFalse(iter.hasNext());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#explain(DocumentAssignable)} .
+     */
+    @Test
+    public void testExplainDocument() {
+        final Document result1 = BuilderFactory.start().build();
+
+        final Document query = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().add("query", query)
+                .add("$explain", true).build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockClient.getDefaultReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(message), callback(reply(result1))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Document iter = myTestInstance.explain(query);
+        assertSame(result1, iter);
 
         verify();
     }
@@ -2005,8 +2070,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
+     * Test method for {@link MongoCollectionImpl#findAsync(Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -2067,14 +2131,14 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
+     * Test method for {@link MongoCollectionImpl#explainAsync(Callback, Find)}
+     * .
      * 
      * @throws Exception
      *             On an error.
      */
     @Test
-    public void testFindWithNonLegacyOptions() throws Exception {
+    public void testExplainWithNonLegacyOptions() throws Exception {
         final Document result1 = BuilderFactory.start().build();
         final Document result2 = BuilderFactory.start().build();
 
@@ -2094,6 +2158,7 @@ public class MongoCollectionImplTest {
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
         qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.add("$explain", true);
         qRequestBuilder.addDocument("$readPreference",
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
@@ -2112,14 +2177,60 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<ClosableIterator<Document>> future = myTestInstance
-                .findAsync(request);
-        final ClosableIterator<Document> iter = future.get();
-        assertTrue(iter.hasNext());
-        assertSame(result1, iter.next());
-        assertTrue(iter.hasNext());
-        assertSame(result2, iter.next());
-        assertFalse(iter.hasNext());
+        final Future<Document> future = myTestInstance.explainAsync(request);
+        assertSame(result1, future.get());
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link MongoCollectionImpl#explainAsync(Callback, Find)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testExplainWithNonLegacyOptionsAndNonSharded() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder.build());
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+
+        final Find request = builder.build();
+
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.add("$explain", true);
+
+        final Query message = new Query("test", "test",
+                qRequestBuilder.asDocument(), request.getReturnFields(),
+                request.getBatchSize(), request.getLimit(),
+                request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.STAND_ALONE);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Future<Document> future = myTestInstance.explainAsync(request);
+        assertSame(result1, future.get());
 
         verify();
     }
