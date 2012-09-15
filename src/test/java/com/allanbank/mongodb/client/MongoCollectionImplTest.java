@@ -3628,6 +3628,27 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
+     * {@link AbstractMongoCollection#updateOptions(DocumentAssignable)}.
+     */
+    @Test
+    public void testUpdateOptions() {
+        final Document options = BuilderFactory.start()
+                .add("usePowerOf2Sizes", true).build();
+
+        final Document result = BuilderFactory.start().build();
+
+        expect(myMockDatabase.runCommand("collMod", "test", options))
+                .andReturn(result);
+
+        replay();
+
+        assertSame(result, myTestInstance.updateOptions(options));
+
+        verify();
+    }
+
+    /**
+     * Test method for
      * {@link AbstractMongoCollection#validate(MongoCollection.ValidateMode)} .
      */
     @Test

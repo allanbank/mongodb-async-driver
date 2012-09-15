@@ -1423,6 +1423,34 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
+     * Updates the collection's options or flags using the {@code collMod}
+     * command. The return value is the response from the MongoDB server and
+     * normally contains a <code>&lt;name&gt;_old</code> field for each
+     * successfully set option on the collection. <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * MongoCollection collection = ...;
+     * 
+     * collection.updateOptions( BuilderFactory.start().add( "usePowerOf2Sizes", true ) );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * 
+     * @param options
+     *            The collection options to be set.
+     * @return The results document from the database.
+     * @throws MongoDbException
+     *             On an error validating the collection.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/collMod/">collMod
+     *      Command Reference</a>
+     */
+    public Document updateOptions(DocumentAssignable options)
+            throws MongoDbException;
+
+    /**
      * Validates the collections contents.
      * 
      * @param mode

@@ -605,6 +605,19 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to send a {@code collMod} command to the server.
+     * </p>
+     */
+    @Override
+    public Document updateOptions(final DocumentAssignable options)
+            throws MongoDbException {
+        return myDatabase
+                .runCommand("collMod", getName(), options.asDocument());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to send a {@code validate} command to the server.
      * </p>
      */
