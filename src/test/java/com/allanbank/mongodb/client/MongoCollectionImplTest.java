@@ -2804,6 +2804,43 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test method for {@link MongoCollection#isCapped()}.
+     */
+    @Test
+    public void testIsCapped() {
+        final Document noField = BuilderFactory.start().build();
+        final Document boolFieldYes = BuilderFactory.start()
+                .add("capped", true).build();
+        final Document boolFieldNo = BuilderFactory.start()
+                .add("capped", false).build();
+        final Document intFieldYes = BuilderFactory.start().add("capped", 1)
+                .build();
+        final Document longFieldNo = BuilderFactory.start().add("capped", 0L)
+                .build();
+
+        expect(myMockDatabase.runCommand("collStats", "test", null)).andReturn(
+                noField);
+        expect(myMockDatabase.runCommand("collStats", "test", null)).andReturn(
+                boolFieldYes);
+        expect(myMockDatabase.runCommand("collStats", "test", null)).andReturn(
+                boolFieldNo);
+        expect(myMockDatabase.runCommand("collStats", "test", null)).andReturn(
+                intFieldYes);
+        expect(myMockDatabase.runCommand("collStats", "test", null)).andReturn(
+                longFieldNo);
+
+        replay();
+
+        assertFalse(myTestInstance.isCapped());
+        assertTrue(myTestInstance.isCapped());
+        assertFalse(myTestInstance.isCapped());
+        assertTrue(myTestInstance.isCapped());
+        assertFalse(myTestInstance.isCapped());
+
+        verify();
+    }
+
+    /**
      * Test method for {@link AbstractMongoCollection#mapReduce(MapReduce)} .
      */
     @Test
@@ -3188,7 +3225,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoDatabaseImpl#stats()}.
+     * Test method for {@link MongoCollection#stats()}.
      */
     @Test
     public void testStats() {

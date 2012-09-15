@@ -1089,6 +1089,17 @@ public interface MongoCollection {
             DocumentAssignable... documents) throws MongoDbException;
 
     /**
+     * Returns true if the collection {@link #stats() statistics} indicate that
+     * the collection is a capped collection.
+     * 
+     * @return True if the collection {@link #stats() statistics} indicate that
+     *         the collection is a capped collection.
+     * @throws MongoDbException
+     *             On an error collecting the collection statistics.
+     */
+    public boolean isCapped() throws MongoDbException;
+
+    /**
      * Invokes a mapReduce command on the server.
      * 
      * @param command

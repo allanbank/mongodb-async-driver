@@ -23,6 +23,7 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
@@ -456,6 +457,36 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             myClient.send(insertMessage, asGetLastError(durability),
                     new ReplyIntegerCallback(results));
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to send a {@code collStats} command to the MongoDB server and
+     * look for the {@code capped} field to determine if the collection is
+     * capped or not.
+     * </p>
+     * 
+     * @see MongoCollection#isCapped
+     */
+    @Override
+    public boolean isCapped() throws MongoDbException {
+        final Document statistics = stats();
+
+        final NumericElement numeric = statistics.get(NumericElement.class,
+                "capped");
+        if (numeric != null) {
+            return (numeric.getIntValue() != 0);
+        }
+
+        final BooleanElement bool = statistics.get(BooleanElement.class,
+                "capped");
+        if (bool != null) {
+            return bool.getValue();
+        }
+
+        // Not found implies not capped.
+        return false;
     }
 
     /**
