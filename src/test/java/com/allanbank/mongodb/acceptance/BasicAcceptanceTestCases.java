@@ -5895,6 +5895,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.ACK);
         myConfig.setMaxConnectionCount(1);
 
+        myCollection.insert(Durability.ACK, BuilderFactory.start());
+
         if (!isShardedConfiguration()) {
             Document result = myCollection.updateOptions(BuilderFactory.start()
                     .add("usePowerOf2Sizes", true));

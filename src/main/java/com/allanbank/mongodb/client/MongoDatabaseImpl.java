@@ -348,13 +348,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
             throws MongoDbException {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addInteger(command, 1);
-        if (options != null) {
-            for (final Element element : options.asDocument()) {
-                if (!command.equals(element.getName())) {
-                    builder.add(element);
-                }
-            }
-        }
+        addOptions(command, options, builder);
 
         final Command commandMessage = new Command(myName, builder.build());
 
@@ -373,13 +367,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
             final DocumentAssignable options) throws MongoDbException {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.add(commandName, commandValue);
-        if (options != null) {
-            for (final Element element : options.asDocument()) {
-                if (!commandName.equals(element.getName())) {
-                    builder.add(element);
-                }
-            }
-        }
+        addOptions(commandName, options, builder);
 
         final Command commandMessage = new Command(myName, builder.build());
 
@@ -398,13 +386,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
             final DocumentAssignable options) throws MongoDbException {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.add(commandName, commandValue);
-        if (options != null) {
-            for (final Element element : options.asDocument()) {
-                if (!commandName.equals(element.getName())) {
-                    builder.add(element);
-                }
-            }
-        }
+        addOptions(commandName, options, builder);
 
         final Command commandMessage = new Command(myName, builder.build());
 
@@ -547,6 +529,27 @@ public class MongoDatabaseImpl implements MongoDatabase {
     @Override
     public Document stats() throws MongoDbException {
         return runCommand("dbStats");
+    }
+
+    /**
+     * Adds the options to the document builder.
+     * 
+     * @param command
+     *            The command to make sure is removed from the options.
+     * @param options
+     *            The options to be added. May be <code>null</code>.
+     * @param builder
+     *            The builder to add the options to.
+     */
+    protected void addOptions(final String command,
+            final DocumentAssignable options, final DocumentBuilder builder) {
+        if (options != null) {
+            for (final Element element : options.asDocument()) {
+                if (!command.equals(element.getName())) {
+                    builder.add(element);
+                }
+            }
+        }
     }
 
     /**

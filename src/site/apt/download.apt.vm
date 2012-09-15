@@ -5,8 +5,19 @@
 
 Download
 
-  The lastest version of the driver is available via the following links.
+  The latest version of the driver is available via the following links.
+  
+  [Release Notes] {{{./release-notes/${projectVersion}_changes.html}${projectVersion} Changes}}
 
   [Jar] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}.jar}${projectArtifactId}-${projectVersion}.jar}}
   
   [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}-javadoc.jar}${projectArtifactId}-${projectVersion}-javadoc.jar}}
+
+Past Releases
+
+* 0.9.9
+
+  [Jar] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/0.9.9/mongodb-async-driver-0.9.9.jar}mongodb-async-driver-0.9.9.jar}}
+  
+  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/0.9.9/mongodb-async-driver-0.9.9-javadoc.jar}mongodb-async-driver-0.9.9-javadoc.jar}}
+
