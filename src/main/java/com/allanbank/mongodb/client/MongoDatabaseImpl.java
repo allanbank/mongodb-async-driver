@@ -536,6 +536,19 @@ public class MongoDatabaseImpl implements MongoDatabase {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to send a {@code dbStats} command to the MongoDB server.
+     * </p>
+     * 
+     * @see MongoDatabase#stats
+     */
+    @Override
+    public Document stats() throws MongoDbException {
+        return runCommand("dbStats");
+    }
+
+    /**
      * Returns a {@link MongoDatabase} interface to the 'admin' database.
      * 
      * @return A reference to a {@link MongoDatabase} for interacting with the

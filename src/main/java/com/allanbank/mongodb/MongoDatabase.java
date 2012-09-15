@@ -98,6 +98,9 @@ public interface MongoDatabase {
      * @return The current profiling level.
      * @throws MongoDbException
      *             On a failure to create the collection.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/profile/">profile
+     *      Command Reference</a>
      */
     public ProfilingStatus getProfilingStatus() throws MongoDbException;
 
@@ -342,7 +345,22 @@ public interface MongoDatabase {
      *         returns <code>false</code>.
      * @throws MongoDbException
      *             On a failure to create the collection.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/profile/">profile
+     *      Command Reference</a>
      */
     public boolean setProfilingStatus(ProfilingStatus profileLevel)
             throws MongoDbException;
+
+    /**
+     * Returns the statistics for the database.
+     * 
+     * @return The results document with the database statistics.
+     * @throws MongoDbException
+     *             On an error collecting the database statistics.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/dbStats/">dbStats
+     *      Command Reference</a>
+     */
+    public Document stats() throws MongoDbException;
 }

@@ -536,6 +536,19 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to send a {@code collStats} command to the MongoDB server.
+     * </p>
+     * 
+     * @see MongoCollection#stats
+     */
+    @Override
+    public Document stats() throws MongoDbException {
+        return myDatabase.runCommand("collStats", getName(), null);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to send an {@link Update} message to the server.
      * </p>
      */

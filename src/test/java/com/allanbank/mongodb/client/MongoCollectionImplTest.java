@@ -3188,6 +3188,22 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test method for {@link MongoDatabaseImpl#stats()}.
+     */
+    @Test
+    public void testStats() {
+        final Document result = BuilderFactory.start().build();
+
+        expect(myMockDatabase.runCommand("collStats", "test", null)).andReturn(
+                result);
+
+        replay();
+
+        assertSame(result, myTestInstance.stats());
+        verify();
+    }
+
+    /**
      * Test method for
      * {@link AbstractMongoCollection#updateAsync(Callback, DocumentAssignable, DocumentAssignable)}
      * .

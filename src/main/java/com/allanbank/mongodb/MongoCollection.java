@@ -1128,6 +1128,18 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
+     * Returns the statistics for the collection.
+     * 
+     * @return The results document with the collection statistics.
+     * @throws MongoDbException
+     *             On an error collecting the collection statistics.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/collStats/">collStats
+     *      Command Reference</a>
+     */
+    public Document stats() throws MongoDbException;
+
+    /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
@@ -1407,6 +1419,9 @@ public interface MongoCollection {
      * @return The results document from the database.
      * @throws MongoDbException
      *             On an error validating the collection.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/validate/">validate
+     *      Command Reference</a>
      */
     public Document validate(ValidateMode mode) throws MongoDbException;
 

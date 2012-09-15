@@ -663,6 +663,25 @@ public class MongoDatabaseImplTest {
     }
 
     /**
+     * Test method for {@link MongoDatabaseImpl#stats()}.
+     */
+    @Test
+    public void testStats() {
+        final Document result = BuilderFactory.start().build();
+
+        final Command command = new Command("test", BuilderFactory.start()
+                .add("dbStats", 1).build());
+
+        expect(myMockClient.send(eq(command), callback(reply(result))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertSame(result, myTestInstance.stats());
+        verify();
+    }
+
+    /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
      * 
