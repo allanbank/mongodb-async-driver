@@ -436,7 +436,7 @@ public class Durability implements Serializable {
 
     /**
      * Hook into serialization to replace <tt>this</tt> object with the local
-     * {@link #ACK} or {@link #NONE} instance as appropriate..
+     * {@link #ACK} or {@link #NONE} instance as appropriate.
      * 
      * @return Either the {@link #ACK} or {@link #NONE} instance if
      *         <tt>this</tt> instance equals one of those instances otherwise

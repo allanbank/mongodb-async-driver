@@ -1302,6 +1302,176 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test method for {@link AbstractMongoCollection#explainAsync(Find)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testExplainAsyncFind() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+
+        final Document query = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().add("query", query)
+                .add("$explain", true).build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.SECONDARY, false, false, false, false);
+
+        final Find.Builder findBuilder = new Find.Builder(query);
+        findBuilder.setReadPreference(ReadPreference.SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result1))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Future<Document> future = myTestInstance.explainAsync(findBuilder
+                .build());
+        assertSame(result1, future.get());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#explain(DocumentAssignable)} .
+     */
+    @Test
+    public void testExplainDocument() {
+        final Document result1 = BuilderFactory.start().build();
+
+        final Document query = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().add("query", query)
+                .add("$explain", true).build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockClient.getDefaultReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(message), callback(reply(result1))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Document iter = myTestInstance.explain(query);
+        assertSame(result1, iter);
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link MongoCollectionImpl#explainAsync(Callback, Find)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testExplainWithNonLegacyOptions() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder.build());
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+
+        final Find request = builder.build();
+
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.add("$explain", true);
+        qRequestBuilder.addDocument("$readPreference",
+                ReadPreference.PREFER_SECONDARY.asDocument());
+
+        final Query message = new Query("test", "test",
+                qRequestBuilder.asDocument(), request.getReturnFields(),
+                request.getBatchSize(), request.getLimit(),
+                request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Future<Document> future = myTestInstance.explainAsync(request);
+        assertSame(result1, future.get());
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link MongoCollectionImpl#explainAsync(Callback, Find)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testExplainWithNonLegacyOptionsAndNonSharded() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder.build());
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+
+        final Find request = builder.build();
+
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.add("$explain", true);
+
+        final Query message = new Query("test", "test",
+                qRequestBuilder.asDocument(), request.getReturnFields(),
+                request.getBatchSize(), request.getLimit(),
+                request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.STAND_ALONE);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Future<Document> future = myTestInstance.explainAsync(request);
+        assertSame(result1, future.get());
+
+        verify();
+    }
+
+    /**
      * Test method for
      * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
      */
@@ -1371,14 +1541,49 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
      */
     @Test
-    public void testFindAndModifyWithSort() {
+    public void testFindAndModifyAsyncCallbackOfDocumentFindAndModify() {
         final FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.setQuery(BuilderFactory.start().build());
         builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
-        builder.setSort(Sort.asc("f"));
+
+        final FindAndModify request = builder.build();
+
+        final Callback<Document> mockCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("findAndModify", "test");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.addDocument("update", request.getUpdate());
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyDocumentCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.findAndModifyAsync(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#findAndModifyAsync(FindAndModify)} .
+     * 
+     * @throws Exception
+     *             On a failure.
+     */
+    @Test
+    public void testFindAndModifyAsyncFindAndModify() throws Exception {
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
 
         final FindAndModify request = builder.build();
 
@@ -1390,7 +1595,6 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("findAndModify", "test");
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.addDocument("update", request.getUpdate());
-        expectedCommand.addDocument("sort", BuilderFactory.start().add("f", 1));
 
         final Command message = new Command("test", expectedCommand.build());
 
@@ -1400,7 +1604,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(value.build(), myTestInstance.findAndModify(request));
+        assertEquals(value.build(), myTestInstance.findAndModifyAsync(request)
+                .get());
 
         verify();
     }
@@ -1483,6 +1688,42 @@ public class MongoCollectionImplTest {
      * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
      */
     @Test
+    public void testFindAndModifyWithSort() {
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
+        builder.setSort(Sort.asc("f"));
+
+        final FindAndModify request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.push("value");
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("findAndModify", "test");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.addDocument("update", request.getUpdate());
+        expectedCommand.addDocument("sort", BuilderFactory.start().add("f", 1));
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(value.build(), myTestInstance.findAndModify(request));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     */
+    @Test
     public void testFindAndModifyWithUpsert() {
         final FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.setQuery(BuilderFactory.start().build());
@@ -1510,77 +1751,6 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(value.build(), myTestInstance.findAndModify(request));
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
-     */
-    @Test
-    public void testFindAndModifyAsyncCallbackOfDocumentFindAndModify() {
-        final FindAndModify.Builder builder = new FindAndModify.Builder();
-        builder.setQuery(BuilderFactory.start().build());
-        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
-
-        final FindAndModify request = builder.build();
-
-        final Callback<Document> mockCallback = createMock(Callback.class);
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("findAndModify", "test");
-        expectedCommand.addDocument("query", request.getQuery());
-        expectedCommand.addDocument("update", request.getUpdate());
-
-        final Command message = new Command("test", expectedCommand.build());
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyDocumentCallback.class))).andReturn(
-                myAddress);
-
-        replay(mockCallback);
-
-        myTestInstance.findAndModifyAsync(mockCallback, request);
-
-        verify(mockCallback);
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#findAndModifyAsync(FindAndModify)} .
-     * 
-     * @throws Exception
-     *             On a failure.
-     */
-    @Test
-    public void testFindAndModifyAsyncFindAndModify() throws Exception {
-        final FindAndModify.Builder builder = new FindAndModify.Builder();
-        builder.setQuery(BuilderFactory.start().build());
-        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
-
-        final FindAndModify request = builder.build();
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.push("value");
-        value.addInteger("foo", 1);
-
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("findAndModify", "test");
-        expectedCommand.addDocument("query", request.getQuery());
-        expectedCommand.addDocument("update", request.getUpdate());
-
-        final Command message = new Command("test", expectedCommand.build());
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
-
-        replay();
-
-        assertEquals(value.build(), myTestInstance.findAndModifyAsync(request)
-                .get());
 
         verify();
     }
@@ -1720,40 +1890,6 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#explainAsync(Find)} .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testExplainAsyncFind() throws Exception {
-        final Document result1 = BuilderFactory.start().build();
-
-        final Document query = BuilderFactory.start().build();
-
-        final Document doc = BuilderFactory.start().add("query", query)
-                .add("$explain", true).build();
-
-        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
-                false, ReadPreference.SECONDARY, false, false, false, false);
-
-        final Find.Builder findBuilder = new Find.Builder(query);
-        findBuilder.setReadPreference(ReadPreference.SECONDARY);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
-
-        replay();
-
-        final Future<Document> future = myTestInstance.explainAsync(findBuilder
-                .build());
-        assertSame(result1, future.get());
-
-        verify();
-    }
-
-    /**
      * Test method for {@link AbstractMongoCollection#find(DocumentAssignable)}
      * .
      */
@@ -1784,37 +1920,6 @@ public class MongoCollectionImplTest {
         assertTrue(iter.hasNext());
         assertSame(result2, iter.next());
         assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#explain(DocumentAssignable)} .
-     */
-    @Test
-    public void testExplainDocument() {
-        final Document result1 = BuilderFactory.start().build();
-
-        final Document query = BuilderFactory.start().build();
-
-        final Document doc = BuilderFactory.start().add("query", query)
-                .add("$explain", true).build();
-
-        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
-                false, ReadPreference.PRIMARY, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        expect(myMockClient.getDefaultReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
-
-        replay();
-
-        final Document iter = myTestInstance.explain(query);
-        assertSame(result1, iter);
 
         verify();
     }
@@ -2126,111 +2231,6 @@ public class MongoCollectionImplTest {
         assertTrue(iter.hasNext());
         assertSame(result2, iter.next());
         assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for {@link MongoCollectionImpl#explainAsync(Callback, Find)}
-     * .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testExplainWithNonLegacyOptions() throws Exception {
-        final Document result1 = BuilderFactory.start().build();
-        final Document result2 = BuilderFactory.start().build();
-
-        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
-                "foo", 1);
-        final Find.Builder builder = new Find.Builder();
-        builder.setQuery(qBuilder.build());
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
-                .build());
-        builder.setBatchSize(101010);
-        builder.setLimit(202020);
-        builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
-        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
-
-        final Find request = builder.build();
-
-        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.add("$explain", true);
-        qRequestBuilder.addDocument("$readPreference",
-                ReadPreference.PREFER_SECONDARY.asDocument());
-
-        final Query message = new Query("test", "test",
-                qRequestBuilder.asDocument(), request.getReturnFields(),
-                request.getBatchSize(), request.getLimit(),
-                request.getNumberToSkip(), false,
-                ReadPreference.PREFER_SECONDARY, false, false, false, true);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
-
-        replay();
-
-        final Future<Document> future = myTestInstance.explainAsync(request);
-        assertSame(result1, future.get());
-
-        verify();
-    }
-
-    /**
-     * Test method for {@link MongoCollectionImpl#explainAsync(Callback, Find)}
-     * .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testExplainWithNonLegacyOptionsAndNonSharded() throws Exception {
-        final Document result1 = BuilderFactory.start().build();
-        final Document result2 = BuilderFactory.start().build();
-
-        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
-                "foo", 1);
-        final Find.Builder builder = new Find.Builder();
-        builder.setQuery(qBuilder.build());
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
-                .build());
-        builder.setBatchSize(101010);
-        builder.setLimit(202020);
-        builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
-        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
-
-        final Find request = builder.build();
-
-        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.add("$explain", true);
-
-        final Query message = new Query("test", "test",
-                qRequestBuilder.asDocument(), request.getReturnFields(),
-                request.getBatchSize(), request.getLimit(),
-                request.getNumberToSkip(), false,
-                ReadPreference.PREFER_SECONDARY, false, false, false, true);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.STAND_ALONE);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
-
-        replay();
-
-        final Future<Document> future = myTestInstance.explainAsync(request);
-        assertSame(result1, future.get());
 
         verify();
     }

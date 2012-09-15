@@ -35,6 +35,37 @@ public interface MongoDatabase {
     public static final String TEST_NAME = "test";
 
     /**
+     * Creates the capped collection with the specified name and size on the
+     * server.
+     * 
+     * @param name
+     *            The name of the collection.
+     * @param size
+     *            The size of the collection in bytes.
+     * @return True if the collection was created, false otherwise (including it
+     *         already exists).
+     * @throws MongoDbException
+     *             On a failure to create the collection.
+     */
+    public boolean createCappedCollection(String name, long size)
+            throws MongoDbException;
+
+    /**
+     * Creates the collection with the specified name on the server.
+     * 
+     * @param name
+     *            The name of the collection.
+     * @param options
+     *            The options for the collection being created.
+     * @return True if the collection was created, false otherwise (including it
+     *         already exists).
+     * @throws MongoDbException
+     *             On a failure to create the collection.
+     */
+    public boolean createCollection(String name, DocumentAssignable options)
+            throws MongoDbException;
+
+    /**
      * Drops the database.
      * 
      * @return True if the database was successfully dropped, false otherwise.
@@ -55,42 +86,20 @@ public interface MongoDatabase {
     public MongoCollection getCollection(String name);
 
     /**
-     * Creates the collection with the specified name on the server.
-     * 
-     * @param name
-     *            The name of the collection.
-     * @param options
-     *            The options for the collection being created.
-     * @return True if the collection was created, false otherwise (including it
-     *         already exists).
-     * @throws MongoDbException
-     *             On a failure to create the collection.
-     */
-    public boolean createCollection(String name, DocumentAssignable options)
-            throws MongoDbException;
-
-    /**
-     * Creates the capped collection with the specified name and size on the
-     * server.
-     * 
-     * @param name
-     *            The name of the collection.
-     * @param size
-     *            The size of the collection in bytes.
-     * @return True if the collection was created, false otherwise (including it
-     *         already exists).
-     * @throws MongoDbException
-     *             On a failure to create the collection.
-     */
-    public boolean createCappedCollection(String name, long size)
-            throws MongoDbException;
-
-    /**
      * Returns the name of the database.
      * 
      * @return The name of the database.
      */
     public String getName();
+
+    /**
+     * Retrieves the profiling level for the database.
+     * 
+     * @return The current profiling level.
+     * @throws MongoDbException
+     *             On a failure to create the collection.
+     */
+    public ProfilingStatus getProfilingStatus() throws MongoDbException;
 
     /**
      * Returns the list of the collections contained within the database.
@@ -180,6 +189,22 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error issuing the command or in running the command
      */
+    public Document runCommand(String commandName, int commandValue,
+            DocumentAssignable options) throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param commandName
+     *            The name of the command to run.
+     * @param commandValue
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
     public Document runCommand(String commandName, String commandValue,
             DocumentAssignable options) throws MongoDbException;
 
@@ -210,6 +235,24 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(Callback<Document> reply, String command,
             DocumentAssignable options) throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link Callback} that will be notified of the command results.
+     * @param commandName
+     *            The name of the command to run.
+     * @param commandValue
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(Callback<Document> reply, String commandName,
+            int commandValue, DocumentAssignable options)
+            throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -269,7 +312,37 @@ public interface MongoDatabase {
      *             On an error issuing the command or in running the command
      */
     public Future<Document> runCommandAsync(String commandName,
+            int commandValue, DocumentAssignable options)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param commandName
+     *            The name of the command to run.
+     * @param commandValue
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Future<Document> runCommandAsync(String commandName,
             String commandValue, DocumentAssignable options)
             throws MongoDbException;
 
+    /**
+     * Sets the profiling level for the database.
+     * 
+     * @param profileLevel
+     *            The desired profiling level
+     * @return True if the profiling level was changed. Note if the level
+     *         provided matches the profiling level already set then this method
+     *         returns <code>false</code>.
+     * @throws MongoDbException
+     *             On a failure to create the collection.
+     */
+    public boolean setProfilingStatus(ProfilingStatus profileLevel)
+            throws MongoDbException;
 }

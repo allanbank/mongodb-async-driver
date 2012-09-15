@@ -5718,7 +5718,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
     }
 
-    
     /**
      * Returns a collection with a geospatial 2D index on the 'p' field.
      * 

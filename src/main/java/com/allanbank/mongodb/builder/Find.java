@@ -80,6 +80,15 @@ public class Find {
     }
 
     /**
+     * Returns the number of documents to be returned in each batch of results.
+     * 
+     * @return The number of documents to be returned in each batch of results.
+     */
+    public int getBatchSize() {
+        return myBatchSize;
+    }
+
+    /**
      * Returns the hint for which index to use.
      * 
      * @return The hint for which index to use.
@@ -95,26 +104,6 @@ public class Find {
      */
     public String getHintName() {
         return myHintName;
-    }
-
-    /**
-     * If returns true then use snapshot mode to ensure document are only
-     * returned once.
-     * 
-     * @return True then use snapshot mode to ensure document are only returned
-     *         once.
-     */
-    public boolean isSnapshot() {
-        return mySnapshot;
-    }
-
-    /**
-     * Returns the number of documents to be returned in each batch of results.
-     * 
-     * @return The number of documents to be returned in each batch of results.
-     */
-    public int getBatchSize() {
-        return myBatchSize;
     }
 
     /**
@@ -187,6 +176,30 @@ public class Find {
     }
 
     /**
+     * If returns true then use snapshot mode to ensure document are only
+     * returned once.
+     * 
+     * @return True then use snapshot mode to ensure document are only returned
+     *         once.
+     */
+    public boolean isSnapshot() {
+        return mySnapshot;
+    }
+
+    /**
+     * Converts the {@link Find} into a query request document to send to the
+     * MongoDB server.
+     * 
+     * @param explain
+     *            If true then explain the query procedure instead of returning
+     *            results.
+     * @return The query request document to send to the MongoDB server.
+     */
+    public Document toQueryRequest(final boolean explain) {
+        return toQueryRequest(explain, null);
+    }
+
+    /**
      * Converts the {@link Find} into a query request document to send to the
      * MongoDB server including the provided read preferences.
      * 
@@ -197,8 +210,8 @@ public class Find {
      *            The read preference to include in the query request document.
      * @return The query request document to send to the MongoDB server.
      */
-    public Document toQueryRequest(boolean explain,
-            ReadPreference readPreference) {
+    public Document toQueryRequest(final boolean explain,
+            final ReadPreference readPreference) {
 
         if (explain || mySnapshot || (mySort != null) || (myHint != null)
                 || (myHintName != null) || (readPreference != null)) {
@@ -234,19 +247,6 @@ public class Find {
         }
 
         return myQuery;
-    }
-
-    /**
-     * Converts the {@link Find} into a query request document to send to the
-     * MongoDB server.
-     * 
-     * @param explain
-     *            If true then explain the query procedure instead of returning
-     *            results.
-     * @return The query request document to send to the MongoDB server.
-     */
-    public Document toQueryRequest(boolean explain) {
-        return toQueryRequest(explain, null);
     }
 
     /**

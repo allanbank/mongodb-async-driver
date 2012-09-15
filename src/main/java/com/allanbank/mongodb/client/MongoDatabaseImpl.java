@@ -15,6 +15,7 @@ import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -70,12 +71,9 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * </p>
      */
     @Override
-    public boolean createCollection(String name, DocumentAssignable options)
+    public boolean createCappedCollection(final String name, final long size)
             throws MongoDbException {
-        Document result = runCommand("create", name, options);
-        NumericElement okElem = result.get(NumericElement.class, "ok");
-
-        return ((okElem != null) && (okElem.getIntValue() > 0));
+        return createCollection(name, BuilderFactory.start().add("size", size));
     }
 
     /**
@@ -86,9 +84,12 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * </p>
      */
     @Override
-    public boolean createCappedCollection(String name, long size)
-            throws MongoDbException {
-        return createCollection(name, BuilderFactory.start().add("size", size));
+    public boolean createCollection(final String name,
+            final DocumentAssignable options) throws MongoDbException {
+        final Document result = runCommand("create", name, options);
+        final NumericElement okElem = result.get(NumericElement.class, "ok");
+
+        return ((okElem != null) && (okElem.getIntValue() > 0));
     }
 
     /**
@@ -126,6 +127,43 @@ public class MongoDatabaseImpl implements MongoDatabase {
     @Override
     public String getName() {
         return myName;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to query the system.namespace collection for the names of all
+     * of the collections.
+     * </p>
+     * 
+     * @see MongoDatabase#getProfilingStatus()
+     */
+    @Override
+    public ProfilingStatus getProfilingStatus() throws MongoDbException {
+        final Document result = runCommand("profile", -1, null);
+
+        final NumericElement level = result.get(NumericElement.class, "was");
+        final NumericElement millis = result
+                .get(NumericElement.class, "slowms");
+
+        if ((level != null) && (millis != null)) {
+            final ProfilingStatus.Level l = ProfilingStatus.Level
+                    .fromValue(level.getIntValue());
+            if (l != null) {
+                switch (l) {
+                case NONE:
+                    return ProfilingStatus.OFF;
+                case ALL:
+                    return ProfilingStatus.ON;
+                case SLOW_ONLY:
+                    return ProfilingStatus.slow(millis.getIntValue());
+                }
+            }
+        }
+
+        // undefined?
+        return null;
+
     }
 
     /**
@@ -251,6 +289,23 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * {@inheritDoc}
      * <p>
      * Overridden to call the
+     * {@link #runCommandAsync(String, int, DocumentAssignable)} method.
+     * </p>
+     * 
+     * @see #runCommandAsync(String, int, DocumentAssignable)
+     */
+    @Override
+    public Document runCommand(final String commandName,
+            final int commandValue, final DocumentAssignable options)
+            throws MongoDbException {
+        return FutureUtils.unwrap(runCommandAsync(commandName, commandValue,
+                options));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
      * {@link #runCommandAsync(String, String, DocumentAssignable)} method.
      * </p>
      * 
@@ -313,10 +368,35 @@ public class MongoDatabaseImpl implements MongoDatabase {
      */
     @Override
     public void runCommandAsync(final Callback<Document> reply,
+            final String commandName, final int commandValue,
+            final DocumentAssignable options) throws MongoDbException {
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add(commandName, commandValue);
+        if (options != null) {
+            for (final Element element : options.asDocument()) {
+                if (!commandName.equals(element.getName())) {
+                    builder.add(element);
+                }
+            }
+        }
+
+        final Command commandMessage = new Command(myName, builder.build());
+
+        myClient.send(commandMessage, new ReplyCommandCallback(reply));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to build a {@link Command} message and send it to the server.
+     * </p>
+     */
+    @Override
+    public void runCommandAsync(final Callback<Document> reply,
             final String commandName, final String commandValue,
             final DocumentAssignable options) throws MongoDbException {
         final DocumentBuilder builder = BuilderFactory.start();
-        builder.addString(commandName, commandValue);
+        builder.add(commandName, commandValue);
         if (options != null) {
             for (final Element element : options.asDocument()) {
                 if (!commandName.equals(element.getName())) {
@@ -373,6 +453,27 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * {@inheritDoc}
      * <p>
      * Overridden to call the
+     * {@link #runCommandAsync(Callback, String, int, DocumentAssignable)}
+     * method.
+     * </p>
+     * 
+     * @see #runCommandAsync(Callback, String, int, DocumentAssignable)
+     */
+    @Override
+    public Future<Document> runCommandAsync(final String commandName,
+            final int commandValue, final DocumentAssignable options)
+            throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>();
+
+        runCommandAsync(future, commandName, commandValue, options);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
      * {@link #runCommandAsync(Callback, String, String, DocumentAssignable)}
      * method.
      * </p>
@@ -388,6 +489,50 @@ public class MongoDatabaseImpl implements MongoDatabase {
         runCommandAsync(future, commandName, commandValue, options);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to update the databases profile level.
+     * </p>
+     * 
+     * @see MongoDatabase#setProfilingStatus
+     */
+    @Override
+    public boolean setProfilingStatus(final ProfilingStatus profileLevel)
+            throws MongoDbException {
+        final Document result = runCommand(
+                "profile",
+                profileLevel.getLevel().getValue(),
+                BuilderFactory.start().add("slowms",
+                        profileLevel.getSlowMillisThreshold()));
+
+        final NumericElement level = result.get(NumericElement.class, "was");
+        final NumericElement millis = result
+                .get(NumericElement.class, "slowms");
+
+        if ((level != null) && (millis != null)) {
+            final ProfilingStatus.Level l = ProfilingStatus.Level
+                    .fromValue(level.getIntValue());
+            if (l != null) {
+                switch (l) {
+                case NONE:
+                    return !ProfilingStatus.Level.NONE.equals(profileLevel
+                            .getLevel());
+                case ALL:
+                    return !ProfilingStatus.Level.ALL.equals(profileLevel
+                            .getLevel());
+                case SLOW_ONLY:
+                    final ProfilingStatus before = ProfilingStatus.slow(millis
+                            .getIntValue());
+                    return !before.equals(profileLevel);
+                }
+            }
+        }
+
+        // From undefined to defined is a change?
+        return true;
     }
 
     /**

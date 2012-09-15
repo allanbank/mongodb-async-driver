@@ -12,6 +12,7 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -24,6 +25,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -73,10 +75,11 @@ public class MongoDatabaseImplTest {
     }
 
     /**
-     * Test method for {@link MongoDatabaseImpl#drop()}.
+     * Test method for
+     * {@link MongoDatabaseImpl#createCappedCollection(String, long)}.
      */
     @Test
-    public void testDrop() {
+    public void testCreateCappedCollection() {
         final Document goodResult = BuilderFactory.start().addDouble("ok", 1.0)
                 .build();
         final Document badResult = BuilderFactory.start().addLong("ok", 0)
@@ -84,7 +87,7 @@ public class MongoDatabaseImplTest {
         final Document missingOkResult = BuilderFactory.start().build();
 
         final Command command = new Command("test", BuilderFactory.start()
-                .addInteger("dropDatabase", 1).build());
+                .add("create", "f").add("size", 10000L).build());
 
         expect(myMockClient.send(eq(command), callback(reply(goodResult))))
                 .andReturn(myAddress);
@@ -95,9 +98,9 @@ public class MongoDatabaseImplTest {
 
         replay();
 
-        assertTrue(myTestInstance.drop());
-        assertFalse(myTestInstance.drop());
-        assertFalse(myTestInstance.drop());
+        assertTrue(myTestInstance.createCappedCollection("f", 10000L));
+        assertFalse(myTestInstance.createCappedCollection("f", 10000L));
+        assertFalse(myTestInstance.createCappedCollection("f", 10000L));
 
         verify();
     }
@@ -134,11 +137,10 @@ public class MongoDatabaseImplTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoDatabaseImpl#createCappedCollection(String, long)}.
+     * Test method for {@link MongoDatabaseImpl#drop()}.
      */
     @Test
-    public void testCreateCappedCollection() {
+    public void testDrop() {
         final Document goodResult = BuilderFactory.start().addDouble("ok", 1.0)
                 .build();
         final Document badResult = BuilderFactory.start().addLong("ok", 0)
@@ -146,7 +148,7 @@ public class MongoDatabaseImplTest {
         final Document missingOkResult = BuilderFactory.start().build();
 
         final Command command = new Command("test", BuilderFactory.start()
-                .add("create", "f").add("size", 10000L).build());
+                .addInteger("dropDatabase", 1).build());
 
         expect(myMockClient.send(eq(command), callback(reply(goodResult))))
                 .andReturn(myAddress);
@@ -157,9 +159,9 @@ public class MongoDatabaseImplTest {
 
         replay();
 
-        assertTrue(myTestInstance.createCappedCollection("f", 10000L));
-        assertFalse(myTestInstance.createCappedCollection("f", 10000L));
-        assertFalse(myTestInstance.createCappedCollection("f", 10000L));
+        assertTrue(myTestInstance.drop());
+        assertFalse(myTestInstance.drop());
+        assertFalse(myTestInstance.drop());
 
         verify();
     }
@@ -176,6 +178,54 @@ public class MongoDatabaseImplTest {
         assertSame(myMockClient,
                 ((AbstractMongoCollection) collection).myClient);
         assertEquals("foo", collection.getName());
+    }
+
+    /**
+     * Test method for {@link MongoDatabaseImpl#getProfilingStatus()}.
+     */
+    @Test
+    public void testGetProfilingLevel() {
+        final Document offResult = BuilderFactory.start().add("was", 0)
+                .add("slowms", 100).build();
+        final Document slowResult = BuilderFactory.start().add("was", 1)
+                .add("slowms", 100).build();
+        final Document allResult = BuilderFactory.start().add("was", 2)
+                .add("slowms", 100).build();
+        final Document badResult1 = BuilderFactory.start().add("huh", 0)
+                .add("slowms", 100).build();
+        final Document badResult2 = BuilderFactory.start().add("was", 0)
+                .add("oops", 100).build();
+        final Document badResult3 = BuilderFactory.start().add("was", 4)
+                .add("slowms", 100).build();
+
+        final Command command = new Command("test", BuilderFactory.start()
+                .add("profile", -1).build());
+
+        expect(myMockClient.send(eq(command), callback(reply(offResult))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(command), callback(reply(slowResult))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(command), callback(reply(allResult))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(command), callback(reply(badResult1))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(command), callback(reply(badResult2))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(command), callback(reply(badResult3))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(ProfilingStatus.OFF, myTestInstance.getProfilingStatus());
+        assertEquals(ProfilingStatus.slow(100),
+                myTestInstance.getProfilingStatus());
+        assertEquals(ProfilingStatus.ON, myTestInstance.getProfilingStatus());
+
+        assertNull(myTestInstance.getProfilingStatus());
+        assertNull(myTestInstance.getProfilingStatus());
+        assertNull(myTestInstance.getProfilingStatus());
+
+        verify();
     }
 
     /**
@@ -535,6 +585,79 @@ public class MongoDatabaseImplTest {
 
         assertSame(reply,
                 myTestInstance.runCommand("command", "name", options.build()));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoDatabaseImpl#setProfilingStatus(ProfilingStatus)}.
+     */
+    @Test
+    public void testSetProfilingLevel() {
+        final Document offResult = BuilderFactory.start().add("was", 0)
+                .add("slowms", 100).build();
+        final Document slowResult = BuilderFactory.start().add("was", 1)
+                .add("slowms", 100).build();
+        final Document allResult = BuilderFactory.start().add("was", 2)
+                .add("slowms", 100).build();
+        final Document badResult1 = BuilderFactory.start().add("huh", 0)
+                .add("slowms", 100).build();
+        final Document badResult2 = BuilderFactory.start().add("was", 0)
+                .add("oops", 100).build();
+        final Document badResult3 = BuilderFactory.start().add("was", 4)
+                .add("slowms", 100).build();
+
+        final Command offCommand = new Command("test", BuilderFactory.start()
+                .add("profile", 0)
+                .add("slowms", ProfilingStatus.DEFAULT_SLOW_MS).build());
+        final Command slowCommand1 = new Command("test", BuilderFactory.start()
+                .add("profile", 1).add("slowms", 100L).build());
+        final Command slowCommand2 = new Command("test", BuilderFactory.start()
+                .add("profile", 1).add("slowms", 1000L).build());
+        final Command onCommand = new Command("test", BuilderFactory.start()
+                .add("profile", 2)
+                .add("slowms", ProfilingStatus.DEFAULT_SLOW_MS).build());
+
+        expect(myMockClient.send(eq(offCommand), callback(reply(offResult))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(onCommand), callback(reply(offResult))))
+                .andReturn(myAddress);
+
+        expect(myMockClient.send(eq(slowCommand1), callback(reply(slowResult))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(slowCommand2), callback(reply(slowResult))))
+                .andReturn(myAddress);
+
+        expect(myMockClient.send(eq(onCommand), callback(reply(allResult))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(slowCommand2), callback(reply(allResult))))
+                .andReturn(myAddress);
+
+        expect(myMockClient.send(eq(offCommand), callback(reply(badResult1))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(offCommand), callback(reply(badResult2))))
+                .andReturn(myAddress);
+        expect(myMockClient.send(eq(offCommand), callback(reply(badResult3))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertFalse(myTestInstance.setProfilingStatus(ProfilingStatus.OFF));
+        assertTrue(myTestInstance.setProfilingStatus(ProfilingStatus.ON));
+
+        assertFalse(myTestInstance
+                .setProfilingStatus(ProfilingStatus.slow(100)));
+        assertTrue(myTestInstance
+                .setProfilingStatus(ProfilingStatus.slow(1000)));
+
+        assertFalse(myTestInstance.setProfilingStatus(ProfilingStatus.ON));
+        assertTrue(myTestInstance
+                .setProfilingStatus(ProfilingStatus.slow(1000)));
+
+        assertTrue(myTestInstance.setProfilingStatus(ProfilingStatus.OFF));
+        assertTrue(myTestInstance.setProfilingStatus(ProfilingStatus.OFF));
+        assertTrue(myTestInstance.setProfilingStatus(ProfilingStatus.OFF));
 
         verify();
     }
