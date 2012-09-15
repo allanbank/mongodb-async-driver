@@ -73,7 +73,8 @@ public class MongoDatabaseImpl implements MongoDatabase {
     @Override
     public boolean createCappedCollection(final String name, final long size)
             throws MongoDbException {
-        return createCollection(name, BuilderFactory.start().add("size", size));
+        return createCollection(name, BuilderFactory.start()
+                .add("capped", true).add("size", size));
     }
 
     /**

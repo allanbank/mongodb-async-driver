@@ -87,7 +87,8 @@ public class MongoDatabaseImplTest {
         final Document missingOkResult = BuilderFactory.start().build();
 
         final Command command = new Command("test", BuilderFactory.start()
-                .add("create", "f").add("size", 10000L).build());
+                .add("create", "f").add("capped", true).add("size", 10000L)
+                .build());
 
         expect(myMockClient.send(eq(command), callback(reply(goodResult))))
                 .andReturn(myAddress);
