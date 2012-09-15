@@ -57,6 +57,17 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return true.
+     * </p>
+     */
+    @Override
+    protected boolean isShardedConfiguration() {
+        return true;
+    }
+
+    /**
      * Tests the handling of a mongos server getting shutdown.
      */
     // @Test

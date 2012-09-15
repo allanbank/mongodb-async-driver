@@ -16,6 +16,7 @@ import static com.allanbank.mongodb.builder.expression.Expressions.constant;
 import static com.allanbank.mongodb.builder.expression.Expressions.field;
 import static com.allanbank.mongodb.builder.expression.Expressions.set;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -23,12 +24,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -49,6 +52,7 @@ import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoFactory;
+import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -58,6 +62,7 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
@@ -70,6 +75,7 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.builder.Sort;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
@@ -126,8 +132,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Before
     public void connect() {
-        myConfig = new MongoDbConfiguration();
-        myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
+        if (myConfig == null) {
+            myConfig = new MongoDbConfiguration();
+            myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
+        }
 
         myMongo = MongoFactory.create(myConfig);
         myDb = myMongo.getDatabase(TEST_DB_NAME);
@@ -423,6 +431,21 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies the ability to get the collection statistics.
+     */
+    @Test
+    public void testCollectionStats() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        final Document result = myCollection.stats();
+        assertEquals(new StringElement("ns", myDb.getName() + "."
+                + myCollection.getName()), result.get("ns"));
+    }
+
+    /**
      * Verifies counting the number of documents in the collection.
      */
     @Test
@@ -442,6 +465,46 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertEquals(i + 1,
                     myCollection.count(BuilderFactory.start().build()));
         }
+    }
+
+    /**
+     * Verifies the ability to create a capped collection in the database.
+     */
+    @Test
+    public void testCreateCappedCollection() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        final String name = String.valueOf("testCreateCollection_"
+                + Math.abs(myRandom.nextLong()));
+        assertTrue(myDb.createCappedCollection(name, 100000));
+        assertFalse(myDb.createCollection(name, BuilderFactory.start()));
+        assertTrue(myDb.listCollections().contains(name));
+
+        assertTrue(myDb.getCollection(name).isCapped());
+
+        myDb.getCollection(name).drop();
+    }
+
+    /**
+     * Verifies the ability to create a collection in the database.
+     */
+    @Test
+    public void testCreateCollection() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        final String name = String.valueOf("testCreateCollection_"
+                + myRandom.nextLong());
+        assertTrue(myDb.createCollection(name, BuilderFactory.start()));
+        assertFalse(myDb.createCollection(name, BuilderFactory.start()));
+        assertTrue(myDb.listCollections().contains(name));
+
+        myDb.getCollection(name).drop();
     }
 
     /**
@@ -489,6 +552,24 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
 
         assertEquals(SMALL_COLLECTION_COUNT, expectedId);
+    }
+
+    /**
+     * Verifies the ability to get the database statistics.
+     */
+    @Test
+    public void testDatabaseStats() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        final Document result = myDb.stats();
+        Element element = result.get("db");
+        if (isShardedConfiguration()) {
+            element = result.findFirst("raw", ".*", "db");
+        }
+        assertEquals(new StringElement("db", myDb.getName()), element);
     }
 
     /**
@@ -614,6 +695,28 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 BuilderFactory.start()
                         .addRegularExpression("name", ".*foo.*", "").build());
         assertNull(found);
+    }
+
+    /**
+     * Verifies the ability to get a query plan via explain.
+     */
+    @Test
+    public void testExplain() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        myCollection.createIndex(Sort.asc("a"), Sort.asc("b"));
+
+        Document result = myCollection.explain(QueryBuilder.where("a")
+                .equals(3).and("b").equals(5));
+        assertEquals(new StringElement("cursor", "BtreeCursor a_1_b_1"),
+                result.get("cursor"));
+
+        result = myCollection.explain(QueryBuilder.where("f").equals(42));
+        assertEquals(new StringElement("cursor", "BasicCursor"),
+                result.get("cursor"));
     }
 
     /**
@@ -968,6 +1071,30 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
 
         assertEquals(findBuilder.build().getLimit(), count);
+    }
+
+    /**
+     * Verifies the ability to adjust the profiling status.
+     */
+    @Test
+    public void testProfilingStatus() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        if (!isShardedConfiguration()) {
+            assertEquals(ProfilingStatus.OFF, myDb.getProfilingStatus());
+
+            for (final ProfilingStatus status : Arrays.asList(
+                    ProfilingStatus.ON, ProfilingStatus.slow(100),
+                    ProfilingStatus.OFF, ProfilingStatus.slow(1000))) {
+                assertTrue(myDb.setProfilingStatus(status));
+                assertFalse(myDb.setProfilingStatus(status));
+
+                assertEquals(status, myDb.getProfilingStatus());
+            }
+        }
     }
 
     /**
@@ -4994,10 +5121,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinIntIntIntInt() {
-        final int x1 = (int) (myRandom.nextDouble() * 170.0);
-        final int y1 = (int) (myRandom.nextDouble() * 170.0);
+        int x1 = (int) (myRandom.nextDouble() * 170.0);
+        int y1 = (int) (myRandom.nextDouble() * 170.0);
         final int x2 = (int) (myRandom.nextDouble() * 170.0);
         final int y2 = (int) (myRandom.nextDouble() * 170.0);
+
+        if (x1 == x2) {
+            x1 -= 1;
+        }
+        if (y1 == y2) {
+            y1 -= 1;
+        }
 
         final int minx = Math.min(x1, x2);
         final int deltax = Math.abs(x1 - x2);
@@ -5047,10 +5181,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinIntIntIntIntBoolean() {
-        final int x1 = (int) (myRandom.nextDouble() * 170.0);
-        final int y1 = (int) (myRandom.nextDouble() * 170.0);
+        int x1 = (int) (myRandom.nextDouble() * 170.0);
+        int y1 = (int) (myRandom.nextDouble() * 170.0);
         final int x2 = (int) (myRandom.nextDouble() * 170.0);
         final int y2 = (int) (myRandom.nextDouble() * 170.0);
+
+        if (x1 == x2) {
+            x1 -= 1;
+        }
+        if (y1 == y2) {
+            y1 -= 1;
+        }
 
         final int minx = Math.min(x1, x2);
         final int deltax = Math.abs(x1 - x2);
@@ -5194,10 +5335,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinLongLongLongLong() {
-        final long x1 = (long) (myRandom.nextDouble() * 170.0);
-        final long y1 = (long) (myRandom.nextDouble() * 170.0);
+        long x1 = (long) (myRandom.nextDouble() * 170.0);
+        long y1 = (long) (myRandom.nextDouble() * 170.0);
         final long x2 = (long) (myRandom.nextDouble() * 170.0);
         final long y2 = (long) (myRandom.nextDouble() * 170.0);
+
+        if (x1 == x2) {
+            x1 -= 1;
+        }
+        if (y1 == y2) {
+            y1 -= 1;
+        }
 
         final long minx = Math.min(x1, x2);
         final long deltax = Math.abs(x1 - x2);
@@ -5247,10 +5395,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinLongLongLongLongBoolean() {
-        final long x1 = (long) (myRandom.nextDouble() * 170.0);
-        final long y1 = (long) (myRandom.nextDouble() * 170.0);
+        long x1 = (long) (myRandom.nextDouble() * 170.0);
+        long y1 = (long) (myRandom.nextDouble() * 170.0);
         final long x2 = (long) (myRandom.nextDouble() * 170.0);
         final long y2 = (long) (myRandom.nextDouble() * 170.0);
+
+        if (x1 == x2) {
+            x1 -= 1;
+        }
+        if (y1 == y2) {
+            y1 -= 1;
+        }
 
         final long minx = Math.min(x1, x2);
         final long deltax = Math.abs(x1 - x2);
@@ -5719,6 +5874,74 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies the ability to update the collection options.
+     */
+    @Test
+    public void testUpdateOptions() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        if (!isShardedConfiguration()) {
+            Document result = myCollection.updateOptions(BuilderFactory.start()
+                    .add("usePowerOf2Sizes", true));
+
+            // Check for non-2.2 servers.
+            assumeThat(result.get("errmsg"), nullValue());
+
+            assertEquals(new BooleanElement("usePowerOf2Sizes_old", false),
+                    result.get("usePowerOf2Sizes_old"));
+
+            result = myCollection.updateOptions(BuilderFactory.start().add(
+                    "usePowerOf2Sizes", true));
+            assertEquals(new BooleanElement("usePowerOf2Sizes_old", true),
+                    result.get("usePowerOf2Sizes_old"));
+
+            result = myCollection.updateOptions(BuilderFactory.start().add(
+                    "usePowerOf2Sizes", false));
+            assertEquals(new BooleanElement("usePowerOf2Sizes_old", true),
+                    result.get("usePowerOf2Sizes_old"));
+        }
+    }
+
+    /**
+     * Verifies the ability to validate a collection.
+     */
+    @Test
+    public void testValidate() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        Document result = myCollection
+                .validate(MongoCollection.ValidateMode.INDEX_ONLY);
+        assertEquals(new BooleanElement("valid", true), result.get("valid"));
+        Element element = result.get("warning");
+        if (isShardedConfiguration()) {
+            element = result.findFirst("raw", ".*", "warning");
+        }
+        assertNotNull(element);
+
+        result = myCollection.validate(MongoCollection.ValidateMode.NORMAL);
+        assertEquals(new BooleanElement("valid", true), result.get("valid"));
+        element = result.get("warning");
+        if (isShardedConfiguration()) {
+            element = result.findFirst("raw", ".*", "warning");
+        }
+        assertNotNull(element);
+
+        result = myCollection.validate(MongoCollection.ValidateMode.FULL);
+        assertEquals(new BooleanElement("valid", true), result.get("valid"));
+        element = result.get("warning");
+        if (isShardedConfiguration()) {
+            element = result.findFirst("raw", ".*", "warning");
+        }
+        assertNull(element);
+    }
+
+    /**
      * Returns a collection with a geospatial 2D index on the 'p' field.
      * 
      * @return The collection with a geospatial 2D index on the 'p' field.
@@ -5729,5 +5952,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             myGeoCollection.createIndex(Sort.geo2d("p"));
         }
         return myGeoCollection;
+    }
+
+    /**
+     * Returns true when running against a sharded configuration. Not all
+     * commands are supported in shared environments, e.g., when connected to a
+     * mongos.
+     * 
+     * @return True when connecting to a mongos.
+     */
+    protected boolean isShardedConfiguration() {
+        return false;
     }
 }

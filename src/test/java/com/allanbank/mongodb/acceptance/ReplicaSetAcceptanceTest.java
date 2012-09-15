@@ -80,8 +80,6 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
      */
     @Test
     public void testGracefulStepdownRecovery() {
-        myConfig.setAutoDiscoverServers(true);
-        myConfig.setReconnectTimeout(90000);
 
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
@@ -151,6 +149,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         final SocketConnection[] conns = new SocketConnection[ports.length];
 
         disconnect();
+        Thread.sleep(5000);
         connect();
         myConfig.setAutoDiscoverServers(true);
         myConfig.setMaxConnectionCount(5);
