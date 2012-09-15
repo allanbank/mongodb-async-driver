@@ -245,7 +245,7 @@ public class ClientImpl extends AbstractClient {
             reconnect(connection);
         }
         else if (myConnectionsToClose.remove(connection)) {
-            LOG.info("MongoDB Connection closed: " + connection);
+            LOG.fine("MongoDB Connection closed: " + connection);
             connection.removePropertyChangeListener(myConnectionListener);
         }
         else {

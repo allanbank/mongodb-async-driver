@@ -107,17 +107,17 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                         final Document doc = results.get(0);
 
                         if (isMongos(doc)) {
-                            LOG.info("Sharded bootstrap to " + addr + ".");
+                            LOG.fine("Sharded bootstrap to " + addr + ".");
                             myDelegate = new ShardedConnectionFactory(factory,
                                     myConfig);
                         }
                         else if (isReplicationSet(doc)) {
-                            LOG.info("Replica-set bootstrap to " + addr + ".");
+                            LOG.fine("Replica-set bootstrap to " + addr + ".");
                             myDelegate = new ReplicaSetConnectionFactory(
                                     factory, myConfig);
                         }
                         else {
-                            LOG.info("Simple MongoDB bootstrap to " + addr
+                            LOG.fine("Simple MongoDB bootstrap to " + addr
                                     + ".");
                             myDelegate = factory;
                         }

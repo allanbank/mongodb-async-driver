@@ -151,12 +151,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     public void disconnect() {
         try {
             if (myCollection != null) {
-                myCollection.delete(BuilderFactory.start().build(),
-                        Durability.ACK);
+                myCollection.drop();
             }
             if (myGeoCollection != null) {
-                myGeoCollection.delete(BuilderFactory.start().build(),
-                        Durability.ACK);
+                myGeoCollection.drop();
+            }
+            if (myDb != null) {
+                myDb.drop();
             }
             if (myMongo != null) {
                 myMongo.close();
@@ -440,6 +441,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.ACK);
         myConfig.setMaxConnectionCount(1);
 
+        myCollection.insert(Durability.ACK, BuilderFactory.start());
+
         final Document result = myCollection.stats();
         assertEquals(new StringElement("ns", myDb.getName() + "."
                 + myCollection.getName()), result.get("ns"));
@@ -517,7 +520,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         // Adjust the configuration to keep the connection count down
         // and let the inserts happen asynchronously.
-        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setDefaultDurability(Durability.ACK);
         myConfig.setMaxConnectionCount(1);
 
         // Add some entries into the collection with the index fields.
@@ -1664,23 +1667,28 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Bug in MongoDB? - Matching all documents.
             final Set<Document> expected = new HashSet<Document>();
             expected.add(doc1.build());
-            expected.add(doc2.build());
-            expected.add(doc3.build());
-            expected.add(doc4.build());
-            expected.add(doc5.build());
 
             final Set<Document> received = new HashSet<Document>();
             assertTrue(iter.hasNext());
             received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
-            assertFalse(iter.hasNext());
+
+            // MongoDB 2.0.7 does not return more documents. 2.2.0 does.
+            if (iter.hasNext()) {
+                assertTrue(iter.hasNext());
+                received.add(iter.next());
+                assertTrue(iter.hasNext());
+                received.add(iter.next());
+                assertTrue(iter.hasNext());
+                received.add(iter.next());
+                assertTrue(iter.hasNext());
+                received.add(iter.next());
+                assertFalse(iter.hasNext());
+
+                expected.add(doc2.build());
+                expected.add(doc3.build());
+                expected.add(doc4.build());
+                expected.add(doc5.build());
+            }
 
             assertEquals(expected, received);
         }
@@ -1721,24 +1729,28 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         try {
             // Bug in MongoDB? - Matching all documents.
             final Set<Document> expected = new HashSet<Document>();
-            expected.add(doc1.build());
             expected.add(doc2.build());
-            expected.add(doc3.build());
-            expected.add(doc4.build());
-            expected.add(doc5.build());
 
             final Set<Document> received = new HashSet<Document>();
             assertTrue(iter.hasNext());
             received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
-            assertFalse(iter.hasNext());
+
+            // MongoDB 2.0.7 does not return more documents. 2.2.0 does.
+            if (iter.hasNext()) {
+                received.add(iter.next());
+                assertTrue(iter.hasNext());
+                received.add(iter.next());
+                assertTrue(iter.hasNext());
+                received.add(iter.next());
+                assertTrue(iter.hasNext());
+                received.add(iter.next());
+                assertFalse(iter.hasNext());
+
+                expected.add(doc1.build());
+                expected.add(doc3.build());
+                expected.add(doc4.build());
+                expected.add(doc5.build());
+            }
 
             assertEquals(expected, received);
         }
@@ -1814,7 +1826,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             fail("Expected to throw.");
         }
         catch (final QueryFailedException expected) {
-            // Bug in MongoDB!
+            // Bug in MongoDB 2.2.0
             assertEquals("wrong type for field (a) 17 != 9",
                     expected.getMessage());
         }
@@ -5914,6 +5926,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // and let the inserts happen asynchronously.
         myConfig.setDefaultDurability(Durability.ACK);
         myConfig.setMaxConnectionCount(1);
+
+        myCollection.insert(Durability.ACK, BuilderFactory.start());
 
         Document result = myCollection
                 .validate(MongoCollection.ValidateMode.INDEX_ONLY);
