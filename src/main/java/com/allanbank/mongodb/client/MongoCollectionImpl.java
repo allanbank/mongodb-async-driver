@@ -557,4 +557,31 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                     new ReplyLongCallback(results));
         }
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to send a {@code validate} command to the server.
+     * </p>
+     */
+    @Override
+    public Document validate(final ValidateMode mode) throws MongoDbException {
+        Document result = null;
+
+        switch (mode) {
+        case INDEX_ONLY:
+            result = myDatabase.runCommand("validate", getName(),
+                    BuilderFactory.start().add("scandata", false).build());
+            break;
+        case NORMAL:
+            result = myDatabase.runCommand("validate", getName(), null);
+            break;
+        case FULL:
+            result = myDatabase.runCommand("validate", getName(),
+                    BuilderFactory.start().add("full", true).build());
+            break;
+        }
+
+        return result;
+    }
 }

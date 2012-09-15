@@ -32,6 +32,7 @@ import org.junit.Test;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
@@ -3568,6 +3569,39 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(1L, myTestInstance.update(doc, update, Durability.ACK));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#validate(MongoCollection.ValidateMode)} .
+     */
+    @Test
+    public void testValidate() {
+        final Document indexOnly = BuilderFactory.start()
+                .add("scandata", false).build();
+        final Document normal = null;
+        final Document full = BuilderFactory.start().add("full", true).build();
+
+        final Document result = BuilderFactory.start().build();
+
+        expect(myMockDatabase.runCommand("validate", "test", indexOnly))
+                .andReturn(result);
+        expect(myMockDatabase.runCommand("validate", "test", normal))
+                .andReturn(result);
+        expect(myMockDatabase.runCommand("validate", "test", full)).andReturn(
+                result);
+
+        replay();
+
+        assertSame(result,
+                myTestInstance
+                        .validate(MongoCollection.ValidateMode.INDEX_ONLY));
+        assertSame(result,
+                myTestInstance.validate(MongoCollection.ValidateMode.NORMAL));
+        assertSame(result,
+                myTestInstance.validate(MongoCollection.ValidateMode.FULL));
 
         verify();
     }

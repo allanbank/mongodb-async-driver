@@ -1398,4 +1398,32 @@ public interface MongoCollection {
     public Future<Long> updateAsync(DocumentAssignable query,
             DocumentAssignable update, Durability durability)
             throws MongoDbException;
+
+    /**
+     * Validates the collections contents.
+     * 
+     * @param mode
+     *            The validation mode to use.
+     * @return The results document from the database.
+     * @throws MongoDbException
+     *             On an error validating the collection.
+     */
+    public Document validate(ValidateMode mode) throws MongoDbException;
+
+    /**
+     * ValidateMode provides an enumeration of the validation modes.
+     * 
+     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static enum ValidateMode {
+
+        /** Validates the data and indexes performing all checks. */
+        FULL,
+
+        /** Validates the indexes only and not the collection data. */
+        INDEX_ONLY,
+
+        /** Validates the data and indexes but skips some checks. */
+        NORMAL;
+    }
 }
