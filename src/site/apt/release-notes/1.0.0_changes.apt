@@ -2,7 +2,7 @@
             Changes in MongoDB Asynchronous Java Driver 1.0.0
             ------
             ------
-            2012-09-17
+            2012-09-16
 
 Upgrading
 
@@ -12,9 +12,16 @@ Changes
 
 * Performance
 
-  * As part of the performance testing with the {{{./../performance/ycsb.html}YCSB (Yahoo! Cloud Server Benchmark)}}
-several bottlenecks in the driver were identified and corrected.  Users should not be surprised if workloads
-complete in significantly less time from previous versions.
+  * For the 1.0.0 release the driver was tested against the 10gen supported legacy driver using the 
+{{{https://github.com/brianfrankcooper/YCSB/wiki}YCSB}} (Yahoo! Cloud Server Benchmark).  The results 
+of the benchmark show clearly that the MongoDB Asynchronous Java Driver has <<lower latency>>, 
+<<lower variability in latency>> and <<higher throughput>> across the benchmark scenarios. The complete 
+{{{../performance/ycsb.html}results and raw data}} are available.
+  
+  * As part of the performance testing with the YCSB several bottlenecks in the driver were identified 
+and corrected.  Of particular note is the replacement of the internal blocking queues with a custom implementation
+inspired by the {{{http://code.google.com/p/disruptor/}Disruptor}} project.  This change significantly reduced 
+the latency for inter-thread messaging.
 
 * Functional Changes
 
@@ -23,18 +30,19 @@ that fail to respond to a replica-set status command.
 
 * Usability
 
-  * Replaced the <<<Document.queryPath(...)>>> with the <<<Document.find(...)>>> and <<<Document.findFirst(...)>>> 
-methods.  The <<<Document.find(...)>>> and <<<Document.findFirst(...)>>> method provide the ability to easily extract a 
-nested elements (or sub-documents) from any level of a document. The <<<Document.queryPath(...)>>> has been deprecated and 
-will not be removed until after the 1.1.0 release.  See the {{{./usage.html}Getting Started}} guide for example usage.
+  * Replaced the <<<Document.queryPath(...)>>> methods with the <<<Document.find(...)>>> and <<<Document.findFirst(...)>>> 
+methods.  The <<<Document.find(...)>>> and <<<Document.findFirst(...)>>> methods provide the ability to easily extract a 
+nested elements (or sub-documents) from any level of a document. The <<<Document.queryPath(...)>>> methods have been 
+deprecated but will not be removed until after the 1.1.0 release.  See the {{{../usage.html}Getting Started}} guide 
+for examples using the <<<Document.find(...)>>> and <<<Document.findFirst(...)>>> methods.
 
-  * A new <<<Document.get(Class,String)>>> method has been added to allow easier type safe extraction of fields 
-from a Document.. 
+  * A new <<<Document.get(Class,String)>>> method has been added to allow easier type safe access to first level elements 
+of a Document.
 
   * Several methods have been added to both the MongoDatabase and MongoCollection interfaces for common 
 administrative functions.  These include:
 
-      * {{{./../apidocs/index.html?com/allanbank/mongodb/MongoDatabase.html}MongoDatabase}}
+      * {{{../apidocs/index.html?com/allanbank/mongodb/MongoDatabase.html}MongoDatabase}}
   
           * <<<createCollection(...)>>> - Create a collection.
   
@@ -44,27 +52,27 @@ administrative functions.  These include:
   
           * <<<stats()>>> - Return the database statistics.
   
-      * {{{./../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}}
+      * {{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}}
   
           * <<<explain(...)>>> - Ask the server to explain how a query will be executed.
       
-          * <<<Find.Builder.setHint(...)>>> - Provide the server a hint on what index to use in executing a query.
+          * <<<{{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.Builder.html}Find.Builder}}.setHint(...)>>> - Provide the server a hint on what index to use in executing a query.
       
           * <<<isCapped()>>> - Return if the collection is capped or not.
       
           * <<<stats()>>> - Return the collection statistics.
       
-          * <<<updateOptions(...)>>> Set options on the collection.  Currently only 'usePowerOf2Sizes' is supported by the MongoDB server.
+          * <<<updateOptions(...)>>> - Set options on the collection.  Currently only 'usePowerOf2Sizes' is supported by the MongoDB server.
       
           * <<<validate(...)>>> - Validate a collection.
 
 * Documentation
 
-  * The {{{./../usage.html}Getting Started}} document has had numerous additions and improvements.
+  * The {{{../usage.html}Getting Started}} document has had numerous additions and improvements.
   
-  * Include the results of {{{./../performance/ycsb.html}YCSB}}.
+  * Include the results of {{{../performance/ycsb.html}YCSB}}.
   
-  * Include {{{http://cobertura.sourceforge.net/}Cobertura}} unit test {{{./../cobertura/index.html}coverage report}}.
+  * Include {{{http://cobertura.sourceforge.net/}Cobertura}} unit test {{{../cobertura/index.html}coverage report}}.
   
-  * Added these release notes for version 1.0.0.
+  * Added release notes for version 1.0.0.
   

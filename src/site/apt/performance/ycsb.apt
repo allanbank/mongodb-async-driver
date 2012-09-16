@@ -5,10 +5,10 @@
             
 Yahoo! Cloud Server Benchmark
 
-  The YCSB (Yahoo! Cloud Server Benchmark) provides a suite for testing various data stores against a
-set of well defined workloads that attempt to mimic different use cases.  For our purposes we are using
-the framework to compare the performance of the legacy MongoDB Java driver to the MongoDB Asynchronous 
-Java Driver.
+  The {{{https://github.com/brianfrankcooper/YCSB/wiki}YCSB}} (Yahoo! Cloud Server Benchmark) provides 
+a suite for testing various data stores against a set of well defined workloads that attempt to mimic 
+different use cases.  For our purposes we are using the framework to compare the performance of the 
+legacy MongoDB Java driver to the MongoDB Asynchronous Java Driver.
 
   A {{{../images/ycsb/AsyncMongoDbClient.java}client}} has been created to closely mimic the behavior of the 
 legacy client provided with the YCSB benchmark.  We have extended the benchmark client to only create
@@ -20,7 +20,7 @@ added to a {{{https://github.com/brianfrankcooper/YCSB/pull/95}YCSB Pull Request
 
   The results of the benchmark for the 6 provided workloads (A-F) show clearly that the MongoDB Asynchronous 
 Java Driver has <<lower latency>>, <<lower variability in latency>> and <<higher throughput>> across the 
-benchmark scenarios. In addition, this driver has a much <<lower slope>> for increasing latency as contention 
+benchmark scenarios. In addition, this driver has a much <<lower slope of increasing latency>> as contention 
 for the available connections increases.
 
 
