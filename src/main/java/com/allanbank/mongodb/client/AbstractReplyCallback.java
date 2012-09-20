@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.client;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.Callback;
@@ -12,9 +14,11 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
+import com.allanbank.mongodb.bson.element.NullElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
+import com.allanbank.mongodb.error.DuplicateKeyException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
 import com.allanbank.mongodb.error.ShardConfigStaleException;
@@ -31,6 +35,21 @@ import com.allanbank.mongodb.error.ShardConfigStaleException;
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractReplyCallback<F> implements Callback<Reply> {
+
+    /** The fields that may contain the error code. */
+    public static final String ERROR_CODE_FIELD = "code";
+
+    /** The fields that may contain the error message. */
+    public static final List<String> ERROR_MESSAGE_FIELDS;
+
+    static {
+        final List<String> fields = new ArrayList<String>(3);
+        fields.add("$err");
+        fields.add("errmsg");
+        fields.add("err");
+
+        ERROR_MESSAGE_FIELDS = Collections.unmodifiableList(fields);
+    }
 
     /** The callback for the converted type. */
     private final Callback<F> myForwardCallback;
@@ -115,15 +134,22 @@ public abstract class AbstractReplyCallback<F> implements Callback<Reply> {
         if (results.size() == 1) {
             final Document doc = results.get(0);
             final Element okElem = doc.get("ok");
-            final Element errorNumberElem = doc.get("code");
-            Element errorMessageElem = doc.get("$err");
-            if (errorMessageElem == null) {
-                errorMessageElem = doc.get("errmsg");
+            final Element errorNumberElem = doc.get(ERROR_CODE_FIELD);
+
+            Element errorMessageElem = null;
+            for (int i = 0; (errorMessageElem == null)
+                    && (i < ERROR_MESSAGE_FIELDS.size()); ++i) {
+                errorMessageElem = doc.get(ERROR_MESSAGE_FIELDS.get(i));
             }
 
             if (okElem != null) {
                 final int okValue = toInt(okElem);
                 if (okValue != 1) {
+                    return asError(reply, okValue, toInt(errorNumberElem),
+                            asString(errorMessageElem));
+                }
+                else if ((errorMessageElem != null)
+                        && !(errorMessageElem instanceof NullElement)) {
                     return asError(reply, okValue, toInt(errorNumberElem),
                             asString(errorMessageElem));
                 }
@@ -152,6 +178,12 @@ public abstract class AbstractReplyCallback<F> implements Callback<Reply> {
      */
     protected MongoDbException asError(final Reply reply, final int okValue,
             final int errorNumber, final String errorMessage) {
+        if ((errorNumber == 11000) || (errorNumber == 11001)
+                || errorMessage.startsWith("E11000")
+                || errorMessage.startsWith("E11001")) {
+            return new DuplicateKeyException(okValue, errorNumber,
+                    errorMessage, reply);
+        }
         return new ReplyException(okValue, errorNumber, errorMessage, reply);
     }
 

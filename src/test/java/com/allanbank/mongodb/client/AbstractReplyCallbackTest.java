@@ -31,6 +31,7 @@ import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
+import com.allanbank.mongodb.error.DuplicateKeyException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
 import com.allanbank.mongodb.error.ShardConfigStaleException;
@@ -51,6 +52,31 @@ public class AbstractReplyCallbackTest {
     public void testAsErrorNotKnownError() {
         final List<Document> docs = Collections.singletonList(BuilderFactory
                 .start().build());
+        final Query q = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.PRIMARY, false, false,
+                false, false);
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
+
+        final Callback<ClosableIterator<Document>> mockCallback = createMock(Callback.class);
+
+        replay(mockCallback);
+
+        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final ReplyException error = (ReplyException) callback.asError(reply,
+                false);
+        assertNull(error);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#asError(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testAsErrorOk_1_WithErrorNullElement() {
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().add("ok", 1).addNull("err").build());
         final Query q = new Query("db", "c", BuilderFactory.start().build(),
                 null, 0, 0, 0, false, ReadPreference.PRIMARY, false, false,
                 false, false);
@@ -148,6 +174,155 @@ public class AbstractReplyCallbackTest {
         final ReplyException error = (ReplyException) callback.asError(reply,
                 true);
         assertEquals(-23, error.getOkValue());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#asError(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testAsErrorWithOkButErrorMessageNotNull() {
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().addInteger("ok", 1).add("err", "This is an error")
+                .build());
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
+
+        final Callback<Integer> mockCallback = createMock(Callback.class);
+
+        replay(mockCallback);
+
+        final ReplyIntegerCallback callback = new ReplyIntegerCallback(
+                mockCallback);
+        final ReplyException error = (ReplyException) callback.asError(reply,
+                true);
+        assertEquals("This is an error", error.getMessage());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#asError(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testAsErrorWithOkButErrorMessageNotNullAndIsDuplicateKey11000() {
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().addInteger("ok", 1)
+                .add("err", "E11000 This is an error").build());
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
+
+        final Callback<Integer> mockCallback = createMock(Callback.class);
+
+        replay(mockCallback);
+
+        final ReplyIntegerCallback callback = new ReplyIntegerCallback(
+                mockCallback);
+        final ReplyException error = (ReplyException) callback.asError(reply,
+                true);
+        assertThat(error, instanceOf(DuplicateKeyException.class));
+        assertEquals(-1, error.getErrorNumber());
+        assertEquals("E11000 This is an error", error.getMessage());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#asError(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testAsErrorWithOkButErrorMessageNotNullAndIsDuplicateKey11001() {
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().addInteger("ok", 1)
+                .add("err", "E11001 This is an error").build());
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
+
+        final Callback<Integer> mockCallback = createMock(Callback.class);
+
+        replay(mockCallback);
+
+        final ReplyIntegerCallback callback = new ReplyIntegerCallback(
+                mockCallback);
+        final ReplyException error = (ReplyException) callback.asError(reply,
+                true);
+        assertThat(error, instanceOf(DuplicateKeyException.class));
+        assertEquals(-1, error.getErrorNumber());
+        assertEquals("E11001 This is an error", error.getMessage());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#asError(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testAsErrorWithOkButErrorMessageNotNullErrorCodeIsDuplicateKey11000() {
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().addInteger("ok", 1).add("err", "This is an error")
+                .add("code", 11000).build());
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
+
+        final Callback<Integer> mockCallback = createMock(Callback.class);
+
+        replay(mockCallback);
+
+        final ReplyIntegerCallback callback = new ReplyIntegerCallback(
+                mockCallback);
+        final ReplyException error = (ReplyException) callback.asError(reply,
+                true);
+        assertThat(error, instanceOf(DuplicateKeyException.class));
+        assertEquals(11000, error.getErrorNumber());
+        assertEquals("This is an error", error.getMessage());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#asError(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testAsErrorWithOkButErrorMessageNotNullErrorCodeIsDuplicateKey11001() {
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().addInteger("ok", 1).add("err", "This is an error")
+                .add("code", 11001).build());
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
+
+        final Callback<Integer> mockCallback = createMock(Callback.class);
+
+        replay(mockCallback);
+
+        final ReplyIntegerCallback callback = new ReplyIntegerCallback(
+                mockCallback);
+        final ReplyException error = (ReplyException) callback.asError(reply,
+                true);
+        assertThat(error, instanceOf(DuplicateKeyException.class));
+        assertEquals(11001, error.getErrorNumber());
+        assertEquals("This is an error", error.getMessage());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#asError(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testAsErrorWithOkButErrorNumberNull() {
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().addInteger("ok", 1).addNull("err").build());
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
+
+        final Callback<Integer> mockCallback = createMock(Callback.class);
+
+        replay(mockCallback);
+
+        final ReplyIntegerCallback callback = new ReplyIntegerCallback(
+                mockCallback);
+        assertNull(callback.asError(reply, false));
 
         verify(mockCallback);
     }

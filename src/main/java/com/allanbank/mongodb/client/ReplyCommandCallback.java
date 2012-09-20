@@ -77,9 +77,10 @@ import com.allanbank.mongodb.error.ReplyException;
             final Document doc = results.get(0);
             final Element okElem = doc.get("ok");
             final Element errorNumberElem = doc.get("code");
-            Element errorMessageElem = doc.get("$err");
-            if (errorMessageElem == null) {
-                errorMessageElem = doc.get("errmsg");
+            Element errorMessageElem = null;
+            for (int i = 0; (errorMessageElem == null)
+                    && (i < ERROR_MESSAGE_FIELDS.size()); ++i) {
+                errorMessageElem = doc.get(ERROR_MESSAGE_FIELDS.get(i));
             }
 
             if ((okElem == null) && knownError) {

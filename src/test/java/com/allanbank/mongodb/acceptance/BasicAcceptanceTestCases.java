@@ -77,6 +77,7 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.builder.Sort;
+import com.allanbank.mongodb.error.DuplicateKeyException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
 
@@ -819,6 +820,35 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 result.get("total_time"));
         assertEquals(new DoubleElement("avg_time", 0.05),
                 result.get("avg_time"));
+    }
+
+    /**
+     * Verifies that we can insert a series of documents and then fetch them
+     * from MongoDB one at a time via their _id.
+     */
+    @Test
+    public void testInsertAlreadyExists() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addInteger("_id", 1);
+
+        // Insert a doc.
+        myCollection.insert(builder.build());
+
+        // Insert a doc again. Should fail.
+        try {
+            myCollection.insert(builder.build());
+            fail("Should have thrown a DuplicateKeyException");
+        }
+        catch (final DuplicateKeyException dke) {
+            // Good.
+            assertEquals(11000, dke.getErrorNumber());
+        }
     }
 
     /**
@@ -5917,6 +5947,41 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertEquals(new BooleanElement("usePowerOf2Sizes_old", true),
                     result.get("usePowerOf2Sizes_old"));
         }
+    }
+
+    /**
+     * Verifies performing updates with $sets and $unsets.
+     */
+    @Test
+    public void testUpdateWithSetAndUnset() {
+        // Adjust the configuration to keep the connection count down
+        // and get acks for each operation.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        // Insert (tiny?) document.
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addInteger("_id", 1);
+        builder.addInteger("i", 2);
+        builder.addInteger("j", 3);
+        builder.addInteger("k", 4);
+
+        myCollection.insert(builder.build());
+
+        final DocumentBuilder update = BuilderFactory.start();
+        update.push("$unset").add("j", 1).add("k", 1);
+        update.push("$set").add("i", 999).add("l", 5);
+
+        assertEquals(1L, myCollection.update(where("_id").equals(1), update,
+                false, false));
+
+        final DocumentBuilder expected = BuilderFactory.start();
+        expected.addInteger("_id", 1);
+        expected.addInteger("i", 999);
+        expected.addInteger("l", 5);
+
+        assertEquals(expected.build(),
+                myCollection.findOne(where("_id").equals(1)));
     }
 
     /**
