@@ -77,6 +77,7 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.builder.Sort;
+import com.allanbank.mongodb.error.DuplicateKeyException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
 
@@ -819,6 +820,35 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 result.get("total_time"));
         assertEquals(new DoubleElement("avg_time", 0.05),
                 result.get("avg_time"));
+    }
+
+    /**
+     * Verifies that we can insert a series of documents and then fetch them
+     * from MongoDB one at a time via their _id.
+     */
+    @Test
+    public void testInsertAlreadyExists() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addInteger("_id", 1);
+
+        // Insert a doc.
+        myCollection.insert(builder.build());
+
+        // Insert a doc again. Should fail.
+        try {
+            myCollection.insert(builder.build());
+            fail("Should have thrown a DuplicateKeyException");
+        }
+        catch (final DuplicateKeyException dke) {
+            // Good.
+            assertEquals(11000, dke.getErrorNumber());
+        }
     }
 
     /**
