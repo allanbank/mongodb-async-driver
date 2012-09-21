@@ -5916,40 +5916,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies performing updates with $sets and $unsets.
-     */
-    @Test
-    public void testUpdateWithSetAndUnset() {
-        // Adjust the configuration to keep the connection count down
-        // and get acks for each operation.
-        myConfig.setDefaultDurability(Durability.ACK);
-        myConfig.setMaxConnectionCount(1);
-
-        // Insert (tiny?) document.
-        final DocumentBuilder builder = BuilderFactory.start();
-        builder.addInteger("_id", 1);
-        builder.addInteger("i", 2);
-        builder.addInteger("j", 3);
-        builder.addInteger("k", 4);
-
-        myCollection.insert(builder.build());
-
-        final DocumentBuilder update = BuilderFactory.start();
-        update.push("$unset").add("j", 1).add("k", 1);
-        update.push("$set").add("i", 999).add("l", 5);
-
-        assertEquals(1L, myCollection.update(where("_id").equals(1), update, false, false));
-
-        final DocumentBuilder expected = BuilderFactory.start();
-        expected.addInteger("_id", 1);
-        expected.addInteger("i", 999);
-        expected.addInteger("l", 5);
-
-        assertEquals(expected.build(),
-                myCollection.findOne(where("_id").equals(1)));
-    }
-
-    /**
      * Verifies the ability to update the collection options.
      */
     @Test
@@ -5981,6 +5947,41 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertEquals(new BooleanElement("usePowerOf2Sizes_old", true),
                     result.get("usePowerOf2Sizes_old"));
         }
+    }
+
+    /**
+     * Verifies performing updates with $sets and $unsets.
+     */
+    @Test
+    public void testUpdateWithSetAndUnset() {
+        // Adjust the configuration to keep the connection count down
+        // and get acks for each operation.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        // Insert (tiny?) document.
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addInteger("_id", 1);
+        builder.addInteger("i", 2);
+        builder.addInteger("j", 3);
+        builder.addInteger("k", 4);
+
+        myCollection.insert(builder.build());
+
+        final DocumentBuilder update = BuilderFactory.start();
+        update.push("$unset").add("j", 1).add("k", 1);
+        update.push("$set").add("i", 999).add("l", 5);
+
+        assertEquals(1L, myCollection.update(where("_id").equals(1), update,
+                false, false));
+
+        final DocumentBuilder expected = BuilderFactory.start();
+        expected.addInteger("_id", 1);
+        expected.addInteger("i", 999);
+        expected.addInteger("l", 5);
+
+        assertEquals(expected.build(),
+                myCollection.findOne(where("_id").equals(1)));
     }
 
     /**

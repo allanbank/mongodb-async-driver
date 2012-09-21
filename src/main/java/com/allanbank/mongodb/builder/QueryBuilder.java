@@ -5,8 +5,11 @@
 
 package com.allanbank.mongodb.builder;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -67,17 +70,38 @@ public class QueryBuilder implements DocumentAssignable {
             return criteria[0].asDocument();
         }
         else {
+            // Perform 2 things at once.
+            // 1) Build the $and document.
+            // 2) Build a flat document to optimize the $and away if none of
+            // the nested elements collide.
+            final Set<String> seen = new HashSet<String>();
+            DocumentBuilder optimized = BuilderFactory.start();
             final DocumentBuilder docBuilder = BuilderFactory.start();
             final ArrayBuilder arrayBuilder = docBuilder
                     .pushArray(LogicalOperator.AND.getToken());
 
             for (final DocumentAssignable criterion : criteria) {
                 final Document subQuery = criterion.asDocument();
-                if (subQuery.iterator().hasNext()) {
+                // Make sure at least 1 element.
+                final Iterator<Element> iter = subQuery.iterator();
+                if (iter.hasNext()) {
                     arrayBuilder.addDocument(subQuery);
+
+                    while ((optimized != null) && iter.hasNext()) {
+                        final Element subQueryElement = iter.next();
+                        if (seen.add(subQueryElement.getName())) {
+                            optimized.add(subQueryElement);
+                        }
+                        else {
+                            optimized = null;
+                        }
+                    }
                 }
             }
 
+            if (optimized != null) {
+                return optimized.build();
+            }
             return docBuilder.build();
         }
     }
