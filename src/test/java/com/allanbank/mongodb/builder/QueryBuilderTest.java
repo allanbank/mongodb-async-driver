@@ -34,10 +34,27 @@ public class QueryBuilderTest {
         final Document doc = and(where("x").equals(23), where("y").equals(23));
 
         final DocumentBuilder expected = BuilderFactory.start();
+        expected.addInteger("x", 23);
+        expected.addInteger("y", 23);
+
+        assertEquals(expected.build(), doc);
+    }
+
+    /**
+     * Test method for {@link QueryBuilder#and(DocumentAssignable[])} .
+     */
+    @Test
+    public void testAndWithMultipleEntryDuplicated() {
+        final Document doc = and(where("x").equals(23), where("y").equals(23),
+                where("x").equals(13), where("y").equals(13));
+
+        final DocumentBuilder expected = BuilderFactory.start();
         final ArrayBuilder ab = expected.pushArray(LogicalOperator.AND
                 .getToken());
         ab.push().addInteger("x", 23);
         ab.push().addInteger("y", 23);
+        ab.push().addInteger("x", 13);
+        ab.push().addInteger("y", 13);
 
         assertEquals(expected.build(), doc);
     }
@@ -48,13 +65,14 @@ public class QueryBuilderTest {
     @Test
     public void testAndWithMultipleEntryLastNoCriteria() {
         final Document doc = and(where("x").equals(23), where("y").equals(23),
-                where("z"));
+                where("z"), where("y").equals(13));
 
         final DocumentBuilder expected = BuilderFactory.start();
         final ArrayBuilder ab = expected.pushArray(LogicalOperator.AND
                 .getToken());
         ab.push().addInteger("x", 23);
         ab.push().addInteger("y", 23);
+        ab.push().addInteger("y", 13);
 
         assertEquals(expected.build(), doc);
     }
