@@ -145,7 +145,7 @@ public final class PendingMessageQueue {
      * queue is empty.
      * </p>
      */
-    private int myTakePosition;
+    private volatile int myTakePosition;
 
     /** Tracks how many threads are waiting for a message or a space to open. */
     private final AtomicInteger myWaiting;

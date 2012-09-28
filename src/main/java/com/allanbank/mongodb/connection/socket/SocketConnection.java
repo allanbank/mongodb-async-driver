@@ -50,6 +50,10 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class SocketConnection implements Connection {
 
+    /** Exception that there was no reply for a message from MongoDB. */
+    public static final MongoDbException NO_REPLY = new MongoDbException(
+            "No reply received.");
+
     /** The length of the message header in bytes. */
     public static final int HEADER_LENGTH = 16;
 
@@ -194,7 +198,7 @@ public class SocketConnection implements Connection {
         }
         finally {
             // Now that output is shutdown. Close up the socket. This
-            // Triggers the receiver to close.
+            // Triggers the receiver to close if the interrupt didn't work.
             myOutput.close();
             myInput.close();
             mySocket.close();
@@ -333,6 +337,7 @@ public class SocketConnection implements Connection {
      */
     @Override
     public void shutdown() {
+        // Mark
         myShutdown.set(true);
 
         // Force a message with a callback to wake the sender and receiver up.
@@ -449,7 +454,6 @@ public class SocketConnection implements Connection {
             return message;
         }
         catch (final IOException ioe) {
-            closeQuietly();
             final MongoDbException error = new MongoDbException(ioe);
 
             // Have to assume all of the requests have failed that are pending.
@@ -458,6 +462,8 @@ public class SocketConnection implements Connection {
                 message.raiseError(error);
             }
 
+            closeQuietly();
+
             throw error;
         }
     }
@@ -465,13 +471,15 @@ public class SocketConnection implements Connection {
     /**
      * Sends a single message to the connection.
      * 
+     * @param messageId
+     *            The id to use for the message.
      * @param message
-     *            The pending message to send.
+     *            The message to send.
      * @throws IOException
      *             On a failure sending the message.
      */
-    protected void doSend(final PendingMessage message) throws IOException {
-        message.getMessage().write(message.getMessageId(), myBsonOut);
+    protected void doSend(int messageId, Message message) throws IOException {
+        message.write(messageId, myBsonOut);
     }
 
     /**
@@ -593,59 +601,78 @@ public class SocketConnection implements Connection {
      */
     protected class ReceiveRunnable implements Runnable {
 
+        /** The {@link PendingMessage} used for the local cached copy. */
+        private final PendingMessage myPendingMessage = new PendingMessage();
+
         @Override
         public void run() {
-            final PendingMessage pendingMessage = new PendingMessage();
+            try {
+                while (myOpen.get()) {
+                    try {
+                        receiveOne();
 
-            while (myOpen.get()) {
-                try {
-                    final Message received = doReceive();
-                    if (received instanceof Reply) {
-                        final Reply reply = (Reply) received;
-                        final int replyId = reply.getResponseToId();
-
-                        // Keep polling the pending queue until we get to
-                        // message based on a matching replyId.
-                        try {
-                            boolean took = myPendingQueue.poll(pendingMessage);
-                            while (took
-                                    && (pendingMessage.getMessageId() != replyId)) {
-                                // Keep looking.
-                                took = myPendingQueue.poll(pendingMessage);
-                            }
-
-                            if (took) {
-                                // Must be the pending message's reply.
-                                pendingMessage.reply(reply);
-                            }
-                            else {
-                                LOG.warning("Could not find the Callback for reply '"
-                                        + replyId + "'.");
-                            }
-                        }
-                        finally {
-                            pendingMessage.clear();
-                        }
-                    }
-                    else if (received == null) {
-                        // Check if we are shutdown. Note the send side makes
-                        // sure the last message gets a reply.
+                        // Check if we are shutdown. Note the shutdown() method
+                        // makes sure the last message gets a reply.
                         if (myShutdown.get() && myToSendQueue.isEmpty()
                                 && myPendingQueue.isEmpty()) {
-                            IOUtils.close(SocketConnection.this);
+                            // All done.
+                            return;
                         }
                     }
+                    catch (final MongoDbException error) {
+                        if (myOpen.get()) {
+                            LOG.log(Level.WARNING, "Error reading a message: "
+                                    + error.getMessage(), error);
+                        }
+                        // All done.
+                        return;
+                    }
+                }
+            }
+            finally {
+                // Make sure the connection is closed completely.
+                IOUtils.close(SocketConnection.this);
+            }
+        }
+
+        /**
+         * Receives and process a single message.
+         */
+        protected final void receiveOne() {
+            final Message received = doReceive();
+            if (received instanceof Reply) {
+                final Reply reply = (Reply) received;
+                final int replyId = reply.getResponseToId();
+                boolean took = false;
+
+                // Keep polling the pending queue until we get to
+                // message based on a matching replyId.
+                try {
+                    took = myPendingQueue.poll(myPendingMessage);
+                    while (took && (myPendingMessage.getMessageId() != replyId)) {
+
+                        // Note that this message will not get a reply.
+                        myPendingMessage.raiseError(NO_REPLY);
+
+                        // Keep looking.
+                        took = myPendingQueue.poll(myPendingMessage);
+                    }
+
+                    if (took) {
+                        // Must be the pending message's reply.
+                        myPendingMessage.reply(reply);
+                    }
                     else {
-                        LOG.warning("Received a non-Reply message: " + received);
+                        LOG.warning("Could not find the callback for reply '"
+                                + replyId + "'.");
                     }
                 }
-                catch (final MongoDbException error) {
-                    if (myOpen.get()) {
-                        LOG.log(Level.WARNING, "Error reading a message: "
-                                + error.getMessage(), error);
-                    }
-                    IOUtils.close(SocketConnection.this);
+                finally {
+                    myPendingMessage.clear();
                 }
+            }
+            else if (received != null) {
+                LOG.warning("Received a non-Reply message: " + received);
             }
         }
     }
@@ -656,6 +683,12 @@ public class SocketConnection implements Connection {
      * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected class SendRunnable implements Runnable {
+
+        /** Tracks if there are messages in the buffer that need to be flushed. */
+        private boolean myNeedToFlush = false;
+
+        /** The {@link PendingMessage} used for the local cached copy. */
+        private final PendingMessage myPendingMessage = new PendingMessage();
 
         /**
          * {@inheritDoc}
@@ -671,65 +704,120 @@ public class SocketConnection implements Connection {
          */
         @Override
         public void run() {
-            final PendingMessage pendingMessage = new PendingMessage();
-
-            boolean needToFlush = false;
-            while (myOpen.get()) {
-                boolean took = false;
-                try {
-                    if (needToFlush) {
-                        took = myToSendQueue.poll(pendingMessage);
+            boolean sawError = false;
+            try {
+                while (myOpen.get() && !sawError) {
+                    try {
+                        sendOne();
                     }
-                    else {
-                        myToSendQueue.take(pendingMessage);
-                        took = true;
+                    catch (final InterruptedException ie) {
+                        // Handled by loop but if we have a message, need to
+                        // tell him something bad happened (but we shouldn't).
+                        myPendingMessage.raiseError(ie);
                     }
-
-                    if (took) {
-                        needToFlush = true;
-                        // Make sure the message is on the queue before the
-                        // message is sent to ensure the receive thread can
-                        // assume an empty pending queue means that there is no
-                        // message for the reply.
-                        if ((pendingMessage.getReplyCallback() != null)
-                                && !myPendingQueue.offer(pendingMessage)) {
-                            // Push what we have out before blocking.
-                            flush();
-                            myPendingQueue.put(pendingMessage);
-                        }
-                        doSend(pendingMessage);
-
-                        // If shutting down then flush after each message.
-                        if (myShutdown.get()) {
-                            flush();
-                            needToFlush = false;
-                        }
+                    catch (final IOException ioe) {
+                        LOG.log(Level.WARNING, "I/O Error sending a message.",
+                                ioe);
+                        myPendingMessage.raiseError(ioe);
+                        sawError = true;
                     }
-                    else {
-                        flush();
-                        needToFlush = false;
+                    catch (final RuntimeException re) {
+                        LOG.log(Level.WARNING,
+                                "Runtime error sending a message.", re);
+                        myPendingMessage.raiseError(re);
+                        sawError = true;
                     }
-                }
-                catch (final InterruptedException ie) {
-                    // Handled by loop.
-                }
-                catch (final IOException ioe) {
-                    LOG.log(Level.WARNING, "I/O Error sending a message.", ioe);
-                    pendingMessage.raiseError(ioe);
-                }
-                finally {
-                    pendingMessage.clear();
+                    catch (final Error error) {
+                        LOG.log(Level.SEVERE, "Error sending a message.", error);
+                        myPendingMessage.raiseError(error);
+                        sawError = true;
+                    }
+                    finally {
+                        myPendingMessage.clear();
+                    }
                 }
             }
-
-            // This may fail because we are dying.
-            if (needToFlush) {
+            finally {
+                // This may/will fail because we are dying.
                 try {
-                    flush();
+                    if (myOpen.get()) {
+                        doFlush();
+                    }
                 }
                 catch (final IOException ioe) {
-                    LOG.log(Level.WARNING, "I/O Error flushing a message.", ioe);
+                    LOG.log(Level.WARNING,
+                            "I/O Error on final flush of messages.", ioe);
                 }
+                finally {
+                    // Make sure we get shutdown completely.
+                    IOUtils.close(SocketConnection.this);
+                }
+            }
+        }
+
+        /**
+         * Sends a single message.
+         * 
+         * @throws InterruptedException
+         *             If the thread is interrupted waiting for a message to
+         *             send.
+         * @throws IOException
+         *             On a failure sending the message.
+         */
+        protected final void sendOne() throws InterruptedException, IOException {
+            boolean took = false;
+            if (myNeedToFlush) {
+                took = myToSendQueue.poll(myPendingMessage);
+            }
+            else {
+                myToSendQueue.take(myPendingMessage);
+                took = true;
+            }
+
+            if (took) {
+                int messageId = myPendingMessage.getMessageId();
+                Message message = myPendingMessage.getMessage();
+
+                // Make sure the message is on the queue before the
+                // message is sent to ensure the receive thread can
+                // assume an empty pending queue means that there is
+                // no message for the reply.
+                if ((myPendingMessage.getReplyCallback() != null)
+                        && !myPendingQueue.offer(myPendingMessage)) {
+                    // Push what we have out before blocking.
+                    doFlush();
+                    myPendingQueue.put(myPendingMessage);
+                }
+
+                myNeedToFlush = true;
+                doSend(messageId, message);
+
+                // If shutting down then flush after each message.
+                if (myShutdown.get()) {
+                    doFlush();
+                }
+
+                // We have handed the message off. Not our problem any more.
+                // We could legitimately do this before the send but in the case
+                // of an I/O error the send's exception is more meaningful then
+                // the receivers generic "Didn't get a reply".
+                myPendingMessage.clear();
+            }
+            else {
+                doFlush();
+            }
+        }
+
+        /**
+         * Flushes the messages in the buffer and clears the need-to-flush flag.
+         * 
+         * @throws IOException
+         *             On a failure flushing the messages.
+         */
+        protected final void doFlush() throws IOException {
+            if (myNeedToFlush) {
+                flush();
+                myNeedToFlush = false;
             }
         }
     }

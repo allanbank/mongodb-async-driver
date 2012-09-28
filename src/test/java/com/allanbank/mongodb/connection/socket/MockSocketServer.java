@@ -92,6 +92,9 @@ public class MockSocketServer extends Thread {
         final SocketChannel channel = myConnection;
 
         IOUtils.close(channel);
+        if (channel != null) {
+            IOUtils.close(channel.socket());
+        }
 
         return (channel != null);
     }
@@ -154,7 +157,7 @@ public class MockSocketServer extends Thread {
                 myConnection = myServerSocket.accept();
                 if (myConnection != null) {
                     try {
-                        handleClient(myConnection);
+                        handleClient();
                     }
                     finally {
                         synchronized (this) {
@@ -289,33 +292,29 @@ public class MockSocketServer extends Thread {
     /**
      * Handles a single client connection.
      * 
-     * @param clientSocket
-     *            The socket to receive messages from.
-     * 
      * @throws IOException
      *             On a connection error.
      */
-    protected void handleClient(final SocketChannel clientSocket)
-            throws IOException {
+    protected void handleClient() throws IOException {
         // Use non-blocking mode so we can pickup when to stop running.
-        clientSocket.configureBlocking(false);
+        myConnection.configureBlocking(false);
 
         ByteBuffer header = ByteBuffer.allocate(SocketConnection.HEADER_LENGTH);
         ByteBuffer body = null;
         int read = 0;
         while (myRunning) {
             read = 0;
-            if (clientSocket.isConnectionPending()) {
-                clientSocket.finishConnect();
+            if (myConnection.isConnectionPending()) {
+                myConnection.finishConnect();
             }
 
-            if (clientSocket.isConnected()) {
+            if (myConnection.isConnected()) {
                 synchronized (this) {
                     myClientConnected = true;
                     notifyAll();
                 }
                 if (header.hasRemaining()) {
-                    read = clientSocket.read(header);
+                    read = myConnection.read(header);
                 }
                 else {
                     if (body == null) {
@@ -330,7 +329,7 @@ public class MockSocketServer extends Thread {
                     }
 
                     if (body.hasRemaining()) {
-                        read = clientSocket.read(body);
+                        read = myConnection.read(body);
                     }
                     else {
                         // Finished a message.
@@ -358,7 +357,7 @@ public class MockSocketServer extends Thread {
                             final ByteBuffer buffer = ByteBuffer.wrap(reply);
 
                             while (buffer.hasRemaining()) {
-                                clientSocket.write(buffer);
+                                myConnection.write(buffer);
                             }
                         }
                     }
