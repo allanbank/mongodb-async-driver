@@ -4,6 +4,10 @@
  */
 package com.allanbank.mongodb.bson;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Enumeration of the possible BSON types.
  * 
@@ -76,6 +80,76 @@ public enum ElementType {
 
     /** The BSON UTC Timestamp type. */
     UTC_TIMESTAMP((byte) 0x09);
+
+    /**
+     * Provides the ordering of the types as applied by MongoDB internally. The
+     * bulk of this ordering was determined from the <a href=
+     * "http://docs.mongodb.org/manual/faq/developers/#what-is-the-compare-order-for-bson-types"
+     * >MongoDB FAQ Entry</a> with non-listed types from the BSON Specification
+     * determine experimentally.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/faq/developers/#what-is-the-compare-order-for-bson-types">MongoDB
+     *      FAQ Entry</a>
+     */
+    private static final Map<ElementType, Integer> ourMongoDbOrdering;
+
+    static {
+        Map<ElementType, Integer> mongoDbOrdering = new HashMap<ElementType, Integer>(
+                (int) Math.ceil(values().length / 0.75));
+
+        int ordinal = 0;
+
+        mongoDbOrdering.put(ElementType.MIN_KEY, Integer.valueOf(ordinal));
+        ordinal += 1;
+
+        mongoDbOrdering.put(ElementType.NULL, Integer.valueOf(ordinal));
+        ordinal += 1;
+
+        // Note - same value....
+        mongoDbOrdering.put(ElementType.DOUBLE, Integer.valueOf(ordinal));
+        mongoDbOrdering.put(ElementType.INTEGER, Integer.valueOf(ordinal));
+        mongoDbOrdering.put(ElementType.LONG, Integer.valueOf(ordinal));
+        ordinal += 1;
+
+        // Note - same value....
+        mongoDbOrdering.put(ElementType.SYMBOL, Integer.valueOf(ordinal));
+        mongoDbOrdering.put(ElementType.STRING, Integer.valueOf(ordinal));
+        ordinal += 1;
+
+        mongoDbOrdering.put(ElementType.DOCUMENT, Integer.valueOf(ordinal));
+        ordinal += 1;
+        mongoDbOrdering.put(ElementType.ARRAY, Integer.valueOf(ordinal));
+        ordinal += 1;
+        mongoDbOrdering.put(ElementType.BINARY, Integer.valueOf(ordinal));
+        ordinal += 1;
+        mongoDbOrdering.put(ElementType.OBJECT_ID, Integer.valueOf(ordinal));
+        ordinal += 1;
+        mongoDbOrdering.put(ElementType.BOOLEAN, Integer.valueOf(ordinal));
+        ordinal += 1;
+
+        // Note - same value....
+        mongoDbOrdering
+                .put(ElementType.UTC_TIMESTAMP, Integer.valueOf(ordinal));
+        mongoDbOrdering.put(ElementType.MONGO_TIMESTAMP,
+                Integer.valueOf(ordinal));
+        ordinal += 1;
+
+        mongoDbOrdering.put(ElementType.REGEX, Integer.valueOf(ordinal));
+        ordinal += 1;
+        mongoDbOrdering.put(ElementType.DB_POINTER, Integer.valueOf(ordinal));
+        ordinal += 1;
+        mongoDbOrdering.put(ElementType.JAVA_SCRIPT, Integer.valueOf(ordinal));
+        ordinal += 1;
+        mongoDbOrdering.put(ElementType.JAVA_SCRIPT_WITH_SCOPE,
+                Integer.valueOf(ordinal));
+        ordinal += 1;
+
+        mongoDbOrdering.put(ElementType.MAX_KEY, Integer.valueOf(ordinal));
+        ordinal += 1;
+
+        ourMongoDbOrdering = Collections.unmodifiableMap(mongoDbOrdering);
+    }
 
     /**
      * Returns the ElementType with the provided token or <code>null</code> if
@@ -178,6 +252,24 @@ public enum ElementType {
      */
     public byte getToken() {
         return myToken;
+    }
+
+    /**
+     * Similar to {@link #compareTo(ElementType)} but instead of comparing on
+     * the ordinal value compares the values based on the MongoDB sort order.
+     * 
+     * @param rhs
+     *            The right-hand-side of the ordering.
+     * @return A negative value if this {@link ElementType} is less than the
+     *         {@code rhs}, zero if they are equal, and a positive value if it
+     *         is greater than the {@code rhs}.
+     */
+    public int compare(ElementType rhs) {
+
+        int lhsValue = ourMongoDbOrdering.get(this).intValue();
+        int rhsValue = ourMongoDbOrdering.get(rhs).intValue();
+
+        return lhsValue - rhsValue;
     }
 
 }
