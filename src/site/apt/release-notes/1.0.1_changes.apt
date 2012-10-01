@@ -1,0 +1,23 @@
+            ------
+            Changes in MongoDB Asynchronous Java Driver 1.0.1
+            ------
+            ------
+            2012-10-05
+
+Upgrading
+
+  This version is source and binary compatible with the 1.0.0 version of the driver.  This is a bug fix only release.
+
+Problems Fixed
+  
+  * Updated the {{{../apidocs/index.html?com/allanbank/mongodb/builder/QueryBuilder.html}QueryBuilder.and(...)}}
+to optimize away the <<<$and>>> operator when the sub-conditions of the query did not collide.  The <<<mongos>>> process
+does not route <<<$and>>> queries to a single shard and instead relies on the scatter/gather strategy.  This forces
+updates to set the multi-updates flag.  By optimizing the <<<$and>>> operator away we can avoid having to set the 
+multi-update flag.
+
+  * Updated parsing of responses to inserts to throw a 
+{{{../apidocs/index.html?com/allanbank/mongodb/error/DuplicateKeyException.html}DuplicateKeyException}}
+
+  * Improved error handling for the send and receive threads to ensure connections are never into a half open state.
+
