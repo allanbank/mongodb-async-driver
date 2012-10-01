@@ -81,6 +81,32 @@ public class DBPointerElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the (database, collection, id) if the base class
+     * comparison is equals.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            final DBPointerElement other = (DBPointerElement) otherElement;
+
+            result = myDatabaseName.compareTo(other.myDatabaseName);
+            if (result == 0) {
+                result = myCollectionName.compareTo(other.myCollectionName);
+                if (result == 0) {
+                    result = myId.compareTo(other.myId);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

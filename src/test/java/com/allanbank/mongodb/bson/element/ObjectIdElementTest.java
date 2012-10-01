@@ -54,6 +54,41 @@ public class ObjectIdElementTest {
     }
 
     /**
+     * Test method for {@link ObjectIdElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final ObjectId oid1 = new ObjectId();
+        final ObjectId oid2 = new ObjectId();
+
+        final ObjectIdElement a1 = new ObjectIdElement("a", oid1);
+        final ObjectIdElement a2 = new ObjectIdElement("a", oid2);
+        final ObjectIdElement b1 = new ObjectIdElement("b", oid1);
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a2) < 0);
+        assertTrue(a2.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
+     * Test method for
+     * {@link ObjectIdElement#ObjectIdElement(java.lang.String, ObjectId)} .
+     */
+    @Test(expected = AssertionError.class)
+    @SuppressWarnings("unused")
+    public void testConstructorWithNullId() {
+        new ObjectIdElement("foo", null);
+    }
+
+    /**
      * Test method for {@link ObjectIdElement#equals(java.lang.Object)} .
      */
     @Test

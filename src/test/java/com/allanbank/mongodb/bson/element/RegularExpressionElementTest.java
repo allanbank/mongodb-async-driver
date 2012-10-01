@@ -65,6 +65,36 @@ public class RegularExpressionElementTest {
     }
 
     /**
+     * Test method for {@link RegularExpressionElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final RegularExpressionElement a1 = new RegularExpressionElement("a",
+                "i", 0);
+        final RegularExpressionElement a11 = new RegularExpressionElement("a",
+                "i", RegularExpressionElement.CASE_INSENSITIVE);
+        final RegularExpressionElement a2 = new RegularExpressionElement("a",
+                "j", 0);
+        final RegularExpressionElement b1 = new RegularExpressionElement("b",
+                "i", 0);
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(a2) < 0);
+        assertTrue(a2.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for {@link RegularExpressionElement#equals(java.lang.Object)}
      * .
      */

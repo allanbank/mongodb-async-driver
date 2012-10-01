@@ -59,6 +59,39 @@ public class StringElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the string values if the base class comparison is
+     * equals.
+     * </p>
+     * <p>
+     * Note that for MongoDB {@link SymbolElement} and {@link StringElement}
+     * will return equal based on the type. Care is taken here to make sure that
+     * the values return the same value regardless of comparison order.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            // Might be a StringElement or SymbolElement.
+            final ElementType otherType = otherElement.getType();
+
+            if (otherType == ElementType.SYMBOL) {
+                result = myValue.compareTo(((SymbolElement) otherElement)
+                        .getSymbol());
+            }
+            else {
+                result = myValue.compareTo(((StringElement) otherElement)
+                        .getValue());
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

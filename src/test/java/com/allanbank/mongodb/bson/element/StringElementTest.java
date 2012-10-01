@@ -54,6 +54,34 @@ public class StringElementTest {
     }
 
     /**
+     * Test method for {@link StringElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final StringElement a1 = new StringElement("a", "1");
+        final StringElement a11 = new StringElement("a", "11");
+        final StringElement b1 = new StringElement("b", "1");
+
+        final SymbolElement i = new SymbolElement("a", "2");
+
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(i) < 0);
+        assertTrue(i.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for {@link StringElement#equals(java.lang.Object)} .
      */
     @Test

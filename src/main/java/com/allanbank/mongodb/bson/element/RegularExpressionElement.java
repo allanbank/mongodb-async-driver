@@ -288,6 +288,29 @@ public class RegularExpressionElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the expressions (as strings) if the base class
+     * comparison is equals.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            final RegularExpressionElement other = (RegularExpressionElement) otherElement;
+
+            result = myPattern.compareTo(other.myPattern);
+            if (result == 0) {
+                result = Integer.compare(myOptions, other.myOptions);
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

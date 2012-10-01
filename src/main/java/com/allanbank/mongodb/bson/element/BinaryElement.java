@@ -87,6 +87,38 @@ public class BinaryElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the sub-types and bytes if the base class
+     * comparison is equals.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            final BinaryElement other = (BinaryElement) otherElement;
+
+            result = mySubType - other.mySubType;
+            if (result == 0) {
+                final int length = Math.min(myValue.length,
+                        other.myValue.length);
+                for (int i = 0; i < length; ++i) {
+                    result = myValue[i] - other.myValue[i];
+                    if (result != 0) {
+                        return result;
+                    }
+                }
+
+                result = myValue.length - other.myValue.length;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

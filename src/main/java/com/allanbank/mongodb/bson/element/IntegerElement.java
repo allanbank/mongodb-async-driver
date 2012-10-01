@@ -56,6 +56,33 @@ public class IntegerElement extends AbstractElement implements NumericElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the values if the base class comparison is equals.
+     * </p>
+     * <p>
+     * Note that for MongoDB integers, longs, and doubles will return equal
+     * based on the type. Care is taken here to make sure that double, integer,
+     * and long values return the same value regardless of comparison order by
+     * using the lowest resolution representation of the value.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            // Might be a IntegerElement, LongElement, or DoubleElement.
+            final NumericElement other = (NumericElement) otherElement;
+
+            // Integer is the lowest resolution.
+            result = Integer.compare(getIntValue(), other.getIntValue());
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

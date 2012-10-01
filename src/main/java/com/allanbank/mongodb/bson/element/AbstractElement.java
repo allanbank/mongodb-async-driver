@@ -59,6 +59,27 @@ public abstract class AbstractElement implements Element {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the elements based on the tuple (name, type).
+     * Derived classes are responsible for the value portion of the full
+     * comparison.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = myName.compareTo(otherElement.getName());
+
+        if (result == 0) {
+            // Use the specialized comparison to match MongoDB's ordering of
+            // types.
+            result = getType().compare(otherElement.getType());
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

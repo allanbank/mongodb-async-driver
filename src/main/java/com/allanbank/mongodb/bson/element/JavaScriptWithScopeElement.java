@@ -6,6 +6,8 @@ package com.allanbank.mongodb.bson.element;
 
 import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 
+import java.util.Iterator;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
@@ -63,6 +65,43 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
     @Override
     public void accept(final Visitor visitor) {
         visitor.visitJavaScript(getName(), getJavaScript(), getScope());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the Java Script (as text) if the base class
+     * comparison is equals.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            final JavaScriptWithScopeElement other = (JavaScriptWithScopeElement) otherElement;
+
+            final Iterator<Element> thisIter = myScope.iterator();
+            final Iterator<Element> otherIter = other.myScope.iterator();
+            while (thisIter.hasNext() && otherIter.hasNext()) {
+                result = thisIter.next().compareTo(otherIter.next());
+                if (result != 0) {
+                    return result;
+                }
+            }
+
+            if (thisIter.hasNext()) {
+                return 1;
+            }
+            else if (otherIter.hasNext()) {
+                return -1;
+            }
+            else {
+                return 0;
+            }
+        }
+
+        return result;
     }
 
     /**

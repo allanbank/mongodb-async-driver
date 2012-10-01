@@ -17,7 +17,8 @@ import java.util.List;
  *          before being removed or modified.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface Element extends Serializable, ElementAssignable {
+public interface Element extends Serializable, ElementAssignable,
+        Comparable<Element> {
 
     /**
      * Accepts the visitor and calls the appropriate method on the visitor based
@@ -27,6 +28,16 @@ public interface Element extends Serializable, ElementAssignable {
      *            The visitor for the element.
      */
     public void accept(Visitor visitor);
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the elements based on the tuple (name, type,
+     * value).
+     * </p>
+     */
+    @Override
+    public int compareTo(Element otherElement);
 
     /**
      * Returns the elements matching the path of regular expressions.

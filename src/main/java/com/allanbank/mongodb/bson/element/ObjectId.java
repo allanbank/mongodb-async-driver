@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *          removed or modified.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ObjectId implements Serializable {
+public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /** The current process's machine id. */
     public static final long MACHINE_ID;
@@ -137,6 +137,22 @@ public class ObjectId implements Serializable {
     public ObjectId(final int timestamp, final long machineId) {
         myTimestamp = timestamp;
         myMachineId = machineId;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the object ids based on the tuple (timestamp,
+     * machineId).
+     * </p>
+     */
+    @Override
+    public int compareTo(final ObjectId other) {
+        int result = myTimestamp - other.myTimestamp;
+        if (result == 0) {
+            result = Long.compare(myMachineId, other.myMachineId);
+        }
+        return result;
     }
 
     /**

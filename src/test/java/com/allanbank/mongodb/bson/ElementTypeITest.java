@@ -60,8 +60,8 @@ public class ElementTypeITest extends ServerTestDriverSupport {
 
         // Insert a document with each of the element types into MongoDB and
         // then fetch them sorting on the field.
-        List<Document> docs = new ArrayList<Document>();
-        DocumentBuilder builder = BuilderFactory.start();
+        final List<Document> docs = new ArrayList<Document>();
+        final DocumentBuilder builder = BuilderFactory.start();
 
         docs.add(builder.reset().addBinary("f", new byte[0]).build());
         docs.add(builder.reset().addBoolean("f", true).build());
@@ -95,25 +95,25 @@ public class ElementTypeITest extends ServerTestDriverSupport {
                 new InetSocketAddress("127.0.0.1", 27017));
         config.setDefaultDurability(Durability.ACK);
 
-        Mongo m = MongoFactory.create(config);
+        final Mongo m = MongoFactory.create(config);
         try {
-            MongoDatabase db = m.getDatabase("test");
-            MongoCollection c = db.getCollection("testSortOrder");
-            for (Document doc : docs) {
+            final MongoDatabase db = m.getDatabase("test");
+            final MongoCollection c = db.getCollection("testSortOrder");
+            for (final Document doc : docs) {
                 c.insert(doc);
             }
 
-            Find find = new Find.Builder(BuilderFactory.start()).setSort(
+            final Find find = new Find.Builder(BuilderFactory.start()).setSort(
                     Sort.asc("f")).build();
 
-            ClosableIterator<Document> iter = c.find(find);
+            final ClosableIterator<Document> iter = c.find(find);
             assertTrue(iter.hasNext());
             assertSame(ElementType.MIN_KEY, iter.next().get("f").getType());
             assertTrue(iter.hasNext());
             assertSame(ElementType.NULL, iter.next().get("f").getType());
             assertTrue(iter.hasNext());
 
-            Set<ElementType> compareSame = new HashSet<ElementType>();
+            final Set<ElementType> compareSame = new HashSet<ElementType>();
             compareSame.add(ElementType.DOUBLE);
             compareSame.add(ElementType.INTEGER);
             compareSame.add(ElementType.LONG);

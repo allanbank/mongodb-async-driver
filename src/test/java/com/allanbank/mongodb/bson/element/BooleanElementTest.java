@@ -66,6 +66,23 @@ public class BooleanElementTest {
     }
 
     /**
+     * Test method for {@link BooleanElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final BooleanElement t = new BooleanElement("a", true);
+        final BooleanElement f = new BooleanElement("a", false);
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, t.compareTo(t));
+        assertTrue(t.compareTo(f) > 0);
+        assertTrue(f.compareTo(t) < 0);
+
+        assertTrue(t.compareTo(other) < 0);
+        assertTrue(other.compareTo(t) > 0);
+    }
+
+    /**
      * Test method for {@link BooleanElement#equals(java.lang.Object)} .
      */
     @Test

@@ -95,7 +95,7 @@ public enum ElementType {
     private static final Map<ElementType, Integer> ourMongoDbOrdering;
 
     static {
-        Map<ElementType, Integer> mongoDbOrdering = new HashMap<ElementType, Integer>(
+        final Map<ElementType, Integer> mongoDbOrdering = new HashMap<ElementType, Integer>(
                 (int) Math.ceil(values().length / 0.75));
 
         int ordinal = 0;
@@ -246,15 +246,6 @@ public enum ElementType {
     }
 
     /**
-     * Returns the token for the BSON type.
-     * 
-     * @return The token for the BSON type.
-     */
-    public byte getToken() {
-        return myToken;
-    }
-
-    /**
      * Similar to {@link #compareTo(ElementType)} but instead of comparing on
      * the ordinal value compares the values based on the MongoDB sort order.
      * 
@@ -264,12 +255,21 @@ public enum ElementType {
      *         {@code rhs}, zero if they are equal, and a positive value if it
      *         is greater than the {@code rhs}.
      */
-    public int compare(ElementType rhs) {
+    public int compare(final ElementType rhs) {
 
-        int lhsValue = ourMongoDbOrdering.get(this).intValue();
-        int rhsValue = ourMongoDbOrdering.get(rhs).intValue();
+        final int lhsValue = ourMongoDbOrdering.get(this).intValue();
+        final int rhsValue = ourMongoDbOrdering.get(rhs).intValue();
 
         return lhsValue - rhsValue;
+    }
+
+    /**
+     * Returns the token for the BSON type.
+     * 
+     * @return The token for the BSON type.
+     */
+    public byte getToken() {
+        return myToken;
     }
 
 }

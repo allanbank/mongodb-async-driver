@@ -54,6 +54,34 @@ public class LongElementTest {
     }
 
     /**
+     * Test method for {@link LongElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final LongElement a1 = new LongElement("a", 1);
+        final LongElement a11 = new LongElement("a", 11);
+        final LongElement b1 = new LongElement("b", 1);
+
+        final IntegerElement i = new IntegerElement("a", 2);
+
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(i) < 0);
+        assertTrue(i.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for {@link LongElement#equals(java.lang.Object)} .
      */
     @Test

@@ -53,6 +53,38 @@ public class DoubleElementTest {
     }
 
     /**
+     * Test method for {@link DoubleElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final DoubleElement a1 = new DoubleElement("a", 1.0);
+        final DoubleElement a11 = new DoubleElement("a", 11.0);
+        final DoubleElement b1 = new DoubleElement("b", 1.0);
+
+        final IntegerElement i = new IntegerElement("a", 2);
+        final LongElement l = new LongElement("a", 2);
+
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(i) < 0);
+        assertTrue(i.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(l) < 0);
+        assertTrue(l.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for
      * {@link DoubleElement#DoubleElement(java.lang.String, double)} .
      */
