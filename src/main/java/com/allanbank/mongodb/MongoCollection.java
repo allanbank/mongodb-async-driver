@@ -1139,6 +1139,170 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
+     * Saves the {@code document} to the collection.
+     * <p>
+     * If the {@code document} does not contain an {@code _id} field then this
+     * method is equivalent to: {@link #insert(DocumentAssignable...)
+     * insert(document)}.
+     * </p>
+     * <p>
+     * If the {@code document} does contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean)
+     * update(BuilderFactory.start().add(document.get("_id")), document, false,
+     * true)}.
+     * </p>
+     * 
+     * @param document
+     *            The document to save to the collection.
+     * @return Future that will be updated with the results of the save. If the
+     *         durability of the operation is NONE then this will be -1.
+     * @throws MongoDbException
+     *             On an error saving the documents.
+     */
+    public int save(DocumentAssignable document) throws MongoDbException;
+
+    /**
+     * Saves the {@code document} to the collection.
+     * <p>
+     * If the {@code document} does not contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #insert(Durability, DocumentAssignable...) insert(durability,
+     * document)}.
+     * </p>
+     * <p>
+     * If the {@code document} does contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)
+     * update(BuilderFactory.start().add(document.get("_id")), document, false,
+     * true, durability)}.
+     * </p>
+     * 
+     * @param document
+     *            The document to save to the collection.
+     * @param durability
+     *            The durability for the save.
+     * @return Future that will be updated with the results of the save. If the
+     *         durability of the operation is NONE then this will be -1.
+     * @throws MongoDbException
+     *             On an error saving the documents.
+     */
+    public int save(DocumentAssignable document, Durability durability)
+            throws MongoDbException;
+
+    /**
+     * Saves the {@code document} to the collection.
+     * <p>
+     * If the {@code document} does not contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #insertAsync(Callback,DocumentAssignable...) insertAsync(results,
+     * document)}.
+     * </p>
+     * <p>
+     * If the {@code document} does contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #updateAsync(Callback,DocumentAssignable, DocumentAssignable, boolean, boolean)
+     * updateAsync(results, BuilderFactory.start().add(document.get("_id")),
+     * document, false, true)}.
+     * </p>
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. If the durability of the operation is NONE then this
+     *            will be -1.
+     * @param document
+     *            The document to save to the collection.
+     * @throws MongoDbException
+     *             On an error saving the documents.
+     */
+    public void saveAsync(Callback<Integer> results, DocumentAssignable document)
+            throws MongoDbException;
+
+    /**
+     * Saves the {@code document} to the collection.
+     * <p>
+     * If the {@code document} does not contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #insertAsync(Callback, Durability, DocumentAssignable...)
+     * insertAsync(results, durability, document)}.
+     * </p>
+     * <p>
+     * If the {@code document} does contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #updateAsync(Callback,DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)
+     * updateAsync(results, BuilderFactory.start().add(document.get("_id")),
+     * document, false, true, durability)}.
+     * </p>
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. If the durability of the operation is NONE then this
+     *            will be -1.
+     * @param document
+     *            The document to save to the collection.
+     * @param durability
+     *            The durability for the save.
+     * @throws MongoDbException
+     *             On an error saving the documents.
+     */
+    public void saveAsync(Callback<Integer> results,
+            DocumentAssignable document, Durability durability)
+            throws MongoDbException;
+
+    /**
+     * Saves the {@code document} to the collection.
+     * <p>
+     * If the {@code document} does not contain an {@code _id} field then this
+     * method is equivalent to: {@link #insertAsync(DocumentAssignable...)
+     * insertAsync(document)}.
+     * </p>
+     * <p>
+     * If the {@code document} does contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean)
+     * updateAsync(BuilderFactory.start().add(document.get("_id")), document,
+     * false, true)}.
+     * </p>
+     * 
+     * @param document
+     *            The document to save to the collection.
+     * @return Future that will be updated with the results of the save. If the
+     *         durability of the operation is NONE then this will be -1.
+     * @throws MongoDbException
+     *             On an error saving the documents.
+     */
+    public Future<Integer> saveAsync(DocumentAssignable document)
+            throws MongoDbException;
+
+    /**
+     * Saves the {@code document} to the collection.
+     * <p>
+     * If the {@code document} does not contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #insertAsync(Durability, DocumentAssignable...)
+     * insertAsync(durability, document)}.
+     * </p>
+     * <p>
+     * If the {@code document} does contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)
+     * updateAsync(BuilderFactory.start().add(document.get("_id")), document,
+     * false, true, durability)}.
+     * </p>
+     * 
+     * @param document
+     *            The document to save to the collection.
+     * @param durability
+     *            The durability for the save.
+     * @return Future that will be updated with the results of the save. If the
+     *         durability of the operation is NONE then this will be -1.
+     * @throws MongoDbException
+     *             On an error saving the documents.
+     */
+    public Future<Integer> saveAsync(DocumentAssignable document,
+            Durability durability) throws MongoDbException;
+
+    /**
      * Returns the statistics for the collection.
      * 
      * @return The results document with the collection statistics.

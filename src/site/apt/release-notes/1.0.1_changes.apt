@@ -6,9 +6,13 @@
 
 Upgrading
 
-  This version is source and binary compatible with the 1.0.0 version of the driver.  This is a bug fix only release.
+  This version is source and binary compatible with the 1.0.0 version of the driver.
 
-Problems Fixed
+Updates
+  
+  * Updated the {{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} interface
+to support the save(...)/saveAsync(...) operation as a short cut for either an insert or update.  See the 
+{{{../apidocs/index.html}JavaDoc}} for the full details.
   
   * Updated the {{{../apidocs/index.html?com/allanbank/mongodb/builder/QueryBuilder.html}QueryBuilder.and(...)}}
 to optimize away the <<<$and>>> operator when the sub-conditions of the query did not collide.  The <<<mongos>>> process
@@ -17,7 +21,8 @@ updates to set the multi-updates flag.  By optimizing the <<<$and>>> operator aw
 multi-update flag.
 
   * Updated parsing of responses to inserts to throw a 
-{{{../apidocs/index.html?com/allanbank/mongodb/error/DuplicateKeyException.html}DuplicateKeyException}}
+{{{../apidocs/index.html?com/allanbank/mongodb/error/DuplicateKeyException.html}DuplicateKeyException}} in the case
+of an "ok" value of 1 but still having an error message.
 
   * Improved error handling for the send and receive threads to ensure connections are never into a half open state.
 

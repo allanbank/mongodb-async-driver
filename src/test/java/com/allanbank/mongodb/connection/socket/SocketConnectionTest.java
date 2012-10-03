@@ -207,11 +207,11 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        Thread[] threads = new Thread[Thread.activeCount()];
+        final Thread[] threads = new Thread[Thread.activeCount()];
         Thread.enumerate(threads);
         Thread send = null;
         Thread receive = null;
-        for (Thread t : threads) {
+        for (final Thread t : threads) {
             if (t.getName().contains("-->")) {
                 assertNull("Found 2 send threads", send);
                 send = t;
@@ -228,222 +228,6 @@ public class SocketConnectionTest {
 
         assertTrue("Should have disconnected from the server.",
                 ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10)));
-
-        assertFalse("Receive thread should have died.", receive.isAlive());
-        assertFalse("Send thread should have died.", send.isAlive());
-        assertFalse("Connection should be closed.", myTestConnection.isOpen());
-
-        myTestConnection = null;
-    }
-
-    /**
-     * Test method for {@link SocketConnection#close()}.
-     * 
-     * @throws IOException
-     *             On a failure connecting to the Mock MongoDB server.
-     * @throws InterruptedException
-     *             On a failure waiting for the threads to close.
-     */
-    @SuppressWarnings("null")
-    @Test
-    public void testServerClose() throws IOException, InterruptedException {
-        final String addr = ourServer.getServerName();
-
-        final MongoDbConfiguration config = new MongoDbConfiguration();
-        config.setReadTimeout(100);
-        myTestConnection = new SocketConnection(new ServerState(addr), config);
-        myTestConnection.start();
-
-        assertTrue("Should have connected to the server.",
-                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
-
-        Thread[] threads = new Thread[Thread.activeCount()];
-        Thread.enumerate(threads);
-        Thread send = null;
-        Thread receive = null;
-        for (Thread t : threads) {
-            if (t.getName().contains("-->")) {
-                assertNull("Found 2 send threads", send);
-                send = t;
-            }
-            else if (t.getName().contains("<--")) {
-                assertNull("Found 2 receive threads", receive);
-                receive = t;
-            }
-        }
-        assertNotNull("Did not find the send thread", send);
-        assertNotNull("Did not find the receive thread", receive);
-
-        assertTrue(ourServer.disconnectClient());
-
-        // Receive should see the disconnect first.
-        receive.join(TimeUnit.SECONDS.toMillis(600));
-        send.join(TimeUnit.SECONDS.toMillis(600));
-
-        assertFalse(
-                "Receive thread should have died: " + receive.getStackTrace(),
-                receive.isAlive());
-        assertFalse("Send thread should have died.", send.isAlive());
-        assertFalse("Connection should be closed.", myTestConnection.isOpen());
-
-        myTestConnection = null;
-    }
-
-    /**
-     * Test method for {@link SocketConnection#close()}.
-     * 
-     * @throws IOException
-     *             On a failure connecting to the Mock MongoDB server.
-     * @throws InterruptedException
-     *             On a failure waiting for the threads to close.
-     */
-    @SuppressWarnings("null")
-    @Test
-    public void testSendFailureClose() throws IOException, InterruptedException {
-        final String addr = ourServer.getServerName();
-
-        final MongoDbConfiguration config = new MongoDbConfiguration();
-        config.setReadTimeout(100);
-        myTestConnection = new SocketConnection(new ServerState(addr), config);
-        myTestConnection.start();
-
-        assertTrue("Should have connected to the server.",
-                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
-
-        Thread[] threads = new Thread[Thread.activeCount()];
-        Thread.enumerate(threads);
-        Thread send = null;
-        Thread receive = null;
-        for (Thread t : threads) {
-            if (t.getName().contains("-->")) {
-                assertNull("Found 2 send threads", send);
-                send = t;
-            }
-            else if (t.getName().contains("<--")) {
-                assertNull("Found 2 receive threads", receive);
-                receive = t;
-            }
-        }
-        assertNotNull("Did not find the send thread", send);
-        assertNotNull("Did not find the receive thread", receive);
-
-        List<PendingMessage> toAdd = new ArrayList<PendingMessage>();
-        toAdd.add(new PendingMessage(1, new PoisonMessage(new IOException(
-                "injected error"))));
-        myTestConnection.addPending(toAdd);
-
-        // Receive should see the disconnect first.
-        receive.join(TimeUnit.SECONDS.toMillis(30));
-        send.join(TimeUnit.SECONDS.toMillis(30));
-
-        assertFalse("Receive thread should have died.", receive.isAlive());
-        assertFalse("Send thread should have died.", send.isAlive());
-        assertFalse("Connection should be closed.", myTestConnection.isOpen());
-
-        myTestConnection = null;
-    }
-
-    /**
-     * Test method for {@link SocketConnection#close()}.
-     * 
-     * @throws IOException
-     *             On a failure connecting to the Mock MongoDB server.
-     * @throws InterruptedException
-     *             On a failure waiting for the threads to close.
-     */
-    @SuppressWarnings("null")
-    @Test
-    public void testSendError() throws IOException, InterruptedException {
-        final String addr = ourServer.getServerName();
-
-        final MongoDbConfiguration config = new MongoDbConfiguration();
-        config.setReadTimeout(100);
-        myTestConnection = new SocketConnection(new ServerState(addr), config);
-        myTestConnection.start();
-
-        assertTrue("Should have connected to the server.",
-                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
-
-        Thread[] threads = new Thread[Thread.activeCount()];
-        Thread.enumerate(threads);
-        Thread send = null;
-        Thread receive = null;
-        for (Thread t : threads) {
-            if (t.getName().contains("-->")) {
-                assertNull("Found 2 send threads", send);
-                send = t;
-            }
-            else if (t.getName().contains("<--")) {
-                assertNull("Found 2 receive threads", receive);
-                receive = t;
-            }
-        }
-        assertNotNull("Did not find the send thread", send);
-        assertNotNull("Did not find the receive thread", receive);
-
-        List<PendingMessage> toAdd = new ArrayList<PendingMessage>();
-        toAdd.add(new PendingMessage(1, new PoisonMessage(new OutOfMemoryError(
-                "injected error"))));
-        myTestConnection.addPending(toAdd);
-
-        // Receive should see the disconnect first.
-        receive.join(TimeUnit.SECONDS.toMillis(30));
-        send.join(TimeUnit.SECONDS.toMillis(30));
-
-        assertFalse("Receive thread should have died.", receive.isAlive());
-        assertFalse("Send thread should have died.", send.isAlive());
-        assertFalse("Connection should be closed.", myTestConnection.isOpen());
-
-        myTestConnection = null;
-    }
-
-    /**
-     * Test method for {@link SocketConnection#close()}.
-     * 
-     * @throws IOException
-     *             On a failure connecting to the Mock MongoDB server.
-     * @throws InterruptedException
-     *             On a failure waiting for the threads to close.
-     */
-    @SuppressWarnings("null")
-    @Test
-    public void testSendRuntimeException() throws IOException,
-            InterruptedException {
-        final String addr = ourServer.getServerName();
-
-        final MongoDbConfiguration config = new MongoDbConfiguration();
-        config.setReadTimeout(100);
-        myTestConnection = new SocketConnection(new ServerState(addr), config);
-        myTestConnection.start();
-
-        assertTrue("Should have connected to the server.",
-                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
-
-        Thread[] threads = new Thread[Thread.activeCount()];
-        Thread.enumerate(threads);
-        Thread send = null;
-        Thread receive = null;
-        for (Thread t : threads) {
-            if (t.getName().contains("-->")) {
-                assertNull("Found 2 send threads", send);
-                send = t;
-            }
-            else if (t.getName().contains("<--")) {
-                assertNull("Found 2 receive threads", receive);
-                receive = t;
-            }
-        }
-        assertNotNull("Did not find the send thread", send);
-        assertNotNull("Did not find the receive thread", receive);
-
-        List<PendingMessage> toAdd = new ArrayList<PendingMessage>();
-        toAdd.add(new PendingMessage(1, new PoisonMessage(new MongoDbException(
-                "injected error"))));
-        myTestConnection.addPending(toAdd);
-
-        // Receive should see the disconnect first.
-        receive.join(TimeUnit.SECONDS.toMillis(30));
-        send.join(TimeUnit.SECONDS.toMillis(30));
 
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Send thread should have died.", send.isAlive());
@@ -1760,11 +1544,11 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        Thread[] threads = new Thread[Thread.activeCount()];
+        final Thread[] threads = new Thread[Thread.activeCount()];
         Thread.enumerate(threads);
         Thread send = null;
         Thread receive = null;
-        for (Thread t : threads) {
+        for (final Thread t : threads) {
             if (t.getName().contains("-->")) {
                 assertNull("Found 2 send threads", send);
                 send = t;
@@ -1924,6 +1708,222 @@ public class SocketConnectionTest {
                 Collections.singletonList(doc), true, true, true, true);
 
         assertEquals("Did not receive the expected reply.", expected, reply);
+    }
+
+    /**
+     * Test method for {@link SocketConnection#close()}.
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure waiting for the threads to close.
+     */
+    @SuppressWarnings("null")
+    @Test
+    public void testSendError() throws IOException, InterruptedException {
+        final String addr = ourServer.getServerName();
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        Thread send = null;
+        Thread receive = null;
+        for (final Thread t : threads) {
+            if (t.getName().contains("-->")) {
+                assertNull("Found 2 send threads", send);
+                send = t;
+            }
+            else if (t.getName().contains("<--")) {
+                assertNull("Found 2 receive threads", receive);
+                receive = t;
+            }
+        }
+        assertNotNull("Did not find the send thread", send);
+        assertNotNull("Did not find the receive thread", receive);
+
+        final List<PendingMessage> toAdd = new ArrayList<PendingMessage>();
+        toAdd.add(new PendingMessage(1, new PoisonMessage(new OutOfMemoryError(
+                "injected error"))));
+        myTestConnection.addPending(toAdd);
+
+        // Receive should see the disconnect first.
+        receive.join(TimeUnit.SECONDS.toMillis(30));
+        send.join(TimeUnit.SECONDS.toMillis(30));
+
+        assertFalse("Receive thread should have died.", receive.isAlive());
+        assertFalse("Send thread should have died.", send.isAlive());
+        assertFalse("Connection should be closed.", myTestConnection.isOpen());
+
+        myTestConnection = null;
+    }
+
+    /**
+     * Test method for {@link SocketConnection#close()}.
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure waiting for the threads to close.
+     */
+    @SuppressWarnings("null")
+    @Test
+    public void testSendFailureClose() throws IOException, InterruptedException {
+        final String addr = ourServer.getServerName();
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        Thread send = null;
+        Thread receive = null;
+        for (final Thread t : threads) {
+            if (t.getName().contains("-->")) {
+                assertNull("Found 2 send threads", send);
+                send = t;
+            }
+            else if (t.getName().contains("<--")) {
+                assertNull("Found 2 receive threads", receive);
+                receive = t;
+            }
+        }
+        assertNotNull("Did not find the send thread", send);
+        assertNotNull("Did not find the receive thread", receive);
+
+        final List<PendingMessage> toAdd = new ArrayList<PendingMessage>();
+        toAdd.add(new PendingMessage(1, new PoisonMessage(new IOException(
+                "injected error"))));
+        myTestConnection.addPending(toAdd);
+
+        // Receive should see the disconnect first.
+        receive.join(TimeUnit.SECONDS.toMillis(30));
+        send.join(TimeUnit.SECONDS.toMillis(30));
+
+        assertFalse("Receive thread should have died.", receive.isAlive());
+        assertFalse("Send thread should have died.", send.isAlive());
+        assertFalse("Connection should be closed.", myTestConnection.isOpen());
+
+        myTestConnection = null;
+    }
+
+    /**
+     * Test method for {@link SocketConnection#close()}.
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure waiting for the threads to close.
+     */
+    @SuppressWarnings("null")
+    @Test
+    public void testSendRuntimeException() throws IOException,
+            InterruptedException {
+        final String addr = ourServer.getServerName();
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        Thread send = null;
+        Thread receive = null;
+        for (final Thread t : threads) {
+            if (t.getName().contains("-->")) {
+                assertNull("Found 2 send threads", send);
+                send = t;
+            }
+            else if (t.getName().contains("<--")) {
+                assertNull("Found 2 receive threads", receive);
+                receive = t;
+            }
+        }
+        assertNotNull("Did not find the send thread", send);
+        assertNotNull("Did not find the receive thread", receive);
+
+        final List<PendingMessage> toAdd = new ArrayList<PendingMessage>();
+        toAdd.add(new PendingMessage(1, new PoisonMessage(new MongoDbException(
+                "injected error"))));
+        myTestConnection.addPending(toAdd);
+
+        // Receive should see the disconnect first.
+        receive.join(TimeUnit.SECONDS.toMillis(30));
+        send.join(TimeUnit.SECONDS.toMillis(30));
+
+        assertFalse("Receive thread should have died.", receive.isAlive());
+        assertFalse("Send thread should have died.", send.isAlive());
+        assertFalse("Connection should be closed.", myTestConnection.isOpen());
+
+        myTestConnection = null;
+    }
+
+    /**
+     * Test method for {@link SocketConnection#close()}.
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure waiting for the threads to close.
+     */
+    @SuppressWarnings("null")
+    @Test
+    public void testServerClose() throws IOException, InterruptedException {
+        final String addr = ourServer.getServerName();
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(new ServerState(addr), config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        Thread send = null;
+        Thread receive = null;
+        for (final Thread t : threads) {
+            if (t.getName().contains("-->")) {
+                assertNull("Found 2 send threads", send);
+                send = t;
+            }
+            else if (t.getName().contains("<--")) {
+                assertNull("Found 2 receive threads", receive);
+                receive = t;
+            }
+        }
+        assertNotNull("Did not find the send thread", send);
+        assertNotNull("Did not find the receive thread", receive);
+
+        assertTrue(ourServer.disconnectClient());
+
+        // Receive should see the disconnect first.
+        receive.join(TimeUnit.SECONDS.toMillis(600));
+        send.join(TimeUnit.SECONDS.toMillis(600));
+
+        assertFalse(
+                "Receive thread should have died: " + receive.getStackTrace(),
+                receive.isAlive());
+        assertFalse("Send thread should have died.", send.isAlive());
+        assertFalse("Connection should be closed.", myTestConnection.isOpen());
+
+        myTestConnection = null;
     }
 
     /**
@@ -2320,7 +2320,7 @@ public class SocketConnectionTest {
          * @param toThrow
          *            The exception to throw.
          */
-        public PoisonMessage(Throwable toThrow) {
+        public PoisonMessage(final Throwable toThrow) {
             myToThrow = toThrow;
         }
 
@@ -2335,7 +2335,7 @@ public class SocketConnectionTest {
         }
 
         @Override
-        public void write(int messageId, BsonOutputStream out)
+        public void write(final int messageId, final BsonOutputStream out)
                 throws IOException {
             if (myToThrow instanceof IOException) {
                 throw (IOException) myToThrow;

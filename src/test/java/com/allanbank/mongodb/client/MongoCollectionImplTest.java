@@ -3225,6 +3225,182 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test method for
+     * {@link AbstractMongoCollection#saveAsync(Callback, DocumentAssignable)} .
+     */
+    @Test
+    public void testSaveAsyncCallbackOfIntegerDocumentAssignable() {
+        final Callback<Integer> mockCountCallback = createMock(Callback.class);
+        final Document doc = BuilderFactory.start().add("_id", 1).build();
+        final Document update = doc;
+
+        final Update message = new Update("test", "test", doc, update, false,
+                true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.saveAsync(mockCountCallback, doc);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#saveAsync(Callback, DocumentAssignable, Durability)}
+     * .
+     */
+    @Test
+    public void testSaveAsyncCallbackOfIntegerDocumentAssignableDurability() {
+        final Callback<Integer> mockCountCallback = createMock(Callback.class);
+        final Document doc = BuilderFactory.start().add("_id", 1).build();
+        final Document update = doc;
+
+        final Update message = new Update("test", "test", doc, update, false,
+                true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.saveAsync(mockCountCallback, doc, Durability.ACK);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#saveAsync(DocumentAssignable)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testSaveAsyncDocumentAssignable() throws Exception {
+        final Document doc = BuilderFactory.start().build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
+                .build();
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Integer.valueOf(2), myTestInstance.saveAsync(doc).get());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#saveAsync(DocumentAssignable,Durability)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testSaveAsyncDocumentAssignableDurability() throws Exception {
+        final Document doc = BuilderFactory.start().build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
+                .build();
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Integer.valueOf(2),
+                myTestInstance.saveAsync(doc, Durability.ACK).get());
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#save(DocumentAssignable)}
+     * .
+     */
+    @Test
+    public void testSaveDocumentAssignable() {
+        final Document doc = BuilderFactory.start().build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
+                .build();
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockClient.getDefaultDurability()).andReturn(Durability.ACK);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        replay();
+
+        assertEquals(2, myTestInstance.save(doc));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#save(DocumentAssignable, Durability)} .
+     */
+    @Test
+    public void testSaveDocumentAssignableDurability() {
+        final Document doc = BuilderFactory.start().build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
+                .build();
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        replay();
+
+        assertEquals(2, myTestInstance.save(doc, Durability.ACK));
+
+        verify();
+    }
+
+    /**
      * Test method for {@link MongoCollection#stats()}.
      */
     @Test

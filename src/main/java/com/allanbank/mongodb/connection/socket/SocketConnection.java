@@ -39,6 +39,7 @@ import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
 import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -50,12 +51,12 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class SocketConnection implements Connection {
 
+    /** The length of the message header in bytes. */
+    public static final int HEADER_LENGTH = 16;
+
     /** Exception that there was no reply for a message from MongoDB. */
     public static final MongoDbException NO_REPLY = new MongoDbException(
             "No reply received.");
-
-    /** The length of the message header in bytes. */
-    public static final int HEADER_LENGTH = 16;
 
     /** The logger for the {@link SocketConnection}. */
     protected static final Logger LOG = Logger.getLogger(SocketConnection.class
@@ -454,7 +455,7 @@ public class SocketConnection implements Connection {
             return message;
         }
         catch (final IOException ioe) {
-            final MongoDbException error = new MongoDbException(ioe);
+            final MongoDbException error = new ConnectionLostException(ioe);
 
             // Have to assume all of the requests have failed that are pending.
             final PendingMessage message = new PendingMessage();
@@ -478,7 +479,8 @@ public class SocketConnection implements Connection {
      * @throws IOException
      *             On a failure sending the message.
      */
-    protected void doSend(int messageId, Message message) throws IOException {
+    protected void doSend(final int messageId, final Message message)
+            throws IOException {
         message.write(messageId, myBsonOut);
     }
 
@@ -756,6 +758,19 @@ public class SocketConnection implements Connection {
         }
 
         /**
+         * Flushes the messages in the buffer and clears the need-to-flush flag.
+         * 
+         * @throws IOException
+         *             On a failure flushing the messages.
+         */
+        protected final void doFlush() throws IOException {
+            if (myNeedToFlush) {
+                flush();
+                myNeedToFlush = false;
+            }
+        }
+
+        /**
          * Sends a single message.
          * 
          * @throws InterruptedException
@@ -775,8 +790,8 @@ public class SocketConnection implements Connection {
             }
 
             if (took) {
-                int messageId = myPendingMessage.getMessageId();
-                Message message = myPendingMessage.getMessage();
+                final int messageId = myPendingMessage.getMessageId();
+                final Message message = myPendingMessage.getMessage();
 
                 // Make sure the message is on the queue before the
                 // message is sent to ensure the receive thread can
@@ -805,19 +820,6 @@ public class SocketConnection implements Connection {
             }
             else {
                 doFlush();
-            }
-        }
-
-        /**
-         * Flushes the messages in the buffer and clears the need-to-flush flag.
-         * 
-         * @throws IOException
-         *             On a failure flushing the messages.
-         */
-        protected final void doFlush() throws IOException {
-            if (myNeedToFlush) {
-                flush();
-                myNeedToFlush = false;
             }
         }
     }
