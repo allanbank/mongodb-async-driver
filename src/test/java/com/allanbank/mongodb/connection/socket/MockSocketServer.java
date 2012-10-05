@@ -5,9 +5,11 @@
 
 package com.allanbank.mongodb.connection.socket;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -93,7 +95,7 @@ public class MockSocketServer extends Thread {
 
         IOUtils.close(channel);
         if (channel != null) {
-            IOUtils.close(channel.socket());
+            close(channel.socket());
         }
 
         return (channel != null);
@@ -287,6 +289,25 @@ public class MockSocketServer extends Thread {
         }
 
         return (myRequests.size() >= count);
+    }
+
+    /**
+     * Closes the {@link Socket} and logs any error. Sockets do not implement
+     * {@link Closeable} in Java 6
+     * 
+     * @param socket
+     *            The connection to close. Sockets do not implement
+     *            {@link Closeable} in Java 6
+     */
+    protected void close(final Socket socket) {
+        if (socket != null) {
+            try {
+                socket.close();
+            }
+            catch (final IOException ignored) {
+                // Ignored
+            }
+        }
     }
 
     /**

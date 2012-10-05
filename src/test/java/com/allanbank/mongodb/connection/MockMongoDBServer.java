@@ -7,6 +7,7 @@ package com.allanbank.mongodb.connection;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -118,7 +119,7 @@ public class MockMongoDBServer extends Thread {
         boolean close = false;
 
         for (final Socket client : myActiveClients) {
-            IOUtils.close(client);
+            close(client);
             close = true;
         }
 
@@ -316,6 +317,25 @@ public class MockMongoDBServer extends Thread {
     }
 
     /**
+     * Closes the {@link Socket} and logs any error. Sockets do not implement
+     * {@link Closeable} in Java 6
+     * 
+     * @param socket
+     *            The connection to close. Sockets do not implement
+     *            {@link Closeable} in Java 6
+     */
+    protected void close(final Socket socket) {
+        if (socket != null) {
+            try {
+                socket.close();
+            }
+            catch (final IOException ignored) {
+                // Ignored
+            }
+        }
+    }
+
+    /**
      * Handles a single client connection.
      * 
      * @param clientSocket
@@ -384,7 +404,7 @@ public class MockMongoDBServer extends Thread {
             IOUtils.close(buffOut);
             IOUtils.close(out);
 
-            IOUtils.close(clientSocket);
+            close(clientSocket);
         }
     }
 
@@ -513,7 +533,7 @@ public class MockMongoDBServer extends Thread {
                     myClientConnected -= 1;
                     MockMongoDBServer.this.notifyAll();
                 }
-                IOUtils.close(myConn);
+                close(myConn);
             }
         }
     }

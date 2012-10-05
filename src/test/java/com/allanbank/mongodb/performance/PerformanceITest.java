@@ -181,9 +181,8 @@ public class PerformanceITest {
             final MongoOptions options = new MongoOptions();
             options.connectionsPerHost = 1;
 
-            mySyncMongo = new com.mongodb.Mongo(
-                    ourMongoServerUri.getHostString() + ":"
-                            + ourMongoServerUri.getPort(), options);
+            mySyncMongo = new com.mongodb.Mongo(ourMongoServerUri.getHostName()
+                    + ":" + ourMongoServerUri.getPort(), options);
             mySyncDb = mySyncMongo.getDB("syncTest");
             mySyncCollection = mySyncDb.getCollection("test");
         }

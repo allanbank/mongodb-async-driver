@@ -226,7 +226,7 @@ public class RegularExpressionElementTest {
         assertEquals(".*", re.getPattern());
         assertEquals(RegularExpressionElement.DOT_ALL, re.getOptions());
 
-        p = Pattern.compile(".*", Pattern.UNICODE_CHARACTER_CLASS);
+        p = Pattern.compile(".*", RegularExpressionElement.PATTERN_UNICODE);
         re = new RegularExpressionElement("f", p);
         assertEquals(".*", re.getPattern());
         assertEquals(RegularExpressionElement.UNICODE, re.getOptions());
@@ -234,8 +234,9 @@ public class RegularExpressionElementTest {
         // Combined
 
         p = Pattern
-                .compile(".*", Pattern.UNICODE_CHARACTER_CLASS | Pattern.DOTALL
-                        | Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+                .compile(".*", RegularExpressionElement.PATTERN_UNICODE
+                        | Pattern.DOTALL | Pattern.MULTILINE
+                        | Pattern.CASE_INSENSITIVE);
         re = new RegularExpressionElement("f", p);
         assertEquals(".*", re.getPattern());
         assertEquals(RegularExpressionElement.UNICODE

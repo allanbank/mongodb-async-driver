@@ -258,7 +258,7 @@ public class ClientImplTest {
     public void testReconnect() {
 
         final String serverName = ourServer.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer.getInetSocketAddress().getPort();
 

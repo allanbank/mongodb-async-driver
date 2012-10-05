@@ -63,6 +63,12 @@ public class RegularExpressionElement extends AbstractElement {
     /** Option for verbose mode. */
     public static final int VERBOSE;
 
+    /**
+     * Option to make \w, \W, etc. match unicode from the pattern class. Added
+     * in Java7
+     */
+    protected static final int PATTERN_UNICODE;
+
     /** The options for each possible bit field. */
     private static final String[] OPTIONS;
 
@@ -115,6 +121,9 @@ public class RegularExpressionElement extends AbstractElement {
         }
 
         OPTIONS = options;
+
+        // New in Java7
+        PATTERN_UNICODE = 0x100;
     }
 
     /**
@@ -153,7 +162,7 @@ public class RegularExpressionElement extends AbstractElement {
             if ((flags & Pattern.DOTALL) == Pattern.DOTALL) {
                 optInt |= DOT_ALL;
             }
-            if ((flags & Pattern.UNICODE_CHARACTER_CLASS) == Pattern.UNICODE_CHARACTER_CLASS) {
+            if ((flags & PATTERN_UNICODE) == PATTERN_UNICODE) {
                 optInt |= UNICODE;
             }
         }

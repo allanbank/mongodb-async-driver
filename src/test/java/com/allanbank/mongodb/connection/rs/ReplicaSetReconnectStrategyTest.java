@@ -119,15 +119,15 @@ public class ReplicaSetReconnectStrategyTest {
     @Test
     public void testReconnect() throws IOException {
         final String serverName1 = ourServer1.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer1.getInetSocketAddress().getPort();
         final String serverName2 = ourServer2.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer2.getInetSocketAddress().getPort();
         final String serverName3 = ourServer3.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer3.getInetSocketAddress().getPort();
 
@@ -204,15 +204,15 @@ public class ReplicaSetReconnectStrategyTest {
     @Test
     public void testReconnectDisagree() throws IOException {
         final String serverName1 = ourServer1.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer1.getInetSocketAddress().getPort();
         final String serverName2 = ourServer2.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer2.getInetSocketAddress().getPort();
         final String serverName3 = ourServer3.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer3.getInetSocketAddress().getPort();
 
@@ -312,15 +312,15 @@ public class ReplicaSetReconnectStrategyTest {
     @Test
     public void testReconnectPause() throws IOException {
         final String serverName1 = ourServer1.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer1.getInetSocketAddress().getPort();
         final String serverName2 = ourServer2.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer2.getInetSocketAddress().getPort();
         final String serverName3 = ourServer3.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer3.getInetSocketAddress().getPort();
 
@@ -398,15 +398,15 @@ public class ReplicaSetReconnectStrategyTest {
     @Test
     public void testReconnectTimeout() throws IOException {
         final String serverName1 = ourServer1.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer1.getInetSocketAddress().getPort();
         final String serverName2 = ourServer2.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer2.getInetSocketAddress().getPort();
         final String serverName3 = ourServer3.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer3.getInetSocketAddress().getPort();
 
