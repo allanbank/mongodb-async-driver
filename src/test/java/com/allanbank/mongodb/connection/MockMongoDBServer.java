@@ -59,7 +59,7 @@ public class MockMongoDBServer extends Thread {
     private final List<Message> myRequests = new CopyOnWriteArrayList<Message>();
 
     /** Set to false to stop the server. */
-    private boolean myRunning;
+    private volatile boolean myRunning;
 
     /** The thread acting as the server. */
     private final List<Thread> myRunningThreads;
