@@ -110,7 +110,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         }
 
         try {
-            Thread.sleep(500);
+            Thread.sleep(1000);
 
             // Should switch to the other shards.
             myMongo.listDatabases();

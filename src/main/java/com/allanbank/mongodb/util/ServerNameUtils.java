@@ -36,7 +36,7 @@ public class ServerNameUtils {
         final StringBuilder b = new StringBuilder();
 
         if (address.isUnresolved()) {
-            b.append(address.getHostString());
+            b.append(address.getHostName());
         }
         else {
             b.append(address.getAddress().getHostName());

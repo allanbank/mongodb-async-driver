@@ -1174,6 +1174,92 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #save(DocumentAssignable, Durability)}
+     * using the {@link #getDefaultDurability() default durability}.
+     * </p>
+     */
+    @Override
+    public int save(final DocumentAssignable document) throws MongoDbException {
+        return save(document, getDefaultDurability());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #saveAsync(DocumentAssignable, Durability)}
+     * .
+     * </p>
+     */
+    @Override
+    public int save(final DocumentAssignable document,
+            final Durability durability) throws MongoDbException {
+        return FutureUtils.unwrap(saveAsync(document, durability)).intValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #saveAsync(Callback, DocumentAssignable, Durability)} using the
+     * {@link #getDefaultDurability() default durability}.
+     * </p>
+     */
+    @Override
+    public void saveAsync(final Callback<Integer> results,
+            final DocumentAssignable document) throws MongoDbException {
+        saveAsync(results, document, getDefaultDurability());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>save</code> method that implementations must
+     * override.
+     * </p>
+     */
+    @Override
+    public abstract void saveAsync(Callback<Integer> results,
+            DocumentAssignable document, Durability durability)
+            throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #saveAsync(Callback, DocumentAssignable, Durability)} using the
+     * {@link #getDefaultDurability() default durability}.
+     * </p>
+     */
+    @Override
+    public Future<Integer> saveAsync(final DocumentAssignable document)
+            throws MongoDbException {
+        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+
+        saveAsync(future, document, getDefaultDurability());
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #saveAsync(Callback, DocumentAssignable, Durability)}.
+     * </p>
+     */
+    @Override
+    public Future<Integer> saveAsync(final DocumentAssignable document,
+            final Durability durability) throws MongoDbException {
+        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+
+        saveAsync(future, document, durability);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the
      * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * method with multiUpdate set to true, upsert set to false, and using the

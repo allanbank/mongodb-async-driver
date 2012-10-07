@@ -5875,6 +5875,49 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that we can save a document without an _id field. This becomes
+     * an upsert.
+     */
+    @Test
+    public void testSaveWithId() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addInteger("_id", 1).add("f", true);
+
+        // Insert a doc.
+        myCollection.save(builder.build());
+
+        assertEquals(builder.build(), myCollection.findOne(builder.build()));
+    }
+
+    /**
+     * Verifies that we can save a document without an _id field. This becomes
+     * an insert.
+     */
+    @Test
+    public void testSaveWithoutId() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("f", true);
+
+        // Insert a doc.
+        final Document doc = builder.build();
+        myCollection.save(doc); // <== Will inject an _id!
+
+        assertEquals(doc, myCollection.findOne(doc));
+    }
+
+    /**
      * Verifies performing updates on documents.
      */
     @Test

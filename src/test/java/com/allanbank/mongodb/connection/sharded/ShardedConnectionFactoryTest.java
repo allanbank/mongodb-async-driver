@@ -205,7 +205,7 @@ public class ShardedConnectionFactoryTest {
     @Test
     public void testConnect() throws IOException {
         final String serverName = ourServer.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer.getInetSocketAddress().getPort();
 
@@ -239,7 +239,7 @@ public class ShardedConnectionFactoryTest {
     @Test
     public void testConnectFails() throws IOException {
         final String serverName = ourServer.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer.getInetSocketAddress().getPort();
 
@@ -431,7 +431,7 @@ public class ShardedConnectionFactoryTest {
     @Test
     public void testGetReconnectStrategy() {
         final String serverName = ourServer.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer.getInetSocketAddress().getPort();
 

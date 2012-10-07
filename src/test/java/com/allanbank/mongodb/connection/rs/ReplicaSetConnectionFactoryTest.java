@@ -126,10 +126,8 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testBootstrapAddPrimary() {
-        final String serverName = myServer.getInetSocketAddress()
-                .getHostString()
-                + ":"
-                + myServer.getInetSocketAddress().getPort();
+        final String serverName = myServer.getInetSocketAddress().getHostName()
+                + ":" + myServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
@@ -161,10 +159,8 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testBootstrapNoDiscover() {
-        final String serverName = myServer.getInetSocketAddress()
-                .getHostString()
-                + ":"
-                + myServer.getInetSocketAddress().getPort();
+        final String serverName = myServer.getInetSocketAddress().getHostName()
+                + ":" + myServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
@@ -196,10 +192,8 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testBootstrapNoPrimary() {
-        final String serverName = myServer.getInetSocketAddress()
-                .getHostString()
-                + ":"
-                + myServer.getInetSocketAddress().getPort();
+        final String serverName = myServer.getInetSocketAddress().getHostName()
+                + ":" + myServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
@@ -302,10 +296,8 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testConnect() throws IOException {
-        final String serverName = myServer.getInetSocketAddress()
-                .getHostString()
-                + ":"
-                + myServer.getInetSocketAddress().getPort();
+        final String serverName = myServer.getInetSocketAddress().getHostName()
+                + ":" + myServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
@@ -336,10 +328,8 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testConnectFails() throws IOException {
-        final String serverName = myServer.getInetSocketAddress()
-                .getHostString()
-                + ":"
-                + myServer.getInetSocketAddress().getPort();
+        final String serverName = myServer.getInetSocketAddress().getHostName()
+                + ":" + myServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");

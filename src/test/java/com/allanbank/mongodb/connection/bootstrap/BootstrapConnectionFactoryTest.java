@@ -123,7 +123,7 @@ public class BootstrapConnectionFactoryTest {
     @Test
     public void testBootstrapReplicaSet() {
         final String serverName = ourServer.getInetSocketAddress()
-                .getHostString()
+                .getHostName()
                 + ":"
                 + ourServer.getInetSocketAddress().getPort();
 

@@ -47,6 +47,9 @@ import com.allanbank.mongodb.connection.message.Update;
  */
 public class MongoCollectionImpl extends AbstractMongoCollection {
 
+    /** The name of the canonical id field for MongoDB. */
+    public static final String ID_FIELD_NAME = "_id";
+
     /**
      * Create a new MongoDatabaseClient.
      * 
@@ -441,7 +444,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final List<Document> docs = new ArrayList<Document>(documents.length);
         for (final DocumentAssignable docAssignable : documents) {
             final Document doc = docAssignable.asDocument();
-            if (!doc.contains("_id") && (doc instanceof RootDocument)) {
+            if (!doc.contains(ID_FIELD_NAME) && (doc instanceof RootDocument)) {
                 ((RootDocument) doc).injectId();
             }
             docs.add(doc);
@@ -562,6 +565,27 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build());
         myClient.send(commandMsg, new ReplyResultCallback(results));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to save the document.
+     * </p>
+     */
+    @Override
+    public void saveAsync(final Callback<Integer> results,
+            final DocumentAssignable document, final Durability durability)
+            throws MongoDbException {
+        final Document doc = document.asDocument();
+
+        if (doc.contains(ID_FIELD_NAME)) {
+            updateAsync(new LongToIntCallback(results), BuilderFactory.start()
+                    .add(doc.get(ID_FIELD_NAME)), doc, false, true, durability);
+        }
+        else {
+            insertAsync(results, durability, doc);
+        }
     }
 
     /**
