@@ -7,12 +7,14 @@ package com.allanbank.mongodb.connection.state;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.PendingMessage;
+import com.allanbank.mongodb.connection.message.ReplyHandler;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 
 /**
@@ -131,9 +133,11 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
         }
         catch (final InterruptedException e) {
             // Fail the messages.
+            final Executor executor = myConfig.getExecutor();
             final MongoDbException failed = new MongoDbException(e);
             for (final PendingMessage pm : pending) {
-                pm.raiseError(failed);
+                ReplyHandler
+                        .raiseError(failed, pm.getReplyCallback(), executor);
             }
         }
     }

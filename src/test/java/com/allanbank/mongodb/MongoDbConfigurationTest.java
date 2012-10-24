@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -789,6 +790,22 @@ public class MongoDbConfigurationTest {
                 config.getDefaultReadPreference());
         config.setDefaultReadPreference(null);
         assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#setExecutor(Executor)} .
+     */
+    @Test
+    public void testSetExecutor() {
+        final Executor executor = Executors.newSingleThreadExecutor();
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+
+        assertNull(config.getExecutor());
+
+        config.setExecutor(executor);
+
+        assertSame(executor, config.getExecutor());
     }
 
     /**

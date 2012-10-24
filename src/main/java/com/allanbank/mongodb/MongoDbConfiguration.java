@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -94,6 +95,9 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
      * </p>
      */
     private ReadPreference myDefaultReadPreference = ReadPreference.PRIMARY;
+
+    /** The executor for responses from the database. */
+    private transient Executor myExecutor = null;
 
     /** The factory for creating threads to handle connections. */
     private transient ThreadFactory myFactory = null;
@@ -551,6 +555,26 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the executor to use when processing responses from the server.
+     * <p>
+     * By default the executor is <code>null</code> which will cause the reply
+     * handling to execute on the socket's receive thread.
+     * </p>
+     * <p>
+     * Care should be taken to ensure that the executor does not drop requests.
+     * This implies that the
+     * {@link java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy} or
+     * similar should be used as the
+     * {@link java.util.concurrent.RejectedExecutionHandler}.
+     * </p>
+     * 
+     * @return The executor value.
+     */
+    public Executor getExecutor() {
+        return myExecutor;
+    }
+
+    /**
      * Returns the type of hand off lock to use between threads in the core of
      * the driver.
      * <p>
@@ -797,6 +821,27 @@ public class MongoDbConfiguration implements Cloneable, Serializable {
         else {
             myDefaultReadPreference = defaultReadPreference;
         }
+    }
+
+    /**
+     * Sets the value of executor for replies from the server.
+     * <p>
+     * By default the executor is <code>null</code> which will cause the reply
+     * handling to execute on the socket's receive thread.
+     * </p>
+     * <p>
+     * Care should be taken to ensure that the executor does not drop requests.
+     * This implies that the
+     * {@link java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy} or
+     * similar should be used as the
+     * {@link java.util.concurrent.RejectedExecutionHandler}.
+     * </p>
+     * 
+     * @param executor
+     *            The new value for the executor.
+     */
+    public void setExecutor(final Executor executor) {
+        myExecutor = executor;
     }
 
     /**
