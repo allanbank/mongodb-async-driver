@@ -76,7 +76,7 @@ public class IntegerElement extends AbstractElement implements NumericElement {
             final NumericElement other = (NumericElement) otherElement;
 
             // Integer is the lowest resolution.
-            result = Integer.compare(getIntValue(), other.getIntValue());
+            result = compare(getIntValue(), other.getIntValue());
         }
 
         return result;

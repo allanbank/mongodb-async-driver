@@ -51,6 +51,29 @@ public class ShardedClusterState extends ClusterState {
     }
 
     /**
+     * Deletes the state of for the specified database/collection. This should
+     * be called when a
+     * {@link com.allanbank.mongodb.error.ShardConfigStaleException} is
+     * encountered.
+     * 
+     * @param database
+     *            The database that the query or document is going to be used
+     *            with.
+     * @param collection
+     *            The collection that the query or document is going to be used
+     *            with.
+     */
+    public void deleteState(final String database, final String collection) {
+
+        // If we know about the database, then delegate to the
+        // DatabaseShardState
+        final DatabaseShardState dbState = myDatabases.get(database);
+        if (dbState != null) {
+            dbState.deleteState(collection);
+        }
+    }
+
+    /**
      * Tries to determine the correct shard to receive the query/inserted
      * document.
      * 
@@ -81,29 +104,6 @@ public class ShardedClusterState extends ClusterState {
 
         // Use the mongos for now.
         return result;
-    }
-
-    /**
-     * Deletes the state of for the specified database/collection. This should
-     * be called when a
-     * {@link com.allanbank.mongodb.error.ShardConfigStaleException} is
-     * encountered.
-     * 
-     * @param database
-     *            The database that the query or document is going to be used
-     *            with.
-     * @param collection
-     *            The collection that the query or document is going to be used
-     *            with.
-     */
-    public void deleteState(final String database, final String collection) {
-
-        // If we know about the database, then delegate to the
-        // DatabaseShardState
-        final DatabaseShardState dbState = myDatabases.get(database);
-        if (dbState != null) {
-            dbState.deleteState(collection);
-        }
     }
 
     /**

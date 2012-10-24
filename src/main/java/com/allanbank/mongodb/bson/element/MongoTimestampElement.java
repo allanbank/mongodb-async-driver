@@ -78,11 +78,11 @@ public class MongoTimestampElement extends AbstractElement {
             final ElementType otherType = otherElement.getType();
 
             if (otherType == ElementType.UTC_TIMESTAMP) {
-                result = Long.compare(getTime(),
+                result = compare(getTime(),
                         ((TimestampElement) otherElement).getTime());
             }
             else {
-                result = Long.compare(getTime(),
+                result = compare(getTime(),
                         ((MongoTimestampElement) otherElement).getTime());
             }
         }

@@ -150,7 +150,8 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     public int compareTo(final ObjectId other) {
         int result = myTimestamp - other.myTimestamp;
         if (result == 0) {
-            result = Long.compare(myMachineId, other.myMachineId);
+            result = (myMachineId < other.myMachineId) ? -1
+                    : ((myMachineId == other.myMachineId) ? 0 : 1);
         }
         return result;
     }

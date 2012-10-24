@@ -77,10 +77,10 @@ public class DoubleElement extends AbstractElement implements NumericElement {
             final ElementType otherType = other.getType();
 
             if (otherType == ElementType.INTEGER) {
-                result = Integer.compare(getIntValue(), other.getIntValue());
+                result = compare(getIntValue(), other.getIntValue());
             }
             else if (otherType == ElementType.LONG) {
-                result = Long.compare(getLongValue(), other.getLongValue());
+                result = compare(getLongValue(), other.getLongValue());
             }
             else {
                 result = Double.compare(getDoubleValue(),

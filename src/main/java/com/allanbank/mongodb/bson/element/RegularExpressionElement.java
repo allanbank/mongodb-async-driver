@@ -303,7 +303,7 @@ public class RegularExpressionElement extends AbstractElement {
 
             result = myPattern.compareTo(other.myPattern);
             if (result == 0) {
-                result = Integer.compare(myOptions, other.myOptions);
+                result = compare(myOptions, other.myOptions);
             }
         }
 

@@ -50,6 +50,20 @@ public class DatabaseShardState {
     }
 
     /**
+     * Deletes the state of for the specified database/collection. This should
+     * be called when a
+     * {@link com.allanbank.mongodb.error.ShardConfigStaleException} is
+     * encountered.
+     * 
+     * @param collection
+     *            The collection that the query or document is going to be used
+     *            with.
+     */
+    public void deleteState(final String collection) {
+        myCollections.remove(collection);
+    }
+
+    /**
      * Tries to determine the correct shard to receive the query/inserted
      * document.
      * 
@@ -83,20 +97,6 @@ public class DatabaseShardState {
         }
 
         return result;
-    }
-
-    /**
-     * Deletes the state of for the specified database/collection. This should
-     * be called when a
-     * {@link com.allanbank.mongodb.error.ShardConfigStaleException} is
-     * encountered.
-     * 
-     * @param collection
-     *            The collection that the query or document is going to be used
-     *            with.
-     */
-    public void deleteState(final String collection) {
-        myCollections.remove(collection);
     }
 
     /**

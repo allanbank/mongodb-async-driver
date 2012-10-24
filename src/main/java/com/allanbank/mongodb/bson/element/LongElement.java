@@ -78,10 +78,10 @@ public class LongElement extends AbstractElement implements NumericElement {
             final ElementType otherType = other.getType();
 
             if (otherType == ElementType.INTEGER) {
-                result = Integer.compare(getIntValue(), other.getIntValue());
+                result = compare(getIntValue(), other.getIntValue());
             }
             else {
-                result = Long.compare(getLongValue(), other.getLongValue());
+                result = compare(getLongValue(), other.getLongValue());
             }
         }
 

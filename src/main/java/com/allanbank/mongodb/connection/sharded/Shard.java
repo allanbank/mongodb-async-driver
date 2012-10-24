@@ -31,7 +31,7 @@ public class Shard {
      *            is could be a simple host:port or for a replica set of the
      *            form name/host1:port1,host2:port2,...
      */
-    public Shard(String shardServers) {
+    public Shard(final String shardServers) {
         super();
 
         myShardId = shardServers;
@@ -47,7 +47,7 @@ public class Shard {
      * @see Object#equals(Object)
      */
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(final Object object) {
         boolean result = false;
         if (this == object) {
             result = true;
