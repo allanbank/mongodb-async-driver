@@ -74,9 +74,21 @@ public class IntegerElement extends AbstractElement implements NumericElement {
         if (result == 0) {
             // Might be a IntegerElement, LongElement, or DoubleElement.
             final NumericElement other = (NumericElement) otherElement;
+            final ElementType otherType = other.getType();
 
             // Integer is the lowest resolution.
             result = compare(getIntValue(), other.getIntValue());
+            if (otherType == ElementType.INTEGER) {
+                result = compare(getIntValue(), other.getIntValue());
+            }
+            else if (otherType == ElementType.LONG) {
+                result = compare(getLongValue(), other.getLongValue());
+            }
+            else {
+                result = Double.compare(getDoubleValue(),
+                        other.getDoubleValue());
+
+            }
         }
 
         return result;

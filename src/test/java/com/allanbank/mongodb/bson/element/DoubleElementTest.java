@@ -60,6 +60,9 @@ public class DoubleElementTest {
         final DoubleElement a1 = new DoubleElement("a", 1.0);
         final DoubleElement a11 = new DoubleElement("a", 11.0);
         final DoubleElement b1 = new DoubleElement("b", 1.0);
+        
+        final DoubleElement a2 = new DoubleElement("a", 2.1);
+        final DoubleElement a3 = new DoubleElement("a", 1.9);
 
         final IntegerElement i = new IntegerElement("a", 2);
         final LongElement l = new LongElement("a", 2);
@@ -79,6 +82,18 @@ public class DoubleElementTest {
 
         assertTrue(a1.compareTo(l) < 0);
         assertTrue(l.compareTo(a1) > 0);
+
+        assertTrue(a3.compareTo(i) < 0);
+        assertTrue(i.compareTo(a3) > 0);
+
+        assertTrue(a3.compareTo(l) < 0);
+        assertTrue(l.compareTo(a3) > 0);
+
+        assertTrue(a2.compareTo(i) > 0);
+        assertTrue(i.compareTo(a2) < 0);
+
+        assertTrue(a2.compareTo(l) > 0);
+        assertTrue(l.compareTo(a2) < 0);
 
         assertTrue(a1.compareTo(other) < 0);
         assertTrue(other.compareTo(a1) > 0);
