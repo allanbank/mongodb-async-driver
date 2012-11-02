@@ -40,6 +40,10 @@ import com.allanbank.mongodb.connection.message.Update;
 
 /**
  * Implementation of the {@link MongoCollection} interface.
+ * <p>
+ * Note to implementors. All async methods in this class should contain either a
+ * read preference or durability parameter.
+ * </p>
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
@@ -251,7 +255,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         ReadPreference readPreference = query.getReadPreference();
         if (readPreference == null) {
-            readPreference = getDefaultReadPreference();
+            readPreference = getReadPreference();
         }
 
         Document queryDoc;
@@ -325,7 +329,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         ReadPreference readPreference = query.getReadPreference();
         if (readPreference == null) {
-            readPreference = getDefaultReadPreference();
+            readPreference = getReadPreference();
         }
 
         Document queryDoc;
@@ -363,7 +367,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     public void findOneAsync(final Callback<Document> results,
             final DocumentAssignable query) throws MongoDbException {
 
-        final ReadPreference readPreference = getDefaultReadPreference();
+        final ReadPreference readPreference = getReadPreference();
 
         Document queryDoc = query.asDocument();
         if (!readPreference.isLegacy()

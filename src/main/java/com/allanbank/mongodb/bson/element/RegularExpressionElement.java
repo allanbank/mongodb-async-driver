@@ -148,6 +148,7 @@ public class RegularExpressionElement extends AbstractElement {
      *            The pattern to extract the options from.
      * @return The options integer value.
      */
+    @SuppressWarnings("javadoc")
     protected static int optionsAsInt(final Pattern pattern) {
         int optInt = 0;
 

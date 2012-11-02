@@ -830,11 +830,39 @@ public interface MongoCollection {
     public String getDatabaseName();
 
     /**
+     * Returns the durability for write operations sent to the server from this
+     * {@link MongoCollection} instance.
+     * <p>
+     * Defaults to the {@link Durability} from the parent {@link MongoDatabase}
+     * instance.
+     * </p>
+     * 
+     * @return The durability for write operations on the server.
+     * 
+     * @see MongoDatabase#getDurability()
+     */
+    public Durability getDurability();
+
+    /**
      * Returns the name of the collection.
      * 
      * @return The name of the collection.
      */
     public String getName();
+
+    /**
+     * Returns the read preference for queries from this {@link MongoCollection}
+     * instance.
+     * <p>
+     * Defaults to {@link ReadPreference} from the parent {@link MongoDatabase}
+     * instance.
+     * </p>
+     * 
+     * @return The default read preference for a query.
+     * 
+     * @see MongoDatabase#getReadPreference()
+     */
+    public ReadPreference getReadPreference();
 
     /**
      * Invokes a group command on the server.
@@ -1301,6 +1329,36 @@ public interface MongoCollection {
      */
     public Future<Integer> saveAsync(DocumentAssignable document,
             Durability durability) throws MongoDbException;
+
+    /**
+     * Sets the durability for write operations from this
+     * {@link MongoCollection} instance.
+     * <p>
+     * Defaults to the {@link Durability} from the parent {@link MongoDatabase}
+     * instance if set to <code>null</code>.
+     * </p>
+     * 
+     * @param durability
+     *            The durability for write operations on the server.
+     * 
+     * @see MongoDatabase#getDurability()
+     */
+    public void setDurability(final Durability durability);
+
+    /**
+     * Sets the value of the read preference for a queries from this
+     * {@link MongoCollection} instance.
+     * <p>
+     * Defaults to the {@link ReadPreference} from the parent
+     * {@link MongoDatabase} instance if set to <code>null</code>.
+     * </p>
+     * 
+     * @param readPreference
+     *            The read preference for a query.
+     * 
+     * @see MongoDatabase#getReadPreference()
+     */
+    public void setReadPreference(final ReadPreference readPreference);
 
     /**
      * Returns the statistics for the collection.

@@ -658,7 +658,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testDropCollection() {
         // Make sure the collection/db exist.
-        myCollection.insert(BuilderFactory.start().build());
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
         assertTrue(myDb.listCollections().contains(TEST_COLLECTION_NAME));
 
@@ -673,7 +673,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testDropDatabase() {
         // Make sure the collection/db exist.
-        myCollection.insert(BuilderFactory.start().build());
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
         assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
 

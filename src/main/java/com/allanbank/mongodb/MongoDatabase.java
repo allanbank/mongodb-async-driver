@@ -86,6 +86,20 @@ public interface MongoDatabase {
     public MongoCollection getCollection(String name);
 
     /**
+     * Returns the durability for write operations sent to the server from this
+     * {@link MongoDatabase} instance.
+     * <p>
+     * Defaults to the {@link Durability} from the {@link Mongo}'s
+     * configuration.
+     * </p>
+     * 
+     * @return The durability for write operations on the server.
+     * 
+     * @see MongoDbConfiguration#getDefaultDurability()
+     */
+    public Durability getDurability();
+
+    /**
      * Returns the name of the database.
      * 
      * @return The name of the database.
@@ -103,6 +117,20 @@ public interface MongoDatabase {
      *      Command Reference</a>
      */
     public ProfilingStatus getProfilingStatus() throws MongoDbException;
+
+    /**
+     * Returns the read preference for queries from this {@link MongoDatabase}
+     * instance.
+     * <p>
+     * Defaults to {@link ReadPreference} from the {@link Mongo}'s
+     * configuration.
+     * </p>
+     * 
+     * @return The default read preference for a query.
+     * 
+     * @see MongoDbConfiguration#getDefaultReadPreference()
+     */
+    public ReadPreference getReadPreference();
 
     /**
      * Returns the list of the collections contained within the database.
@@ -336,6 +364,21 @@ public interface MongoDatabase {
             throws MongoDbException;
 
     /**
+     * Sets the durability for write operations from this {@link MongoDatabase}
+     * instance.
+     * <p>
+     * Defaults to the {@link Durability} from the {@link Mongo}'s configuration
+     * if set to <code>null</code>.
+     * </p>
+     * 
+     * @param durability
+     *            The durability for write operations on the server.
+     * 
+     * @see MongoDbConfiguration#getDefaultDurability()
+     */
+    public void setDurability(final Durability durability);
+
+    /**
      * Sets the profiling level for the database.
      * 
      * @param profileLevel
@@ -351,6 +394,21 @@ public interface MongoDatabase {
      */
     public boolean setProfilingStatus(ProfilingStatus profileLevel)
             throws MongoDbException;
+
+    /**
+     * Sets the value of the read preference for a queries from this
+     * {@link MongoDatabase} instance.
+     * <p>
+     * Defaults to the {@link ReadPreference} from the {@link Mongo}'s
+     * configuration if set to <code>null</code>.
+     * </p>
+     * 
+     * @param readPreference
+     *            The read preference for a query.
+     * 
+     * @see MongoDbConfiguration#getDefaultReadPreference()
+     */
+    public void setReadPreference(final ReadPreference readPreference);
 
     /**
      * Returns the statistics for the database.
