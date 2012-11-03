@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
@@ -83,6 +85,9 @@ public class Aggregate {
     /** The pipeline of operations to be applied. */
     private final List<Element> myPipeline;
 
+    /** The read preference to use. */
+    private final ReadPreference myReadPreference;
+
     /**
      * Creates a new Aggregate.
      * 
@@ -92,6 +97,7 @@ public class Aggregate {
     protected Aggregate(final Builder builder) {
         myPipeline = Collections.unmodifiableList(Arrays
                 .asList(builder.myPipeline.build()));
+        myReadPreference = builder.myReadPreference;
     }
 
     /**
@@ -101,6 +107,22 @@ public class Aggregate {
      */
     public List<Element> getPipeline() {
         return myPipeline;
+    }
+
+    /**
+     * Returns the {@link ReadPreference} specifying which servers may be used
+     * to execute the aggregation.
+     * <p>
+     * If <code>null</code> then the {@link MongoCollection} instance's
+     * {@link ReadPreference} will be used.
+     * </p>
+     * 
+     * @return The read preference to use.
+     * 
+     * @see MongoCollection#getReadPreference()
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
     }
 
     /**
@@ -168,6 +190,9 @@ public class Aggregate {
 
         /** The pipeline of operations to be applied. */
         protected final ArrayBuilder myPipeline;
+
+        /** The read preference to use. */
+        protected ReadPreference myReadPreference;
 
         /**
          * Creates a new Builder.
@@ -469,6 +494,26 @@ public class Aggregate {
          */
         public Builder reset() {
             myPipeline.reset();
+            return this;
+        }
+
+        /**
+         * Sets the {@link ReadPreference} specifying which servers may be used
+         * to execute the aggregation.
+         * <p>
+         * If not set or set to <code>null</code> then the
+         * {@link MongoCollection} instance's {@link ReadPreference} will be
+         * used.
+         * </p>
+         * 
+         * @param readPreference
+         *            The read preferences specifying which servers may be used.
+         * @return This builder for chaining method calls.
+         * 
+         * @see MongoCollection#getReadPreference()
+         */
+        public Builder setReadPreference(final ReadPreference readPreference) {
+            myReadPreference = readPreference;
             return this;
         }
 

@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -68,6 +69,9 @@ public class MapReduce {
     /** The query to select the document to run the map/reduce against. */
     private final Document myQuery;
 
+    /** The read preference to use. */
+    private final ReadPreference myReadPreference;
+
     /** The reduce function to apply to the emitted output of the map function. */
     private final String myReduceFunction;
 
@@ -108,6 +112,7 @@ public class MapReduce {
         myKeepTemp = builder.myKeepTemp;
         myJsMode = builder.myJsMode;
         myVerbose = builder.myVerbose;
+        myReadPreference = builder.myReadPreference;
     }
 
     /**
@@ -183,6 +188,22 @@ public class MapReduce {
      */
     public Document getQuery() {
         return myQuery;
+    }
+
+    /**
+     * Returns the {@link ReadPreference} specifying which servers may be used
+     * to execute the {@link MapReduce} command.
+     * <p>
+     * If <code>null</code> then the {@link MongoCollection} instance's
+     * {@link ReadPreference} will be used.
+     * </p>
+     * 
+     * @return The read preference to use.
+     * 
+     * @see MongoCollection#getReadPreference()
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
     }
 
     /**
@@ -300,6 +321,9 @@ public class MapReduce {
 
         /** The query to select the document to run the map/reduce against. */
         protected Document myQuery = null;
+
+        /** The read preference to use. */
+        protected ReadPreference myReadPreference = null;
 
         /**
          * The reduce function to apply to the emitted output of the map
@@ -451,6 +475,26 @@ public class MapReduce {
          */
         public Builder setQuery(final DocumentAssignable query) {
             myQuery = query.asDocument();
+            return this;
+        }
+
+        /**
+         * Sets the {@link ReadPreference} specifying which servers may be used
+         * to execute the {@link MapReduce} command.
+         * <p>
+         * If not set or set to <code>null</code> then the
+         * {@link MongoCollection} instance's {@link ReadPreference} will be
+         * used.
+         * </p>
+         * 
+         * @param readPreference
+         *            The read preferences specifying which servers may be used.
+         * @return This builder for chaining method calls.
+         * 
+         * @see MongoCollection#getReadPreference()
+         */
+        public Builder setReadPreference(final ReadPreference readPreference) {
+            myReadPreference = readPreference;
             return this;
         }
 

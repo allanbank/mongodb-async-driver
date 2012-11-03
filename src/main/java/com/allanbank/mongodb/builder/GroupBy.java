@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 
@@ -43,6 +45,9 @@ public class GroupBy {
     /** The query to select the documents to run the group against. */
     private final Document myQuery;
 
+    /** The read preference to use. */
+    private final ReadPreference myReadPreference;
+
     /**
      * The reduce function taking the previous value and the current value and
      * returning the new reduced value.
@@ -69,6 +74,7 @@ public class GroupBy {
         myKeyFunction = builder.myKeyFunction;
         myQuery = builder.myQuery;
         myFinalizeFunction = builder.myFinalizeFunction;
+        myReadPreference = builder.myReadPreference;
     }
 
     /**
@@ -121,6 +127,22 @@ public class GroupBy {
     }
 
     /**
+     * Returns the {@link ReadPreference} specifying which servers may be used
+     * to execute the {@link GroupBy} command.
+     * <p>
+     * If <code>null</code> then the {@link MongoCollection} instance's
+     * {@link ReadPreference} will be used.
+     * </p>
+     * 
+     * @return The read preference to use.
+     * 
+     * @see MongoCollection#getReadPreference()
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
      * Returns the reduce function taking the previous value and the current
      * value and returning the new reduced value.
      * 
@@ -160,6 +182,9 @@ public class GroupBy {
 
         /** The query to select the documents to run the group against. */
         protected Document myQuery;
+
+        /** The read preference to use. */
+        protected ReadPreference myReadPreference;
 
         /**
          * The reduce function taking the previous value and the current value
@@ -255,6 +280,26 @@ public class GroupBy {
          */
         public Builder setQuery(final DocumentAssignable query) {
             myQuery = query.asDocument();
+            return this;
+        }
+
+        /**
+         * Sets the {@link ReadPreference} specifying which servers may be used
+         * to execute the {@link GroupBy} command.
+         * <p>
+         * If not set or set to <code>null</code> then the
+         * {@link MongoCollection} instance's {@link ReadPreference} will be
+         * used.
+         * </p>
+         * 
+         * @param readPreference
+         *            The read preferences specifying which servers may be used.
+         * @return This builder for chaining method calls.
+         * 
+         * @see MongoCollection#getReadPreference()
+         */
+        public Builder setReadPreference(final ReadPreference readPreference) {
+            myReadPreference = readPreference;
             return this;
         }
 
