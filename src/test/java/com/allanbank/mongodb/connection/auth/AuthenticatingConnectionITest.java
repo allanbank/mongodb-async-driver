@@ -25,6 +25,7 @@ import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * AuthenticatingConnectionITest provides tests of the authentication against a
@@ -83,9 +84,9 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             assertEquals(doc, r.getResults().get(0));
         }
         finally {
-            close(authConn);
-            close(socketConn);
-            close(socketFactory);
+            IOUtils.close(authConn);
+            IOUtils.close(socketConn);
+            IOUtils.close(socketFactory);
         }
     }
 
@@ -130,9 +131,9 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             assertEquals(doc, r.getResults().get(0));
         }
         finally {
-            close(authConn);
-            close(socketConn);
-            close(socketFactory);
+            IOUtils.close(authConn);
+            IOUtils.close(socketConn);
+            IOUtils.close(socketFactory);
         }
     }
 }

@@ -197,6 +197,11 @@ public class MapReduce {
      * If <code>null</code> then the {@link MongoCollection} instance's
      * {@link ReadPreference} will be used.
      * </p>
+     * <p>
+     * <b>NOTE: </b> Passing of read preferences to a {@code mongos} does not
+     * work in a sharded configuration. The query will always be run on the
+     * primary members of all shards.
+     * </p>
      * 
      * @return The read preference to use.
      * 

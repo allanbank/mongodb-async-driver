@@ -145,7 +145,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         final int count = SMALL_COLLECTION_COUNT * 5;
 
         // Collect the current metrics for each server.
-        final int[] ports = new int[] { 27018, 27019, 27020, 27021 };
+        final int[] ports = new int[] { 27018, 27019, 27020 };
         final SocketConnection[] conns = new SocketConnection[ports.length];
 
         disconnect();
