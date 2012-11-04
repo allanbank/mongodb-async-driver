@@ -239,8 +239,7 @@ public class Find {
             }
 
             if (readPreference != null) {
-                builder.add(ReadPreference.FIELD_NAME,
-                        readPreference.asDocument());
+                builder.add(ReadPreference.FIELD_NAME, readPreference);
             }
 
             return builder.build();

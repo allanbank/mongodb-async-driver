@@ -127,6 +127,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(myMockClient.send(eq(message), callback(reply(result.build()))))
                 .andReturn(myAddress);
 
@@ -163,6 +165,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(myMockClient.send(eq(message), callback(reply(result.build()))))
                 .andReturn(myAddress);
 
@@ -197,6 +201,87 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.aggregateAsync(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregate)} .
+     */
+    @Test
+    public void testAggregateWithReadPreference() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.limit(5);
+        builder.setReadPreference(ReadPreference.PREFER_PRIMARY);
+
+        final Aggregate request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+        expectedCommand.add(ReadPreference.FIELD_NAME,
+                ReadPreference.PREFER_PRIMARY);
+
+        final Command message = new Command("test", expectedCommand.build(),
+                ReadPreference.PREFER_PRIMARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.aggregateAsync(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregate)} .
+     */
+    @Test
+    public void testAggregateWithReadPreferenceNonSharded() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.limit(5);
+        builder.setReadPreference(ReadPreference.PREFER_PRIMARY);
+
+        final Aggregate request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final Command message = new Command("test", expectedCommand.build(),
+                ReadPreference.PREFER_PRIMARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyResultCallback.class))).andReturn(
@@ -460,6 +545,75 @@ public class MongoCollectionImplTest {
         catch (final ReplyException error) {
             // Good.
         }
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#countAsync(DocumentAssignable, ReadPreference)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error
+     */
+    @Test
+    public void testCountWithReadPreference() throws Exception {
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+        final Document doc = BuilderFactory.start().build();
+
+        final DocumentBuilder commandDoc = BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc);
+        commandDoc.add(ReadPreference.FIELD_NAME,
+                ReadPreference.PREFER_SECONDARY);
+        final Command command = new Command("test", commandDoc.build(),
+                ReadPreference.PREFER_SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(myMockClient.send(eq(command), callback(reply(replyDoc))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Long.valueOf(1),
+                myTestInstance.countAsync(doc, ReadPreference.PREFER_SECONDARY)
+                        .get());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#countAsync(DocumentAssignable, ReadPreference)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error
+     */
+    @Test
+    public void testCountWithReadPreferenceNonSharded() throws Exception {
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+        final Document doc = BuilderFactory.start().build();
+
+        final DocumentBuilder commandDoc = BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc);
+        final Command command = new Command("test", commandDoc.build(),
+                ReadPreference.PREFER_SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        expect(myMockClient.send(eq(command), callback(reply(replyDoc))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Long.valueOf(1),
+                myTestInstance.countAsync(doc, ReadPreference.PREFER_SECONDARY)
+                        .get());
+
         verify();
     }
 
@@ -1125,7 +1279,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(myMockClient.send(eq(message), callback(reply(result.build()))))
                 .andReturn(myAddress);
 
@@ -1158,7 +1313,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyArrayCallback.class))).andReturn(
@@ -1197,7 +1353,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(myMockClient.send(eq(message), callback(reply(result.build()))))
                 .andReturn(myAddress);
 
@@ -1228,6 +1385,78 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyArrayCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.distinctAsync(mockCountCallback, request);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#distinctAsync(Callback, Distinct)} .
+     */
+    @Test
+    public void testDistinctWithReadPreference() {
+        final Distinct.Builder builder = new Distinct.Builder();
+        builder.setKey("foo");
+        builder.setReadPreference(ReadPreference.CLOSEST);
+
+        final Distinct request = builder.build();
+
+        final Callback<ArrayElement> mockCountCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("distinct", "test");
+        expectedCommand.addString("key", "foo");
+        expectedCommand.add(ReadPreference.FIELD_NAME, ReadPreference.CLOSEST);
+
+        final Command message = new Command("test", expectedCommand.build(),
+                ReadPreference.CLOSEST);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyArrayCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.distinctAsync(mockCountCallback, request);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#distinctAsync(Callback, Distinct)} .
+     */
+    @Test
+    public void testDistinctWithReadPreferenceNonSharded() {
+        final Distinct.Builder builder = new Distinct.Builder();
+        builder.setKey("foo");
+        builder.setReadPreference(ReadPreference.CLOSEST);
+
+        final Distinct request = builder.build();
+
+        final Callback<ArrayElement> mockCountCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("distinct", "test");
+        expectedCommand.addString("key", "foo");
+
+        final Command message = new Command("test", expectedCommand.build(),
+                ReadPreference.CLOSEST);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.STAND_ALONE);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyArrayCallback.class))).andReturn(
@@ -2412,6 +2641,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(myMockClient.send(eq(message), callback(reply(result.build()))))
                 .andReturn(myAddress);
 
@@ -2443,6 +2674,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyArrayCallback.class))).andReturn(
@@ -2480,6 +2713,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(myMockClient.send(eq(message), callback(reply(result.build()))))
                 .andReturn(myAddress);
 
@@ -2519,6 +2754,80 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyArrayCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.groupByAsync(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
+     */
+    @Test
+    public void testGroupByWithReadPreference() {
+        final GroupBy.Builder builder = new GroupBy.Builder();
+        builder.setKeys(Collections.singleton("foo"));
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+
+        final GroupBy request = builder.build();
+
+        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        final DocumentBuilder group = expectedCommand.push("group");
+        group.addString("ns", "test");
+        group.push("key").addBoolean("foo", true);
+        group.add(ReadPreference.FIELD_NAME, ReadPreference.PREFER_SECONDARY);
+
+        final Command message = new Command("test", expectedCommand.build(),
+                ReadPreference.PREFER_SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyArrayCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.groupByAsync(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
+     */
+    @Test
+    public void testGroupByWithReadPreferenceNonSharded() {
+        final GroupBy.Builder builder = new GroupBy.Builder();
+        builder.setKeys(Collections.singleton("foo"));
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+
+        final GroupBy request = builder.build();
+
+        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        final DocumentBuilder group = expectedCommand.push("group");
+        group.addString("ns", "test");
+        group.push("key").addBoolean("foo", true);
+
+        final Command message = new Command("test", expectedCommand.build(),
+                ReadPreference.PREFER_SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyArrayCallback.class))).andReturn(
@@ -2945,6 +3254,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(myMockClient.send(eq(message), callback(reply(result.build()))))
                 .andReturn(myAddress);
 
@@ -2979,6 +3290,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyResultCallback.class))).andReturn(
@@ -3020,6 +3333,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(myMockClient.send(eq(message), callback(reply(result.build()))))
                 .andReturn(myAddress);
 
@@ -3070,6 +3385,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyResultCallback.class))).andReturn(
@@ -3106,6 +3423,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyResultCallback.class))).andReturn(
@@ -3144,6 +3463,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyResultCallback.class))).andReturn(
@@ -3180,6 +3501,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyResultCallback.class))).andReturn(
@@ -3218,6 +3541,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyResultCallback.class))).andReturn(
@@ -3254,6 +3579,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyResultCallback.class))).andReturn(
@@ -3292,6 +3619,93 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.mapReduceAsync(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     */
+    @Test
+    public void testMapReduceAsyncWithReadPreference() {
+        final MapReduce.Builder builder = new MapReduce.Builder();
+        builder.setMapFunction("map");
+        builder.setReduceFunction("reduce");
+        builder.setOutputType(MapReduce.OutputType.REPLACE);
+        builder.setOutputName("out");
+        builder.setOutputDatabase("out_db");
+        builder.setReadPreference(ReadPreference.PREFER_PRIMARY);
+
+        final MapReduce request = builder.build();
+
+        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("mapreduce", "test");
+        expectedCommand.addJavaScript("map", "map");
+        expectedCommand.addJavaScript("reduce", "reduce");
+        expectedCommand.push("out").addString("replace", "out")
+                .addString("db", "out_db");
+        expectedCommand.add(ReadPreference.FIELD_NAME,
+                ReadPreference.PREFER_PRIMARY);
+
+        final Command message = new Command("test", expectedCommand.build(),
+                ReadPreference.PREFER_PRIMARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.mapReduceAsync(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     */
+    @Test
+    public void testMapReduceAsyncWithReadPreferenceNotSharded() {
+        final MapReduce.Builder builder = new MapReduce.Builder();
+        builder.setMapFunction("map");
+        builder.setReduceFunction("reduce");
+        builder.setOutputType(MapReduce.OutputType.REPLACE);
+        builder.setOutputName("out");
+        builder.setOutputDatabase("out_db");
+        builder.setReadPreference(ReadPreference.PREFER_PRIMARY);
+
+        final MapReduce request = builder.build();
+
+        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("mapreduce", "test");
+        expectedCommand.addJavaScript("map", "map");
+        expectedCommand.addJavaScript("reduce", "reduce");
+        expectedCommand.push("out").addString("replace", "out")
+                .addString("db", "out_db");
+
+        final Command message = new Command("test", expectedCommand.build(),
+                ReadPreference.PREFER_PRIMARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
         expect(
                 myMockClient.send(eq(message),
                         anyObject(ReplyResultCallback.class))).andReturn(

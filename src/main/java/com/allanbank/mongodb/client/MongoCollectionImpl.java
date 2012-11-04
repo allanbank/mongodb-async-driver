@@ -40,10 +40,6 @@ import com.allanbank.mongodb.connection.message.Update;
 
 /**
  * Implementation of the {@link MongoCollection} interface.
- * <p>
- * Note to implementors. All async methods in this class should contain either a
- * read preference or durability parameter.
- * </p>
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
@@ -80,6 +76,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void aggregateAsync(final Callback<List<Document>> results,
             final Aggregate command) throws MongoDbException {
+
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("aggregate", getName());
@@ -89,8 +86,11 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             pipeline.add(e);
         }
 
+        final ReadPreference readPreference = updateReadPreference(builder,
+                command.getReadPreference());
+
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build());
+                builder.build(), readPreference);
         myClient.send(commandMsg, new ReplyResultCallback("result", results));
 
     }
@@ -111,8 +111,11 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         builder.addString("count", getName());
         builder.addDocument("query", query.asDocument());
 
+        final ReadPreference finalPreference = updateReadPreference(builder,
+                readPreference);
+
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference);
+                builder.build(), finalPreference);
 
         myClient.send(commandMsg, new ReplyLongCallback(results));
     }
@@ -197,8 +200,11 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             builder.addDocument("query", command.getQuery());
         }
 
+        final ReadPreference readPreference = updateReadPreference(builder,
+                command.getReadPreference());
+
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build());
+                builder.build(), readPreference);
 
         myClient.send(commandMsg, new ReplyArrayCallback(results));
 
@@ -428,8 +434,11 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             groupDocBuilder.addDocument("cond", command.getQuery());
         }
 
+        final ReadPreference readPreference = updateReadPreference(
+                groupDocBuilder, command.getReadPreference());
+
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build());
+                builder.build(), readPreference);
         myClient.send(commandMsg, new ReplyArrayCallback("retval", results));
     }
 
@@ -566,8 +575,11 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
         }
 
+        final ReadPreference readPreference = updateReadPreference(builder,
+                command.getReadPreference());
+
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build());
+                builder.build(), readPreference);
         myClient.send(commandMsg, new ReplyResultCallback(results));
     }
 
@@ -668,5 +680,37 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         return result;
+    }
+
+    /**
+     * Determines the {@link ReadPreference} to be used based on the command's
+     * {@code ReadPreference} or the collection's if the command's
+     * {@code ReadPreference} is <code>null</code>. Updates the command's
+     * {@link DocumentBuilder} with the {@code ReadPreference} details if
+     * connected to a sharded cluster and the resulting {@code ReadPreference}
+     * is not supported by the legacy settings.
+     * 
+     * @param builder
+     *            The builder for the command document to augment with the read
+     *            preferences if connected to a sharded cluster.
+     * @param commandReadPreference
+     *            The read preferences from the command.
+     * @return The {@link ReadPreference} to use.
+     */
+    protected ReadPreference updateReadPreference(
+            final DocumentBuilder builder,
+            final ReadPreference commandReadPreference) {
+
+        ReadPreference readPreference = commandReadPreference;
+        if (readPreference == null) {
+            readPreference = getReadPreference();
+        }
+
+        if (!readPreference.isLegacy()
+                && (myClient.getClusterType() == ClusterType.SHARDED)) {
+            builder.add(ReadPreference.FIELD_NAME, readPreference);
+        }
+
+        return readPreference;
     }
 }
