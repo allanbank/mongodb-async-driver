@@ -15,6 +15,14 @@ Download
 
 Past Releases
 
+* 1.0.1 - October 5, 2012
+
+  [Release Notes] {{{./release-notes/1.0.1_changes.html}1.0.1 Changes}}
+
+  [Jar] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/1.0.1/mongodb-async-driver-1.0.1.jar}mongodb-async-driver-1.0.1.jar}}
+  
+  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/1.0.1/mongodb-async-driver-1.0.1-javadoc.jar}mongodb-async-driver-1.0.1-javadoc.jar}}
+
 * 1.0.0 - September 21, 2012
 
   [Release Notes] {{{./release-notes/1.0.0_changes.html}1.0.0 Changes}}
