@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
+import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
@@ -47,8 +48,14 @@ public class MongoDatabaseImpl implements MongoDatabase {
     /** The 'admin' database. */
     private MongoDatabase myAdminDatabase;
 
+    /** The {@link Durability} for writes from this database instance. */
+    private Durability myDurability;
+
     /** The name of the database we interact with. */
     private final String myName;
+
+    /** The {@link ReadPreference} for reads from this database instance. */
+    private ReadPreference myReadPreference;
 
     /**
      * Create a new MongoDatabaseClient.
@@ -61,6 +68,8 @@ public class MongoDatabaseImpl implements MongoDatabase {
     public MongoDatabaseImpl(final Client client, final String name) {
         myClient = client;
         myName = name;
+        myDurability = null;
+        myReadPreference = null;
     }
 
     /**
@@ -126,6 +135,18 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * {@inheritDoc}
      */
     @Override
+    public Durability getDurability() {
+        Durability result = myDurability;
+        if (result == null) {
+            result = myClient.getDefaultDurability();
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getName() {
         return myName;
     }
@@ -165,6 +186,18 @@ public class MongoDatabaseImpl implements MongoDatabase {
         // undefined?
         return null;
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ReadPreference getReadPreference() {
+        ReadPreference result = myReadPreference;
+        if (result == null) {
+            result = myClient.getDefaultReadPreference();
+        }
+        return result;
     }
 
     /**
@@ -476,6 +509,14 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public void setDurability(final Durability durability) {
+        myDurability = durability;
+    }
+
+    /**
+     * {@inheritDoc}
      * <p>
      * Overridden to update the databases profile level.
      * </p>
@@ -516,6 +557,14 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
         // From undefined to defined is a change?
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setReadPreference(final ReadPreference readPreference) {
+        myReadPreference = readPreference;
     }
 
     /**

@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ReadPreference;
@@ -182,6 +183,46 @@ public class MongoDatabaseImplTest {
     }
 
     /**
+     * Test method for {@link MongoDatabaseImpl#getDurability()}.
+     */
+    @Test
+    public void testGetDurabilityFromClient() {
+        final Durability defaultDurability = Durability.journalDurable(1234);
+
+        expect(myMockClient.getDefaultDurability())
+                .andReturn(defaultDurability);
+
+        replay();
+
+        final Durability result = myTestInstance.getDurability();
+        assertSame(defaultDurability, result);
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link MongoDatabaseImpl#getDurability()}.
+     */
+    @Test
+    public void testGetDurabilitySet() {
+        final Durability defaultDurability = Durability.journalDurable(1234);
+        final Durability setDurability = Durability.journalDurable(4321);
+
+        expect(myMockClient.getDefaultDurability())
+                .andReturn(defaultDurability);
+
+        replay();
+
+        myTestInstance.setDurability(setDurability);
+        assertSame(setDurability, myTestInstance.getDurability());
+
+        myTestInstance.setDurability(null); // Now back to client.
+        assertSame(defaultDurability, myTestInstance.getDurability());
+
+        verify();
+    }
+
+    /**
      * Test method for {@link MongoDatabaseImpl#getProfilingStatus()}.
      */
     @Test
@@ -225,6 +266,48 @@ public class MongoDatabaseImplTest {
         assertNull(myTestInstance.getProfilingStatus());
         assertNull(myTestInstance.getProfilingStatus());
         assertNull(myTestInstance.getProfilingStatus());
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link MongoDatabaseImpl#getReadPreference()}.
+     */
+    @Test
+    public void testGetReadPreferenceFromClient() {
+        final ReadPreference defaultReadPreference = ReadPreference
+                .preferSecondary();
+
+        expect(myMockClient.getDefaultReadPreference()).andReturn(
+                defaultReadPreference);
+
+        replay();
+
+        final ReadPreference result = myTestInstance.getReadPreference();
+        assertSame(defaultReadPreference, result);
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link MongoDatabaseImpl#getReadPreference()}.
+     */
+    @Test
+    public void testGetReadPreferenceSet() {
+        final ReadPreference defaultReadPreference = ReadPreference
+                .preferSecondary();
+        final ReadPreference setReadPreference = ReadPreference.secondary();
+
+        expect(myMockClient.getDefaultReadPreference()).andReturn(
+                defaultReadPreference);
+
+        replay();
+
+        myTestInstance.setReadPreference(setReadPreference);
+        assertSame(setReadPreference, myTestInstance.getReadPreference());
+
+        myTestInstance.setReadPreference(null); // Now back to client.
+        assertSame(defaultReadPreference, myTestInstance.getReadPreference());
 
         verify();
     }

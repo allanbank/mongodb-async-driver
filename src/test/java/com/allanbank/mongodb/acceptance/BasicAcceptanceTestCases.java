@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
@@ -658,7 +659,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testDropCollection() {
         // Make sure the collection/db exist.
-        myCollection.insert(BuilderFactory.start().build());
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
         assertTrue(myDb.listCollections().contains(TEST_COLLECTION_NAME));
 
@@ -673,7 +674,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testDropDatabase() {
         // Make sure the collection/db exist.
-        myCollection.insert(BuilderFactory.start().build());
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
         assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
 
@@ -1857,8 +1858,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
         catch (final QueryFailedException expected) {
             // Bug in MongoDB 2.2.0
-            assertEquals("wrong type for field (a) 17 != 9",
-                    expected.getMessage());
+            assertThat(expected.getMessage(),
+                    containsString("wrong type for field (a) 17 != 9"));
         }
         finally {
             if (iter != null) {

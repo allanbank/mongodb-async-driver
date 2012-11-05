@@ -5,15 +5,13 @@
 
 package com.allanbank.mongodb;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.junit.AfterClass;
 
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * AbstractServerTestDriver provides common methods for starting and stopping
@@ -32,65 +30,21 @@ public class ServerTestDriverSupport {
     /** A test password. You really shouldn't use this as a password... */
     public static final String PASSWORD = "password";
 
-    /** Script for starting/stopping the MongoDB in a replica set mode. */
-    public static final File REPLICA_SET_SCRIPT;
-
-    /** Script for starting/stopping the MongoDB in a sharded mode. */
-    public static final File SHARDED_SCRIPT;
-
-    /** Script for starting/stopping the MongoDB in a standalone mode. */
-    public static final File STAND_ALONE_SCRIPT;
-
     /** A test admin user name. */
     public static final String USER_DB = "db";
 
     /** A test user name. */
     public static final String USER_NAME = "user";
 
-    /** A builder for executing background process scripts. */
-    protected static ProcessBuilder ourBuilder = null;
-
-    /** The directory containing the scripts. */
-    protected static final File SCRIPT_DIR;
-
-    static {
-        SCRIPT_DIR = new File("src/test/scripts");
-        REPLICA_SET_SCRIPT = new File(SCRIPT_DIR, "replica_set.sh");
-        SHARDED_SCRIPT = new File(SCRIPT_DIR, "sharded.sh");
-        STAND_ALONE_SCRIPT = new File(SCRIPT_DIR, "standalone.sh");
-    }
-
-    /**
-     * Creates a builder for executing background process scripts.
-     * 
-     * @return The {@link ProcessBuilder}.
-     */
-    public static ProcessBuilder createBuilder() {
-        if (ourBuilder == null) {
-            ourBuilder = new ProcessBuilder();
-            ourBuilder.directory(SCRIPT_DIR);
-        }
-        return ourBuilder;
-    }
+    /** Support for spinning up clusters. */
+    private static final ClusterTestSupport myClusterTestSupport = new ClusterTestSupport();
 
     /**
      * Stops the servers running in a replica set mode.
      */
     @AfterClass
     public static void stopReplicaSet() {
-        Process stop = null;
-        try {
-            final ProcessBuilder builder = createBuilder();
-            builder.command(REPLICA_SET_SCRIPT.getAbsolutePath(), "stop");
-            stop = builder.start();
-            stop.waitFor();
-        }
-        catch (final IOException ioe) {
-            // Ignore - best effort.
-        }
-        catch (final InterruptedException e) {
-            // Ignore - best effort.
-        }
+        myClusterTestSupport.stopAll();
     }
 
     /**
@@ -98,19 +52,15 @@ public class ServerTestDriverSupport {
      */
     @AfterClass
     public static void stopSharded() {
-        Process stop = null;
-        try {
-            final ProcessBuilder builder = createBuilder();
-            builder.command(SHARDED_SCRIPT.getAbsolutePath(), "stop");
-            stop = builder.start();
-            stop.waitFor();
-        }
-        catch (final IOException ioe) {
-            // Ignore - best effort.
-        }
-        catch (final InterruptedException e) {
-            // Ignore - best effort.
-        }
+        myClusterTestSupport.stopAll();
+    }
+
+    /**
+     * Stops the servers running in a sharded cluster of replica sets.
+     */
+    @AfterClass
+    public static void stopShardedReplicaSets() {
+        myClusterTestSupport.stopAll();
     }
 
     /**
@@ -118,49 +68,52 @@ public class ServerTestDriverSupport {
      */
     @AfterClass
     public static void stopStandAlone() {
-        Process stop = null;
-        try {
-            final ProcessBuilder builder = createBuilder();
-            builder.command(STAND_ALONE_SCRIPT.getAbsolutePath(), "stop");
-            stop = builder.start();
-            stop.waitFor();
-        }
-        catch (final IOException ioe) {
-            // Ignore - best effort.
-        }
-        catch (final InterruptedException e) {
-            // Ignore - best effort.
-        }
+        myClusterTestSupport.stopAll();
     }
 
     /**
-     * Closes the connection squashing and exception.
+     * Starts a MongoDB instance running in a replica set mode.
      * 
-     * @param conn
-     *            The connection to close.
+     * @see ClusterTestSupport#startReplicaSet
      */
-    protected static void close(final Closeable conn) {
-        try {
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        catch (final IOException ignore) {
-            // Ignored - best effort.
-        }
+    protected static void startReplicaSet() {
+        myClusterTestSupport.startReplicaSet();
+    }
+
+    /**
+     * Starts a MongoDB instance running in a sharded mode.
+     * 
+     * @see ClusterTestSupport#startSharded
+     */
+    protected static void startSharded() {
+        myClusterTestSupport.startSharded();
+    }
+
+    /**
+     * Starts a MongoDB instance running in a sharded cluster of replica sets.
+     * 
+     * @see ClusterTestSupport#startShardedReplicaSets
+     */
+    protected static void startShardedReplicaSets() {
+        myClusterTestSupport.startShardedReplicaSets();
+    }
+
+    /**
+     * Starts a MongoDB instance running in a standalone mode.
+     * 
+     * @see ClusterTestSupport#startStandAlone
+     */
+    protected static void startStandAlone() {
+        myClusterTestSupport.startStandAlone();
     }
 
     /**
      * Starts a MongoDB instance running in a standalone mode.
      */
-    protected static void startAuthenticated() {
+    protected void startAuthenticated() {
         Mongo mongo = null;
         try {
-            final ProcessBuilder builder = createBuilder();
-            builder.command(STAND_ALONE_SCRIPT.getAbsolutePath(), "start",
-                    "--auth");
-            final Process start = builder.start();
-            start.waitFor();
+            startStandAlone();
 
             // Use the config to compute the hash.
             final MongoDbConfiguration adminConfig = new MongoDbConfiguration();
@@ -190,7 +143,7 @@ public class ServerTestDriverSupport {
             }
             finally {
                 // Shutdown the connection.
-                close(mongo);
+                IOUtils.close(mongo);
             }
 
             // Start a new connection authenticating as the admin user to add
@@ -209,84 +162,8 @@ public class ServerTestDriverSupport {
 
             collection.insert(Durability.ACK, docBuilder.build());
         }
-        catch (final IOException ioe) {
-            final AssertionError error = new AssertionError(ioe.getMessage());
-            error.initCause(ioe);
-            throw error;
-        }
-        catch (final InterruptedException e) {
-            final AssertionError error = new AssertionError(e.getMessage());
-            error.initCause(e);
-            throw error;
-        }
         finally {
-            close(mongo);
-        }
-    }
-
-    /**
-     * Starts a MongoDB instance running in a replica set mode.
-     */
-    protected static void startReplicaSet() {
-        try {
-            final ProcessBuilder builder = createBuilder();
-            builder.command(REPLICA_SET_SCRIPT.getAbsolutePath(), "start");
-            final Process start = builder.start();
-            start.waitFor();
-        }
-        catch (final IOException ioe) {
-            final AssertionError error = new AssertionError(ioe.getMessage());
-            error.initCause(ioe);
-            throw error;
-        }
-        catch (final InterruptedException e) {
-            final AssertionError error = new AssertionError(e.getMessage());
-            error.initCause(e);
-            throw error;
-        }
-    }
-
-    /**
-     * Starts a MongoDB instance running in a sharded mode.
-     */
-    protected static void startSharded() {
-        try {
-            final ProcessBuilder builder = createBuilder();
-            builder.command(SHARDED_SCRIPT.getAbsolutePath(), "start");
-            final Process start = builder.start();
-            start.waitFor();
-        }
-        catch (final IOException ioe) {
-            final AssertionError error = new AssertionError(ioe.getMessage());
-            error.initCause(ioe);
-            throw error;
-        }
-        catch (final InterruptedException e) {
-            final AssertionError error = new AssertionError(e.getMessage());
-            error.initCause(e);
-            throw error;
-        }
-    }
-
-    /**
-     * Starts a MongoDB instance running in a standalone mode.
-     */
-    protected static void startStandAlone() {
-        try {
-            final ProcessBuilder builder = createBuilder();
-            builder.command(STAND_ALONE_SCRIPT.getAbsolutePath(), "start");
-            final Process start = builder.start();
-            start.waitFor();
-        }
-        catch (final IOException ioe) {
-            final AssertionError error = new AssertionError(ioe.getMessage());
-            error.initCause(ioe);
-            throw error;
-        }
-        catch (final InterruptedException e) {
-            final AssertionError error = new AssertionError(e.getMessage());
-            error.initCause(e);
-            throw error;
+            IOUtils.close(mongo);
         }
     }
 }

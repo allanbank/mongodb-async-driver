@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
@@ -126,5 +127,28 @@ public class GroupByTest {
         assertSame(initial, g.getInitialValue());
         assertSame(query, g.getQuery());
         assertEquals("reduce", g.getReduceFunction());
+    }
+
+    /**
+     * Test method for {@link GroupBy#GroupBy}.
+     */
+    @Test
+    public void testGroupByWithReadPreference() {
+        final Set<String> keys = new HashSet<String>();
+        keys.add("k1");
+        keys.add("k2");
+
+        final GroupBy.Builder builder = new GroupBy.Builder();
+        builder.setKeys(keys);
+        builder.setReadPreference(ReadPreference.SECONDARY);
+
+        final GroupBy g = builder.build();
+        assertNull(g.getKeyFunction());
+        assertEquals(keys, g.getKeys());
+        assertNull(g.getFinalizeFunction());
+        assertNull(g.getInitialValue());
+        assertNull(g.getQuery());
+        assertNull(g.getReduceFunction());
+        assertSame(ReadPreference.SECONDARY, g.getReadPreference());
     }
 }
