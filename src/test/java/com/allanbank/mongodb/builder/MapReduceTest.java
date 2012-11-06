@@ -14,6 +14,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
@@ -240,6 +241,35 @@ public class MapReduceTest {
         catch (final AssertionError expected) {
             // Good.
         }
+    }
+
+    /**
+     * Test method for {@link MapReduce#MapReduce}.
+     */
+    @Test
+    public void testMapReduceWithReadPreference() {
+
+        final MapReduce.Builder builder = new MapReduce.Builder();
+        builder.setMapFunction("map");
+        builder.setReduceFunction("reduce");
+        builder.setOutputType(MapReduce.OutputType.INLINE);
+        builder.setReadPreference(ReadPreference.PRIMARY);
+
+        final MapReduce mr = builder.build();
+        assertEquals("map", mr.getMapFunction());
+        assertEquals("reduce", mr.getReduceFunction());
+        assertSame(MapReduce.OutputType.INLINE, mr.getOutputType());
+        assertNull(mr.getFinalizeFunction());
+        assertFalse(mr.isJsMode());
+        assertFalse(mr.isKeepTemp());
+        assertEquals(0, mr.getLimit());
+        assertNull(mr.getQuery());
+        assertNull(mr.getScope());
+        assertNull(mr.getSort());
+        assertFalse(mr.isVerbose());
+        assertNull(mr.getOutputName());
+        assertNull(mr.getOutputDatabase());
+        assertSame(ReadPreference.PRIMARY, mr.getReadPreference());
     }
 
     /**

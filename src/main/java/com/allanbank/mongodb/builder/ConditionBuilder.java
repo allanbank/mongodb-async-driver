@@ -1747,6 +1747,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
+     * </p>
+     * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
      * multiple <tt>near(...)</tt> methods overwrites previous values. In
      * addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -1775,6 +1779,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
      * </p>
      * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
@@ -1814,6 +1822,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
+     * </p>
+     * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
      * multiple <tt>near(...)</tt> methods overwrites previous values. In
      * addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -1842,6 +1854,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * <b>NOTE: </b> The <tt>x</tt> and <tt>y</tt> values must be in the range
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
      * </p>
      * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
@@ -1880,6 +1896,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
+     * </p>
+     * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
      * multiple <tt>near(...)</tt> methods overwrites previous values. In
      * addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -1908,6 +1928,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * <b>NOTE:</b> The <tt>x</tt> and <tt>y</tt> values must be in the range
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
      * </p>
      * <p>
      * Only a single {@link #near(int, int)} comparison can be used. Calling
@@ -1948,6 +1972,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * a {@link QueryFailedException}.
      * </p>
      * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
+     * </p>
+     * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
      * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
      * values. In addition any {@link #equals(boolean) equals(...)} condition is
@@ -1977,6 +2005,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
      * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
      * a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
      * </p>
      * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
@@ -2017,6 +2049,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * a {@link QueryFailedException}.
      * </p>
      * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
+     * </p>
+     * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
      * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
      * values. In addition any {@link #equals(boolean) equals(...)} condition is
@@ -2047,6 +2083,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
      * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
      * a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
      * </p>
      * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
@@ -2088,6 +2128,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * a {@link QueryFailedException}.
      * </p>
      * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
+     * </p>
+     * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.
      * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
      * values. In addition any {@link #equals(boolean) equals(...)} condition is
@@ -2117,6 +2161,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * <b>NOTE:</b> The <tt>x</tt> must be within the range [-180, 180) and the
      * <tt>y</tt> values must be in the range (-90, 90) or the query will throw
      * a {@link QueryFailedException}.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
      * </p>
      * <p>
      * Only a single {@link #nearSphere(int, int)} comparison can be used.

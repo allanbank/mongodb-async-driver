@@ -12,6 +12,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
@@ -89,6 +90,24 @@ public class DistinctTest {
         final Distinct d = builder.build();
         assertEquals("foo", d.getKey());
         assertNull(d.getQuery());
+    }
+
+    /**
+     * Test method for {@link Distinct#Distinct} .
+     */
+    @Test
+    public void testDistinctWithReadPreference() {
+        final Document doc = BuilderFactory.start().build();
+
+        final Distinct.Builder builder = new Distinct.Builder();
+        builder.setKey("foo");
+        builder.setQuery(doc);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+
+        final Distinct d = builder.build();
+        assertEquals("foo", d.getKey());
+        assertSame(doc, d.getQuery());
+        assertSame(ReadPreference.CLOSEST, d.getReadPreference());
     }
 
 }

@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 
@@ -27,6 +29,9 @@ public class Distinct {
     /** The query to select document to perform a distinct query across. */
     private final Document myQuery;
 
+    /** The read preference to use. */
+    private final ReadPreference myReadPreference;
+
     /**
      * Creates a new Distinct.
      * 
@@ -41,6 +46,7 @@ public class Distinct {
 
         myKey = builder.myKey;
         myQuery = builder.myQuery;
+        myReadPreference = builder.myReadPreference;
     }
 
     /**
@@ -62,6 +68,22 @@ public class Distinct {
     }
 
     /**
+     * Returns the {@link ReadPreference} specifying which servers may be used
+     * to execute the {@link Distinct} command.
+     * <p>
+     * If <code>null</code> then the {@link MongoCollection} instance's
+     * {@link ReadPreference} will be used.
+     * </p>
+     * 
+     * @return The read preference to use.
+     * 
+     * @see MongoCollection#getReadPreference()
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
      * Builder provides support for creating a {@link Distinct} object.
      * 
      * @api.yes This class is part of the driver's API. Public and protected
@@ -77,6 +99,9 @@ public class Distinct {
 
         /** The query to select document to perform a distinct query across. */
         protected Document myQuery;
+
+        /** The read preference to use. */
+        protected ReadPreference myReadPreference;
 
         /**
          * Creates a new {@link GroupBy} based on the current state of the
@@ -115,6 +140,26 @@ public class Distinct {
          */
         public Builder setQuery(final DocumentAssignable query) {
             myQuery = query.asDocument();
+            return this;
+        }
+
+        /**
+         * Sets the {@link ReadPreference} specifying which servers may be used
+         * to execute the {@link Distinct} command.
+         * <p>
+         * If not set or set to <code>null</code> then the
+         * {@link MongoCollection} instance's {@link ReadPreference} will be
+         * used.
+         * </p>
+         * 
+         * @param readPreference
+         *            The read preferences specifying which servers may be used.
+         * @return This builder for chaining method calls.
+         * 
+         * @see MongoCollection#getReadPreference()
+         */
+        public Builder setReadPreference(final ReadPreference readPreference) {
+            myReadPreference = readPreference;
             return this;
         }
 

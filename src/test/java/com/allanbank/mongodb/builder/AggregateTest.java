@@ -19,11 +19,13 @@ import static com.allanbank.mongodb.builder.expression.Expressions.multiply;
 import static com.allanbank.mongodb.builder.expression.Expressions.set;
 import static com.allanbank.mongodb.builder.expression.Expressions.subtract;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import java.util.Arrays;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -35,6 +37,28 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AggregateTest {
+
+    /**
+     * Test method for {@link Aggregate}.
+     */
+    @Test
+    public void testAggregationWithreadPreference() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        builder.group(id("a"), set("d").average("e"));
+
+        // Now the old fashioned way.
+        final ArrayBuilder expected = BuilderFactory.startArray();
+        final DocumentBuilder db = expected.push().push("$group");
+        db.addString("_id", "$a");
+        db.push("d").addString("$avg", "$e");
+
+        assertEquals(Arrays.asList(expected.build()), builder.build()
+                .getPipeline());
+
+        assertSame(ReadPreference.PREFER_SECONDARY, builder.build()
+                .getReadPreference());
+    }
 
     /**
      * Test method for {@link Aggregate.Builder} usability.

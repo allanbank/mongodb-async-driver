@@ -1,0 +1,34 @@
+            ------
+            Changes in MongoDB Asynchronous Java Driver 1.0.2
+            ------
+            ------
+            2012-11-05
+
+Upgrading
+
+  This version is source and binary compatible with the 1.0.1 version of the driver.
+
+Updates
+
+  * Update the {{{../apidocs/index.html?com/allanbank/mongodb/MongoDatabase.html}MongoDatabase}}
+and {{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} interfaces to 
+allow setting {{{../apidocs/index.html?com/allanbank/mongodb/ReadPreference.html}ReadPreferences}} 
+and {{{../apidocs/index.html?com/allanbank/mongodb/Durability.html}Durability}}.
+
+  * Updated the {{{../apidocs/index.html?com/allanbank/mongodb/builder/Aggregate.html}Aggregate}}, 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/Distinct.html}Distinct}}, 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/GroupBy.html}GroupBy}}, and 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/MapReduce.html}MapReduce}}. to directly support 
+{{{../apidocs/index.html?com/allanbank/mongodb/ReadPreference.html}ReadPreferences}}.
+
+  * Updated the {{{../apidocs/index.html?com/allanbank/mongodb/builder/GroupBy.html}GroupBy}} JavaDoc to explicitly
+state that it is not supported with sharded collections per the MongoDB documentation.
+
+  * Updated the {{{../apidocs/index.html?com/allanbank/mongodb/builder/MapReduce.html}MapReduce}} JavaDoc to explicitly
+state that {{{../apidocs/index.html?com/allanbank/mongodb/ReadPreference.html}ReadPreference}} in a sharded environment
+will not be honored by the <<<mongos>>>.
+
+  * Updated the {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}ConditionBuilder.near}} JavaDoc 
+to explicitly state that the <<<$near>>> operator is not supported with a sharded collection.
+
+

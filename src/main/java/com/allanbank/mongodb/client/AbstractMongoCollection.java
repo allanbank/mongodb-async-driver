@@ -13,7 +13,6 @@ import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
-import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
@@ -81,6 +80,12 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /** The name of the collection we interact with. */
     protected final String myName;
 
+    /** The {@link Durability} for writes from this database instance. */
+    private Durability myDurability;
+
+    /** The {@link ReadPreference} for reads from this database instance. */
+    private ReadPreference myReadPreference;
+
     /**
      * Create a new AbstractMongoCollection.
      * 
@@ -98,6 +103,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         myClient = client;
         myDatabase = database;
         myName = name;
+        myDurability = null;
+        myReadPreference = null;
     }
 
     /**
@@ -149,13 +156,13 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@inheritDoc}
      * <p>
      * Overridden to call the {@link #count(DocumentAssignable, ReadPreference)}
-     * method with {@link #getDefaultReadPreference()} as the
-     * <tt>readPreference</tt> argument.
+     * method with {@link #getReadPreference()} as the <tt>readPreference</tt>
+     * argument.
      * </p>
      */
     @Override
     public long count(final DocumentAssignable query) throws MongoDbException {
-        return count(query, getDefaultReadPreference());
+        return count(query, getReadPreference());
     }
 
     /**
@@ -179,14 +186,14 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #countAsync(Callback, DocumentAssignable, ReadPreference)} method
-     * with {@link #getDefaultReadPreference()} as the <tt>readPreference</tt>
+     * with {@link #getReadPreference()} as the <tt>readPreference</tt>
      * argument.
      * </p>
      */
     @Override
     public void countAsync(final Callback<Long> results,
             final DocumentAssignable query) throws MongoDbException {
-        countAsync(results, query, getDefaultReadPreference());
+        countAsync(results, query, getReadPreference());
     }
 
     /**
@@ -206,7 +213,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #countAsync(Callback, DocumentAssignable, ReadPreference)} method
-     * with {@link #getDefaultReadPreference()} as the <tt>readPreference</tt>
+     * with {@link #getReadPreference()} as the <tt>readPreference</tt>
      * argument.
      * </p>
      * 
@@ -222,7 +229,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>();
 
-        countAsync(future, query, getDefaultReadPreference());
+        countAsync(future, query, getReadPreference());
 
         return future;
     }
@@ -327,15 +334,14 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #delete(DocumentAssignable, boolean, Durability)} method with
      * false as the <tt>singleDelete</tt> argument and the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      * 
      * @see #delete(DocumentAssignable, boolean, Durability)
      */
     @Override
     public long delete(final DocumentAssignable query) throws MongoDbException {
-        return delete(query, DELETE_SINGLE_DELETE_DEFAULT,
-                getDefaultDurability());
+        return delete(query, DELETE_SINGLE_DELETE_DEFAULT, getDurability());
     }
 
     /**
@@ -343,7 +349,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #delete(DocumentAssignable, boolean, Durability)} method with the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      * 
      * @see #delete(DocumentAssignable, boolean, Durability)
@@ -351,7 +357,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public long delete(final DocumentAssignable query,
             final boolean singleDelete) throws MongoDbException {
-        return delete(query, singleDelete, getDefaultDurability());
+        return delete(query, singleDelete, getDurability());
     }
 
     /**
@@ -395,7 +401,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * method with false as the <tt>singleDelete</tt> argument and the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      * 
      * @see #deleteAsync(Callback, DocumentAssignable, boolean, Durability)
@@ -404,7 +410,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void deleteAsync(final Callback<Long> results,
             final DocumentAssignable query) throws MongoDbException {
         deleteAsync(results, query, DELETE_SINGLE_DELETE_DEFAULT,
-                getDefaultDurability());
+                getDurability());
     }
 
     /**
@@ -412,7 +418,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
-     * method with the {@link #getDefaultDurability() default durability}.
+     * method with the {@link #getDurability() default durability}.
      * </p>
      * 
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
@@ -421,7 +427,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void deleteAsync(final Callback<Long> results,
             final DocumentAssignable query, final boolean singleDelete)
             throws MongoDbException {
-        deleteAsync(results, query, singleDelete, getDefaultDurability());
+        deleteAsync(results, query, singleDelete, getDurability());
     }
 
     /**
@@ -462,7 +468,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * method with false as the <tt>singleDelete</tt> argument and the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      * 
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
@@ -473,7 +479,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         final FutureCallback<Long> future = new FutureCallback<Long>();
 
         deleteAsync(future, query, DELETE_SINGLE_DELETE_DEFAULT,
-                getDefaultDurability());
+                getDurability());
 
         return future;
     }
@@ -483,7 +489,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
-     * method with the {@link #getDefaultDurability() default durability}.
+     * method with the {@link #getDurability() default durability}.
      * </p>
      * 
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
@@ -493,7 +499,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final boolean singleDelete) throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>();
 
-        deleteAsync(future, query, singleDelete, getDefaultDurability());
+        deleteAsync(future, query, singleDelete, getDurability());
 
         return future;
     }
@@ -849,6 +855,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Durability getDurability() {
+        Durability result = myDurability;
+        if (result == null) {
+            result = myDatabase.getDurability();
+        }
+        return result;
+    }
+
+    /**
      * Returns the name of the collection.
      * 
      * @return The name of the collection.
@@ -856,6 +874,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public String getName() {
         return myName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ReadPreference getReadPreference() {
+        ReadPreference result = myReadPreference;
+        if (result == null) {
+            result = myDatabase.getReadPreference();
+        }
+        return result;
     }
 
     /**
@@ -901,7 +931,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #insert(boolean, Durability, DocumentAssignable...)} method with
-     * the {@link #getDefaultDurability() default durability}.
+     * the {@link #getDurability() default durability}.
      * </p>
      * 
      * @see #insert(boolean, Durability, DocumentAssignable[])
@@ -909,7 +939,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public int insert(final boolean continueOnError,
             final DocumentAssignable... documents) throws MongoDbException {
-        return insert(continueOnError, getDefaultDurability(), documents);
+        return insert(continueOnError, getDurability(), documents);
     }
 
     /**
@@ -936,8 +966,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #insert(boolean, Durability, DocumentAssignable...)} method with
-     * <tt>continueOnError</tt> set to false and the
-     * {@link #getDefaultDurability() default durability}.
+     * <tt>continueOnError</tt> set to false and the {@link #getDurability()
+     * default durability}.
      * </p>
      * 
      * @see MongoCollection#insertAsync(boolean, Durability,
@@ -946,7 +976,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public int insert(final DocumentAssignable... documents)
             throws MongoDbException {
-        return insert(INSERT_CONTINUE_ON_ERROR_DEFAULT, getDefaultDurability(),
+        return insert(INSERT_CONTINUE_ON_ERROR_DEFAULT, getDurability(),
                 documents);
     }
 
@@ -971,7 +1001,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
-     * method with the {@link #getDefaultDurability() default durability}.
+     * method with the {@link #getDurability() default durability}.
      * </p>
      * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
@@ -982,7 +1012,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final DocumentAssignable... documents) throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>();
 
-        insertAsync(future, continueOnError, getDefaultDurability(), documents);
+        insertAsync(future, continueOnError, getDurability(), documents);
 
         return future;
     }
@@ -993,7 +1023,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method with <tt>continueOnError</tt> set to false and the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
@@ -1015,7 +1045,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
-     * method the {@link #getDefaultDurability() default durability}.
+     * method the {@link #getDurability() default durability}.
      * </p>
      * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
@@ -1025,7 +1055,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void insertAsync(final Callback<Integer> results,
             final boolean continueOnError,
             final DocumentAssignable... documents) throws MongoDbException {
-        insertAsync(results, continueOnError, getDefaultDurability(), documents);
+        insertAsync(results, continueOnError, getDurability(), documents);
     }
 
     /**
@@ -1049,7 +1079,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method with <tt>continueOnError</tt> set to false and the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
@@ -1058,8 +1088,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public void insertAsync(final Callback<Integer> results,
             final DocumentAssignable... documents) throws MongoDbException {
-        insertAsync(results, INSERT_CONTINUE_ON_ERROR_DEFAULT,
-                getDefaultDurability(), documents);
+        insertAsync(results, INSERT_CONTINUE_ON_ERROR_DEFAULT, getDurability(),
+                documents);
     }
 
     /**
@@ -1087,7 +1117,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method with <tt>continueOnError</tt> set to false and the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
@@ -1098,8 +1128,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>();
 
-        insertAsync(future, INSERT_CONTINUE_ON_ERROR_DEFAULT,
-                getDefaultDurability(), documents);
+        insertAsync(future, INSERT_CONTINUE_ON_ERROR_DEFAULT, getDurability(),
+                documents);
 
         return future;
     }
@@ -1175,12 +1205,12 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@inheritDoc}
      * <p>
      * Overridden to call the {@link #save(DocumentAssignable, Durability)}
-     * using the {@link #getDefaultDurability() default durability}.
+     * using the {@link #getDurability() default durability}.
      * </p>
      */
     @Override
     public int save(final DocumentAssignable document) throws MongoDbException {
-        return save(document, getDefaultDurability());
+        return save(document, getDurability());
     }
 
     /**
@@ -1201,13 +1231,13 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #saveAsync(Callback, DocumentAssignable, Durability)} using the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      */
     @Override
     public void saveAsync(final Callback<Integer> results,
             final DocumentAssignable document) throws MongoDbException {
-        saveAsync(results, document, getDefaultDurability());
+        saveAsync(results, document, getDurability());
     }
 
     /**
@@ -1227,7 +1257,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #saveAsync(Callback, DocumentAssignable, Durability)} using the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      */
     @Override
@@ -1235,7 +1265,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>();
 
-        saveAsync(future, document, getDefaultDurability());
+        saveAsync(future, document, getDurability());
 
         return future;
     }
@@ -1259,11 +1289,27 @@ public abstract class AbstractMongoCollection implements MongoCollection {
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public void setDurability(final Durability durability) {
+        myDurability = durability;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setReadPreference(final ReadPreference readPreference) {
+        myReadPreference = readPreference;
+    }
+
+    /**
+     * {@inheritDoc}
      * <p>
      * Overridden to call the
      * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * method with multiUpdate set to true, upsert set to false, and using the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      * 
      * @see #update(DocumentAssignable, DocumentAssignable, boolean, boolean,
@@ -1273,7 +1319,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public long update(final DocumentAssignable query,
             final DocumentAssignable update) throws MongoDbException {
         return update(query, update, UPDATE_MULTIUPDATE_DEFAULT,
-                UPDATE_UPSERT_DEFAULT, getDefaultDurability());
+                UPDATE_UPSERT_DEFAULT, getDurability());
     }
 
     /**
@@ -1281,7 +1327,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
-     * method with the {@link #getDefaultDurability() default durability}.
+     * method with the {@link #getDurability() default durability}.
      * </p>
      * 
      * @see #update(DocumentAssignable, DocumentAssignable, boolean, boolean,
@@ -1291,8 +1337,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public long update(final DocumentAssignable query,
             final DocumentAssignable update, final boolean multiUpdate,
             final boolean upsert) throws MongoDbException {
-        return update(query, update, multiUpdate, upsert,
-                getDefaultDurability());
+        return update(query, update, multiUpdate, upsert, getDurability());
     }
 
     /**
@@ -1343,7 +1388,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * with multiUpdate set to true, upsert set to false, and using the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
@@ -1354,7 +1399,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final DocumentAssignable query, final DocumentAssignable update)
             throws MongoDbException {
         updateAsync(results, query, update, UPDATE_MULTIUPDATE_DEFAULT,
-                UPDATE_UPSERT_DEFAULT, getDefaultDurability());
+                UPDATE_UPSERT_DEFAULT, getDurability());
     }
 
     /**
@@ -1362,7 +1407,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
-     * using the {@link #getDefaultDurability() default durability}.
+     * using the {@link #getDurability() default durability}.
      * </p>
      * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
@@ -1374,7 +1419,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final boolean multiUpdate, final boolean upsert)
             throws MongoDbException {
         updateAsync(results, query, update, multiUpdate, upsert,
-                getDefaultDurability());
+                getDurability());
     }
 
     /**
@@ -1418,7 +1463,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * with multiUpdate set to true, upsert set to false, and using the
-     * {@link #getDefaultDurability() default durability}.
+     * {@link #getDurability() default durability}.
      * </p>
      * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
@@ -1430,7 +1475,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         final FutureCallback<Long> future = new FutureCallback<Long>();
 
         updateAsync(future, query, update, UPDATE_MULTIUPDATE_DEFAULT,
-                UPDATE_UPSERT_DEFAULT, getDefaultDurability());
+                UPDATE_UPSERT_DEFAULT, getDurability());
 
         return future;
     }
@@ -1440,7 +1485,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
-     * using the {@link #getDefaultDurability() default durability}.
+     * using the {@link #getDurability() default durability}.
      * </p>
      * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
@@ -1452,8 +1497,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final boolean upsert) throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>();
 
-        updateAsync(future, query, update, multiUpdate, upsert,
-                getDefaultDurability());
+        updateAsync(future, query, update, multiUpdate, upsert, getDurability());
 
         return future;
     }
@@ -1538,24 +1582,5 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             }
         }
         return nameBuilder.toString();
-    }
-
-    /**
-     * Returns the {@link Durability} from the {@link MongoDbConfiguration}.
-     * 
-     * @return The default durability from the {@link MongoDbConfiguration}.
-     */
-    protected Durability getDefaultDurability() {
-        return myClient.getDefaultDurability();
-    }
-
-    /**
-     * Returns the {@link ReadPreference} from the {@link MongoDbConfiguration}.
-     * 
-     * @return The default read preference from the {@link MongoDbConfiguration}
-     *         .
-     */
-    protected ReadPreference getDefaultReadPreference() {
-        return myClient.getDefaultReadPreference();
     }
 }

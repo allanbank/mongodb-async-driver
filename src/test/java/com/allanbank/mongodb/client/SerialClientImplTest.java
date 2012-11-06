@@ -163,6 +163,25 @@ public class SerialClientImplTest {
     }
 
     /**
+     * Test method for {@link SerialClientImpl#getDefaultReadPreference()}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testGetDefaultReadPreference() throws IOException {
+
+        myConfig.setDefaultReadPreference(ReadPreference.SECONDARY);
+
+        replay();
+
+        assertEquals(ReadPreference.SECONDARY,
+                myTestInstance.getDefaultReadPreference());
+
+        verify();
+    }
+
+    /**
      * Test method for {@link SerialClientImpl#send} .
      * 
      * @throws IOException
