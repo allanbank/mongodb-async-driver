@@ -16,7 +16,8 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
- * DocumentToLargeExceptionTest provides TODO - Finish
+ * DocumentToLargeExceptionTest provides tests for the
+ * {@link DocumentToLargeException} class.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
@@ -29,14 +30,14 @@ public class DocumentToLargeExceptionTest {
      */
     @Test
     public void testDocumentToLargeException() {
-        Random rand = new Random(System.currentTimeMillis());
+        final Random rand = new Random(System.currentTimeMillis());
 
-        int size = rand.nextInt();
-        int max = rand.nextInt();
-        Document doc = BuilderFactory.start().build();
+        final int size = rand.nextInt();
+        final int max = rand.nextInt();
+        final Document doc = BuilderFactory.start().build();
 
-        DocumentToLargeException ex = new DocumentToLargeException(size, max,
-                doc);
+        final DocumentToLargeException ex = new DocumentToLargeException(size,
+                max, doc);
 
         assertEquals("Attemted to serialize a document of size " + size
                 + " when current maximum is " + max + ".", ex.getMessage());

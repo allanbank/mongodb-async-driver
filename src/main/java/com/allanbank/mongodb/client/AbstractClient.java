@@ -8,9 +8,11 @@ package com.allanbank.mongodb.client;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * AbstractClient provides a base class for {@link Client} implementations.
@@ -38,6 +40,9 @@ public abstract class AbstractClient implements Client {
     @Override
     public String send(final Message message,
             final Callback<Reply> replyCallback) throws MongoDbException {
+
+        validateMessageSize(message, null);
+
         return findConnection(message, null).send(message, replyCallback);
     }
 
@@ -51,6 +56,9 @@ public abstract class AbstractClient implements Client {
     @Override
     public String send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
+
+        validateMessageSize(message1, message2);
+
         return findConnection(message1, message2).send(message1, message2,
                 replyCallback);
     }
@@ -73,5 +81,27 @@ public abstract class AbstractClient implements Client {
      */
     protected abstract Connection findConnection(Message message1,
             Message message2) throws MongoDbException;
+
+    /**
+     * Ensures that the documents in the message do not exceed the maximum size
+     * allowed by MongoDB.
+     * 
+     * @param message1
+     *            The message to be sent to the server.
+     * @param message2
+     *            The second message to be sent to the server.
+     * @throws DocumentToLargeException
+     *             On a message being too large.
+     */
+    private void validateMessageSize(final Message message1,
+            final Message message2) throws DocumentToLargeException {
+        final SizeOfVisitor visitor = new SizeOfVisitor();
+        message1.validateSize(visitor, MAX_DOCUMENT_SIZE);
+
+        if (message2 != null) {
+            visitor.reset();
+            message2.validateSize(visitor, MAX_DOCUMENT_SIZE);
+        }
+    }
 
 }

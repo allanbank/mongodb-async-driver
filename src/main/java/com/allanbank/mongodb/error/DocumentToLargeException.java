@@ -23,14 +23,14 @@ public class DocumentToLargeException extends MongoDbException {
     /** Serialization exception for the class. */
     private static final long serialVersionUID = 8235621460369360624L;
 
-    /** The size of the document that violated the maximum size. */
-    private final int mySize;
+    /** The document that was too big. */
+    private final Document myDocument;
 
     /** The maximum size for a document. */
     private final int myMaximumSize;
 
-    /** The document that was too big. */
-    private final Document myDocument;
+    /** The size of the document that violated the maximum size. */
+    private final int mySize;
 
     /**
      * Creates a new DocumentToLargeException.
@@ -42,7 +42,8 @@ public class DocumentToLargeException extends MongoDbException {
      * @param document
      *            The document that was too big.
      */
-    public DocumentToLargeException(int size, int maximum, Document document) {
+    public DocumentToLargeException(final int size, final int maximum,
+            final Document document) {
         super("Attemted to serialize a document of size " + size
                 + " when current maximum is " + maximum + ".");
 
@@ -52,12 +53,12 @@ public class DocumentToLargeException extends MongoDbException {
     }
 
     /**
-     * Returns the size of the document that violated the maximum size.
+     * Returns the document that was too big.
      * 
-     * @return The size of the document that violated the maximum size.
+     * @return The document that was too big.
      */
-    public int getSize() {
-        return mySize;
+    public Document getDocument() {
+        return myDocument;
     }
 
     /**
@@ -70,11 +71,11 @@ public class DocumentToLargeException extends MongoDbException {
     }
 
     /**
-     * Returns the document that was too big.
+     * Returns the size of the document that violated the maximum size.
      * 
-     * @return The document that was too big.
+     * @return The size of the document that violated the maximum size.
      */
-    public Document getDocument() {
-        return myDocument;
+    public int getSize() {
+        return mySize;
     }
 }

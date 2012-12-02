@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.connection.message;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
@@ -25,8 +26,10 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * KillCursorsTest provides tests for the {@link KillCursors} message.
@@ -143,5 +146,37 @@ public class KillCursorsTest {
 
         ids[0] = 2345;
         assertArrayEquals(new long[] { 1234 }, message.getCursorIds());
+    }
+
+    /**
+     * Test method for {@link KillCursors#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSize() {
+        final long[] ids = new long[] { 1234 };
+        final KillCursors message = new KillCursors(ids, ReadPreference.PRIMARY);
+
+        message.validateSize(new SizeOfVisitor(), 1024);
+
+        // Should be able to call again without visitor since size is cached.
+        message.validateSize(null, 1024);
+    }
+
+    /**
+     * Test method for {@link KillCursors#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSizeThrows() {
+        final long[] ids = new long[] { 1234 };
+        final KillCursors message = new KillCursors(ids, ReadPreference.PRIMARY);
+
+        try {
+            message.validateSize(null, 1);
+        }
+        catch (final DocumentToLargeException dtle) {
+            assertEquals(1, dtle.getMaximumSize());
+            assertEquals(8, dtle.getSize());
+            assertNull(dtle.getDocument());
+        }
     }
 }

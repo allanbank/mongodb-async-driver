@@ -34,7 +34,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class SizeOfVisitor implements Visitor {
+public class SizeOfVisitor implements Visitor {
 
     /** The head of the list of cached sizes. */
     private CachedSizeNode myHead = null;

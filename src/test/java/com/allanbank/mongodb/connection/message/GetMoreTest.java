@@ -24,6 +24,7 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
 
@@ -167,5 +168,24 @@ public class GetMoreTest {
         assertEquals(collection, message.getCollectionName());
         assertEquals(cursorId, message.getCursorId());
         assertEquals(numberToReturn, message.getNumberToReturn());
+    }
+
+    /**
+     * Test method for {@link GetMore#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSize() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final String db = "db";
+        final String collection = "collection";
+        final long cursorId = random.nextLong();
+        final int numberToReturn = random.nextInt();
+
+        final GetMore message = new GetMore(db, collection, cursorId,
+                numberToReturn, ReadPreference.PRIMARY);
+
+        // Never throws.
+        message.validateSize(null, -1);
     }
 }

@@ -10,8 +10,10 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * Message to <a href=
@@ -43,6 +45,12 @@ public class Delete extends AbstractMessage {
     private final Document myQuery;
 
     /**
+     * The size of the query document. If negative then the size if currently
+     * unknown.
+     */
+    private int myQuerySize;
+
+    /**
      * If true, only the first document found should be deleted, otherwise all
      * matching documents should be deleted.
      */
@@ -62,6 +70,7 @@ public class Delete extends AbstractMessage {
         final int flags = in.readInt();
         myQuery = in.readDocument();
         mySingleDelete = (flags & SINGLE_DELETE_BIT) == SINGLE_DELETE_BIT;
+        myQuerySize = -1;
     }
 
     /**
@@ -82,6 +91,7 @@ public class Delete extends AbstractMessage {
         super(databaseName, collectionName, ReadPreference.PRIMARY);
         myQuery = query;
         mySingleDelete = singleDelete;
+        myQuerySize = -1;
     }
 
     /**
@@ -140,6 +150,28 @@ public class Delete extends AbstractMessage {
      */
     public boolean isSingleDelete() {
         return mySingleDelete;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to ensure the query document is not too large.
+     * </p>
+     */
+    @Override
+    public void validateSize(final SizeOfVisitor visitor,
+            final int maxDocumentSize) throws DocumentToLargeException {
+        if (myQuerySize < 0) {
+            visitor.reset();
+            myQuery.accept(visitor);
+
+            myQuerySize = visitor.getSize();
+        }
+
+        if (maxDocumentSize < myQuerySize) {
+            throw new DocumentToLargeException(myQuerySize, maxDocumentSize,
+                    myQuery);
+        }
     }
 
     /**

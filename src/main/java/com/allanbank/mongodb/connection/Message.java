@@ -8,6 +8,8 @@ import java.io.IOException;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * Common interface for all MongoDB messages read from and sent to a MongoDB
@@ -34,6 +36,21 @@ public interface Message {
      *         request.
      */
     public ReadPreference getReadPreference();
+
+    /**
+     * Validates that the documents with the message do not exceed the maximum
+     * document size specified.
+     * 
+     * @param visitor
+     *            The {@link SizeOfVisitor} to compute the size of the document.
+     * @param maxDocumentSize
+     *            The maximum document size to validate against.
+     * @throws DocumentToLargeException
+     *             If one of the documents in the message is too large or the
+     *             documents in aggregate are too large.
+     */
+    public void validateSize(SizeOfVisitor visitor, int maxDocumentSize)
+            throws DocumentToLargeException;
 
     /**
      * Writes the message from the stream. The message header <b>is</b> written

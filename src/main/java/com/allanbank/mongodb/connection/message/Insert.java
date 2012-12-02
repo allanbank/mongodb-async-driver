@@ -13,8 +13,10 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * Message to <a href=
@@ -52,6 +54,12 @@ public class Insert extends AbstractMessage {
     private final List<Document> myDocuments;
 
     /**
+     * The documents to be inserted. If negative then the size has not been
+     * computed.
+     */
+    private int myDocumentsSize;
+
+    /**
      * Creates a new Insert.
      * 
      * @param header
@@ -78,6 +86,7 @@ public class Insert extends AbstractMessage {
         }
 
         myContinueOnError = (flags & CONTINUE_ON_ERROR_BIT) == CONTINUE_ON_ERROR_BIT;
+        myDocumentsSize = -1;
     }
 
     /**
@@ -99,6 +108,7 @@ public class Insert extends AbstractMessage {
 
         myDocuments = new ArrayList<Document>(documents);
         myContinueOnError = continueOnError;
+        myDocumentsSize = -1;
     }
 
     /**
@@ -158,6 +168,32 @@ public class Insert extends AbstractMessage {
      */
     public boolean isContinueOnError() {
         return myContinueOnError;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to ensure the inserted documents are not too large in
+     * aggregate.
+     * </p>
+     */
+    @Override
+    public void validateSize(final SizeOfVisitor visitor,
+            final int maxDocumentSize) throws DocumentToLargeException {
+        if (myDocumentsSize < 0) {
+            visitor.reset();
+
+            for (final Document doc : myDocuments) {
+                doc.accept(visitor);
+            }
+
+            myDocumentsSize = visitor.getSize();
+        }
+
+        if (maxDocumentSize < myDocumentsSize) {
+            throw new DocumentToLargeException(myDocumentsSize,
+                    maxDocumentSize, myDocuments.get(0));
+        }
     }
 
     /**

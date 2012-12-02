@@ -26,8 +26,10 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * QueryTest provides tests for the {@link Query} message.
@@ -529,5 +531,109 @@ public class QueryTest {
         assertEquals(partial, message.isPartial());
         assertSame(readPreference, message.getReadPreference());
         assertEquals(tailable, message.isTailable());
+    }
+
+    /**
+     * Test method for {@link Query#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSize() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = doc1;
+        final Document returnFields = doc2;
+        final int batchSize = random.nextInt();
+        final int limit = random.nextInt();
+        final int numberToSkip = random.nextInt();
+        final boolean tailable = random.nextBoolean();
+        final ReadPreference readPreference = random.nextBoolean() ? ReadPreference.PRIMARY
+                : ReadPreference.SECONDARY;
+        final boolean noCursorTimeout = random.nextBoolean();
+        final boolean awaitData = random.nextBoolean();
+        final boolean exhaust = random.nextBoolean();
+        final boolean partial = random.nextBoolean();
+
+        final Query message = new Query(databaseName, collectionName, query,
+                returnFields, batchSize, limit, numberToSkip, tailable,
+                readPreference, noCursorTimeout, awaitData, exhaust, partial);
+
+        message.validateSize(new SizeOfVisitor(), 1024);
+
+        // Should be able to call again without visitor since size is cached.
+        message.validateSize(null, 1024);
+    }
+
+    /**
+     * Test method for {@link Query#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSizeNoQueryNoFields() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = null;
+        final Document returnFields = null;
+        final int batchSize = random.nextInt();
+        final int limit = random.nextInt();
+        final int numberToSkip = random.nextInt();
+        final boolean tailable = random.nextBoolean();
+        final ReadPreference readPreference = random.nextBoolean() ? ReadPreference.PRIMARY
+                : ReadPreference.SECONDARY;
+        final boolean noCursorTimeout = random.nextBoolean();
+        final boolean awaitData = random.nextBoolean();
+        final boolean exhaust = random.nextBoolean();
+        final boolean partial = random.nextBoolean();
+
+        final Query message = new Query(databaseName, collectionName, query,
+                returnFields, batchSize, limit, numberToSkip, tailable,
+                readPreference, noCursorTimeout, awaitData, exhaust, partial);
+
+        message.validateSize(new SizeOfVisitor(), 1);
+
+        // Should be able to call again without visitor since size is cached.
+        message.validateSize(null, 1024);
+    }
+
+    /**
+     * Test method for {@link Query#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSizeThrows() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final Document doc1 = BuilderFactory.start().addInteger("1", 0).build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = doc1;
+        final Document returnFields = doc2;
+        final int batchSize = random.nextInt();
+        final int limit = random.nextInt();
+        final int numberToSkip = random.nextInt();
+        final boolean tailable = random.nextBoolean();
+        final ReadPreference readPreference = random.nextBoolean() ? ReadPreference.PRIMARY
+                : ReadPreference.SECONDARY;
+        final boolean noCursorTimeout = random.nextBoolean();
+        final boolean awaitData = random.nextBoolean();
+        final boolean exhaust = random.nextBoolean();
+        final boolean partial = random.nextBoolean();
+
+        final Query message = new Query(databaseName, collectionName, query,
+                returnFields, batchSize, limit, numberToSkip, tailable,
+                readPreference, noCursorTimeout, awaitData, exhaust, partial);
+
+        try {
+            message.validateSize(new SizeOfVisitor(), 1);
+        }
+        catch (final DocumentToLargeException dtle) {
+            assertEquals(1, dtle.getMaximumSize());
+            assertEquals(24, dtle.getSize());
+            assertSame(query, dtle.getDocument());
+        }
     }
 }
