@@ -7,7 +7,9 @@ package com.allanbank.mongodb.client;
 
 import static com.allanbank.mongodb.connection.CallbackReply.reply;
 import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
@@ -15,10 +17,14 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -34,16 +40,20 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
-import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.GetMore;
+import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
+import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
+import com.allanbank.mongodb.connection.state.ServerSelector;
+import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
@@ -85,7 +95,7 @@ public class ClientImplTest {
     private MongoDbConfiguration myConfig;
 
     /** A mock connection factory. */
-    private ConnectionFactory myMockConnectionFactory;
+    private ProxiedConnectionFactory myMockConnectionFactory;
 
     /** The instance under test. */
     private ClientImpl myTestInstance;
@@ -95,7 +105,8 @@ public class ClientImplTest {
      */
     @Before
     public void setUp() {
-        myMockConnectionFactory = EasyMock.createMock(ConnectionFactory.class);
+        myMockConnectionFactory = EasyMock
+                .createMock(ProxiedConnectionFactory.class);
 
         myConfig = new MongoDbConfiguration();
         myTestInstance = new ClientImpl(myConfig, myMockConnectionFactory);
@@ -326,6 +337,81 @@ public class ClientImplTest {
         finally {
             myTestInstance.close();
         }
+
+    }
+
+    /**
+     * Test method for reconnect logic.
+     * 
+     * @throws IOException
+     *             On a test failure.
+     */
+    @Test
+    public void testReconnectFails() throws IOException {
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
+
+        final Capture<PropertyChangeListener> propListenerCapture = new Capture<PropertyChangeListener>();
+        final Connection mockConnection = createMock(Connection.class);
+        final Connection mockConnection2 = createMock(Connection.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection.addPropertyChangeListener(capture(propListenerCapture));
+        expectLastCall();
+
+        // First send to create the connection.
+        expect(mockConnection.send(message, null)).andReturn(
+                ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
+
+        // We trigger the connection failure.
+        SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
+        strategy.setConfig(myConfig);
+        strategy.setSelector(new ServerSelector() {
+
+            @Override
+            public List<ServerState> pickServers() {
+                return Collections.singletonList(new ServerState(
+                        "localhost:27017"));
+            }
+        });
+        strategy.setConnectionFactory(myMockConnectionFactory);
+
+        expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
+                strategy);
+
+        // Create a new connection for the reconnect.
+        mockConnection
+                .raiseErrors(anyObject(MongoDbException.class), eq(false));
+        expectLastCall();
+        expect(
+                myMockConnectionFactory.connect(anyObject(ServerState.class),
+                        eq(myConfig))).andReturn(mockConnection2);
+
+        // The ping! -- Fail.
+        expect(
+                mockConnection2.send(eq(new IsMaster()),
+                        anyObject(Callback.class))).andThrow(
+                new MongoDbException("synthetic ping error"));
+        mockConnection2.close();
+        expectLastCall();
+
+        mockConnection.raiseErrors(anyObject(MongoDbException.class), eq(true));
+        expectLastCall();
+
+        replay(mockConnection, mockConnection2);
+
+        myTestInstance.send(message, null);
+
+        propListenerCapture.getValue()
+                .propertyChange(
+                        new PropertyChangeEvent(mockConnection,
+                                Connection.OPEN_PROP_NAME, Boolean.TRUE,
+                                Boolean.FALSE));
+
+        // Verify that the connection is removed.
+        assertEquals(0, myTestInstance.getConnectionCount());
+
+        verify(mockConnection, mockConnection2);
 
     }
 

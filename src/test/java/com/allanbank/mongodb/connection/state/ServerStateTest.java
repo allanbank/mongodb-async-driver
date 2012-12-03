@@ -145,4 +145,24 @@ public class ServerStateTest {
         assertFalse(state.isWritable());
     }
 
+    /**
+     * Test method for {@link ServerState#toString}.
+     */
+    @Test
+    public void testToString() {
+        final ServerState state = new ServerState("foo");
+
+        assertEquals("foo:27017(1.7976931348623157E308)", state.toString());
+
+        state.setAverageLatency(1.23);
+        state.setTags(BuilderFactory.start().add("a", 1).build());
+        state.setWritable(true);
+
+        assertEquals("foo:27017(W,T,1.23)", state.toString());
+
+        state.setWritable(false);
+
+        assertEquals("foo:27017(T,1.23)", state.toString());
+    }
+
 }

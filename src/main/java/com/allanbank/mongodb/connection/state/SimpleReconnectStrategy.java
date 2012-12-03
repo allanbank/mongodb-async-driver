@@ -70,6 +70,9 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
             }
         }
 
+        LOG.info("Reconnect attempt failed for all " + servers.size()
+                + " servers: " + servers);
+
         return null;
     }
 }
