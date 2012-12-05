@@ -498,7 +498,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         catch (final DocumentToLargeException dtle) {
             // Good.
             assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
-            assertEquals(builder.build(), dtle.getDocument());
         }
     }
 
