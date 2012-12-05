@@ -149,6 +149,15 @@ public class ClientImpl extends AbstractClient {
     }
 
     /**
+     * Returns the current number of open connections.
+     * 
+     * @return The current number of open connections.
+     */
+    public int getConnectionCount() {
+        return myConnections.size();
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to return the configurations default durability.
@@ -289,6 +298,7 @@ public class ClientImpl extends AbstractClient {
                 exception = new CannotConnectException(
                         "Could not reconnect to MongoDB.");
                 connection.raiseErrors(exception, true);
+                myConnections.remove(connection);
             }
         }
         finally {

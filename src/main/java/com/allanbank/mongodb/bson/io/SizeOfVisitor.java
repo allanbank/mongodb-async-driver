@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb.bson.io;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 import com.allanbank.mongodb.bson.Document;
@@ -34,7 +35,10 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class SizeOfVisitor implements Visitor {
+public class SizeOfVisitor implements Visitor {
+
+    /** UTF-8 Character set for encoding strings. */
+    public final static Charset UTF8 = Charset.forName("UTF-8");
 
     /** The head of the list of cached sizes. */
     private CachedSizeNode myHead = null;
@@ -131,33 +135,44 @@ import com.allanbank.mongodb.bson.element.ObjectId;
         int length = 0;
         final int strLength = string.length();
         for (int i = 0; i < strLength; ++i) {
-            int c = string.charAt(i);
+            final int c = string.charAt(i);
             if (c < 0x0080) {
                 length += 1;
             }
             else if (c < 0x0800) {
                 length += 2;
             }
-            else if (c < 0x1000) {
-                length += 3;
-            }
             else {
-                // Have to worry about surrogate pairs.
-                if (Character.isHighSurrogate((char) c)
-                        && ((i + 1) < strLength)
-                        && Character.isLowSurrogate(string.charAt(i + 1))) {
-                    // Consume the second character too.
-                    i += 1;
-                    c = Character.toCodePoint((char) c, string.charAt(i));
-                }
-
-                if (c <= 0xFFFF) {
-                    length += 3;
-                }
-                else {
-                    length += 4;
-                }
+                // To complicated above here, surrogates and what not.
+                return length + string.substring(i).getBytes(UTF8).length;
             }
+            // Below does not work with invalid surrogate sequences.
+            // Above is the same logic used to encode the string so is "safe".
+            // Need to figure out if it is "good enough".
+            /**
+             * <pre>
+             *             else if (c < 0x1000) {
+             *                 length += 3;
+             *             }
+             *             else {
+             *                 // Have to worry about surrogate pairs.
+             *                 if (Character.isHighSurrogate((char) c)
+             *                         && ((i + 1) < strLength)
+             *                         && Character.isLowSurrogate(string.charAt(i + 1))) {
+             *                     // Consume the second character too.
+             *                     i += 1;
+             *                     c = Character.toCodePoint((char) c, string.charAt(i));
+             *                 }
+             * 
+             *                 if (c <= 0xFFFF) {
+             *                     length += 3;
+             *                 }
+             *                 else {
+             *                     length += 4;
+             *                 }
+             *             }
+             * </pre>
+             */
         }
 
         return length;

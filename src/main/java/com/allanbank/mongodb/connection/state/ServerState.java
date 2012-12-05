@@ -247,6 +247,30 @@ public class ServerState {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to to return a human readable version of the server state.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append(myName);
+        builder.append("(");
+        if (myWritable.get()) {
+            builder.append("W,");
+        }
+        if (myTags.get() != null) {
+            builder.append("T,");
+        }
+        builder.append(getAverageLatency());
+        builder.append(")");
+
+        return builder.toString();
+    }
+
+    /**
      * Updates the average latency (in milliseconds) for the server.
      * 
      * @param latency
