@@ -35,6 +35,8 @@ public class BooleanElement extends AbstractElement {
      *            The name for the BSON boolean.
      * @param value
      *            The BSON boolean value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public BooleanElement(final String name, final boolean value) {
         super(name);

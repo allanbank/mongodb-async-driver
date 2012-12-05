@@ -61,8 +61,7 @@ public class MinKeyElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             objs1.add(new MinKeyElement(name));
             objs2.add(new MinKeyElement(name));
         }
@@ -102,6 +101,16 @@ public class MinKeyElementTest {
 
         assertEquals("foo", element.getName());
         assertEquals(ElementType.MIN_KEY, element.getType());
+    }
+
+    /**
+     * Test method for {@link MinKeyElement#MinKeyElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new MinKeyElement(null);
     }
 
     /**

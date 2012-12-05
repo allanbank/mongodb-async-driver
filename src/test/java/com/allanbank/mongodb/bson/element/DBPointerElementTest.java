@@ -75,6 +75,46 @@ public class DBPointerElementTest {
     }
 
     /**
+     * Test method for {@link DBPointerElement#DBPointerElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testDBPointerElementThrowsOnNullCollection() {
+
+        new DBPointerElement("foo", "d", null, new ObjectId());
+    }
+
+    /**
+     * Test method for {@link DBPointerElement#DBPointerElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testDBPointerElementThrowsOnNullDb() {
+
+        new DBPointerElement("foo", null, "c", new ObjectId());
+    }
+
+    /**
+     * Test method for {@link DBPointerElement#DBPointerElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testDBPointerElementThrowsOnNullId() {
+
+        new DBPointerElement("foo", "d", "c", null);
+    }
+
+    /**
+     * Test method for {@link DBPointerElement#DBPointerElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testDBPointerElementThrowsOnNullName() {
+
+        new DBPointerElement(null, "d", "c", new ObjectId());
+    }
+
+    /**
      * Test method for {@link DBPointerElement#equals(java.lang.Object)}.
      */
     @Test
@@ -82,8 +122,7 @@ public class DBPointerElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (final String dbName : Arrays.asList("1", "foo", "bar", "baz",
                     "2")) {
                 for (final String cName : Arrays.asList("1", "foo", "bar",

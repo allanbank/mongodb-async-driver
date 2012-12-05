@@ -47,20 +47,17 @@ public class BinaryElement extends AbstractElement {
      * @param value
      *            The BSON binary value.
      * @throws IllegalArgumentException
-     *             If the <code>value</code> is null.
+     *             If the {@code name} or {@code value} is <code>null</code>.
      */
     public BinaryElement(final String name, final byte subType,
             final byte[] value) {
         super(name);
+
+        assertNotNull(value,
+                "Binary element's value cannot be null.  Add a null element instead.");
+
         mySubType = subType;
-        if (value != null) {
-            myValue = value.clone();
-        }
-        else {
-            throw new IllegalArgumentException(
-                    "Binary element value cannot be null.  Add a "
-                            + "null element instead.");
-        }
+        myValue = value.clone();
     }
 
     /**
@@ -72,7 +69,7 @@ public class BinaryElement extends AbstractElement {
      * @param value
      *            The BSON binary value.
      * @throws IllegalArgumentException
-     *             If the <code>value</code> is null.
+     *             If the {@code name} or {@code value} is <code>null</code>.
      */
     public BinaryElement(final String name, final byte[] value) {
         this(name, DEFAULT_SUB_TYPE, value);

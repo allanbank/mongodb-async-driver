@@ -58,6 +58,8 @@ public class DocumentElement extends AbstractElement implements Document {
      *            The name for the BSON document.
      * @param elements
      *            The sub-elements for the document.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public DocumentElement(final String name, final Collection<Element> elements) {
 
@@ -79,9 +81,13 @@ public class DocumentElement extends AbstractElement implements Document {
      *            The name for the BSON document.
      * @param value
      *            The document to copy elements from.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code value} is <code>null</code>.
      */
     public DocumentElement(final String name, final Document value) {
         super(name);
+
+        assertNotNull(value, "Document element's sub-document cannot be null.");
 
         final List<Element> elements = new ArrayList<Element>();
         for (final Element element : value) {
@@ -97,6 +103,8 @@ public class DocumentElement extends AbstractElement implements Document {
      *            The name for the BSON document.
      * @param elements
      *            The sub-elements for the document.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public DocumentElement(final String name, final Element... elements) {
         super(name);
@@ -117,6 +125,8 @@ public class DocumentElement extends AbstractElement implements Document {
      *            The name for the BSON document.
      * @param elements
      *            The sub-elements for the document.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public DocumentElement(final String name, final List<Element> elements) {
         this(name, elements, false);

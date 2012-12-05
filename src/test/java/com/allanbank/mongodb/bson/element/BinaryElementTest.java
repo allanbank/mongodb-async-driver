@@ -113,6 +113,17 @@ public class BinaryElementTest {
     }
 
     /**
+     * Test method for
+     * {@link BinaryElement#BinaryElement(java.lang.String, byte, byte[])}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testBinaryElementThrowsOnNullName() {
+
+        new BinaryElement(null, (byte) 0x01, new byte[0]);
+    }
+
+    /**
      * Test method for {@link BinaryElement#equals} and
      * {@link BinaryElement#hashCode()}.
      */

@@ -39,10 +39,15 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
      *            The BSON JavaScript value.
      * @param scope
      *            The scope for the JavaScript
+     * @throws IllegalArgumentException
+     *             If the {@code name}, {@code javaScript}, or {@code scope} is
+     *             <code>null</code>.
      */
     public JavaScriptWithScopeElement(final String name,
             final String javaScript, final Document scope) {
         super(name, javaScript);
+
+        assertNotNull(scope, "JavaScript element's scope cannot be null.");
 
         myScope = scope;
     }

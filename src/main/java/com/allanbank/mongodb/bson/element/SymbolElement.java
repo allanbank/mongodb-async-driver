@@ -35,9 +35,13 @@ public class SymbolElement extends AbstractElement {
      *            The name for the BSON string.
      * @param symbol
      *            The BSON symbol value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code symbol} is <code>null</code>.
      */
     public SymbolElement(final String name, final String symbol) {
         super(name);
+
+        assertNotNull(symbol, "Symbol element's symbol cannot be null.");
 
         mySymbol = symbol;
     }

@@ -30,6 +30,8 @@ public class MinKeyElement extends AbstractElement {
      * 
      * @param name
      *            The name for the BSON minimum key.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public MinKeyElement(final String name) {
         super(name);

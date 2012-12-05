@@ -35,6 +35,8 @@ public class TimestampElement extends AbstractElement {
      *            The name for the BSON long.
      * @param value
      *            The BSON timestamp value as the milliseconds since the epoch.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public TimestampElement(final String name, final long value) {
         super(name);

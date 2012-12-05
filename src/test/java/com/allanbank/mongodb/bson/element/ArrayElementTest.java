@@ -434,6 +434,16 @@ public class ArrayElementTest {
     }
 
     /**
+     * Test method for {@link ArrayElement#ArrayElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new ArrayElement(null, new BooleanElement("b", false));
+    }
+
+    /**
      * Test method for {@link ArrayElement#toString()}.
      */
     @Test

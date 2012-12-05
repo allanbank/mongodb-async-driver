@@ -36,6 +36,8 @@ public class DoubleElement extends AbstractElement implements NumericElement {
      *            The name for the BSON double.
      * @param value
      *            The BSON double value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public DoubleElement(final String name, final double value) {
         super(name);

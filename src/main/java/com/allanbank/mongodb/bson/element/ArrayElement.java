@@ -48,8 +48,11 @@ public class ArrayElement extends AbstractElement {
      *            The name for the BSON array.
      * @param entries
      *            The entries in the array.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
-    public ArrayElement(final String name, final Element... entries) {
+    public ArrayElement(final String name, final Element... entries)
+            throws IllegalArgumentException {
         super(name);
 
         myEntries = Collections.unmodifiableList(new ArrayList<Element>(Arrays
@@ -63,8 +66,11 @@ public class ArrayElement extends AbstractElement {
      *            The name for the BSON array.
      * @param entries
      *            The entries in the array.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
-    public ArrayElement(final String name, final List<Element> entries) {
+    public ArrayElement(final String name, final List<Element> entries)
+            throws IllegalArgumentException {
         super(name);
 
         if ((entries != null) && !entries.isEmpty()) {

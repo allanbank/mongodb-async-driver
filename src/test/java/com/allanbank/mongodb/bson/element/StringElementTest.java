@@ -63,15 +63,12 @@ public class StringElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final String value = "" + random.nextLong();
                 objs1.add(new StringElement(name, value));
                 objs2.add(new StringElement(name, value));
             }
-            objs1.add(new StringElement(name, null));
-            objs2.add(new StringElement(name, null));
         }
 
         // Sanity check.
@@ -121,6 +118,26 @@ public class StringElementTest {
         assertEquals("foo", element.getName());
         assertEquals("string", element.getValue());
         assertEquals(ElementType.STRING, element.getType());
+    }
+
+    /**
+     * Test method for {@link StringElement#StringElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new StringElement(null, "s");
+    }
+
+    /**
+     * Test method for {@link StringElement#StringElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullValue() {
+
+        new StringElement("s", null);
     }
 
     /**

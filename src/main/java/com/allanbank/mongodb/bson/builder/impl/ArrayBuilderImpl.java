@@ -71,7 +71,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder add(final byte subType, final byte[] data) {
+    public ArrayBuilder add(final byte subType, final byte[] data)
+            throws IllegalArgumentException {
         return addBinary(subType, data);
     }
 
@@ -79,7 +80,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder add(final byte[] data) {
+    public ArrayBuilder add(final byte[] data) throws IllegalArgumentException {
         return addBinary(data);
     }
 
@@ -87,7 +88,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder add(final Date timestamp) {
+    public ArrayBuilder add(final Date timestamp)
+            throws IllegalArgumentException {
         return addTimestamp(timestamp.getTime());
     }
 
@@ -95,7 +97,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder add(final DocumentAssignable document) {
+    public ArrayBuilder add(final DocumentAssignable document)
+            throws IllegalArgumentException {
         return addDocument(document);
     }
 
@@ -112,7 +115,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder add(final ElementAssignable element) {
+    public ArrayBuilder add(final ElementAssignable element)
+            throws IllegalArgumentException {
         myElements.add(element.asElement().withName(nextIndex()));
         return this;
     }
@@ -137,7 +141,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder add(final ObjectId id) {
+    public ArrayBuilder add(final ObjectId id) throws IllegalArgumentException {
         return addObjectId(id);
     }
 
@@ -145,7 +149,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder add(final Pattern pattern) {
+    public ArrayBuilder add(final Pattern pattern)
+            throws IllegalArgumentException {
         return addRegularExpression(pattern);
     }
 
@@ -153,7 +158,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder add(final String value) {
+    public ArrayBuilder add(final String value) throws IllegalArgumentException {
         return addString(value);
     }
 
@@ -163,7 +168,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     @Override
     @Deprecated
     public ArrayBuilder add(final String databaseName,
-            final String collectionName, final ObjectId id) {
+            final String collectionName, final ObjectId id)
+            throws IllegalArgumentException {
         return addDBPointer(databaseName, collectionName, id);
     }
 
@@ -171,7 +177,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder addBinary(final byte subType, final byte[] value) {
+    public ArrayBuilder addBinary(final byte subType, final byte[] value)
+            throws IllegalArgumentException {
         myElements.add(new BinaryElement(nextIndex(), subType, value));
         return this;
     }
@@ -180,7 +187,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder addBinary(final byte[] value) {
+    public ArrayBuilder addBinary(final byte[] value)
+            throws IllegalArgumentException {
         myElements.add(new BinaryElement(nextIndex(), value));
         return this;
     }
@@ -200,7 +208,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     @Override
     @Deprecated
     public ArrayBuilder addDBPointer(final String databaseName,
-            final String collectionName, final ObjectId id) {
+            final String collectionName, final ObjectId id)
+            throws IllegalArgumentException {
         myElements.add(new com.allanbank.mongodb.bson.element.DBPointerElement(
                 nextIndex(), databaseName, collectionName, id));
         return this;
@@ -210,7 +219,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder addDocument(final DocumentAssignable document) {
+    public ArrayBuilder addDocument(final DocumentAssignable document)
+            throws IllegalArgumentException {
         myElements.add(new DocumentElement(nextIndex(), document.asDocument()));
         return this;
     }
@@ -237,7 +247,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder addJavaScript(final String code) {
+    public ArrayBuilder addJavaScript(final String code)
+            throws IllegalArgumentException {
         myElements.add(new JavaScriptElement(nextIndex(), code));
         return this;
     }
@@ -247,7 +258,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      */
     @Override
     public ArrayBuilder addJavaScript(final String code,
-            final DocumentAssignable scope) {
+            final DocumentAssignable scope) throws IllegalArgumentException {
         myElements.add(new JavaScriptWithScopeElement(nextIndex(), code, scope
                 .asDocument()));
         return this;
@@ -302,7 +313,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder addObjectId(final ObjectId id) {
+    public ArrayBuilder addObjectId(final ObjectId id)
+            throws IllegalArgumentException {
         myElements.add(new ObjectIdElement(nextIndex(), id));
         return this;
     }
@@ -311,7 +323,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder addRegularExpression(final Pattern pattern) {
+    public ArrayBuilder addRegularExpression(final Pattern pattern)
+            throws IllegalArgumentException {
         myElements.add(new RegularExpressionElement(nextIndex(), pattern));
         return this;
     }
@@ -321,7 +334,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      */
     @Override
     public ArrayBuilder addRegularExpression(final String pattern,
-            final String options) {
+            final String options) throws IllegalArgumentException {
         myElements.add(new RegularExpressionElement(nextIndex(), pattern,
                 options));
         return this;
@@ -331,7 +344,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder addString(final String value) {
+    public ArrayBuilder addString(final String value)
+            throws IllegalArgumentException {
         myElements.add(new StringElement(nextIndex(), value));
         return this;
     }
@@ -340,7 +354,8 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
-    public ArrayBuilder addSymbol(final String symbol) {
+    public ArrayBuilder addSymbol(final String symbol)
+            throws IllegalArgumentException {
         myElements.add(new SymbolElement(nextIndex(), symbol));
         return this;
     }

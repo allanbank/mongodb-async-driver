@@ -36,6 +36,8 @@ public class LongElement extends AbstractElement implements NumericElement {
      *            The name for the BSON long.
      * @param value
      *            The BSON integer value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public LongElement(final String name, final long value) {
         super(name);

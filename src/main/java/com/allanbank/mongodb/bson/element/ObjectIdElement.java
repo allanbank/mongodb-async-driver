@@ -38,11 +38,13 @@ public class ObjectIdElement extends AbstractElement {
      *            The name for the BSON Object Id.
      * @param id
      *            The object id.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code id} is <code>null</code>.
      */
     public ObjectIdElement(final String name, final ObjectId id) {
         super(name);
 
-        assert (id != null) : "The Object id cannot be null.";
+        assertNotNull(id, "ObjectId element's id cannot be null.");
 
         myId = id;
     }

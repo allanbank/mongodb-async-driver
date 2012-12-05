@@ -61,8 +61,7 @@ public class NullElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             objs1.add(new NullElement(name));
             objs2.add(new NullElement(name));
         }
@@ -102,6 +101,16 @@ public class NullElementTest {
 
         assertEquals("foo", element.getName());
         assertEquals(ElementType.NULL, element.getType());
+    }
+
+    /**
+     * Test method for {@link NullElement#NullElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new NullElement(null);
     }
 
     /**

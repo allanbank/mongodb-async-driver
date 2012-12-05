@@ -35,8 +35,12 @@ public abstract class AbstractElement implements Element {
      * 
      * @param name
      *            The name for the BSON type.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
-    public AbstractElement(final String name) {
+    public AbstractElement(final String name) throws IllegalArgumentException {
+        assertNotNull(name, "Cannot have an null name on an element.");
+
         myName = name;
     }
 
@@ -207,6 +211,24 @@ public abstract class AbstractElement implements Element {
     @Override
     public String toString() {
         return "AbstractElement [name=" + myName + ", type=" + getType() + "]";
+    }
+
+    /**
+     * Throws an {@link IllegalArgumentException} if the {@code value} is
+     * <code>null</code>.
+     * 
+     * @param value
+     *            The value to test.
+     * @param message
+     *            The message for the exception to throw.
+     * @throws IllegalArgumentException
+     *             In the case that the {@code value} is <code>null</code>.
+     */
+    protected final void assertNotNull(final Object value, final String message)
+            throws IllegalArgumentException {
+        if (value == null) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
     /**

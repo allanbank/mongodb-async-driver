@@ -35,9 +35,13 @@ public class StringElement extends AbstractElement {
      *            The name for the BSON string.
      * @param value
      *            The BSON string value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code value} is <code>null</code>.
      */
     public StringElement(final String name, final String value) {
         super(name);
+
+        assertNotNull(value, "String element's value cannot be null.");
 
         myValue = value;
     }

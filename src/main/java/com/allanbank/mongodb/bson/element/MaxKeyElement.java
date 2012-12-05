@@ -30,6 +30,8 @@ public class MaxKeyElement extends AbstractElement {
      * 
      * @param name
      *            The name for the BSON maximum key.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public MaxKeyElement(final String name) {
         super(name);

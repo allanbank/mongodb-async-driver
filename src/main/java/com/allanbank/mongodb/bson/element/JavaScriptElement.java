@@ -35,9 +35,15 @@ public class JavaScriptElement extends AbstractElement {
      *            The name for the BSON string.
      * @param javaScript
      *            The BSON JavaScript value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code javaScript} is
+     *             <code>null</code>.
      */
     public JavaScriptElement(final String name, final String javaScript) {
         super(name);
+
+        assertNotNull(javaScript,
+                "JavaScript element's code block cannot be null.");
 
         myJavaScript = javaScript;
 

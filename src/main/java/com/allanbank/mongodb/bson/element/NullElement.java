@@ -30,6 +30,8 @@ public class NullElement extends AbstractElement {
      * 
      * @param name
      *            The name for the BSON null.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public NullElement(final String name) {
         super(name);

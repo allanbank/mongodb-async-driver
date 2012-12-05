@@ -47,10 +47,19 @@ public class DBPointerElement extends AbstractElement {
      *            The name of the collection.
      * @param id
      *            The object id.
+     * @throws IllegalArgumentException
+     *             If the {@code name}, {@code dbName}, {@code collectionName},
+     *             or {@code id} is <code>null</code>.
      */
     public DBPointerElement(final String name, final String dbName,
             final String collectionName, final ObjectId id) {
         super(name);
+
+        assertNotNull(dbName,
+                "DBPointer element's database name cannot be null.");
+        assertNotNull(collectionName,
+                "DBPointer element's collection name cannot be null.");
+        assertNotNull(id, "DBPointer element's object id cannot be null.");
 
         myDatabaseName = dbName;
         myCollectionName = collectionName;

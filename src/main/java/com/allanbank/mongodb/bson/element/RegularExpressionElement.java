@@ -225,9 +225,12 @@ public class RegularExpressionElement extends AbstractElement {
      *            The name for the BSON string.
      * @param pattern
      *            The regular expression {@link Pattern}.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code pattern} is <code>null</code>.
      */
     public RegularExpressionElement(final String name, final Pattern pattern) {
-        this(name, pattern.pattern(), optionsAsInt(pattern));
+        this(name, (pattern != null) ? pattern.pattern() : null,
+                optionsAsInt(pattern));
     }
 
     /**
@@ -239,10 +242,15 @@ public class RegularExpressionElement extends AbstractElement {
      *            The BSON regular expression pattern.
      * @param options
      *            The BSON regular expression options.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code pattern} is <code>null</code>.
      */
     public RegularExpressionElement(final String name, final String pattern,
             final int options) {
         super(name);
+
+        assertNotNull(pattern,
+                "Regular Expression element's pattern cannot be null.");
 
         myPattern = pattern;
         myOptions = options;
@@ -257,6 +265,8 @@ public class RegularExpressionElement extends AbstractElement {
      *            The BSON regular expression pattern.
      * @param options
      *            The BSON regular expression options.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code pattern} is <code>null</code>.
      */
     public RegularExpressionElement(final String name, final String pattern,
             final String options) {

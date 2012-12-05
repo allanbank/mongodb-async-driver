@@ -66,8 +66,7 @@ public class MongoTimestampElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final long value = random.nextLong();
                 objs1.add(new MongoTimestampElement(name, value));
@@ -125,6 +124,16 @@ public class MongoTimestampElementTest {
         assertEquals("foo", element.getName());
         assertEquals(1010101, element.getTime(), 0.0001);
         assertEquals(ElementType.MONGO_TIMESTAMP, element.getType());
+    }
+
+    /**
+     * Test method for {@link MongoTimestampElement#MongoTimestampElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new MongoTimestampElement(null, 1);
     }
 
     /**

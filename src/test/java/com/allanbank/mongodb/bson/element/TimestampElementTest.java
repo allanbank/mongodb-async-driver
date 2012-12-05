@@ -63,8 +63,7 @@ public class TimestampElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final long value = random.nextLong();
                 objs1.add(new TimestampElement(name, value));
@@ -106,6 +105,16 @@ public class TimestampElementTest {
         final TimestampElement element = new TimestampElement("foo", 1010101);
 
         assertEquals(1010101L, element.getTime());
+    }
+
+    /**
+     * Test method for {@link TimestampElement#TimestampElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new TimestampElement(null, 1);
     }
 
     /**

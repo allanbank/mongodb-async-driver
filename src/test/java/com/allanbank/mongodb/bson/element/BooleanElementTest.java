@@ -74,8 +74,7 @@ public class BooleanElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             objs1.add(new BooleanElement(name, false));
             objs2.add(new BooleanElement(name, false));
             objs1.add(new BooleanElement(name, true));
@@ -106,6 +105,16 @@ public class BooleanElementTest {
             assertFalse(obj1.equals(null));
             assertFalse(obj1.equals(new MaxKeyElement(obj1.getName())));
         }
+    }
+
+    /**
+     * Test method for {@link BooleanElement#BooleanElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new BooleanElement(null, true);
     }
 
     /**

@@ -36,6 +36,8 @@ public class IntegerElement extends AbstractElement implements NumericElement {
      *            The name for the BSON integer.
      * @param value
      *            The BSON integer value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public IntegerElement(final String name, final int value) {
         super(name);

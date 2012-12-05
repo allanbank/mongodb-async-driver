@@ -47,8 +47,11 @@ public interface ArrayBuilder extends Builder {
      * @param data
      *            The binary value.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code data} is <code>null</code>.
      */
-    public ArrayBuilder add(byte subType, byte[] data);
+    public ArrayBuilder add(byte subType, byte[] data)
+            throws IllegalArgumentException;
 
     /**
      * Adds a binary element using sub-type zero (the default).
@@ -59,8 +62,10 @@ public interface ArrayBuilder extends Builder {
      * @param data
      *            The binary value.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code data} is <code>null</code>.
      */
-    public ArrayBuilder add(byte[] data);
+    public ArrayBuilder add(byte[] data) throws IllegalArgumentException;
 
     /**
      * Adds a timestamp element. The timestamp is the number of milliseconds
@@ -73,8 +78,10 @@ public interface ArrayBuilder extends Builder {
      * @param timestamp
      *            The number of milliseconds since the Unix epoch.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code timestamp} is <code>null</code>.
      */
-    public ArrayBuilder add(Date timestamp);
+    public ArrayBuilder add(Date timestamp) throws IllegalArgumentException;
 
     /**
      * Adds a pre-constructed document to the array.
@@ -86,8 +93,11 @@ public interface ArrayBuilder extends Builder {
      * @param document
      *            The document to add to the array.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code document} is <code>null</code>.
      */
-    public ArrayBuilder add(DocumentAssignable document);
+    public ArrayBuilder add(DocumentAssignable document)
+            throws IllegalArgumentException;
 
     /**
      * Adds a double element.
@@ -107,8 +117,11 @@ public interface ArrayBuilder extends Builder {
      * @param element
      *            The element to add.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code element} is <code>null</code>.
      */
-    public ArrayBuilder add(ElementAssignable element);
+    public ArrayBuilder add(ElementAssignable element)
+            throws IllegalArgumentException;
 
     /**
      * Adds a integer (32-bit signed) element.
@@ -143,8 +156,10 @@ public interface ArrayBuilder extends Builder {
      * @param id
      *            The ObjectId to add.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code id} is <code>null</code>.
      */
-    public ArrayBuilder add(ObjectId id);
+    public ArrayBuilder add(ObjectId id) throws IllegalArgumentException;
 
     /**
      * Adds an ObjectId element.
@@ -156,8 +171,10 @@ public interface ArrayBuilder extends Builder {
      * @param pattern
      *            The pattern for the regular expression.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code pattern} is <code>null</code>.
      */
-    public ArrayBuilder add(Pattern pattern);
+    public ArrayBuilder add(Pattern pattern) throws IllegalArgumentException;
 
     /**
      * Adds a string element.
@@ -168,8 +185,10 @@ public interface ArrayBuilder extends Builder {
      * @param value
      *            The string value.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code value} is <code>null</code>.
      */
-    public ArrayBuilder add(String value);
+    public ArrayBuilder add(String value) throws IllegalArgumentException;
 
     /**
      * Adds a deprecated DBPointer element.
@@ -185,12 +204,15 @@ public interface ArrayBuilder extends Builder {
      * @param id
      *            The id for the document.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code databaseName}, {@code collectionName}, or
+     *             {@code id} is <code>null</code>.
      * 
      * @deprecated See BSON specification.
      */
     @Deprecated
     public ArrayBuilder add(String databaseName, String collectionName,
-            ObjectId id);
+            ObjectId id) throws IllegalArgumentException;
 
     /**
      * Adds a binary element.
@@ -200,8 +222,11 @@ public interface ArrayBuilder extends Builder {
      * @param data
      *            The binary value.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code data} is <code>null</code>.
      */
-    public ArrayBuilder addBinary(byte subType, byte[] data);
+    public ArrayBuilder addBinary(byte subType, byte[] data)
+            throws IllegalArgumentException;
 
     /**
      * Adds a binary element using sub-type zero (the default).
@@ -209,8 +234,10 @@ public interface ArrayBuilder extends Builder {
      * @param data
      *            The binary value.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code data} is <code>null</code>.
      */
-    public ArrayBuilder addBinary(byte[] data);
+    public ArrayBuilder addBinary(byte[] data) throws IllegalArgumentException;
 
     /**
      * Adds a boolean element.
@@ -231,12 +258,15 @@ public interface ArrayBuilder extends Builder {
      * @param id
      *            The id for the document.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code databaseName}, {@code collectionName}, or
+     *             {@code id} is <code>null</code>.
      * 
      * @deprecated See BSON specification.
      */
     @Deprecated
     public ArrayBuilder addDBPointer(String databaseName,
-            String collectionName, ObjectId id);
+            String collectionName, ObjectId id) throws IllegalArgumentException;
 
     /**
      * Adds a pre-constructed document to the array.
@@ -244,8 +274,11 @@ public interface ArrayBuilder extends Builder {
      * @param document
      *            The document to add to the array.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code document} is <code>null</code>.
      */
-    public ArrayBuilder addDocument(DocumentAssignable document);
+    public ArrayBuilder addDocument(DocumentAssignable document)
+            throws IllegalArgumentException;
 
     /**
      * Adds a double element.
@@ -271,8 +304,11 @@ public interface ArrayBuilder extends Builder {
      * @param code
      *            The java script code.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code code} is <code>null</code>.
      */
-    public ArrayBuilder addJavaScript(String code);
+    public ArrayBuilder addJavaScript(String code)
+            throws IllegalArgumentException;
 
     /**
      * Adds a JavaScript with Scope element.
@@ -282,8 +318,11 @@ public interface ArrayBuilder extends Builder {
      * @param scope
      *            The scope for the JacaScript code.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code code} or {@code scope} is <code>null</code>.
      */
-    public ArrayBuilder addJavaScript(String code, DocumentAssignable scope);
+    public ArrayBuilder addJavaScript(String code, DocumentAssignable scope)
+            throws IllegalArgumentException;
 
     /**
      * Adds a long (64-bit signed) element.
@@ -330,8 +369,11 @@ public interface ArrayBuilder extends Builder {
      * @param id
      *            The ObjectId to add.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code id} is <code>null</code>.
      */
-    public ArrayBuilder addObjectId(ObjectId id);
+    public ArrayBuilder addObjectId(ObjectId id)
+            throws IllegalArgumentException;
 
     /**
      * Adds a regular expression element.
@@ -339,8 +381,11 @@ public interface ArrayBuilder extends Builder {
      * @param pattern
      *            The pattern for the regular expression.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code pattern} is <code>null</code>.
      */
-    public ArrayBuilder addRegularExpression(Pattern pattern);
+    public ArrayBuilder addRegularExpression(Pattern pattern)
+            throws IllegalArgumentException;
 
     /**
      * Adds a regular expression element.
@@ -349,10 +394,14 @@ public interface ArrayBuilder extends Builder {
      *            The pattern for the regular expression.
      * @param options
      *            The regular expression options. See the BSON specification for
-     *            details.
+     *            details. These may be <code>null</code>.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code pattern} is <code>null</code>. The options may be
+     *             <code>null</code>.
      */
-    public ArrayBuilder addRegularExpression(String pattern, String options);
+    public ArrayBuilder addRegularExpression(String pattern, String options)
+            throws IllegalArgumentException;
 
     /**
      * Adds a string element.
@@ -360,8 +409,10 @@ public interface ArrayBuilder extends Builder {
      * @param value
      *            The string value.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code value} is <code>null</code>.
      */
-    public ArrayBuilder addString(String value);
+    public ArrayBuilder addString(String value) throws IllegalArgumentException;
 
     /**
      * Adds a symbol element.
@@ -369,8 +420,11 @@ public interface ArrayBuilder extends Builder {
      * @param symbol
      *            The symbol value.
      * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If {@code symbol} is <code>null</code>.
      */
-    public ArrayBuilder addSymbol(String symbol);
+    public ArrayBuilder addSymbol(String symbol)
+            throws IllegalArgumentException;
 
     /**
      * Adds a timestamp element. The timestamp is the number of milliseconds

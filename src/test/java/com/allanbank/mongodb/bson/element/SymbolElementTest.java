@@ -63,15 +63,12 @@ public class SymbolElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final String value = "" + random.nextLong();
                 objs1.add(new SymbolElement(name, value));
                 objs2.add(new SymbolElement(name, value));
             }
-            objs1.add(new SymbolElement(name, null));
-            objs2.add(new SymbolElement(name, null));
         }
 
         // Sanity check.
@@ -121,6 +118,26 @@ public class SymbolElementTest {
         assertEquals("foo", element.getName());
         assertEquals("string", element.getSymbol());
         assertEquals(ElementType.SYMBOL, element.getType());
+    }
+
+    /**
+     * Test method for {@link SymbolElement#SymbolElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new SymbolElement(null, "s");
+    }
+
+    /**
+     * Test method for {@link SymbolElement#SymbolElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullValue() {
+
+        new SymbolElement("s", null);
     }
 
     /**

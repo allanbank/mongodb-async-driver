@@ -37,6 +37,8 @@ public class MongoTimestampElement extends AbstractElement {
      * @param value
      *            The BSON timestamp value as 4 byte increment and 4 byte
      *            timestamp.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public MongoTimestampElement(final String name, final long value) {
         super(name);
