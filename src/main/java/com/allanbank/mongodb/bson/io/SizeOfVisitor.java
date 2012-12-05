@@ -36,7 +36,6 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SizeOfVisitor implements Visitor {
-
     /** UTF-8 Character set for encoding strings. */
     public final static Charset UTF8 = Charset.forName("UTF-8");
 

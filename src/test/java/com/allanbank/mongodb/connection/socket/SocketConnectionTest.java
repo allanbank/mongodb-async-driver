@@ -53,6 +53,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.EndianUtils;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
@@ -67,6 +68,7 @@ import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
 import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
@@ -2332,6 +2334,13 @@ public class SocketConnectionTest {
         @Override
         public ReadPreference getReadPreference() {
             return ReadPreference.PRIMARY;
+        }
+
+        @Override
+        public void validateSize(final SizeOfVisitor visitor,
+                final int maxDocumentSize) throws DocumentToLargeException {
+            // TODO Auto-generated method stub
+
         }
 
         @Override

@@ -12,8 +12,10 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * Message received from the database in <a href=
@@ -280,6 +282,19 @@ public class Reply extends AbstractMessage {
      */
     public boolean isShardConfigStale() {
         return myShardConfigStale;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overrridden to be a no-op since we normally only receive a reply and
+     * don't care about the size.
+     * </p>
+     */
+    @Override
+    public void validateSize(final SizeOfVisitor visitor,
+            final int maxDocumentSize) throws DocumentToLargeException {
+        // Can't be too large.
     }
 
     /**

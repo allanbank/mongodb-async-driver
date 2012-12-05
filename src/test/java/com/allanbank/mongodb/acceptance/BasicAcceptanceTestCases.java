@@ -78,6 +78,8 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.builder.Sort;
+import com.allanbank.mongodb.client.Client;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
@@ -473,6 +475,33 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that we cannot send a command (count in this case) with a query
+     * that is over the maximum size.
+     */
+    @Test
+    public void testCountDocumentToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.countAsync(builder);
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+        }
+    }
+
+    /**
      * Verifies the ability to create a capped collection in the database.
      */
     @Test
@@ -604,6 +633,34 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         assertEquals(0, myCollection.count(BuilderFactory.start().build()));
 
+    }
+
+    /**
+     * Verifies that we cannot send a delete with a query that is over the
+     * maximum size.
+     */
+    @Test
+    public void testDeleteDocumentToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.deleteAsync(builder);
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+            assertEquals(builder.build(), dtle.getDocument());
+        }
     }
 
     /**
@@ -885,6 +942,33 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that we cannot send a document that is over the maximum size.
+     */
+    @Test
+    public void testInsertDocumentToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.insertAsync(builder.build());
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+            assertEquals(builder.build(), dtle.getDocument());
+        }
+    }
+
+    /**
      * Verifies the ability to list the collections for a database on the
      * server.
      */
@@ -1128,6 +1212,34 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
                 assertEquals(status, myDb.getProfilingStatus());
             }
+        }
+    }
+
+    /**
+     * Verifies that we cannot send a query document that is over the maximum
+     * size.
+     */
+    @Test
+    public void testQueryDocumentToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.findAsync(builder.build());
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+            assertEquals(builder.build(), dtle.getDocument());
         }
     }
 
@@ -5960,6 +6072,34 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that we cannot send a command (count in this case) with a query
+     * that is over the maximum size.
+     */
+    @Test
+    public void testUpdateDocumentToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.updateAsync(BuilderFactory.start(), builder);
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+            assertEquals(builder.build(), dtle.getDocument());
+        }
+    }
+
+    /**
      * Verifies the ability to update the collection options.
      */
     @Test
@@ -5990,6 +6130,34 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     "usePowerOf2Sizes", false));
             assertEquals(new BooleanElement("usePowerOf2Sizes_old", true),
                     result.get("usePowerOf2Sizes_old"));
+        }
+    }
+
+    /**
+     * Verifies that we cannot send a command (count in this case) with a query
+     * that is over the maximum size.
+     */
+    @Test
+    public void testUpdateQueryToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.updateAsync(builder, BuilderFactory.start());
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+            assertEquals(BuilderFactory.start().build(), dtle.getDocument());
         }
     }
 

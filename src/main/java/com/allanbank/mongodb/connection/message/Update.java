@@ -10,8 +10,10 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * Message to apply an <a href=
@@ -43,6 +45,11 @@ public class Update extends AbstractMessage {
 
     /** Flag bit for an upsert. */
     public static final int UPSERT_FLAG_BIT = 0x01;
+
+    /**
+     * The size of the message. If negative then the size has not been computed.
+     */
+    private int myMessageSize;
 
     /**
      * If true then all documents matching the query should be updated,
@@ -79,6 +86,8 @@ public class Update extends AbstractMessage {
 
         myUpsert = (flags & UPSERT_FLAG_BIT) == UPSERT_FLAG_BIT;
         myMultiUpdate = (flags & MULTIUPDATE_FLAG_BIT) == MULTIUPDATE_FLAG_BIT;
+
+        myMessageSize = -1;
     }
 
     /**
@@ -107,6 +116,7 @@ public class Update extends AbstractMessage {
         myUpdate = update;
         myMultiUpdate = multiUpdate;
         myUpsert = upsert;
+        myMessageSize = -1;
     }
 
     /**
@@ -190,6 +200,35 @@ public class Update extends AbstractMessage {
      */
     public boolean isUpsert() {
         return myUpsert;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to ensure the inserted documents are not too large in
+     * aggregate.
+     * </p>
+     */
+    @Override
+    public void validateSize(final SizeOfVisitor visitor,
+            final int maxDocumentSize) throws DocumentToLargeException {
+        if (myMessageSize < 0) {
+            visitor.reset();
+
+            if (myQuery != null) {
+                myQuery.accept(visitor);
+            }
+            if (myUpdate != null) {
+                myUpdate.accept(visitor);
+            }
+
+            myMessageSize = visitor.getSize();
+        }
+
+        if (maxDocumentSize < myMessageSize) {
+            throw new DocumentToLargeException(myMessageSize, maxDocumentSize,
+                    myUpdate);
+        }
     }
 
     /**

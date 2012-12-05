@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
@@ -375,15 +376,18 @@ public class ClusterPinger implements Runnable, Closeable {
                 }
             }
             catch (final ExecutionException e) {
-                LOG.info("Could not ping '" + addr + "': " + e.getMessage());
+                LOG.log(Level.INFO,
+                        "Could not ping '" + addr + "': " + e.getMessage(), e);
             }
             catch (final TimeoutException e) {
-                LOG.info("'" + addr + "' might be a zombie - not receiving "
-                        + "a response to ping: " + e.getMessage());
+                LOG.log(Level.INFO, "'" + addr
+                        + "' might be a zombie - not receiving "
+                        + "a response to ping: " + e.getMessage(), e);
             }
             catch (final InterruptedException e) {
-                LOG.info("Interrupted pinging '" + addr + "': "
-                        + e.getMessage());
+                LOG.log(Level.INFO,
+                        "Interrupted pinging '" + addr + "': " + e.getMessage(),
+                        e);
             }
 
             return false;

@@ -10,8 +10,10 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * Message to <a href=
@@ -80,6 +82,11 @@ public class Query extends AbstractMessage {
     /** The maximum number of documents to be returned. */
     private final int myLimit;
 
+    /**
+     * The size of the message. If negative then the size has not been computed.
+     */
+    private int myMessageSize;
+
     /** If true, marks the cursor as not having a timeout. */
     private final boolean myNoCursorTimeout;
 
@@ -145,6 +152,7 @@ public class Query extends AbstractMessage {
 
         myLimit = 0;
         myBatchSize = 0;
+        myMessageSize = -1;
     }
 
     /**
@@ -201,6 +209,7 @@ public class Query extends AbstractMessage {
         myAwaitData = awaitData;
         myExhaust = exhaust;
         myPartial = partial;
+        myMessageSize = -1;
 
         if (isBatchSizeSet()) {
             if (isLimitSet() && (myLimit <= myBatchSize)) {
@@ -401,6 +410,35 @@ public class Query extends AbstractMessage {
      */
     public boolean isTailable() {
         return myTailable;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to ensure the inserted documents are not too large in
+     * aggregate.
+     * </p>
+     */
+    @Override
+    public void validateSize(final SizeOfVisitor visitor,
+            final int maxDocumentSize) throws DocumentToLargeException {
+        if (myMessageSize < 0) {
+            visitor.reset();
+
+            if (myQuery != null) {
+                myQuery.accept(visitor);
+            }
+            if (myReturnFields != null) {
+                myReturnFields.accept(visitor);
+            }
+
+            myMessageSize = visitor.getSize();
+        }
+
+        if (maxDocumentSize < myMessageSize) {
+            throw new DocumentToLargeException(myMessageSize, maxDocumentSize,
+                    myQuery);
+        }
     }
 
     /**

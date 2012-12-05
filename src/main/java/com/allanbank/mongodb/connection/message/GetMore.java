@@ -9,8 +9,10 @@ import java.io.IOException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * Message to <a href=
@@ -135,6 +137,18 @@ public class GetMore extends AbstractMessage {
         result = (31 * result) + (int) myCursorId;
         result = (31 * result) + myNumberToReturn;
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overrridden to be a no-op since the size of a GetMore is fixed.
+     * </p>
+     */
+    @Override
+    public void validateSize(final SizeOfVisitor visitor,
+            final int maxDocumentSize) throws DocumentToLargeException {
+        // Can't be too large.
     }
 
     /**

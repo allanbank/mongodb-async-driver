@@ -23,6 +23,12 @@ import com.allanbank.mongodb.connection.message.Reply;
  */
 public interface Client {
     /**
+     * The absolute maximum size for a BSON document supported by all versions
+     * of MongoDB servers: 16MiB ({@value} ).
+     */
+    public static final int MAX_DOCUMENT_SIZE = 16 * 1024 * 1024;
+
+    /**
      * Closes the client.
      */
     public void close();
