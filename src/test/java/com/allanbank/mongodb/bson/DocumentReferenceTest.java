@@ -78,6 +78,26 @@ public class DocumentReferenceTest {
 
     /**
      * Test method for
+     * {@link DocumentReference#DocumentReference(String, Element)} .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testDocumentReferenceStringElementWithNullCollectionNameThrows() {
+        new DocumentReference(null, new IntegerElement("a", 1));
+    }
+
+    /**
+     * Test method for
+     * {@link DocumentReference#DocumentReference(String, Element)} .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testDocumentReferenceStringElementWithNullIdThrows() {
+        new DocumentReference("c", null);
+    }
+
+    /**
+     * Test method for
      * {@link DocumentReference#DocumentReference(String, String, Element)} .
      */
     @Test

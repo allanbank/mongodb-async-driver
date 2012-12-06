@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.bson;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
@@ -54,6 +56,9 @@ public class DocumentReference implements DocumentAssignable {
      * @param id
      *            The id of the document being referenced. The name of the
      *            element is ignored within the {@link DocumentReference}.
+     * @throws IllegalArgumentException
+     *             If the {@code collectionName} or {@code id} are
+     *             <code>null</code>.
      */
     public DocumentReference(final String collectionName, final Element id) {
         this(null, collectionName, id);
@@ -69,9 +74,18 @@ public class DocumentReference implements DocumentAssignable {
      * @param id
      *            The id of the document being referenced. The name of the
      *            element is ignored within the {@link DocumentReference}.
+     * @throws IllegalArgumentException
+     *             If the {@code collectionName} or {@code id} are
+     *             <code>null</code>.
      */
     public DocumentReference(final String databaseName,
             final String collectionName, final Element id) {
+
+        assertNotNull(collectionName,
+                "The collection name of a Document Reference (DBRef) cannot be null.");
+        assertNotNull(id,
+                "The id of a Document Reference (DBRef) cannot be null.");
+
         myDatabaseName = databaseName;
         myCollectionName = collectionName;
         myId = id;
