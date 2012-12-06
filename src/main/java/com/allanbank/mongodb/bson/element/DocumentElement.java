@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

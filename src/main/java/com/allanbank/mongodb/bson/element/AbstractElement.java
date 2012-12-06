@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -211,24 +213,6 @@ public abstract class AbstractElement implements Element {
     @Override
     public String toString() {
         return "AbstractElement [name=" + myName + ", type=" + getType() + "]";
-    }
-
-    /**
-     * Throws an {@link IllegalArgumentException} if the {@code value} is
-     * <code>null</code>.
-     * 
-     * @param value
-     *            The value to test.
-     * @param message
-     *            The message for the exception to throw.
-     * @throws IllegalArgumentException
-     *             In the case that the {@code value} is <code>null</code>.
-     */
-    protected final void assertNotNull(final Object value, final String message)
-            throws IllegalArgumentException {
-        if (value == null) {
-            throw new IllegalArgumentException(message);
-        }
     }
 
     /**

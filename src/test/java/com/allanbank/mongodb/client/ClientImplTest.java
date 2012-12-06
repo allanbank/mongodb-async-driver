@@ -364,7 +364,7 @@ public class ClientImplTest {
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
         // We trigger the connection failure.
-        SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
+        final SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
         strategy.setConfig(myConfig);
         strategy.setSelector(new ServerSelector() {
 
