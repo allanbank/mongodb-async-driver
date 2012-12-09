@@ -12,7 +12,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * DocumentReference provides a standard MongoDB reference to a document within
- * a collection. This is commonly refered to as a DBRef.
+ * a collection. This is commonly referred to as a DBRef.
  * <p>
  * A DocumentReference contains:
  * <ol>
@@ -26,10 +26,10 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * @see <a
  *      href="http://docs.mongodb.org/manual/applications/database-references/#dbref">MongoDB
  *      DBRef Information</a>
- * @api.yes This class is part of the driver's API. Public and protected
- *          members will be deprecated for at least 1 non-bugfix release
- *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
- *          before being removed or modified.
+ * @api.yes This class is part of the driver's API. Public and protected members
+ *          will be deprecated for at least 1 non-bugfix release (version
+ *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
+ *          removed or modified.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DocumentReference implements DocumentAssignable {
@@ -64,7 +64,8 @@ public class DocumentReference implements DocumentAssignable {
      *             If the {@code collectionName} or {@code id} are
      *             <code>null</code>.
      */
-    public DocumentReference(final String collectionName, final Element id) {
+    public DocumentReference(final String collectionName, final Element id)
+            throws IllegalArgumentException {
         this(null, collectionName, id);
     }
 
@@ -83,7 +84,8 @@ public class DocumentReference implements DocumentAssignable {
      *             <code>null</code>.
      */
     public DocumentReference(final String databaseName,
-            final String collectionName, final Element id) {
+            final String collectionName, final Element id)
+            throws IllegalArgumentException {
 
         assertNotNull(collectionName,
                 "The collection name of a Document Reference (DBRef) cannot be null.");

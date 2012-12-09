@@ -86,8 +86,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             pipeline.add(e);
         }
 
+        // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(builder,
-                command.getReadPreference());
+                command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
@@ -111,8 +112,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         builder.addString("count", getName());
         builder.addDocument("query", query.asDocument());
 
+        // Should be last since might wrap command in a $query element.
         final ReadPreference finalPreference = updateReadPreference(builder,
-                readPreference);
+                readPreference, true);
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), finalPreference);
@@ -200,8 +202,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             builder.addDocument("query", command.getQuery());
         }
 
+        // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(builder,
-                command.getReadPreference());
+                command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
@@ -434,8 +437,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             groupDocBuilder.addDocument("cond", command.getQuery());
         }
 
+        // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(
-                groupDocBuilder, command.getReadPreference());
+                groupDocBuilder, command.getReadPreference(), false);
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
@@ -575,8 +579,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
         }
 
+        // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(builder,
-                command.getReadPreference());
+                command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
@@ -695,11 +700,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      *            preferences if connected to a sharded cluster.
      * @param commandReadPreference
      *            The read preferences from the command.
+     * @param createQueryElement
+     *            If true then the existing builder's contents will be pushed
+     *            into a $query sub-document. This is required to ensure the
+     *            command is not rejected by the {@code mongod} after processing
+     *            by the {@code mongos}.
      * @return The {@link ReadPreference} to use.
      */
     protected ReadPreference updateReadPreference(
             final DocumentBuilder builder,
-            final ReadPreference commandReadPreference) {
+            final ReadPreference commandReadPreference,
+            final boolean createQueryElement) {
 
         ReadPreference readPreference = commandReadPreference;
         if (readPreference == null) {
@@ -708,6 +719,11 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         if (!readPreference.isLegacy()
                 && (myClient.getClusterType() == ClusterType.SHARDED)) {
+            if (createQueryElement) {
+                final Document query = builder.asDocument();
+                builder.reset();
+                builder.add("$query", query);
+            }
             builder.add(ReadPreference.FIELD_NAME, readPreference);
         }
 

@@ -233,8 +233,9 @@ public class MongoCollectionImplTest {
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("aggregate", "test");
-        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+        final DocumentBuilder queryBuilder = expectedCommand.push("$query");
+        queryBuilder.addString("aggregate", "test");
+        queryBuilder.pushArray("pipeline").push().addInteger("$limit", 5);
         expectedCommand.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_PRIMARY);
 
@@ -562,8 +563,9 @@ public class MongoCollectionImplTest {
                 .build();
         final Document doc = BuilderFactory.start().build();
 
-        final DocumentBuilder commandDoc = BuilderFactory.start()
-                .addString("count", "test").addDocument("query", doc);
+        final DocumentBuilder commandDoc = BuilderFactory.start();
+        commandDoc.push("$query").addString("count", "test")
+                .addDocument("query", doc);
         commandDoc.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_SECONDARY);
         final Command command = new Command("test", commandDoc.build(),
@@ -1413,8 +1415,8 @@ public class MongoCollectionImplTest {
 
         final Callback<ArrayElement> mockCountCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("distinct", "test");
-        expectedCommand.addString("key", "foo");
+        expectedCommand.push("$query").addString("distinct", "test")
+                .addString("key", "foo");
         expectedCommand.add(ReadPreference.FIELD_NAME, ReadPreference.CLOSEST);
 
         final Command message = new Command("test", expectedCommand.build(),
@@ -3651,10 +3653,9 @@ public class MongoCollectionImplTest {
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("mapreduce", "test");
-        expectedCommand.addJavaScript("map", "map");
-        expectedCommand.addJavaScript("reduce", "reduce");
-        expectedCommand.push("out").addString("replace", "out")
+        expectedCommand.push("$query").addString("mapreduce", "test")
+                .addJavaScript("map", "map").addJavaScript("reduce", "reduce")
+                .push("out").addString("replace", "out")
                 .addString("db", "out_db");
         expectedCommand.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_PRIMARY);
