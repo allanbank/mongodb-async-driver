@@ -5,13 +5,19 @@
 
 package com.allanbank.mongodb.acceptance;
 
+import static org.junit.Assert.assertEquals;
+
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.error.ConnectionLostException;
 
 /**
  * BasicAcceptanceTestCases performs acceptance tests for the driver against a
@@ -57,6 +63,60 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
     }
 
     /**
+     * Tests the handling of a mongos server getting shutdown.
+     */
+    @Test
+    public void testSuddenFailureHandling() {
+        myConfig.setAutoDiscoverServers(true);
+        myConfig.setMaxConnectionCount(1);
+        myConfig.setReconnectTimeout(60000);
+
+        // Make sure the collection/db exist and we are connected.
+        myCollection.insert(BuilderFactory.start().build());
+
+        assertEquals(Arrays.asList(TEST_DB_NAME, "config"),
+                myMongo.listDatabases());
+
+        try {
+            // Stop the main mongos.
+            final ProcessBuilder builder = new ProcessBuilder("pkill", "-f",
+                    "27017");
+            final Process kill = builder.start();
+            kill.waitFor();
+
+            // Quick command that should then fail.
+            myMongo.listDatabases();
+
+            // ... but its OK if it misses getting out before the Process dies.
+        }
+        catch (final ConnectionLostException cle) {
+            // Good.
+        }
+        catch (final Exception e) {
+            final AssertionError error = new AssertionError(e.getMessage());
+            error.initCause(e);
+            throw error;
+        }
+
+        try {
+            Thread.sleep(1000);
+
+            // Should switch to the other shards.
+            myMongo.listDatabases();
+        }
+        catch (final Exception e) {
+            final AssertionError error = new AssertionError(e.getMessage());
+            error.initCause(e);
+            throw error;
+        }
+        finally {
+            // Make sure the server is restarted for the other tests.
+            // disconnect();
+            startServer();
+        }
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to return true.
@@ -66,57 +126,4 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
     protected boolean isShardedConfiguration() {
         return true;
     }
-
-    /**
-     * Tests the handling of a mongos server getting shutdown.
-     */
-    // @Test
-    // public void testSuddenFailureHandling() {
-    // myConfig.setAutoDiscoverServers(true);
-    // myConfig.setMaxConnectionCount(1);
-    // myConfig.setReconnectTimeout(60000);
-    //
-    // // Make sure the collection/db exist and we are connected.
-    // myCollection.insert(BuilderFactory.start().build());
-    //
-    // assertEquals(Arrays.asList(TEST_DB_NAME, "config"),
-    // myMongo.listDatabases());
-    //
-    // try {
-    // // Stop the main mongos.
-    // ourBuilder.command("pkill", "-f", "27017");
-    // final Process kill = ourBuilder.start();
-    // kill.waitFor();
-    //
-    // // Quick command that should then fail.
-    // myMongo.listDatabases();
-    //
-    // // ... but its OK if it misses getting out before the Process dies.
-    // }
-    // catch (final ConnectionLostException cle) {
-    // // Good.
-    // }
-    // catch (final Exception e) {
-    // final AssertionError error = new AssertionError(e.getMessage());
-    // error.initCause(e);
-    // throw error;
-    // }
-    //
-    // try {
-    // Thread.sleep(1000);
-    //
-    // // Should switch to the other shards.
-    // myMongo.listDatabases();
-    // }
-    // catch (final Exception e) {
-    // final AssertionError error = new AssertionError(e.getMessage());
-    // error.initCause(e);
-    // throw error;
-    // }
-    // finally {
-    // // Make sure the server is restarted for the other tests.
-    // // disconnect();
-    // startServer();
-    // }
-    // }
 }

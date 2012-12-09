@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.performance;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoFactory;
+import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -43,17 +43,10 @@ import com.mongodb.WriteConcern;
  * 
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class PerformanceITest {
-
-    /** A builder for executing background process scripts. */
-    private static ProcessBuilder ourBuilder = null;
-
+public class PerformanceITest extends ServerTestDriverSupport {
     /** The URI to use to connect to the server. */
     private static InetSocketAddress ourMongoServerUri = new InetSocketAddress(
             "127.0.0.1", 27017);
-
-    /** The directory containing the scripts. */
-    private static final File SCRIPT_DIR = new File("src/test/scripts");
 
     /**
      * Starts the MongoDB server for the test.
@@ -65,20 +58,13 @@ public class PerformanceITest {
      */
     @BeforeClass
     public static void startServer() throws IOException, InterruptedException {
-        ourBuilder = new ProcessBuilder();
-        ourBuilder.directory(SCRIPT_DIR);
-
         String uri = System.getProperty("mongodb.server.uri");
         if (uri == null) {
             uri = System.getenv("mongodb.server.uri");
         }
 
         if (uri == null) {
-            ourBuilder.command(
-                    new File(SCRIPT_DIR, "standalone.sh").getAbsolutePath(),
-                    "start");
-            final Process start = ourBuilder.start();
-            start.waitFor();
+            startStandAlone();
         }
         else {
             final int colon = uri.indexOf(':');
@@ -102,21 +88,7 @@ public class PerformanceITest {
      */
     @AfterClass
     public static void stopServer() throws IOException, InterruptedException {
-        Process stop = null;
-        try {
-            ourBuilder.command(
-                    new File(SCRIPT_DIR, "standalone.sh").getAbsolutePath(),
-                    "stop");
-            stop = ourBuilder.start();
-            stop.waitFor();
-        }
-        catch (final IOException ioe) {
-            // Ignore - best effort.
-        }
-        catch (final InterruptedException e) {
-            // Ignore - best effort.
-        }
-        ourBuilder = null;
+        stopStandAlone();
     }
 
     /** The asynchronous collection instance. */
