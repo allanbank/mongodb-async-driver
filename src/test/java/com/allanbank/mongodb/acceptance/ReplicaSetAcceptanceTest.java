@@ -311,7 +311,8 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
 
         try {
             // Stop the main shard.
-            ProcessBuilder builder = new ProcessBuilder("pkill", "-f", "27018");
+            final ProcessBuilder builder = new ProcessBuilder("pkill", "-f",
+                    "27018");
             final Process kill = builder.start();
             kill.waitFor();
 

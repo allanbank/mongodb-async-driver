@@ -14,6 +14,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -37,6 +38,7 @@ import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.PendingMessageQueue;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.message.ReplyHandler;
 import com.allanbank.mongodb.connection.message.Update;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.error.ConnectionLostException;
@@ -61,6 +63,9 @@ public class SocketConnection implements Connection {
     /** The logger for the {@link SocketConnection}. */
     protected static final Logger LOG = Logger.getLogger(SocketConnection.class
             .getCanonicalName());
+
+    /** The executor for the responses. */
+    protected final Executor myExecutor;
 
     /** Holds if the connection is open. */
     protected final AtomicBoolean myOpen;
@@ -117,6 +122,7 @@ public class SocketConnection implements Connection {
             final MongoDbConfiguration config) throws SocketException,
             IOException {
 
+        myExecutor = config.getExecutor();
         myServer = server;
         myEventSupport = new PropertyChangeSupport(this);
         myOpen = new AtomicBoolean(false);
@@ -275,13 +281,13 @@ public class SocketConnection implements Connection {
         final PendingMessage message = new PendingMessage();
         if (notifyToBeSent) {
             while (myToSendQueue.poll(message)) {
-                message.raiseError(exception);
+                raiseError(exception, message.getReplyCallback());
             }
         }
 
         // Now the pending.
         while (myPendingQueue.poll(message)) {
-            message.raiseError(exception);
+            raiseError(exception, message.getReplyCallback());
         }
     }
 
@@ -460,7 +466,7 @@ public class SocketConnection implements Connection {
             // Have to assume all of the requests have failed that are pending.
             final PendingMessage message = new PendingMessage();
             while (myPendingQueue.poll(message)) {
-                message.raiseError(error);
+                raiseError(error, message.getReplyCallback());
             }
 
             closeQuietly();
@@ -482,6 +488,19 @@ public class SocketConnection implements Connection {
     protected void doSend(final int messageId, final Message message)
             throws IOException {
         message.write(messageId, myBsonOut);
+    }
+
+    /**
+     * Updates to raise an error on the callback, if any.
+     * 
+     * @param exception
+     *            The thrown exception.
+     * @param replyCallback
+     *            The callback for the reply to the message.
+     */
+    protected void raiseError(final Throwable exception,
+            final Callback<Reply> replyCallback) {
+        ReplyHandler.raiseError(exception, replyCallback, myExecutor);
     }
 
     /**
@@ -519,6 +538,18 @@ public class SocketConnection implements Connection {
             throw new EOFException();
         }
         return result;
+    }
+
+    /**
+     * Updates to set the reply for the callback, if any.
+     * 
+     * @param reply
+     *            The reply.
+     * @param replyCallback
+     *            The callback for the reply to the message.
+     */
+    protected void reply(final Reply reply, final Callback<Reply> replyCallback) {
+        ReplyHandler.reply(reply, replyCallback, myExecutor);
     }
 
     /**
@@ -654,7 +685,8 @@ public class SocketConnection implements Connection {
                     while (took && (myPendingMessage.getMessageId() != replyId)) {
 
                         // Note that this message will not get a reply.
-                        myPendingMessage.raiseError(NO_REPLY);
+                        raiseError(NO_REPLY,
+                                myPendingMessage.getReplyCallback());
 
                         // Keep looking.
                         took = myPendingQueue.poll(myPendingMessage);
@@ -662,7 +694,7 @@ public class SocketConnection implements Connection {
 
                     if (took) {
                         // Must be the pending message's reply.
-                        myPendingMessage.reply(reply);
+                        reply(reply, myPendingMessage.getReplyCallback());
                     }
                     else {
                         LOG.warning("Could not find the callback for reply '"
@@ -715,23 +747,23 @@ public class SocketConnection implements Connection {
                     catch (final InterruptedException ie) {
                         // Handled by loop but if we have a message, need to
                         // tell him something bad happened (but we shouldn't).
-                        myPendingMessage.raiseError(ie);
+                        raiseError(ie, myPendingMessage.getReplyCallback());
                     }
                     catch (final IOException ioe) {
                         LOG.log(Level.WARNING, "I/O Error sending a message.",
                                 ioe);
-                        myPendingMessage.raiseError(ioe);
+                        raiseError(ioe, myPendingMessage.getReplyCallback());
                         sawError = true;
                     }
                     catch (final RuntimeException re) {
                         LOG.log(Level.WARNING,
                                 "Runtime error sending a message.", re);
-                        myPendingMessage.raiseError(re);
+                        raiseError(re, myPendingMessage.getReplyCallback());
                         sawError = true;
                     }
                     catch (final Error error) {
                         LOG.log(Level.SEVERE, "Error sending a message.", error);
-                        myPendingMessage.raiseError(error);
+                        raiseError(error, myPendingMessage.getReplyCallback());
                         sawError = true;
                     }
                     finally {

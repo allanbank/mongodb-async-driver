@@ -23,6 +23,9 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+
 /**
  * DurabilityTest provides tests for the {@link Durability} class.
  * 
@@ -31,8 +34,73 @@ import org.junit.Test;
 public class DurabilityTest {
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.Durability#equals(java.lang.Object)}.
+     * Test method for {@link Durability#asDocument()}.
+     */
+    @Test
+    public void testAsDocument() {
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("getlasterror", 1);
+        // This is really bogus but reasonable
+        assertEquals(builder.asDocument(), Durability.NONE.asDocument());
+
+        builder.reset();
+        builder.add("getlasterror", 1);
+        assertEquals(builder.asDocument(), Durability.ACK.asDocument());
+
+        builder.reset();
+        builder.add("getlasterror", 1);
+        builder.add("fsync", true);
+        builder.add("wtimeout", 123);
+        assertEquals(builder.asDocument(), Durability.fsyncDurable(123)
+                .asDocument());
+
+        builder.reset();
+        builder.add("getlasterror", 1);
+        builder.add("j", true);
+        builder.add("wtimeout", 124);
+        assertEquals(builder.asDocument(), Durability.journalDurable(124)
+                .asDocument());
+
+        builder.reset();
+        builder.add("getlasterror", 1);
+        builder.add("wtimeout", 125);
+        builder.add("w", 1);
+        assertEquals(builder.asDocument(), Durability.replicaDurable(125)
+                .asDocument());
+
+        builder.reset();
+        builder.add("getlasterror", 1);
+        builder.add("wtimeout", 126);
+        builder.add("w", 3);
+        assertEquals(builder.asDocument(), Durability.replicaDurable(3, 126)
+                .asDocument());
+
+        builder.reset();
+        builder.add("getlasterror", 1);
+        builder.add("wtimeout", 127);
+        builder.add("w", "foo");
+        assertEquals(builder.asDocument(), Durability
+                .replicaDurable("foo", 127).asDocument());
+
+        builder.reset();
+        builder.add("getlasterror", 1);
+        builder.add("j", true);
+        builder.add("wtimeout", 128);
+        builder.add("w", "bar");
+        assertEquals(builder.asDocument(),
+                Durability.replicaDurable(true, "bar", 128).asDocument());
+
+        builder.reset();
+        builder.add("getlasterror", 1);
+        builder.add("j", true);
+        builder.add("wtimeout", 129);
+        builder.add("w", 4);
+        assertEquals(builder.asDocument(),
+                Durability.replicaDurable(true, 4, 129).asDocument());
+    }
+
+    /**
+     * Test method for {@link Durability#equals(java.lang.Object)}.
      */
     @SuppressWarnings("boxing")
     @Test
@@ -96,8 +164,7 @@ public class DurabilityTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.Durability#fsyncDurable(int)}.
+     * Test method for {@link Durability#fsyncDurable(int)}.
      */
     @Test
     public void testFsyncDurable() {
@@ -115,8 +182,7 @@ public class DurabilityTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.Durability#journalDurable(int)}.
+     * Test method for {@link Durability#journalDurable(int)}.
      */
     @Test
     public void testJournalDurable() {
@@ -134,7 +200,7 @@ public class DurabilityTest {
     }
 
     /**
-     * Test method for {@link com.allanbank.mongodb.Durability#readResolve} .
+     * Test method for {@link Durability#readResolve} .
      * 
      * @throws IOException
      *             On a failure.
@@ -173,9 +239,7 @@ public class DurabilityTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.Durability#replicaDurable(boolean, int, int)}
-     * .
+     * Test method for {@link Durability#replicaDurable(boolean, int, int)} .
      */
     @Test
     public void testReplicaDurableBooleanIntInt() {
@@ -196,9 +260,7 @@ public class DurabilityTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.Durability#replicaDurable(boolean, String, int)}
-     * .
+     * Test method for {@link Durability#replicaDurable(boolean, String, int)} .
      */
     @Test
     public void testReplicaDurableBooleanStringInt() {
@@ -219,8 +281,7 @@ public class DurabilityTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.Durability#replicaDurable(int)}.
+     * Test method for {@link Durability#replicaDurable(int)}.
      */
     @Test
     public void testReplicaDurableInt() {
@@ -239,8 +300,7 @@ public class DurabilityTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.Durability#replicaDurable(int, int)}.
+     * Test method for {@link Durability#replicaDurable(int, int)}.
      */
     @Test
     public void testReplicaDurableIntInt() {
@@ -260,8 +320,7 @@ public class DurabilityTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.Durability#replicaDurable(String, int)}.
+     * Test method for {@link Durability#replicaDurable(String, int)}.
      */
     @Test
     public void testReplicaDurableStringInt() {
@@ -277,5 +336,44 @@ public class DurabilityTest {
         assertEquals(wait, durability.getWaitTimeoutMillis());
         assertEquals(0, durability.getWaitForReplicas());
         assertEquals(tag, durability.getWaitForReplicasByMode());
+    }
+
+    /**
+     * Test method for {@link Durability#valueOf(String)}.
+     */
+    @Test
+    public void testValueOf() {
+
+        assertSame(Durability.ACK, Durability.valueOf("AcK"));
+        assertSame(Durability.ACK, Durability.valueOf("sAfe"));
+        assertSame(Durability.NONE, Durability.valueOf("NoNe"));
+
+        assertEquals(Durability.replicaDurable(true, 4, 129),
+                Durability.valueOf("{ j : true, wtimeout : 129, w : 4 }"));
+        assertEquals(
+                Durability.replicaDurable(true, "bar", 128),
+                Durability
+                        .valueOf("{ getlasterror : 1, j : true, wtimeout : 128, w : 'bar' }"));
+        assertEquals(
+                Durability.replicaDurable(true, "bar", 128),
+                Durability
+                        .valueOf("{ getlasterror : 1, j : 1, wtimeout : 128, w : bar }"));
+        assertEquals(
+                Durability.replicaDurable("foo", 127),
+                Durability
+                        .valueOf("{ getlasterror : 1, wtimeout : 127, w : 'foo' }"));
+        assertEquals(Durability.replicaDurable(3, 126),
+                Durability
+                        .valueOf("{ getlasterror : 1, wtimeout : 126, w : 3 }"));
+        assertEquals(Durability.replicaDurable(125),
+                Durability.valueOf("{ wtimeout : 125, w : 1 }"));
+        assertEquals(Durability.journalDurable(124),
+                Durability.valueOf("{ wtimeout : 124, j : 1 }"));
+        assertEquals(Durability.fsyncDurable(123),
+                Durability.valueOf("{ wtimeout : 123, fsync : 1 }"));
+
+        assertNull(Durability.valueOf("{ wtimeout : 'a', fsync : 1 }"));
+        assertNull(Durability.valueOf("{ foo : 1 }"));
+        assertNull(Durability.valueOf("foo"));
     }
 }

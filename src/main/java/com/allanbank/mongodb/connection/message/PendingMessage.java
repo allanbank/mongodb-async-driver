@@ -103,30 +103,6 @@ public class PendingMessage {
     }
 
     /**
-     * Raises an error in the callback, if any.
-     * 
-     * @param exception
-     *            The thrown exception.
-     */
-    public void raiseError(final Throwable exception) {
-        if (myReplyCallback != null) {
-            myReplyCallback.exception(exception);
-        }
-    }
-
-    /**
-     * Sets the reply for the callback, if any.
-     * 
-     * @param reply
-     *            The reply.
-     */
-    public void reply(final Reply reply) {
-        if (myReplyCallback != null) {
-            myReplyCallback.callback(reply);
-        }
-    }
-
-    /**
      * Sets the state of the pending message.
      * 
      * @param messageId

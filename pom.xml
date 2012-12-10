@@ -1,9 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.allanbank</groupId>
 	<artifactId>mongodb-async-driver</artifactId>
 	<version>1.0.3-SNAPSHOT</version>
-
 	<name>mongodb-async-driver</name>
 	<description>Asynchronous driver for connecting to MongoDB from Java.</description>
 
@@ -17,18 +17,18 @@
 		<license>
 			<name>Commercial</name>
 			<comments>
-				Contact the project team members.
-			</comments>
+                Contact the project team members.
+            </comments>
 		</license>
 		<license>
 			<name>Attribution-NonCommercial 3.0 Unported</name>
 			<url>http://creativecommons.org/licenses/by-nc/3.0/legalcode</url>
 			<comments><![CDATA[
-			    * For non-profit organizations, students, universities, public schools and 
-				  non-commercial applications.
-				* For all other use cases and organization you may develop and test applications 
-				  under the Attribution-NonCommercial 3.0 Unported license
-			]]></comments>
+                * For non-profit organizations, students, universities, public schools and 
+                  non-commercial applications.
+                * For all other use cases and organization you may develop and test applications 
+                  under the Attribution-NonCommercial 3.0 Unported license
+            ]]></comments>
 		</license>
 	</licenses>
 	<developers>
@@ -44,9 +44,9 @@
 	<scm>
 		<url>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</url>
 		<connection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</connection>
+		<tag>master</tag>
 		<developerConnection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+	</scm>
 	<distributionManagement>
 		<repository>
 			<id>allanbank_ftp</id>
@@ -108,6 +108,11 @@
 					<version>2.5.1</version>
 				</plugin>
 				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>javacc-maven-plugin</artifactId>
+					<version>2.6</version>
+				</plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
 					<version>2.7</version>
@@ -146,6 +151,44 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.12.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>cobertura-maven-plugin</artifactId>
+					<version>2.5.1</version>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>
+											javacc-maven-plugin
+										</artifactId>
+										<versionRange>
+											[2.6,)
+										</versionRange>
+										<goals>
+											<goal>javacc</goal>
+											<goal>jjtree-javacc</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -225,6 +268,47 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>javacc-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>javacc</id>
+						<goals>
+							<goal>javacc</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<configuration>
+					<instrumentation>
+						<ignores>
+							<ignore>com.allanbank.mongodb.bson.json.JavaCharStream</ignore>
+							<ignore>com.allanbank.mongodb.bson.json.ParseException</ignore>
+							<ignore>com.allanbank.mongodb.bson.json.Token</ignore>
+							<ignore>com.allanbank.mongodb.bson.json.TokenMgrError</ignore>
+							<ignore>com.allanbank.mongodb.bson.json.JsonParserConstants</ignore>
+							<ignore>com.allanbank.mongodb.bson.json.JsonParserTokenManager</ignore>
+							<ignore>com.allanbank.mongodb.bson.json.JsonParser</ignore>
+						</ignores>
+						<excludes>
+							<!-- Exclude Javacc generated boiler-plate code. -->
+							<exclude>com/allanbank/mongodb/bson/json/JavaCharStream.class</exclude>
+							<exclude>com/allanbank/mongodb/bson/json/ParseException.class</exclude>
+							<exclude>com/allanbank/mongodb/bson/json/Token.class</exclude>
+							<exclude>com/allanbank/mongodb/bson/json/TokenMgrError.class</exclude>
+
+							<!-- Exclude Javacc generated parser specific code. -->
+							<exclude>com/allanbank/mongodb/bson/json/JsonParserConstants.class</exclude>
+							<exclude>com/allanbank/mongodb/bson/json/JsonParserTokenManager.class</exclude>
+							<exclude>com/allanbank/mongodb/bson/json/JsonParser.class</exclude>
+						</excludes>
+					</instrumentation>
+				</configuration>
+			</plugin>
 		</plugins>
 		<extensions>
 			<extension>
@@ -266,22 +350,22 @@
 						</tag>
 					</tags>
 					<header>
-					<![CDATA[
-						<script type="text/javascript">
-							var _gaq = _gaq || [];
-							_gaq.push(['_setAccount', 'UA-33634837-1']);
-							_gaq.push(['_trackPageview']);
-							(function() {
-							 var ga = document.createElement('script'); 
-							 ga.type = 'text/javascript'; 
-							 ga.async = true;
-							 ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
-							'http://www') + '.google-analytics.com/ga.js';
-							 var s = document.getElementsByTagName('script')[0];
-							 s.parentNode.insertBefore(ga, s);
-							})();
-						</script>
-					]]>
+                    <![CDATA[
+                        <script type="text/javascript">
+                            var _gaq = _gaq || [];
+                            _gaq.push(['_setAccount', 'UA-33634837-1']);
+                            _gaq.push(['_trackPageview']);
+                            (function() {
+                             var ga = document.createElement('script'); 
+                             ga.type = 'text/javascript'; 
+                             ga.async = true;
+                             ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
+                            'http://www') + '.google-analytics.com/ga.js';
+                             var s = document.getElementsByTagName('script')[0];
+                             s.parentNode.insertBefore(ga, s);
+                            })();
+                        </script>
+                    ]]>
 					</header>
 				</configuration>
 				<reportSets>
