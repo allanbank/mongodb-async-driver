@@ -101,6 +101,9 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder add(final String name, final byte[] data)
             throws IllegalArgumentException {
+        if (data == null) {
+            return addNull(name);
+        }
         return addBinary(name, data);
     }
 
@@ -110,6 +113,9 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder add(final String name, final Date timestamp)
             throws IllegalArgumentException {
+        if (timestamp == null) {
+            return addNull(name);
+        }
         return addTimestamp(name, timestamp.getTime());
     }
 
@@ -119,6 +125,9 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder add(final String name,
             final DocumentAssignable document) throws IllegalArgumentException {
+        if (document == null) {
+            return addNull(name);
+        }
         return addDocument(name, document);
     }
 
@@ -155,6 +164,9 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder add(final String name, final ObjectId id)
             throws IllegalArgumentException {
+        if (id == null) {
+            return addNull(name);
+        }
         return addObjectId(name, id);
     }
 
@@ -164,6 +176,9 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder add(final String name, final Pattern pattern)
             throws IllegalArgumentException {
+        if (pattern == null) {
+            return addNull(name);
+        }
         return addRegularExpression(name, pattern);
     }
 
@@ -173,6 +188,9 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder add(final String name, final String value)
             throws IllegalArgumentException {
+        if (value == null) {
+            return addNull(name);
+        }
         return addString(name, value);
     }
 

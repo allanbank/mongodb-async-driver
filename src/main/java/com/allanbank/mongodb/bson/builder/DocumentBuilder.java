@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.ElementAssignable;
+import com.allanbank.mongodb.bson.element.NullElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
@@ -75,8 +76,9 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
     /**
      * Adds a binary element using sub-type zero (the default).
      * <p>
-     * This is a equivalent to {@link #addBinary(String,byte[])} but less
-     * verbose.
+     * This is a equivalent to {@link #addBinary(String,byte[])} but will insert
+     * a {@link NullElement} if the {@code data} is <code>null</code> instead of
+     * throwing an {@link IllegalArgumentException}.
      * </p>
      * 
      * @param name
@@ -85,7 +87,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      *            The binary value.
      * @return This {@link DocumentBuilder} for method chaining.
      * @throws IllegalArgumentException
-     *             If the {@code name} or {@code data} is <code>null</code>.
+     *             If the {@code name} is <code>null</code>.
      */
     public DocumentBuilder add(String name, byte[] data)
             throws IllegalArgumentException;
@@ -95,7 +97,9 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * since the Unix epoch.
      * <p>
      * This is a equivalent to {@link #addTimestamp(String,long)
-     * addTimeStamp(timestamp.getTime())} but less verbose.
+     * addTimeStamp(timestamp.getTime())} but will insert a {@link NullElement}
+     * if the {@code timestamp} is <code>null</code> instead of throwing an
+     * {@link IllegalArgumentException}.
      * </p>
      * 
      * @param name
@@ -104,8 +108,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      *            The number of milliseconds since the Unix epoch.
      * @return This {@link DocumentBuilder} for method chaining.
      * @throws IllegalArgumentException
-     *             If the {@code name} or {@code timestamp} is <code>null</code>
-     *             .
+     *             If the {@code name} is <code>null</code>.
      */
     public DocumentBuilder add(String name, Date timestamp)
             throws IllegalArgumentException;
@@ -114,7 +117,9 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * Adds a pre-constructed document to the array.
      * <p>
      * This is a equivalent to {@link #addDocument(String,DocumentAssignable)}
-     * but less verbose.
+     * but will insert a {@link NullElement} if the {@code document} is
+     * <code>null</code> instead of throwing an {@link IllegalArgumentException}
+     * .
      * </p>
      * 
      * @param name
@@ -123,7 +128,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      *            The document to add to the array.
      * @return This {@link DocumentBuilder} for method chaining.
      * @throws IllegalArgumentException
-     *             If the {@code name} or {@code document} is <code>null</code>.
+     *             If the {@code name} is <code>null</code>.
      */
     public DocumentBuilder add(String name, DocumentAssignable document)
             throws IllegalArgumentException;
@@ -183,8 +188,9 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
     /**
      * Adds an ObjectId element.
      * <p>
-     * This is a equivalent to {@link #addObjectId(String,ObjectId)} but less
-     * verbose.
+     * This is a equivalent to {@link #addObjectId(String,ObjectId)} but will
+     * insert a {@link NullElement} if the {@code id} is <code>null</code>
+     * instead of throwing an {@link IllegalArgumentException}.
      * </p>
      * 
      * @param name
@@ -202,7 +208,9 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * Adds an ObjectId element.
      * <p>
      * This is a equivalent to {@link #addRegularExpression(String,Pattern)} but
-     * less verbose.
+     * will insert a {@link NullElement} if the {@code pattern} is
+     * <code>null</code> instead of throwing an {@link IllegalArgumentException}
+     * .
      * </p>
      * 
      * @param name
@@ -211,7 +219,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      *            The pattern for the regular expression.
      * @return This {@link DocumentBuilder} for method chaining.
      * @throws IllegalArgumentException
-     *             If the {@code name} or {@code pattern} is <code>null</code>.
+     *             If the {@code name} is <code>null</code>.
      */
     public DocumentBuilder add(String name, Pattern pattern)
             throws IllegalArgumentException;
@@ -219,8 +227,9 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
     /**
      * Adds a string element.
      * <p>
-     * This is a equivalent to {@link #addString(String,String)} but less
-     * verbose.
+     * This is a equivalent to {@link #addString(String,String)} but will insert
+     * a {@link NullElement} if the {@code value} is <code>null</code> instead
+     * of throwing an {@link IllegalArgumentException}.
      * </p>
      * 
      * @param name
@@ -229,7 +238,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      *            The string value.
      * @return This {@link DocumentBuilder} for method chaining.
      * @throws IllegalArgumentException
-     *             If the {@code name} or {@code value} is <code>null</code>.
+     *             If the {@code name} is <code>null</code>.
      */
     public DocumentBuilder add(String name, String value)
             throws IllegalArgumentException;
