@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
+import com.allanbank.mongodb.bson.element.NullElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
@@ -56,48 +57,46 @@ public interface ArrayBuilder extends Builder {
     /**
      * Adds a binary element using sub-type zero (the default).
      * <p>
-     * This is a equivalent to {@link #addBinary(byte[])} but less verbose.
+     * This is a equivalent to {@link #addBinary(byte[])} but will insert a
+     * {@link NullElement} if the {@code data} is <code>null</code> instead of
+     * throwing an {@link IllegalArgumentException}.
      * </p>
      * 
      * @param data
      *            The binary value.
      * @return This {@link ArrayBuilder} for method chaining.
-     * @throws IllegalArgumentException
-     *             If {@code data} is <code>null</code>.
      */
-    public ArrayBuilder add(byte[] data) throws IllegalArgumentException;
+    public ArrayBuilder add(byte[] data);
 
     /**
      * Adds a timestamp element. The timestamp is the number of milliseconds
      * since the Unix epoch.
      * <p>
      * This is a equivalent to {@link #addTimestamp(long)
-     * addTimeStamp(timestamp.getTime())} but less verbose.
+     * addTimeStamp(timestamp.getTime())} but will insert a {@link NullElement}
+     * if the {@code timestamp} is <code>null</code> instead of throwing an
+     * {@link IllegalArgumentException}.
      * </p>
      * 
      * @param timestamp
      *            The number of milliseconds since the Unix epoch.
      * @return This {@link ArrayBuilder} for method chaining.
-     * @throws IllegalArgumentException
-     *             If {@code timestamp} is <code>null</code>.
      */
-    public ArrayBuilder add(Date timestamp) throws IllegalArgumentException;
+    public ArrayBuilder add(Date timestamp);
 
     /**
      * Adds a pre-constructed document to the array.
      * <p>
-     * This is a equivalent to {@link #addDocument(DocumentAssignable)} but less
-     * verbose.
+     * This is a equivalent to {@link #addDocument(DocumentAssignable)} but will
+     * insert a {@link NullElement} if the {@code document} is <code>null</code>
+     * instead of throwing an {@link IllegalArgumentException}.
      * </p>
      * 
      * @param document
      *            The document to add to the array.
      * @return This {@link ArrayBuilder} for method chaining.
-     * @throws IllegalArgumentException
-     *             If {@code document} is <code>null</code>.
      */
-    public ArrayBuilder add(DocumentAssignable document)
-            throws IllegalArgumentException;
+    public ArrayBuilder add(DocumentAssignable document);
 
     /**
      * Adds a double element.
@@ -150,45 +149,44 @@ public interface ArrayBuilder extends Builder {
     /**
      * Adds an ObjectId element.
      * <p>
-     * This is a equivalent to {@link #addObjectId(ObjectId)} but less verbose.
+     * This is a equivalent to {@link #addObjectId(ObjectId)} but will insert a
+     * {@link NullElement} if the {@code id} is <code>null</code> instead of
+     * throwing an {@link IllegalArgumentException}.
      * </p>
      * 
      * @param id
      *            The ObjectId to add.
      * @return This {@link ArrayBuilder} for method chaining.
-     * @throws IllegalArgumentException
-     *             If {@code id} is <code>null</code>.
      */
-    public ArrayBuilder add(ObjectId id) throws IllegalArgumentException;
+    public ArrayBuilder add(ObjectId id);
 
     /**
      * Adds an ObjectId element.
      * <p>
-     * This is a equivalent to {@link #addRegularExpression(Pattern)} but less
-     * verbose.
+     * This is a equivalent to {@link #addRegularExpression(Pattern)} but will
+     * insert a {@link NullElement} if the {@code pattern} is <code>null</code>
+     * instead of throwing an {@link IllegalArgumentException}.
      * </p>
      * 
      * @param pattern
      *            The pattern for the regular expression.
      * @return This {@link ArrayBuilder} for method chaining.
-     * @throws IllegalArgumentException
-     *             If {@code pattern} is <code>null</code>.
      */
-    public ArrayBuilder add(Pattern pattern) throws IllegalArgumentException;
+    public ArrayBuilder add(Pattern pattern);
 
     /**
      * Adds a string element.
      * <p>
-     * This is a equivalent to {@link #addString(String)} but less verbose.
+     * This is a equivalent to {@link #addString(String)} but will insert a
+     * {@link NullElement} if the {@code value} is <code>null</code> instead of
+     * throwing an {@link IllegalArgumentException}.
      * </p>
      * 
      * @param value
      *            The string value.
      * @return This {@link ArrayBuilder} for method chaining.
-     * @throws IllegalArgumentException
-     *             If {@code value} is <code>null</code>.
      */
-    public ArrayBuilder add(String value) throws IllegalArgumentException;
+    public ArrayBuilder add(String value);
 
     /**
      * Adds a deprecated DBPointer element.
@@ -230,6 +228,12 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a binary element using sub-type zero (the default).
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code data} is <code>null</code>. If you would prefer a
+     * {@link NullElement} be inserted in the document use the
+     * {@link #add(byte[])} method instead.
+     * </p>
      * 
      * @param data
      *            The binary value.
@@ -270,6 +274,12 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a pre-constructed document to the array.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code document} is <code>null</code>. If you would prefer a
+     * {@link NullElement} be inserted in the document use the
+     * {@link #add(DocumentAssignable)} method instead.
+     * </p>
      * 
      * @param document
      *            The document to add to the array.
@@ -365,6 +375,11 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds an ObjectId element.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the {@code id}
+     * is <code>null</code>. If you would prefer a {@link NullElement} be
+     * inserted in the document use the {@link #add(ObjectId)} method instead.
+     * </p>
      * 
      * @param id
      *            The ObjectId to add.
@@ -377,6 +392,12 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a regular expression element.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code pattern} is <code>null</code>. If you would prefer a
+     * {@link NullElement} be inserted in the document use the
+     * {@link #add(Pattern)} method instead.
+     * </p>
      * 
      * @param pattern
      *            The pattern for the regular expression.
@@ -405,6 +426,12 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a string element.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code value} is <code>null</code>. If you would prefer a
+     * {@link NullElement} be inserted in the document use the
+     * {@link #add(String)} method instead.
+     * </p>
      * 
      * @param value
      *            The string value.

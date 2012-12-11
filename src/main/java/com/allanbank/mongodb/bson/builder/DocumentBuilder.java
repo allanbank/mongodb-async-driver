@@ -287,6 +287,12 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a binary element using sub-type zero (the default).
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code data} is <code>null</code>. If you would prefer a
+     * {@link NullElement} be inserted in the document use the
+     * {@link #add(String, byte[])} method instead.
+     * </p>
      * 
      * @param name
      *            The name of the element.
@@ -338,6 +344,12 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
     /**
      * Adds a pre-built document element. Can also {@link #push(String)} a sub
      * document.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code value} is <code>null</code>. If you would prefer a
+     * {@link NullElement} be inserted in the document use the
+     * {@link #add(String, DocumentAssignable)} method instead.
+     * </p>
      * 
      * @param name
      *            The name of the element.
@@ -474,6 +486,12 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds an ObjectId element.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the {@code id}
+     * is <code>null</code>. If you would prefer a {@link NullElement} be
+     * inserted in the document use the {@link #add(String, ObjectId)} method
+     * instead.
+     * </p>
      * 
      * @param name
      *            The name of the element.
@@ -488,6 +506,12 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a regular expression element.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code pattern} is <code>null</code>. If you would prefer a
+     * {@link NullElement} be inserted in the document use the
+     * {@link #add(String, Pattern)} method instead.
+     * </p>
      * 
      * @param name
      *            The name of the element.
@@ -520,6 +544,12 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a string element.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code value} is <code>null</code>. If you would prefer a
+     * {@link NullElement} be inserted in the document use the
+     * {@link #add(String, String)} method instead.
+     * </p>
      * 
      * @param name
      *            The name of the element.
