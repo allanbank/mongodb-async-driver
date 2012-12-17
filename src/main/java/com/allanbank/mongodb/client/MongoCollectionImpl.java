@@ -353,9 +353,10 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final Query queryMessage = new Query(getDatabaseName(), myName,
                 queryDoc, query.getReturnFields(), query.getBatchSize(),
                 query.getLimit(), query.getNumberToSkip(),
-                false /* tailable */, readPreference,
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, query.isPartialOk());
+                query.isTailable() /* tailable */, readPreference,
+                false /* noCursorTimeout */,
+                query.isTailable() /* awaitData */, false /* exhaust */,
+                query.isPartialOk());
 
         final QueryCallback callback = new QueryCallback(myClient,
                 queryMessage, results);

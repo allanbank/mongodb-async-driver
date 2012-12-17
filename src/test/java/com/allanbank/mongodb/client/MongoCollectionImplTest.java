@@ -2122,6 +2122,46 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test method for {@link AbstractMongoCollection#findAsync(Find)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testFindAsyncFindTailable() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                true, ReadPreference.SECONDARY, false, true, false, false);
+
+        final Find.Builder findBuilder = new Find.Builder(doc);
+        findBuilder.setReadPreference(ReadPreference.SECONDARY);
+        findBuilder.tailable();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Future<ClosableIterator<Document>> future = myTestInstance
+                .findAsync(findBuilder.build());
+        final ClosableIterator<Document> iter = future.get();
+        assertTrue(iter.hasNext());
+        assertSame(result1, iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(result2, iter.next());
+        assertFalse(iter.hasNext());
+
+        verify();
+    }
+
+    /**
      * Test method for {@link AbstractMongoCollection#find(DocumentAssignable)}
      * .
      */

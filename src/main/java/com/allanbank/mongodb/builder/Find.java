@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import com.allanbank.mongodb.ClosableIterator;
+import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -59,6 +61,9 @@ public class Find {
     /** The fields to order the document by. */
     private final Document mySort;
 
+    /** If set to true the cursur returned from the query will be tailable. */
+    private final boolean myTailable;
+
     /**
      * Creates a new Find.
      * 
@@ -77,6 +82,7 @@ public class Find {
         myReturnFields = builder.myReturnFields;
         mySnapshot = builder.mySnapshot;
         mySort = builder.mySort;
+        myTailable = builder.myTailable;
     }
 
     /**
@@ -184,6 +190,19 @@ public class Find {
      */
     public boolean isSnapshot() {
         return mySnapshot;
+    }
+
+    /**
+     * Returns true if the cursur returned from the query will be tailable,
+     * false otherwise.
+     * 
+     * @return True if the cursur returned from the query will be tailable,
+     *         false otherwise.
+     * @see Builder#setTailable(boolean) Find.Builder.setTailable(boolean) for
+     *      important usage information.
+     */
+    public boolean isTailable() {
+        return myTailable;
     }
 
     /**
@@ -296,6 +315,9 @@ public class Find {
         /** The fields to order the document on. */
         protected Document mySort;
 
+        /** If set to true the cursur returned from the query will be tailable. */
+        protected boolean myTailable;
+
         /**
          * Creates a new Builder.
          */
@@ -350,6 +372,7 @@ public class Find {
             myReturnFields = null;
             mySnapshot = false;
             mySort = null;
+            myTailable = false;
 
             return this;
         }
@@ -575,6 +598,38 @@ public class Find {
         }
 
         /**
+         * If set to true the cursur returned from the query will be tailable.
+         * <p>
+         * Testing has shown that a tailable cursor on an empty collection will
+         * not setup a cursor on the MongoDB server and will immediately return
+         * false from {@link ClosableIterator#hasNext()}.
+         * </p>
+         * <p>
+         * When using a tailable cursor that has exhausted the available data
+         * will cause the {@link ClosableIterator#hasNext()} calls to block
+         * until more data is available. The connection that is used to request
+         * more documents will also be blocked for short intervals (measured to
+         * be ~2.25 seconds with 2.0.7). Any requests submitted behind the
+         * cursors request will also be blocked.
+         * </p>
+         * <p>
+         * It is highly recommended that the number of connections within the
+         * {@link MongoDbConfiguration} be at least 1 more than the maximum
+         * number of active tailable cursors.
+         * </p>
+         * 
+         * @param tailable
+         *            The new value for if the cursur returned from the query
+         *            will be tailable.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setTailable(final boolean tailable) {
+            myTailable = tailable;
+
+            return this;
+        }
+
+        /**
          * Sets that the query should ensure that documents are only returned
          * once.
          * 
@@ -582,6 +637,17 @@ public class Find {
          */
         public Builder snapshot() {
             return setSnapshot(true);
+        }
+
+        /**
+         * Sets the the cursur returned from the query to be tailable.
+         * 
+         * @return This builder for chaining method calls.
+         * @see #setTailable(boolean) setTailable(boolean) for important usage
+         *      information.
+         */
+        public Builder tailable() {
+            return setTailable(true);
         }
     }
 }

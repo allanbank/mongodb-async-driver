@@ -45,6 +45,7 @@ public class FindTest {
         builder.setPartialOk(true);
         builder.setReadPreference(ReadPreference.CLOSEST);
         builder.setSort(sort);
+        builder.tailable();
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
@@ -58,8 +59,10 @@ public class FindTest {
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
+        assertTrue(request.isTailable());
 
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        builder.setTailable(false);
 
         request = builder.build();
         assertSame(query, request.getQuery());
@@ -72,6 +75,7 @@ public class FindTest {
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
+        assertFalse(request.isTailable());
     }
 
     /**
@@ -94,6 +98,7 @@ public class FindTest {
         assertNull(request.getHint());
         assertNull(request.getHintName());
         assertFalse(request.isSnapshot());
+        assertFalse(request.isTailable());
 
         assertEquals(request.getQuery(), request.toQueryRequest(false));
         assertEquals(

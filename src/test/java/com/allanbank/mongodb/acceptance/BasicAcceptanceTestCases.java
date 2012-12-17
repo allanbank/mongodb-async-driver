@@ -113,6 +113,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /** The name of the test database to use. */
     public static final String TEST_DB_NAME = "acceptance_test";
 
+    /** A unique value to add to each collection name to ensure test isolation. */
+    protected static int ourUniqueId = 0;
+
     /** The default collection for the test. */
     protected MongoCollection myCollection = null;
 
@@ -143,7 +146,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myMongo = MongoFactory.create(myConfig);
         myDb = myMongo.getDatabase(TEST_DB_NAME);
-        myCollection = myDb.getCollection(TEST_COLLECTION_NAME);
+        myCollection = myDb.getCollection(TEST_COLLECTION_NAME + "_"
+                + (++ourUniqueId));
 
         myRandom = new Random(System.currentTimeMillis());
     }
@@ -718,11 +722,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        assertTrue(myDb.listCollections().contains(TEST_COLLECTION_NAME));
+        assertTrue(myDb.listCollections().contains(myCollection.getName()));
 
         myCollection.drop();
 
-        assertFalse(myDb.listCollections().contains(TEST_COLLECTION_NAME));
+        assertFalse(myDb.listCollections().contains(myCollection.getName()));
     }
 
     /**
@@ -979,7 +983,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         final Collection<String> names = myDb.listCollections();
 
-        assertTrue(names.contains(TEST_COLLECTION_NAME));
+        assertTrue(names.contains(myCollection.getName()));
         assertTrue(names.contains("system.indexes"));
     }
 
@@ -989,9 +993,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testListDatabases() {
         // Make sure the collection/db exist.
-        myCollection.insert(BuilderFactory.start().build());
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
+        final List<String> names = myMongo.listDatabases();
+
+        assertTrue(
+                "Missing the '" + TEST_DB_NAME + "' database name: " + names,
+                names.contains(TEST_DB_NAME));
     }
 
     /**
@@ -6241,7 +6249,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     protected MongoCollection getGeoCollection() {
         if (myGeoCollection == null) {
-            myGeoCollection = myDb.getCollection(GEO_TEST_COLLECTION_NAME);
+            myGeoCollection = myDb.getCollection(GEO_TEST_COLLECTION_NAME + "_"
+                    + (++ourUniqueId));
             myGeoCollection.createIndex(Sort.geo2d("p"));
         }
         return myGeoCollection;
