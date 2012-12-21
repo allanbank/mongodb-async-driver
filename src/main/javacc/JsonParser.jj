@@ -17,18 +17,22 @@ PARSER_BEGIN(JsonParser)
  */
 package com.allanbank.mongodb.bson.json;
 
-
-import java.io.StringReader;
 import java.io.Reader;
-
-import java.util.List;
+import java.io.StringReader;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.bson.io.EndianUtils;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * Parser for JSON documents.  This parser does not handle functions or complex expressions.
@@ -52,36 +56,189 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
+@SuppressWarnings({ "unused", "javadoc" })
 /* package */ class JsonParser {
+    /** The default time zone. */
+    public static final TimeZone UTC = TimeZone.getTimeZone("UTC");
+
+    /** The time formats accepted/parsed. */
+    private static final String[] DATE_FORMATS = new String[] {
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ", "yyyy-MM-dd'T'HH:mm:ssZ",
+            "yyyy-MM-dd'T'HH:mmZ", "yyyy-MM-dd'T'HH:mm:ss.SSS",
+            "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd'T'HH:mm",
+            "yyyy-MM-dd HH:mm:ss.SSSZ", "yyyy-MM-dd HH:mm:ssZ",
+            "yyyy-MM-dd HH:mmZ", "yyyy-MM-dd HH:mm:ss.SSS",
+            "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM-dd", };
 
     /**
-     * Create a new JsonParser. 
+     * Create a new JsonParser.
      */
     public JsonParser() {
         this(new StringReader(""));
     }
-    
+
     /**
      * Parses the current source of data.
-     *
-     * @param text The text JSON to parse.
+     * 
+     * @param text
+     *            The text JSON to parse.
      * @return The Document or list of documents parsed.
+     * @throws ParseException
+     *             On a failure to parse the JSON document.
      */
-    public Object parse(String text)  throws ParseException {
+    public Object parse(final String text) throws ParseException {
         ReInit(new StringReader(text));
         return parse();
     }
-      
+
     /**
      * Parses the current source of data.
-     *
-     * @param reader The text JSON to parse.
+     * 
+     * @param reader
+     *            The text JSON to parse.
      * @return The Document or list of documents parsed.
+     * @throws ParseException
+     *             On a failure to parse the JSON document.
      */
-    public Object parse(Reader reader)  throws ParseException {
+    public Object parse(final Reader reader) throws ParseException {
         ReInit(reader);
         return parse();
-    }    
+    }
+
+    /**
+     * Converts the Base64 string to a binary array.
+     * 
+     * @param base64
+     *            The Base64 encoded bytes.
+     * @return The decoded bytes.
+     * @throws ParseException
+     *             On a failure to decodee the binary.
+     */
+    private byte[] toBinary(final String base64) throws ParseException {
+        try {
+            return IOUtils.base64ToBytes(base64);
+        }
+        catch (final IllegalArgumentException iae) {
+            final ParseException pe = new ParseException(iae.getMessage());
+            pe.initCause(iae);
+            throw pe;
+        }
+    }
+
+    /**
+     * Parses the ISO date string into a long field.
+     * 
+     * @param timeStamp
+     *            The timestamp string.
+     * @return The Date for the time string.
+     * @throws ParseException
+     *             On a failure to parse the date string.
+     */
+    private Date toDate(final String timeStamp) throws ParseException {
+
+        for (final String format : DATE_FORMATS) {
+            final SimpleDateFormat f = new SimpleDateFormat(format);
+            f.setTimeZone(UTC);
+            try {
+                return f.parse(timeStamp);
+            }
+            catch (final java.text.ParseException pe) {
+                // Ignore. Try the next.
+            }
+        }
+
+        throw new ParseException("Could not parse the time string '"
+                + timeStamp + "'.");
+    }
+
+    /**
+     * Converts the timestamp and increment into a MongoTimestamp Long value..
+     * 
+     * @param timestamp
+     *            The Mongo timestamp value (seconds since UNIX Epoch).
+     * @param increment
+     *            The increment for the Mongo Timestamp.
+     * @return The MongoTimestamp long value.
+     * @throws ParseException
+     *             On a failure to decodee the timestamp integers.
+     */
+    private long toMongoTimestamp(final String timestamp, final String increment)
+            throws ParseException {
+        long value = 0;
+
+        try {
+            value = (Long.parseLong(timestamp) & 0xFFFFFFFF);
+            value <<= Integer.SIZE;
+            value += (Long.parseLong(increment) & 0xFFFFFFFF);
+        }
+        catch (final NumberFormatException nfe) {
+            final ParseException pe = new ParseException(nfe.getMessage());
+            pe.initCause(nfe);
+            throw pe;
+        }
+        return value;
+    }
+
+    /**
+     * Creates a ObjectId from the hex binary representation.
+     * 
+     * @param hexBytes
+     *            The hex bytes for the ObjectId.
+     * @return The ObjectId.
+     * @throws ParseException
+     *             On a failure to decode the hex binary into an ObjectId.
+     */
+    private ObjectId toObjectId(final String hexBytes) throws ParseException {
+        int timestamp = 0;
+        long machineId = 0;
+
+        try {
+            final byte[] bytes = IOUtils.hexToBytes(hexBytes);
+
+            if (bytes.length != 12) {
+                throw new ParseException(
+                        "Invalid ObjectId value.  Must be a 24 character hex string.");
+            }
+
+            for (int i = 0; i < 4; ++i) {
+                int value = (bytes[i] & 0xFF);
+                value <<= (Byte.SIZE * i);
+                timestamp += value;
+            }
+
+            for (int i = 4; i < 12; ++i) {
+                long value = (bytes[i] & 0xFF);
+                value <<= (Byte.SIZE * (i - 4));
+                machineId += value;
+            }
+        }
+        catch (final IllegalArgumentException iae) {
+            final ParseException pe = new ParseException(iae.getMessage());
+            pe.initCause(iae);
+            throw pe;
+        }
+        return new ObjectId(EndianUtils.swap(timestamp), EndianUtils.swap(machineId));
+    }
+
+    /**
+     * Trims the quotes from the string.
+     * 
+     * @param string
+     *            The string to trim the quotes from.
+     * @return The string without the quotes.
+     */
+    private String trimQuotes(final String string) {
+        if( ! string.isEmpty() ) {
+            final int length = string.length();
+            final char first = string.charAt(0);
+            final char last = string.charAt( length - 1 );
+            if( (first == last) && ( (first == '"') || (first == '\'') ) ) {            
+                return string.substring(1, length - 1);
+            }
+        }
+        
+        return string;
+    }
 }
 PARSER_END(JsonParser)
 
@@ -165,6 +322,15 @@ TOKEN : {
 TOKEN : {
     < HEX_DIGIT : [ "0"-"9" ] | [ "a"-"f" ] | [ "A"-"F" ] >
 }
+
+/* Extension Object types. */
+TOKEN : {
+        <TOKEN_BINDATA: "BinData">
+     |  <TOKEN_ISODATE: "ISODate">
+     |  <TOKEN_NUMBERLONG: "NumberLong">
+     |  <TOKEN_OBJECTID: "ObjectId">
+     |  <TOKEN_TIMESTAMP: "Timestamp">
+}        
 
 /* Identifiers */
 TOKEN : {
@@ -389,14 +555,15 @@ protected Object parse() : {
  * Parse a JSON document.
  */
 private Document document(DocumentBuilder builder) : {
-    if( builder == null ) {
-        builder = BuilderFactory.start();
+    DocumentBuilder b = builder;
+    if( b == null ) {
+        b = BuilderFactory.start();
     }
 }
 {
-    ( <TOKEN_OPEN_BRACE> ( members(builder) )? <TOKEN_CLOSE_BRACE> )
+    ( <TOKEN_OPEN_BRACE> ( members(b) )? <TOKEN_CLOSE_BRACE> )
     {
-        return builder.build();
+        return b.build();
     }
 }
 
@@ -404,14 +571,15 @@ private Document document(DocumentBuilder builder) : {
  * Parse a JSON array.
  */
 private List<Element> array(ArrayBuilder builder) : {
-    if( builder == null ) {
-        builder = BuilderFactory.startArray();
+    ArrayBuilder b = builder;
+    if( b == null ) {
+        b = BuilderFactory.startArray();
     }
 }
 {
-    ( <TOKEN_OPEN_BRACKET> ( elements(builder) )? <TOKEN_CLOSE_BRACKET> )
+    ( <TOKEN_OPEN_BRACKET> ( elements(b) )? <TOKEN_CLOSE_BRACKET> )
     {
-        return Arrays.asList(builder.build());
+        return Arrays.asList(b.build());
     }
 }
 
@@ -429,14 +597,14 @@ private void members(DocumentBuilder builder) : {
  */
 private void pair(DocumentBuilder builder) : {
     Token nameToken = null;
+    String name = null;
 }
 {
     (
-          (nameToken =<IDENTIFIER_NAME>)
-        | (nameToken = <STRING_LITERAL>) { 
-                nameToken.image = nameToken.image.substring(1, token.image.length() - 1);
-            } 
-    ) <TOKEN_COLON> documentValue(nameToken.image, builder)
+          nameToken = <IDENTIFIER_NAME> { name = nameToken.image; }
+        | nameToken = <STRING_LITERAL> { name = trimQuotes( nameToken.image ); } 
+        | nameToken = <HEX_DIGIT> { name = nameToken.image; } 
+    ) <TOKEN_COLON> documentValue(name, builder)
 }
 
 /**
@@ -453,39 +621,83 @@ private void elements(ArrayBuilder builder) : {
  * Parse a JSON value in an array.
  */
 private void arrayValue(ArrayBuilder builder) : {
+    Token t1 = null;
+    Token t2 = null;
 }
 {
-    ( 
+    (
           document(builder.push())
         | array(builder.pushArray()) 
-        | token = <IDENTIFIER_NAME> { builder.addSymbol(token.image); }
-        | token = <STRING_LITERAL> { builder.addString(token.image.substring(1, token.image.length() - 1)); }
-        | token = <DOUBLE> { builder.addDouble(Double.parseDouble(token.image)); }
-        | token = <INTEGER> { builder.addInteger(Integer.parseInt(token.image)); }
+        | t1 = <HEX_DIGIT> { builder.addSymbol(t1.image); }
+        | t1 = <IDENTIFIER_NAME> { builder.addSymbol(t1.image); }
+        | t1 = <STRING_LITERAL> { builder.addString(trimQuotes(t1.image)); }
+        | t1 = <DOUBLE> { builder.addDouble(Double.parseDouble(t1.image)); }
+        | t1 = <INTEGER> { builder.addInteger(Integer.parseInt(t1.image)); }
         | <TOKEN_TRUE> { builder.addBoolean(true); }
         | <TOKEN_FALSE> { builder.addBoolean(false); }
         | <TOKEN_NULL> { builder.addNull(); }
+        | <TOKEN_BINDATA> "(" t1 = <INTEGER> <TOKEN_COMMA> t2 = <STRING_LITERAL> ")" 
+          {
+             builder.addBinary( (byte) Integer.parseInt( t1.image ), toBinary( t2.image ) );
+          }
+        | <TOKEN_ISODATE> "(" t1 = <STRING_LITERAL> ")"
+          { 
+             builder.add( toDate(t1.image) );
+          }
+        | <TOKEN_NUMBERLONG> "(" t1 = <STRING_LITERAL> ")"
+          { 
+             builder.addLong(Long.parseLong(t1.image)); 
+          }
+        | <TOKEN_OBJECTID> "(" t1 = <STRING_LITERAL> ")"
+          {
+             builder.addObjectId( toObjectId( t1.image ) );
+          } 
+        | <TOKEN_TIMESTAMP> "(" t1 = <INTEGER> <TOKEN_COMMA> t2 = <INTEGER> ")" 
+          { 
+             builder.addMongoTimestamp( toMongoTimestamp( t1.image, t2.image ) );
+          }
     )
 }
-
 
 /**
  * Parse a JSON value in a document.
  */
 private void documentValue(String name, DocumentBuilder builder) : {
-    Token token = null;
+    Token t1 = null;
+    Token t2 = null;
 }
 {
     ( 
           document(builder.push(name)) 
         | array(builder.pushArray(name)) 
-        | token = <IDENTIFIER_NAME> { builder.addSymbol(name, token.image); }
-        | token = <STRING_LITERAL> { builder.addString(name, token.image.substring(1, token.image.length() - 1)); }
-        | token = <DOUBLE> { builder.addDouble(name, Double.parseDouble(token.image)); }
-        | token = <INTEGER> { builder.addInteger(name, Integer.parseInt(token.image)); }
+        | t1 = <HEX_DIGIT> { builder.addSymbol(name, t1.image); }
+        | t1 = <IDENTIFIER_NAME> { builder.addSymbol(name, t1.image); }
+        | t1 = <STRING_LITERAL> { builder.addString(name, trimQuotes(t1.image)); }
+        | t1 = <DOUBLE> { builder.addDouble(name, Double.parseDouble(t1.image)); }
+        | t1 = <INTEGER> { builder.addInteger(name, Integer.parseInt(t1.image)); }
         | <TOKEN_TRUE> { builder.addBoolean(name, true); }
         | <TOKEN_FALSE> { builder.addBoolean(name, false); }
         | <TOKEN_NULL> { builder.addNull(name); }
+        | <TOKEN_BINDATA> "(" t1 = <INTEGER> <TOKEN_COMMA> t2 = <STRING_LITERAL> ")" 
+          {
+             builder.addBinary( name, (byte) Integer.parseInt( t1.image ), toBinary( trimQuotes(t2.image) ) );
+          }
+        | <TOKEN_ISODATE> "(" t1 = <STRING_LITERAL> ")"
+          { 
+             builder.add( name, toDate(trimQuotes(t1.image)) );
+          }
+        | <TOKEN_NUMBERLONG> "(" t1 = <STRING_LITERAL> ")"
+          { 
+             builder.addLong(name, Long.parseLong(trimQuotes(t1.image))); 
+          }
+        | <TOKEN_OBJECTID> "(" t1 = <STRING_LITERAL> ")"
+          {
+             builder.addObjectId( name, toObjectId( trimQuotes(t1.image) ) );
+          } 
+        | <TOKEN_TIMESTAMP> "(" t1 = <INTEGER> <TOKEN_COMMA> t2 = <INTEGER> ")" 
+          { 
+             builder.addMongoTimestamp( name, toMongoTimestamp( t1.image, t2.image ) );
+          }
     )
 }
 

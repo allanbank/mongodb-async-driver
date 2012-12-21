@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,6 +28,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
  * JsonParserTest provides tests for the {@link JsonParser}.
@@ -33,6 +36,112 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JsonParserTest {
+
+    /**
+     * Test Parsing a BinData(..) element.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     * @throws UnsupportedEncodingException
+     *             On a test failure.
+     * @throws IllegalArgumentException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseBinData() throws ParseException,
+            IllegalArgumentException, UnsupportedEncodingException {
+        final String docText = "{ a : BinData( 5, 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==' ) }";
+
+        final JsonParser parser = new JsonParser();
+        Object doc = parser.parse(docText);
+
+        assertEquals(
+                BuilderFactory
+                        .start()
+                        .addBinary(
+                                "a",
+                                (byte) 5,
+                                "The quick brown fox jumped over the lazy dogs."
+                                        .getBytes("US-ASCII")).build(), doc);
+    }
+
+    /**
+     * Test Parsing a ISODate(..) element.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     * @throws java.text.ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseISODate() throws ParseException,
+            java.text.ParseException {
+        final JsonParser parser = new JsonParser();
+        SimpleDateFormat format = new SimpleDateFormat(
+                "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+        Object doc = parser.parse("{ a : ISODate('2012-07-14T01:00:00.000') }");
+        assertEquals(
+                BuilderFactory.start()
+                        .add("a", format.parse("2012-07-14T01:00:00.000UTC"))
+                        .build(), doc);
+
+        doc = parser.parse("{ a : ISODate('2012-07-14') }");
+        assertEquals(
+                BuilderFactory.start()
+                        .add("a", format.parse("2012-07-14T00:00:00.000UTC"))
+                        .build(), doc);
+    }
+
+    /**
+     * Test Parsing a NumberLong(..) element.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseNumberLong() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        Object doc = parser.parse("{ a : NumberLong(\"123456789\") }");
+        assertEquals(BuilderFactory.start().add("a", 123456789L).build(), doc);
+    }
+
+    /**
+     * Test Parsing a ObjectId(..) element.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseObjectId() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        Object doc = parser
+                .parse("{ a : ObjectId('4e9d87aa5825b60b637815a6') }");
+        assertEquals(
+                BuilderFactory
+                        .start()
+                        .add("a", new ObjectId(0x4e9d87aa, 0x5825b60b637815a6L))
+                        .build(), doc);
+    }
+
+    /**
+     * Test Parsing a Timestamp(..) element.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseTimestamp() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        Object doc = parser.parse("{ a : Timestamp(1,2) }");
+        assertEquals(
+                BuilderFactory.start()
+                        .addMongoTimestamp("a", 0x0000000100000002L).build(),
+                doc);
+    }
 
     /**
      * Test for parsing a document.
