@@ -144,7 +144,7 @@ public class MongoTimestampElementTest {
         final MongoTimestampElement element = new MongoTimestampElement("foo",
                 1010101);
 
-        assertEquals("\"foo\" : 1010101", element.toString());
+        assertEquals("foo : Timestamp(0,1010101)", element.toString());
     }
 
     /**

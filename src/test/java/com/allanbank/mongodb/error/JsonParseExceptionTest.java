@@ -3,7 +3,7 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.bson.json;
+package com.allanbank.mongodb.error;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -27,6 +27,8 @@ public class JsonParseExceptionTest {
         final JsonParseException exception = new JsonParseException();
         assertNull(exception.getCause());
         assertNull(exception.getMessage());
+        assertEquals(-1, exception.getColumn());
+        assertEquals(-1, exception.getLine());
     }
 
     /**
@@ -37,6 +39,22 @@ public class JsonParseExceptionTest {
         final JsonParseException exception = new JsonParseException("foo");
         assertNull(exception.getCause());
         assertEquals("foo", exception.getMessage());
+        assertEquals(-1, exception.getColumn());
+        assertEquals(-1, exception.getLine());
+    }
+
+    /**
+     * Test method for
+     * {@link JsonParseException#JsonParseException(String, int, int)} .
+     */
+    @Test
+    public void testJsonParseExceptionStringIntInt() {
+        final JsonParseException exception = new JsonParseException("foo", 41,
+                51);
+        assertNull(exception.getCause());
+        assertEquals("foo", exception.getMessage());
+        assertEquals(51, exception.getColumn());
+        assertEquals(41, exception.getLine());
     }
 
     /**
@@ -50,6 +68,25 @@ public class JsonParseExceptionTest {
         final JsonParseException exception = new JsonParseException("foo", t);
         assertSame(t, exception.getCause());
         assertEquals("foo", exception.getMessage());
+        assertEquals(-1, exception.getColumn());
+        assertEquals(-1, exception.getLine());
+    }
+
+    /**
+     * Test method for
+     * {@link JsonParseException#JsonParseException(String, Throwable, int, int)}
+     * .
+     */
+    @Test
+    public void testJsonParseExceptionStringThrowableIntInt() {
+        final Throwable t = new Throwable();
+
+        final JsonParseException exception = new JsonParseException("foo", t,
+                123, 456);
+        assertSame(t, exception.getCause());
+        assertEquals("foo", exception.getMessage());
+        assertEquals(456, exception.getColumn());
+        assertEquals(123, exception.getLine());
     }
 
     /**
@@ -63,6 +100,7 @@ public class JsonParseExceptionTest {
         final JsonParseException exception = new JsonParseException(t);
         assertSame(t, exception.getCause());
         assertEquals("foo", exception.getMessage());
+        assertEquals(-1, exception.getColumn());
+        assertEquals(-1, exception.getLine());
     }
-
 }

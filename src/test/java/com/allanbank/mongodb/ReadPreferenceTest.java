@@ -500,11 +500,10 @@ public class ReadPreferenceTest {
         b2.addString("g", "2");
         b2.addString("e", "1");
 
-        assertEquals("SECONDARY_ONLY[{\"f\" : \"3\"}]", ReadPreference
-                .secondary(b1.build()).toString());
+        assertEquals("SECONDARY_ONLY[{f : '3'}]",
+                ReadPreference.secondary(b1.build()).toString());
 
-        assertEquals(
-                "SECONDARY_ONLY[{\"f\" : \"3\"}, {\"g\" : \"2\", \"e\" : \"1\"}]",
+        assertEquals("SECONDARY_ONLY[{f : '3'}, {g : '2', e : '1'}]",
                 ReadPreference.secondary(b1.build(), b2.build()).toString());
 
     }

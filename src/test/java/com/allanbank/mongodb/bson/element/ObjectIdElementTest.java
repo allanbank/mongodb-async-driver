@@ -149,9 +149,10 @@ public class ObjectIdElementTest {
     @Test
     public void testToString() {
         final ObjectIdElement element = new ObjectIdElement("foo",
-                new ObjectId());
+                new ObjectId(0x11223344, 0x1122334455667788L));
 
-        assertEquals("\"foo\" : " + element.getId(), element.toString());
+        assertEquals("foo : ObjectId('112233441122334455667788')",
+                element.toString());
     }
 
     /**

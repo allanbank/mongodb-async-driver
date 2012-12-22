@@ -6,6 +6,7 @@ package com.allanbank.mongodb.bson.element;
 
 import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 
@@ -212,7 +213,13 @@ public abstract class AbstractElement implements Element {
      */
     @Override
     public String toString() {
-        return "AbstractElement [name=" + myName + ", type=" + getType() + "]";
+        final StringWriter writer = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                writer, false);
+
+        accept(visitor);
+
+        return writer.toString();
     }
 
     /**

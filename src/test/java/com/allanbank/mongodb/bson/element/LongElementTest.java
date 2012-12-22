@@ -166,7 +166,7 @@ public class LongElementTest {
     public void testToString() {
         final LongElement element = new LongElement("foo", 1010101);
 
-        assertEquals("\"foo\" : 1010101", element.toString());
+        assertEquals("foo : NumberLong('1010101')", element.toString());
     }
 
     /**

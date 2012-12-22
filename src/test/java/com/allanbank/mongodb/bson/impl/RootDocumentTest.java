@@ -32,7 +32,9 @@ import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.impl.DocumentBuilderImpl;
+import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
+import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.ObjectIdElement;
@@ -536,10 +538,25 @@ public class RootDocumentTest {
     public void testToString() {
         final Element subElement = new BooleanElement("1", false);
         final Element subElement2 = new BooleanElement("2", false);
-        final RootDocument element = new RootDocument(Arrays.asList(subElement,
+
+        RootDocument element = new RootDocument(Arrays.asList(subElement,
                 subElement2));
+        assertEquals("{\n  '1' : false,\n  '2' : false\n}", element.toString());
 
-        assertEquals("{ \"1\" : false,\n\"2\" : false}\n", element.toString());
+        element = new RootDocument(Arrays.asList(subElement));
+        assertEquals("{ '1' : false }", element.toString());
+
+        element = new RootDocument();
+        assertEquals("{}", element.toString());
+
+        element = new RootDocument(new DocumentElement("f"));
+        assertEquals("{\n  f : {}\n}", element.toString());
+
+        element = new RootDocument(new ArrayElement("f"));
+        assertEquals("{\n  f : []\n}", element.toString());
+
+        element = new RootDocument(new ArrayElement("f", new BooleanElement(
+                "0", true)));
+        assertEquals("{\n  f : [ true ]\n}", element.toString());
     }
-
 }

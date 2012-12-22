@@ -147,7 +147,7 @@ public class SymbolElementTest {
     public void testToString() {
         final SymbolElement element = new SymbolElement("foo", "string");
 
-        assertEquals("\"foo\" : string", element.toString());
+        assertEquals("foo : string", element.toString());
     }
 
     /**

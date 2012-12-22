@@ -137,7 +137,8 @@ public class TimestampElementTest {
     public void testToString() {
         final TimestampElement element = new TimestampElement("foo", 1010101);
 
-        assertEquals("\"foo\" : UTC(1010101)", element.toString());
+        assertEquals("foo : ISODate('1970-01-01T00:16:50.101+0000')",
+                element.toString());
     }
 
     /**

@@ -166,7 +166,7 @@ public class IntegerElementTest {
     public void testToString() {
         final IntegerElement element = new IntegerElement("foo", 1010101);
 
-        assertEquals("\"foo\" : 1010101", element.toString());
+        assertEquals("foo : 1010101", element.toString());
     }
 
     /**

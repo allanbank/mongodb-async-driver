@@ -195,21 +195,21 @@ public class DocumentReference implements DocumentAssignable {
      */
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder("{ ");
+        final StringBuilder builder = new StringBuilder("{ '");
 
         builder.append(COLLECTION_FIELD_NAME);
-        builder.append(": \"");
+        builder.append("' : '");
         builder.append(myCollectionName);
-        builder.append("\", ");
+        builder.append("', ");
 
         builder.append(myId.withName(ID_FIELD_NAME));
 
         if (myDatabaseName != null) {
-            builder.append(", ");
+            builder.append(", '");
             builder.append(DATABASE_FIELD_NAME);
-            builder.append(": \"");
+            builder.append("' : '");
             builder.append(myDatabaseName);
-            builder.append('"');
+            builder.append("'");
         }
 
         builder.append(" }");

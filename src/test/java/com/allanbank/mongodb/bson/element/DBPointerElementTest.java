@@ -172,11 +172,12 @@ public class DBPointerElementTest {
      */
     @Test
     public void testToString() {
-        final ObjectId id = new ObjectId();
+        final ObjectId id = new ObjectId(0x50d615d2, 0x8544eba9a10004e8L);
         final DBPointerElement element = new DBPointerElement("foo", "bar",
                 "baz", id);
 
-        assertEquals("\"foo\" : DBPointer( \"bar.baz\", " + id + ")",
+        assertEquals(
+                "foo : DBPointer( 'bar', 'baz', ObjectId('50d615d28544eba9a10004e8') )",
                 element.toString());
     }
 

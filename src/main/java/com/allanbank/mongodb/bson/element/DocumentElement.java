@@ -538,34 +538,6 @@ public class DocumentElement extends AbstractElement implements Document {
     }
 
     /**
-     * String form of the {@link DocumentElement}.
-     * 
-     * @return A human readable form of the {@link DocumentElement}.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : { ");
-
-        boolean first = true;
-        for (final Element element : myElements) {
-            if (!first) {
-                builder.append(",\n");
-            }
-            builder.append(element.toString());
-            first = false;
-        }
-        builder.append("}\n");
-
-        return builder.toString();
-    }
-
-    /**
      * {@inheritDoc}
      * <p>
      * Returns a new {@link DocumentElement}.

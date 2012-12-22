@@ -323,12 +323,12 @@ public class BinaryElementTest {
         BinaryElement element = new BinaryElement("foo", (byte) 0x01,
                 new byte[] { 0x01, 0x02, 0x03 });
 
-        assertEquals("\"foo\" : (0x01) 0x010203", element.toString());
+        assertEquals("foo : BinData( 1, 'AQID' )", element.toString());
 
         element = new BinaryElement("foo", (byte) 0x11, new byte[] { 0x31,
                 0x22, 0x13 });
 
-        assertEquals("\"foo\" : (0x11) 0x312213", element.toString());
+        assertEquals("foo : BinData( 17, 'MSIT' )", element.toString());
     }
 
     /**

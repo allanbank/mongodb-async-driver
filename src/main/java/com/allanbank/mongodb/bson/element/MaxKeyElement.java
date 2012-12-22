@@ -56,25 +56,6 @@ public class MaxKeyElement extends AbstractElement {
     }
 
     /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : /* MAX_KEY */ ");
-        builder.append(Long.MAX_VALUE);
-
-        return builder.toString();
-    }
-
-    /**
      * {@inheritDoc}
      * <p>
      * Returns a new {@link MaxKeyElement}.

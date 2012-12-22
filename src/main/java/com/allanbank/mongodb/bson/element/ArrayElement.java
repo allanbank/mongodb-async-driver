@@ -241,34 +241,6 @@ public class ArrayElement extends AbstractElement {
     }
 
     /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : [ ");
-
-        boolean first = true;
-        for (final Element entry : myEntries) {
-            if (!first) {
-                builder.append(",\n");
-            }
-            builder.append(entry.toString());
-            first = false;
-        }
-        builder.append("]\n");
-
-        return builder.toString();
-    }
-
-    /**
      * {@inheritDoc}
      * <p>
      * Returns a new {@link ArrayElement}.

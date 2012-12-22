@@ -147,7 +147,7 @@ public class StringElementTest {
     public void testToString() {
         final StringElement element = new StringElement("foo", "string");
 
-        assertEquals("\"foo\" : \"string\"", element.toString());
+        assertEquals("foo : 'string'", element.toString());
     }
 
     /**

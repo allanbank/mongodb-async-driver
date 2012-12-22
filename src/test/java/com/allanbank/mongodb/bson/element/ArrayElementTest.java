@@ -449,11 +449,18 @@ public class ArrayElementTest {
     @Test
     public void testToString() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final ArrayElement element = new ArrayElement("foo", subElement,
-                subElement);
 
-        assertEquals("\"foo\" : [ \"1\" : false,\n\"1\" : false]\n",
-                element.toString());
+        ArrayElement element = new ArrayElement("foo", subElement, subElement);
+        assertEquals("foo : [\n  false, \n  false\n]", element.toString());
+
+        element = new ArrayElement("foo", subElement);
+        assertEquals("foo : [ false ]", element.toString());
+
+        element = new ArrayElement("foo", new ArrayElement("0"));
+        assertEquals("foo : [\n  []\n]", element.toString());
+
+        element = new ArrayElement("foo", new DocumentElement("0"));
+        assertEquals("foo : [\n  {}\n]", element.toString());
     }
 
     /**

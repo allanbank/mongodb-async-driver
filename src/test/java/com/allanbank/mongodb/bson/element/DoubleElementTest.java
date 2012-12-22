@@ -165,7 +165,7 @@ public class DoubleElementTest {
     public void testToString() {
         final DoubleElement element = new DoubleElement("foo", 1.0101);
 
-        assertEquals("\"foo\" : 1.0101", element.toString());
+        assertEquals("foo : 1.0101", element.toString());
     }
 
     /**

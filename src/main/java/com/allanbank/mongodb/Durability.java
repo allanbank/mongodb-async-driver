@@ -16,7 +16,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.json.Json;
-import com.allanbank.mongodb.bson.json.JsonParseException;
+import com.allanbank.mongodb.error.JsonParseException;
 
 /**
  * Represents the required durability of writes (inserts, updates, and deletes)

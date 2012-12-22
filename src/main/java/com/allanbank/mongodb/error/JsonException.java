@@ -3,13 +3,13 @@
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.bson.json;
+package com.allanbank.mongodb.error;
 
 import com.allanbank.mongodb.MongoDbException;
 
 /**
- * JsonParseException provides an exception to throw when parsing a JSON
- * document fails.
+ * JsonException provides an exception to throw when processing JSON documents
+ * fail.
  * 
  * @api.yes This exception is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
@@ -17,7 +17,7 @@ import com.allanbank.mongodb.MongoDbException;
  *          before being removed or modified.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class JsonParseException extends MongoDbException {
+public class JsonException extends MongoDbException {
 
     /** Serialization version of the class. */
     private static final long serialVersionUID = 8248891467581639959L;
@@ -25,7 +25,7 @@ public class JsonParseException extends MongoDbException {
     /**
      * Creates a new JsonParseException.
      */
-    public JsonParseException() {
+    public JsonException() {
         super();
     }
 
@@ -33,8 +33,9 @@ public class JsonParseException extends MongoDbException {
      * Creates a new JsonParseException.
      * 
      * @param message
+     *            Reason for the exception.
      */
-    public JsonParseException(final String message) {
+    public JsonException(final String message) {
         super(message);
     }
 
@@ -42,9 +43,11 @@ public class JsonParseException extends MongoDbException {
      * Creates a new JsonParseException.
      * 
      * @param message
+     *            Reason for the exception.
      * @param cause
+     *            The exception causing the MongoDbException.
      */
-    public JsonParseException(final String message, final Throwable cause) {
+    public JsonException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -52,8 +55,9 @@ public class JsonParseException extends MongoDbException {
      * Creates a new JsonParseException.
      * 
      * @param cause
+     *            The exception causing the MongoDbException.
      */
-    public JsonParseException(final Throwable cause) {
+    public JsonException(final Throwable cause) {
         super(cause);
     }
 }

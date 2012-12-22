@@ -279,10 +279,15 @@ public class RegularExpressionElementTest {
      */
     @Test
     public void testToString() {
-        final RegularExpressionElement element = new RegularExpressionElement(
-                "foo", "func code() {}", OPTIONS_1);
+        RegularExpressionElement element = new RegularExpressionElement("foo",
+                "func code() {}", OPTIONS_1);
 
-        assertEquals("\"foo\" : /func code() {}/i", element.toString());
+        assertEquals("foo : { $regex : 'func code() {}', $options : 'i' }",
+                element.toString());
+
+        element = new RegularExpressionElement("foo", "func code() {}", "");
+
+        assertEquals("foo : { $regex : 'func code() {}' }", element.toString());
     }
 
     /**

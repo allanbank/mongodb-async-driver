@@ -120,7 +120,7 @@ public class NullElementTest {
     public void testToString() {
         final NullElement element = new NullElement("foo");
 
-        assertEquals("\"foo\" : null", element.toString());
+        assertEquals("foo : null", element.toString());
     }
 
     /**

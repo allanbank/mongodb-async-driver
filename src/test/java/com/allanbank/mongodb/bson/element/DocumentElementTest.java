@@ -943,7 +943,7 @@ public class DocumentElementTest {
         final DocumentElement element = new DocumentElement("foo", subElement,
                 subElement2);
 
-        assertEquals("\"foo\" : { \"1\" : false,\n\"2\" : false}\n",
+        assertEquals("foo : {\n  '1' : false,\n  '2' : false\n}",
                 element.toString());
     }
 

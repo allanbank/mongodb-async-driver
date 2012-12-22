@@ -149,7 +149,7 @@ public class JavaScriptElementTest {
         final JavaScriptElement element = new JavaScriptElement("foo",
                 "func code() {}");
 
-        assertEquals("\"foo\" : func code() {}", element.toString());
+        assertEquals("foo : func code() {}", element.toString());
     }
 
     /**

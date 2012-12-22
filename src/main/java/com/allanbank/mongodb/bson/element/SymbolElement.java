@@ -113,26 +113,6 @@ public class SymbolElement extends AbstractElement {
     }
 
     /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : ");
-        builder.append(mySymbol);
-        builder.append("");
-
-        return builder.toString();
-    }
-
-    /**
      * {@inheritDoc}
      * <p>
      * Returns a new {@link SymbolElement}.

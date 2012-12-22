@@ -11,7 +11,6 @@ import java.util.Arrays;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
-import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * A wrapper for a BSON binary.
@@ -149,33 +148,6 @@ public class BinaryElement extends AbstractElement {
         result = (31 * result) + mySubType;
         result = (31 * result) + Arrays.hashCode(myValue);
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : (0x");
-
-        final String hex = Integer.toHexString(mySubType & 0xFF);
-        if (hex.length() <= 1) {
-            builder.append('0');
-        }
-        builder.append(hex);
-
-        builder.append(") 0x");
-        builder.append(IOUtils.toHex(myValue));
-
-        return builder.toString();
     }
 
     /**

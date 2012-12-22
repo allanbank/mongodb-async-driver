@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.bson.element.LongElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
@@ -175,7 +176,7 @@ public class DocumentReferenceTest {
     public void testToString() {
         final DocumentReference ref = new DocumentReference("d", "c",
                 new IntegerElement("a", 1));
-        final String expected = "{ $ref: \"c\", \"$id\" : 1, $db: \"d\" }";
+        final String expected = "{ '$ref' : 'c', '$id' : 1, '$db' : 'd' }";
         final String result = ref.toString();
 
         assertEquals(expected, result);
@@ -187,8 +188,8 @@ public class DocumentReferenceTest {
     @Test
     public void testToStringWithNullDatabaseName() {
         final DocumentReference ref = new DocumentReference("c",
-                new IntegerElement("a", 1));
-        final String expected = "{ $ref: \"c\", \"$id\" : 1 }";
+                new LongElement("a", 1));
+        final String expected = "{ '$ref' : 'c', '$id' : NumberLong('1') }";
         final String result = ref.toString();
 
         assertEquals(expected, result);

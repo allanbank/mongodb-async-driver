@@ -120,8 +120,7 @@ public class MinKeyElementTest {
     public void testToString() {
         final MinKeyElement element = new MinKeyElement("foo");
 
-        assertEquals("\"foo\" : /* MIN_KEY */ -9223372036854775808",
-                element.toString());
+        assertEquals("foo : MinKey()", element.toString());
     }
 
     /**

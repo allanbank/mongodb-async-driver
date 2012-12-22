@@ -157,30 +157,6 @@ public class DBPointerElement extends AbstractElement {
     }
 
     /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : DBPointer( \"");
-        builder.append(myDatabaseName);
-        builder.append('.');
-        builder.append(myCollectionName);
-        builder.append("\", ");
-        builder.append(myId);
-        builder.append(")");
-
-        return builder.toString();
-    }
-
-    /**
      * {@inheritDoc}
      * <p>
      * Returns a new {@link DBPointerElement}.

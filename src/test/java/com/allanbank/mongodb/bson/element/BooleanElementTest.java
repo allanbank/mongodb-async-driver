@@ -124,7 +124,7 @@ public class BooleanElementTest {
     public void testToString() {
         final BooleanElement element = new BooleanElement("foo", false);
 
-        assertEquals("\"foo\" : false", element.toString());
+        assertEquals("foo : false", element.toString());
     }
 
     /**

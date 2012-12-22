@@ -120,8 +120,7 @@ public class MaxKeyElementTest {
     public void testToString() {
         final MaxKeyElement element = new MaxKeyElement("foo");
 
-        assertEquals("\"foo\" : /* MAX_KEY */ 9223372036854775807",
-                element.toString());
+        assertEquals("foo : MaxKey()", element.toString());
     }
 
     /**

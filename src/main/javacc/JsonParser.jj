@@ -31,6 +31,7 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.error.JsonParseException;
 import com.allanbank.mongodb.bson.io.EndianUtils;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -108,73 +109,106 @@ import com.allanbank.mongodb.util.IOUtils;
     /**
      * Converts the Base64 string to a binary array.
      * 
-     * @param base64
+     * @param base64Token
      *            The Base64 encoded bytes.
      * @return The decoded bytes.
-     * @throws ParseException
+     * @throws JsonParseException
      *             On a failure to decodee the binary.
      */
-    private byte[] toBinary(final String base64) throws ParseException {
+    private byte[] toBinaryFromBase64(final Token base64Token)
+            throws JsonParseException {
+        final String base64 = trimQuotes(base64Token.image);
         try {
             return IOUtils.base64ToBytes(base64);
         }
         catch (final IllegalArgumentException iae) {
-            final ParseException pe = new ParseException(iae.getMessage());
-            pe.initCause(iae);
-            throw pe;
+            throw new JsonParseException(iae.getMessage() + " (line "
+                    + base64Token.beginLine + ", column "
+                    + base64Token.beginColumn + ")", iae,
+                    base64Token.beginLine, base64Token.beginColumn);
+        }
+    }
+
+    /**
+     * Converts the HEX string to a binary array.
+     * 
+     * @param hexToken
+     *            The HEX encoded bytes.
+     * @return The decoded bytes.
+     * @throws JsonParseException
+     *             On a failure to decodee the binary.
+     */
+    private byte[] toBinaryFromHex(final Token hexToken)
+            throws JsonParseException {
+        final String hex = trimQuotes(hexToken.image);
+        try {
+            return IOUtils.hexToBytes(hex);
+        }
+        catch (final IllegalArgumentException iae) {
+            throw new JsonParseException(iae.getMessage() + " (line "
+                    + hexToken.beginLine + ", column " + hexToken.beginColumn
+                    + ")", iae, hexToken.beginLine, hexToken.beginColumn);
         }
     }
 
     /**
      * Parses the ISO date string into a long field.
      * 
-     * @param timeStamp
+     * @param timestampToken
      *            The timestamp string.
      * @return The Date for the time string.
-     * @throws ParseException
+     * @throws JsonParseException
      *             On a failure to parse the date string.
      */
-    private Date toDate(final String timeStamp) throws ParseException {
+    private Date toDate(final Token timestampToken) throws JsonParseException {
 
+        Exception last = null;
+        final String timestamp = trimQuotes(timestampToken.image);
         for (final String format : DATE_FORMATS) {
             final SimpleDateFormat f = new SimpleDateFormat(format);
             f.setTimeZone(UTC);
             try {
-                return f.parse(timeStamp);
+                return f.parse(timestamp);
             }
             catch (final java.text.ParseException pe) {
                 // Ignore. Try the next.
+                last = pe;
             }
         }
 
-        throw new ParseException("Could not parse the time string '"
-                + timeStamp + "'.");
+        throw new JsonParseException("Could not parse the time string '"
+                + timestamp + "' @ line " + timestampToken.beginLine
+                + ", column " + timestampToken.beginColumn + ".", last,
+                timestampToken.beginLine, timestampToken.beginColumn);
     }
 
     /**
      * Converts the timestamp and increment into a MongoTimestamp Long value..
      * 
-     * @param timestamp
+     * @param timestampToken
      *            The Mongo timestamp value (seconds since UNIX Epoch).
-     * @param increment
+     * @param incrementToken
      *            The increment for the Mongo Timestamp.
      * @return The MongoTimestamp long value.
-     * @throws ParseException
-     *             On a failure to decodee the timestamp integers.
+     * @throws JsonParseException
+     *             On a failure to decode the timestamp integers.
      */
-    private long toMongoTimestamp(final String timestamp, final String increment)
-            throws ParseException {
+    private long toMongoTimestamp(final Token timestampToken,
+            final Token incrementToken) throws JsonParseException {
         long value = 0;
 
+        final String timestamp = trimQuotes(timestampToken.image);
+        final String increment = trimQuotes(incrementToken.image);
         try {
             value = (Long.parseLong(timestamp) & 0xFFFFFFFF);
             value <<= Integer.SIZE;
             value += (Long.parseLong(increment) & 0xFFFFFFFF);
         }
         catch (final NumberFormatException nfe) {
-            final ParseException pe = new ParseException(nfe.getMessage());
-            pe.initCause(nfe);
-            throw pe;
+            throw new JsonParseException(nfe.getMessage() + " (line "
+                    + timestampToken.beginLine + ", column "
+                    + timestampToken.beginColumn + ")", nfe,
+                    timestampToken.beginLine, timestampToken.beginColumn);
         }
         return value;
     }
@@ -182,22 +216,25 @@ import com.allanbank.mongodb.util.IOUtils;
     /**
      * Creates a ObjectId from the hex binary representation.
      * 
-     * @param hexBytes
+     * @param hexBytesToken
      *            The hex bytes for the ObjectId.
      * @return The ObjectId.
-     * @throws ParseException
+     * @throws JsonParseException
      *             On a failure to decode the hex binary into an ObjectId.
      */
-    private ObjectId toObjectId(final String hexBytes) throws ParseException {
+    private ObjectId toObjectId(final Token hexBytesToken)
+            throws JsonParseException {
         int timestamp = 0;
         long machineId = 0;
 
+        final String hexBytes = trimQuotes(hexBytesToken.image);
         try {
             final byte[] bytes = IOUtils.hexToBytes(hexBytes);
 
             if (bytes.length != 12) {
-                throw new ParseException(
-                        "Invalid ObjectId value.  Must be a 24 character hex string.");
+                throw new JsonParseException(
+                        "Invalid ObjectId value.  Must be a 24 character hex string.",
+                        hexBytesToken.beginLine, hexBytesToken.beginColumn);
             }
 
             for (int i = 0; i < 4; ++i) {
@@ -213,11 +250,13 @@ import com.allanbank.mongodb.util.IOUtils;
             }
         }
         catch (final IllegalArgumentException iae) {
-            final ParseException pe = new ParseException(iae.getMessage());
-            pe.initCause(iae);
-            throw pe;
+            throw new JsonParseException(iae.getMessage() + " (line "
+                    + hexBytesToken.beginLine + ", column "
+                    + hexBytesToken.beginColumn + ")", iae,
+                    hexBytesToken.beginLine, hexBytesToken.beginColumn);
         }
-        return new ObjectId(EndianUtils.swap(timestamp), EndianUtils.swap(machineId));
+        return new ObjectId(EndianUtils.swap(timestamp),
+                EndianUtils.swap(machineId));
     }
 
     /**
@@ -228,15 +267,15 @@ import com.allanbank.mongodb.util.IOUtils;
      * @return The string without the quotes.
      */
     private String trimQuotes(final String string) {
-        if( ! string.isEmpty() ) {
+        if (!string.isEmpty()) {
             final int length = string.length();
             final char first = string.charAt(0);
-            final char last = string.charAt( length - 1 );
-            if( (first == last) && ( (first == '"') || (first == '\'') ) ) {            
+            final char last = string.charAt(length - 1);
+            if ((first == last) && ((first == '"') || (first == '\u005c''))) {
                 return string.substring(1, length - 1);
             }
         }
-        
+
         return string;
     }
 }
@@ -326,10 +365,14 @@ TOKEN : {
 /* Extension Object types. */
 TOKEN : {
         <TOKEN_BINDATA: "BinData">
+     |  <TOKEN_HEXDATA: "HexData">
      |  <TOKEN_ISODATE: "ISODate">
      |  <TOKEN_NUMBERLONG: "NumberLong">
      |  <TOKEN_OBJECTID: "ObjectId">
      |  <TOKEN_TIMESTAMP: "Timestamp">
+     |  <TOKEN_MAXKEY: "MaxKey">
+     |  <TOKEN_MINKEY: "MinKey">
+     |  <TOKEN_DB_POINTER: "DBPointer">
 }        
 
 /* Identifiers */
@@ -623,6 +666,7 @@ private void elements(ArrayBuilder builder) : {
 private void arrayValue(ArrayBuilder builder) : {
     Token t1 = null;
     Token t2 = null;
+    Token t3 = null;
 }
 {
     (
@@ -638,23 +682,39 @@ private void arrayValue(ArrayBuilder builder) : {
         | <TOKEN_NULL> { builder.addNull(); }
         | <TOKEN_BINDATA> "(" t1 = <INTEGER> <TOKEN_COMMA> t2 = <STRING_LITERAL> ")" 
           {
-             builder.addBinary( (byte) Integer.parseInt( t1.image ), toBinary( t2.image ) );
+             builder.addBinary( (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+          }
+        | <TOKEN_HEXDATA> "(" t1 = <INTEGER> <TOKEN_COMMA> t2 = <STRING_LITERAL> ")" 
+          {
+             builder.addBinary( (byte) Integer.parseInt(t1.image), toBinaryFromHex(t2) );
           }
         | <TOKEN_ISODATE> "(" t1 = <STRING_LITERAL> ")"
           { 
-             builder.add( toDate(t1.image) );
+             builder.add( toDate(t1) );
           }
         | <TOKEN_NUMBERLONG> "(" t1 = <STRING_LITERAL> ")"
           { 
-             builder.addLong(Long.parseLong(t1.image)); 
+             builder.addLong(Long.parseLong(trimQuotes(t1.image))); 
           }
         | <TOKEN_OBJECTID> "(" t1 = <STRING_LITERAL> ")"
           {
-             builder.addObjectId( toObjectId( t1.image ) );
+             builder.addObjectId( toObjectId(t1) );
           } 
         | <TOKEN_TIMESTAMP> "(" t1 = <INTEGER> <TOKEN_COMMA> t2 = <INTEGER> ")" 
           { 
-             builder.addMongoTimestamp( toMongoTimestamp( t1.image, t2.image ) );
+             builder.addMongoTimestamp( toMongoTimestamp(t1, t2) );
+          }
+        | <TOKEN_MAXKEY> "(" ")" 
+          {
+             builder.addMaxKey();
+          }
+        | <TOKEN_MINKEY> "(" ")" 
+          { 
+             builder.addMinKey();
+          }
+        | <TOKEN_DB_POINTER> "(" t1 = <STRING_LITERAL> <TOKEN_COMMA> t2 = <STRING_LITERAL> <TOKEN_COMMA> <TOKEN_OBJECTID> "(" t3 = <STRING_LITERAL> ")" ")" 
+          { 
+             builder.addDBPointer(trimQuotes(t1.image), trimQuotes(t2.image), toObjectId(t3));
           }
     )
 }
@@ -665,6 +725,7 @@ private void arrayValue(ArrayBuilder builder) : {
 private void documentValue(String name, DocumentBuilder builder) : {
     Token t1 = null;
     Token t2 = null;
+    Token t3 = null;
 }
 {
     ( 
@@ -680,11 +741,15 @@ private void documentValue(String name, DocumentBuilder builder) : {
         | <TOKEN_NULL> { builder.addNull(name); }
         | <TOKEN_BINDATA> "(" t1 = <INTEGER> <TOKEN_COMMA> t2 = <STRING_LITERAL> ")" 
           {
-             builder.addBinary( name, (byte) Integer.parseInt( t1.image ), toBinary( trimQuotes(t2.image) ) );
+             builder.addBinary( name, (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+          }
+        | <TOKEN_HEXDATA> "(" t1 = <INTEGER> <TOKEN_COMMA> t2 = <STRING_LITERAL> ")" 
+          {
+             builder.addBinary( name, (byte) Integer.parseInt(t1.image), toBinaryFromHex(t2) );
           }
         | <TOKEN_ISODATE> "(" t1 = <STRING_LITERAL> ")"
           { 
-             builder.add( name, toDate(trimQuotes(t1.image)) );
+             builder.add( name, toDate(t1) );
           }
         | <TOKEN_NUMBERLONG> "(" t1 = <STRING_LITERAL> ")"
           { 
@@ -692,11 +757,23 @@ private void documentValue(String name, DocumentBuilder builder) : {
           }
         | <TOKEN_OBJECTID> "(" t1 = <STRING_LITERAL> ")"
           {
-             builder.addObjectId( name, toObjectId( trimQuotes(t1.image) ) );
+             builder.addObjectId( name, toObjectId(t1) );
           } 
         | <TOKEN_TIMESTAMP> "(" t1 = <INTEGER> <TOKEN_COMMA> t2 = <INTEGER> ")" 
           { 
-             builder.addMongoTimestamp( name, toMongoTimestamp( t1.image, t2.image ) );
+             builder.addMongoTimestamp( name, toMongoTimestamp(t1, t2) );
+          }
+        | <TOKEN_MAXKEY> "(" ")" 
+          {
+             builder.addMaxKey(name);
+          }
+        | <TOKEN_MINKEY> "(" ")" 
+          { 
+             builder.addMinKey(name);
+          }
+        | <TOKEN_DB_POINTER> "(" t1 = <STRING_LITERAL> <TOKEN_COMMA> t2 = <STRING_LITERAL> <TOKEN_COMMA> <TOKEN_OBJECTID> "(" t3 = <STRING_LITERAL> ")" ")" 
+          { 
+             builder.addDBPointer(name, trimQuotes(t1.image), trimQuotes(t2.image), toObjectId(t3));
           }
     )
 }
