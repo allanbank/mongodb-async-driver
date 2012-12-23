@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
@@ -200,9 +201,13 @@ import com.allanbank.mongodb.util.IOUtils;
         final String timestamp = trimQuotes(timestampToken.image);
         final String increment = trimQuotes(incrementToken.image);
         try {
-            value = (Long.parseLong(timestamp) & 0xFFFFFFFF);
+            final long timePortion = Long.parseLong(timestamp) & 0xFFFFFFFFL;
+
+            // Time is specified in milliseconds but only store seconds
+            // so we truncate the time to milliseconds.
+            value = TimeUnit.MILLISECONDS.toSeconds(timePortion);
             value <<= Integer.SIZE;
-            value += (Long.parseLong(increment) & 0xFFFFFFFF);
+            value += (Long.parseLong(increment) & 0xFFFFFFFFL);
         }
         catch (final NumberFormatException nfe) {
             throw new JsonParseException(nfe.getMessage() + " (line "

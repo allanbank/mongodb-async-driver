@@ -607,7 +607,7 @@ public class JsonParserTest {
     public void testParseTimestamp() throws ParseException {
         final JsonParser parser = new JsonParser();
 
-        final Object doc = parser.parse("{ a : Timestamp(1,2) }");
+        final Object doc = parser.parse("{ a : Timestamp(1000,2) }");
         assertEquals(
                 BuilderFactory.start()
                         .addMongoTimestamp("a", 0x0000000100000002L).build(),
@@ -624,7 +624,7 @@ public class JsonParserTest {
     public void testParseTimestampInArray() throws ParseException {
         final JsonParser parser = new JsonParser();
 
-        final Object doc = parser.parse("{ a : [Timestamp(1,2)] }");
+        final Object doc = parser.parse("{ a : [Timestamp(1000,2)] }");
         final DocumentBuilder b = BuilderFactory.start();
         b.pushArray("a").addMongoTimestamp(0x0000000100000002L);
         assertEquals(b.build(), doc);

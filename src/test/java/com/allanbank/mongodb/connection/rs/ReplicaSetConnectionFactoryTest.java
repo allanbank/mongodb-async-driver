@@ -325,9 +325,11 @@ public class ReplicaSetConnectionFactoryTest {
      * 
      * @throws IOException
      *             On a failure.
+     * @throws InterruptedException
+     *             On a failure.
      */
     @Test
-    public void testConnectFails() throws IOException {
+    public void testConnectFails() throws IOException, InterruptedException {
         final String serverName = myServer.getInetSocketAddress().getHostName()
                 + ":" + myServer.getInetSocketAddress().getPort();
 
@@ -344,11 +346,13 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
-
         myServer.setRunning(false);
         myServer.close();
+        Thread.sleep(100); // Make sure the socket is not connectable.
         try {
+            myTestFactory = new ReplicaSetConnectionFactory(socketFactory,
+                    config);
+
             final Connection connection = myTestFactory.connect();
             IOUtils.close(connection);
             fail("Should have failed to connect.");

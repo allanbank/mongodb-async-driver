@@ -192,7 +192,8 @@ public class JavaScriptWithScopeElementTest {
         final JavaScriptWithScopeElement element = new JavaScriptWithScopeElement(
                 "foo", "func code() {}", SCOPE_1);
 
-        assertEquals("foo : { $code : func code() {}, $scope : { f : true } }",
+        assertEquals(
+                "foo : { $code : 'func code() {}', $scope : { f : true } }",
                 element.toString());
     }
 

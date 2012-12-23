@@ -40,6 +40,79 @@ public class ClusterTestSupport {
     }
 
     /**
+     * Runs a process and returns the merged stderr and stdout.
+     * 
+     * @param workingDirectory
+     *            The working directory for the executable.
+     * @param executable
+     *            The program to run.
+     * @param args
+     *            The arguments to the executable.
+     * @return The merged stdout and stderr.
+     * @throws AssertionError
+     *             On a failure to launch the executable.
+     */
+    public String run(final File workingDirectory, final String executable,
+            final String... args) throws AssertionError {
+        String app = executable;
+        final String mongodbHome = System.getenv("MONGODB_HOME");
+        if (mongodbHome != null) {
+            final File mongodbHomeDir = new File(mongodbHome);
+            if ("mongod".equals(executable)) {
+                app = new File(new File(mongodbHomeDir, "bin"), executable)
+                        .getAbsolutePath();
+            }
+            else if ("mongos".equals(executable)) {
+                app = new File(new File(mongodbHomeDir, "bin"), executable)
+                        .getAbsolutePath();
+            }
+            else if ("mongo".equals(executable)) {
+                app = new File(new File(mongodbHomeDir, "bin"), executable)
+                        .getAbsolutePath();
+            }
+        }
+
+        final List<String> command = new ArrayList<String>(args.length + 1);
+        command.add(app);
+        command.addAll(Arrays.asList(args));
+
+        final ProcessBuilder b = new ProcessBuilder();
+        if (workingDirectory == null) {
+            b.directory(myWorkingDirectory);
+        }
+        else {
+            b.directory(workingDirectory);
+        }
+        b.redirectErrorStream(true);
+        b.command(command);
+
+        BufferedReader r = null;
+        final StringBuilder output = new StringBuilder();
+        try {
+            final Process p = b.start();
+
+            r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            String line;
+            while ((line = r.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+        }
+        catch (final IOException ioe) {
+            final AssertionError error = new AssertionError(
+                    "Could not run process: " + ioe.getMessage());
+            error.initCause(ioe);
+
+            throw error;
+        }
+        finally {
+            IOUtils.close(r);
+        }
+
+        return output.toString();
+    }
+
+    /**
      * Starts a MongoDB instance running in a replica set mode. Below is the
      * role and port allocation.
      * <ul>
@@ -156,6 +229,9 @@ public class ClusterTestSupport {
      */
     public void stopAll() {
 
+        run(null, "pkill", "mongod");
+        run(null, "pkill", "mongos");
+
         if (myWorkingDirectory != null) {
             run(myWorkingDirectory, "pkill", "-f",
                     myWorkingDirectory.getAbsolutePath() + ".*");
@@ -164,9 +240,6 @@ public class ClusterTestSupport {
         }
 
         myWorkingDirectory = null;
-
-        run(null, "pkill", "mongod");
-        run(null, "pkill", "mongos");
     }
 
     /**
@@ -194,77 +267,9 @@ public class ClusterTestSupport {
     protected void fail(final String message, final Throwable cause)
             throws AssertionError {
         final AssertionError error = new AssertionError(message);
-        error.initCause(error);
+        error.initCause(cause);
 
         throw error;
-    }
-
-    /**
-     * Runs a process and returns the merged stderr and stdout.
-     * 
-     * @param workingDirectory
-     *            The working directory for the executable.
-     * @param executable
-     *            The program to run.
-     * @param args
-     *            The arguments to the executable.
-     * @return The merged stdout and stderr.
-     * @throws AssertionError
-     *             On a failure to launch the executable.
-     */
-    protected String run(final File workingDirectory, final String executable,
-            final String... args) throws AssertionError {
-        String app = executable;
-        final String mongodbHome = System.getenv("MONGODB_HOME");
-        if (mongodbHome != null) {
-            final File mongodbHomeDir = new File(mongodbHome);
-            if ("mongod".equals(executable)) {
-                app = new File(new File(mongodbHomeDir, "bin"), executable)
-                        .getAbsolutePath();
-            }
-            else if ("mongos".equals(executable)) {
-                app = new File(new File(mongodbHomeDir, "bin"), executable)
-                        .getAbsolutePath();
-            }
-            else if ("mongo".equals(executable)) {
-                app = new File(new File(mongodbHomeDir, "bin"), executable)
-                        .getAbsolutePath();
-            }
-        }
-
-        final List<String> command = new ArrayList<String>(args.length + 1);
-        command.add(app);
-        command.addAll(Arrays.asList(args));
-
-        final ProcessBuilder b = new ProcessBuilder();
-        b.directory(workingDirectory);
-        b.redirectErrorStream(true);
-        b.command(command);
-
-        BufferedReader r = null;
-        final StringBuilder output = new StringBuilder();
-        try {
-            final Process p = b.start();
-
-            r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            String line;
-            while ((line = r.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-        }
-        catch (final IOException ioe) {
-            final AssertionError error = new AssertionError(
-                    "Could not run process: " + ioe.getMessage());
-            error.initCause(ioe);
-
-            throw error;
-        }
-        finally {
-            IOUtils.close(r);
-        }
-
-        return output.toString();
     }
 
     /**

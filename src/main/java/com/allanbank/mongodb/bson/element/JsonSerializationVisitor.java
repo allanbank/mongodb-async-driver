@@ -28,7 +28,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * @copyright 2012, Allanbank Conublic sulting, Inc., All Rights Reserved
  */
 public class JsonSerializationVisitor implements Visitor {
-    
+
     /** The platforms new line string. */
     public static final String NL = System.getProperty("line.separator", "\n");
 
@@ -427,11 +427,14 @@ public class JsonSerializationVisitor implements Visitor {
     @Override
     public void visitMongoTimestamp(final String name, final long value) {
         try {
+            final long time = (value >> Integer.SIZE) & 0xFFFFFFFFL;
+            final long increment = value & 0xFFFFFFFFL;
+
             writeName(name);
             mySink.write("Timestamp(");
-            mySink.write(Long.toString((value >> Integer.SIZE) & 0xFFFFFFFF));
-            mySink.write(",");
-            mySink.write(Long.toString(value & 0xFFFFFFFF));
+            mySink.write(Long.toString(time * 1000));
+            mySink.write(", ");
+            mySink.write(Long.toString(increment));
             mySink.write(')');
             mySink.flush();
         }

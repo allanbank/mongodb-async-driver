@@ -72,45 +72,9 @@ public class ServerTestDriverSupport {
     }
 
     /**
-     * Starts a MongoDB instance running in a replica set mode.
-     * 
-     * @see ClusterTestSupport#startReplicaSet
-     */
-    protected static void startReplicaSet() {
-        myClusterTestSupport.startReplicaSet();
-    }
-
-    /**
-     * Starts a MongoDB instance running in a sharded mode.
-     * 
-     * @see ClusterTestSupport#startSharded
-     */
-    protected static void startSharded() {
-        myClusterTestSupport.startSharded();
-    }
-
-    /**
-     * Starts a MongoDB instance running in a sharded cluster of replica sets.
-     * 
-     * @see ClusterTestSupport#startShardedReplicaSets
-     */
-    protected static void startShardedReplicaSets() {
-        myClusterTestSupport.startShardedReplicaSets();
-    }
-
-    /**
-     * Starts a MongoDB instance running in a standalone mode.
-     * 
-     * @see ClusterTestSupport#startStandAlone
-     */
-    protected static void startStandAlone() {
-        myClusterTestSupport.startStandAlone();
-    }
-
-    /**
      * Starts a MongoDB instance running in a standalone mode.
      */
-    protected void startAuthenticated() {
+    protected static void startAuthenticated() {
         Mongo mongo = null;
         try {
             startStandAlone();
@@ -165,5 +129,41 @@ public class ServerTestDriverSupport {
         finally {
             IOUtils.close(mongo);
         }
+    }
+
+    /**
+     * Starts a MongoDB instance running in a replica set mode.
+     * 
+     * @see ClusterTestSupport#startReplicaSet
+     */
+    protected static void startReplicaSet() {
+        myClusterTestSupport.startReplicaSet();
+    }
+
+    /**
+     * Starts a MongoDB instance running in a sharded mode.
+     * 
+     * @see ClusterTestSupport#startSharded
+     */
+    protected static void startSharded() {
+        myClusterTestSupport.startSharded();
+    }
+
+    /**
+     * Starts a MongoDB instance running in a sharded cluster of replica sets.
+     * 
+     * @see ClusterTestSupport#startShardedReplicaSets
+     */
+    protected static void startShardedReplicaSets() {
+        myClusterTestSupport.startShardedReplicaSets();
+    }
+
+    /**
+     * Starts a MongoDB instance running in a standalone mode.
+     * 
+     * @see ClusterTestSupport#startStandAlone
+     */
+    protected static void startStandAlone() {
+        myClusterTestSupport.startStandAlone();
     }
 }
