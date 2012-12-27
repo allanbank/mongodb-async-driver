@@ -178,8 +178,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (Durability.NONE.equals(durability)) {
             myClient.send(deleteMessage, null);
             results.callback(Long.valueOf(-1));
-        }
-        else {
+        } else {
             myClient.send(deleteMessage, asGetLastError(durability),
                     new ReplyLongCallback(results));
         }
@@ -271,8 +270,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (!readPreference.isLegacy()
                 && (myClient.getClusterType() == ClusterType.SHARDED)) {
             queryDoc = query.toQueryRequest(true, readPreference);
-        }
-        else {
+        } else {
             queryDoc = query.toQueryRequest(true);
         }
 
@@ -345,8 +343,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (!readPreference.isLegacy()
                 && (myClient.getClusterType() == ClusterType.SHARDED)) {
             queryDoc = query.toQueryRequest(false, readPreference);
-        }
-        else {
+        } else {
             queryDoc = query.toQueryRequest(false);
         }
 
@@ -374,28 +371,27 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * @see MongoCollection#findOneAsync(Callback, DocumentAssignable)
      */
     @Override
-    public void findOneAsync(final Callback<Document> results,
-            final DocumentAssignable query) throws MongoDbException {
+    public void findOneAsync(Callback<Document> results, Find query)
+            throws MongoDbException {
 
-        final ReadPreference readPreference = getReadPreference();
+        ReadPreference readPreference = query.getReadPreference();
+        if (readPreference == null) {
+            readPreference = getReadPreference();
+        }
 
-        Document queryDoc = query.asDocument();
+        Document queryDoc;
         if (!readPreference.isLegacy()
                 && (myClient.getClusterType() == ClusterType.SHARDED)) {
-            final DocumentBuilder builder = BuilderFactory.start();
-
-            builder.add("query", queryDoc);
-            builder.addDocument(ReadPreference.FIELD_NAME,
-                    readPreference.asDocument());
-
-            queryDoc = builder.build();
+            queryDoc = query.toQueryRequest(false, readPreference);
+        } else {
+            queryDoc = query.toQueryRequest(false);
         }
 
         final Query queryMessage = new Query(getDatabaseName(), myName,
-                queryDoc, null, 1 /* batchSize */, 1 /* limit */, 0 /* skip */,
-                false /* tailable */, readPreference,
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, false /* partial */);
+                queryDoc, query.getReturnFields(), 1 /* batchSize */,
+                1 /* limit */, query.getNumberToSkip(), false /* tailable */,
+                readPreference, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
 
         myClient.send(queryMessage, new QueryOneCallback(results));
     }
@@ -473,8 +469,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (Durability.NONE == durability) {
             myClient.send(insertMessage, null);
             results.callback(Integer.valueOf(-1));
-        }
-        else {
+        } else {
             myClient.send(insertMessage, asGetLastError(durability),
                     new ReplyIntegerCallback(results));
         }
@@ -604,8 +599,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (doc.contains(ID_FIELD_NAME)) {
             updateAsync(new LongToIntCallback(results), BuilderFactory.start()
                     .add(doc.get(ID_FIELD_NAME)), doc, false, true, durability);
-        }
-        else {
+        } else {
             insertAsync(results, durability, doc);
         }
     }
@@ -641,8 +635,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (Durability.NONE == durability) {
             myClient.send(updateMessage, null);
             results.callback(Long.valueOf(-1));
-        }
-        else {
+        } else {
             myClient.send(updateMessage, asGetLastError(durability),
                     new ReplyLongCallback(results));
         }

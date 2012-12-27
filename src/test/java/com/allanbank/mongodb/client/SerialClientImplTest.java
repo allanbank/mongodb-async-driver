@@ -125,12 +125,9 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#getClusterType()}.
-     * 
-     * @throws IOException
-     *             on a test failure.
      */
     @Test
-    public void testGetClusterType() throws IOException {
+    public void testGetClusterType() {
 
         expect(myMockConnectionFactory.getClusterType()).andReturn(
                 ClusterType.STAND_ALONE);
@@ -164,12 +161,9 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#getDefaultReadPreference()}.
-     * 
-     * @throws IOException
-     *             on a test failure.
      */
     @Test
-    public void testGetDefaultReadPreference() throws IOException {
+    public void testGetDefaultReadPreference() {
 
         myConfig.setDefaultReadPreference(ReadPreference.SECONDARY);
 
@@ -257,8 +251,7 @@ public class SerialClientImplTest {
         try {
             myTestInstance.send(message, null);
             fail("Should have thrown a MongoDbException.");
-        }
-        catch (final MongoDbException good) {
+        } catch (final MongoDbException good) {
             // good.
         }
 
