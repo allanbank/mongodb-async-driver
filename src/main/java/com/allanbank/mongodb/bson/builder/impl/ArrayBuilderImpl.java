@@ -63,6 +63,15 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
+    public ArrayBuilder add(Object value) throws IllegalArgumentException {
+        myElements.add(coerse(nextIndex(), value));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public ArrayBuilder add(final boolean value) {
         return addBoolean(value);
     }

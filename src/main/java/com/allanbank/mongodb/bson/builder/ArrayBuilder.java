@@ -25,6 +25,23 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 public interface ArrayBuilder extends Builder {
 
     /**
+     * Adds the value to the array after trying to coerce the value into the
+     * best possible element type. If the coersion fails then an
+     * {@link IllegalArgumentException} is thrown.
+     * <p>
+     * This method does type inspection which can be slow. It is generally much
+     * faster to use the type specific methods of this interface.
+     * </p>
+     * 
+     * @param value
+     *            The Object value to coerce into an element.
+     * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If the {@code value} cannot be coerced into an element type.
+     */
+    public ArrayBuilder add(Object value) throws IllegalArgumentException;
+
+    /**
      * Adds a boolean element.
      * <p>
      * This is a equivalent to {@link #addBoolean(boolean)} but less verbose.

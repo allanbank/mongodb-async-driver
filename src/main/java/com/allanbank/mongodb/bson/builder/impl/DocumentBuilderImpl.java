@@ -81,6 +81,16 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
+    public DocumentBuilder add(String name, Object value)
+            throws IllegalArgumentException {
+        myElements.add(coerse(name, value));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public DocumentBuilder add(final String name, final boolean value)
             throws IllegalArgumentException {
         return addBoolean(name, value);

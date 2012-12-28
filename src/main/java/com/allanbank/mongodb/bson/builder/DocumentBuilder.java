@@ -24,6 +24,27 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  */
 public interface DocumentBuilder extends Builder, DocumentAssignable {
     /**
+     * Adds the value to the document after trying to coerce the value into the
+     * best possible element type. If the coersion fails then an
+     * {@link IllegalArgumentException} is thrown.
+     * <p>
+     * This method does type inspection which can be slow. It is generally much
+     * faster to use the type specific methods of this interface.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param value
+     *            The Object value to coerce into an element.
+     * @return This {@link DocumentBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code> or the {@code value}
+     *             cannot be coerced into an element type.
+     */
+    public DocumentBuilder add(String name, Object value)
+            throws IllegalArgumentException;
+
+    /**
      * Adds a pre-built element to the document.
      * 
      * @param element

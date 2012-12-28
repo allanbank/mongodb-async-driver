@@ -444,6 +444,7 @@ public class DocumentElement extends AbstractElement implements Document {
      * 
      * @return The elements in the document.
      */
+    @Override
     public List<Element> getElements() {
         return myElements;
     }

@@ -10,22 +10,34 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BinaryElement;
+import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
+import com.allanbank.mongodb.bson.element.DoubleElement;
+import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.bson.element.LongElement;
 import com.allanbank.mongodb.bson.element.NullElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.ObjectIdElement;
 import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * ArrayBuilderImplTest provides tests for the {@link ArrayBuilderImpl} class.
@@ -165,6 +177,90 @@ public class ArrayBuilderImplTest {
         assertTrue(element.getEntries().get(0) instanceof ArrayElement);
         assertTrue(((ArrayElement) element.getEntries().get(0)).getEntries()
                 .size() == 0);
+    }
+
+    /**
+     * Test method for the {@link ArrayBuilderImpl#add(Object)}.
+     */
+    @Test
+    public void testAddStringObject() {
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        builder.reset().add((Object) null);
+        assertEquals(new NullElement("0"), builder.build()[0]);
+
+        builder.reset().add(Boolean.valueOf(false));
+        assertEquals(new BooleanElement("0", false), builder.build()[0]);
+
+        builder.reset().add(Long.valueOf(3));
+        assertEquals(new LongElement("0", 3), builder.build()[0]);
+
+        builder.reset().add(BigInteger.valueOf(3));
+        assertEquals(new RootDocument(new LongElement("0", 3)), builder.build());
+
+        builder.reset().add(Double.valueOf(1.01));
+        assertEquals(new DoubleElement("0", 1.01), builder.build()[0]);
+
+        builder.reset().add(Float.valueOf(1.01F));
+        assertEquals(new DoubleElement("0", 1.01F), builder.build()[0]);
+
+        builder.reset().add(Short.valueOf((short) 1));
+        assertEquals(new IntegerElement("0", 1), builder.build()[0]);
+
+        builder.reset().add(new byte[12]);
+        assertEquals(new BinaryElement("0", new byte[12]), builder.build()[0]);
+
+        ObjectId objectid = new ObjectId();
+        builder.reset().add((Object) objectid);
+        assertEquals(new ObjectIdElement("0", objectid), builder.build()[0]);
+
+        Pattern pattern = Pattern.compile("1234");
+        builder.reset().add((Object) pattern);
+        assertEquals(new RegularExpressionElement("0", pattern),
+                builder.build()[0]);
+
+        builder.reset().add((Object) "a");
+        assertEquals(new StringElement("0", "a"), builder.build()[0]);
+
+        Date date = new Date();
+        builder.reset().add((Object) date);
+        assertEquals(new TimestampElement("0", date.getTime()),
+                builder.build()[0]);
+
+        Calendar calendar = Calendar.getInstance();
+        builder.reset().add(calendar);
+        assertEquals(new TimestampElement("0", calendar.getTime().getTime()),
+                builder.build()[0]);
+
+        DocumentAssignable b2 = BuilderFactory.start();
+        builder.reset().add((Object) b2);
+        assertEquals(new DocumentElement("0", b2.asDocument()),
+                builder.build()[0]);
+
+        Element e1 = new IntegerElement("a", 1);
+        builder.reset().add(e1);
+        assertEquals(new IntegerElement("0", 1), builder.build()[0]);
+
+        Map<String, String> map = Collections.singletonMap("a", "b");
+        builder.reset().add(map);
+        assertEquals(new DocumentElement("0", new StringElement("a", "b")),
+                builder.build()[0]);
+
+        Collection<String> collection = Collections.singleton("a");
+        builder.reset().add(collection);
+        assertEquals(new ArrayElement("0", new StringElement("0", "a")),
+                builder.build()[0]);
+
+    }
+
+    /**
+     * Test method for the {@link ArrayBuilderImpl#add(Object)}.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddStringObjectWithUncoercable() {
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        builder.reset().add(new Object());
     }
 
     /**
