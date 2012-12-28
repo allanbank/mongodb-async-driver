@@ -414,6 +414,14 @@
 				<configuration>
 					<targetJdk>1.6</targetJdk>
 					<linkXRef>false</linkXRef>
+					<excludes>
+					    <!-- JavaCC generated Classes. -->
+                        <exclude>**/JavaCharStream.java</exclude>
+                        <exclude>**/JsonParser.java</exclude>
+                        <exclude>**/JsonParserTokenManager.java</exclude>
+                        <exclude>**/TokenMgrError.java</exclude>
+                        <exclude>**/ParseException.java</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>

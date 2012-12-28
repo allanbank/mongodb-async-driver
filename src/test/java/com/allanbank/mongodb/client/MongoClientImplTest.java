@@ -23,8 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoClient;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDatabase;
-import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -33,14 +33,11 @@ import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Reply;
 
 /**
- * MongoImplTest provides tests for the {@link MongoImpl} class.
+ * MongoClientImplTest provides tests for the {@link MongoClientImpl} class.
  * 
- * @deprecated Use the {@link MongoClient} interface instead. This interface
- *             will be removed on or after the 1.3.0 release.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-@Deprecated
-public class MongoImplTest {
+public class MongoClientImplTest {
 
     /** The address for the test. */
     private String myAddress = null;
@@ -49,7 +46,7 @@ public class MongoImplTest {
     private Client myMockClient = null;
 
     /** The instance under test. */
-    private MongoImpl myTestInstance = null;
+    private MongoClientImpl myTestInstance = null;
 
     /**
      * Creates the base set of objects for the test.
@@ -58,7 +55,7 @@ public class MongoImplTest {
     public void setUp() {
         myMockClient = EasyMock.createMock(Client.class);
 
-        myTestInstance = new MongoImpl(myMockClient);
+        myTestInstance = new MongoClientImpl(myMockClient);
         myAddress = "localhost:21017";
     }
 
@@ -74,12 +71,12 @@ public class MongoImplTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.client.MongoImpl#asSerializedClient()} .
+     * Test method for {@link MongoClientImpl#asSerializedClient()} .
      */
     @Test
     public void testAsSerializedClient() {
-        final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
+        final MongoClientImpl impl = new MongoClientImpl(
+                new MongoClientConfiguration());
         assertThat(impl.getClient(), instanceOf(ClientImpl.class));
         impl.close();
 
@@ -90,23 +87,7 @@ public class MongoImplTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.client.MongoImpl#asSerializedMongo()} .
-     */
-    @Test
-    public void testAsSerializedMongo() {
-        final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
-        assertThat(impl.getClient(), instanceOf(ClientImpl.class));
-        impl.close();
-
-        final MongoClient serial = impl.asSerializedMongo();
-        assertThat(serial, instanceOf(MongoImpl.class));
-        final MongoImpl serialImpl = (MongoImpl) serial;
-        assertThat(serialImpl.getClient(), instanceOf(SerialClientImpl.class));
-    }
-
-    /**
-     * Test method for {@link com.allanbank.mongodb.client.MongoImpl#close()}.
+     * Test method for {@link MongoClientImpl#close()}.
      */
     @Test
     public void testClose() {
@@ -123,20 +104,18 @@ public class MongoImplTest {
 
     /**
      * Test method for
-     * {@link com.allanbank.mongodb.client.MongoImpl#MongoImpl(MongoDbConfiguration)}
-     * .
+     * {@link MongoClientImpl#MongoClientImpl(MongoClientConfiguration)} .
      */
     @Test
     public void testConstructor() {
-        final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
+        final MongoClientImpl impl = new MongoClientImpl(
+                new MongoClientConfiguration());
         assertTrue(impl.getClient() instanceof ClientImpl);
         impl.close();
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.client.MongoImpl#getDatabase(java.lang.String)}
-     * .
+     * Test method for {@link MongoClientImpl#getDatabase(java.lang.String)} .
      */
     @Test
     public void testGetDatabase() {
@@ -147,8 +126,7 @@ public class MongoImplTest {
     }
 
     /**
-     * Test method for
-     * {@link com.allanbank.mongodb.client.MongoImpl#listDatabases()}.
+     * Test method for {@link MongoClientImpl#listDatabases()}.
      */
     @Test
     public void testListDatabases() {

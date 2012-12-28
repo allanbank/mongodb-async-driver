@@ -38,7 +38,7 @@ public class MongoImpl extends MongoClientImpl implements Mongo {
      * @param config
      *            The configuration for interacting with MongoDB.
      */
-    public MongoImpl(final MongoClientConfiguration config) {
+    public MongoImpl(final MongoDbConfiguration config) {
         super(config);
     }
 
@@ -68,6 +68,11 @@ public class MongoImpl extends MongoClientImpl implements Mongo {
      */
     @Override
     public MongoDbConfiguration getConfig() {
-        return (MongoDbConfiguration) getClient().getConfig();
+        final MongoClientConfiguration config = getClient().getConfig();
+        if (config instanceof MongoDbConfiguration) {
+            return (MongoDbConfiguration) config;
+        }
+        throw new IllegalStateException(
+                "Configuration is not the expected MongoDbConfiguration.");
     }
 }

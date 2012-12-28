@@ -251,49 +251,49 @@ public class Durability implements Serializable, DocumentAssignable {
 
                 final Document d = Json.parse(value);
                 for (final Element e : d) {
-                    if ("w".equalsIgnoreCase(e.getName())) {
-                        waitForReply = true;
-                        if (e instanceof NumericElement) {
-                            waitForReplicas = ((NumericElement) e)
-                                    .getIntValue();
+                    // Skip the getlasterror element.
+                    if (!"getlasterror".equalsIgnoreCase(e.getName())) {
+                        if ("w".equalsIgnoreCase(e.getName())) {
+                            waitForReply = true;
+                            if (e instanceof NumericElement) {
+                                waitForReplicas = ((NumericElement) e)
+                                        .getIntValue();
+                            }
+                            else if (e instanceof StringElement) {
+                                waitForReplicasByMode = ((StringElement) e)
+                                        .getValue();
+                            }
+                            else if (e instanceof SymbolElement) {
+                                waitForReplicasByMode = ((SymbolElement) e)
+                                        .getSymbol();
+                            }
+                            else {
+                                // Unknown 'w' value type.
+                                return null;
+                            }
                         }
-                        else if (e instanceof StringElement) {
-                            waitForReplicasByMode = ((StringElement) e)
-                                    .getValue();
+                        else if ("wtimeout".equalsIgnoreCase(e.getName())) {
+                            if (e instanceof NumericElement) {
+                                waitTimeoutMillis = ((NumericElement) e)
+                                        .getIntValue();
+                            }
+                            else {
+                                // Unknown 'wtimeout' value type.
+                                return null;
+                            }
                         }
-                        else if (e instanceof SymbolElement) {
-                            waitForReplicasByMode = ((SymbolElement) e)
-                                    .getSymbol();
+                        else if ("fsync".equalsIgnoreCase(e.getName())) {
+                            waitForReply = true;
+                            waitForFsync = true;
+                        }
+                        else if ("j".equalsIgnoreCase(e.getName())) {
+                            waitForReply = true;
+                            waitForJournal = true;
                         }
                         else {
-                            // Unknown 'w' value type.
+                            // Unknown field.
                             return null;
                         }
-                    }
-                    else if ("wtimeout".equalsIgnoreCase(e.getName())) {
-                        if (e instanceof NumericElement) {
-                            waitTimeoutMillis = ((NumericElement) e)
-                                    .getIntValue();
-                        }
-                        else {
-                            // Unknown 'wtimeout' value type.
-                            return null;
-                        }
-                    }
-                    else if ("fsync".equalsIgnoreCase(e.getName())) {
-                        waitForReply = true;
-                        waitForFsync = true;
-                    }
-                    else if ("j".equalsIgnoreCase(e.getName())) {
-                        waitForReply = true;
-                        waitForJournal = true;
-                    }
-                    else if ("getlasterror".equalsIgnoreCase(e.getName())) {
-                        // Nothing but the field is OK to have in the document.
-                    }
-                    else {
-                        // Unknown field.
-                        return null;
                     }
                 }
 
@@ -303,6 +303,7 @@ public class Durability implements Serializable, DocumentAssignable {
             }
             catch (final JsonParseException error) {
                 // Ignore and return null.
+                error.getCause(); // Shhh PMD.
             }
         }
 

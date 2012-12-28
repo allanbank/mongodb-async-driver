@@ -2497,7 +2497,7 @@ public class MongoCollectionImplTest {
         final Query message = new Query("test", "test",
                 qRequestBuilder.build(), request.getReturnFields(), 1, 1,
                 request.getNumberToSkip(), false,
-                ReadPreference.PREFER_SECONDARY, false, false, false, false);
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
@@ -2547,7 +2547,7 @@ public class MongoCollectionImplTest {
         final Query message = new Query("test", "test",
                 qRequestBuilder.build(), request.getReturnFields(), 1, 1,
                 request.getNumberToSkip(), false,
-                ReadPreference.PREFER_SECONDARY, false, false, false, false);
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
@@ -2590,7 +2590,7 @@ public class MongoCollectionImplTest {
         final Query message = new Query("test", "test", qBuilder.asDocument(),
                 request.getReturnFields(), 1, 1, request.getNumberToSkip(),
                 false, ReadPreference.PREFER_SECONDARY, false, false, false,
-                false);
+                true);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())

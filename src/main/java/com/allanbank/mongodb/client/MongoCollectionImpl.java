@@ -336,27 +336,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Find query) throws MongoDbException {
 
-        ReadPreference readPreference = query.getReadPreference();
-        if (readPreference == null) {
-            readPreference = getReadPreference();
-        }
-
-        Document queryDoc;
-        if (!readPreference.isLegacy()
-                && (myClient.getClusterType() == ClusterType.SHARDED)) {
-            queryDoc = query.toQueryRequest(false, readPreference);
-        }
-        else {
-            queryDoc = query.toQueryRequest(false);
-        }
-
-        final Query queryMessage = new Query(getDatabaseName(), myName,
-                queryDoc, query.getReturnFields(), query.getBatchSize(),
-                query.getLimit(), query.getNumberToSkip(),
-                query.isTailable() /* tailable */, readPreference,
-                false /* noCursorTimeout */,
-                query.isTailable() /* awaitData */, false /* exhaust */,
-                query.isPartialOk());
+        final Query queryMessage = createQuery(query, query.getLimit(),
+                query.getBatchSize(), query.isTailable());
 
         final QueryCallback callback = new QueryCallback(myClient,
                 queryMessage, results);
@@ -376,26 +357,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void findOneAsync(final Callback<Document> results, final Find query)
             throws MongoDbException {
-
-        ReadPreference readPreference = query.getReadPreference();
-        if (readPreference == null) {
-            readPreference = getReadPreference();
-        }
-
-        Document queryDoc;
-        if (!readPreference.isLegacy()
-                && (myClient.getClusterType() == ClusterType.SHARDED)) {
-            queryDoc = query.toQueryRequest(false, readPreference);
-        }
-        else {
-            queryDoc = query.toQueryRequest(false);
-        }
-
-        final Query queryMessage = new Query(getDatabaseName(), myName,
-                queryDoc, query.getReturnFields(), 1 /* batchSize */,
-                1 /* limit */, query.getNumberToSkip(), false /* tailable */,
-                readPreference, false /* noCursorTimeout */,
-                false /* awaitData */, false /* exhaust */, false /* partial */);
+        final Query queryMessage = createQuery(query, 1, 1, false);
 
         myClient.send(queryMessage, new QueryOneCallback(results));
     }
@@ -633,27 +595,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void streamingFind(final Callback<Document> results, final Find query)
             throws MongoDbException {
-        ReadPreference readPreference = query.getReadPreference();
-        if (readPreference == null) {
-            readPreference = getReadPreference();
-        }
-
-        Document queryDoc;
-        if (!readPreference.isLegacy()
-                && (myClient.getClusterType() == ClusterType.SHARDED)) {
-            queryDoc = query.toQueryRequest(false, readPreference);
-        }
-        else {
-            queryDoc = query.toQueryRequest(false);
-        }
-
-        final Query queryMessage = new Query(getDatabaseName(), myName,
-                queryDoc, query.getReturnFields(), query.getBatchSize(),
-                query.getLimit(), query.getNumberToSkip(),
-                query.isTailable() /* tailable */, readPreference,
-                false /* noCursorTimeout */,
-                query.isTailable() /* awaitData */, false /* exhaust */,
-                query.isPartialOk());
+        final Query queryMessage = createQuery(query, query.getLimit(),
+                query.getBatchSize(), query.isTailable());
 
         final QueryStreamingCallback callback = new QueryStreamingCallback(
                 myClient, queryMessage, results);
@@ -726,6 +669,43 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         return result;
+    }
+
+    /**
+     * Creates a properly configured {@link Query} message.
+     * 
+     * @param query
+     *            The {@link Find} to construct the {@link Query} from.
+     * @param limit
+     *            The limit for the query.
+     * @param batchSize
+     *            The batch size for the query.
+     * @param tailable
+     *            If the query should create a tailable cursor.
+     * @return The {@link Query} message.
+     */
+    protected Query createQuery(final Find query, final int limit,
+            final int batchSize, final boolean tailable) {
+        ReadPreference readPreference = query.getReadPreference();
+        if (readPreference == null) {
+            readPreference = getReadPreference();
+        }
+
+        Document queryDoc;
+        if (!readPreference.isLegacy()
+                && (myClient.getClusterType() == ClusterType.SHARDED)) {
+            queryDoc = query.toQueryRequest(false, readPreference);
+        }
+        else {
+            queryDoc = query.toQueryRequest(false);
+        }
+
+        return new Query(getDatabaseName(), myName, queryDoc,
+                query.getReturnFields(), batchSize /* batchSize */,
+                limit /* limit */, query.getNumberToSkip(), tailable,
+                readPreference, false /* noCursorTimeout */,
+                tailable /* awaitData */, false /* exhaust */,
+                query.isPartialOk());
     }
 
     /**

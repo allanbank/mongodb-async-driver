@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.client;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.Callback;
@@ -151,13 +150,13 @@ import com.allanbank.mongodb.error.ReplyException;
      */
     protected List<Document> loadDocuments(final Reply reply)
             throws RuntimeException {
-        List<Document> docs = Collections.emptyList();
+
         myCursorId = reply.getCursorId();
 
         // Setup the documents and adjust the limit for the documents we have.
         // Do this before the fetch again so the nextBatchSize() has the updated
         // limit.
-        docs = reply.getResults();
+        List<Document> docs = reply.getResults();
         if (0 < myLimit) {
             // Check if we have too many docs.
             if (myLimit <= docs.size()) {

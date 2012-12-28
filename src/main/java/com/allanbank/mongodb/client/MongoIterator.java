@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.client;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -268,7 +267,7 @@ public class MongoIterator implements ClosableIterator<Document> {
      */
     protected List<Document> loadDocuments(final boolean blockForTailable)
             throws RuntimeException {
-        List<Document> docs = Collections.emptyList();
+        List<Document> docs;
         try {
             // Pull the reply from the future. Hopefully it is already there!
             final Reply reply = myNextReply.get();

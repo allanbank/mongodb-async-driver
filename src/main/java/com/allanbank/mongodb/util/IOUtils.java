@@ -7,6 +7,7 @@ package com.allanbank.mongodb.util;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,7 +21,7 @@ import java.util.logging.Logger;
 public final class IOUtils {
 
     /** Base64 encoding array according to RFC 2045. */
-    private static final char BASE_64_CHARS[] = ("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    private static final char[] BASE_64_CHARS = ("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             + "abcdefghijklmnopqrstuvwxyz0123456789+/").toCharArray();
 
     /**
@@ -37,13 +38,7 @@ public final class IOUtils {
             38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
 
     /** The mapping from a character (ascii) value to a nibble hex encoded. */
-    private static final byte[] CHAR_TO_HEX_NIBBLE = { -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1,
-            -1, -1, -1, -1, -1, -1, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
+    private static final byte[] CHAR_TO_HEX_NIBBLE;
 
     /** Hex encoding characters. */
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
@@ -51,6 +46,33 @@ public final class IOUtils {
     /** The logger for the {@link IOUtils}. */
     private static final Logger LOG = Logger.getLogger(IOUtils.class
             .getCanonicalName());
+
+    static {
+        CHAR_TO_HEX_NIBBLE = new byte[128];
+        Arrays.fill(CHAR_TO_HEX_NIBBLE, (byte) -1);
+        CHAR_TO_HEX_NIBBLE['0'] = 0;
+        CHAR_TO_HEX_NIBBLE['1'] = 1;
+        CHAR_TO_HEX_NIBBLE['2'] = 2;
+        CHAR_TO_HEX_NIBBLE['3'] = 3;
+        CHAR_TO_HEX_NIBBLE['4'] = 4;
+        CHAR_TO_HEX_NIBBLE['5'] = 5;
+        CHAR_TO_HEX_NIBBLE['6'] = 6;
+        CHAR_TO_HEX_NIBBLE['7'] = 7;
+        CHAR_TO_HEX_NIBBLE['8'] = 8;
+        CHAR_TO_HEX_NIBBLE['9'] = 9;
+        CHAR_TO_HEX_NIBBLE['a'] = 0xa;
+        CHAR_TO_HEX_NIBBLE['b'] = 0xb;
+        CHAR_TO_HEX_NIBBLE['c'] = 0xc;
+        CHAR_TO_HEX_NIBBLE['d'] = 0xd;
+        CHAR_TO_HEX_NIBBLE['e'] = 0xe;
+        CHAR_TO_HEX_NIBBLE['f'] = 0xf;
+        CHAR_TO_HEX_NIBBLE['A'] = 0xA;
+        CHAR_TO_HEX_NIBBLE['B'] = 0xB;
+        CHAR_TO_HEX_NIBBLE['C'] = 0xC;
+        CHAR_TO_HEX_NIBBLE['D'] = 0xD;
+        CHAR_TO_HEX_NIBBLE['E'] = 0xE;
+        CHAR_TO_HEX_NIBBLE['F'] = 0xF;
+    }
 
     /**
      * Converts the Base64 (RFC 2045) String into a byte array.
@@ -162,7 +184,7 @@ public final class IOUtils {
         final String trimmed = hex.trim();
 
         final int length = trimmed.length();
-        if ((length % 2) == 1) {
+        if ((length & 1) == 1) {
             throw new IllegalArgumentException(
                     "A hex string must be an even number of characters: '"
                             + trimmed + "'");
