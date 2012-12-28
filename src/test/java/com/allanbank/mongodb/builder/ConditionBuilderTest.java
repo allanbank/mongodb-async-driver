@@ -12,6 +12,7 @@ import static org.junit.Assert.assertThat;
 
 import java.awt.geom.Point2D;
 import java.util.Random;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.junit.After;
@@ -43,6 +44,7 @@ import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.bson.element.UuidElement;
 import com.allanbank.mongodb.builder.expression.Expressions;
 
 /**
@@ -426,6 +428,26 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#equalsLegacy(UUID)}.
+     */
+    @Test
+    public void testEqualsLegacyUUID() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final UUID value = UUID.randomUUID();
+
+        b.greaterThan(23); // Make sure non-equals is removed.
+        b.equalsLegacy(value);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(UuidElement.class));
+        assertEquals(e, new UuidElement("foo",
+                UuidElement.LEGACY_UUID_SUBTTYPE, value));
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#equals(long)}.
      */
     @Test
@@ -607,6 +629,25 @@ public class ConditionBuilderTest {
 
         assertThat(e, instanceOf(TimestampElement.class));
         assertEquals(e, new TimestampElement("foo", value));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(UUID)}.
+     */
+    @Test
+    public void testEqualsUUID() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final UUID value = UUID.randomUUID();
+
+        b.greaterThan(23); // Make sure non-equals is removed.
+        b.equals(value);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(UuidElement.class));
+        assertEquals(e, new UuidElement("foo", value));
     }
 
     /**
@@ -2277,6 +2318,29 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#notEqualTo(UUID)} .
+     */
+    @Test
+    public void testNotEqualToLegacyUUID() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final UUID value = UUID.randomUUID();
+
+        b.equals(false); // Make sure equals is removed.
+        b.notEqualToLegacy(value);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.addLegacyUuid(ComparisonOperator.NE.getToken(), value);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#notEqualTo(long)}.
      */
     @Test
@@ -2497,6 +2561,29 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.addTimestamp(ComparisonOperator.NE.getToken(), value);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(UUID)} .
+     */
+    @Test
+    public void testNotEqualToUUID() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final UUID value = UUID.randomUUID();
+
+        b.equals(false); // Make sure equals is removed.
+        b.notEqualTo(value);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.add(ComparisonOperator.NE.getToken(), value);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }

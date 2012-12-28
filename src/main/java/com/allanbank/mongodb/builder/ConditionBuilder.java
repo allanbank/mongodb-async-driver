@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
@@ -38,6 +39,7 @@ import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.bson.element.UuidElement;
 import com.allanbank.mongodb.builder.expression.Constant;
 import com.allanbank.mongodb.error.QueryFailedException;
 
@@ -446,6 +448,27 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Checks if the value equals the specified <tt>uuid</tt> using the standard
+     * byte ordering.
+     * <p>
+     * Only a single {@link #equals(boolean) equals(...)} comparison can be
+     * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
+     * overwrites previous values. In addition <tt>equals(...)</tt> removes all
+     * other conditions from the builder since there is no equal operator
+     * supported by MongoDB.
+     * </p>
+     * 
+     * @param uuid
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder equals(final UUID uuid) {
+        myOtherComparisons.clear();
+        myEqualsComparison = new UuidElement(getFieldName(), uuid);
+        return this;
+    }
+
+    /**
      * Checks if the value equals the specified <tt>value</tt>.
      * <p>
      * Only a single {@link #equals(boolean) equals(...)} comparison can be
@@ -490,6 +513,28 @@ public class ConditionBuilder implements DocumentAssignable {
         myOtherComparisons.clear();
         myEqualsComparison = new JavaScriptWithScopeElement(getFieldName(),
                 value, scope.asDocument());
+        return this;
+    }
+
+    /**
+     * Checks if the value equals the specified <tt>value</tt> using the legacy
+     * Java byte ordering.
+     * <p>
+     * Only a single {@link #equals(boolean) equals(...)} comparison can be
+     * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
+     * overwrites previous values. In addition <tt>equals(...)</tt> removes all
+     * other conditions from the builder since there is no equal operator
+     * supported by MongoDB.
+     * </p>
+     * 
+     * @param uuid
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder equalsLegacy(final UUID uuid) {
+        myOtherComparisons.clear();
+        myEqualsComparison = new UuidElement(getFieldName(),
+                UuidElement.LEGACY_UUID_SUBTTYPE, uuid);
         return this;
     }
 
@@ -2416,6 +2461,28 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Checks if the value is not equal to the specified <tt>uuid</tt> using the
+     * standard UUID byte ordering.
+     * <p>
+     * Only a single {@link #notEqualTo(boolean) notEqualTo(...)} comparison can
+     * be used. Calling multiple {@link #notEqualTo(byte[]) equals(...)} methods
+     * overwrites previous values. In addition any {@link #equals(boolean)
+     * equals(...)} condition is removed since no equality operator is supported
+     * by MongoDB.
+     * </p>
+     * 
+     * @param uuid
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notEqualTo(final UUID uuid) {
+        myEqualsComparison = null;
+        myOtherComparisons.put(ComparisonOperator.NE, new UuidElement(
+                ComparisonOperator.NE.getToken(), uuid));
+        return this;
+    }
+
+    /**
      * Checks if the value is not equal to the specified <tt>value</tt>.
      * <p>
      * Only a single {@link #notEqualTo(boolean) notEqualTo(...)} comparison can
@@ -2464,6 +2531,29 @@ public class ConditionBuilder implements DocumentAssignable {
                 new JavaScriptWithScopeElement(
                         ComparisonOperator.NE.getToken(), value, scope
                                 .asDocument()));
+        return this;
+    }
+
+    /**
+     * Checks if the value is not equal to the specified <tt>uuid</tt> using the
+     * legacy Java UUID byte ordering.
+     * <p>
+     * Only a single {@link #notEqualTo(boolean) notEqualTo(...)} comparison can
+     * be used. Calling multiple {@link #notEqualTo(byte[]) equals(...)} methods
+     * overwrites previous values. In addition any {@link #equals(boolean)
+     * equals(...)} condition is removed since no equality operator is supported
+     * by MongoDB.
+     * </p>
+     * 
+     * @param uuid
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notEqualToLegacy(final UUID uuid) {
+        myEqualsComparison = null;
+        myOtherComparisons.put(ComparisonOperator.NE, new UuidElement(
+                ComparisonOperator.NE.getToken(),
+                UuidElement.LEGACY_UUID_SUBTTYPE, uuid));
         return this;
     }
 
