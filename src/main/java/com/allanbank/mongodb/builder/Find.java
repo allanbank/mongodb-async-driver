@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.ClosableIterator;
+import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
@@ -206,8 +207,14 @@ public class Find {
     }
 
     /**
-     * Converts the {@link Find} into a query request document to send to the
-     * MongoDB server.
+     * This method is not intended for applications to use. Applications should
+     * pass the {@link Find} object to the appropriate method on the
+     * {@link MongoCollection} interface. This method is used internally by the
+     * driver and is public for cross package access only.
+     * <p>
+     * Converts the {@link Find} into a raw query request document to send to
+     * the MongoDB server.
+     * </p>
      * 
      * @param explain
      *            If true then explain the query procedure instead of returning
@@ -219,8 +226,14 @@ public class Find {
     }
 
     /**
-     * Converts the {@link Find} into a query request document to send to the
-     * MongoDB server including the provided read preferences.
+     * This method is not intended for applications to use. Applications should
+     * pass the {@link Find} object to the appropriate method on the
+     * {@link MongoCollection} interface. This method is used internally by the
+     * driver and is public for cross package access only.
+     * <p>
+     * Converts the {@link Find} into a raw query request document to send to
+     * the MongoDB server including the provided read preferences.
+     * </p>
      * 
      * @param explain
      *            If true then explain the query procedure instead of returning

@@ -1306,6 +1306,31 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #streamingFind(Callback, Find)}.
+     * </p>
+     * 
+     * @see #streamingFind(Callback, Find)
+     */
+    @Override
+    public void streamingFind(final Callback<Document> results,
+            final DocumentAssignable query) throws MongoDbException {
+        streamingFind(results, new Find.Builder(query).build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>streamingFind</code> method that
+     * implementations must override.
+     * </p>
+     */
+    @Override
+    public abstract void streamingFind(Callback<Document> results, Find query)
+            throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the
      * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * method with multiUpdate set to true, upsert set to false, and using the

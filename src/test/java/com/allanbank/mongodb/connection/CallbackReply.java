@@ -129,6 +129,8 @@ public class CallbackReply extends Capture<Callback<Reply>> {
         if (myReply != null) {
             value.callback(myReply);
         }
-        value.exception(myError);
+        else {
+            value.exception(myError);
+        }
     }
 }

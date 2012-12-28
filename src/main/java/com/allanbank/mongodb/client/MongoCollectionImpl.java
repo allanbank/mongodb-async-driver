@@ -626,6 +626,46 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to send a {@link Query} message to the server and setup the
+     * streaming query callback.
+     * </p>
+     */
+    @Override
+    public void streamingFind(final Callback<Document> results, final Find query)
+            throws MongoDbException {
+        ReadPreference readPreference = query.getReadPreference();
+        if (readPreference == null) {
+            readPreference = getReadPreference();
+        }
+
+        Document queryDoc;
+        if (!readPreference.isLegacy()
+                && (myClient.getClusterType() == ClusterType.SHARDED)) {
+            queryDoc = query.toQueryRequest(false, readPreference);
+        }
+        else {
+            queryDoc = query.toQueryRequest(false);
+        }
+
+        final Query queryMessage = new Query(getDatabaseName(), myName,
+                queryDoc, query.getReturnFields(), query.getBatchSize(),
+                query.getLimit(), query.getNumberToSkip(),
+                query.isTailable() /* tailable */, readPreference,
+                false /* noCursorTimeout */,
+                query.isTailable() /* awaitData */, false /* exhaust */,
+                query.isPartialOk());
+
+        final QueryStreamingCallback callback = new QueryStreamingCallback(
+                myClient, queryMessage, results);
+        final String address = myClient.send(queryMessage, callback);
+
+        callback.setAddress(address);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to send an {@link Update} message to the server.
      * </p>
      */

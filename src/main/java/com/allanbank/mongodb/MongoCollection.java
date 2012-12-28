@@ -1373,6 +1373,78 @@ public interface MongoCollection {
     public Document stats() throws MongoDbException;
 
     /**
+     * Finds the set of documents matching the query document in the collection
+     * and streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link Callback#callback(Object) results.callback(...)} method with
+     * <code>null</code> or by calling the {@link Callback#exception(Throwable)
+     * results.exception(...)} method on an error.
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link Callback#callback} method (which
+     * will then call the {@link Callback#exception} method).
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any signifigant time (including I/O)
+     * it is recommended that an
+     * {@link MongoDbConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoDbConfiguration} to
+     * offload the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query document.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void streamingFind(Callback<Document> results,
+            DocumentAssignable query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection and
+     * streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link Callback#callback(Object) results.callback(...)} method with
+     * <code>null</code> or by calling the {@link Callback#exception(Throwable)
+     * results.exception(...)} method on an error.
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link Callback#callback} method (which
+     * will then call the {@link Callback#exception} method).
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any signifigant time (including I/O)
+     * it is recommended that an
+     * {@link MongoDbConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoDbConfiguration} to
+     * offload the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void streamingFind(Callback<Document> results, Find query)
+            throws MongoDbException;
+
+    /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.

@@ -39,12 +39,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.Mongo;
@@ -6039,6 +6041,43 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies doing a streaming find.
+     */
+    @Test
+    public void testStreamingFind() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            builder.addInteger("_id", i);
+
+            myCollection.insert(builder.build());
+        }
+
+        // Now go find all of them.
+        final Find.Builder findBuilder = new Find.Builder(BuilderFactory
+                .start().build());
+        findBuilder.setReturnFields(BuilderFactory.start()
+                .addBoolean("_id", true).build());
+        // Fetch a lot.
+        findBuilder.setBatchSize(50);
+        findBuilder.setLimit((LARGE_COLLECTION_COUNT / 10) + 4);
+        final Find find = findBuilder.build();
+
+        final DocumentCallback callback = new DocumentCallback();
+        myCollection.streamingFind(callback, find);
+
+        callback.waitFor(TimeUnit.SECONDS.toMillis(60));
+
+        assertTrue(callback.isTerminated());
+        assertEquals(find.getLimit(), callback.getCount());
+        assertNull(callback.getException());
+    }
+
+    /**
      * Verifies performing updates on documents.
      */
     @Test
@@ -6265,5 +6304,91 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     protected boolean isShardedConfiguration() {
         return false;
+    }
+
+    /**
+     * DocumentCallback provides a simple callback for testing streaming finds.
+     * 
+     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static final class DocumentCallback implements Callback<Document> {
+
+        /** The number of documents received. */
+        private int myCount = 0;
+
+        /** The exception if seen. */
+        private Throwable myException = null;
+
+        /** True if the callback has been terminted. */
+        private boolean myTerminated = false;
+
+        @Override
+        public synchronized void callback(final Document result) {
+            if (result != null) {
+                myCount += 1;
+            }
+            else {
+                myTerminated = true;
+            }
+            notifyAll();
+        }
+
+        @Override
+        public synchronized void exception(final Throwable thrown) {
+            myTerminated = true;
+            myException = thrown;
+            notifyAll();
+        }
+
+        /**
+         * Returns the number of documents received.
+         * 
+         * @return The number of documents received.
+         */
+        public synchronized int getCount() {
+            return myCount;
+        }
+
+        /**
+         * Returns the exception if seen.
+         * 
+         * @return The exception if seen.
+         */
+        public synchronized Throwable getException() {
+            return myException;
+        }
+
+        /**
+         * Returns true if the callback has been terminted.
+         * 
+         * @return True if the callback has been terminted.
+         */
+        public synchronized boolean isTerminated() {
+            return myTerminated;
+        }
+
+        /**
+         * Waits for the specified number of documents to be received or the
+         * callback to be termined or the timeout.
+         * 
+         * @param timeMs
+         *            The maximum number of milliseconds to wait.
+         */
+        public void waitFor(final long timeMs) {
+            long now = System.currentTimeMillis();
+            final long deadline = now + timeMs;
+
+            synchronized (this) {
+                while ((now < deadline) && !myTerminated) {
+                    try {
+                        wait(deadline - now);
+                    }
+                    catch (final InterruptedException e) {
+                        // Handled by while loop.
+                    }
+                    now = System.currentTimeMillis();
+                }
+            }
+        }
     }
 }
