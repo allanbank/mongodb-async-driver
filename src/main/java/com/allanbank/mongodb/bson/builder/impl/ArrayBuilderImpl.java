@@ -6,6 +6,7 @@ package com.allanbank.mongodb.bson.builder.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -32,6 +33,7 @@ import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.bson.element.UuidElement;
 
 /**
  * A builder for BSON arrays.
@@ -57,15 +59,6 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      */
     public ArrayBuilderImpl(final AbstractBuilder outerBuilder) {
         super(outerBuilder);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ArrayBuilder add(Object value) throws IllegalArgumentException {
-        myElements.add(coerse(nextIndex(), value));
-        return this;
     }
 
     /**
@@ -160,6 +153,15 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
+    public ArrayBuilder add(final Object value) throws IllegalArgumentException {
+        myElements.add(coerse(nextIndex(), value));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public ArrayBuilder add(final ObjectId id) {
         if (id == null) {
             return addNull();
@@ -198,6 +200,17 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
             final String collectionName, final ObjectId id)
             throws IllegalArgumentException {
         return addDBPointer(databaseName, collectionName, id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder add(final UUID uuid) throws IllegalArgumentException {
+        if (uuid == null) {
+            return addNull();
+        }
+        return addUuid(uuid);
     }
 
     /**
@@ -288,6 +301,17 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
             final DocumentAssignable scope) throws IllegalArgumentException {
         myElements.add(new JavaScriptWithScopeElement(nextIndex(), code, scope
                 .asDocument()));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder addLegacyUuid(final UUID uuid)
+            throws IllegalArgumentException {
+        myElements.add(new UuidElement(nextIndex(),
+                UuidElement.LEGACY_UUID_SUBTTYPE, uuid));
         return this;
     }
 
@@ -393,6 +417,17 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     @Override
     public ArrayBuilder addTimestamp(final long timestamp) {
         myElements.add(new TimestampElement(nextIndex(), timestamp));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayBuilder addUuid(final UUID uuid)
+            throws IllegalArgumentException {
+        myElements.add(new UuidElement(nextIndex(), UuidElement.UUID_SUBTTYPE,
+                uuid));
         return this;
     }
 

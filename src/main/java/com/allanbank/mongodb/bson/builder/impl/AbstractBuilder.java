@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -40,6 +41,7 @@ import com.allanbank.mongodb.bson.element.ObjectIdElement;
 import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.bson.element.UuidElement;
 
 /**
  * Base class with common functionality for the all builders. A builder is
@@ -107,6 +109,88 @@ public abstract class AbstractBuilder implements Builder {
     protected abstract Element build(String name);
 
     /**
+     * Performs type coersion on the value into the best possible element type.
+     * If the coersion fails then an {@link IllegalArgumentException} is thrown.
+     * <p>
+     * This method does type inspection which can be slow. It is generally much
+     * faster to use the type specific methods of this interface.
+     * </p>
+     * 
+     * @param name
+     *            The name for the element to create.
+     * @param value
+     *            The Object value to coerce into an element.
+     * @return This {@link Element} resulting from the coersion.
+     * @throws IllegalArgumentException
+     *             If the {@code value} cannot be coerced into an element type.
+     */
+    protected Element coerse(final String name, final Object value)
+            throws IllegalArgumentException {
+        if (value == null) {
+            return new NullElement(name);
+        }
+        else if (value instanceof Boolean) {
+            return new BooleanElement(name, ((Boolean) value).booleanValue());
+        }
+        else if ((value instanceof Long) || (value instanceof BigInteger)) {
+            return new LongElement(name, ((Number) value).longValue());
+        }
+        else if ((value instanceof Double) || (value instanceof Float)) {
+            return new DoubleElement(name, ((Number) value).doubleValue());
+        }
+        else if (value instanceof Number) {
+            return new IntegerElement(name, ((Number) value).intValue());
+        }
+        else if (value instanceof byte[]) {
+            return new BinaryElement(name, (byte[]) value);
+        }
+        else if (value instanceof ObjectId) {
+            return new ObjectIdElement(name, (ObjectId) value);
+        }
+        else if (value instanceof Pattern) {
+            return new RegularExpressionElement(name, (Pattern) value);
+        }
+        else if (value instanceof String) {
+            return new StringElement(name, (String) value);
+        }
+        else if (value instanceof Date) {
+            return new TimestampElement(name, ((Date) value).getTime());
+        }
+        else if (value instanceof Calendar) {
+            return new TimestampElement(name, ((Calendar) value).getTime()
+                    .getTime());
+        }
+        else if (value instanceof UUID) {
+            return new UuidElement(name, (UUID) value);
+        }
+        else if (value instanceof DocumentAssignable) {
+            return new DocumentElement(name,
+                    ((DocumentAssignable) value).asDocument());
+        }
+        else if (value instanceof ElementAssignable) {
+            return ((ElementAssignable) value).asElement().withName(name);
+        }
+        else if (value instanceof Map) {
+            final DocumentBuilder subDoc = BuilderFactory.start();
+            for (final Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                subDoc.add(entry.getKey().toString(), entry.getValue());
+            }
+            return new DocumentElement(name, subDoc.build());
+        }
+        else if (value instanceof Collection) {
+            final ArrayBuilder subArray = BuilderFactory.startArray();
+            for (final Object entry : (Collection<?>) value) {
+                subArray.add(entry);
+            }
+            return new ArrayElement(name, subArray.build());
+        }
+
+        throw new IllegalArgumentException("Could not coerce the type '"
+                + value.getClass().getName()
+                + "' into a valid BSON element type.");
+    }
+
+    /**
      * Pushes a context for constructing a sub-document.
      * 
      * @param name
@@ -162,85 +246,6 @@ public abstract class AbstractBuilder implements Builder {
         }
 
         return elements;
-    }
-
-    /**
-     * Performs type coersion on the value into the best possible element type.
-     * If the coersion fails then an {@link IllegalArgumentException} is thrown.
-     * <p>
-     * This method does type inspection which can be slow. It is generally much
-     * faster to use the type specific methods of this interface.
-     * </p>
-     * 
-     * @param name
-     *            The name for the element to create.
-     * @param value
-     *            The Object value to coerce into an element.
-     * @return This {@link Element} resulting from the coersion.
-     * @throws IllegalArgumentException
-     *             If the {@code value} cannot be coerced into an element type.
-     */
-    protected Element coerse(String name, Object value)
-            throws IllegalArgumentException {
-        if (value == null) {
-            return new NullElement(name);
-        }
-        else if (value instanceof Boolean) {
-            return new BooleanElement(name, ((Boolean) value).booleanValue());
-        }
-        else if ((value instanceof Long) || (value instanceof BigInteger)) {
-            return new LongElement(name, ((Number) value).longValue());
-        }
-        else if ((value instanceof Double) || (value instanceof Float)) {
-            return new DoubleElement(name, ((Number) value).doubleValue());
-        }
-        else if (value instanceof Number) {
-            return new IntegerElement(name, ((Number) value).intValue());
-        }
-        else if (value instanceof byte[]) {
-            return new BinaryElement(name, (byte[]) value);
-        }
-        else if (value instanceof ObjectId) {
-            return new ObjectIdElement(name, (ObjectId) value);
-        }
-        else if (value instanceof Pattern) {
-            return new RegularExpressionElement(name, (Pattern) value);
-        }
-        else if (value instanceof String) {
-            return new StringElement(name, (String) value);
-        }
-        else if (value instanceof Date) {
-            return new TimestampElement(name, ((Date) value).getTime());
-        }
-        else if (value instanceof Calendar) {
-            return new TimestampElement(name, ((Calendar) value).getTime()
-                    .getTime());
-        }
-        else if (value instanceof DocumentAssignable) {
-            return new DocumentElement(name,
-                    ((DocumentAssignable) value).asDocument());
-        }
-        else if (value instanceof ElementAssignable) {
-            return ((ElementAssignable) value).asElement().withName(name);
-        }
-        else if (value instanceof Map) {
-            DocumentBuilder subDoc = BuilderFactory.start();
-            for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
-                subDoc.add(entry.getKey().toString(), entry.getValue());
-            }
-            return new DocumentElement(name, subDoc.build());
-        }
-        else if (value instanceof Collection) {
-            ArrayBuilder subArray = BuilderFactory.startArray();
-            for (Object entry : (Collection<?>) value) {
-                subArray.add(entry);
-            }
-            return new ArrayElement(name, subArray.build());
-        }
-
-        throw new IllegalArgumentException("Could not coerce the type '"
-                + value.getClass().getName()
-                + "' into a valid BSON element type.");
     }
 
     /**

@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.bson.builder;
 
 import java.util.Date;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -23,23 +24,6 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface ArrayBuilder extends Builder {
-
-    /**
-     * Adds the value to the array after trying to coerce the value into the
-     * best possible element type. If the coersion fails then an
-     * {@link IllegalArgumentException} is thrown.
-     * <p>
-     * This method does type inspection which can be slow. It is generally much
-     * faster to use the type specific methods of this interface.
-     * </p>
-     * 
-     * @param value
-     *            The Object value to coerce into an element.
-     * @return This {@link ArrayBuilder} for method chaining.
-     * @throws IllegalArgumentException
-     *             If the {@code value} cannot be coerced into an element type.
-     */
-    public ArrayBuilder add(Object value) throws IllegalArgumentException;
 
     /**
      * Adds a boolean element.
@@ -164,6 +148,23 @@ public interface ArrayBuilder extends Builder {
     public ArrayBuilder add(long value);
 
     /**
+     * Adds the value to the array after trying to coerce the value into the
+     * best possible element type. If the coersion fails then an
+     * {@link IllegalArgumentException} is thrown.
+     * <p>
+     * This method does type inspection which can be slow. It is generally much
+     * faster to use the type specific methods of this interface.
+     * </p>
+     * 
+     * @param value
+     *            The Object value to coerce into an element.
+     * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If the {@code value} cannot be coerced into an element type.
+     */
+    public ArrayBuilder add(Object value) throws IllegalArgumentException;
+
+    /**
      * Adds an ObjectId element.
      * <p>
      * This is a equivalent to {@link #addObjectId(ObjectId)} but will insert a
@@ -228,6 +229,20 @@ public interface ArrayBuilder extends Builder {
     @Deprecated
     public ArrayBuilder add(String databaseName, String collectionName,
             ObjectId id) throws IllegalArgumentException;
+
+    /**
+     * Adds a (sub-type 4) {@link UUID} binary element.
+     * <p>
+     * This is a equivalent to {@link #addUuid(UUID)} but will insert a
+     * {@link NullElement} if the {@code uuid} is <code>null</code> instead of
+     * throwing an {@link IllegalArgumentException}.
+     * </p>
+     * 
+     * @param uuid
+     *            The {@link UUID} to add.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(UUID uuid);
 
     /**
      * Adds a binary element.
@@ -349,6 +364,22 @@ public interface ArrayBuilder extends Builder {
      *             If {@code code} or {@code scope} is <code>null</code>.
      */
     public ArrayBuilder addJavaScript(String code, DocumentAssignable scope)
+            throws IllegalArgumentException;
+
+    /**
+     * Adds a legacy (sub-type 3) {@link UUID} binary element.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code uuid} is <code>null</code>.
+     * </p>
+     * 
+     * @param uuid
+     *            The {@link UUID} to add.
+     * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If the {@code uuid} is <code>null</code>.
+     */
+    public ArrayBuilder addLegacyUuid(UUID uuid)
             throws IllegalArgumentException;
 
     /**
@@ -479,6 +510,23 @@ public interface ArrayBuilder extends Builder {
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder addTimestamp(long timestamp);
+
+    /**
+     * Adds a (sub-type 4) {@link UUID} binary element.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code uuid} is <code>null</code>. If you would prefer a
+     * {@link NullElement} be inserted in the array use the {@link #add(UUID)}
+     * method instead.
+     * </p>
+     * 
+     * @param uuid
+     *            The {@link UUID} to add.
+     * @return This {@link ArrayBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If the {@code uuid} is <code>null</code>.
+     */
+    public ArrayBuilder addUuid(UUID uuid) throws IllegalArgumentException;
 
     /**
      * Returns the array of {@link Element}s being constructed.

@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
@@ -37,7 +38,7 @@ import com.allanbank.mongodb.bson.element.ObjectIdElement;
 import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
-import com.allanbank.mongodb.bson.impl.RootDocument;
+import com.allanbank.mongodb.bson.element.UuidElement;
 
 /**
  * ArrayBuilderImplTest provides tests for the {@link ArrayBuilderImpl} class.
@@ -116,6 +117,28 @@ public class ArrayBuilderImplTest {
     }
 
     /**
+     * Test method for the {@link ArrayBuilderImpl#addLegacyUuid(UUID)}.
+     */
+    @Test
+    public void testAddLegacyUuid() {
+        final UUID uuid = UUID.randomUUID();
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        builder.addLegacyUuid(uuid);
+        assertEquals(new UuidElement("0", UuidElement.LEGACY_UUID_SUBTTYPE,
+                uuid), builder.build()[0]);
+
+        builder.reset();
+        try {
+            builder.addLegacyUuid((UUID) null);
+            fail("Should have thrown a IllegalArguementException.");
+        }
+        catch (final IllegalArgumentException good) {
+            // Good.
+        }
+    }
+
+    /**
      * Test method for the {@link ArrayBuilderImpl#add(ObjectId)}.
      */
     @Test
@@ -164,22 +187,6 @@ public class ArrayBuilderImplTest {
     }
 
     /**
-     * Test method for {@link ArrayBuilderImpl#pushArray()}.
-     */
-    @Test
-    public void testPushArray() {
-        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
-
-        builder.pushArray();
-
-        final ArrayElement element = builder.build("foo");
-        assertTrue(element.getEntries().size() == 1);
-        assertTrue(element.getEntries().get(0) instanceof ArrayElement);
-        assertTrue(((ArrayElement) element.getEntries().get(0)).getEntries()
-                .size() == 0);
-    }
-
-    /**
      * Test method for the {@link ArrayBuilderImpl#add(Object)}.
      */
     @Test
@@ -196,7 +203,7 @@ public class ArrayBuilderImplTest {
         assertEquals(new LongElement("0", 3), builder.build()[0]);
 
         builder.reset().add(BigInteger.valueOf(3));
-        assertEquals(new RootDocument(new LongElement("0", 3)), builder.build());
+        assertEquals(new LongElement("0", 3), builder.build()[0]);
 
         builder.reset().add(Double.valueOf(1.01));
         assertEquals(new DoubleElement("0", 1.01), builder.build()[0]);
@@ -210,11 +217,11 @@ public class ArrayBuilderImplTest {
         builder.reset().add(new byte[12]);
         assertEquals(new BinaryElement("0", new byte[12]), builder.build()[0]);
 
-        ObjectId objectid = new ObjectId();
+        final ObjectId objectid = new ObjectId();
         builder.reset().add((Object) objectid);
         assertEquals(new ObjectIdElement("0", objectid), builder.build()[0]);
 
-        Pattern pattern = Pattern.compile("1234");
+        final Pattern pattern = Pattern.compile("1234");
         builder.reset().add((Object) pattern);
         assertEquals(new RegularExpressionElement("0", pattern),
                 builder.build()[0]);
@@ -222,31 +229,35 @@ public class ArrayBuilderImplTest {
         builder.reset().add((Object) "a");
         assertEquals(new StringElement("0", "a"), builder.build()[0]);
 
-        Date date = new Date();
+        final Date date = new Date();
         builder.reset().add((Object) date);
         assertEquals(new TimestampElement("0", date.getTime()),
                 builder.build()[0]);
 
-        Calendar calendar = Calendar.getInstance();
+        final Calendar calendar = Calendar.getInstance();
         builder.reset().add(calendar);
         assertEquals(new TimestampElement("0", calendar.getTime().getTime()),
                 builder.build()[0]);
 
-        DocumentAssignable b2 = BuilderFactory.start();
+        final UUID uuid = UUID.randomUUID();
+        builder.reset().add(uuid);
+        assertEquals(new UuidElement("0", uuid), builder.build()[0]);
+
+        final DocumentAssignable b2 = BuilderFactory.start();
         builder.reset().add((Object) b2);
         assertEquals(new DocumentElement("0", b2.asDocument()),
                 builder.build()[0]);
 
-        Element e1 = new IntegerElement("a", 1);
+        final Element e1 = new IntegerElement("a", 1);
         builder.reset().add(e1);
         assertEquals(new IntegerElement("0", 1), builder.build()[0]);
 
-        Map<String, String> map = Collections.singletonMap("a", "b");
+        final Map<String, String> map = Collections.singletonMap("a", "b");
         builder.reset().add(map);
         assertEquals(new DocumentElement("0", new StringElement("a", "b")),
                 builder.build()[0]);
 
-        Collection<String> collection = Collections.singleton("a");
+        final Collection<String> collection = Collections.singleton("a");
         builder.reset().add(collection);
         assertEquals(new ArrayElement("0", new StringElement("0", "a")),
                 builder.build()[0]);
@@ -261,6 +272,60 @@ public class ArrayBuilderImplTest {
         final ArrayBuilderImpl builder = new ArrayBuilderImpl();
 
         builder.reset().add(new Object());
+    }
+
+    /**
+     * Test method for the {@link ArrayBuilderImpl#add(UUID)}.
+     */
+    @Test
+    public void testAddStringUUID() {
+        final UUID uuid = UUID.randomUUID();
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        builder.add(uuid);
+        assertEquals(new UuidElement("0", uuid), builder.build()[0]);
+
+        builder.reset();
+        builder.add((UUID) null);
+        assertEquals(new NullElement("0"), builder.build()[0]);
+
+    }
+
+    /**
+     * Test method for the {@link ArrayBuilderImpl#addUuid(UUID)}.
+     */
+    @Test
+    public void testAddUuid() {
+        final UUID uuid = UUID.randomUUID();
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        builder.addUuid(uuid);
+        assertEquals(new UuidElement("0", uuid), builder.build()[0]);
+
+        builder.reset();
+        try {
+            builder.addUuid((UUID) null);
+            fail("Should have thrown a IllegalArguementException.");
+        }
+        catch (final IllegalArgumentException good) {
+            // Good.
+        }
+    }
+
+    /**
+     * Test method for {@link ArrayBuilderImpl#pushArray()}.
+     */
+    @Test
+    public void testPushArray() {
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        builder.pushArray();
+
+        final ArrayElement element = builder.build("foo");
+        assertTrue(element.getEntries().size() == 1);
+        assertTrue(element.getEntries().get(0) instanceof ArrayElement);
+        assertTrue(((ArrayElement) element.getEntries().get(0)).getEntries()
+                .size() == 0);
     }
 
     /**

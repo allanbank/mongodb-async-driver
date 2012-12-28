@@ -18,6 +18,7 @@ import java.io.ObjectOutputStream;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
@@ -33,6 +34,7 @@ import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.bson.element.UuidElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
@@ -41,6 +43,22 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BsonInputStreamTest {
+
+    /** A test UUID with a very clear byte pattern. */
+    public static final UUID TEST_UUID = new UUID(0x0011223344556677L,
+            0x8899aabbccddeeffL);
+
+    /** The legacy byte order for the TEST_UUID. */
+    private final static byte[] LEGACY_UUID_BYTES = new byte[] { (byte) 0x77,
+            (byte) 0x66, (byte) 0x55, (byte) 0x44, (byte) 0x33, (byte) 0x22,
+            (byte) 0x11, (byte) 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd,
+            (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99, (byte) 0x88 };
+
+    /** The standard byte order for the TEST_UUID. */
+    private final static byte[] STANDARD_UUID_BYTES = new byte[] { (byte) 0x00,
+            (byte) 0x11, (byte) 0x22, (byte) 0x33, (byte) 0x44, (byte) 0x55,
+            (byte) 0x66, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa,
+            (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff };
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
@@ -108,6 +126,33 @@ public class BsonInputStreamTest {
                 element.getName());
         assertEquals("The third 'BSON' entry should be  '1986'.", 1986,
                 ((IntegerElement) element).getValue());
+    }
+
+    /**
+     * Test method for {@link BsonInputStream#readDocument()}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
+    @Test
+    public void testReadBadUuid() throws IOException {
+
+        final Document seed = BuilderFactory.start()
+                .addBinary("uuid", (byte) 4, new byte[15]).build();
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final BsonOutputStream bout = new BsonOutputStream(out);
+
+        bout.writeDocument(seed);
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(
+                out.toByteArray());
+        final BsonInputStream reader = new BsonInputStream(in);
+
+        final Document doc = reader.readDocument();
+        reader.close();
+
+        assertEquals(seed, doc);
     }
 
     /**
@@ -277,6 +322,38 @@ public class BsonInputStreamTest {
         finally {
             reader.close();
         }
+    }
+
+    /**
+     * Test method for {@link BsonInputStream#readDocument()}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
+    @Test
+    public void testReadUuid() throws IOException {
+
+        final Document seed = BuilderFactory.start()
+                .addBinary("juuid", (byte) 3, LEGACY_UUID_BYTES)
+                .addBinary("uuid", (byte) 4, STANDARD_UUID_BYTES).build();
+
+        final Document expected = new RootDocument(new UuidElement("juuid",
+                (byte) 3, TEST_UUID), new UuidElement("uuid", (byte) 4,
+                TEST_UUID));
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final BsonOutputStream bout = new BsonOutputStream(out);
+
+        bout.writeDocument(seed);
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(
+                out.toByteArray());
+        final BsonInputStream reader = new BsonInputStream(in);
+
+        final Document doc = reader.readDocument();
+        reader.close();
+
+        assertEquals(expected, doc);
     }
 
     /**

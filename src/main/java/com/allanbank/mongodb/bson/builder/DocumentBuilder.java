@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.bson.builder;
 
 import java.util.Date;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
@@ -23,27 +24,6 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface DocumentBuilder extends Builder, DocumentAssignable {
-    /**
-     * Adds the value to the document after trying to coerce the value into the
-     * best possible element type. If the coersion fails then an
-     * {@link IllegalArgumentException} is thrown.
-     * <p>
-     * This method does type inspection which can be slow. It is generally much
-     * faster to use the type specific methods of this interface.
-     * </p>
-     * 
-     * @param name
-     *            The name of the element.
-     * @param value
-     *            The Object value to coerce into an element.
-     * @return This {@link DocumentBuilder} for method chaining.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code> or the {@code value}
-     *             cannot be coerced into an element type.
-     */
-    public DocumentBuilder add(String name, Object value)
-            throws IllegalArgumentException;
-
     /**
      * Adds a pre-built element to the document.
      * 
@@ -207,6 +187,27 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
             throws IllegalArgumentException;
 
     /**
+     * Adds the value to the document after trying to coerce the value into the
+     * best possible element type. If the coersion fails then an
+     * {@link IllegalArgumentException} is thrown.
+     * <p>
+     * This method does type inspection which can be slow. It is generally much
+     * faster to use the type specific methods of this interface.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param value
+     *            The Object value to coerce into an element.
+     * @return This {@link DocumentBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code> or the {@code value}
+     *             cannot be coerced into an element type.
+     */
+    public DocumentBuilder add(String name, Object value)
+            throws IllegalArgumentException;
+
+    /**
      * Adds an ObjectId element.
      * <p>
      * This is a equivalent to {@link #addObjectId(String,ObjectId)} but will
@@ -289,6 +290,25 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
     @Deprecated
     public DocumentBuilder add(String name, String databaseName,
             String collectionName, ObjectId id) throws IllegalArgumentException;
+
+    /**
+     * Adds a (sub-type 4) {@link UUID} binary element.
+     * <p>
+     * This is a equivalent to {@link #addUuid(String,UUID)} but will insert a
+     * {@link NullElement} if the {@code uuid} is <code>null</code> instead of
+     * throwing an {@link IllegalArgumentException}.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param uuid
+     *            The {@link UUID} to add.
+     * @return This {@link DocumentBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     */
+    public DocumentBuilder add(String name, UUID uuid)
+            throws IllegalArgumentException;
 
     /**
      * Adds a binary element using sub-type zero (the default).
@@ -441,6 +461,24 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      */
     public DocumentBuilder addJavaScript(String name, String code,
             DocumentAssignable scope) throws IllegalArgumentException;
+
+    /**
+     * Adds a legacy (sub-type 3) {@link UUID} binary element.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code uuid} is <code>null</code>.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param uuid
+     *            The {@link UUID} to add.
+     * @return This {@link DocumentBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code uuid} is <code>null</code>.
+     */
+    public DocumentBuilder addLegacyUuid(String name, UUID uuid)
+            throws IllegalArgumentException;
 
     /**
      * Adds a long (64-bit signed) element.
@@ -610,6 +648,26 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      *             If the {@code name} is <code>null</code>.
      */
     public DocumentBuilder addTimestamp(String name, long timestamp)
+            throws IllegalArgumentException;
+
+    /**
+     * Adds a (sub-type 4) {@link UUID} binary element.
+     * <p>
+     * This method throws an {@link IllegalArgumentException} if the
+     * {@code uuid} is <code>null</code>. If you would prefer a
+     * {@link NullElement} be inserted in the document use the
+     * {@link #add(String, UUID)} method instead.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element.
+     * @param uuid
+     *            The {@link UUID} to add.
+     * @return This {@link DocumentBuilder} for method chaining.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code uuid} is <code>null</code>.
+     */
+    public DocumentBuilder addUuid(String name, UUID uuid)
             throws IllegalArgumentException;
 
     /**

@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.bson.builder.impl;
 
 import java.util.Date;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
@@ -31,6 +32,7 @@ import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.bson.element.UuidElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
@@ -74,16 +76,6 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
         if ("_id".equals(element.getName())) {
             myIdPresent = true;
         }
-        return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DocumentBuilder add(String name, Object value)
-            throws IllegalArgumentException {
-        myElements.add(coerse(name, value));
         return this;
     }
 
@@ -172,6 +164,16 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
+    public DocumentBuilder add(final String name, final Object value)
+            throws IllegalArgumentException {
+        add(coerse(name, value));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public DocumentBuilder add(final String name, final ObjectId id)
             throws IllegalArgumentException {
         if (id == null) {
@@ -213,6 +215,18 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
             final String collectionName, final ObjectId id)
             throws IllegalArgumentException {
         return addDBPointer(name, databaseName, collectionName, id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final UUID uuid)
+            throws IllegalArgumentException {
+        if (uuid == null) {
+            return addNull(name);
+        }
+        return addUuid(name, uuid);
     }
 
     /**
@@ -298,6 +312,15 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
             final DocumentAssignable scope) throws IllegalArgumentException {
         return add(new JavaScriptWithScopeElement(name, code,
                 scope.asDocument()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addLegacyUuid(final String name, final UUID uuid)
+            throws IllegalArgumentException {
+        return add(new UuidElement(name, UuidElement.LEGACY_UUID_SUBTTYPE, uuid));
     }
 
     /**
@@ -398,6 +421,15 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     public DocumentBuilder addTimestamp(final String name, final long timestamp)
             throws IllegalArgumentException {
         return add(new TimestampElement(name, timestamp));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addUuid(final String name, final UUID uuid)
+            throws IllegalArgumentException {
+        return add(new UuidElement(name, UuidElement.UUID_SUBTTYPE, uuid));
     }
 
     /**
