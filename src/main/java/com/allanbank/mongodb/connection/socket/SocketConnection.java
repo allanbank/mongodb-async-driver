@@ -199,11 +199,9 @@ public class SocketConnection implements Connection {
             if (Thread.currentThread() != mySender) {
                 mySender.join();
             }
-        }
-        catch (final InterruptedException ie) {
+        } catch (final InterruptedException ie) {
             // Ignore.
-        }
-        finally {
+        } finally {
             // Now that output is shutdown. Close up the socket. This
             // Triggers the receiver to close if the interrupt didn't work.
             myOutput.close();
@@ -215,8 +213,7 @@ public class SocketConnection implements Connection {
             if (Thread.currentThread() != myReceiver) {
                 myReceiver.join();
             }
-        }
-        catch (final InterruptedException ie) {
+        } catch (final InterruptedException ie) {
             // Ignore.
         }
 
@@ -311,8 +308,7 @@ public class SocketConnection implements Connection {
             final Callback<Reply> replyCallback) throws MongoDbException {
         try {
             myToSendQueue.put(message, replyCallback);
-        }
-        catch (final InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new MongoDbException(e);
         }
 
@@ -327,8 +323,7 @@ public class SocketConnection implements Connection {
             final Callback<Reply> replyCallback) throws MongoDbException {
         try {
             myToSendQueue.put(message1, null, message2, replyCallback);
-        }
-        catch (final InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new MongoDbException(e);
         }
 
@@ -393,8 +388,7 @@ public class SocketConnection implements Connection {
             try {
                 // A slow spin loop.
                 TimeUnit.MILLISECONDS.sleep(10);
-            }
-            catch (final InterruptedException e) {
+            } catch (final InterruptedException e) {
                 // Ignore.
                 e.hashCode();
             }
@@ -414,8 +408,7 @@ public class SocketConnection implements Connection {
             int length;
             try {
                 length = readIntSuppressTimeoutOnNonFirstByte();
-            }
-            catch (final SocketTimeoutException ok) {
+            } catch (final SocketTimeoutException ok) {
                 // This is OK. We check if we are still running and come right
                 // back.
                 return null;
@@ -459,8 +452,7 @@ public class SocketConnection implements Connection {
             }
 
             return message;
-        }
-        catch (final IOException ioe) {
+        } catch (final IOException ioe) {
             final MongoDbException error = new ConnectionLostException(ioe);
 
             // Have to assume all of the requests have failed that are pending.
@@ -525,8 +517,7 @@ public class SocketConnection implements Connection {
         for (int i = Byte.SIZE; i < Integer.SIZE; i += Byte.SIZE) {
             try {
                 read = myBsonIn.read();
-            }
-            catch (final SocketTimeoutException ste) {
+            } catch (final SocketTimeoutException ste) {
                 // Bad - Only the first byte should timeout.
                 throw new IOException(ste);
             }
@@ -567,8 +558,7 @@ public class SocketConnection implements Connection {
         while ((count < myPendingQueue.size()) && (now < deadline)) {
             try {
                 TimeUnit.MILLISECONDS.sleep(50);
-            }
-            catch (final InterruptedException e) {
+            } catch (final InterruptedException e) {
                 // Ignore.
                 e.hashCode();
             }
@@ -577,8 +567,7 @@ public class SocketConnection implements Connection {
         // Pause for the write to happen.
         try {
             TimeUnit.MILLISECONDS.sleep(5);
-        }
-        catch (final InterruptedException e) {
+        } catch (final InterruptedException e) {
             // Ignore.
             e.hashCode();
         }
@@ -591,8 +580,7 @@ public class SocketConnection implements Connection {
     private void closeQuietly() {
         try {
             close();
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             LOG.log(Level.WARNING,
                     "I/O exception trying to shutdown the connection.", e);
         }
@@ -637,6 +625,9 @@ public class SocketConnection implements Connection {
         /** The {@link PendingMessage} used for the local cached copy. */
         private final PendingMessage myPendingMessage = new PendingMessage();
 
+        /**
+         * Processing thread for receiving responses from the server.
+         */
         @Override
         public void run() {
             try {
@@ -651,8 +642,7 @@ public class SocketConnection implements Connection {
                             // All done.
                             return;
                         }
-                    }
-                    catch (final MongoDbException error) {
+                    } catch (final MongoDbException error) {
                         if (myOpen.get()) {
                             LOG.log(Level.WARNING, "Error reading a message: "
                                     + error.getMessage(), error);
@@ -661,8 +651,7 @@ public class SocketConnection implements Connection {
                         return;
                     }
                 }
-            }
-            finally {
+            } finally {
                 // Make sure the connection is closed completely.
                 IOUtils.close(SocketConnection.this);
             }
@@ -695,17 +684,14 @@ public class SocketConnection implements Connection {
                     if (took) {
                         // Must be the pending message's reply.
                         reply(reply, myPendingMessage.getReplyCallback());
-                    }
-                    else {
+                    } else {
                         LOG.warning("Could not find the callback for reply '"
                                 + replyId + "'.");
                     }
-                }
-                finally {
+                } finally {
                     myPendingMessage.clear();
                 }
-            }
-            else if (received != null) {
+            } else if (received != null) {
                 LOG.warning("Received a non-Reply message: " + received);
             }
         }
@@ -743,46 +729,38 @@ public class SocketConnection implements Connection {
                 while (myOpen.get() && !sawError) {
                     try {
                         sendOne();
-                    }
-                    catch (final InterruptedException ie) {
+                    } catch (final InterruptedException ie) {
                         // Handled by loop but if we have a message, need to
                         // tell him something bad happened (but we shouldn't).
                         raiseError(ie, myPendingMessage.getReplyCallback());
-                    }
-                    catch (final IOException ioe) {
+                    } catch (final IOException ioe) {
                         LOG.log(Level.WARNING, "I/O Error sending a message.",
                                 ioe);
                         raiseError(ioe, myPendingMessage.getReplyCallback());
                         sawError = true;
-                    }
-                    catch (final RuntimeException re) {
+                    } catch (final RuntimeException re) {
                         LOG.log(Level.WARNING,
                                 "Runtime error sending a message.", re);
                         raiseError(re, myPendingMessage.getReplyCallback());
                         sawError = true;
-                    }
-                    catch (final Error error) {
+                    } catch (final Error error) {
                         LOG.log(Level.SEVERE, "Error sending a message.", error);
                         raiseError(error, myPendingMessage.getReplyCallback());
                         sawError = true;
-                    }
-                    finally {
+                    } finally {
                         myPendingMessage.clear();
                     }
                 }
-            }
-            finally {
+            } finally {
                 // This may/will fail because we are dying.
                 try {
                     if (myOpen.get()) {
                         doFlush();
                     }
-                }
-                catch (final IOException ioe) {
+                } catch (final IOException ioe) {
                     LOG.log(Level.WARNING,
                             "I/O Error on final flush of messages.", ioe);
-                }
-                finally {
+                } finally {
                     // Make sure we get shutdown completely.
                     IOUtils.close(SocketConnection.this);
                 }
@@ -815,8 +793,7 @@ public class SocketConnection implements Connection {
             boolean took = false;
             if (myNeedToFlush) {
                 took = myToSendQueue.poll(myPendingMessage);
-            }
-            else {
+            } else {
                 myToSendQueue.take(myPendingMessage);
                 took = true;
             }
@@ -849,8 +826,7 @@ public class SocketConnection implements Connection {
                 // of an I/O error the send's exception is more meaningful then
                 // the receivers generic "Didn't get a reply".
                 myPendingMessage.clear();
-            }
-            else {
+            } else {
                 doFlush();
             }
         }

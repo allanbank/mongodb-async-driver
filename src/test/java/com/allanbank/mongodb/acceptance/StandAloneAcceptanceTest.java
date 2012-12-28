@@ -71,8 +71,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
             // Don't assert the databases since the stop/start scripts remove
             // the data directories.
             myMongo.listDatabases();
-        }
-        finally {
+        } finally {
             // Make sure the server is restarted for the other tests.
             startServer();
         }
@@ -95,11 +94,9 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
 
             myMongo.listDatabases();
             fail("Should have thrown an exception.");
-        }
-        catch (final CannotConnectException good) {
+        } catch (final CannotConnectException good) {
             // Good.
-        }
-        finally {
+        } finally {
             // Make sure the server is restarted for the other tests.
             startServer();
         }
@@ -157,11 +154,9 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
 
             assertFalse("Background thread should have died.",
                     backgroundReader.isAlive());
-        }
-        catch (final InterruptedException e) {
+        } catch (final InterruptedException e) {
             fail(e.getMessage());
-        }
-        finally {
+        } finally {
             if (backgroundReader != null) {
                 backgroundReader.interrupt();
             }
@@ -210,8 +205,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
                             iter.next());
                 }
             }
-        }
-        finally {
+        } finally {
             if (iter != null) {
                 iter.close();
             }
@@ -240,7 +234,9 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
          * Creates a new BackgroundTailableCursorReader.
          * 
          * @param iterator
+         *            The iterator to read from.
          * @param docsToRead
+         *            The number of documents to read.
          */
         public BackgroundTailableCursorReader(
                 final ClosableIterator<Document> iterator, final int docsToRead) {
@@ -258,21 +254,22 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
             return myThrown;
         }
 
+        /**
+         * Reads over the documents on the background.
+         */
         @Override
         public void run() {
             try {
                 for (int i = 0; i < myDocsToRead; ++i) {
                     if (myIterator.hasNext()) {
                         myIterator.next();
-                    }
-                    else {
+                    } else {
                         myThrown = new IllegalStateException(
                                 "Did not read all of the expected messages.");
                         return;
                     }
                 }
-            }
-            catch (final RuntimeException re) {
+            } catch (final RuntimeException re) {
                 myThrown = re;
             }
         }

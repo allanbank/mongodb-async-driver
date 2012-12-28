@@ -815,15 +815,58 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
+     * </p>
+     * 
+     * @see #findOneAsync(Callback, Find)
+     */
+    @Override
+    public void findOneAsync(Callback<Document> results,
+            DocumentAssignable query) throws MongoDbException {
+        findOneAsync(results, new Find.Builder(query).build());
+    }
+
+    /**
+     * <p>
+     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
+     * </p>
+     * 
+     * @see #findOneAsync(Callback, Find)
+     */
+    @Override
+    public Document findOne(Find query) throws MongoDbException {
+        return FutureUtils.unwrap(findOneAsync(query));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * This is the canonical <code>findOne</code> method that implementations
      * must override.
      * </p>
      * 
-     * @see MongoCollection#findOneAsync(Callback, DocumentAssignable)
+     * @see MongoCollection#findOneAsync(Callback, Find)
      */
     @Override
-    public abstract void findOneAsync(Callback<Document> results,
-            DocumentAssignable query) throws MongoDbException;
+    public abstract void findOneAsync(Callback<Document> results, Find query)
+            throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
+     * </p>
+     * 
+     * @see #findOneAsync(Callback, Find)
+     */
+    @Override
+    public Future<Document> findOneAsync(Find query) throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>();
+
+        findOneAsync(future, query);
+
+        return future;
+    }
 
     /**
      * {@inheritDoc}
@@ -1601,8 +1644,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             nameBuilder.append("_");
             if (key instanceof NumericElement) {
                 nameBuilder.append(((NumericElement) key).getIntValue());
-            }
-            else if (key instanceof StringElement) {
+            } else if (key instanceof StringElement) {
                 nameBuilder.append(((StringElement) key).getValue());
             }
         }

@@ -799,6 +799,27 @@ public interface MongoCollection {
 
     /**
      * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public Document findOne(Find query) throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
      * 
      * @param results
      *            Callback that will be notified of the results of the query.
@@ -812,6 +833,29 @@ public interface MongoCollection {
 
     /**
      * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public void findOneAsync(Callback<Document> results, Find query)
+            throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
      * 
      * @param query
      *            The query document.
@@ -821,6 +865,27 @@ public interface MongoCollection {
      */
     public Future<Document> findOneAsync(DocumentAssignable query)
             throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public Future<Document> findOneAsync(Find query) throws MongoDbException;
 
     /**
      * Returns the name of the database.
