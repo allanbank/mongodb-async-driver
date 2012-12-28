@@ -15,10 +15,10 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.ClusterTestSupport;
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.Mongo;
+import com.allanbank.mongodb.MongoClient;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
-import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoFactory;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -63,11 +63,11 @@ public class JsonSerializationVisitorITest {
         final int seconds = 0x12345 * 1000; // Times are truncated.
         final int offset = 0xAB;
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer(new InetSocketAddress("127.0.0.1", 27017));
         config.setMaxConnectionCount(1);
 
-        final Mongo mongo = MongoFactory.create(config);
+        final MongoClient mongo = MongoFactory.createClient(config);
         final MongoDatabase db = mongo.getDatabase("test");
         final MongoCollection collection = db.getCollection("test");
 
@@ -102,11 +102,11 @@ public class JsonSerializationVisitorITest {
      */
     @Test
     public void testObjectIdParsingMatches() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer(new InetSocketAddress("127.0.0.1", 27017));
         config.setMaxConnectionCount(1);
 
-        final Mongo mongo = MongoFactory.create(config);
+        final MongoClient mongo = MongoFactory.createClient(config);
         final MongoDatabase db = mongo.getDatabase("test");
         final MongoCollection collection = db.getCollection("test");
 

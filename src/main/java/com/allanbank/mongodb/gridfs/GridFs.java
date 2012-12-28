@@ -140,8 +140,8 @@ public class GridFs {
     public GridFs(final String mongoDbUri, final String rootName) {
         final MongoDbUri uri = new MongoDbUri(mongoDbUri);
 
-        final MongoDatabase database = MongoFactory.create(uri).getDatabase(
-                uri.getDatabase());
+        final MongoDatabase database = MongoFactory.createClient(uri)
+                .getDatabase(uri.getDatabase());
         myFilesCollection = database.getCollection(rootName + FILES_SUFFIX);
         myChunksCollection = database.getCollection(rootName + CHUNKS_SUFFIX);
     }

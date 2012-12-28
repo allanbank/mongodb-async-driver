@@ -49,10 +49,10 @@ import org.junit.Test;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.Mongo;
+import com.allanbank.mongodb.MongoClient;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
-import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoFactory;
 import com.allanbank.mongodb.ProfilingStatus;
@@ -122,7 +122,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     protected MongoCollection myCollection = null;
 
     /** The configuration for the test. */
-    protected MongoDbConfiguration myConfig = null;
+    protected MongoClientConfiguration myConfig = null;
 
     /** The default database to use for the test. */
     protected MongoDatabase myDb = null;
@@ -131,7 +131,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     protected MongoCollection myGeoCollection = null;
 
     /** The connection to MongoDB for the test. */
-    protected Mongo myMongo = null;
+    protected MongoClient myMongo = null;
 
     /** A source of random for the tests. */
     protected Random myRandom = null;
@@ -142,11 +142,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Before
     public void connect() {
         if (myConfig == null) {
-            myConfig = new MongoDbConfiguration();
+            myConfig = new MongoClientConfiguration();
             myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
         }
 
-        myMongo = MongoFactory.create(myConfig);
+        myMongo = MongoFactory.createClient(myConfig);
         myDb = myMongo.getDatabase(TEST_DB_NAME);
         myCollection = myDb.getCollection(TEST_COLLECTION_NAME + "_"
                 + (++ourUniqueId));

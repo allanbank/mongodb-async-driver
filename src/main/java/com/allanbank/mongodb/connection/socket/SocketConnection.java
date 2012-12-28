@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -119,7 +119,7 @@ public class SocketConnection implements Connection {
      *             On a failure to read or write data to the MongoDB server.
      */
     public SocketConnection(final ServerState server,
-            final MongoDbConfiguration config) throws SocketException,
+            final MongoClientConfiguration config) throws SocketException,
             IOException {
 
         myExecutor = config.getExecutor();

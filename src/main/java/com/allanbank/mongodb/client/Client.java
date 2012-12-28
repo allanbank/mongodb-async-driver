@@ -7,7 +7,7 @@ package com.allanbank.mongodb.client;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.ClusterType;
@@ -45,20 +45,21 @@ public interface Client {
      * 
      * @return The configuration being used by the logical MongoDB connection.
      */
-    public MongoDbConfiguration getConfig();
+    public MongoClientConfiguration getConfig();
 
     /**
-     * Returns the {@link Durability} from the {@link MongoDbConfiguration}.
+     * Returns the {@link Durability} from the {@link MongoClientConfiguration}.
      * 
-     * @return The default durability from the {@link MongoDbConfiguration}.
+     * @return The default durability from the {@link MongoClientConfiguration}.
      */
     public Durability getDefaultDurability();
 
     /**
-     * Returns the {@link ReadPreference} from the {@link MongoDbConfiguration}.
+     * Returns the {@link ReadPreference} from the
+     * {@link MongoClientConfiguration}.
      * 
-     * @return The default read preference from the {@link MongoDbConfiguration}
-     *         .
+     * @return The default read preference from the
+     *         {@link MongoClientConfiguration} .
      */
     public ReadPreference getDefaultReadPreference();
 

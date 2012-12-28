@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.message.PendingMessage;
@@ -72,7 +72,7 @@ public class SimpleReconnectStrategyTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testReconnect() throws IOException, InterruptedException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         final ServerState server = new ServerState("localhost:27017");
 
         final Connection mockOldConnection = createMock(Connection.class);
@@ -135,7 +135,7 @@ public class SimpleReconnectStrategyTest {
         final SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
 
         strategy.setConnectionFactory(mockFactory);
-        strategy.setConfig(new MongoDbConfiguration());
+        strategy.setConfig(new MongoClientConfiguration());
         strategy.setSelector(mockSelector);
 
         assertNull(strategy.reconnect(mockOldConnection));
@@ -155,9 +155,9 @@ public class SimpleReconnectStrategyTest {
     @Test
     public void testReconnectFirstFails() throws IOException,
             InterruptedException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         final ClusterState clusterState = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState server = clusterState.add("localhost:27017");
 
         final Connection mockOldConnection = createMock(Connection.class);
@@ -217,7 +217,7 @@ public class SimpleReconnectStrategyTest {
      */
     @Test
     public void testReconnectPingFails() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         final ServerState server = new ServerState("localhost:27017");
 
         final Connection mockOldConnection = createMock(Connection.class);

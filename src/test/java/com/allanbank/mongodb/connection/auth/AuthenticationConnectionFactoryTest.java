@@ -21,7 +21,7 @@ import java.net.InetSocketAddress;
 import org.junit.After;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
@@ -58,7 +58,7 @@ public class AuthenticationConnectionFactoryTest {
      */
     @Test
     public void testClose() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -83,7 +83,7 @@ public class AuthenticationConnectionFactoryTest {
      */
     @Test
     public void testConnect() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
@@ -101,7 +101,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Test method for
-     * {@link AuthenticationConnectionFactory#connect(ServerState, MongoDbConfiguration)}
+     * {@link AuthenticationConnectionFactory#connect(ServerState, MongoClientConfiguration)}
      * .
      * 
      * @throws IOException
@@ -110,7 +110,7 @@ public class AuthenticationConnectionFactoryTest {
     @Test
     public void testConnectInetSocketAddressMongoDbConfiguration()
             throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
@@ -138,7 +138,7 @@ public class AuthenticationConnectionFactoryTest {
      */
     @Test
     public void testGetClusterType() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -160,7 +160,7 @@ public class AuthenticationConnectionFactoryTest {
      */
     @Test
     public void testGetReconnectStrategy() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ReconnectStrategy mockStrategy = createMock(ReconnectStrategy.class);
 

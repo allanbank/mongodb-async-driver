@@ -27,7 +27,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.connection.ClusterType;
@@ -108,7 +108,7 @@ public class BootstrapConnectionFactoryTest {
 
         ourServer.setReplies(reply());
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
@@ -135,7 +135,7 @@ public class BootstrapConnectionFactoryTest {
         ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder), reply());
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         myTestFactory = new BootstrapConnectionFactory(config);
 
@@ -157,7 +157,7 @@ public class BootstrapConnectionFactoryTest {
 
         ourServer.setReplies(reply(replStatusBuilder), reply());
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
@@ -180,7 +180,7 @@ public class BootstrapConnectionFactoryTest {
 
         ourServer.setReplies(reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
@@ -207,8 +207,8 @@ public class BootstrapConnectionFactoryTest {
 
         ourServer.setReplies(reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(fails,
-                ourServer.getInetSocketAddress());
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                fails, ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
         myTestFactory = new BootstrapConnectionFactory(config);
@@ -234,7 +234,7 @@ public class BootstrapConnectionFactoryTest {
         ourServer.setReplies(reply(nonceReply), reply(authReply),
                 reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         config.authenticate(USER_NAME, PASSWORD);
 
@@ -252,7 +252,7 @@ public class BootstrapConnectionFactoryTest {
      */
     @Test
     public void testClose() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
         myTestFactory = new BootstrapConnectionFactory(config);
 
@@ -278,7 +278,7 @@ public class BootstrapConnectionFactoryTest {
     @Test
     public void testConnect() {
         try {
-            final MongoDbConfiguration config = new MongoDbConfiguration(
+            final MongoClientConfiguration config = new MongoClientConfiguration(
                     new InetSocketAddress("127.0.0.1", 27017));
             myTestFactory = new BootstrapConnectionFactory(config);
 

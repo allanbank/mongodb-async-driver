@@ -7,7 +7,7 @@ package com.allanbank.mongodb.connection.proxy;
 
 import java.io.IOException;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
@@ -31,7 +31,7 @@ public interface ProxiedConnectionFactory extends ConnectionFactory {
      * @throws IOException
      *             On a failure connecting to the server.
      */
-    public Connection connect(ServerState server, MongoDbConfiguration config)
-            throws IOException;
+    public Connection connect(ServerState server,
+            MongoClientConfiguration config) throws IOException;
 
 }

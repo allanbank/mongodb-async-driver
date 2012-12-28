@@ -22,10 +22,10 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.Mongo;
+import com.allanbank.mongodb.MongoClient;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
-import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoFactory;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
@@ -98,7 +98,7 @@ public class PerformanceITest extends ServerTestDriverSupport {
     private MongoDatabase myAsyncDb = null;
 
     /** The asynchronous mongo instance. */
-    private Mongo myAsyncMongo = null;
+    private MongoClient myAsyncMongo = null;
 
     /** The synchronous collection instance. */
     private com.mongodb.DBCollection mySyncCollection = null;
@@ -141,12 +141,12 @@ public class PerformanceITest extends ServerTestDriverSupport {
     @Before
     public void setUp() {
         try {
-            final MongoDbConfiguration config = new MongoDbConfiguration(
+            final MongoClientConfiguration config = new MongoClientConfiguration(
                     ourMongoServerUri);
             config.setMaxConnectionCount(1);
             config.setMaxPendingOperationsPerConnection(10 * 1024);
 
-            myAsyncMongo = MongoFactory.create(config);
+            myAsyncMongo = MongoFactory.createClient(config);
             myAsyncDb = myAsyncMongo.getDatabase("asyncTest");
             myAsyncCollection = myAsyncDb.getCollection("test");
 

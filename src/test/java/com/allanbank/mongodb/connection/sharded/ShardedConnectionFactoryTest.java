@@ -31,7 +31,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -114,7 +114,7 @@ public class ShardedConnectionFactoryTest {
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
@@ -135,7 +135,7 @@ public class ShardedConnectionFactoryTest {
     public void testBootstrapNoDiscover() {
         ourServer.setReplies(reply());
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
@@ -170,7 +170,7 @@ public class ShardedConnectionFactoryTest {
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
@@ -217,7 +217,7 @@ public class ShardedConnectionFactoryTest {
         ourServer
                 .setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
@@ -251,7 +251,7 @@ public class ShardedConnectionFactoryTest {
         ourServer
                 .setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
@@ -277,7 +277,7 @@ public class ShardedConnectionFactoryTest {
      */
     @Test
     public void testConnectNoServer() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         final ProxiedConnectionFactory mockFactory = EasyMock
                 .createMock(ProxiedConnectionFactory.class);
@@ -307,7 +307,7 @@ public class ShardedConnectionFactoryTest {
      */
     @Test
     public void testConnectThrowsExecutionError() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer("localhost:6547");
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -342,7 +342,7 @@ public class ShardedConnectionFactoryTest {
      */
     @Test
     public void testConnectThrowsIOError() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer("localhost:6547");
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -370,7 +370,7 @@ public class ShardedConnectionFactoryTest {
      */
     @Test
     public void testConnectThrowsMongoError() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer("localhost:6547");
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -416,7 +416,7 @@ public class ShardedConnectionFactoryTest {
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
@@ -443,7 +443,7 @@ public class ShardedConnectionFactoryTest {
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")), reply(), reply());
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 

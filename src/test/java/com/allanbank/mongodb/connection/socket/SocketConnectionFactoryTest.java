@@ -18,7 +18,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 
@@ -78,7 +78,8 @@ public class SocketConnectionFactoryTest {
     @Test
     public void testClose() throws IOException {
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
-        final MongoDbConfiguration config = new MongoDbConfiguration(addr);
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                addr);
         myTestFactory = new SocketConnectionFactory(config);
 
         myTestFactory.close();
@@ -94,7 +95,8 @@ public class SocketConnectionFactoryTest {
     @Test
     public void testConnect() throws IOException {
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
-        final MongoDbConfiguration config = new MongoDbConfiguration(addr);
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                addr);
         myTestFactory = new SocketConnectionFactory(config);
 
         Connection conn = null;
@@ -130,7 +132,8 @@ public class SocketConnectionFactoryTest {
         // Force to the wrong port.
         final InetSocketAddress bad = new InetSocketAddress(addr.getAddress(),
                 addr.getPort() + 1);
-        final MongoDbConfiguration config = new MongoDbConfiguration(bad);
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                bad);
 
         myTestFactory = new SocketConnectionFactory(config);
 
@@ -155,7 +158,7 @@ public class SocketConnectionFactoryTest {
     public void testConnectFailureNoAddresses() throws IOException {
 
         // Force to the wrong port.
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         myTestFactory = new SocketConnectionFactory(config);
 
@@ -179,7 +182,8 @@ public class SocketConnectionFactoryTest {
     @Test
     public void testGetClusterType() throws IOException {
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
-        final MongoDbConfiguration config = new MongoDbConfiguration(addr);
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                addr);
         myTestFactory = new SocketConnectionFactory(config);
 
         assertEquals(ClusterType.STAND_ALONE, myTestFactory.getClusterType());

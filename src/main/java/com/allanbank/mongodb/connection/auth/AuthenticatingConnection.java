@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
@@ -42,7 +42,7 @@ import com.allanbank.mongodb.util.IOUtils;
 public class AuthenticatingConnection extends AbstractProxyConnection {
 
     /** The name of the administration database. */
-    public static final String ADMIN_DB_NAME = MongoDbConfiguration.ADMIN_DB_NAME;
+    public static final String ADMIN_DB_NAME = MongoClientConfiguration.ADMIN_DB_NAME;
 
     /** Map containing the Futures for the reply to the authenticate requests. */
     private final ConcurrentMap<String, Future<Reply>> myAuthReplys;
@@ -62,7 +62,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
      *            The MongoDB client configuration.
      */
     public AuthenticatingConnection(final Connection connection,
-            final MongoDbConfiguration config) {
+            final MongoClientConfiguration config) {
         super(connection, config);
         myAuthTokens = new ConcurrentHashMap<String, Future<Reply>>();
         myAuthReplys = new ConcurrentHashMap<String, Future<Reply>>();
@@ -208,7 +208,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                 final byte[] bytes = md5
                         .digest((nonce + myConfig.getUserName() + myConfig
                                 .getPasswordHash())
-                                .getBytes(MongoDbConfiguration.UTF8));
+                                .getBytes(MongoClientConfiguration.UTF8));
 
                 builder = BuilderFactory.start();
                 builder.addInteger("authenticate", 1);

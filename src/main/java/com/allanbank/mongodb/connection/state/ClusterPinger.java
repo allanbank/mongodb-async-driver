@@ -18,7 +18,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
@@ -69,7 +69,7 @@ public class ClusterPinger implements Runnable, Closeable {
     private final ClusterType myClusterType;
 
     /** The configuration for the connections. */
-    private final MongoDbConfiguration myConfig;
+    private final MongoClientConfiguration myConfig;
 
     /** The factory for creating connections to the servers. */
     private final ProxiedConnectionFactory myConnectionFactory;
@@ -101,7 +101,7 @@ public class ClusterPinger implements Runnable, Closeable {
     public ClusterPinger(final ClusterState cluster,
             final ClusterType clusterType,
             final ProxiedConnectionFactory factory,
-            final MongoDbConfiguration config) {
+            final MongoClientConfiguration config) {
         super();
 
         myCluster = cluster;

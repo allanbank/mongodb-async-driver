@@ -6,8 +6,8 @@
 package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.ClosableIterator;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
-import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -627,7 +627,7 @@ public class Find {
          * </p>
          * <p>
          * It is highly recommended that the number of connections within the
-         * {@link MongoDbConfiguration} be at least 1 more than the maximum
+         * {@link MongoClientConfiguration} be at least 1 more than the maximum
          * number of active tailable cursors.
          * </p>
          * 

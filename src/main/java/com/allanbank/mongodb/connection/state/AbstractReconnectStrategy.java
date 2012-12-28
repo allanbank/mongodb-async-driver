@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
@@ -27,7 +27,7 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
 
     /** The configuration for connections to the servers. */
-    protected MongoDbConfiguration myConfig = null;
+    protected MongoClientConfiguration myConfig = null;
 
     /** The connection factory for new connections. */
     protected ProxiedConnectionFactory myConnectionFactory = null;
@@ -50,7 +50,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
      * 
      * @return The configuration for connections to the servers
      */
-    public MongoDbConfiguration getConfig() {
+    public MongoClientConfiguration getConfig() {
         return myConfig;
     }
 
@@ -85,7 +85,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
      * {@inheritDoc}
      */
     @Override
-    public void setConfig(final MongoDbConfiguration config) {
+    public void setConfig(final MongoClientConfiguration config) {
         myConfig = config;
     }
 

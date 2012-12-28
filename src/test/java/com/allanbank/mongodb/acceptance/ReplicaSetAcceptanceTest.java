@@ -22,7 +22,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.NumericElement;
@@ -66,7 +66,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
     @Before
     @Override
     public void connect() {
-        myConfig = new MongoDbConfiguration();
+        myConfig = new MongoClientConfiguration();
         myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
         myConfig.setAutoDiscoverServers(true);
         myConfig.setMaxConnectionCount(1);

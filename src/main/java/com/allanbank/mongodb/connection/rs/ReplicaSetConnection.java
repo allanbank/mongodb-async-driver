@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Connection;
@@ -68,7 +68,7 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
     public ReplicaSetConnection(final Connection proxiedConnection,
             final ServerState server, final ClusterState cluster,
             final ProxiedConnectionFactory factory,
-            final MongoDbConfiguration config) {
+            final MongoClientConfiguration config) {
         super(proxiedConnection, config);
         myPrimaryServer = server;
         myCluster = cluster;

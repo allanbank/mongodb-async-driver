@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.error.ConnectionLostException;
 
@@ -53,7 +53,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
     @Before
     @Override
     public void connect() {
-        myConfig = new MongoDbConfiguration();
+        myConfig = new MongoClientConfiguration();
         myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
         myConfig.setAutoDiscoverServers(true);
         myConfig.setMaxConnectionCount(1);

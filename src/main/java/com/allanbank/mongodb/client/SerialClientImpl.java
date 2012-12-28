@@ -9,7 +9,7 @@ import java.io.Closeable;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.ClusterType;
@@ -86,7 +86,7 @@ public class SerialClientImpl extends AbstractClient {
      * </p>
      */
     @Override
-    public MongoDbConfiguration getConfig() {
+    public MongoClientConfiguration getConfig() {
         return myDelegate.getConfig();
     }
 

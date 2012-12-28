@@ -31,7 +31,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -107,7 +107,7 @@ public class ReplicaSetConnectionFactoryTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 myServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
@@ -140,7 +140,7 @@ public class ReplicaSetConnectionFactoryTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 myServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
@@ -173,7 +173,7 @@ public class ReplicaSetConnectionFactoryTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer(serverName);
         config.setAutoDiscoverServers(false);
 
@@ -204,7 +204,7 @@ public class ReplicaSetConnectionFactoryTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://" + serverName);
         config.setAutoDiscoverServers(true);
 
@@ -227,7 +227,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         myServer.setReplies(reply(), reply());
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 myServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
@@ -261,7 +261,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 myServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
@@ -307,7 +307,7 @@ public class ReplicaSetConnectionFactoryTest {
         myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 myServer.getInetSocketAddress());
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
@@ -341,7 +341,7 @@ public class ReplicaSetConnectionFactoryTest {
         myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 myServer.getInetSocketAddress());
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
@@ -367,7 +367,7 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testConnectNoServer() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
 
@@ -396,7 +396,7 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testConnectThrowsExecutionError() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer("localhost:6547");
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -431,7 +431,7 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testConnectThrowsIOError() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer("localhost:6547");
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -459,7 +459,7 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testConnectThrowsMongoError() throws IOException {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer("localhost:6547");
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
@@ -505,7 +505,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 myServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
@@ -524,7 +524,7 @@ public class ReplicaSetConnectionFactoryTest {
     @Test
     public void testGetReconnectStrategy() {
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         final ProxiedConnectionFactory mockFactory = EasyMock
                 .createMock(ProxiedConnectionFactory.class);
 

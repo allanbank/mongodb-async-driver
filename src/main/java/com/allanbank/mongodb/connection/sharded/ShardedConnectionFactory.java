@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
@@ -53,7 +53,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     private final ClusterState myClusterState;
 
     /** The MongoDB client configuration. */
-    private final MongoDbConfiguration myConfig;
+    private final MongoClientConfiguration myConfig;
 
     /** Pings the servers in the cluster collecting latency and tags. */
     private final ClusterPinger myPinger;
@@ -70,7 +70,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      *            The initial configuration.
      */
     public ShardedConnectionFactory(final ProxiedConnectionFactory factory,
-            final MongoDbConfiguration config) {
+            final MongoClientConfiguration config) {
         myConnectionFactory = factory;
         myConfig = config;
         myClusterState = new ClusterState(config);

@@ -14,13 +14,15 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.ClusterType;
@@ -43,6 +45,12 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class ClientImpl extends AbstractClient {
 
+    /**
+     * The maximum number of connections to scan looking for idle/lightly used
+     * connections.
+     */
+    public static final int MAX_CONNECTION_SCAN = 5;
+
     /** The logger for the {@link ClientImpl}. */
     protected static final Logger LOG = Logger.getLogger(ClientImpl.class
             .getCanonicalName());
@@ -51,7 +59,7 @@ public class ClientImpl extends AbstractClient {
     private int myActiveReconnects;
 
     /** The configuration for interacting with MongoDB. */
-    private final MongoDbConfiguration myConfig;
+    private final MongoClientConfiguration myConfig;
 
     /** Factory for creating connections to MongoDB. */
     private final ConnectionFactory myConnectionFactory;
@@ -60,10 +68,13 @@ public class ClientImpl extends AbstractClient {
     private final PropertyChangeListener myConnectionListener;
 
     /** The set of open connections. */
-    private final BlockingQueue<Connection> myConnections;
+    private final List<Connection> myConnections;
 
     /** The set of open connections. */
     private final BlockingQueue<Connection> myConnectionsToClose;
+
+    /** The sequence of the connection that was last used. */
+    private final AtomicInteger myNextConnectionSequence = new AtomicInteger(0);
 
     /**
      * Create a new ClientImpl.
@@ -71,7 +82,7 @@ public class ClientImpl extends AbstractClient {
      * @param config
      *            The configuration for interacting with MongoDB.
      */
-    public ClientImpl(final MongoDbConfiguration config) {
+    public ClientImpl(final MongoClientConfiguration config) {
         this(config, new BootstrapConnectionFactory(config));
     }
 
@@ -83,11 +94,11 @@ public class ClientImpl extends AbstractClient {
      * @param connectionFactory
      *            The source of connection for the client.
      */
-    public ClientImpl(final MongoDbConfiguration config,
+    public ClientImpl(final MongoClientConfiguration config,
             final ConnectionFactory connectionFactory) {
         myConfig = config;
         myConnectionFactory = connectionFactory;
-        myConnections = new LinkedBlockingQueue<Connection>();
+        myConnections = new CopyOnWriteArrayList<Connection>();
         myConnectionsToClose = new LinkedBlockingQueue<Connection>();
         myConnectionListener = new ConnectionListener();
         myActiveReconnects = 0;
@@ -103,10 +114,19 @@ public class ClientImpl extends AbstractClient {
      */
     @Override
     public void close() {
-        for (Connection conn = myConnections.poll(); conn != null; conn = myConnections
-                .poll()) {
-            myConnectionsToClose.add(conn);
-            conn.shutdown();
+
+        while (!myConnections.isEmpty()) {
+            try {
+                final Connection conn = myConnections.remove(0);
+                myConnectionsToClose.add(conn);
+                conn.shutdown();
+            }
+            catch (final ArrayIndexOutOfBoundsException aiob) {
+                // There is a race between the isEmpty() and the remove we can't
+                // avoid. Next check if isEmpty() will bounce us out of the
+                // loop.
+                aiob.getCause(); // Shhhh - PMD.
+            }
         }
 
         // Work off the connections to close until they are all closed.
@@ -144,7 +164,7 @@ public class ClientImpl extends AbstractClient {
      * </p>
      */
     @Override
-    public MongoDbConfiguration getConfig() {
+    public MongoClientConfiguration getConfig() {
         return myConfig;
     }
 
@@ -211,9 +231,16 @@ public class ClientImpl extends AbstractClient {
             synchronized (myConnectionFactory) {
                 // Mark the connections as persona non grata.
                 while (limit < myConnections.size()) {
-                    final Connection conn = myConnections.poll();
-                    myConnectionsToClose.add(conn);
-                    conn.shutdown();
+                    try {
+                        final Connection conn = myConnections.remove(0);
+                        myConnectionsToClose.add(conn);
+                        conn.shutdown();
+                    }
+                    catch (final ArrayIndexOutOfBoundsException aiob) {
+                        // Race between the size() and remove(0).
+                        // Next loop should resolve.
+                        aiob.getCause(); // Shhhh - PMD.
+                    }
                 }
             }
         }
@@ -332,14 +359,33 @@ public class ClientImpl extends AbstractClient {
     }
 
     /**
-     * Tries to find an idle connection to use.
+     * Tries to find an idle connection to use from up to the next
+     * {@value #MAX_CONNECTION_SCAN} items.
      * 
      * @return The idle connection, if found.
      */
     private Connection findIdleConnection() {
-        for (final Connection conn : myConnections) {
-            if (conn.isOpen() && (conn.getPendingCount() == 0)) {
-                return conn;
+        if (!myConnections.isEmpty()) {
+            final int toScan = Math.min(myConnections.size(),
+                    MAX_CONNECTION_SCAN);
+            for (int loop = 0; loop < toScan; ++loop) {
+                final int size = myConnections.size();
+                final long sequence = Math.abs((long) myNextConnectionSequence
+                        .getAndIncrement()); // Cast up to long to make sure abs
+                                             // works.
+                final int index = (int) (sequence % size);
+
+                try {
+                    final Connection conn = myConnections.get(index);
+                    if (conn.isOpen() && (conn.getPendingCount() == 0)) {
+                        return conn;
+                    }
+                }
+                catch (final ArrayIndexOutOfBoundsException aiob) {
+                    // Race between the size and get.
+                    // Next loop should fix.
+                    aiob.getCause(); // Shhh - PMD.
+                }
             }
         }
 
@@ -347,21 +393,41 @@ public class ClientImpl extends AbstractClient {
     }
 
     /**
-     * Locates the most idle connection to use.
+     * Locates the most idle connection to use from up to the next
+     * {@value #MAX_CONNECTION_SCAN} items.
      * 
      * @return The most idle connection.
      */
     private Connection findMostIdleConnection() {
-        final SortedMap<Integer, Connection> connections = new TreeMap<Integer, Connection>();
-        for (final Connection conn : myConnections) {
-            if (conn.isOpen()) {
-                connections.put(Integer.valueOf(conn.getPendingCount()), conn);
+        if (!myConnections.isEmpty()) {
+            final SortedMap<Integer, Connection> connections = new TreeMap<Integer, Connection>();
+            final int toScan = Math.min(myConnections.size(),
+                    MAX_CONNECTION_SCAN);
+            for (int loop = 0; loop < toScan; ++loop) {
+                final int size = myConnections.size();
+                final long sequence = Math.abs((long) myNextConnectionSequence
+                        .getAndIncrement());
+                final int index = (int) (sequence % size);
+
+                try {
+                    final Connection conn = myConnections.get(index);
+                    if (conn.isOpen()) {
+                        connections.put(
+                                Integer.valueOf(conn.getPendingCount()), conn);
+                    }
+                }
+                catch (final ArrayIndexOutOfBoundsException aiob) {
+                    // Race between the size and get.
+                    // Next loop should fix.
+                    aiob.getCause(); // Shhh - PMD.
+                }
+            }
+
+            if (!connections.isEmpty()) {
+                return connections.get(connections.firstKey());
             }
         }
 
-        if (!connections.isEmpty()) {
-            return connections.get(connections.firstKey());
-        }
         return null;
     }
 

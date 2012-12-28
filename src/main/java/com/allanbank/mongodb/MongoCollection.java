@@ -1458,8 +1458,8 @@ public interface MongoCollection {
      * <p>
      * If the callback processing requires any signifigant time (including I/O)
      * it is recommended that an
-     * {@link MongoDbConfiguration#setExecutor(java.util.concurrent.Executor)
-     * Executor} be configured within the {@link MongoDbConfiguration} to
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
      * offload the processing from the receive thread.
      * </p>
      * 
@@ -1494,8 +1494,8 @@ public interface MongoCollection {
      * <p>
      * If the callback processing requires any signifigant time (including I/O)
      * it is recommended that an
-     * {@link MongoDbConfiguration#setExecutor(java.util.concurrent.Executor)
-     * Executor} be configured within the {@link MongoDbConfiguration} to
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
      * offload the processing from the receive thread.
      * </p>
      * 

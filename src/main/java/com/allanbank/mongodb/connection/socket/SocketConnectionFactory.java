@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
@@ -32,7 +32,7 @@ import com.allanbank.mongodb.util.IOUtils;
 public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /** The MongoDB client configuration. */
-    private final MongoDbConfiguration myConfig;
+    private final MongoClientConfiguration myConfig;
 
     /** The server selector. */
     private final ServerSelector myServerSelector;
@@ -46,7 +46,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      * @param config
      *            The MongoDB client configuration.
      */
-    public SocketConnectionFactory(final MongoDbConfiguration config) {
+    public SocketConnectionFactory(final MongoClientConfiguration config) {
         super();
         myConfig = config;
         myState = new ClusterState(config);
@@ -115,7 +115,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      */
     @Override
     public Connection connect(final ServerState server,
-            final MongoDbConfiguration config) throws IOException {
+            final MongoClientConfiguration config) throws IOException {
         final SocketConnection connection = new SocketConnection(server,
                 myConfig);
 

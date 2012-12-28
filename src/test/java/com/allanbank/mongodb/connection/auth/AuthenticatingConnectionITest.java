@@ -12,7 +12,7 @@ import java.util.Collections;
 import org.junit.After;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
@@ -54,7 +54,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
     public void testInsertQueryAdminAuthenticated() throws Exception {
         startAuthenticated();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.authenticateAsAdmin(ADMIN_USER_NAME, PASSWORD);
         config.setDefaultDatabase(USER_DB);
 
@@ -101,7 +101,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
     public void testInsertQueryNonAdminAuthenticated() throws Exception {
         startAuthenticated();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.authenticate(USER_NAME, PASSWORD);
         config.setDefaultDatabase(USER_DB);
 

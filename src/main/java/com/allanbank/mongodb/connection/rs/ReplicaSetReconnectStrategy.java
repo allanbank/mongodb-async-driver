@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.StringElement;
@@ -83,7 +83,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * <p>
      * Overridden to search for the primary server in the replica set. This will
      * only continue until the
-     * {@link MongoDbConfiguration#getReconnectTimeout()} has expired.
+     * {@link MongoClientConfiguration#getReconnectTimeout()} has expired.
      * </p>
      */
     @Override

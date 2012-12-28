@@ -23,25 +23,23 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
 /**
- * MongoDbConfigurationTest provides tests for the {@link MongoDbConfiguration}
- * class.
+ * MongoClientConfigurationTest provides tests for the
+ * {@link MongoClientConfiguration} class.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
- * @deprecated See {@link MongoDbConfiguration} deprecation.
  */
-@Deprecated
-public class MongoDbConfigurationTest {
+public class MongoClientConfigurationTest {
 
     /**
      * Test method for
-     * {@link MongoDbConfiguration#addServer(java.net.InetSocketAddress)}.
+     * {@link MongoClientConfiguration#addServer(java.net.InetSocketAddress)}.
      */
     @Test
     public void testAddServer() {
         final InetSocketAddress addr1 = new InetSocketAddress("foo", 1234);
         final InetSocketAddress addr2 = new InetSocketAddress("bar", 1234);
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         config.addServer(addr1);
         config.addServer(addr2);
@@ -50,11 +48,11 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#addServer(String)}.
+     * Test method for {@link MongoClientConfiguration#addServer(String)}.
      */
     @Test
     public void testAddServerString() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         config.addServer("foo:1234");
         config.addServer("bar:1234");
@@ -63,13 +61,13 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#authenticate(String, String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#authenticate(String, String)} .
      */
     @Test
     public void testAuthenticate() {
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertFalse(config.isAuthenticating());
         assertNull(config.getUserName());
@@ -86,12 +84,12 @@ public class MongoDbConfigurationTest {
 
     /**
      * Test method for
-     * {@link MongoDbConfiguration#authenticateAsAdmin(String, String)} .
+     * {@link MongoClientConfiguration#authenticateAsAdmin(String, String)} .
      */
     @Test
     public void testAuthenticateAsAdmin() {
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertFalse(config.isAuthenticating());
         assertNull(config.getUserName());
@@ -108,7 +106,7 @@ public class MongoDbConfigurationTest {
 
     /**
      * Test method for
-     * {@link MongoDbConfiguration#MongoDbConfiguration(com.allanbank.mongodb.MongoDbConfiguration)}
+     * {@link MongoClientConfiguration#MongoClientConfiguration(com.allanbank.mongodb.MongoClientConfiguration)}
      * .
      */
     @Test
@@ -116,8 +114,8 @@ public class MongoDbConfigurationTest {
         final InetSocketAddress addr1 = new InetSocketAddress("foo", 1234);
         final InetSocketAddress addr2 = new InetSocketAddress("bar", 1234);
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(addr1,
-                addr2).clone();
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                addr1, addr2).clone();
 
         assertEquals(0, config.getConnectTimeout());
         assertEquals(Durability.NONE, config.getDefaultDurability());
@@ -135,12 +133,13 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration()}.
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration()}.
      */
     @Test
-    public void testMongoDbConfiguration() {
+    public void testMongoClientConfiguration() {
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(0, config.getConnectTimeout());
         assertEquals(Durability.NONE, config.getDefaultDurability());
@@ -159,16 +158,16 @@ public class MongoDbConfigurationTest {
 
     /**
      * Test method for
-     * {@link MongoDbConfiguration#MongoDbConfiguration(java.net.InetSocketAddress[])}
+     * {@link MongoClientConfiguration#MongoClientConfiguration(java.net.InetSocketAddress[])}
      * .
      */
     @Test
-    public void testMongoDbConfigurationInetSocketAddressArray() {
+    public void testMongoClientConfigurationInetSocketAddressArray() {
         final InetSocketAddress addr1 = new InetSocketAddress("foo", 1234);
         final InetSocketAddress addr2 = new InetSocketAddress("bar", 1234);
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(addr1,
-                addr2);
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                addr1, addr2);
 
         assertEquals(0, config.getConnectTimeout());
         assertEquals(Durability.NONE, config.getDefaultDurability());
@@ -186,16 +185,16 @@ public class MongoDbConfigurationTest {
 
     /**
      * Test method for
-     * {@link MongoDbConfiguration#MongoDbConfiguration(com.allanbank.mongodb.MongoDbConfiguration)}
+     * {@link MongoClientConfiguration#MongoClientConfiguration(com.allanbank.mongodb.MongoClientConfiguration)}
      * .
      */
     @Test
-    public void testMongoDbConfigurationMongoDbConfiguration() {
+    public void testMongoClientConfigurationMongoClientConfiguration() {
         final InetSocketAddress addr1 = new InetSocketAddress("foo", 1234);
         final InetSocketAddress addr2 = new InetSocketAddress("bar", 1234);
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
-                new MongoDbConfiguration(addr1, addr2));
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                new MongoClientConfiguration(addr1, addr2));
 
         assertEquals(0, config.getConnectTimeout());
         assertEquals(Durability.NONE, config.getDefaultDurability());
@@ -212,14 +211,14 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoFsync() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo/db?fsync;wtimeout=1005");
 
         assertEquals(Durability.fsyncDurable(1005),
@@ -240,14 +239,14 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoJournal() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo/db?journal=true;wtimeout=1000");
 
         assertEquals(Durability.journalDurable(1000),
@@ -268,14 +267,14 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoReplica() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo/db?w=2;wtimeout=1007");
 
         assertEquals(Durability.replicaDurable(2, 1007),
@@ -296,14 +295,14 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoReplicaTimeout() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo/db?wtimeout=1008");
 
         assertEquals(Durability.replicaDurable(1008),
@@ -324,18 +323,18 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUri() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo");
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
@@ -353,14 +352,14 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriAck() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo/db?replicaSet=set1;safe=true");
 
         assertEquals(0, config.getConnectTimeout());
@@ -381,18 +380,18 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriAdminUserNamePassword() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://user:pass:ord@foo/");
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertEquals(0, config.getReadTimeout());
@@ -408,20 +407,20 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriAllProps() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo/db?replicaSet=set1;safe=false&w=1&wtimeout=100&fsync=false&fsync&journal=false&"
                         + "connectTIMEOUTMS=1000&socketTimeOUTms=2000;autoDiscoverServers=false;maxConnectionCount=5&"
                         + "maxPendingOperationsPerConnection=101&reconnectTimeoutMS=250&useSoKeepalive=false&foo&safe=false");
 
         assertEquals(1000, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(5, config.getMaxConnectionCount());
         assertEquals(101, config.getMaxPendingOperationsPerConnection());
         assertEquals(2000, config.getReadTimeout());
@@ -436,28 +435,28 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @SuppressWarnings("unused")
     @Test(expected = IllegalArgumentException.class)
     public void testMongoUriBadFieldValue() {
-        new MongoDbConfiguration("mongodb://foo/db?socketTimeOUTms=alpha");
+        new MongoClientConfiguration("mongodb://foo/db?socketTimeOUTms=alpha");
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriExplicitAdminUserNamePassword() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://user:pass:ord@foo/admin?");
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertEquals(0, config.getReadTimeout());
@@ -473,58 +472,58 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @SuppressWarnings("unused")
     @Test(expected = IllegalArgumentException.class)
     public void testMongoUriIllegalValue() {
-        new MongoDbConfiguration("mongo://foo?w=foo");
+        new MongoClientConfiguration("mongo://foo?w=foo");
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @SuppressWarnings("unused")
     @Test(expected = IllegalArgumentException.class)
     public void testMongoUriNoPassword() {
-        new MongoDbConfiguration("mongo://user@foo");
+        new MongoClientConfiguration("mongo://user@foo");
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @SuppressWarnings("unused")
     @Test(expected = IllegalArgumentException.class)
     public void testMongoUriNoServer() {
-        new MongoDbConfiguration("mongodb:///");
+        new MongoClientConfiguration("mongodb:///");
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @SuppressWarnings("unused")
     @Test(expected = IllegalArgumentException.class)
     public void testMongoUriNull() {
-        new MongoDbConfiguration((String) null);
+        new MongoClientConfiguration((String) null);
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriPrimary() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo/db?replicaSet=set1;slaveOk=false");
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
@@ -540,18 +539,18 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriSecondary() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo/db?replicaSet=set1;slaveOk=true");
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
@@ -568,19 +567,19 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriTwoServers() {
         final String addr1 = "foo:27017";
         final String addr2 = "bar:1234";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo,bar:1234");
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
@@ -595,18 +594,18 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriUserNamePassword() {
         final String addr1 = "foo:27017";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://user:pass:ord@foo/db");
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertEquals(0, config.getReadTimeout());
@@ -622,18 +621,18 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriWithIPV6() {
         final String addr1 = "fe80::868f:69ff:feb2:95d4";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://" + addr1);
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
@@ -652,18 +651,18 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriWithIPV6LastTupleLooksLikePort() {
         final String addr1 = "fe80::868f:69ff:feb2:9534";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://" + addr1);
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
@@ -682,18 +681,18 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
     public void testMongoUriWithIPV6WithPort() {
         final String addr1 = "fe80::868f:69ff:feb2:9534:12345";
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://" + addr1);
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
@@ -711,23 +710,23 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#MongoDbConfiguration(String)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @SuppressWarnings("unused")
     @Test(expected = IllegalArgumentException.class)
     public void testMongoUriWrongPrefix() {
-        new MongoDbConfiguration("mongo://foo");
+        new MongoClientConfiguration("mongo://foo");
     }
 
     /**
      * Test method for
-     * {@link MongoDbConfiguration#setAutoDiscoverServers(boolean)}.
+     * {@link MongoClientConfiguration#setAutoDiscoverServers(boolean)}.
      */
     @Test
     public void testSetAutoDiscoverServers() {
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertTrue(config.isAutoDiscoverServers());
         config.setAutoDiscoverServers(false);
@@ -735,11 +734,11 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setConnectTimeout(int)}.
+     * Test method for {@link MongoClientConfiguration#setConnectTimeout(int)}.
      */
     @Test
     public void testSetConnectTimeout() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(0, config.getConnectTimeout());
         config.setConnectTimeout(30000);
@@ -749,11 +748,11 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setDefaultDatabase}.
+     * Test method for {@link MongoClientConfiguration#setDefaultDatabase}.
      */
     @Test
     public void testSetDefaultDataabse() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(MongoClientConfiguration.DEFAULT_DB_NAME,
                 config.getDefaultDatabase());
@@ -766,13 +765,13 @@ public class MongoDbConfigurationTest {
 
     /**
      * Test method for
-     * {@link MongoDbConfiguration#setDefaultDurability(com.allanbank.mongodb.Durability)}
+     * {@link MongoClientConfiguration#setDefaultDurability(com.allanbank.mongodb.Durability)}
      * .
      */
     @Test
     public void testSetDefaultDurability() {
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(Durability.NONE, config.getDefaultDurability());
         config.setDefaultDurability(Durability.ACK);
@@ -780,11 +779,12 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setDefaultReadPreference}.
+     * Test method for {@link MongoClientConfiguration#setDefaultReadPreference}
+     * .
      */
     @Test
     public void testSetDefaultReadPreference() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
         config.setDefaultReadPreference(ReadPreference.SECONDARY);
@@ -795,13 +795,13 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setExecutor(Executor)} .
+     * Test method for {@link MongoClientConfiguration#setExecutor(Executor)} .
      */
     @Test
     public void testSetExecutor() {
         final Executor executor = Executors.newSingleThreadExecutor();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertNull(config.getExecutor());
 
@@ -811,11 +811,11 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setLockType(LockType)}.
+     * Test method for {@link MongoClientConfiguration#setLockType(LockType)}.
      */
     @Test
     public void testSetLockType() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(LockType.MUTEX, config.getLockType());
         config.setLockType(LockType.LOW_LATENCY_SPIN);
@@ -825,11 +825,12 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setMaxConnectionCount(int)}.
+     * Test method for
+     * {@link MongoClientConfiguration#setMaxConnectionCount(int)}.
      */
     @Test
     public void testSetMaxConnectionCount() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(3, config.getMaxConnectionCount());
         config.setMaxConnectionCount(1);
@@ -838,11 +839,12 @@ public class MongoDbConfigurationTest {
 
     /**
      * Test method for
-     * {@link MongoDbConfiguration#setMaxPendingOperationsPerConnection(int)}.
+     * {@link MongoClientConfiguration#setMaxPendingOperationsPerConnection(int)}
+     * .
      */
     @Test
     public void testSetMaxPendingOperationsPerConnection() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         config.setMaxPendingOperationsPerConnection(256);
@@ -850,11 +852,12 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setMaxSecondaryLag(long)}.
+     * Test method for {@link MongoClientConfiguration#setMaxSecondaryLag(long)}
+     * .
      */
     @Test
     public void testSetMaxSecondaryLag() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(TimeUnit.MINUTES.toMillis(5), config.getMaxSecondaryLag());
         config.setMaxSecondaryLag(TimeUnit.MINUTES.toMillis(25));
@@ -864,11 +867,11 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setReadTimeout(int)}.
+     * Test method for {@link MongoClientConfiguration#setReadTimeout(int)}.
      */
     @Test
     public void testSetReadTimeout() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(0, config.getReadTimeout());
         config.setReadTimeout(30000);
@@ -878,11 +881,12 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setReconnectTimeout(int)}.
+     * Test method for {@link MongoClientConfiguration#setReconnectTimeout(int)}
+     * .
      */
     @Test
     public void testSetReconnectTimeout() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(0, config.getReconnectTimeout());
         config.setReconnectTimeout(30000);
@@ -892,14 +896,15 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setServers(java.util.List)}.
+     * Test method for
+     * {@link MongoClientConfiguration#setServers(java.util.List)}.
      */
     @Test
     public void testSetServers() {
         final InetSocketAddress addr1 = new InetSocketAddress("foo", 1234);
         final InetSocketAddress addr2 = new InetSocketAddress("bar", 1234);
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         config.setServers(Arrays.asList(addr1, addr2));
 
@@ -912,14 +917,14 @@ public class MongoDbConfigurationTest {
 
     /**
      * Test method for
-     * {@link MongoDbConfiguration#setThreadFactory(java.util.concurrent.ThreadFactory)}
+     * {@link MongoClientConfiguration#setThreadFactory(java.util.concurrent.ThreadFactory)}
      * .
      */
     @Test
     public void testSetThreadFactory() {
         final ThreadFactory tf = Executors.defaultThreadFactory();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         config.setThreadFactory(tf);
 
@@ -927,12 +932,12 @@ public class MongoDbConfigurationTest {
     }
 
     /**
-     * Test method for {@link MongoDbConfiguration#setUsingSoKeepalive(boolean)}
-     * .
+     * Test method for
+     * {@link MongoClientConfiguration#setUsingSoKeepalive(boolean)} .
      */
     @Test
     public void testSetUsingSoKeepalive() {
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertTrue(config.isUsingSoKeepalive());
         config.setUsingSoKeepalive(false);

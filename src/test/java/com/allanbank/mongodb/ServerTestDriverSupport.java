@@ -75,19 +75,19 @@ public class ServerTestDriverSupport {
      * Starts a MongoDB instance running in a standalone mode.
      */
     protected static void startAuthenticated() {
-        Mongo mongo = null;
+        MongoClient mongo = null;
         try {
             startStandAlone();
 
             // Use the config to compute the hash.
-            final MongoDbConfiguration adminConfig = new MongoDbConfiguration();
+            final MongoClientConfiguration adminConfig = new MongoClientConfiguration();
             adminConfig.authenticateAsAdmin(ADMIN_USER_NAME, PASSWORD);
             adminConfig.addServer(new InetSocketAddress("127.0.0.1", 27017));
 
-            final MongoDbConfiguration config = new MongoDbConfiguration();
+            final MongoClientConfiguration config = new MongoClientConfiguration();
             config.addServer(new InetSocketAddress("127.0.0.1", 27017));
 
-            mongo = MongoFactory.create(config);
+            mongo = MongoFactory.createClient(config);
             MongoDatabase db = mongo.getDatabase("admin");
             MongoCollection collection = db.getCollection("system.users");
 
@@ -112,7 +112,7 @@ public class ServerTestDriverSupport {
 
             // Start a new connection authenticating as the admin user to add
             // the non-admin user...
-            mongo = MongoFactory.create(adminConfig);
+            mongo = MongoFactory.createClient(adminConfig);
             db = mongo.getDatabase(USER_DB);
             collection = db.getCollection("system.users");
 
