@@ -497,7 +497,8 @@ public class MongoCollectionImplTest {
 
         try {
             myTestInstance.count(doc, ReadPreference.SECONDARY);
-        } catch (final MongoDbException error) {
+        }
+        catch (final MongoDbException error) {
             // Good.
             assertTrue(error.getCause() instanceof InterruptedException);
         }
@@ -526,7 +527,8 @@ public class MongoCollectionImplTest {
 
         try {
             myTestInstance.count(doc, ReadPreference.SECONDARY);
-        } catch (final MongoDbException error) {
+        }
+        catch (final MongoDbException error) {
             // Good.
             assertTrue(error.getCause() instanceof IOException);
         }
@@ -556,7 +558,8 @@ public class MongoCollectionImplTest {
 
         try {
             myTestInstance.count(doc, ReadPreference.SECONDARY);
-        } catch (final ReplyException error) {
+        }
+        catch (final ReplyException error) {
             // Good.
         }
         verify();
@@ -2056,36 +2059,6 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findOneAsync(Callback, Find)} .
-     */
-    @Test
-    public void testFindOneAsyncCallbackOfClosableIteratorOfDocumentFind() {
-        final Callback<Document> mockCountCallback = createMock(Callback.class);
-        final Document doc = BuilderFactory.start().build();
-
-        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
-                false, ReadPreference.PRIMARY, false, false, false, false);
-
-        final Find.Builder findBuilder = new Find.Builder(doc);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        expect(myMockDatabase.getReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(QueryOneCallback.class)))
-                .andReturn(myAddress);
-
-        replay(mockCountCallback);
-
-        myTestInstance.findOneAsync(mockCountCallback, findBuilder.build());
-
-        verify(mockCountCallback);
-    }
-
-    /**
-     * Test method for
      * {@link AbstractMongoCollection#findAsync(DocumentAssignable)}.
      * 
      * @throws Exception
@@ -2160,37 +2133,6 @@ public class MongoCollectionImplTest {
         assertTrue(iter.hasNext());
         assertSame(result2, iter.next());
         assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for {@link AbstractMongoCollection#findOneAsync(Find)} .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testFindOneAsyncFind() throws Exception {
-        final Document result1 = BuilderFactory.start().build();
-
-        final Document doc = BuilderFactory.start().build();
-
-        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
-                false, ReadPreference.SECONDARY, false, false, false, false);
-
-        final Find.Builder findBuilder = new Find.Builder(doc);
-        findBuilder.setReadPreference(ReadPreference.SECONDARY);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
-
-        replay();
-
-        final Future<Document> future = myTestInstance.findOneAsync(findBuilder
-                .build());
-        assertSame(result1, future.get());
 
         verify();
     }
@@ -2335,6 +2277,36 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
+     * {@link AbstractMongoCollection#findOneAsync(Callback, Find)} .
+     */
+    @Test
+    public void testFindOneAsyncCallbackOfClosableIteratorOfDocumentFind() {
+        final Callback<Document> mockCountCallback = createMock(Callback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final Find.Builder findBuilder = new Find.Builder(doc);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(QueryOneCallback.class)))
+                .andReturn(myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.findOneAsync(mockCountCallback, findBuilder.build());
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for
      * {@link MongoCollectionImpl#findOneAsync(Callback, DocumentAssignable)} .
      */
     @Test
@@ -2390,6 +2362,37 @@ public class MongoCollectionImplTest {
         assertSame(replyDoc, myTestInstance.findOneAsync(doc).get());
 
         verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#findOneAsync(Find)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testFindOneAsyncFind() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
+                false, ReadPreference.SECONDARY, false, false, false, false);
+
+        final Find.Builder findBuilder = new Find.Builder(doc);
+        findBuilder.setReadPreference(ReadPreference.SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result1))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Future<Document> future = myTestInstance.findOneAsync(findBuilder
+                .build());
+        assertSame(result1, future.get());
+
+        verify();
     }
 
     /**
@@ -2458,6 +2461,151 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test method for {@link MongoCollectionImpl#findOne(Find)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testFindOneWithAllOptions() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final DocumentBuilder sort = BuilderFactory.start()
+                .addInteger("baz", 1);
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder);
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        builder.setSort(sort);
+
+        final Find request = builder.build();
+
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.addDocument("$readPreference",
+                ReadPreference.PREFER_SECONDARY.asDocument());
+
+        final Query message = new Query("test", "test",
+                qRequestBuilder.build(), request.getReturnFields(), 1, 1,
+                request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(myMockClient.send(eq(message), callback(reply(result1))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Future<Document> future = myTestInstance.findOneAsync(request);
+        assertSame(result1, future.get());
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link MongoCollectionImpl#findAsync(Find)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testFindOneWithAllOptionsNonSharded() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final DocumentBuilder sort = BuilderFactory.start()
+                .addInteger("baz", 1);
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder);
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        builder.setSort(sort);
+
+        final Find request = builder.build();
+
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.addDocument("orderby", sort.asDocument());
+
+        final Query message = new Query("test", "test",
+                qRequestBuilder.build(), request.getReturnFields(), 1, 1,
+                request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        expect(myMockClient.send(eq(message), callback(reply(result1))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Future<Document> future = myTestInstance.findOneAsync(request);
+        assertSame(result1, future.get());
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link MongoCollectionImpl#findOneAsync(Find)}
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testFindOneWithNonLegacyOptionsAndNonSharded() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder.build());
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+
+        final Find request = builder.build();
+
+        final Query message = new Query("test", "test", qBuilder.asDocument(),
+                request.getReturnFields(), 1, 1, request.getNumberToSkip(),
+                false, ReadPreference.PREFER_SECONDARY, false, false, false,
+                false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        expect(myMockClient.send(eq(message), callback(reply(result1))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertSame(result1, myTestInstance.findOne(request));
+
+        verify();
+    }
+
+    /**
      * Test method for
      * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
      * 
@@ -2516,58 +2664,6 @@ public class MongoCollectionImplTest {
         assertTrue(iter.hasNext());
         assertSame(result2, iter.next());
         assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for {@link MongoCollectionImpl#findOne(Find)} .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testFindOneWithAllOptions() throws Exception {
-        final Document result1 = BuilderFactory.start().build();
-
-        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
-                "foo", 1);
-        final DocumentBuilder sort = BuilderFactory.start()
-                .addInteger("baz", 1);
-
-        final Find.Builder builder = new Find.Builder();
-        builder.setQuery(qBuilder);
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
-                .build());
-        builder.setBatchSize(101010);
-        builder.setLimit(202020);
-        builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
-        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
-        builder.setSort(sort);
-
-        final Find request = builder.build();
-
-        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.addDocument("orderby", sort.asDocument());
-        qRequestBuilder.addDocument("$readPreference",
-                ReadPreference.PREFER_SECONDARY.asDocument());
-
-        final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getReturnFields(), 1, 1,
-                request.getNumberToSkip(), false,
-                ReadPreference.PREFER_SECONDARY, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
-
-        replay();
-
-        final Future<Document> future = myTestInstance.findOneAsync(request);
-        assertSame(result1, future.get());
 
         verify();
     }
@@ -2634,57 +2730,6 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#findAsync(Find)} .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testFindOneWithAllOptionsNonSharded() throws Exception {
-        final Document result1 = BuilderFactory.start().build();
-
-        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
-                "foo", 1);
-        final DocumentBuilder sort = BuilderFactory.start()
-                .addInteger("baz", 1);
-
-        final Find.Builder builder = new Find.Builder();
-        builder.setQuery(qBuilder);
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
-                .build());
-        builder.setBatchSize(101010);
-        builder.setLimit(202020);
-        builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
-        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
-        builder.setSort(sort);
-
-        final Find request = builder.build();
-
-        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.addDocument("orderby", sort.asDocument());
-
-        final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getReturnFields(), 1, 1,
-                request.getNumberToSkip(), false,
-                ReadPreference.PREFER_SECONDARY, false, false, false, false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
-
-        replay();
-
-        final Future<Document> future = myTestInstance.findOneAsync(request);
-        assertSame(result1, future.get());
-
-        verify();
-    }
-
-    /**
      * Test method for {@link MongoCollectionImpl#findOneAsync(Find)}
      * 
      * @throws Exception
@@ -2732,48 +2777,6 @@ public class MongoCollectionImplTest {
         assertTrue(iter.hasNext());
         assertSame(result2, iter.next());
         assertFalse(iter.hasNext());
-
-        verify();
-    }
-
-    /**
-     * Test method for {@link MongoCollectionImpl#findOneAsync(Find)}
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testFindOneWithNonLegacyOptionsAndNonSharded() throws Exception {
-        final Document result1 = BuilderFactory.start().build();
-
-        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
-                "foo", 1);
-        final Find.Builder builder = new Find.Builder();
-        builder.setQuery(qBuilder.build());
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
-                .build());
-        builder.setBatchSize(101010);
-        builder.setLimit(202020);
-        builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
-        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
-
-        final Find request = builder.build();
-
-        final Query message = new Query("test", "test", qBuilder.asDocument(),
-                request.getReturnFields(), 1, 1, request.getNumberToSkip(),
-                false, ReadPreference.PREFER_SECONDARY, false, false, false,
-                false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
-
-        replay();
-
-        assertSame(result1, myTestInstance.findOne(request));
 
         verify();
     }

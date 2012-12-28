@@ -813,6 +813,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     }
 
     /**
+     * <p>
+     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
+     * </p>
+     * 
+     * @see #findOneAsync(Callback, Find)
+     */
+    @Override
+    public Document findOne(final Find query) throws MongoDbException {
+        return FutureUtils.unwrap(findOneAsync(query));
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to call the {@link #findOneAsync(Callback, Find)}.
@@ -821,21 +833,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findOneAsync(Callback, Find)
      */
     @Override
-    public void findOneAsync(Callback<Document> results,
-            DocumentAssignable query) throws MongoDbException {
+    public void findOneAsync(final Callback<Document> results,
+            final DocumentAssignable query) throws MongoDbException {
         findOneAsync(results, new Find.Builder(query).build());
-    }
-
-    /**
-     * <p>
-     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
-     * </p>
-     * 
-     * @see #findOneAsync(Callback, Find)
-     */
-    @Override
-    public Document findOne(Find query) throws MongoDbException {
-        return FutureUtils.unwrap(findOneAsync(query));
     }
 
     /**
@@ -854,13 +854,15 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
+     * Overridden to call the
+     * {@link #findOneAsync(Callback, DocumentAssignable)}.
      * </p>
      * 
-     * @see #findOneAsync(Callback, Find)
+     * @see #findOneAsync(Callback, DocumentAssignable)
      */
     @Override
-    public Future<Document> findOneAsync(Find query) throws MongoDbException {
+    public Future<Document> findOneAsync(final DocumentAssignable query)
+            throws MongoDbException {
         final FutureCallback<Document> future = new FutureCallback<Document>();
 
         findOneAsync(future, query);
@@ -871,14 +873,13 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the
-     * {@link #findOneAsync(Callback, DocumentAssignable)}.
+     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
      * </p>
      * 
-     * @see #findOneAsync(Callback, DocumentAssignable)
+     * @see #findOneAsync(Callback, Find)
      */
     @Override
-    public Future<Document> findOneAsync(final DocumentAssignable query)
+    public Future<Document> findOneAsync(final Find query)
             throws MongoDbException {
         final FutureCallback<Document> future = new FutureCallback<Document>();
 
@@ -1644,7 +1645,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             nameBuilder.append("_");
             if (key instanceof NumericElement) {
                 nameBuilder.append(((NumericElement) key).getIntValue());
-            } else if (key instanceof StringElement) {
+            }
+            else if (key instanceof StringElement) {
                 nameBuilder.append(((StringElement) key).getValue());
             }
         }

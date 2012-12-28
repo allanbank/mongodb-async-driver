@@ -187,17 +187,23 @@ public class RegularExpressionElement extends AbstractElement {
             for (final char c : options.toCharArray()) {
                 if ((c == 'i') || (c == 'I')) {
                     optInt |= OPTION_I;
-                } else if ((c == 'l') || (c == 'L')) {
+                }
+                else if ((c == 'l') || (c == 'L')) {
                     optInt |= OPTION_L;
-                } else if ((c == 'm') || (c == 'M')) {
+                }
+                else if ((c == 'm') || (c == 'M')) {
                     optInt |= OPTION_M;
-                } else if ((c == 's') || (c == 'S')) {
+                }
+                else if ((c == 's') || (c == 'S')) {
                     optInt |= OPTION_S;
-                } else if ((c == 'u') || (c == 'U')) {
+                }
+                else if ((c == 'u') || (c == 'U')) {
                     optInt |= OPTION_U;
-                } else if ((c == 'x') || (c == 'X')) {
+                }
+                else if ((c == 'x') || (c == 'X')) {
                     optInt |= OPTION_X;
-                } else {
+                }
+                else {
                     throw new IllegalArgumentException(
                             "Invalid regular expression option '" + c
                                     + "' in options '" + options + "'.");
@@ -295,7 +301,8 @@ public class RegularExpressionElement extends AbstractElement {
         boolean result = false;
         if (this == object) {
             result = true;
-        } else if ((object != null) && (getClass() == object.getClass())) {
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
             final RegularExpressionElement other = (RegularExpressionElement) object;
 
             result = (myOptions == other.myOptions) && super.equals(object)

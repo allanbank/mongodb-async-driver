@@ -172,11 +172,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             if (myMongo != null) {
                 myMongo.close();
             }
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // Ignore. Trying to cleanup.
-        } catch (final MongoDbException e) {
+        }
+        catch (final MongoDbException e) {
             // Ignore. Trying to cleanup.
-        } finally {
+        }
+        finally {
             myMongo = null;
             myDb = null;
             myCollection = null;
@@ -426,7 +429,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final List<Document> results = aggregate.aggregate(builder.build());
 
             assertEquals(expected, results);
-        } catch (final ReplyException re) {
+        }
+        catch (final ReplyException re) {
             // Check if we are talking to a recent MongoDB instance.
             final String message = re.getMessage();
 
@@ -496,7 +500,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Should not get to the point of being submitted.
             myCollection.countAsync(builder);
             fail("Should have thrown a DocumentToLargeException");
-        } catch (final DocumentToLargeException dtle) {
+        }
+        catch (final DocumentToLargeException dtle) {
             // Good.
             assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
         }
@@ -656,7 +661,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Should not get to the point of being submitted.
             myCollection.deleteAsync(builder);
             fail("Should have thrown a DocumentToLargeException");
-        } catch (final DocumentToLargeException dtle) {
+        }
+        catch (final DocumentToLargeException dtle) {
             // Good.
             assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
             assertEquals(builder.build(), dtle.getDocument());
@@ -809,6 +815,120 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#and}.
+     */
+    @Test
+    public void testFindOneWithSubsetOfFields() {
+        final ObjectId doc1Id = new ObjectId();
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", doc1Id);
+        doc1.addInteger("a", 1);
+        doc1.addInteger("b", 1);
+        doc1.addInteger("c", 1);
+        doc1.addInteger("d", 1);
+        doc1.addInteger("e", 1);
+        doc1.addInteger("f", 1);
+
+        final ObjectId doc2Id = new ObjectId();
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", doc2Id);
+        doc2.addInteger("a", 1);
+        doc2.addInteger("b", 2);
+        doc2.addInteger("c", 3);
+        doc2.addInteger("d", 4);
+        doc2.addInteger("e", 5);
+        doc2.addInteger("f", 6);
+        doc2.addInteger("g", 7);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        // Expect the subset of fields.
+        doc1.reset();
+        doc1.addObjectId("_id", doc1Id);
+        doc1.addInteger("a", 1);
+        doc1.addInteger("b", 1);
+
+        doc2.reset();
+        doc2.addObjectId("_id", doc2Id);
+        doc2.addInteger("a", 1);
+        doc2.addInteger("b", 2);
+
+        final Find.Builder find = new Find.Builder();
+        find.setReturnFields(BuilderFactory.start().add("a", 1).add("b", 1));
+
+        find.setQuery(and(where("a").equals(1), where("b").equals(1)));
+        assertEquals(doc1.build(), myCollection.findOne(find.build()));
+
+        find.setQuery(and(where("a").equals(1), where("b").equals(2)));
+        assertEquals(doc2.build(), myCollection.findOne(find.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#and}.
+     */
+    @Test
+    public void testFindWithSubsetOfFields() {
+        final ObjectId doc1Id = new ObjectId();
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", doc1Id);
+        doc1.addInteger("a", 1);
+        doc1.addInteger("b", 1);
+        doc1.addInteger("c", 1);
+        doc1.addInteger("d", 1);
+        doc1.addInteger("e", 1);
+        doc1.addInteger("f", 1);
+
+        final ObjectId doc2Id = new ObjectId();
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", doc2Id);
+        doc2.addInteger("a", 1);
+        doc2.addInteger("b", 2);
+        doc2.addInteger("c", 3);
+        doc2.addInteger("d", 4);
+        doc2.addInteger("e", 5);
+        doc2.addInteger("f", 6);
+        doc2.addInteger("g", 7);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        // Expect the subset of fields.
+        doc1.reset();
+        doc1.addObjectId("_id", doc1Id);
+        doc1.addInteger("a", 1);
+        doc1.addInteger("b", 1);
+
+        doc2.reset();
+        doc2.addObjectId("_id", doc2Id);
+        doc2.addInteger("a", 1);
+        doc2.addInteger("b", 2);
+
+        final Find.Builder find = new Find.Builder();
+        find.setReturnFields(BuilderFactory.start().add("a", 1).add("b", 1));
+
+        find.setQuery(and(where("a").equals(1), where("b").equals(1)));
+        ClosableIterator<Document> iter = myCollection.find(find.build());
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+
+        find.setQuery(and(where("a").equals(1), where("b").equals(2)));
+        iter = myCollection.find(find.build());
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
      * Verifies the function of a GroupBy command. <blockquote>
      * 
      * <pre>
@@ -902,7 +1022,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         try {
             myCollection.insert(builder.build());
             fail("Should have thrown a DuplicateKeyException");
-        } catch (final DuplicateKeyException dke) {
+        }
+        catch (final DuplicateKeyException dke) {
             // Good.
             assertEquals(11000, dke.getErrorNumber());
         }
@@ -959,7 +1080,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Should not get to the point of being submitted.
             myCollection.insertAsync(builder.build());
             fail("Should have thrown a DocumentToLargeException");
-        } catch (final DocumentToLargeException dtle) {
+        }
+        catch (final DocumentToLargeException dtle) {
             // Good.
             assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
             assertEquals(builder.build(), dtle.getDocument());
@@ -1237,7 +1359,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Should not get to the point of being submitted.
             myCollection.findAsync(builder.build());
             fail("Should have thrown a DocumentToLargeException");
-        } catch (final DocumentToLargeException dtle) {
+        }
+        catch (final DocumentToLargeException dtle) {
             // Good.
             assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
             assertEquals(builder.build(), dtle.getDocument());
@@ -1265,7 +1388,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1293,7 +1417,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
 
@@ -1302,121 +1427,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc2.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
-    }
-
-    /**
-     * Test method for {@link ConditionBuilder#and}.
-     */
-    @Test
-    public void testFindWithSubsetOfFields() {
-        ObjectId doc1Id = new ObjectId();
-        final DocumentBuilder doc1 = BuilderFactory.start();
-        doc1.addObjectId("_id", doc1Id);
-        doc1.addInteger("a", 1);
-        doc1.addInteger("b", 1);
-        doc1.addInteger("c", 1);
-        doc1.addInteger("d", 1);
-        doc1.addInteger("e", 1);
-        doc1.addInteger("f", 1);
-
-        final ObjectId doc2Id = new ObjectId();
-        final DocumentBuilder doc2 = BuilderFactory.start();
-        doc2.addObjectId("_id", doc2Id);
-        doc2.addInteger("a", 1);
-        doc2.addInteger("b", 2);
-        doc2.addInteger("c", 3);
-        doc2.addInteger("d", 4);
-        doc2.addInteger("e", 5);
-        doc2.addInteger("f", 6);
-        doc2.addInteger("g", 7);
-
-        myCollection.insert(Durability.ACK, doc1, doc2);
-
-        // Expect the subset of fields.
-        doc1.reset();
-        doc1.addObjectId("_id", doc1Id);
-        doc1.addInteger("a", 1);
-        doc1.addInteger("b", 1);
-
-        doc2.reset();
-        doc2.addObjectId("_id", doc2Id);
-        doc2.addInteger("a", 1);
-        doc2.addInteger("b", 2);
-
-        Find.Builder find = new Find.Builder();
-        find.setReturnFields(BuilderFactory.start().add("a", 1).add("b", 1));
-
-        find.setQuery(and(where("a").equals(1), where("b").equals(1)));
-        ClosableIterator<Document> iter = myCollection.find(find.build());
-        try {
-            assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
-            assertFalse(iter.hasNext());
-        } finally {
-            iter.close();
-        }
-
-        find.setQuery(and(where("a").equals(1), where("b").equals(2)));
-        iter = myCollection.find(find.build());
-        try {
-            assertTrue(iter.hasNext());
-            assertEquals(doc2.build(), iter.next());
-            assertFalse(iter.hasNext());
-        } finally {
-            iter.close();
-        }
-    }
-
-    /**
-     * Test method for {@link ConditionBuilder#and}.
-     */
-    @Test
-    public void testFindOneWithSubsetOfFields() {
-        ObjectId doc1Id = new ObjectId();
-        final DocumentBuilder doc1 = BuilderFactory.start();
-        doc1.addObjectId("_id", doc1Id);
-        doc1.addInteger("a", 1);
-        doc1.addInteger("b", 1);
-        doc1.addInteger("c", 1);
-        doc1.addInteger("d", 1);
-        doc1.addInteger("e", 1);
-        doc1.addInteger("f", 1);
-
-        final ObjectId doc2Id = new ObjectId();
-        final DocumentBuilder doc2 = BuilderFactory.start();
-        doc2.addObjectId("_id", doc2Id);
-        doc2.addInteger("a", 1);
-        doc2.addInteger("b", 2);
-        doc2.addInteger("c", 3);
-        doc2.addInteger("d", 4);
-        doc2.addInteger("e", 5);
-        doc2.addInteger("f", 6);
-        doc2.addInteger("g", 7);
-
-        myCollection.insert(Durability.ACK, doc1, doc2);
-
-        // Expect the subset of fields.
-        doc1.reset();
-        doc1.addObjectId("_id", doc1Id);
-        doc1.addInteger("a", 1);
-        doc1.addInteger("b", 1);
-
-        doc2.reset();
-        doc2.addObjectId("_id", doc2Id);
-        doc2.addInteger("a", 1);
-        doc2.addInteger("b", 2);
-
-        Find.Builder find = new Find.Builder();
-        find.setReturnFields(BuilderFactory.start().add("a", 1).add("b", 1));
-
-        find.setQuery(and(where("a").equals(1), where("b").equals(1)));
-        assertEquals(doc1.build(), myCollection.findOne(find.build()));
-
-        find.setQuery(and(where("a").equals(1), where("b").equals(2)));
-        assertEquals(doc2.build(), myCollection.findOne(find.build()));
     }
 
     /**
@@ -1447,7 +1461,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1477,7 +1492,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1512,7 +1528,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1551,7 +1568,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1582,7 +1600,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1631,7 +1650,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1668,7 +1688,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1721,7 +1742,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1762,7 +1784,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1818,7 +1841,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1871,7 +1895,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1933,7 +1958,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             }
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -1994,7 +2020,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             }
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2027,7 +2054,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2063,11 +2091,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             iter = myCollection.find(where("a").equalsMongoTimestamp(v1));
             iter.hasNext();
             fail("Expected to throw.");
-        } catch (final QueryFailedException expected) {
+        }
+        catch (final QueryFailedException expected) {
             // Bug in MongoDB 2.2.0
             assertThat(expected.getMessage(),
                     containsString("wrong type for field (a) 17 != 9"));
-        } finally {
+        }
+        finally {
             if (iter != null) {
                 iter.close();
             }
@@ -2116,7 +2146,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2149,7 +2180,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2206,7 +2238,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2256,7 +2289,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2306,7 +2340,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2352,7 +2387,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
 
@@ -2382,7 +2418,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
 
@@ -2391,7 +2428,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2425,7 +2463,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2458,7 +2497,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
 
@@ -2468,7 +2508,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2497,7 +2538,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2526,7 +2568,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2555,7 +2598,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2584,7 +2628,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2614,7 +2659,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2648,7 +2694,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2683,7 +2730,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
 
@@ -2693,7 +2741,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2722,7 +2771,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2751,7 +2801,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2780,7 +2831,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2810,7 +2862,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2840,7 +2893,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2869,7 +2923,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2899,7 +2954,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2929,7 +2985,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2958,7 +3015,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -2987,7 +3045,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3016,7 +3075,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3046,7 +3106,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3076,7 +3137,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3110,7 +3172,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3143,7 +3206,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
 
@@ -3153,7 +3217,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3182,7 +3247,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3211,7 +3277,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3240,7 +3307,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3269,7 +3337,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3299,7 +3368,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3333,7 +3403,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3367,7 +3438,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
 
@@ -3377,7 +3449,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3406,7 +3479,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3435,7 +3509,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3464,7 +3539,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3494,7 +3570,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3524,7 +3601,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3553,7 +3631,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3582,7 +3661,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3612,7 +3692,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3641,7 +3722,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3670,7 +3752,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3699,7 +3782,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3757,7 +3841,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3786,7 +3871,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3815,7 +3901,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3852,7 +3939,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc3.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3887,7 +3975,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc2.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3924,7 +4013,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc3.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3959,7 +4049,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc2.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -3996,7 +4087,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc3.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4031,7 +4123,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc2.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4068,7 +4161,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc3.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4104,7 +4198,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc2.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4141,7 +4236,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc3.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4176,7 +4272,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc2.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4213,7 +4310,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc3.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4248,7 +4346,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc2.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4274,7 +4373,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4305,7 +4405,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4336,7 +4437,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
 
@@ -4351,7 +4453,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4377,7 +4480,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4406,7 +4510,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4435,7 +4540,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4464,7 +4570,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4500,7 +4607,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
 
@@ -4514,7 +4622,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         try {
             // Bug in MongoDB? - Scope is being ignored.
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4543,7 +4652,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4581,7 +4691,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4619,7 +4730,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4648,7 +4760,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4676,7 +4789,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4705,7 +4819,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4735,9 +4850,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } catch (final QueryFailedException qfe) {
+        }
+        catch (final QueryFailedException qfe) {
             // Bug in MongoDB?
-        } finally {
+        }
+        finally {
             if (iter != null) {
                 iter.close();
             }
@@ -4768,7 +4885,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4797,7 +4915,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4826,7 +4945,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4856,7 +4976,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4882,7 +5003,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4912,7 +5034,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -4974,7 +5097,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5017,7 +5141,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5064,7 +5189,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5116,7 +5242,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5171,7 +5298,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5214,7 +5342,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5260,7 +5389,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5318,7 +5448,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5380,7 +5511,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5423,7 +5555,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5470,7 +5603,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5528,7 +5662,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5590,7 +5725,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5634,7 +5770,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5681,7 +5818,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5724,7 +5862,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5771,7 +5910,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5815,7 +5955,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5862,7 +6003,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -5899,9 +6041,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     where("p").withinOnSphere(x, y, radius));
 
             fail("$withinSphere wrapping now works!");
-        } catch (final QueryFailedException expected) {
+        }
+        catch (final QueryFailedException expected) {
             // OK, I guess.
-        } finally {
+        }
+        finally {
             if (iter != null) {
                 iter.close();
             }
@@ -5961,7 +6105,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
-        } finally {
+        }
+        finally {
             iter.close();
         }
     }
@@ -6107,7 +6252,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Should not get to the point of being submitted.
             myCollection.updateAsync(BuilderFactory.start(), builder);
             fail("Should have thrown a DocumentToLargeException");
-        } catch (final DocumentToLargeException dtle) {
+        }
+        catch (final DocumentToLargeException dtle) {
             // Good.
             assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
             assertEquals(builder.build(), dtle.getDocument());
@@ -6168,7 +6314,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Should not get to the point of being submitted.
             myCollection.updateAsync(builder, BuilderFactory.start());
             fail("Should have thrown a DocumentToLargeException");
-        } catch (final DocumentToLargeException dtle) {
+        }
+        catch (final DocumentToLargeException dtle) {
             // Good.
             assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
             assertEquals(BuilderFactory.start().build(), dtle.getDocument());

@@ -154,9 +154,11 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
         final String name;
         if (myConfig.isAdminUser()) {
             name = ADMIN_DB_NAME;
-        } else if (ADMIN_DB_NAME.equals(message.getDatabaseName())) {
+        }
+        else if (ADMIN_DB_NAME.equals(message.getDatabaseName())) {
             name = myConfig.getDefaultDatabase();
-        } else {
+        }
+        else {
             name = message.getDatabaseName();
         }
 
@@ -186,13 +188,15 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                             StringElement.class, "nonce");
                     if (strElem.size() > 0) {
                         nonce = strElem.get(0).getValue();
-                    } else {
+                    }
+                    else {
                         // Bad reply. Try again.
                         myAuthTokens.remove(name, alreadySent);
                         throw new MongoDbAuthenticationException(
                                 "Bad response from nonce request.");
                     }
-                } else {
+                }
+                else {
                     // Bad reply. Try again.
                     myAuthTokens.remove(name, alreadySent);
                     throw new MongoDbAuthenticationException(
@@ -235,33 +239,39 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                         }
 
                         myAuthResponse.put(name, current);
-                    } else {
+                    }
+                    else {
                         // Bad reply. Try again.
                         myAuthReplys.remove(name, alreadySent);
                         throw new MongoDbAuthenticationException(
                                 "Bad response from authenticate request.");
                     }
-                } else {
+                }
+                else {
                     // Bad reply. Try again.
                     myAuthReplys.remove(name, alreadySent);
                     throw new MongoDbAuthenticationException(
                             "Bad response from authenticate request.");
                 }
-            } catch (final InterruptedException e) {
+            }
+            catch (final InterruptedException e) {
                 // Bad reply. Try again.
                 myAuthTokens.remove(name, alreadySent);
                 myAuthReplys.remove(name, alreadySent);
 
                 throw new MongoDbAuthenticationException(e);
-            } catch (final ExecutionException e) {
+            }
+            catch (final ExecutionException e) {
                 // Bad reply. Try again.
                 myAuthTokens.remove(name, alreadySent);
                 myAuthReplys.remove(name, alreadySent);
 
                 throw new MongoDbAuthenticationException(e.getCause());
-            } catch (final NoSuchAlgorithmException e) {
+            }
+            catch (final NoSuchAlgorithmException e) {
                 throw new MongoDbAuthenticationException(e);
-            } catch (final MongoDbException errorOnSend) {
+            }
+            catch (final MongoDbException errorOnSend) {
                 if (replyCallback != null) {
                     replyCallback.exception(errorOnSend);
                 }

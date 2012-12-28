@@ -251,7 +251,8 @@ public class SerialClientImplTest {
         try {
             myTestInstance.send(message, null);
             fail("Should have thrown a MongoDbException.");
-        } catch (final MongoDbException good) {
+        }
+        catch (final MongoDbException good) {
             // good.
         }
 

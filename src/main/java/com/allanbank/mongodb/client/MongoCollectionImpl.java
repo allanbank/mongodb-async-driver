@@ -178,7 +178,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (Durability.NONE.equals(durability)) {
             myClient.send(deleteMessage, null);
             results.callback(Long.valueOf(-1));
-        } else {
+        }
+        else {
             myClient.send(deleteMessage, asGetLastError(durability),
                     new ReplyLongCallback(results));
         }
@@ -270,7 +271,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (!readPreference.isLegacy()
                 && (myClient.getClusterType() == ClusterType.SHARDED)) {
             queryDoc = query.toQueryRequest(true, readPreference);
-        } else {
+        }
+        else {
             queryDoc = query.toQueryRequest(true);
         }
 
@@ -343,7 +345,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (!readPreference.isLegacy()
                 && (myClient.getClusterType() == ClusterType.SHARDED)) {
             queryDoc = query.toQueryRequest(false, readPreference);
-        } else {
+        }
+        else {
             queryDoc = query.toQueryRequest(false);
         }
 
@@ -371,7 +374,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * @see MongoCollection#findOneAsync(Callback, DocumentAssignable)
      */
     @Override
-    public void findOneAsync(Callback<Document> results, Find query)
+    public void findOneAsync(final Callback<Document> results, final Find query)
             throws MongoDbException {
 
         ReadPreference readPreference = query.getReadPreference();
@@ -383,7 +386,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (!readPreference.isLegacy()
                 && (myClient.getClusterType() == ClusterType.SHARDED)) {
             queryDoc = query.toQueryRequest(false, readPreference);
-        } else {
+        }
+        else {
             queryDoc = query.toQueryRequest(false);
         }
 
@@ -469,7 +473,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (Durability.NONE == durability) {
             myClient.send(insertMessage, null);
             results.callback(Integer.valueOf(-1));
-        } else {
+        }
+        else {
             myClient.send(insertMessage, asGetLastError(durability),
                     new ReplyIntegerCallback(results));
         }
@@ -599,7 +604,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (doc.contains(ID_FIELD_NAME)) {
             updateAsync(new LongToIntCallback(results), BuilderFactory.start()
                     .add(doc.get(ID_FIELD_NAME)), doc, false, true, durability);
-        } else {
+        }
+        else {
             insertAsync(results, durability, doc);
         }
     }
@@ -675,7 +681,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (Durability.NONE == durability) {
             myClient.send(updateMessage, null);
             results.callback(Long.valueOf(-1));
-        } else {
+        }
+        else {
             myClient.send(updateMessage, asGetLastError(durability),
                     new ReplyLongCallback(results));
         }
