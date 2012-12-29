@@ -139,58 +139,10 @@ public class ArrayBuilderImplTest {
     }
 
     /**
-     * Test method for the {@link ArrayBuilderImpl#add(ObjectId)}.
-     */
-    @Test
-    public void testAddObjectId() {
-        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
-
-        final ObjectId d = new ObjectId();
-        builder.add(d);
-        assertEquals(new ObjectIdElement("0", d), builder.build()[0]);
-
-        builder.reset();
-        builder.add((ObjectId) null);
-        assertEquals(new NullElement("0"), builder.build()[0]);
-    }
-
-    /**
-     * Test method for the {@link ArrayBuilderImpl#add(Pattern)}.
-     */
-    @Test
-    public void testAddPattern() {
-        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
-
-        final Pattern d = Pattern.compile(".*");
-        builder.add(d);
-        assertEquals(new RegularExpressionElement("0", d), builder.build()[0]);
-
-        builder.reset();
-        builder.add((Pattern) null);
-        assertEquals(new NullElement("0"), builder.build()[0]);
-    }
-
-    /**
-     * Test method for the {@link ArrayBuilderImpl#add(String)}.
-     */
-    @Test
-    public void testAddString() {
-        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
-
-        final String d = ".*";
-        builder.add(d);
-        assertEquals(new StringElement("0", d), builder.build()[0]);
-
-        builder.reset();
-        builder.add((Pattern) null);
-        assertEquals(new NullElement("0"), builder.build()[0]);
-    }
-
-    /**
      * Test method for the {@link ArrayBuilderImpl#add(Object)}.
      */
     @Test
-    public void testAddStringObject() {
+    public void testAddObject() {
         final ArrayBuilderImpl builder = new ArrayBuilderImpl();
 
         builder.reset().add((Object) null);
@@ -240,8 +192,12 @@ public class ArrayBuilderImplTest {
                 builder.build()[0]);
 
         final UUID uuid = UUID.randomUUID();
-        builder.reset().add(uuid);
+        builder.reset().add((Object) uuid);
         assertEquals(new UuidElement("0", uuid), builder.build()[0]);
+
+        final byte[] bytes = new byte[3];
+        builder.reset().add((Object) bytes);
+        assertEquals(new BinaryElement("0", bytes), builder.build()[0]);
 
         final DocumentAssignable b2 = BuilderFactory.start();
         builder.reset().add((Object) b2);
@@ -262,6 +218,54 @@ public class ArrayBuilderImplTest {
         assertEquals(new ArrayElement("0", new StringElement("0", "a")),
                 builder.build()[0]);
 
+    }
+
+    /**
+     * Test method for the {@link ArrayBuilderImpl#add(ObjectId)}.
+     */
+    @Test
+    public void testAddObjectId() {
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        final ObjectId d = new ObjectId();
+        builder.add(d);
+        assertEquals(new ObjectIdElement("0", d), builder.build()[0]);
+
+        builder.reset();
+        builder.add((ObjectId) null);
+        assertEquals(new NullElement("0"), builder.build()[0]);
+    }
+
+    /**
+     * Test method for the {@link ArrayBuilderImpl#add(Pattern)}.
+     */
+    @Test
+    public void testAddPattern() {
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        final Pattern d = Pattern.compile(".*");
+        builder.add(d);
+        assertEquals(new RegularExpressionElement("0", d), builder.build()[0]);
+
+        builder.reset();
+        builder.add((Pattern) null);
+        assertEquals(new NullElement("0"), builder.build()[0]);
+    }
+
+    /**
+     * Test method for the {@link ArrayBuilderImpl#add(String)}.
+     */
+    @Test
+    public void testAddString() {
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        final String d = ".*";
+        builder.add(d);
+        assertEquals(new StringElement("0", d), builder.build()[0]);
+
+        builder.reset();
+        builder.add((String) null);
+        assertEquals(new NullElement("0"), builder.build()[0]);
     }
 
     /**

@@ -223,8 +223,13 @@ public class DocumentBuilderImplTest {
                 .getTime().getTime())), builder.build());
 
         final UUID uuid = UUID.randomUUID();
-        builder.reset().add("f", uuid);
+        builder.reset().add("f", (Object) uuid);
         assertEquals(new RootDocument(new UuidElement("f", uuid)),
+                builder.build());
+
+        final byte[] bytes = new byte[3];
+        builder.reset().add("f", (Object) bytes);
+        assertEquals(new RootDocument(new BinaryElement("f", bytes)),
                 builder.build());
 
         final DocumentAssignable b2 = BuilderFactory.start();

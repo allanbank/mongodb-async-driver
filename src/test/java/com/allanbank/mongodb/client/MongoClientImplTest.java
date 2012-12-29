@@ -84,6 +84,8 @@ public class MongoClientImplTest {
         assertThat(serial, instanceOf(MongoClientImpl.class));
         final MongoClientImpl serialImpl = (MongoClientImpl) serial;
         assertThat(serialImpl.getClient(), instanceOf(SerialClientImpl.class));
+
+        assertSame(serial, serial.asSerializedClient());
     }
 
     /**

@@ -22,6 +22,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Mongo;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
@@ -87,6 +88,8 @@ public class MongoImplTest {
         assertThat(serial, instanceOf(MongoClientImpl.class));
         final MongoClientImpl serialImpl = (MongoClientImpl) serial;
         assertThat(serialImpl.getClient(), instanceOf(SerialClientImpl.class));
+
+        assertSame(serial, serial.asSerializedClient());
     }
 
     /**
@@ -99,10 +102,12 @@ public class MongoImplTest {
         assertThat(impl.getClient(), instanceOf(ClientImpl.class));
         impl.close();
 
-        final MongoClient serial = impl.asSerializedMongo();
+        final Mongo serial = impl.asSerializedMongo();
         assertThat(serial, instanceOf(MongoImpl.class));
         final MongoImpl serialImpl = (MongoImpl) serial;
         assertThat(serialImpl.getClient(), instanceOf(SerialClientImpl.class));
+
+        assertSame(serial, serial.asSerializedMongo());
     }
 
     /**
