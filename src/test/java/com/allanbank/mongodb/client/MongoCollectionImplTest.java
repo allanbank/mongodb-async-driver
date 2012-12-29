@@ -312,6 +312,83 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test method for {@link AbstractMongoCollection#count()} .
+     */
+    @Test
+    public void testCount() {
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+        final Document doc = BuilderFactory.start().build();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .build(), ReadPreference.PRIMARY)),
+                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        replay();
+
+        assertEquals(1L, myTestInstance.count());
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#countAsync()} .
+     */
+    @Test
+    public void testCountAsync() {
+        final Document doc = BuilderFactory.start().build();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .build(), ReadPreference.PRIMARY)),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay();
+
+        assertNotNull(myTestInstance.countAsync());
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#countAsync(Callback)} .
+     */
+    @Test
+    public void testCountAsyncCallbackOfLong() {
+        final Callback<Long> mockCountCallback = createMock(Callback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .build(), ReadPreference.PRIMARY)),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.countAsync(mockCountCallback);
+
+        verify(mockCountCallback);
+    }
+
+    /**
      * Test method for
      * {@link AbstractMongoCollection#countAsync(Callback, DocumentAssignable)}
      * .
@@ -369,6 +446,32 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
+     * {@link MongoCollectionImpl#countAsync(Callback, ReadPreference)} .
+     */
+    @Test
+    public void testCountAsyncCallbackOfLongReadPreference() {
+
+        final Callback<Long> mockCountCallback = createMock(Callback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .build(), ReadPreference.SECONDARY)),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.countAsync(mockCountCallback, ReadPreference.SECONDARY);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for
      * {@link AbstractMongoCollection#countAsync(DocumentAssignable)} .
      */
     @Test
@@ -419,6 +522,41 @@ public class MongoCollectionImplTest {
 
         assertEquals(Long.valueOf(1),
                 myTestInstance.countAsync(doc, ReadPreference.SECONDARY).get());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#countAsync(ReadPreference)} .
+     * 
+     * @throws Exception
+     *             On an error
+     */
+    @Test
+    public void testCountAsyncWithOnlyReadPreference() throws Exception {
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+        final Document doc = BuilderFactory.start().build();
+
+        final DocumentBuilder commandDoc = BuilderFactory.start();
+        commandDoc.push("$query").addString("count", "test")
+                .addDocument("query", doc);
+        commandDoc.add(ReadPreference.FIELD_NAME,
+                ReadPreference.PREFER_SECONDARY);
+        final Command command = new Command("test", commandDoc.build(),
+                ReadPreference.PREFER_SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(myMockClient.send(eq(command), callback(reply(replyDoc))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Long.valueOf(1),
+                myTestInstance.countAsync(ReadPreference.PREFER_SECONDARY)
+                        .get());
 
         verify();
     }
@@ -562,6 +700,38 @@ public class MongoCollectionImplTest {
         catch (final ReplyException error) {
             // Good.
         }
+        verify();
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#count(ReadPreference)} .
+     * 
+     * @throws Exception
+     *             On an error
+     */
+    @Test
+    public void testCountWithOnlyReadPreference() throws Exception {
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+        final Document doc = BuilderFactory.start().build();
+
+        final DocumentBuilder commandDoc = BuilderFactory.start();
+        commandDoc.push("$query").addString("count", "test")
+                .addDocument("query", doc);
+        commandDoc.add(ReadPreference.FIELD_NAME,
+                ReadPreference.PREFER_SECONDARY);
+        final Command command = new Command("test", commandDoc.build(),
+                ReadPreference.PREFER_SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(myMockClient.send(eq(command), callback(reply(replyDoc))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(1L, myTestInstance.count(ReadPreference.PREFER_SECONDARY));
+
         verify();
     }
 

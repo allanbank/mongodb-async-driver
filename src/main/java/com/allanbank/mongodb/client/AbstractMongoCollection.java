@@ -155,6 +155,19 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #count(DocumentAssignable,ReadPreference)}
+     * method with {@link #getReadPreference()} as the <tt>readPreference</tt>
+     * argument and an empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public long count() throws MongoDbException {
+        return count(BuilderFactory.start(), getReadPreference());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #count(DocumentAssignable, ReadPreference)}
      * method with {@link #getReadPreference()} as the <tt>readPreference</tt>
      * argument.
@@ -184,6 +197,48 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #count(DocumentAssignable,ReadPreference)}
+     * method with an empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public long count(final ReadPreference readPreference)
+            throws MongoDbException {
+        return count(BuilderFactory.start(), readPreference);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #countAsync(DocumentAssignable,ReadPreference)} method with
+     * {@link #getReadPreference()} as the <tt>readPreference</tt> argument and
+     * an empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public Future<Long> countAsync() throws MongoDbException {
+        return countAsync(BuilderFactory.start(), getReadPreference());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #countAsync(Callback,DocumentAssignable,ReadPreference)} method
+     * with {@link #getReadPreference()} as the <tt>readPreference</tt> argument
+     * and an empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public void countAsync(final Callback<Long> results)
+            throws MongoDbException {
+        countAsync(results, BuilderFactory.start(), getReadPreference());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the
      * {@link #countAsync(Callback, DocumentAssignable, ReadPreference)} method
      * with {@link #getReadPreference()} as the <tt>readPreference</tt>
@@ -207,6 +262,20 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public abstract void countAsync(Callback<Long> results,
             DocumentAssignable query, ReadPreference readPreference)
             throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #countAsync(Callback,DocumentAssignable,ReadPreference)} method
+     * with an empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public void countAsync(final Callback<Long> results,
+            final ReadPreference readPreference) throws MongoDbException {
+        countAsync(results, BuilderFactory.start(), readPreference);
+    }
 
     /**
      * {@inheritDoc}
@@ -249,6 +318,20 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         countAsync(future, query, readPreference);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #countAsync(DocumentAssignable,ReadPreference)} method with an
+     * empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public Future<Long> countAsync(final ReadPreference readPreference)
+            throws MongoDbException {
+        return countAsync(BuilderFactory.start(), readPreference);
     }
 
     /**

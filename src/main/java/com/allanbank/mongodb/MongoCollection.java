@@ -67,6 +67,18 @@ public interface MongoCollection {
             Aggregate command) throws MongoDbException;
 
     /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling {@link #countAsync() countAsync().get()}
+     * </p>
+     * 
+     * @return The number of documents in the collection.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public long count() throws MongoDbException;
+
+    /**
      * Counts the set of documents matching the query document in the
      * collection.
      * <p>
@@ -97,6 +109,48 @@ public interface MongoCollection {
      */
     public long count(DocumentAssignable query, ReadPreference readPreference)
             throws MongoDbException;
+
+    /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling {@link #countAsync() countAsync().get()}
+     * </p>
+     * 
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
+     * @return The number of documents in the collection.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public long count(ReadPreference readPreference) throws MongoDbException;
+
+    /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling {@link #countAsync() countAsync().get()}
+     * </p>
+     * 
+     * @return The number of documents in the collection.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<Long> countAsync() throws MongoDbException;
+
+    /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling
+     * {@link #countAsync(Callback, DocumentAssignable) countAsync(results,
+     * BuilderFactory.start())}
+     * </p>
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void countAsync(Callback<Long> results) throws MongoDbException;
 
     /**
      * Counts the set of documents matching the query document in the
@@ -130,6 +184,25 @@ public interface MongoCollection {
             ReadPreference readPreference) throws MongoDbException;
 
     /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling
+     * {@link #countAsync(Callback, DocumentAssignable) countAsync(results,
+     * BuilderFactory.start(), readPreference)}
+     * </p>
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void countAsync(Callback<Long> results, ReadPreference readPreference)
+            throws MongoDbException;
+
+    /**
      * Counts the set of documents matching the query document in the
      * collection.
      * 
@@ -159,6 +232,22 @@ public interface MongoCollection {
      */
     public Future<Long> countAsync(DocumentAssignable query,
             ReadPreference readPreference) throws MongoDbException;
+
+    /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling {@link #countAsync() countAsync().get()}
+     * </p>
+     * 
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
+     * @return The number of documents in the collection.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<Long> countAsync(ReadPreference readPreference)
+            throws MongoDbException;
 
     /**
      * Creates an index with a generated name, across the keys specified and if
