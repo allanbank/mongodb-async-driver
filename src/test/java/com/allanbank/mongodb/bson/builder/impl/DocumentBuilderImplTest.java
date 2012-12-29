@@ -423,6 +423,29 @@ public class DocumentBuilderImplTest {
     }
 
     /**
+     * Test method for {@link DocumentBuilderImpl#remove(String)}.
+     */
+    @Test
+    public void testRemove() {
+        final DocumentBuilderImpl builder = new DocumentBuilderImpl();
+
+        builder.pushArray("a");
+
+        Document element = builder.build();
+
+        Iterator<Element> iter = element.iterator();
+        assertTrue(iter.hasNext());
+        assertTrue(iter.next() instanceof ArrayElement);
+        assertFalse(iter.hasNext());
+
+        assertSame(builder, builder.remove("a"));
+
+        element = builder.build();
+        iter = element.iterator();
+        assertFalse(iter.hasNext());
+    }
+
+    /**
      * Test method for {@link DocumentBuilderImpl#reset()}.
      */
     @Test

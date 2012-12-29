@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.element.NullElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
@@ -698,6 +699,20 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      *             If the {@code name} is <code>null</code>.
      */
     public ArrayBuilder pushArray(String name) throws IllegalArgumentException;
+
+    /**
+     * Removes all {@link Element}s that have the provided name from the
+     * document being built.
+     * <p>
+     * Note that adding a new element with the same name add that element to the
+     * end of document's element list.
+     * </p>
+     * 
+     * @param name
+     *            The name of the element to remove.
+     * @return This {@link DocumentBuilder} for method chaining.
+     */
+    public DocumentBuilder remove(String name);
 
     /**
      * {@inheritDoc}

@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.bson.builder.impl;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -482,6 +483,20 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public ArrayBuilder pushArray(final String name) {
         return doPushArray(name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder remove(final String name) {
+        final Iterator<Element> iter = myElements.iterator();
+        while (iter.hasNext()) {
+            if (name.equals(iter.next().getName())) {
+                iter.remove();
+            }
+        }
+        return this;
     }
 
     /**
