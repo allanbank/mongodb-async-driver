@@ -184,6 +184,13 @@ public abstract class AbstractBuilder implements Builder {
             }
             return new ArrayElement(name, subArray.build());
         }
+        else if (value instanceof Object[]) {
+            final ArrayBuilder subArray = BuilderFactory.startArray();
+            for (final Object entry : (Object[]) value) {
+                subArray.add(entry);
+            }
+            return new ArrayElement(name, subArray.build());
+        }
 
         throw new IllegalArgumentException("Could not coerce the type '"
                 + value.getClass().getName()

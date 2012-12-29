@@ -218,6 +218,10 @@ public class ArrayBuilderImplTest {
         assertEquals(new ArrayElement("0", new StringElement("0", "a")),
                 builder.build()[0]);
 
+        final String[] array = new String[] { "a" };
+        builder.reset().add(array);
+        assertEquals(new ArrayElement("0", new StringElement("0", "a")),
+                builder.build()[0]);
     }
 
     /**

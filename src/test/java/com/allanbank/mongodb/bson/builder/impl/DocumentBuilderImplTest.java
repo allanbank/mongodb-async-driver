@@ -253,6 +253,10 @@ public class DocumentBuilderImplTest {
         assertEquals(new RootDocument(new ArrayElement("f", new StringElement(
                 "0", "a"))), builder.build());
 
+        final String[] array = new String[] { "a" };
+        builder.reset().add("f", array);
+        assertEquals(new RootDocument(new ArrayElement("f", new StringElement(
+                "0", "a"))), builder.build());
     }
 
     /**
