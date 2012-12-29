@@ -52,7 +52,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * Creates a new builder.
      */
     public DocumentBuilderImpl() {
-        this(null);
+        this((AbstractBuilder) null);
     }
 
     /**
@@ -63,6 +63,21 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     public DocumentBuilderImpl(final AbstractBuilder outerScope) {
         super(outerScope);
+    }
+
+    /**
+     * Creates a new builder.
+     * 
+     * @param seedDocument
+     *            The document to seed the builder with. The builder will
+     *            contain the seed document elements plus any added/appended
+     *            elements.
+     */
+    public DocumentBuilderImpl(final DocumentAssignable seedDocument) {
+        this((AbstractBuilder) null);
+
+        final Document document = seedDocument.asDocument();
+        myElements.addAll(document.getElements());
     }
 
     /**
