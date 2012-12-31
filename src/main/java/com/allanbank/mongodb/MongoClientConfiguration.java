@@ -6,6 +6,7 @@ package com.allanbank.mongodb;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -18,6 +19,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.IOUtils;
@@ -99,9 +103,6 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /** The executor for responses from the database. */
     private transient Executor myExecutor = null;
 
-    /** The factory for creating threads to handle connections. */
-    private transient ThreadFactory myFactory = null;
-
     /**
      * Determines the type of hand off lock to use between threads in the core
      * of the driver.
@@ -178,6 +179,13 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     private List<String> myServers = new ArrayList<String>();
 
+    /** The socket factory for creating sockets. */
+    private transient SocketFactory mySocketFactory = SocketFactory
+            .getDefault();
+
+    /** The factory for creating threads to handle connections. */
+    private transient ThreadFactory myThreadFactory = null;
+
     /** The user name for authentication with the servers. */
     private String myUserName = null;
 
@@ -196,7 +204,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     public MongoClientConfiguration() {
         super();
 
-        myFactory = Executors.defaultThreadFactory();
+        myThreadFactory = Executors.defaultThreadFactory();
     }
 
     /**
@@ -710,12 +718,28 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the socket factory to use in making connections to the MongoDB
+     * server.
+     * <p>
+     * Defaults to {@link SocketFactory#getDefault() SocketFactory.getDefault()}
+     * .
+     * </p>
+     * 
+     * @return The socketFactory value.
+     * @see #setSocketFactory(SocketFactory) setSocketFactory(...) or usage
+     *      examples and suggestions.
+     */
+    public SocketFactory getSocketFactory() {
+        return mySocketFactory;
+    }
+
+    /**
      * Returns the thread factory for managing connections.
      * 
      * @return The thread factory for managing connections.
      */
     public ThreadFactory getThreadFactory() {
-        return myFactory;
+        return myThreadFactory;
     }
 
     /**
@@ -969,13 +993,79 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Sets the socket factory to use in making connections to the MongoDB
+     * server. Setting the SocketFactory to null resets the factory to the
+     * default.
+     * <p>
+     * Defaults to {@link SocketFactory#getDefault() SocketFactory.getDefault()}
+     * .
+     * </p>
+     * <p>
+     * For SSL based connections this can be an appropriately configured
+     * {@link SSLSocketFactory}.
+     * </p>
+     * <p>
+     * Other {@link Socket} and {@link InetSocketAddress} implementations with
+     * an appropriate {@link SocketFactory} implementation can be used with the
+     * driver. The driver only ever calls the
+     * {@link SocketFactory#createSocket()} method and then connects the socket
+     * passing the server's {@link InetSocketAddress}.
+     * </p>
+     * <p>
+     * See the <a href="http://code.google.com/p/junixsocket">junixsocket
+     * Project</a> for an example of a {@link Socket} and
+     * {@link InetSocketAddress} implementations for UNIX Domain Sockets that
+     * can be wrapped with SocketFactory similar to the following:<blockquote>
+     * <code><pre>
+     *  public class AFUNIXSocketFactory extends SocketFactory {
+     *      public Socket createSocket() throws java.io.IOException {
+     *          return new org.newsclub.net.unix.AFUNIXSocket.newInstance();
+     *      }
+     *      
+     *      public Socket createSocket(String host, int port) throws SocketException {
+     *          throw new SocketException("AFUNIX socket does not support connections to a host/port");
+     *      }
+     *  
+     *      public Socket createSocket(InetAddress host, int port) throws SocketException {
+     *          throw new SocketException("AFUNIX socket does not support connections to a host/port");
+     *      }
+     *  
+     *      public Socket createSocket(String host, int port, InetAddress localHost,
+     *              int localPort) throws SocketException {
+     *          throw new SocketException("AFUNIX socket does not support connections to a host/port");
+     *      }
+     *  
+     *      public Socket createSocket(InetAddress address, int port,
+     *              InetAddress localAddress, int localPort) throws SocketException {
+     *          throw new SocketException("AFUNIX socket does not support connections to a host/port");
+     *      }
+     *  }
+     * </pre></code></blockquote>
+     * </p>
+     * 
+     * @param socketFactory
+     *            The socketFactory value.
+     * 
+     * @see <a href="http://code.google.com/p/junixsocket">junixsocket
+     *      Project</a>
+     */
+    public void setSocketFactory(final SocketFactory socketFactory) {
+        if (socketFactory == null) {
+            mySocketFactory = SocketFactory.getDefault();
+        }
+        else {
+            mySocketFactory = socketFactory;
+        }
+    }
+
+    /**
      * Sets the thread factory for managing connections to the new value.
      * 
      * @param factory
      *            The thread factory for managing connections.
      */
     public void setThreadFactory(final ThreadFactory factory) {
-        myFactory = factory;
+        myThreadFactory = factory;
     }
 
     /**

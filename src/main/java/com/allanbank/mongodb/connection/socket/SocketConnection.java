@@ -128,8 +128,7 @@ public class SocketConnection implements Connection {
         myOpen = new AtomicBoolean(false);
         myShutdown = new AtomicBoolean(false);
 
-        mySocket = new Socket();
-
+        mySocket = config.getSocketFactory().createSocket();
         mySocket.setTcpNoDelay(true);
         mySocket.setKeepAlive(config.isUsingSoKeepalive());
         mySocket.setSoTimeout(config.getReadTimeout());

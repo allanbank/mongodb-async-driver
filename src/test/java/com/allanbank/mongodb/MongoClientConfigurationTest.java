@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb;
 
+import static org.easymock.EasyMock.createMock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -19,6 +20,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.SocketFactory;
 
 import org.junit.Test;
 
@@ -792,6 +795,23 @@ public class MongoClientConfigurationTest {
                 config.getDefaultReadPreference());
         config.setDefaultReadPreference(null);
         assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
+    }
+
+    /**
+     * Test method for {@link MongoClientConfiguration#setDefaultReadPreference}
+     * .
+     */
+    @Test
+    public void testSetSocketFactory() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        SocketFactory custom = createMock(SocketFactory.class);
+
+        assertSame(SocketFactory.getDefault(), config.getSocketFactory());
+        config.setSocketFactory(custom);
+        assertSame(custom, config.getSocketFactory());
+        config.setSocketFactory(null);
+        assertSame(SocketFactory.getDefault(), config.getSocketFactory());
     }
 
     /**
