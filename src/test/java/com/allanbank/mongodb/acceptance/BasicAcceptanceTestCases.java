@@ -733,17 +733,30 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies that a database is removed from the server on a drop.
+     * 
+     * @throws InterruptedException
+     *             On a failure to sleep as part of the test.
      */
     @Test
-    public void testDropDatabase() {
+    public void testDropDatabase() throws InterruptedException {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
+        List<String> names = myMongo.listDatabaseNames();
+        assertFalse("Database should be in the list any more: '" + TEST_DB_NAME
+                + "' in " + names, names.contains(TEST_DB_NAME));
 
         myDb.drop();
 
-        assertFalse(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
+        // Pause for the config server to update.
+        if (isShardedConfiguration()) {
+            Thread.sleep(250);
+        }
+
+        names = myMongo.listDatabaseNames();
+        assertFalse("Database should not be in the list any more: '"
+                + TEST_DB_NAME + "' not in " + names,
+                names.contains(TEST_DB_NAME));
     }
 
     /**
