@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.easymock.EasyMock;
@@ -44,6 +45,7 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * ReplicaSetConnectionFactoryTest provides tests for the
@@ -92,8 +94,8 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testBootstrap() {
-        final String serverName = "localhost:"
-                + myServer.getInetSocketAddress().getPort();
+        final InetSocketAddress addr = myServer.getInetSocketAddress();
+        final String serverName = ServerNameUtils.normalize(addr);
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
@@ -250,8 +252,8 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testClose() throws IOException {
-        final String serverName = "localhost:"
-                + myServer.getInetSocketAddress().getPort();
+        final InetSocketAddress addr = myServer.getInetSocketAddress();
+        final String serverName = ServerNameUtils.normalize(addr);
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");

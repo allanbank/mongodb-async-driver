@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.easymock.EasyMock;
@@ -45,6 +46,7 @@ import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * ShardedConnectionFactoryTest provides tests for the
@@ -103,8 +105,8 @@ public class ShardedConnectionFactoryTest {
      */
     @Test
     public void testBootstrap() {
-        final String serverName = "localhost:"
-                + ourServer.getInetSocketAddress().getPort();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+        final String serverName = ServerNameUtils.normalize(addr);
 
         ourServer.setReplies(
                 reply(BuilderFactory.start().addString("_id", serverName),
@@ -159,8 +161,8 @@ public class ShardedConnectionFactoryTest {
      */
     @Test
     public void testClose() throws IOException {
-        final String serverName = "localhost:"
-                + ourServer.getInetSocketAddress().getPort();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+        final String serverName = ServerNameUtils.normalize(addr);
 
         ourServer.setReplies(
                 reply(BuilderFactory.start().addString("_id", serverName),
@@ -235,9 +237,11 @@ public class ShardedConnectionFactoryTest {
      * 
      * @throws IOException
      *             On a failure.
+     * @throws InterruptedException
+     *             On a failure to sleep in the test.
      */
     @Test
-    public void testConnectFails() throws IOException {
+    public void testConnectFails() throws IOException, InterruptedException {
         final String serverName = ourServer.getInetSocketAddress()
                 .getHostName()
                 + ":"
@@ -259,6 +263,7 @@ public class ShardedConnectionFactoryTest {
         myTestFactory = new ShardedConnectionFactory(socketFactory, config);
 
         tearDownAfterClass();
+        Thread.sleep(100); // Wait for close to finish.
         try {
             final Connection connection = myTestFactory.connect();
             IOUtils.close(connection);
