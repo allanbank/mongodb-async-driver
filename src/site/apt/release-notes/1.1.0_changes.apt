@@ -39,6 +39,10 @@ remain consistent with the 10gen supported drivers.
 support for a <<streaming>> or <<push>> query results from the datastore.  Instead of the client iterating over the
 set of returned documents the driver will invoke a callback with each document as it is received.
 
+    * Added no-argument <<<count()>>> methods to the 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection.count()}} interface for
+easier determination of the total number of documents in a collection.
+
   * BSON and {{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/DocumentBuilder.html}DocumentBuilder}} 
 / {{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/ArrayBuilder.html}ArrayBuilder}}
 
