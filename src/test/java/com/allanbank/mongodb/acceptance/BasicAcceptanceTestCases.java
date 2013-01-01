@@ -743,7 +743,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
         List<String> names = myMongo.listDatabaseNames();
-        assertFalse("Database should be in the list any more: '" + TEST_DB_NAME
+        assertTrue("Database should be in the list: '" + TEST_DB_NAME
                 + "' in " + names, names.contains(TEST_DB_NAME));
 
         myDb.drop();
