@@ -58,6 +58,9 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
      */
     @Test
     public void testReconnectHandling() {
+        myConfig.setMaxConnectionCount(1);
+        myConfig.setReconnectTimeout(60000);
+
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
@@ -83,6 +86,9 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
      */
     @Test
     public void testSuddenFailureHandling() {
+        myConfig.setMaxConnectionCount(1);
+        myConfig.setReconnectTimeout(60000);
+
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 

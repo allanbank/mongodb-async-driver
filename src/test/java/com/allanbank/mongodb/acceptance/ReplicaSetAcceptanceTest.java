@@ -80,6 +80,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
      */
     @Test
     public void testGracefulStepdownRecovery() {
+        myConfig.setReconnectTimeout(90000);
 
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
