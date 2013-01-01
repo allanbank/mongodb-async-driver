@@ -91,8 +91,8 @@ public class ServerState {
      * @param server
      *            The server being tracked.
      */
-    public ServerState(final String server) {
-        myServer = ServerNameUtils.parse(server);
+    public ServerState(final InetSocketAddress server) {
+        myServer = server;
         myName = ServerNameUtils.normalize(server);
         myWritable = new AtomicBoolean(false);
         myAverageLatency = new AtomicLong(
@@ -244,6 +244,30 @@ public class ServerState {
      */
     public Connection takeConnection() {
         return myConnection.getAndSet(null);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to to return a human readable version of the server state.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append(myName);
+        builder.append("(");
+        if (myWritable.get()) {
+            builder.append("W,");
+        }
+        if (myTags.get() != null) {
+            builder.append("T,");
+        }
+        builder.append(getAverageLatency());
+        builder.append(")");
+
+        return builder.toString();
     }
 
     /**

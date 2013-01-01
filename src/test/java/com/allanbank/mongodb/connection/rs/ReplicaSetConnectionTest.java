@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -54,7 +54,7 @@ public class ReplicaSetConnectionTest {
     private ClusterState myCluster;
 
     /** The configuration being used in the test. */
-    private MongoDbConfiguration myConfig;
+    private MongoClientConfiguration myConfig;
 
     /** The test primary server. */
     private ServerState myServer;
@@ -64,7 +64,7 @@ public class ReplicaSetConnectionTest {
      */
     @Before
     public void setUp() {
-        myConfig = new MongoDbConfiguration();
+        myConfig = new MongoClientConfiguration();
         myCluster = new ClusterState(myConfig);
 
         myServer = myCluster.get("localhost:27017");

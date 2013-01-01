@@ -48,8 +48,11 @@ public class ArrayElement extends AbstractElement {
      *            The name for the BSON array.
      * @param entries
      *            The entries in the array.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
-    public ArrayElement(final String name, final Element... entries) {
+    public ArrayElement(final String name, final Element... entries)
+            throws IllegalArgumentException {
         super(name);
 
         myEntries = Collections.unmodifiableList(new ArrayList<Element>(Arrays
@@ -63,8 +66,11 @@ public class ArrayElement extends AbstractElement {
      *            The name for the BSON array.
      * @param entries
      *            The entries in the array.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
-    public ArrayElement(final String name, final List<Element> entries) {
+    public ArrayElement(final String name, final List<Element> entries)
+            throws IllegalArgumentException {
         super(name);
 
         if ((entries != null) && !entries.isEmpty()) {
@@ -232,34 +238,6 @@ public class ArrayElement extends AbstractElement {
         result = (31 * result) + super.hashCode();
         result = (31 * result) + myEntries.hashCode();
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : [ ");
-
-        boolean first = true;
-        for (final Element entry : myEntries) {
-            if (!first) {
-                builder.append(",\n");
-            }
-            builder.append(entry.toString());
-            first = false;
-        }
-        builder.append("]\n");
-
-        return builder.toString();
     }
 
     /**

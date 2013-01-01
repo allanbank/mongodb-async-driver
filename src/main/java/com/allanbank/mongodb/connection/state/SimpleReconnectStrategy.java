@@ -46,29 +46,44 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
 
         final List<ServerState> servers = getSelector().pickServers();
 
-        for (final ServerState server : servers) {
-            Connection newConn = null;
-            try {
-                final InetSocketAddress addr = server.getServer();
+        // Clear the interrupt state for the thread.
+        final boolean wasInterrupted = Thread.interrupted();
+        try {
+            for (final ServerState server : servers) {
+                Connection newConn = null;
+                try {
+                    final InetSocketAddress addr = server.getServer();
 
-                newConn = getConnectionFactory().connect(server, getConfig());
-                if (isConnected(server, newConn)) {
+                    newConn = getConnectionFactory().connect(server,
+                            getConfig());
+                    if (isConnected(server, newConn)) {
 
-                    LOG.info("Reconnected to " + addr);
+                        LOG.info("Reconnected to " + addr);
 
-                    copyPending(newConn, oldConnection);
+                        copyPending(newConn, oldConnection);
 
-                    return newConn;
+                        return newConn;
+                    }
+
+                    IOUtils.close(newConn);
                 }
-
-                IOUtils.close(newConn);
-            }
-            catch (final IOException error) {
-                // Connection failed.
-                // Try the next one.
-                error.hashCode(); // PMD - Shhhh.
+                catch (final IOException error) {
+                    // Connection failed.
+                    // Try the next one.
+                    LOG.fine("Reconnect to " + server + " failed: "
+                            + error.getMessage());
+                }
             }
         }
+        finally {
+            // Reset the interrupt state.
+            if (wasInterrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        LOG.info("Reconnect attempt failed for all " + servers.size()
+                + " servers: " + servers);
 
         return null;
     }

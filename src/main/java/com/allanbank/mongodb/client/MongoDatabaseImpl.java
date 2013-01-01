@@ -207,10 +207,10 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * of the collections.
      * </p>
      * 
-     * @see MongoDatabase#listCollections()
+     * @see MongoDatabase#listCollectionNames()
      */
     @Override
-    public List<String> listCollections() {
+    public List<String> listCollectionNames() {
         final Query query = new Query(myName, "system.namespaces", EMPTY_QUERY,
         /* fields= */null,
         /* batchSize= */0, /* limit= */0, /* numberToSkip= */0,
@@ -241,6 +241,20 @@ public class MongoDatabaseImpl implements MongoDatabase {
         }
 
         return names;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to query the system.namespace collection for the names of all
+     * of the collections.
+     * </p>
+     * 
+     * @see MongoDatabase#listCollectionNames()
+     */
+    @Override
+    public List<String> listCollections() {
+        return listCollectionNames();
     }
 
     /**

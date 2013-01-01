@@ -22,7 +22,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.NumericElement;
@@ -66,7 +66,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
     @Before
     @Override
     public void connect() {
-        myConfig = new MongoDbConfiguration();
+        myConfig = new MongoClientConfiguration();
         myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
         myConfig.setAutoDiscoverServers(true);
         myConfig.setMaxConnectionCount(1);
@@ -84,7 +84,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
+        assertTrue(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
 
         try {
             // Need to give the primary time to discover the others are
@@ -96,7 +96,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             myMongo.getDatabase("admin").runAdminCommand("replSetStepDown");
 
             // Quick command that should then fail.
-            myMongo.listDatabases();
+            myMongo.listDatabaseNames();
 
             // ... but its OK if it misses getting out before the Process dies.
         }
@@ -113,7 +113,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             Thread.sleep(1000);
 
             // Should switch to the other shards.
-            myMongo.listDatabases();
+            myMongo.listDatabaseNames();
         }
         catch (final Exception e) {
             final AssertionError error = new AssertionError(e.getMessage());
@@ -159,8 +159,8 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         for (int i = 0; i < ports.length; ++i) {
             final int port = ports[i];
 
-            conns[i] = new SocketConnection(
-                    new ServerState("localhost:" + port), myConfig);
+            conns[i] = new SocketConnection(new ServerState(
+                    new InetSocketAddress("localhost", port)), myConfig);
             conns[i].start();
         }
 
@@ -299,52 +299,53 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
     /**
      * Test recovery from a sudden server failure.
      */
-    // @Test
-    // public void testSuddenFailureRecovery() {
-    // myConfig.setAutoDiscoverServers(true);
-    // myConfig.setReconnectTimeout(90000);
-    //
-    // // Make sure the collection/db exist and we are connected.
-    // myCollection.insert(BuilderFactory.start().build());
-    //
-    // assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
-    //
-    // try {
-    // // Stop the main shard.
-    // ourBuilder.command("pkill", "-f", "27018");
-    // final Process kill = ourBuilder.start();
-    // kill.waitFor();
-    //
-    // // Quick command that should then fail.
-    // myMongo.listDatabases();
-    //
-    // // ... but its OK if it misses getting out before the Process dies.
-    // }
-    // catch (final ConnectionLostException cle) {
-    // // Good.
-    // }
-    // catch (final Exception e) {
-    // final AssertionError error = new AssertionError(e.getMessage());
-    // error.initCause(e);
-    // throw error;
-    // }
-    //
-    // try {
-    // Thread.sleep(1000);
-    //
-    // // Should switch to the other shards.
-    // myMongo.listDatabases();
-    // }
-    // catch (final Exception e) {
-    // final AssertionError error = new AssertionError(e.getMessage());
-    // error.initCause(e);
-    // throw error;
-    // }
-    // finally {
-    // // Make sure the server is restarted for the other tests.
-    // startServer();
-    // }
-    // }
+    @Test
+    public void testSuddenFailureRecovery() {
+        myConfig.setAutoDiscoverServers(true);
+        myConfig.setReconnectTimeout(90000);
+
+        // Make sure the collection/db exist and we are connected.
+        myCollection.insert(BuilderFactory.start().build());
+
+        assertTrue(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
+
+        try {
+            // Stop the main shard.
+            final ProcessBuilder builder = new ProcessBuilder("pkill", "-f",
+                    "27018");
+            final Process kill = builder.start();
+            kill.waitFor();
+
+            // Quick command that should then fail.
+            myMongo.listDatabaseNames();
+
+            // ... but its OK if it misses getting out before the Process dies.
+        }
+        catch (final ConnectionLostException cle) {
+            // Good.
+        }
+        catch (final Exception e) {
+            final AssertionError error = new AssertionError(e.getMessage());
+            error.initCause(e);
+            throw error;
+        }
+
+        try {
+            Thread.sleep(1000);
+
+            // Should switch to the other shards.
+            myMongo.listDatabaseNames();
+        }
+        catch (final Exception e) {
+            final AssertionError error = new AssertionError(e.getMessage());
+            error.initCause(e);
+            throw error;
+        }
+        finally {
+            // Make sure the server is restarted for the other tests.
+            startServer();
+        }
+    }
 
     /**
      * Extracts the specified opcounter value from the document.

@@ -35,6 +35,8 @@ public class TimestampElement extends AbstractElement {
      *            The name for the BSON long.
      * @param value
      *            The BSON timestamp value as the milliseconds since the epoch.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public TimestampElement(final String name, final long value) {
         super(name);
@@ -104,26 +106,6 @@ public class TimestampElement extends AbstractElement {
         result = (31 * result) + (int) (myTimestamp & 0xFFFFFFFF);
         result = (31 * result) + (int) ((myTimestamp >> 32) & 0xFFFFFFFF);
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : UTC(");
-        builder.append(myTimestamp);
-        builder.append(")");
-
-        return builder.toString();
     }
 
     /**

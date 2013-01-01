@@ -5,9 +5,6 @@
 
 package com.allanbank.mongodb;
 
-import java.io.Closeable;
-import java.util.List;
-
 /**
  * Interface to bootstrap into interactions with MongoDB.
  * 
@@ -15,9 +12,12 @@ import java.util.List;
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
+ * @deprecated Use the {@link MongoClient} interface instead. This interface
+ *             will be removed on or after the 1.3.0 release.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface Mongo extends Closeable {
+@Deprecated
+public interface Mongo extends MongoClient {
 
     /**
      * Returns a Mongo instance that shares connections with this Mongo instance
@@ -33,8 +33,10 @@ public interface Mongo extends Closeable {
      * allocation and no server interaction.
      * </p>
      * 
-     * @return A list of available database names.
+     * @return Serialized view of the connections to the MongoDB Server.
+     * @deprecated Use {@link MongoClient#asSerializedClient()} instead.
      */
+    @Deprecated
     public Mongo asSerializedMongo();
 
     /**
@@ -42,22 +44,7 @@ public interface Mongo extends Closeable {
      * 
      * @return The configuration being used by the logical MongoDB connection.
      */
+    @Override
     public MongoDbConfiguration getConfig();
 
-    /**
-     * Returns the MongoDatabase with the specified name. This method does not
-     * validate that the database already exists in the MongoDB instance.
-     * 
-     * @param name
-     *            The name of the existing database.
-     * @return The {@link MongoDatabase}.
-     */
-    public MongoDatabase getDatabase(String name);
-
-    /**
-     * Returns a future for the list of database names.
-     * 
-     * @return A list of available database names.
-     */
-    public List<String> listDatabases();
 }

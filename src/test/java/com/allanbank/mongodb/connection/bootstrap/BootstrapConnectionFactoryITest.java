@@ -13,7 +13,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.connection.auth.AuthenticationConnectionFactory;
 import com.allanbank.mongodb.connection.rs.ReplicaSetConnectionFactory;
@@ -49,7 +49,7 @@ public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
     public void testBootstrapReplicaSet() {
         startReplicaSet();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
         myTestFactory = new BootstrapConnectionFactory(config);
 
@@ -64,7 +64,7 @@ public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
     public void testBootstrapSharded() {
         startSharded();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
         myTestFactory = new BootstrapConnectionFactory(config);
 
@@ -79,7 +79,7 @@ public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
     public void testBootstrapStandalone() {
         startStandAlone();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
         myTestFactory = new BootstrapConnectionFactory(config);
 
@@ -94,7 +94,7 @@ public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
     public void testBootstrapStandaloneWithAuth() {
         startAuthenticated();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
         config.authenticate(USER_NAME, PASSWORD);
         config.setDefaultDatabase(USER_DB);

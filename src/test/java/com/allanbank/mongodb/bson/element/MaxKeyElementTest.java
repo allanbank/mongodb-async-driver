@@ -61,8 +61,7 @@ public class MaxKeyElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             objs1.add(new MaxKeyElement(name));
             objs2.add(new MaxKeyElement(name));
         }
@@ -105,14 +104,23 @@ public class MaxKeyElementTest {
     }
 
     /**
+     * Test method for {@link MaxKeyElement#MaxKeyElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new MaxKeyElement(null);
+    }
+
+    /**
      * Test method for {@link MaxKeyElement#toString()}.
      */
     @Test
     public void testToString() {
         final MaxKeyElement element = new MaxKeyElement("foo");
 
-        assertEquals("\"foo\" : /* MAX_KEY */ 9223372036854775807",
-                element.toString());
+        assertEquals("foo : MaxKey()", element.toString());
     }
 
     /**

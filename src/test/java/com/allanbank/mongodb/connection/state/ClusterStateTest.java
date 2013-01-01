@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +31,7 @@ import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.connection.Connection;
@@ -57,7 +58,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testAdd() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -92,29 +93,29 @@ public class ClusterStateTest {
     public void testCdf() {
 
         final List<ServerState> servers = new ArrayList<ServerState>(5);
-        ServerState server = new ServerState("localhost:1024");
+        ServerState server = new ServerState(new InetSocketAddress(1024));
         server.updateAverageLatency(100);
         servers.add(server);
 
-        server = new ServerState("localhost:1025");
+        server = new ServerState(new InetSocketAddress(1025));
         server.updateAverageLatency(100);
         servers.add(server);
 
-        server = new ServerState("localhost:1026");
+        server = new ServerState(new InetSocketAddress(1026));
         server.updateAverageLatency(200);
         servers.add(server);
 
-        server = new ServerState("localhost:1027");
+        server = new ServerState(new InetSocketAddress(1027));
         server.updateAverageLatency(200);
         servers.add(server);
 
-        server = new ServerState("localhost:1028");
+        server = new ServerState(new InetSocketAddress(1028));
         server.updateAverageLatency(1000);
         servers.add(server);
 
         final double relativeSum = 1 + 1 + (1D / 2) + (1D / 2) + (1D / 10);
 
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
         Collections.shuffle(servers);
         final double[] cdf = myState.cdf(servers);
 
@@ -149,7 +150,7 @@ public class ClusterStateTest {
 
         replay(mockConnection);
 
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
         myState.add("localhost:27017").addConnection(mockConnection);
         myState.close();
 
@@ -161,7 +162,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersNearest() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
         final ServerState s1 = myState.add("localhost:27017");
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
@@ -202,7 +203,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersPrimary() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
         final ServerState s1 = myState.add("localhost:27017");
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
@@ -235,7 +236,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersPrimaryPreferred() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
         final ServerState s1 = myState.add("localhost:27017");
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
@@ -303,7 +304,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersSecondary() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
         final ServerState s1 = myState.add("localhost:27017");
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
@@ -355,7 +356,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersSecondaryPreferred() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
         final ServerState s1 = myState.add("localhost:27017");
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
@@ -399,7 +400,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersSecondaryPreferredWithVeryLateServer() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
         final ServerState s1 = myState.add("localhost:27017");
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
@@ -428,7 +429,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testFindCandidateServersServer() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
         final ServerState s1 = myState.add("localhost:27017");
         final ServerState s2 = myState.add("localhost:27018");
         final ServerState s3 = myState.add("localhost:27019");
@@ -455,7 +456,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testGet() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -488,7 +489,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testGetNonWritableServers() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
 
         final ServerState ss = myState.add("foo");
         assertEquals("foo", ss.getServer().getHostName());
@@ -517,7 +518,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testMarkNotWritable() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -558,7 +559,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testMarkWritable() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -599,7 +600,7 @@ public class ClusterStateTest {
      */
     @Test
     public void testRemoveListener() {
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -648,14 +649,14 @@ public class ClusterStateTest {
         final List<ServerState> servers = new ArrayList<ServerState>(count);
         for (int i = 0; i < count; i++) {
 
-            final ServerState server = new ServerState("localhost:"
-                    + (i + 1024));
+            final ServerState server = new ServerState(new InetSocketAddress(
+                    "localhost:", i + 1024));
             server.updateAverageLatency(Math.random() * 100000);
 
             servers.add(server);
         }
 
-        myState = new ClusterState(new MongoDbConfiguration());
+        myState = new ClusterState(new MongoClientConfiguration());
         for (int i = 0; i < 100; ++i) {
             Collections.shuffle(servers);
 

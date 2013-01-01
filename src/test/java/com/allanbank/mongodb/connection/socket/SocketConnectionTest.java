@@ -44,7 +44,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
@@ -53,6 +53,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.EndianUtils;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
@@ -67,7 +68,7 @@ import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
 import com.allanbank.mongodb.connection.state.ServerState;
-import com.allanbank.mongodb.util.ServerNameUtils;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * SocketConnectionTest provides tests for the {@link SocketConnection} class.
@@ -133,9 +134,9 @@ public class SocketConnectionTest {
     @Test
     public void testAddPending() throws IOException, InterruptedException {
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -197,9 +198,9 @@ public class SocketConnectionTest {
     @SuppressWarnings("null")
     @Test
     public void testClose() throws IOException {
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -247,9 +248,9 @@ public class SocketConnectionTest {
     @Test
     public void testConnectionLost() throws IOException, InterruptedException {
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -311,9 +312,9 @@ public class SocketConnectionTest {
     @Test
     public void testGetLastError() throws IOException {
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -372,10 +373,10 @@ public class SocketConnectionTest {
     @Test
     public void testGetLastErrorWithFsync() throws IOException {
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -434,10 +435,10 @@ public class SocketConnectionTest {
     @Test
     public void testGetLastErrorWithJ() throws IOException {
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -496,10 +497,10 @@ public class SocketConnectionTest {
     @Test
     public void testGetLastErrorWithW() throws IOException {
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -560,10 +561,10 @@ public class SocketConnectionTest {
     @Test
     public void testGetMore() throws IOException {
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -619,10 +620,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -686,10 +687,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -740,10 +741,10 @@ public class SocketConnectionTest {
      */
     @Test
     public void testKillCursor() throws IOException {
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -796,10 +797,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -854,10 +855,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -919,10 +920,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -985,10 +986,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -1051,10 +1052,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -1117,10 +1118,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -1183,10 +1184,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -1249,10 +1250,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -1315,10 +1316,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -1407,9 +1408,9 @@ public class SocketConnectionTest {
         out.write(helloWorld);
         ourServer.setReplies(Arrays.asList(out.toByteArray()));
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -1476,10 +1477,10 @@ public class SocketConnectionTest {
         out.write(helloWorld);
         ourServer.setReplies(Arrays.asList(out.toByteArray()));
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -1513,7 +1514,7 @@ public class SocketConnectionTest {
     @Test
     public void testReadGarbage() throws IOException, InterruptedException {
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
@@ -1536,7 +1537,7 @@ public class SocketConnectionTest {
         out.write(helloWorld);
         ourServer.setReplies(Arrays.asList(out.toByteArray()));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -1614,10 +1615,10 @@ public class SocketConnectionTest {
         out.write(helloWorld);
         ourServer.setReplies(Arrays.asList(out.toByteArray()));
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -1685,10 +1686,10 @@ public class SocketConnectionTest {
         out.write(helloWorld);
         ourServer.setReplies(Arrays.asList(out.toByteArray()));
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -1721,9 +1722,9 @@ public class SocketConnectionTest {
     @SuppressWarnings("null")
     @Test
     public void testSendError() throws IOException, InterruptedException {
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -1775,9 +1776,9 @@ public class SocketConnectionTest {
     @SuppressWarnings("null")
     @Test
     public void testSendFailureClose() throws IOException, InterruptedException {
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -1830,9 +1831,9 @@ public class SocketConnectionTest {
     @Test
     public void testSendRuntimeException() throws IOException,
             InterruptedException {
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -1884,9 +1885,9 @@ public class SocketConnectionTest {
     @SuppressWarnings("null")
     @Test
     public void testServerClose() throws IOException, InterruptedException {
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -1959,9 +1960,9 @@ public class SocketConnectionTest {
         out.write(helloWorld);
         ourServer.setReplies(Arrays.asList(out.toByteArray()));
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
@@ -1990,10 +1991,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -2036,7 +2037,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for
-     * {@link SocketConnection#SocketConnection(ServerState, MongoDbConfiguration)}
+     * {@link SocketConnection#SocketConnection(ServerState, MongoClientConfiguration)}
      * .
      * 
      * @throws IOException
@@ -2044,10 +2045,10 @@ public class SocketConnectionTest {
      */
     @Test
     public void testSocketConnection() throws IOException {
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -2062,7 +2063,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for
-     * {@link SocketConnection#SocketConnection(ServerState, MongoDbConfiguration)}
+     * {@link SocketConnection#SocketConnection(ServerState, MongoClientConfiguration)}
      * .
      * 
      * @throws IOException
@@ -2074,9 +2075,8 @@ public class SocketConnectionTest {
 
         // Force to the wrong port.
         myTestConnection = new SocketConnection(new ServerState(
-                ServerNameUtils.normalize(new InetSocketAddress(addr
-                        .getAddress(), addr.getPort() + 1))),
-                new MongoDbConfiguration());
+                new InetSocketAddress(addr.getAddress(), addr.getPort() + 1)),
+                new MongoClientConfiguration());
     }
 
     /**
@@ -2093,10 +2093,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -2160,10 +2160,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -2227,10 +2227,10 @@ public class SocketConnectionTest {
                 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
                 (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
 
-        final String addr = ourServer.getServerName();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         myTestConnection = new SocketConnection(new ServerState(addr),
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         myTestConnection.start();
 
         assertTrue("Should have connected to the server.",
@@ -2332,6 +2332,13 @@ public class SocketConnectionTest {
         @Override
         public ReadPreference getReadPreference() {
             return ReadPreference.PRIMARY;
+        }
+
+        @Override
+        public void validateSize(final SizeOfVisitor visitor,
+                final int maxDocumentSize) throws DocumentToLargeException {
+            // TODO Auto-generated method stub
+
         }
 
         @Override

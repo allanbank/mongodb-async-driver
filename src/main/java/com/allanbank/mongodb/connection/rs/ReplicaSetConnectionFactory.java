@@ -6,12 +6,13 @@
 package com.allanbank.mongodb.connection.rs;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.StringElement;
@@ -49,7 +50,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
     private final ClusterState myClusterState;
 
     /** The MongoDB client configuration. */
-    private final MongoDbConfiguration myConfig;
+    private final MongoClientConfiguration myConfig;
 
     /** Pings the servers in the cluster collecting latency and tags. */
     private final ClusterPinger myPinger;
@@ -63,7 +64,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      *            The MongoDB client configuration.
      */
     public ReplicaSetConnectionFactory(final ProxiedConnectionFactory factory,
-            final MongoDbConfiguration config) {
+            final MongoClientConfiguration config) {
         myConnectionFactory = factory;
         myConfig = config;
         myClusterState = new ClusterState(config);
@@ -85,7 +86,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      * Finds the primary member of the replica set.
      */
     public void bootstrap() {
-        for (final String addr : myConfig.getServers()) {
+        for (final InetSocketAddress addr : myConfig.getServerAddresses()) {
             Connection conn = null;
             final FutureCallback<Reply> future = new FutureCallback<Reply>();
             try {

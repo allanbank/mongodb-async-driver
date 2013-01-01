@@ -38,6 +38,7 @@ import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.bson.element.UuidElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
@@ -354,6 +355,17 @@ public class BsonInputStream extends FilterInputStream {
 
         final byte[] binary = new byte[length];
         readFully(binary);
+
+        if ((subType == UuidElement.LEGACY_UUID_SUBTTYPE)
+                || (subType == UuidElement.UUID_SUBTTYPE)) {
+            try {
+                return new UuidElement(name, (byte) subType, binary);
+            }
+            catch (final IllegalArgumentException iae) {
+                // Just use the vanilla BinaryElement.
+                iae.getCause(); // Shhh - PMD.
+            }
+        }
 
         return new BinaryElement(name, (byte) subType, binary);
     }

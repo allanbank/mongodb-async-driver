@@ -4,7 +4,7 @@
  */
 
 /**
- * Provides utilities used cross the driver.
+ * Provides utilities used across the driver.
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */

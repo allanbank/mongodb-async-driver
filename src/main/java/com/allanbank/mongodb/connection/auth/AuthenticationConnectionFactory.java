@@ -7,7 +7,7 @@ package com.allanbank.mongodb.connection.auth;
 
 import java.io.IOException;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
@@ -27,7 +27,7 @@ public class AuthenticationConnectionFactory implements
         ProxiedConnectionFactory {
 
     /** The default config. */
-    private final MongoDbConfiguration myConfig;
+    private final MongoClientConfiguration myConfig;
 
     /** The connection factory to proxy connections to. */
     private final ProxiedConnectionFactory myProxiedConnectionFactory;
@@ -43,7 +43,7 @@ public class AuthenticationConnectionFactory implements
      */
     public AuthenticationConnectionFactory(
             final ProxiedConnectionFactory factory,
-            final MongoDbConfiguration config) {
+            final MongoClientConfiguration config) {
         myProxiedConnectionFactory = factory;
         myConfig = config;
     }
@@ -81,7 +81,7 @@ public class AuthenticationConnectionFactory implements
      */
     @Override
     public AuthenticatingConnection connect(final ServerState server,
-            final MongoDbConfiguration config) throws IOException {
+            final MongoClientConfiguration config) throws IOException {
         return new AuthenticatingConnection(myProxiedConnectionFactory.connect(
                 server, config), config);
     }

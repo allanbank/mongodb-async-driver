@@ -8,6 +8,7 @@ package com.allanbank.mongodb.client;
 import static com.allanbank.mongodb.connection.CallbackReply.cb;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isNull;
 import static org.easymock.EasyMock.replay;
@@ -19,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -145,6 +147,49 @@ public class MongoIteratorTest {
         assertSame(myDocs.get(3), iter.next());
         assertTrue(iter.hasNext());
         assertSame(myDocs.get(4), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(0), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(1), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(2), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(3), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(4), iter.next());
+        assertFalse(iter.hasNext());
+
+        iter.close();
+
+        verify(mockClient);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoIterator#MongoIterator(Query, Client, String, Reply)} .
+     */
+    @Test
+    public void testAskForMoreGetNone() {
+        final List<Document> empty = Collections.emptyList();
+
+        final Client mockClient = createMock(Client.class);
+        final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
+                false);
+        final Reply reply2 = new Reply(0, 10, 0, empty, false, false, false,
+                false);
+        final Reply reply3 = new Reply(0, 0, 0, empty, false, false, false,
+                false);
+
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
+                .andReturn(myAddress);
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply3)))
+                .andReturn(myAddress);
+
+        replay(mockClient);
+
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
+        assertSame(iter, iter.iterator());
         assertTrue(iter.hasNext());
         assertSame(myDocs.get(0), iter.next());
         assertTrue(iter.hasNext());
@@ -425,6 +470,207 @@ public class MongoIteratorTest {
         assertEquals(10, iter.getBatchSize());
 
         iter.close();
+        verify(mockClient);
+    }
+
+    /**
+     * Test method for {@link MongoIterator#remove()}.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testTailableCursor() {
+        final DocumentBuilder b = BuilderFactory.start();
+
+        final List<Document> empty = Collections.emptyList();
+
+        myQuery = new Query("db", "c", b.build(), b.build(), 5, 0, 0, true,
+                ReadPreference.PRIMARY, false, false, false, false);
+
+        final Client mockClient = createStrictMock(Client.class);
+        final Reply reply = new Reply(0, 1234, 0, myDocs, false, false, false,
+                false);
+        final Reply reply0 = new Reply(0, 1234, 0, empty, false, false, false,
+                false);
+        final Reply reply2 = new Reply(0, 1234, 0, myDocs, false, false, false,
+                false);
+
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
+                .andReturn(myAddress).times(100);
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
+                .andReturn(myAddress);
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
+                .andReturn(myAddress).times(100);
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
+                .andReturn(myAddress); // To load data for the last assertTrue
+                                       // hasNext.
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
+                .andReturn(myAddress); // Request for more data after reading
+                                       // the last batch.
+        expect(
+                mockClient.send(anyObject(KillCursors.class),
+                        (Callback<Reply>) isNull())).andReturn(myAddress);
+
+        replay(mockClient);
+
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
+        assertSame(iter, iter.iterator());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(0), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(1), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(2), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(3), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(4), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(0), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(1), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(2), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(3), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(4), iter.next());
+        assertTrue(iter.hasNext());
+
+        iter.close();
+
+        verify(mockClient);
+    }
+
+    /**
+     * Test method for {@link MongoIterator#remove()}.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testTailableCursorDoesNotExhaustTheStack() {
+        final DocumentBuilder b = BuilderFactory.start();
+
+        final List<Document> empty = Collections.emptyList();
+
+        myQuery = new Query("db", "c", b.build(), b.build(), 5, 0, 0, true,
+                ReadPreference.PRIMARY, false, false, false, false);
+
+        final Client mockClient = createStrictMock(Client.class);
+        final Reply reply = new Reply(0, 1234, 0, myDocs, false, false, false,
+                false);
+        final Reply reply0 = new Reply(0, 1234, 0, empty, false, false, false,
+                false);
+        final Reply reply2 = new Reply(0, 1234, 0, myDocs, false, false, false,
+                false);
+
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
+                .andReturn(myAddress).times(1000000);
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
+                .andReturn(myAddress);
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
+                .andReturn(myAddress).times(100);
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
+                .andReturn(myAddress); // To load data for the last assertTrue
+                                       // hasNext.
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
+                .andReturn(myAddress); // Request for more data after reading
+                                       // the last batch.
+        expect(
+                mockClient.send(anyObject(KillCursors.class),
+                        (Callback<Reply>) isNull())).andReturn(myAddress);
+
+        replay(mockClient);
+
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
+        assertSame(iter, iter.iterator());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(0), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(1), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(2), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(3), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(4), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(0), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(1), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(2), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(3), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(4), iter.next());
+        assertTrue(iter.hasNext());
+
+        iter.close();
+
+        verify(mockClient);
+    }
+
+    /**
+     * Test method for {@link MongoIterator#remove()}.
+     */
+    @Test
+    public void testTailableCursorFailure() {
+        final DocumentBuilder b = BuilderFactory.start();
+
+        final List<Document> empty = Collections.emptyList();
+
+        myQuery = new Query("db", "c", b.build(), b.build(), 5, 0, 0, true,
+                ReadPreference.PRIMARY, false, false, false, false);
+
+        final Client mockClient = createStrictMock(Client.class);
+        final Reply reply = new Reply(0, 1234, 0, myDocs, false, false, false,
+                false);
+        final Reply reply0 = new Reply(0, 1234, 0, empty, false, false, false,
+                false);
+        final Reply reply2 = new Reply(0, 1234, 0, myDocs, false, false, false,
+                false);
+        final Reply replyDone = new Reply(0, 0, 0, empty, false, false, false,
+                false);
+
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
+                .andReturn(myAddress).times(100);
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
+                .andReturn(myAddress);
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
+                .andReturn(myAddress).times(100);
+        expect(mockClient.send(anyObject(GetMore.class), cb(replyDone)))
+                .andReturn(myAddress);
+
+        replay(mockClient);
+
+        final MongoIterator iter = new MongoIterator(myQuery, mockClient,
+                myAddress, reply);
+        assertSame(iter, iter.iterator());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(0), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(1), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(2), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(3), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(4), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(0), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(1), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(2), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(3), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(4), iter.next());
+        assertFalse(iter.hasNext());
+
+        iter.close();
+
         verify(mockClient);
     }
 }

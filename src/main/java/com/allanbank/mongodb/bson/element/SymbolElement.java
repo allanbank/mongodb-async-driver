@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -35,9 +37,13 @@ public class SymbolElement extends AbstractElement {
      *            The name for the BSON string.
      * @param symbol
      *            The BSON symbol value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code symbol} is <code>null</code>.
      */
     public SymbolElement(final String name, final String symbol) {
         super(name);
+
+        assertNotNull(symbol, "Symbol element's symbol cannot be null.");
 
         mySymbol = symbol;
     }
@@ -104,26 +110,6 @@ public class SymbolElement extends AbstractElement {
         result = (31 * result) + super.hashCode();
         result = (31 * result) + ((mySymbol != null) ? mySymbol.hashCode() : 3);
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : ");
-        builder.append(mySymbol);
-        builder.append("");
-
-        return builder.toString();
     }
 
     /**

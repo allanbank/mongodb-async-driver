@@ -65,36 +65,6 @@ public class GetLastError extends Query {
     }
 
     /**
-     * Creates the query document for the getlasterror command.
-     * 
-     * @param durability
-     *            The Durability requested.
-     * @return The command's query document.
-     */
-    private static Document createQuery(final Durability durability) {
-        final DocumentBuilder builder = BuilderFactory.start();
-        builder.addInteger("getlasterror", 1);
-        if (durability.isWaitForJournal()) {
-            builder.addBoolean("j", true);
-        }
-        if (durability.isWaitForFsync()) {
-            builder.addBoolean("fsync", true);
-        }
-        if (durability.getWaitTimeoutMillis() > 0) {
-            builder.addInteger("wtimeout", durability.getWaitTimeoutMillis());
-        }
-
-        if (durability.getWaitForReplicas() >= 1) {
-            builder.addInteger("w", durability.getWaitForReplicas());
-        }
-        else if (durability.getWaitForReplicasByMode() != null) {
-            builder.addString("w", durability.getWaitForReplicasByMode());
-        }
-
-        return builder.build();
-    }
-
-    /**
      * Create a new GetLastError.
      * 
      * @param dbName
@@ -130,7 +100,7 @@ public class GetLastError extends Query {
      *            The Durability requested.
      */
     public GetLastError(final String dbName, final Durability durability) {
-        super(dbName, Connection.COMMAND_COLLECTION, createQuery(durability),
+        super(dbName, Connection.COMMAND_COLLECTION, durability.asDocument(),
         /* fields= */null, /* batchSize= */1, /* limit= */1,
         /* numberToSkip= */0, /* tailable= */false, ReadPreference.PRIMARY,
         /* noCursorTimeout= */false, /* awaitData= */false,

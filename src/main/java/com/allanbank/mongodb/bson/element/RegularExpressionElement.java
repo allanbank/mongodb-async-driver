@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Element;
@@ -225,9 +227,12 @@ public class RegularExpressionElement extends AbstractElement {
      *            The name for the BSON string.
      * @param pattern
      *            The regular expression {@link Pattern}.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code pattern} is <code>null</code>.
      */
     public RegularExpressionElement(final String name, final Pattern pattern) {
-        this(name, pattern.pattern(), optionsAsInt(pattern));
+        this(name, (pattern != null) ? pattern.pattern() : null,
+                optionsAsInt(pattern));
     }
 
     /**
@@ -239,10 +244,15 @@ public class RegularExpressionElement extends AbstractElement {
      *            The BSON regular expression pattern.
      * @param options
      *            The BSON regular expression options.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code pattern} is <code>null</code>.
      */
     public RegularExpressionElement(final String name, final String pattern,
             final int options) {
         super(name);
+
+        assertNotNull(pattern,
+                "Regular Expression element's pattern cannot be null.");
 
         myPattern = pattern;
         myOptions = options;
@@ -257,6 +267,8 @@ public class RegularExpressionElement extends AbstractElement {
      *            The BSON regular expression pattern.
      * @param options
      *            The BSON regular expression options.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code pattern} is <code>null</code>.
      */
     public RegularExpressionElement(final String name, final String pattern,
             final String options) {
@@ -338,27 +350,6 @@ public class RegularExpressionElement extends AbstractElement {
                 + ((myPattern != null) ? myPattern.hashCode() : 3);
         result = (31 * result) + myOptions;
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : /");
-        builder.append(myPattern);
-        builder.append("/");
-        builder.append(OPTIONS[getOptions() & OPTION_MASK]);
-
-        return builder.toString();
     }
 
     /**

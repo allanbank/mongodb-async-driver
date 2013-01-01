@@ -7,6 +7,17 @@ package com.allanbank.mongodb;
 
 import java.io.Serializable;
 
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.NumericElement;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.bson.element.SymbolElement;
+import com.allanbank.mongodb.bson.json.Json;
+import com.allanbank.mongodb.error.JsonParseException;
+
 /**
  * Represents the required durability of writes (inserts, updates, and deletes)
  * on the server.
@@ -37,7 +48,7 @@ import java.io.Serializable;
  *          removed or modified.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Durability implements Serializable {
+public class Durability implements Serializable, DocumentAssignable {
 
     /** The durability that says no durability is required. */
     public final static Durability ACK = new Durability(true, false, false, 0,
@@ -173,6 +184,133 @@ public class Durability implements Serializable {
     }
 
     /**
+     * Converts a string into a Durability, if possible.
+     * <p>
+     * Two forms of strings can be converted:
+     * <ul>
+     * <li>A name of the constant (ignoring case):
+     * <ul>
+     * <li>ACK</li>
+     * <li>NONE</li>
+     * <li>SAFE - for compatibility with the 10gen MongoDB driver, returns
+     * {@link #ACK}.</li>
+     * </ul>
+     * </li>
+     * <li>A JSON document representation of the Durability. The following
+     * fields are allowed in the document and the values for each should match
+     * those for a {@code getlasterror} command:
+     * <ul>
+     * <li>w</li>
+     * <li>wtimeout</li>
+     * <li>fsync</li>
+     * <li>j</li>
+     * <li>getlasterror</li>
+     * </ul>
+     * If present the {@code getlasterror} field is ignored. An example JSON
+     * document might look like: <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {
+     *    w : majority,
+     *    wtimeout : 10000,
+     * }
+     * </code>
+     * </pre>
+     * 
+     * <blockquote></li>
+     * </ul>
+     * </p>
+     * <p>
+     * If the string is not parsable in either of these forms then null is
+     * returned.
+     * 
+     * @param value
+     *            The string representation of the Durability.
+     * @return The Durability represented by the string.
+     */
+    public static Durability valueOf(final String value) {
+
+        Durability result = null;
+
+        if ("ACK".equalsIgnoreCase(value) || "SAFE".equalsIgnoreCase(value)) {
+            result = ACK;
+        }
+        else if ("NONE".equalsIgnoreCase(value)) {
+            result = NONE;
+        }
+        else {
+            // Try and parse as JSON.
+            try {
+                boolean waitForReply = false;
+                boolean waitForFsync = false;
+                boolean waitForJournal = false;
+                int waitForReplicas = 0;
+                String waitForReplicasByMode = null;
+                int waitTimeoutMillis = 0;
+
+                final Document d = Json.parse(value);
+                for (final Element e : d) {
+                    // Skip the getlasterror element.
+                    if (!"getlasterror".equalsIgnoreCase(e.getName())) {
+                        if ("w".equalsIgnoreCase(e.getName())) {
+                            waitForReply = true;
+                            if (e instanceof NumericElement) {
+                                waitForReplicas = ((NumericElement) e)
+                                        .getIntValue();
+                            }
+                            else if (e instanceof StringElement) {
+                                waitForReplicasByMode = ((StringElement) e)
+                                        .getValue();
+                            }
+                            else if (e instanceof SymbolElement) {
+                                waitForReplicasByMode = ((SymbolElement) e)
+                                        .getSymbol();
+                            }
+                            else {
+                                // Unknown 'w' value type.
+                                return null;
+                            }
+                        }
+                        else if ("wtimeout".equalsIgnoreCase(e.getName())) {
+                            if (e instanceof NumericElement) {
+                                waitTimeoutMillis = ((NumericElement) e)
+                                        .getIntValue();
+                            }
+                            else {
+                                // Unknown 'wtimeout' value type.
+                                return null;
+                            }
+                        }
+                        else if ("fsync".equalsIgnoreCase(e.getName())) {
+                            waitForReply = true;
+                            waitForFsync = true;
+                        }
+                        else if ("j".equalsIgnoreCase(e.getName())) {
+                            waitForReply = true;
+                            waitForJournal = true;
+                        }
+                        else {
+                            // Unknown field.
+                            return null;
+                        }
+                    }
+                }
+
+                result = new Durability(waitForReply, waitForFsync,
+                        waitForJournal, waitForReplicas, waitForReplicasByMode,
+                        waitTimeoutMillis);
+            }
+            catch (final JsonParseException error) {
+                // Ignore and return null.
+                error.getCause(); // Shhh PMD.
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * True if the durability requires that the response wait for an fsync() of
      * the data to complete, false otherwise.
      */
@@ -297,6 +435,38 @@ public class Durability implements Serializable {
         myWaitForReplicas = waitForReplicas;
         myWaitTimeoutMillis = waitTimeoutMillis;
         myWaitForReplicasByMode = waitForReplicasByMode;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a suitable getlasterror command's document.
+     * </p>
+     * 
+     * @return The getlasterror command's document.
+     */
+    @Override
+    public Document asDocument() {
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addInteger("getlasterror", 1);
+        if (isWaitForJournal()) {
+            builder.addBoolean("j", true);
+        }
+        if (isWaitForFsync()) {
+            builder.addBoolean("fsync", true);
+        }
+        if (getWaitTimeoutMillis() > 0) {
+            builder.addInteger("wtimeout", getWaitTimeoutMillis());
+        }
+
+        if (getWaitForReplicas() >= 1) {
+            builder.addInteger("w", getWaitForReplicas());
+        }
+        else if (getWaitForReplicasByMode() != null) {
+            builder.addString("w", getWaitForReplicasByMode());
+        }
+
+        return builder.build();
     }
 
     /**

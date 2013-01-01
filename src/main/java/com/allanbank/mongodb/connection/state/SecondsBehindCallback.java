@@ -28,7 +28,8 @@ import com.allanbank.mongodb.connection.message.Reply;
  * In the case of an exception the seconds behind is set to
  * {@link Integer#MAX_VALUE}. The value is configurable as a long so in theory a
  * user can ignore this case using a large
- * {@link com.allanbank.mongodb.MongoDbConfiguration#setMaxSecondaryLag(long)}.
+ * {@link com.allanbank.mongodb.MongoClientConfiguration#setMaxSecondaryLag(long)}
+ * .
  * </p>
  * <p>
  * Lastly, the state of the server is also checked and the seconds behind is set

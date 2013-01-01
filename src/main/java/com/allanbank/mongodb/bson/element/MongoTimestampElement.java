@@ -37,6 +37,8 @@ public class MongoTimestampElement extends AbstractElement {
      * @param value
      *            The BSON timestamp value as 4 byte increment and 4 byte
      *            timestamp.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public MongoTimestampElement(final String name, final long value) {
         super(name);
@@ -109,25 +111,6 @@ public class MongoTimestampElement extends AbstractElement {
         result = (31 * result) + (int) ((myTimestamp >> 32) & 0xFFFFFFFF);
         result = (31 * result) + (int) (myTimestamp & 0xFFFFFFFF);
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : ");
-        builder.append(myTimestamp);
-
-        return builder.toString();
     }
 
     /**

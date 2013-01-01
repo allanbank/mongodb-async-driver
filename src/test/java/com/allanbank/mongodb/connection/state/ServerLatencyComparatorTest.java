@@ -7,6 +7,8 @@ package com.allanbank.mongodb.connection.state;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.InetSocketAddress;
+
 import org.junit.Test;
 
 /**
@@ -23,8 +25,8 @@ public class ServerLatencyComparatorTest {
      */
     @Test
     public void testCompareLess() {
-        final ServerState state1 = new ServerState("1");
-        final ServerState state2 = new ServerState("2");
+        final ServerState state1 = new ServerState(new InetSocketAddress(1024));
+        final ServerState state2 = new ServerState(new InetSocketAddress(1025));
 
         state1.setAverageLatency(99.0);
         state2.setAverageLatency(100.0);
@@ -39,8 +41,8 @@ public class ServerLatencyComparatorTest {
      */
     @Test
     public void testCompareMore() {
-        final ServerState state1 = new ServerState("1");
-        final ServerState state2 = new ServerState("2");
+        final ServerState state1 = new ServerState(new InetSocketAddress(1024));
+        final ServerState state2 = new ServerState(new InetSocketAddress(1025));
 
         state1.setAverageLatency(101.0);
         state2.setAverageLatency(100.0);
@@ -55,8 +57,8 @@ public class ServerLatencyComparatorTest {
      */
     @Test
     public void testCompareSame() {
-        final ServerState state1 = new ServerState("1");
-        final ServerState state2 = new ServerState("2");
+        final ServerState state1 = new ServerState(new InetSocketAddress(1024));
+        final ServerState state2 = new ServerState(new InetSocketAddress(1025));
 
         state1.setAverageLatency(100.0);
         state2.setAverageLatency(100.0);

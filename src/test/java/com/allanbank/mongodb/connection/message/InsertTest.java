@@ -8,6 +8,7 @@ package com.allanbank.mongodb.connection.message;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -23,8 +24,10 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * InsertTest provides tests for the {@link Insert} message.
@@ -194,4 +197,59 @@ public class InsertTest {
         assertEquals(false, message.isContinueOnError());
     }
 
+    /**
+     * Test method for {@link KillCursors#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSize() {
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
+
+        final List<Document> docs = new ArrayList<Document>();
+        docs.add(doc1);
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc4);
+
+        final String db = "db";
+        final String collection = "collection";
+        final Insert message = new Insert(db, collection, docs, false);
+
+        message.validateSize(new SizeOfVisitor(), 1024);
+
+        // Should be able to call again without visitor since size is cached.
+        message.validateSize(null, 1024);
+    }
+
+    /**
+     * Test method for {@link KillCursors#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSizeThrows() {
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
+
+        final List<Document> docs = new ArrayList<Document>();
+        docs.add(doc1);
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc4);
+
+        final String db = "db";
+        final String collection = "collection";
+        final Insert message = new Insert(db, collection, docs, false);
+
+        try {
+            message.validateSize(new SizeOfVisitor(), 1);
+        }
+        catch (final DocumentToLargeException dtle) {
+            assertEquals(1, dtle.getMaximumSize());
+            assertEquals(41, dtle.getSize());
+            assertSame(doc1, dtle.getDocument());
+        }
+    }
 }

@@ -86,8 +86,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             pipeline.add(e);
         }
 
+        // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(builder,
-                command.getReadPreference());
+                command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
@@ -111,8 +112,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         builder.addString("count", getName());
         builder.addDocument("query", query.asDocument());
 
+        // Should be last since might wrap command in a $query element.
         final ReadPreference finalPreference = updateReadPreference(builder,
-                readPreference);
+                readPreference, true);
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), finalPreference);
@@ -200,8 +202,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             builder.addDocument("query", command.getQuery());
         }
 
+        // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(builder,
-                command.getReadPreference());
+                command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
@@ -333,26 +336,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     public void findAsync(final Callback<ClosableIterator<Document>> results,
             final Find query) throws MongoDbException {
 
-        ReadPreference readPreference = query.getReadPreference();
-        if (readPreference == null) {
-            readPreference = getReadPreference();
-        }
-
-        Document queryDoc;
-        if (!readPreference.isLegacy()
-                && (myClient.getClusterType() == ClusterType.SHARDED)) {
-            queryDoc = query.toQueryRequest(false, readPreference);
-        }
-        else {
-            queryDoc = query.toQueryRequest(false);
-        }
-
-        final Query queryMessage = new Query(getDatabaseName(), myName,
-                queryDoc, query.getReturnFields(), query.getBatchSize(),
-                query.getLimit(), query.getNumberToSkip(),
-                false /* tailable */, readPreference,
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, query.isPartialOk());
+        final Query queryMessage = createQuery(query, query.getLimit(),
+                query.getBatchSize(), query.isTailable());
 
         final QueryCallback callback = new QueryCallback(myClient,
                 queryMessage, results);
@@ -370,28 +355,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * @see MongoCollection#findOneAsync(Callback, DocumentAssignable)
      */
     @Override
-    public void findOneAsync(final Callback<Document> results,
-            final DocumentAssignable query) throws MongoDbException {
-
-        final ReadPreference readPreference = getReadPreference();
-
-        Document queryDoc = query.asDocument();
-        if (!readPreference.isLegacy()
-                && (myClient.getClusterType() == ClusterType.SHARDED)) {
-            final DocumentBuilder builder = BuilderFactory.start();
-
-            builder.add("query", queryDoc);
-            builder.addDocument(ReadPreference.FIELD_NAME,
-                    readPreference.asDocument());
-
-            queryDoc = builder.build();
-        }
-
-        final Query queryMessage = new Query(getDatabaseName(), myName,
-                queryDoc, null, 1 /* batchSize */, 1 /* limit */, 0 /* skip */,
-                false /* tailable */, readPreference,
-                false /* noCursorTimeout */, false /* awaitData */,
-                false /* exhaust */, false /* partial */);
+    public void findOneAsync(final Callback<Document> results, final Find query)
+            throws MongoDbException {
+        final Query queryMessage = createQuery(query, 1, 1, false);
 
         myClient.send(queryMessage, new QueryOneCallback(results));
     }
@@ -434,8 +400,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             groupDocBuilder.addDocument("cond", command.getQuery());
         }
 
+        // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(
-                groupDocBuilder, command.getReadPreference());
+                groupDocBuilder, command.getReadPreference(), false);
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
@@ -575,8 +542,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
         }
 
+        // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(builder,
-                command.getReadPreference());
+                command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
@@ -615,6 +583,27 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public Document stats() throws MongoDbException {
         return myDatabase.runCommand("collStats", getName(), null);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to send a {@link Query} message to the server and setup the
+     * streaming query callback.
+     * </p>
+     */
+    @Override
+    public void streamingFind(final Callback<Document> results, final Find query)
+            throws MongoDbException {
+        final Query queryMessage = createQuery(query, query.getLimit(),
+                query.getBatchSize(), query.isTailable());
+
+        final QueryStreamingCallback callback = new QueryStreamingCallback(
+                myClient, queryMessage, results);
+        final String address = myClient.send(queryMessage, callback);
+
+        callback.setAddress(address);
+
     }
 
     /**
@@ -683,6 +672,43 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
+     * Creates a properly configured {@link Query} message.
+     * 
+     * @param query
+     *            The {@link Find} to construct the {@link Query} from.
+     * @param limit
+     *            The limit for the query.
+     * @param batchSize
+     *            The batch size for the query.
+     * @param tailable
+     *            If the query should create a tailable cursor.
+     * @return The {@link Query} message.
+     */
+    protected Query createQuery(final Find query, final int limit,
+            final int batchSize, final boolean tailable) {
+        ReadPreference readPreference = query.getReadPreference();
+        if (readPreference == null) {
+            readPreference = getReadPreference();
+        }
+
+        Document queryDoc;
+        if (!readPreference.isLegacy()
+                && (myClient.getClusterType() == ClusterType.SHARDED)) {
+            queryDoc = query.toQueryRequest(false, readPreference);
+        }
+        else {
+            queryDoc = query.toQueryRequest(false);
+        }
+
+        return new Query(getDatabaseName(), myName, queryDoc,
+                query.getReturnFields(), batchSize /* batchSize */,
+                limit /* limit */, query.getNumberToSkip(), tailable,
+                readPreference, false /* noCursorTimeout */,
+                tailable /* awaitData */, false /* exhaust */,
+                query.isPartialOk());
+    }
+
+    /**
      * Determines the {@link ReadPreference} to be used based on the command's
      * {@code ReadPreference} or the collection's if the command's
      * {@code ReadPreference} is <code>null</code>. Updates the command's
@@ -695,11 +721,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      *            preferences if connected to a sharded cluster.
      * @param commandReadPreference
      *            The read preferences from the command.
+     * @param createQueryElement
+     *            If true then the existing builder's contents will be pushed
+     *            into a $query sub-document. This is required to ensure the
+     *            command is not rejected by the {@code mongod} after processing
+     *            by the {@code mongos}.
      * @return The {@link ReadPreference} to use.
      */
     protected ReadPreference updateReadPreference(
             final DocumentBuilder builder,
-            final ReadPreference commandReadPreference) {
+            final ReadPreference commandReadPreference,
+            final boolean createQueryElement) {
 
         ReadPreference readPreference = commandReadPreference;
         if (readPreference == null) {
@@ -708,6 +740,11 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         if (!readPreference.isLegacy()
                 && (myClient.getClusterType() == ClusterType.SHARDED)) {
+            if (createQueryElement) {
+                final Document query = builder.asDocument();
+                builder.reset();
+                builder.add("$query", query);
+            }
             builder.add(ReadPreference.FIELD_NAME, readPreference);
         }
 

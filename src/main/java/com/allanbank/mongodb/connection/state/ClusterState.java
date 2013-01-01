@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.util.IOUtils;
@@ -52,7 +52,7 @@ public class ClusterState implements Closeable {
     private final PropertyChangeSupport myChangeSupport;
 
     /** The configuration for connecting to the servers. */
-    private final MongoDbConfiguration myConfig;
+    private final MongoClientConfiguration myConfig;
 
     /** The complete list of non-writable servers. */
     private final List<ServerState> myNonWritableServers;
@@ -66,7 +66,7 @@ public class ClusterState implements Closeable {
      * @param config
      *            The configuration for the cluster.
      */
-    public ClusterState(final MongoDbConfiguration config) {
+    public ClusterState(final MongoClientConfiguration config) {
         myConfig = config;
         myChangeSupport = new PropertyChangeSupport(this);
         myServers = new ConcurrentHashMap<String, ServerState>();
@@ -173,7 +173,7 @@ public class ClusterState implements Closeable {
         ServerState state = myServers.get(normalized);
         if (state == null) {
 
-            state = new ServerState(normalized);
+            state = new ServerState(ServerNameUtils.parse(normalized));
             state.setWritable(false);
 
             synchronized (this) {

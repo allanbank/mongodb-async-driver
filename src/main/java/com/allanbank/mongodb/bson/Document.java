@@ -122,6 +122,13 @@ public interface Document extends Iterable<Element>, DocumentAssignable,
     public Element get(String name);
 
     /**
+     * Returns the array of elements that create this document.
+     * 
+     * @return The array of elements that create this document.
+     */
+    public List<Element> getElements();
+
+    /**
      * Returns the elements matching the path of regular expressions.
      * 
      * @param <E>

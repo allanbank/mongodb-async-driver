@@ -5,12 +5,13 @@
 package com.allanbank.mongodb.connection.bootstrap;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.DocumentElement;
@@ -46,7 +47,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
             .getLogger(BootstrapConnectionFactory.class.getCanonicalName());
 
     /** The configuration for the connections to be created. */
-    private final MongoDbConfiguration myConfig;
+    private final MongoClientConfiguration myConfig;
 
     /** The delegate connection factory post */
     private ConnectionFactory myDelegate = null;
@@ -58,7 +59,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      *            The configuration to use in discovering the server
      *            configuration.
      */
-    public BootstrapConnectionFactory(final MongoDbConfiguration config) {
+    public BootstrapConnectionFactory(final MongoClientConfiguration config) {
         myConfig = config;
     }
 
@@ -90,7 +91,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
             factory = new AuthenticationConnectionFactory(factory, myConfig);
         }
         try {
-            for (final String addr : myConfig.getServers()) {
+            for (final InetSocketAddress addr : myConfig.getServerAddresses()) {
                 Connection conn = null;
                 final FutureCallback<Reply> future = new FutureCallback<Reply>();
                 try {

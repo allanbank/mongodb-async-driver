@@ -63,15 +63,12 @@ public class StringElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final String value = "" + random.nextLong();
                 objs1.add(new StringElement(name, value));
                 objs2.add(new StringElement(name, value));
             }
-            objs1.add(new StringElement(name, null));
-            objs2.add(new StringElement(name, null));
         }
 
         // Sanity check.
@@ -124,13 +121,33 @@ public class StringElementTest {
     }
 
     /**
+     * Test method for {@link StringElement#StringElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new StringElement(null, "s");
+    }
+
+    /**
+     * Test method for {@link StringElement#StringElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullValue() {
+
+        new StringElement("s", null);
+    }
+
+    /**
      * Test method for {@link StringElement#toString()}.
      */
     @Test
     public void testToString() {
         final StringElement element = new StringElement("foo", "string");
 
-        assertEquals("\"foo\" : \"string\"", element.toString());
+        assertEquals("foo : 'string'", element.toString());
     }
 
     /**

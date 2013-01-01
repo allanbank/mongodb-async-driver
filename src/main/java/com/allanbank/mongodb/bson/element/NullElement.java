@@ -30,6 +30,8 @@ public class NullElement extends AbstractElement {
      * 
      * @param name
      *            The name for the BSON null.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public NullElement(final String name) {
         super(name);
@@ -51,24 +53,6 @@ public class NullElement extends AbstractElement {
     @Override
     public ElementType getType() {
         return TYPE;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : null");
-
-        return builder.toString();
     }
 
     /**

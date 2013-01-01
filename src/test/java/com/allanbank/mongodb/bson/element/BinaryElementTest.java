@@ -5,8 +5,6 @@
 
 package com.allanbank.mongodb.bson.element;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
@@ -14,8 +12,10 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -110,6 +110,17 @@ public class BinaryElementTest {
     public void testBinaryElementThrows() {
 
         new BinaryElement("foo", (byte) 0x01, null);
+    }
+
+    /**
+     * Test method for
+     * {@link BinaryElement#BinaryElement(java.lang.String, byte, byte[])}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testBinaryElementThrowsOnNullName() {
+
+        new BinaryElement(null, (byte) 0x01, new byte[0]);
     }
 
     /**
@@ -312,12 +323,12 @@ public class BinaryElementTest {
         BinaryElement element = new BinaryElement("foo", (byte) 0x01,
                 new byte[] { 0x01, 0x02, 0x03 });
 
-        assertEquals("\"foo\" : (0x01) 0x010203", element.toString());
+        assertEquals("foo : BinData( 1, 'AQID' )", element.toString());
 
         element = new BinaryElement("foo", (byte) 0x11, new byte[] { 0x31,
                 0x22, 0x13 });
 
-        assertEquals("\"foo\" : (0x11) 0x312213", element.toString());
+        assertEquals("foo : BinData( 17, 'MSIT' )", element.toString());
     }
 
     /**

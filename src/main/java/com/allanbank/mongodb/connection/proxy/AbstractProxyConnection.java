@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
@@ -31,7 +31,7 @@ import com.allanbank.mongodb.util.IOUtils;
 public abstract class AbstractProxyConnection implements Connection {
 
     /** The MongoDB client configuration. */
-    protected final MongoDbConfiguration myConfig;
+    protected final MongoClientConfiguration myConfig;
 
     /** The proxied connection. */
     private final Connection myProxiedConnection;
@@ -45,7 +45,7 @@ public abstract class AbstractProxyConnection implements Connection {
      *            The MongoDB client configuration.
      */
     public AbstractProxyConnection(final Connection proxiedConnection,
-            final MongoDbConfiguration config) {
+            final MongoClientConfiguration config) {
         myProxiedConnection = proxiedConnection;
         myConfig = config;
     }

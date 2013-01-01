@@ -247,6 +247,27 @@ public class MongoIterator implements ClosableIterator<Document> {
      *             On a failure to load documents.
      */
     protected void loadDocuments() throws RuntimeException {
+        loadDocuments(true);
+    }
+
+    /**
+     * Loads more documents into the iterator. This iterator issues a get_more
+     * command as soon as the previous results start to be used.
+     * 
+     * @param blockForTailable
+     *            If true then the method will recursively call itself on a
+     *            tailable cursor with no results. This makes the call blocking.
+     *            It false then the call will not block. This is used by the
+     *            method to ensure that the outermost load blocks but the
+     *            recursion is not inifinite.
+     * @return The list of loaded documents.
+     * 
+     * @throws RuntimeException
+     *             On a failure to load documents.
+     */
+    protected List<Document> loadDocuments(final boolean blockForTailable)
+            throws RuntimeException {
+        List<Document> docs;
         try {
             // Pull the reply from the future. Hopefully it is already there!
             final Reply reply = myNextReply.get();
@@ -255,7 +276,7 @@ public class MongoIterator implements ClosableIterator<Document> {
             // Setup and iterator over the documents and adjust the limit
             // for the documents we have. Do this before the fetch again
             // so the nextBatchSize() has the updated limit.
-            final List<Document> docs = reply.getResults();
+            docs = reply.getResults();
             myCurrentIterator = docs.iterator();
             if (0 < myLimit) {
                 // Check if we have too many docs.
@@ -282,6 +303,14 @@ public class MongoIterator implements ClosableIterator<Document> {
 
                 myNextReply = new FutureCallback<Reply>();
                 myClient.send(getMore, myNextReply);
+
+                // Include the (myNextReply != null) to catch failures on the
+                // server.
+                while (docs.isEmpty() && blockForTailable
+                        && (myNextReply != null)) {
+                    // Tailable - Wait for a reply with documents.
+                    docs = loadDocuments(false);
+                }
             }
             else {
                 // Exhausted the cursor - no more results.
@@ -297,5 +326,7 @@ public class MongoIterator implements ClosableIterator<Document> {
         catch (final ExecutionException e) {
             throw new RuntimeException(e);
         }
+
+        return docs;
     }
 }

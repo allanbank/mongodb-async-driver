@@ -67,6 +67,18 @@ public interface MongoCollection {
             Aggregate command) throws MongoDbException;
 
     /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling {@link #countAsync() countAsync().get()}
+     * </p>
+     * 
+     * @return The number of documents in the collection.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public long count() throws MongoDbException;
+
+    /**
      * Counts the set of documents matching the query document in the
      * collection.
      * <p>
@@ -97,6 +109,48 @@ public interface MongoCollection {
      */
     public long count(DocumentAssignable query, ReadPreference readPreference)
             throws MongoDbException;
+
+    /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling {@link #countAsync() countAsync().get()}
+     * </p>
+     * 
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
+     * @return The number of documents in the collection.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public long count(ReadPreference readPreference) throws MongoDbException;
+
+    /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling {@link #countAsync() countAsync().get()}
+     * </p>
+     * 
+     * @return The number of documents in the collection.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<Long> countAsync() throws MongoDbException;
+
+    /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling
+     * {@link #countAsync(Callback, DocumentAssignable) countAsync(results,
+     * BuilderFactory.start())}
+     * </p>
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void countAsync(Callback<Long> results) throws MongoDbException;
 
     /**
      * Counts the set of documents matching the query document in the
@@ -130,6 +184,25 @@ public interface MongoCollection {
             ReadPreference readPreference) throws MongoDbException;
 
     /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling
+     * {@link #countAsync(Callback, DocumentAssignable) countAsync(results,
+     * BuilderFactory.start(), readPreference)}
+     * </p>
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void countAsync(Callback<Long> results, ReadPreference readPreference)
+            throws MongoDbException;
+
+    /**
      * Counts the set of documents matching the query document in the
      * collection.
      * 
@@ -159,6 +232,22 @@ public interface MongoCollection {
      */
     public Future<Long> countAsync(DocumentAssignable query,
             ReadPreference readPreference) throws MongoDbException;
+
+    /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling {@link #countAsync() countAsync().get()}
+     * </p>
+     * 
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
+     * @return The number of documents in the collection.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<Long> countAsync(ReadPreference readPreference)
+            throws MongoDbException;
 
     /**
      * Creates an index with a generated name, across the keys specified and if
@@ -799,6 +888,27 @@ public interface MongoCollection {
 
     /**
      * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public Document findOne(Find query) throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
      * 
      * @param results
      *            Callback that will be notified of the results of the query.
@@ -812,6 +922,29 @@ public interface MongoCollection {
 
     /**
      * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public void findOneAsync(Callback<Document> results, Find query)
+            throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
      * 
      * @param query
      *            The query document.
@@ -821,6 +954,27 @@ public interface MongoCollection {
      */
     public Future<Document> findOneAsync(DocumentAssignable query)
             throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public Future<Document> findOneAsync(Find query) throws MongoDbException;
 
     /**
      * Returns the name of the database.
@@ -1371,6 +1525,78 @@ public interface MongoCollection {
      *      Command Reference</a>
      */
     public Document stats() throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query document in the collection
+     * and streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link Callback#callback(Object) results.callback(...)} method with
+     * <code>null</code> or by calling the {@link Callback#exception(Throwable)
+     * results.exception(...)} method on an error.
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link Callback#callback} method (which
+     * will then call the {@link Callback#exception} method).
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any signifigant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * offload the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query document.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void streamingFind(Callback<Document> results,
+            DocumentAssignable query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection and
+     * streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link Callback#callback(Object) results.callback(...)} method with
+     * <code>null</code> or by calling the {@link Callback#exception(Throwable)
+     * results.exception(...)} method on an error.
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link Callback#callback} method (which
+     * will then call the {@link Callback#exception} method).
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any signifigant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * offload the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void streamingFind(Callback<Document> results, Find query)
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The

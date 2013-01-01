@@ -23,13 +23,42 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 public class MongoFactoryTest {
 
     /**
+     * Test method for
+     * {@link MongoFactory#createClient(MongoClientConfiguration)}.
+     */
+    @Test
+    public void testCreateClientMongoClietConfiguration() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        final MongoClient mongo = MongoFactory.createClient(config);
+
+        assertSame(config, mongo.getConfig());
+    }
+
+    /**
+     * Test method for {@link MongoFactory#createClient(String)}.
+     */
+    @Test
+    public void testCreateClientString() {
+
+        final MongoClient mongo = MongoFactory
+                .createClient("mongodb://localhost");
+        final MongoClientConfiguration config = mongo.getConfig();
+
+        assertNotNull(config);
+        assertEquals(Collections.singletonList(ServerNameUtils
+                .normalize("localhost")), config.getServers());
+    }
+
+    /**
      * Test method for {@link MongoFactory#create(MongoDbConfiguration)}.
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testCreateMongoDbConfiguration() {
         final MongoDbConfiguration config = new MongoDbConfiguration();
 
-        final Mongo mongo = MongoFactory.create(config);
+        final MongoClient mongo = MongoFactory.create(config);
 
         assertSame(config, mongo.getConfig());
     }
@@ -37,6 +66,7 @@ public class MongoFactoryTest {
     /**
      * Test method for {@link MongoFactory#create(String)}.
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testCreateString() {
 

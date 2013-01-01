@@ -155,6 +155,19 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #count(DocumentAssignable,ReadPreference)}
+     * method with {@link #getReadPreference()} as the <tt>readPreference</tt>
+     * argument and an empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public long count() throws MongoDbException {
+        return count(BuilderFactory.start(), getReadPreference());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #count(DocumentAssignable, ReadPreference)}
      * method with {@link #getReadPreference()} as the <tt>readPreference</tt>
      * argument.
@@ -184,6 +197,48 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #count(DocumentAssignable,ReadPreference)}
+     * method with an empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public long count(final ReadPreference readPreference)
+            throws MongoDbException {
+        return count(BuilderFactory.start(), readPreference);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #countAsync(DocumentAssignable,ReadPreference)} method with
+     * {@link #getReadPreference()} as the <tt>readPreference</tt> argument and
+     * an empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public Future<Long> countAsync() throws MongoDbException {
+        return countAsync(BuilderFactory.start(), getReadPreference());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #countAsync(Callback,DocumentAssignable,ReadPreference)} method
+     * with {@link #getReadPreference()} as the <tt>readPreference</tt> argument
+     * and an empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public void countAsync(final Callback<Long> results)
+            throws MongoDbException {
+        countAsync(results, BuilderFactory.start(), getReadPreference());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the
      * {@link #countAsync(Callback, DocumentAssignable, ReadPreference)} method
      * with {@link #getReadPreference()} as the <tt>readPreference</tt>
@@ -207,6 +262,20 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public abstract void countAsync(Callback<Long> results,
             DocumentAssignable query, ReadPreference readPreference)
             throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #countAsync(Callback,DocumentAssignable,ReadPreference)} method
+     * with an empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public void countAsync(final Callback<Long> results,
+            final ReadPreference readPreference) throws MongoDbException {
+        countAsync(results, BuilderFactory.start(), readPreference);
+    }
 
     /**
      * {@inheritDoc}
@@ -249,6 +318,20 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         countAsync(future, query, readPreference);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #countAsync(DocumentAssignable,ReadPreference)} method with an
+     * empty {@code query} document.
+     * </p>
+     */
+    @Override
+    public Future<Long> countAsync(final ReadPreference readPreference)
+            throws MongoDbException {
+        return countAsync(BuilderFactory.start(), readPreference);
     }
 
     /**
@@ -813,17 +896,43 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     }
 
     /**
+     * <p>
+     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
+     * </p>
+     * 
+     * @see #findOneAsync(Callback, Find)
+     */
+    @Override
+    public Document findOne(final Find query) throws MongoDbException {
+        return FutureUtils.unwrap(findOneAsync(query));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
+     * </p>
+     * 
+     * @see #findOneAsync(Callback, Find)
+     */
+    @Override
+    public void findOneAsync(final Callback<Document> results,
+            final DocumentAssignable query) throws MongoDbException {
+        findOneAsync(results, new Find.Builder(query).build());
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * This is the canonical <code>findOne</code> method that implementations
      * must override.
      * </p>
      * 
-     * @see MongoCollection#findOneAsync(Callback, DocumentAssignable)
+     * @see MongoCollection#findOneAsync(Callback, Find)
      */
     @Override
-    public abstract void findOneAsync(Callback<Document> results,
-            DocumentAssignable query) throws MongoDbException;
+    public abstract void findOneAsync(Callback<Document> results, Find query)
+            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -836,6 +945,24 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      */
     @Override
     public Future<Document> findOneAsync(final DocumentAssignable query)
+            throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>();
+
+        findOneAsync(future, query);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
+     * </p>
+     * 
+     * @see #findOneAsync(Callback, Find)
+     */
+    @Override
+    public Future<Document> findOneAsync(final Find query)
             throws MongoDbException {
         final FutureCallback<Document> future = new FutureCallback<Document>();
 
@@ -1302,6 +1429,31 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void setReadPreference(final ReadPreference readPreference) {
         myReadPreference = readPreference;
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #streamingFind(Callback, Find)}.
+     * </p>
+     * 
+     * @see #streamingFind(Callback, Find)
+     */
+    @Override
+    public void streamingFind(final Callback<Document> results,
+            final DocumentAssignable query) throws MongoDbException {
+        streamingFind(results, new Find.Builder(query).build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>streamingFind</code> method that
+     * implementations must override.
+     * </p>
+     */
+    @Override
+    public abstract void streamingFind(Callback<Document> results, Find query)
+            throws MongoDbException;
 
     /**
      * {@inheritDoc}

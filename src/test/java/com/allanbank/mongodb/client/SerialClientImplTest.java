@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -53,7 +53,7 @@ public class SerialClientImplTest {
     private ClientImpl myClient;
 
     /** The active configuration. */
-    private MongoDbConfiguration myConfig;
+    private MongoClientConfiguration myConfig;
 
     /** A mock connection factory. */
     private ConnectionFactory myMockConnectionFactory;
@@ -68,7 +68,7 @@ public class SerialClientImplTest {
     public void setUp() {
         myMockConnectionFactory = EasyMock.createMock(ConnectionFactory.class);
 
-        myConfig = new MongoDbConfiguration();
+        myConfig = new MongoClientConfiguration();
         myClient = new ClientImpl(myConfig, myMockConnectionFactory);
         myTestInstance = new SerialClientImpl(myClient);
         myAddress = "localhost:27017";
@@ -125,12 +125,9 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#getClusterType()}.
-     * 
-     * @throws IOException
-     *             on a test failure.
      */
     @Test
-    public void testGetClusterType() throws IOException {
+    public void testGetClusterType() {
 
         expect(myMockConnectionFactory.getClusterType()).andReturn(
                 ClusterType.STAND_ALONE);
@@ -164,12 +161,9 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#getDefaultReadPreference()}.
-     * 
-     * @throws IOException
-     *             on a test failure.
      */
     @Test
-    public void testGetDefaultReadPreference() throws IOException {
+    public void testGetDefaultReadPreference() {
 
         myConfig.setDefaultReadPreference(ReadPreference.SECONDARY);
 

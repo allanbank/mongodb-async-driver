@@ -7,6 +7,7 @@ package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.builder.impl.AbstractBuilder;
 import com.allanbank.mongodb.bson.builder.impl.DocumentBuilderImpl;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.StringElement;
@@ -129,7 +130,7 @@ public class AggregationGroupId {
          * Creates a new Builder.
          */
         public Builder() {
-            super(null);
+            super((AbstractBuilder) null);
         }
 
         /**

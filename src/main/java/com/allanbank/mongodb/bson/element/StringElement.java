@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -35,9 +37,13 @@ public class StringElement extends AbstractElement {
      *            The name for the BSON string.
      * @param value
      *            The BSON string value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code value} is <code>null</code>.
      */
     public StringElement(final String name, final String value) {
         super(name);
+
+        assertNotNull(value, "String element's value cannot be null.");
 
         myValue = value;
     }
@@ -104,26 +110,6 @@ public class StringElement extends AbstractElement {
         result = (31 * result) + super.hashCode();
         result = (31 * result) + ((myValue != null) ? myValue.hashCode() : 3);
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : \"");
-        builder.append(myValue);
-        builder.append("\"");
-
-        return builder.toString();
     }
 
     /**

@@ -62,10 +62,9 @@ public class JavaScriptElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (final String code : Arrays.asList("1", "foo", "bar", "baz",
-                    "2", null)) {
+                    "2")) {
                 objs1.add(new JavaScriptElement(name, code));
                 objs2.add(new JavaScriptElement(name, code));
             }
@@ -123,6 +122,26 @@ public class JavaScriptElementTest {
     }
 
     /**
+     * Test method for {@link JavaScriptElement#JavaScriptElement} .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new JavaScriptElement(null, "func code() {}");
+    }
+
+    /**
+     * Test method for {@link JavaScriptElement#JavaScriptElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullValue() {
+
+        new JavaScriptElement("s", null);
+    }
+
+    /**
      * Test method for {@link JavaScriptElement#toString()}.
      */
     @Test
@@ -130,7 +149,7 @@ public class JavaScriptElementTest {
         final JavaScriptElement element = new JavaScriptElement("foo",
                 "func code() {}");
 
-        assertEquals("\"foo\" : func code() {}", element.toString());
+        assertEquals("foo : { $code : 'func code() {}' }", element.toString());
     }
 
     /**

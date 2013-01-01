@@ -15,9 +15,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
@@ -68,7 +69,7 @@ public class ClusterPinger implements Runnable, Closeable {
     private final ClusterType myClusterType;
 
     /** The configuration for the connections. */
-    private final MongoDbConfiguration myConfig;
+    private final MongoClientConfiguration myConfig;
 
     /** The factory for creating connections to the servers. */
     private final ProxiedConnectionFactory myConnectionFactory;
@@ -100,7 +101,7 @@ public class ClusterPinger implements Runnable, Closeable {
     public ClusterPinger(final ClusterState cluster,
             final ClusterType clusterType,
             final ProxiedConnectionFactory factory,
-            final MongoDbConfiguration config) {
+            final MongoClientConfiguration config) {
         super();
 
         myCluster = cluster;
@@ -375,15 +376,18 @@ public class ClusterPinger implements Runnable, Closeable {
                 }
             }
             catch (final ExecutionException e) {
-                LOG.info("Could not ping '" + addr + "': " + e.getMessage());
+                LOG.log(Level.INFO,
+                        "Could not ping '" + addr + "': " + e.getMessage(), e);
             }
             catch (final TimeoutException e) {
-                LOG.info("'" + addr + "' might be a zombie - not receiving "
-                        + "a response to ping: " + e.getMessage());
+                LOG.log(Level.INFO, "'" + addr
+                        + "' might be a zombie - not receiving "
+                        + "a response to ping: " + e.getMessage(), e);
             }
             catch (final InterruptedException e) {
-                LOG.info("Interrupted pinging '" + addr + "': "
-                        + e.getMessage());
+                LOG.log(Level.INFO,
+                        "Interrupted pinging '" + addr + "': " + e.getMessage(),
+                        e);
             }
 
             return false;

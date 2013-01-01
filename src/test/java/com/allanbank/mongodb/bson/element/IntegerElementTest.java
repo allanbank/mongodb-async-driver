@@ -63,8 +63,7 @@ public class IntegerElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final int value = random.nextInt();
                 objs1.add(new IntegerElement(name, value));
@@ -151,13 +150,23 @@ public class IntegerElementTest {
     }
 
     /**
+     * Test method for {@link IntegerElement#IntegerElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new IntegerElement(null, 1);
+    }
+
+    /**
      * Test method for {@link IntegerElement#toString()}.
      */
     @Test
     public void testToString() {
         final IntegerElement element = new IntegerElement("foo", 1010101);
 
-        assertEquals("\"foo\" : 1010101", element.toString());
+        assertEquals("foo : 1010101", element.toString());
     }
 
     /**

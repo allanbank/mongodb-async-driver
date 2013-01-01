@@ -5,6 +5,8 @@
 package com.allanbank.mongodb.bson.builder.impl;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.Document;
@@ -31,6 +33,7 @@ import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.bson.element.UuidElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
@@ -50,7 +53,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * Creates a new builder.
      */
     public DocumentBuilderImpl() {
-        this(null);
+        this((AbstractBuilder) null);
     }
 
     /**
@@ -64,10 +67,26 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     }
 
     /**
+     * Creates a new builder.
+     * 
+     * @param seedDocument
+     *            The document to seed the builder with. The builder will
+     *            contain the seed document elements plus any added/appended
+     *            elements.
+     */
+    public DocumentBuilderImpl(final DocumentAssignable seedDocument) {
+        this((AbstractBuilder) null);
+
+        final Document document = seedDocument.asDocument();
+        myElements.addAll(document.getElements());
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final ElementAssignable elementRef) {
+    public DocumentBuilder add(final ElementAssignable elementRef)
+            throws IllegalArgumentException {
         final Element element = elementRef.asElement();
         myElements.add(element);
         if ("_id".equals(element.getName())) {
@@ -80,7 +99,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final String name, final boolean value) {
+    public DocumentBuilder add(final String name, final boolean value)
+            throws IllegalArgumentException {
         return addBoolean(name, value);
     }
 
@@ -89,7 +109,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder add(final String name, final byte subType,
-            final byte[] data) {
+            final byte[] data) throws IllegalArgumentException {
         return addBinary(name, subType, data);
     }
 
@@ -97,7 +117,11 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final String name, final byte[] data) {
+    public DocumentBuilder add(final String name, final byte[] data)
+            throws IllegalArgumentException {
+        if (data == null) {
+            return addNull(name);
+        }
         return addBinary(name, data);
     }
 
@@ -105,7 +129,11 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final String name, final Date timestamp) {
+    public DocumentBuilder add(final String name, final Date timestamp)
+            throws IllegalArgumentException {
+        if (timestamp == null) {
+            return addNull(name);
+        }
         return addTimestamp(name, timestamp.getTime());
     }
 
@@ -114,7 +142,10 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder add(final String name,
-            final DocumentAssignable document) {
+            final DocumentAssignable document) throws IllegalArgumentException {
+        if (document == null) {
+            return addNull(name);
+        }
         return addDocument(name, document);
     }
 
@@ -122,7 +153,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final String name, final double value) {
+    public DocumentBuilder add(final String name, final double value)
+            throws IllegalArgumentException {
         return addDouble(name, value);
     }
 
@@ -130,7 +162,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final String name, final int value) {
+    public DocumentBuilder add(final String name, final int value)
+            throws IllegalArgumentException {
         return addInteger(name, value);
     }
 
@@ -138,7 +171,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final String name, final long value) {
+    public DocumentBuilder add(final String name, final long value)
+            throws IllegalArgumentException {
         return addLong(name, value);
     }
 
@@ -146,7 +180,21 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final String name, final ObjectId id) {
+    public DocumentBuilder add(final String name, final Object value)
+            throws IllegalArgumentException {
+        add(coerse(name, value));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder add(final String name, final ObjectId id)
+            throws IllegalArgumentException {
+        if (id == null) {
+            return addNull(name);
+        }
         return addObjectId(name, id);
     }
 
@@ -154,7 +202,11 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final String name, final Pattern pattern) {
+    public DocumentBuilder add(final String name, final Pattern pattern)
+            throws IllegalArgumentException {
+        if (pattern == null) {
+            return addNull(name);
+        }
         return addRegularExpression(name, pattern);
     }
 
@@ -162,7 +214,11 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder add(final String name, final String value) {
+    public DocumentBuilder add(final String name, final String value)
+            throws IllegalArgumentException {
+        if (value == null) {
+            return addNull(name);
+        }
         return addString(name, value);
     }
 
@@ -172,7 +228,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     @Deprecated
     public DocumentBuilder add(final String name, final String databaseName,
-            final String collectionName, final ObjectId id) {
+            final String collectionName, final ObjectId id)
+            throws IllegalArgumentException {
         return addDBPointer(name, databaseName, collectionName, id);
     }
 
@@ -180,8 +237,20 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
+    public DocumentBuilder add(final String name, final UUID uuid)
+            throws IllegalArgumentException {
+        if (uuid == null) {
+            return addNull(name);
+        }
+        return addUuid(name, uuid);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public DocumentBuilder addBinary(final String name, final byte subType,
-            final byte[] value) {
+            final byte[] value) throws IllegalArgumentException {
         return add(new BinaryElement(name, subType, value));
     }
 
@@ -189,7 +258,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addBinary(final String name, final byte[] value) {
+    public DocumentBuilder addBinary(final String name, final byte[] value)
+            throws IllegalArgumentException {
         return add(new BinaryElement(name, value));
     }
 
@@ -197,7 +267,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addBoolean(final String name, final boolean value) {
+    public DocumentBuilder addBoolean(final String name, final boolean value)
+            throws IllegalArgumentException {
         return add(new BooleanElement(name, value));
     }
 
@@ -208,7 +279,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Deprecated
     public DocumentBuilder addDBPointer(final String name,
             final String databaseName, final String collectionName,
-            final ObjectId id) {
+            final ObjectId id) throws IllegalArgumentException {
         return add(new com.allanbank.mongodb.bson.element.DBPointerElement(
                 name, databaseName, collectionName, id));
     }
@@ -218,7 +289,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addDocument(final String name,
-            final DocumentAssignable value) {
+            final DocumentAssignable value) throws IllegalArgumentException {
         return add(new DocumentElement(name, value.asDocument()));
     }
 
@@ -226,7 +297,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addDouble(final String name, final double value) {
+    public DocumentBuilder addDouble(final String name, final double value)
+            throws IllegalArgumentException {
         return add(new DoubleElement(name, value));
     }
 
@@ -234,7 +306,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addInteger(final String name, final int value) {
+    public DocumentBuilder addInteger(final String name, final int value)
+            throws IllegalArgumentException {
         return add(new IntegerElement(name, value));
     }
 
@@ -242,7 +315,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addJavaScript(final String name, final String code) {
+    public DocumentBuilder addJavaScript(final String name, final String code)
+            throws IllegalArgumentException {
         return add(new JavaScriptElement(name, code));
     }
 
@@ -251,7 +325,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addJavaScript(final String name, final String code,
-            final DocumentAssignable scope) {
+            final DocumentAssignable scope) throws IllegalArgumentException {
         return add(new JavaScriptWithScopeElement(name, code,
                 scope.asDocument()));
     }
@@ -260,7 +334,17 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addLong(final String name, final long value) {
+    public DocumentBuilder addLegacyUuid(final String name, final UUID uuid)
+            throws IllegalArgumentException {
+        return add(new UuidElement(name, UuidElement.LEGACY_UUID_SUBTTYPE, uuid));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addLong(final String name, final long value)
+            throws IllegalArgumentException {
         return add(new LongElement(name, value));
     }
 
@@ -268,7 +352,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addMaxKey(final String name) {
+    public DocumentBuilder addMaxKey(final String name)
+            throws IllegalArgumentException {
         return add(new MaxKeyElement(name));
     }
 
@@ -276,7 +361,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addMinKey(final String name) {
+    public DocumentBuilder addMinKey(final String name)
+            throws IllegalArgumentException {
         return add(new MinKeyElement(name));
     }
 
@@ -284,7 +370,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addMongoTimestamp(final String name, final long value) {
+    public DocumentBuilder addMongoTimestamp(final String name, final long value)
+            throws IllegalArgumentException {
         return add(new MongoTimestampElement(name, value));
     }
 
@@ -292,7 +379,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addNull(final String name) {
+    public DocumentBuilder addNull(final String name)
+            throws IllegalArgumentException {
         return add(new NullElement(name));
     }
 
@@ -300,7 +388,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addObjectId(final String name, final ObjectId id) {
+    public DocumentBuilder addObjectId(final String name, final ObjectId id)
+            throws IllegalArgumentException {
         return add(new ObjectIdElement(name, id));
     }
 
@@ -309,7 +398,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addRegularExpression(final String name,
-            final Pattern pattern) {
+            final Pattern pattern) throws IllegalArgumentException {
         return add(new RegularExpressionElement(name, pattern));
     }
 
@@ -318,7 +407,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      */
     @Override
     public DocumentBuilder addRegularExpression(final String name,
-            final String pattern, final String options) {
+            final String pattern, final String options)
+            throws IllegalArgumentException {
         return add(new RegularExpressionElement(name, pattern, options));
     }
 
@@ -326,7 +416,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addString(final String name, final String value) {
+    public DocumentBuilder addString(final String name, final String value)
+            throws IllegalArgumentException {
         return add(new StringElement(name, value));
     }
 
@@ -334,7 +425,8 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addSymbol(final String name, final String symbol) {
+    public DocumentBuilder addSymbol(final String name, final String symbol)
+            throws IllegalArgumentException {
         return add(new SymbolElement(name, symbol));
     }
 
@@ -342,8 +434,18 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * {@inheritDoc}
      */
     @Override
-    public DocumentBuilder addTimestamp(final String name, final long timestamp) {
+    public DocumentBuilder addTimestamp(final String name, final long timestamp)
+            throws IllegalArgumentException {
         return add(new TimestampElement(name, timestamp));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder addUuid(final String name, final UUID uuid)
+            throws IllegalArgumentException {
+        return add(new UuidElement(name, UuidElement.UUID_SUBTTYPE, uuid));
     }
 
     /**
@@ -381,6 +483,20 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public ArrayBuilder pushArray(final String name) {
         return doPushArray(name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DocumentBuilder remove(final String name) {
+        final Iterator<Element> iter = myElements.iterator();
+        while (iter.hasNext()) {
+            if (name.equals(iter.next().getName())) {
+                iter.remove();
+            }
+        }
+        return this;
     }
 
     /**

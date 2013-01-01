@@ -5,11 +5,12 @@
 package com.allanbank.mongodb.connection.socket;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
@@ -32,7 +33,7 @@ import com.allanbank.mongodb.util.IOUtils;
 public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /** The MongoDB client configuration. */
-    private final MongoDbConfiguration myConfig;
+    private final MongoClientConfiguration myConfig;
 
     /** The server selector. */
     private final ServerSelector myServerSelector;
@@ -46,7 +47,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      * @param config
      *            The MongoDB client configuration.
      */
-    public SocketConnectionFactory(final MongoDbConfiguration config) {
+    public SocketConnectionFactory(final MongoClientConfiguration config) {
         super();
         myConfig = config;
         myState = new ClusterState(config);
@@ -81,13 +82,13 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      */
     @Override
     public Connection connect() throws IOException {
-        final List<String> servers = new ArrayList<String>(
-                myConfig.getServers());
+        final List<InetSocketAddress> servers = new ArrayList<InetSocketAddress>(
+                myConfig.getServerAddresses());
 
         // Shuffle the servers and try to connect to each until one works.
         IOException last = null;
         Collections.shuffle(servers);
-        for (final String address : servers) {
+        for (final InetSocketAddress address : servers) {
             try {
                 return connect(new ServerState(address), myConfig);
             }
@@ -115,7 +116,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      */
     @Override
     public Connection connect(final ServerState server,
-            final MongoDbConfiguration config) throws IOException {
+            final MongoClientConfiguration config) throws IOException {
         final SocketConnection connection = new SocketConnection(server,
                 myConfig);
 

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import org.easymock.Capture;
@@ -32,7 +33,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -44,6 +45,7 @@ import com.allanbank.mongodb.connection.message.ReplicaSetStatus;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * ClusterPingerTest provides tests for the {@link ClusterPinger} class.
@@ -82,7 +84,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -90,7 +92,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
                 .andReturn(address);
@@ -98,7 +100,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.initialSweep();
 
         verify(mockConnection, mockFactory);
@@ -127,7 +129,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -135,7 +137,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -147,7 +149,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.initialSweep();
 
         verify(mockConnection, mockFactory);
@@ -176,7 +178,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -192,7 +194,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         state.addConnection(mockConnection);
         myPinger.initialSweep();
 
@@ -221,7 +223,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -229,7 +231,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -238,7 +240,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.initialSweep();
 
         verify(mockConnection, mockFactory);
@@ -267,7 +269,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -275,7 +277,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
                 .andReturn(address);
@@ -286,7 +288,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.REPLICA_SET,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.initialSweep();
 
         verify(mockConnection, mockFactory);
@@ -314,20 +316,20 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andThrow(
+                        anyObject(MongoClientConfiguration.class))).andThrow(
                 new IOException("Injected"));
 
         replay(mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.initialSweep();
 
         verify(mockFactory);
@@ -354,7 +356,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -362,7 +364,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -372,7 +374,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.initialSweep();
 
         verify(mockConnection, mockFactory);
@@ -403,7 +405,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -416,7 +418,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -425,7 +427,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         final Thread t = new Thread() {
             @Override
             public void run() {
@@ -469,7 +471,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -477,7 +479,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -489,7 +491,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
         myPinger.run();
@@ -512,7 +514,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -520,7 +522,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cbAndClose()))
                 .andReturn(address);
@@ -531,7 +533,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
         myPinger.run();
@@ -565,7 +567,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -573,7 +575,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -587,7 +589,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
         myPinger.run();
@@ -620,7 +622,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -631,7 +633,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
                 .andReturn(address);
@@ -639,7 +641,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(30);
         myPinger.start();
@@ -669,7 +671,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -677,7 +679,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -689,7 +691,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
         myPinger.run();
@@ -712,7 +714,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -720,7 +722,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -732,7 +734,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
         myPinger.run();
@@ -763,15 +765,16 @@ public class ClusterPingerTest {
         reply.addDocument("tags", tags.build());
         reply.add("ismaster", true);
 
-        final String address = "localhost:27017";
+        final InetSocketAddress addr = new InetSocketAddress("localhost", 27017);
+        final String address = ServerNameUtils.normalize(addr);
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
-        cluster.myServers.put(address, new ServerState(address) {
+                new MongoClientConfiguration());
+        cluster.myServers.put(address, new ServerState(addr) {
             @Override
             public long getConnectionGeneration() {
-                // Randomize the generation to make it look like a very busy
-                // server.
+                // Randomize the generation to make it look like a very
+                // busy server.
                 return (long) Math.ceil(Math.random() * 1000000000);
             }
         });
@@ -783,7 +786,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
                 .andReturn(address);
@@ -796,7 +799,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
         myPinger.run();
@@ -830,7 +833,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -838,7 +841,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
                 .andReturn(address);
@@ -848,7 +851,7 @@ public class ClusterPingerTest {
         // Second Sweep.
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -859,7 +862,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
         myPinger.run();
@@ -893,7 +896,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -901,7 +904,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -920,7 +923,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
         myPinger.run();
@@ -943,20 +946,20 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andAnswer(
+                        anyObject(MongoClientConfiguration.class))).andAnswer(
                 a(new IOException("Injected")));
 
         replay(mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
         myPinger.run();
@@ -978,7 +981,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -986,7 +989,7 @@ public class ClusterPingerTest {
 
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -999,7 +1002,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(1);
         myPinger.run();
@@ -1033,7 +1036,7 @@ public class ClusterPingerTest {
         final String address = "localhost:27017";
 
         final ClusterState cluster = new ClusterState(
-                new MongoDbConfiguration());
+                new MongoClientConfiguration());
         final ServerState state = cluster.add(address);
 
         final Connection mockConnection = createMock(Connection.class);
@@ -1045,7 +1048,7 @@ public class ClusterPingerTest {
         final Capture<ServerLatencyCallback> catureReply = new Capture<ServerLatencyCallback>();
         expect(
                 mockFactory.connect(eq(state),
-                        anyObject(MongoDbConfiguration.class))).andReturn(
+                        anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
@@ -1054,7 +1057,7 @@ public class ClusterPingerTest {
         replay(mockConnection, mockFactory);
 
         myPinger = new ClusterPinger(cluster, ClusterType.STAND_ALONE,
-                mockFactory, new MongoDbConfiguration());
+                mockFactory, new MongoClientConfiguration());
         myPinger.setIntervalUnits(TimeUnit.MILLISECONDS);
         myPinger.setPingSweepInterval(20);
         final Thread t = new Thread(myPinger);

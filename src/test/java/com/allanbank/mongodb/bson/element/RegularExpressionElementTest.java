@@ -74,10 +74,9 @@ public class RegularExpressionElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (final String code : Arrays.asList("1", "foo", "bar", "baz",
-                    "2", null)) {
+                    "2")) {
                 objs1.add(new RegularExpressionElement(name, code, OPTIONS_1
                         .toLowerCase()));
                 objs2.add(new RegularExpressionElement(name, code, OPTIONS_1
@@ -94,9 +93,6 @@ public class RegularExpressionElementTest {
                 objs1.add(new RegularExpressionElement(name, code, null));
                 objs2.add(new RegularExpressionElement(name, code, null));
             }
-
-            objs1.add(new RegularExpressionElement(name, null, 13));
-            objs2.add(new RegularExpressionElement(name, null, 13));
         }
 
         // Sanity check.
@@ -246,14 +242,52 @@ public class RegularExpressionElementTest {
     }
 
     /**
+     * Test method for {@link RegularExpressionElement#RegularExpressionElement}
+     * .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new RegularExpressionElement(null, Pattern.compile(".*"));
+    }
+
+    /**
+     * Test method for {@link RegularExpressionElement#RegularExpressionElement}
+     * .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullValue() {
+
+        new RegularExpressionElement("s", (Pattern) null);
+    }
+
+    /**
+     * Test method for {@link RegularExpressionElement#RegularExpressionElement}
+     * .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullValue2() {
+
+        new RegularExpressionElement("s", null, null);
+    }
+
+    /**
      * Test method for {@link RegularExpressionElement#toString()}.
      */
     @Test
     public void testToString() {
-        final RegularExpressionElement element = new RegularExpressionElement(
-                "foo", "func code() {}", OPTIONS_1);
+        RegularExpressionElement element = new RegularExpressionElement("foo",
+                "func code() {}", OPTIONS_1);
 
-        assertEquals("\"foo\" : /func code() {}/i", element.toString());
+        assertEquals("foo : { $regex : 'func code() {}', $options : 'i' }",
+                element.toString());
+
+        element = new RegularExpressionElement("foo", "func code() {}", "");
+
+        assertEquals("foo : { $regex : 'func code() {}' }", element.toString());
     }
 
     /**

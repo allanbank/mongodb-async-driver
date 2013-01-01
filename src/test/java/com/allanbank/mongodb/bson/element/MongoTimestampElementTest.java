@@ -66,8 +66,7 @@ public class MongoTimestampElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final long value = random.nextLong();
                 objs1.add(new MongoTimestampElement(name, value));
@@ -128,6 +127,16 @@ public class MongoTimestampElementTest {
     }
 
     /**
+     * Test method for {@link MongoTimestampElement#MongoTimestampElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new MongoTimestampElement(null, 1);
+    }
+
+    /**
      * Test method for {@link MongoTimestampElement#toString()}.
      */
     @Test
@@ -135,7 +144,7 @@ public class MongoTimestampElementTest {
         final MongoTimestampElement element = new MongoTimestampElement("foo",
                 1010101);
 
-        assertEquals("\"foo\" : 1010101", element.toString());
+        assertEquals("foo : Timestamp(0, 1010101)", element.toString());
     }
 
     /**

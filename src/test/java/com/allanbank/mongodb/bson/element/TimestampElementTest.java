@@ -63,8 +63,7 @@ public class TimestampElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final long value = random.nextLong();
                 objs1.add(new TimestampElement(name, value));
@@ -109,6 +108,16 @@ public class TimestampElementTest {
     }
 
     /**
+     * Test method for {@link TimestampElement#TimestampElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new TimestampElement(null, 1);
+    }
+
+    /**
      * Test method for
      * {@link TimestampElement#TimestampElement(java.lang.String, long)} .
      */
@@ -128,7 +137,8 @@ public class TimestampElementTest {
     public void testToString() {
         final TimestampElement element = new TimestampElement("foo", 1010101);
 
-        assertEquals("\"foo\" : UTC(1010101)", element.toString());
+        assertEquals("foo : ISODate('1970-01-01T00:16:50.101+0000')",
+                element.toString());
     }
 
     /**

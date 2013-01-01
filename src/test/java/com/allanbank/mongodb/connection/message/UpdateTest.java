@@ -25,8 +25,10 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * UpdateTest provides tests for the {@link Update} message.
@@ -184,6 +186,76 @@ public class UpdateTest {
         assertSame(update, message.getUpdate());
         assertEquals(multiUpdate, message.isMultiUpdate());
         assertEquals(upsert, message.isUpsert());
+    }
+
+    /**
+     * Test method for {@link Update#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSize() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().build();
+        final boolean multiUpdate = random.nextBoolean();
+        final boolean upsert = random.nextBoolean();
+        final Update message = new Update(databaseName, collectionName, query,
+                update, multiUpdate, upsert);
+
+        message.validateSize(new SizeOfVisitor(), 1024);
+
+        // Should be able to call again without visitor since size is cached.
+        message.validateSize(null, 1024);
+    }
+
+    /**
+     * Test method for {@link Update#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSizeThrows() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().build();
+        final boolean multiUpdate = random.nextBoolean();
+        final boolean upsert = random.nextBoolean();
+        final Update message = new Update(databaseName, collectionName, query,
+                update, multiUpdate, upsert);
+
+        try {
+            message.validateSize(new SizeOfVisitor(), 1);
+        }
+        catch (final DocumentToLargeException dtle) {
+            assertEquals(1, dtle.getMaximumSize());
+            assertEquals(10, dtle.getSize());
+            assertSame(update, dtle.getDocument());
+        }
+    }
+
+    /**
+     * Test method for {@link Update#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSizeWithNullQueryAndUpdate() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = null;
+        final Document update = null;
+        final boolean multiUpdate = random.nextBoolean();
+        final boolean upsert = random.nextBoolean();
+        final Update message = new Update(databaseName, collectionName, query,
+                update, multiUpdate, upsert);
+
+        message.validateSize(new SizeOfVisitor(), 1);
+
+        // Should be able to call again without visitor since size is cached.
+        message.validateSize(null, 1);
     }
 
 }

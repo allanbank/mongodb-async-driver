@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -47,10 +49,19 @@ public class DBPointerElement extends AbstractElement {
      *            The name of the collection.
      * @param id
      *            The object id.
+     * @throws IllegalArgumentException
+     *             If the {@code name}, {@code dbName}, {@code collectionName},
+     *             or {@code id} is <code>null</code>.
      */
     public DBPointerElement(final String name, final String dbName,
             final String collectionName, final ObjectId id) {
         super(name);
+
+        assertNotNull(dbName,
+                "DBPointer element's database name cannot be null.");
+        assertNotNull(collectionName,
+                "DBPointer element's collection name cannot be null.");
+        assertNotNull(id, "DBPointer element's object id cannot be null.");
 
         myDatabaseName = dbName;
         myCollectionName = collectionName;
@@ -143,30 +154,6 @@ public class DBPointerElement extends AbstractElement {
         result = (31 * result) + myCollectionName.hashCode();
         result = (31 * result) + myId.hashCode();
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : DBPointer( \"");
-        builder.append(myDatabaseName);
-        builder.append('.');
-        builder.append(myCollectionName);
-        builder.append("\", ");
-        builder.append(myId);
-        builder.append(")");
-
-        return builder.toString();
     }
 
     /**

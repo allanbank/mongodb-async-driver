@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -38,11 +40,13 @@ public class ObjectIdElement extends AbstractElement {
      *            The name for the BSON Object Id.
      * @param id
      *            The object id.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code id} is <code>null</code>.
      */
     public ObjectIdElement(final String name, final ObjectId id) {
         super(name);
 
-        assert (id != null) : "The Object id cannot be null.";
+        assertNotNull(id, "ObjectId element's id cannot be null.");
 
         myId = id;
     }
@@ -108,26 +112,6 @@ public class ObjectIdElement extends AbstractElement {
         result = (31 * result) + super.hashCode();
         result = (31 * result) + myId.hashCode();
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : ");
-
-        builder.append(myId);
-
-        return builder.toString();
     }
 
     /**

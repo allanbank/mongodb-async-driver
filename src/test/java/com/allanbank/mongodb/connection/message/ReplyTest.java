@@ -23,6 +23,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.Operation;
 
@@ -241,6 +242,40 @@ public class ReplyTest {
         assertEquals(cursorNotFound, message.isCursorNotFound());
         assertEquals(queryFailed, message.isQueryFailed());
         assertEquals(shardConfigStale, message.isShardConfigStale());
+    }
+
+    /**
+     * Test method for {@link Reply#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSize() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
+
+        final List<Document> docs = new ArrayList<Document>();
+        docs.add(doc1);
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc4);
+
+        final int responseToId = random.nextInt();
+        final long cursorId = random.nextLong();
+        final int cursorOffset = random.nextInt();
+        final List<Document> results = docs;
+        final boolean awaitCapable = random.nextBoolean();
+        final boolean cursorNotFound = random.nextBoolean();
+        final boolean queryFailed = random.nextBoolean();
+        final boolean shardConfigStale = random.nextBoolean();
+
+        final Reply message = new Reply(responseToId, cursorId, cursorOffset,
+                results, awaitCapable, cursorNotFound, queryFailed,
+                shardConfigStale);
+
+        // Never throws.
+        message.validateSize(null, -1);
     }
 
 }

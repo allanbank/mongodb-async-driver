@@ -61,8 +61,7 @@ public class MinKeyElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             objs1.add(new MinKeyElement(name));
             objs2.add(new MinKeyElement(name));
         }
@@ -105,14 +104,23 @@ public class MinKeyElementTest {
     }
 
     /**
+     * Test method for {@link MinKeyElement#MinKeyElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new MinKeyElement(null);
+    }
+
+    /**
      * Test method for {@link MinKeyElement#toString()}.
      */
     @Test
     public void testToString() {
         final MinKeyElement element = new MinKeyElement("foo");
 
-        assertEquals("\"foo\" : /* MIN_KEY */ -9223372036854775808",
-                element.toString());
+        assertEquals("foo : MinKey()", element.toString());
     }
 
     /**

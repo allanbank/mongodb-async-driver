@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.connection;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.ServerSelector;
@@ -26,7 +26,7 @@ public interface ReconnectStrategy {
      * @param config
      *            The configuration for the connections.
      */
-    public void setConfig(MongoDbConfiguration config);
+    public void setConfig(MongoClientConfiguration config);
 
     /**
      * Sets the connection factory to use to establish connections to the

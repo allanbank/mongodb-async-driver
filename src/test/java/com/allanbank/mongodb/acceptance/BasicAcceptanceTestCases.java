@@ -39,18 +39,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.Mongo;
+import com.allanbank.mongodb.MongoClient;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
-import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoFactory;
 import com.allanbank.mongodb.ProfilingStatus;
@@ -78,6 +80,8 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.builder.Sort;
+import com.allanbank.mongodb.client.Client;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
@@ -111,11 +115,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /** The name of the test database to use. */
     public static final String TEST_DB_NAME = "acceptance_test";
 
+    /** A unique value to add to each collection name to ensure test isolation. */
+    protected static int ourUniqueId = 0;
+
     /** The default collection for the test. */
     protected MongoCollection myCollection = null;
 
     /** The configuration for the test. */
-    protected MongoDbConfiguration myConfig = null;
+    protected MongoClientConfiguration myConfig = null;
 
     /** The default database to use for the test. */
     protected MongoDatabase myDb = null;
@@ -124,7 +131,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     protected MongoCollection myGeoCollection = null;
 
     /** The connection to MongoDB for the test. */
-    protected Mongo myMongo = null;
+    protected MongoClient myMongo = null;
 
     /** A source of random for the tests. */
     protected Random myRandom = null;
@@ -135,13 +142,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Before
     public void connect() {
         if (myConfig == null) {
-            myConfig = new MongoDbConfiguration();
+            myConfig = new MongoClientConfiguration();
             myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
         }
 
-        myMongo = MongoFactory.create(myConfig);
+        myMongo = MongoFactory.createClient(myConfig);
         myDb = myMongo.getDatabase(TEST_DB_NAME);
-        myCollection = myDb.getCollection(TEST_COLLECTION_NAME);
+        myCollection = myDb.getCollection(TEST_COLLECTION_NAME + "_"
+                + (++ourUniqueId));
 
         myRandom = new Random(System.currentTimeMillis());
     }
@@ -473,6 +481,33 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that we cannot send a command (count in this case) with a query
+     * that is over the maximum size.
+     */
+    @Test
+    public void testCountDocumentToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.countAsync(builder);
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+        }
+    }
+
+    /**
      * Verifies the ability to create a capped collection in the database.
      */
     @Test
@@ -486,7 +521,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 + Math.abs(myRandom.nextLong()));
         assertTrue(myDb.createCappedCollection(name, 100000));
         assertFalse(myDb.createCollection(name, BuilderFactory.start()));
-        assertTrue(myDb.listCollections().contains(name));
+        assertTrue(myDb.listCollectionNames().contains(name));
 
         assertTrue(myDb.getCollection(name).isCapped());
 
@@ -507,7 +542,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 + myRandom.nextLong());
         assertTrue(myDb.createCollection(name, BuilderFactory.start()));
         assertFalse(myDb.createCollection(name, BuilderFactory.start()));
-        assertTrue(myDb.listCollections().contains(name));
+        assertTrue(myDb.listCollectionNames().contains(name));
 
         myDb.getCollection(name).drop();
     }
@@ -607,6 +642,34 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that we cannot send a delete with a query that is over the
+     * maximum size.
+     */
+    @Test
+    public void testDeleteDocumentToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.deleteAsync(builder);
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+            assertEquals(builder.build(), dtle.getDocument());
+        }
+    }
+
+    /**
      * Verifies running a distinct command. <blockquote>
      * 
      * <pre>
@@ -661,11 +724,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        assertTrue(myDb.listCollections().contains(TEST_COLLECTION_NAME));
+        assertTrue(myDb.listCollectionNames().contains(myCollection.getName()));
 
         myCollection.drop();
 
-        assertFalse(myDb.listCollections().contains(TEST_COLLECTION_NAME));
+        assertFalse(myDb.listCollectionNames().contains(myCollection.getName()));
     }
 
     /**
@@ -676,11 +739,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
+        assertTrue(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
 
         myDb.drop();
 
-        assertFalse(myMongo.listDatabases().contains(TEST_DB_NAME));
+        assertFalse(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
     }
 
     /**
@@ -749,6 +812,120 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final Document newDoc = myCollection.findAndModify(builder.build());
         assertNotNull(newDoc);
         assertEquals(new IntegerElement("i", 1), newDoc.get("i"));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#and}.
+     */
+    @Test
+    public void testFindOneWithSubsetOfFields() {
+        final ObjectId doc1Id = new ObjectId();
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", doc1Id);
+        doc1.addInteger("a", 1);
+        doc1.addInteger("b", 1);
+        doc1.addInteger("c", 1);
+        doc1.addInteger("d", 1);
+        doc1.addInteger("e", 1);
+        doc1.addInteger("f", 1);
+
+        final ObjectId doc2Id = new ObjectId();
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", doc2Id);
+        doc2.addInteger("a", 1);
+        doc2.addInteger("b", 2);
+        doc2.addInteger("c", 3);
+        doc2.addInteger("d", 4);
+        doc2.addInteger("e", 5);
+        doc2.addInteger("f", 6);
+        doc2.addInteger("g", 7);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        // Expect the subset of fields.
+        doc1.reset();
+        doc1.addObjectId("_id", doc1Id);
+        doc1.addInteger("a", 1);
+        doc1.addInteger("b", 1);
+
+        doc2.reset();
+        doc2.addObjectId("_id", doc2Id);
+        doc2.addInteger("a", 1);
+        doc2.addInteger("b", 2);
+
+        final Find.Builder find = new Find.Builder();
+        find.setReturnFields(BuilderFactory.start().add("a", 1).add("b", 1));
+
+        find.setQuery(and(where("a").equals(1), where("b").equals(1)));
+        assertEquals(doc1.build(), myCollection.findOne(find.build()));
+
+        find.setQuery(and(where("a").equals(1), where("b").equals(2)));
+        assertEquals(doc2.build(), myCollection.findOne(find.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#and}.
+     */
+    @Test
+    public void testFindWithSubsetOfFields() {
+        final ObjectId doc1Id = new ObjectId();
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", doc1Id);
+        doc1.addInteger("a", 1);
+        doc1.addInteger("b", 1);
+        doc1.addInteger("c", 1);
+        doc1.addInteger("d", 1);
+        doc1.addInteger("e", 1);
+        doc1.addInteger("f", 1);
+
+        final ObjectId doc2Id = new ObjectId();
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", doc2Id);
+        doc2.addInteger("a", 1);
+        doc2.addInteger("b", 2);
+        doc2.addInteger("c", 3);
+        doc2.addInteger("d", 4);
+        doc2.addInteger("e", 5);
+        doc2.addInteger("f", 6);
+        doc2.addInteger("g", 7);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        // Expect the subset of fields.
+        doc1.reset();
+        doc1.addObjectId("_id", doc1Id);
+        doc1.addInteger("a", 1);
+        doc1.addInteger("b", 1);
+
+        doc2.reset();
+        doc2.addObjectId("_id", doc2Id);
+        doc2.addInteger("a", 1);
+        doc2.addInteger("b", 2);
+
+        final Find.Builder find = new Find.Builder();
+        find.setReturnFields(BuilderFactory.start().add("a", 1).add("b", 1));
+
+        find.setQuery(and(where("a").equals(1), where("b").equals(1)));
+        ClosableIterator<Document> iter = myCollection.find(find.build());
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+
+        find.setQuery(and(where("a").equals(1), where("b").equals(2)));
+        iter = myCollection.find(find.build());
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
     }
 
     /**
@@ -885,6 +1062,33 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that we cannot send a document that is over the maximum size.
+     */
+    @Test
+    public void testInsertDocumentToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.insertAsync(builder.build());
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+            assertEquals(builder.build(), dtle.getDocument());
+        }
+    }
+
+    /**
      * Verifies the ability to list the collections for a database on the
      * server.
      */
@@ -893,9 +1097,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        final Collection<String> names = myDb.listCollections();
+        final Collection<String> names = myDb.listCollectionNames();
 
-        assertTrue(names.contains(TEST_COLLECTION_NAME));
+        assertTrue(names.contains(myCollection.getName()));
         assertTrue(names.contains("system.indexes"));
     }
 
@@ -905,9 +1109,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testListDatabases() {
         // Make sure the collection/db exist.
-        myCollection.insert(BuilderFactory.start().build());
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
+        final List<String> names = myMongo.listDatabaseNames();
+
+        assertTrue(
+                "Missing the '" + TEST_DB_NAME + "' database name: " + names,
+                names.contains(TEST_DB_NAME));
     }
 
     /**
@@ -1128,6 +1336,34 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
                 assertEquals(status, myDb.getProfilingStatus());
             }
+        }
+    }
+
+    /**
+     * Verifies that we cannot send a query document that is over the maximum
+     * size.
+     */
+    @Test
+    public void testQueryDocumentToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.findAsync(builder.build());
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+            assertEquals(builder.build(), dtle.getDocument());
         }
     }
 
@@ -5919,6 +6155,43 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies doing a streaming find.
+     */
+    @Test
+    public void testStreamingFind() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            builder.addInteger("_id", i);
+
+            myCollection.insert(builder.build());
+        }
+
+        // Now go find all of them.
+        final Find.Builder findBuilder = new Find.Builder(BuilderFactory
+                .start().build());
+        findBuilder.setReturnFields(BuilderFactory.start()
+                .addBoolean("_id", true).build());
+        // Fetch a lot.
+        findBuilder.setBatchSize(50);
+        findBuilder.setLimit((LARGE_COLLECTION_COUNT / 10) + 4);
+        final Find find = findBuilder.build();
+
+        final DocumentCallback callback = new DocumentCallback();
+        myCollection.streamingFind(callback, find);
+
+        callback.waitFor(TimeUnit.SECONDS.toMillis(60));
+
+        assertTrue(callback.isTerminated());
+        assertEquals(find.getLimit(), callback.getCount());
+        assertNull(callback.getException());
+    }
+
+    /**
      * Verifies performing updates on documents.
      */
     @Test
@@ -5960,6 +6233,34 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that we cannot send a command (count in this case) with a query
+     * that is over the maximum size.
+     */
+    @Test
+    public void testUpdateDocumentToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.updateAsync(BuilderFactory.start(), builder);
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+            assertEquals(builder.build(), dtle.getDocument());
+        }
+    }
+
+    /**
      * Verifies the ability to update the collection options.
      */
     @Test
@@ -5990,6 +6291,34 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     "usePowerOf2Sizes", false));
             assertEquals(new BooleanElement("usePowerOf2Sizes_old", true),
                     result.get("usePowerOf2Sizes_old"));
+        }
+    }
+
+    /**
+     * Verifies that we cannot send a command (count in this case) with a query
+     * that is over the maximum size.
+     */
+    @Test
+    public void testUpdateQueryToLarge() {
+
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 1);
+        builder.add("bytes", new byte[Client.MAX_DOCUMENT_SIZE]);
+
+        try {
+            // Should not get to the point of being submitted.
+            myCollection.updateAsync(builder, BuilderFactory.start());
+            fail("Should have thrown a DocumentToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+            assertEquals(BuilderFactory.start().build(), dtle.getDocument());
         }
     }
 
@@ -6073,7 +6402,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     protected MongoCollection getGeoCollection() {
         if (myGeoCollection == null) {
-            myGeoCollection = myDb.getCollection(GEO_TEST_COLLECTION_NAME);
+            myGeoCollection = myDb.getCollection(GEO_TEST_COLLECTION_NAME + "_"
+                    + (++ourUniqueId));
             myGeoCollection.createIndex(Sort.geo2d("p"));
         }
         return myGeoCollection;
@@ -6088,5 +6418,91 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     protected boolean isShardedConfiguration() {
         return false;
+    }
+
+    /**
+     * DocumentCallback provides a simple callback for testing streaming finds.
+     * 
+     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static final class DocumentCallback implements Callback<Document> {
+
+        /** The number of documents received. */
+        private int myCount = 0;
+
+        /** The exception if seen. */
+        private Throwable myException = null;
+
+        /** True if the callback has been terminted. */
+        private boolean myTerminated = false;
+
+        @Override
+        public synchronized void callback(final Document result) {
+            if (result != null) {
+                myCount += 1;
+            }
+            else {
+                myTerminated = true;
+            }
+            notifyAll();
+        }
+
+        @Override
+        public synchronized void exception(final Throwable thrown) {
+            myTerminated = true;
+            myException = thrown;
+            notifyAll();
+        }
+
+        /**
+         * Returns the number of documents received.
+         * 
+         * @return The number of documents received.
+         */
+        public synchronized int getCount() {
+            return myCount;
+        }
+
+        /**
+         * Returns the exception if seen.
+         * 
+         * @return The exception if seen.
+         */
+        public synchronized Throwable getException() {
+            return myException;
+        }
+
+        /**
+         * Returns true if the callback has been terminted.
+         * 
+         * @return True if the callback has been terminted.
+         */
+        public synchronized boolean isTerminated() {
+            return myTerminated;
+        }
+
+        /**
+         * Waits for the specified number of documents to be received or the
+         * callback to be termined or the timeout.
+         * 
+         * @param timeMs
+         *            The maximum number of milliseconds to wait.
+         */
+        public void waitFor(final long timeMs) {
+            long now = System.currentTimeMillis();
+            final long deadline = now + timeMs;
+
+            synchronized (this) {
+                while ((now < deadline) && !myTerminated) {
+                    try {
+                        wait(deadline - now);
+                    }
+                    catch (final InterruptedException e) {
+                        // Handled by while loop.
+                    }
+                    now = System.currentTimeMillis();
+                }
+            }
+        }
     }
 }

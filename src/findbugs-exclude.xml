@@ -1,3 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
+	<!-- Exclude the JavaCC generated classes / methods. -->
+	<Match>
+		<Or>
+            <Class name="com.allanbank.mongodb.bson.json.JavaCharStream" />
+            <Class name="com.allanbank.mongodb.bson.json.JsonParserTokenManager" />
+            <Class name="com.allanbank.mongodb.bson.json.ParseException" />
+            <Class name="com.allanbank.mongodb.bson.json.TokenMgrError" />
+		</Or>
+	</Match>
+	<Match>
+		<Class name="com.allanbank.mongodb.bson.json.JsonParser" />
+		<Method name="ReInit" />
+	</Match>
 </FindBugsFilter>

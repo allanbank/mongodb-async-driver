@@ -76,18 +76,14 @@ public class JavaScriptWithScopeElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (final String code : Arrays.asList("1", "foo", "bar", "baz",
-                    "2", null)) {
+                    "2")) {
                 objs1.add(new JavaScriptWithScopeElement(name, code, SCOPE_1));
                 objs2.add(new JavaScriptWithScopeElement(name, code, SCOPE_1));
 
                 objs1.add(new JavaScriptWithScopeElement(name, code, SCOPE_2));
                 objs2.add(new JavaScriptWithScopeElement(name, code, SCOPE_2));
-
-                objs1.add(new JavaScriptWithScopeElement(name, code, null));
-                objs2.add(new JavaScriptWithScopeElement(name, code, null));
             }
         }
 
@@ -156,6 +152,39 @@ public class JavaScriptWithScopeElementTest {
     }
 
     /**
+     * Test method for
+     * {@link JavaScriptWithScopeElement#JavaScriptWithScopeElement} .
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new JavaScriptWithScopeElement(null, "func code() {}", SCOPE_1);
+    }
+
+    /**
+     * Test method for
+     * {@link JavaScriptWithScopeElement#JavaScriptWithScopeElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullScope() {
+
+        new JavaScriptWithScopeElement("s", "func code() {}", null);
+    }
+
+    /**
+     * Test method for
+     * {@link JavaScriptWithScopeElement#JavaScriptWithScopeElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullValue() {
+
+        new JavaScriptWithScopeElement("s", null, SCOPE_1);
+    }
+
+    /**
      * Test method for {@link JavaScriptWithScopeElement#toString()}.
      */
     @Test
@@ -163,7 +192,8 @@ public class JavaScriptWithScopeElementTest {
         final JavaScriptWithScopeElement element = new JavaScriptWithScopeElement(
                 "foo", "func code() {}", SCOPE_1);
 
-        assertEquals("\"foo\" : func code() {} (scope :{ \"f\" : true}\n)",
+        assertEquals(
+                "foo : { $code : 'func code() {}', $scope : { f : true } }",
                 element.toString());
     }
 

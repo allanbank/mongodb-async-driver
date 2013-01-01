@@ -17,7 +17,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.connection.Connection;
@@ -150,7 +150,7 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder)); // For ping/close.
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer1.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
@@ -242,7 +242,7 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer1.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
@@ -338,7 +338,7 @@ public class ReplicaSetReconnectStrategyTest {
         ourServer3.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder)); // For ping/close.
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer1.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
@@ -424,7 +424,7 @@ public class ReplicaSetReconnectStrategyTest {
         ourServer3.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder)); // For ping/close.
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer1.getInetSocketAddress());
         config.setReconnectTimeout(1000);
         config.setAutoDiscoverServers(true);

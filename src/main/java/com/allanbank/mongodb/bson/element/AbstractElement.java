@@ -4,6 +4,9 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,8 +38,12 @@ public abstract class AbstractElement implements Element {
      * 
      * @param name
      *            The name for the BSON type.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
-    public AbstractElement(final String name) {
+    public AbstractElement(final String name) throws IllegalArgumentException {
+        assertNotNull(name, "Cannot have an null name on an element.");
+
         myName = name;
     }
 
@@ -206,7 +213,13 @@ public abstract class AbstractElement implements Element {
      */
     @Override
     public String toString() {
-        return "AbstractElement [name=" + myName + ", type=" + getType() + "]";
+        final StringWriter writer = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                writer, false);
+
+        accept(visitor);
+
+        return writer.toString();
     }
 
     /**

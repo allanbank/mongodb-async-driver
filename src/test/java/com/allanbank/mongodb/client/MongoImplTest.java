@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Mongo;
+import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.bson.Document;
@@ -35,8 +36,11 @@ import com.allanbank.mongodb.connection.message.Reply;
 /**
  * MongoImplTest provides tests for the {@link MongoImpl} class.
  * 
+ * @deprecated Use the {@link MongoClient} interface instead. This interface
+ *             will be removed on or after the 1.3.0 release.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Deprecated
 public class MongoImplTest {
 
     /** The address for the test. */
@@ -72,6 +76,24 @@ public class MongoImplTest {
 
     /**
      * Test method for
+     * {@link com.allanbank.mongodb.client.MongoImpl#asSerializedClient()} .
+     */
+    @Test
+    public void testAsSerializedClient() {
+        final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
+        assertThat(impl.getClient(), instanceOf(ClientImpl.class));
+        impl.close();
+
+        final MongoClient serial = impl.asSerializedClient();
+        assertThat(serial, instanceOf(MongoClientImpl.class));
+        final MongoClientImpl serialImpl = (MongoClientImpl) serial;
+        assertThat(serialImpl.getClient(), instanceOf(SerialClientImpl.class));
+
+        assertSame(serial, serial.asSerializedClient());
+    }
+
+    /**
+     * Test method for
      * {@link com.allanbank.mongodb.client.MongoImpl#asSerializedMongo()} .
      */
     @Test
@@ -85,6 +107,7 @@ public class MongoImplTest {
         final MongoImpl serialImpl = (MongoImpl) serial;
         assertThat(serialImpl.getClient(), instanceOf(SerialClientImpl.class));
 
+        assertSame(serial, serial.asSerializedMongo());
     }
 
     /**
@@ -130,7 +153,7 @@ public class MongoImplTest {
 
     /**
      * Test method for
-     * {@link com.allanbank.mongodb.client.MongoImpl#listDatabases()}.
+     * {@link com.allanbank.mongodb.client.MongoImpl#listDatabaseNames()}.
      */
     @Test
     public void testListDatabases() {
@@ -150,7 +173,7 @@ public class MongoImplTest {
         replay();
 
         assertEquals(Arrays.asList("db_1", "db_2"),
-                myTestInstance.listDatabases());
+                myTestInstance.listDatabaseNames());
 
         verify();
     }

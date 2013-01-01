@@ -74,8 +74,7 @@ public class DoubleElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final double value = Math.random();
                 objs1.add(new DoubleElement(name, value));
@@ -150,13 +149,23 @@ public class DoubleElementTest {
     }
 
     /**
+     * Test method for {@link DoubleElement#DoubleElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new DoubleElement(null, 1);
+    }
+
+    /**
      * Test method for {@link DoubleElement#toString()}.
      */
     @Test
     public void testToString() {
         final DoubleElement element = new DoubleElement("foo", 1.0101);
 
-        assertEquals("\"foo\" : 1.0101", element.toString());
+        assertEquals("foo : 1.0101", element.toString());
     }
 
     /**

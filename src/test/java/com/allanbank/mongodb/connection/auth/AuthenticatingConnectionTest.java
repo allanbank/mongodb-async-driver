@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -58,7 +58,7 @@ public class AuthenticatingConnectionTest {
     private DocumentBuilder myAuthRequest;
 
     /** A configuration setup to authenticate requests. */
-    private MongoDbConfiguration myConfig;
+    private MongoClientConfiguration myConfig;
 
     /** The nonce reply message. */
     private DocumentBuilder myNonceReply;
@@ -71,7 +71,7 @@ public class AuthenticatingConnectionTest {
      */
     @Before
     public void setUp() {
-        myConfig = new MongoDbConfiguration();
+        myConfig = new MongoClientConfiguration();
         myConfig.authenticate("allanbank", "super_secret_password");
 
         myNonceRequest = BuilderFactory.start();
@@ -583,7 +583,7 @@ public class AuthenticatingConnectionTest {
         myConfig.authenticate("allanbank", "super_secret_password");
         myConfig.setDefaultDatabase("foo");
 
-        final Delete msg = new Delete(MongoDbConfiguration.ADMIN_DB_NAME,
+        final Delete msg = new Delete(MongoClientConfiguration.ADMIN_DB_NAME,
                 "collection", EMPTY_DOC, true);
 
         final Connection mockConnetion = createMock(Connection.class);

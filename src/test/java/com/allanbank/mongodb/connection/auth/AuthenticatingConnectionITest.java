@@ -7,12 +7,13 @@ package com.allanbank.mongodb.connection.auth;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Test;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
@@ -54,7 +55,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
     public void testInsertQueryAdminAuthenticated() throws Exception {
         startAuthenticated();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.authenticateAsAdmin(ADMIN_USER_NAME, PASSWORD);
         config.setDefaultDatabase(USER_DB);
 
@@ -68,7 +69,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
                     .addObjectId("_id", new ObjectId()).build();
 
             socketConn = socketFactory.connect(new ServerState(
-                    "127.0.0.1:27017"), config);
+                    new InetSocketAddress("localhost", 27017)), config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();
@@ -101,7 +102,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
     public void testInsertQueryNonAdminAuthenticated() throws Exception {
         startAuthenticated();
 
-        final MongoDbConfiguration config = new MongoDbConfiguration();
+        final MongoClientConfiguration config = new MongoClientConfiguration();
         config.authenticate(USER_NAME, PASSWORD);
         config.setDefaultDatabase(USER_DB);
 
@@ -115,7 +116,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
                     .addObjectId("_id", new ObjectId()).build();
 
             socketConn = socketFactory.connect(new ServerState(
-                    "127.0.0.1:27017"), config);
+                    new InetSocketAddress("localhost", 27017)), config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();

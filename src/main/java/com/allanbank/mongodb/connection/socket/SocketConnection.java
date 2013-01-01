@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -119,7 +119,7 @@ public class SocketConnection implements Connection {
      *             On a failure to read or write data to the MongoDB server.
      */
     public SocketConnection(final ServerState server,
-            final MongoDbConfiguration config) throws SocketException,
+            final MongoClientConfiguration config) throws SocketException,
             IOException {
 
         myExecutor = config.getExecutor();
@@ -128,14 +128,9 @@ public class SocketConnection implements Connection {
         myOpen = new AtomicBoolean(false);
         myShutdown = new AtomicBoolean(false);
 
-        mySocket = new Socket();
-
-        mySocket.setTcpNoDelay(true);
-        mySocket.setKeepAlive(config.isUsingSoKeepalive());
-        mySocket.setSoTimeout(config.getReadTimeout());
-        mySocket.setPerformancePreferences(1, 5, 6);
-
+        mySocket = config.getSocketFactory().createSocket();
         mySocket.connect(myServer.getServer(), config.getConnectTimeout());
+        updateSocketWithOptions(config);
 
         myOpen.set(true);
 
@@ -553,6 +548,33 @@ public class SocketConnection implements Connection {
     }
 
     /**
+     * Updates the socket with the configuration's socket options.
+     * 
+     * @param config
+     *            The configuration to apply.
+     * @throws SocketException
+     *             On a failure setting the socket options.
+     */
+    protected void updateSocketWithOptions(final MongoClientConfiguration config)
+            throws SocketException {
+        mySocket.setKeepAlive(config.isUsingSoKeepalive());
+        mySocket.setSoTimeout(config.getReadTimeout());
+        try {
+            mySocket.setTcpNoDelay(true);
+        }
+        catch (final SocketException seIgnored) {
+            // The junixsocket implementation does not support TCP_NO_DELAY,
+            // which makes sense but it throws an exception instead of silently
+            // ignoring - ignore it here.
+            if (!"AFUNIXSocketException".equals(seIgnored.getClass()
+                    .getSimpleName())) {
+                throw seIgnored;
+            }
+        }
+        mySocket.setPerformancePreferences(1, 5, 6);
+    }
+
+    /**
      * Waits for the requested number of messages to become pending.
      * 
      * @param count
@@ -637,6 +659,9 @@ public class SocketConnection implements Connection {
         /** The {@link PendingMessage} used for the local cached copy. */
         private final PendingMessage myPendingMessage = new PendingMessage();
 
+        /**
+         * Processing thread for receiving responses from the server.
+         */
         @Override
         public void run() {
             try {

@@ -313,6 +313,32 @@ public class MongoDatabaseImplTest {
     }
 
     /**
+     * Test method for {@link MongoDatabaseImpl#listCollectionNames()}.
+     */
+    @Test
+    public void testListCollectionNames() {
+
+        final Document result1 = BuilderFactory.start()
+                .addString("name", "test.collection").build();
+        final Document result2 = BuilderFactory.start()
+                .addString("name", "test.1.oplog.$").build();
+
+        final Query query = new Query("test", "system.namespaces",
+                BuilderFactory.start().build(), null, 0, 0, 0, false,
+                ReadPreference.PRIMARY, false, false, false, false);
+
+        expect(myMockClient.send(eq(query), callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Arrays.asList("collection", "1.oplog.$"),
+                myTestInstance.listCollectionNames());
+
+        verify();
+    }
+
+    /**
      * Test method for {@link MongoDatabaseImpl#listCollections()}.
      */
     @Test

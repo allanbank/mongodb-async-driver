@@ -36,6 +36,8 @@ public class IntegerElement extends AbstractElement implements NumericElement {
      *            The name for the BSON integer.
      * @param value
      *            The BSON integer value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public IntegerElement(final String name, final int value) {
         super(name);
@@ -137,25 +139,6 @@ public class IntegerElement extends AbstractElement implements NumericElement {
         result = (31 * result) + super.hashCode();
         result = (31 * result) + myValue;
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : ");
-        builder.append(myValue);
-
-        return builder.toString();
     }
 
     /**

@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb.bson.impl;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,6 +19,7 @@ import java.util.regex.PatternSyntaxException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.ObjectIdElement;
 import com.allanbank.mongodb.util.PatternUtils;
@@ -305,6 +307,7 @@ public class RootDocument implements Document {
      * 
      * @return The elements in the document.
      */
+    @Override
     public List<Element> getElements() {
         return myElements.get();
     }
@@ -390,21 +393,13 @@ public class RootDocument implements Document {
      */
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
+        final StringWriter writer = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                writer, false);
 
-        builder.append("{ ");
+        accept(visitor);
 
-        boolean first = true;
-        for (final Element element : myElements.get()) {
-            if (!first) {
-                builder.append(",\n");
-            }
-            builder.append(element.toString());
-            first = false;
-        }
-        builder.append("}\n");
-
-        return builder.toString();
+        return writer.toString();
     }
 
     /**

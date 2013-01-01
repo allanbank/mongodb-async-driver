@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
@@ -39,10 +41,15 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
      *            The BSON JavaScript value.
      * @param scope
      *            The scope for the JavaScript
+     * @throws IllegalArgumentException
+     *             If the {@code name}, {@code javaScript}, or {@code scope} is
+     *             <code>null</code>.
      */
     public JavaScriptWithScopeElement(final String name,
             final String javaScript, final Document scope) {
         super(name, javaScript);
+
+        assertNotNull(scope, "JavaScript element's scope cannot be null.");
 
         myScope = scope;
     }
@@ -110,28 +117,6 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
         result = (31 * result) + super.hashCode();
         result = (31 * result) + ((myScope != null) ? myScope.hashCode() : 3);
         return result;
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : ");
-        builder.append(getJavaScript());
-        builder.append(" (scope :");
-        builder.append(myScope);
-        builder.append(")");
-
-        return builder.toString();
     }
 
     /**

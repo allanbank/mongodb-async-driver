@@ -23,7 +23,7 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  */
 public interface MongoDatabase {
     /** The name of the administration database. */
-    public static final String ADMIN_NAME = MongoDbConfiguration.ADMIN_DB_NAME;
+    public static final String ADMIN_NAME = MongoClientConfiguration.ADMIN_DB_NAME;
 
     /** The name of the configuration database for a sharded configuration. */
     public static final String CONFIG_NAME = "config";
@@ -95,7 +95,7 @@ public interface MongoDatabase {
      * 
      * @return The durability for write operations on the server.
      * 
-     * @see MongoDbConfiguration#getDefaultDurability()
+     * @see MongoClientConfiguration#getDefaultDurability()
      */
     public Durability getDurability();
 
@@ -128,7 +128,7 @@ public interface MongoDatabase {
      * 
      * @return The default read preference for a query.
      * 
-     * @see MongoDbConfiguration#getDefaultReadPreference()
+     * @see MongoClientConfiguration#getDefaultReadPreference()
      */
     public ReadPreference getReadPreference();
 
@@ -139,6 +139,17 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error listing the collections.
      */
+    public List<String> listCollectionNames() throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     * 
+     * @return The list of the collections contained within the database.
+     * @throws MongoDbException
+     *             On an error listing the collections.
+     * @deprecated Use the {@link #listCollectionNames()} method instead.
+     */
+    @Deprecated
     public List<String> listCollections() throws MongoDbException;
 
     /**
@@ -374,7 +385,7 @@ public interface MongoDatabase {
      * @param durability
      *            The durability for write operations on the server.
      * 
-     * @see MongoDbConfiguration#getDefaultDurability()
+     * @see MongoClientConfiguration#getDefaultDurability()
      */
     public void setDurability(final Durability durability);
 
@@ -406,7 +417,7 @@ public interface MongoDatabase {
      * @param readPreference
      *            The read preference for a query.
      * 
-     * @see MongoDbConfiguration#getDefaultReadPreference()
+     * @see MongoClientConfiguration#getDefaultReadPreference()
      */
     public void setReadPreference(final ReadPreference readPreference);
 

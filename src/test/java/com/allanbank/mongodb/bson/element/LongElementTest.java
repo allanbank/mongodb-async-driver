@@ -63,8 +63,7 @@ public class LongElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final long value = random.nextLong();
                 objs1.add(new LongElement(name, value));
@@ -151,13 +150,23 @@ public class LongElementTest {
     }
 
     /**
+     * Test method for {@link LongElement#LongElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new LongElement(null, 1);
+    }
+
+    /**
      * Test method for {@link LongElement#toString()}.
      */
     @Test
     public void testToString() {
         final LongElement element = new LongElement("foo", 1010101);
 
-        assertEquals("\"foo\" : 1010101", element.toString());
+        assertEquals("foo : NumberLong('1010101')", element.toString());
     }
 
     /**

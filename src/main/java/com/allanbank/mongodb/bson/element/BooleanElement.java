@@ -35,6 +35,8 @@ public class BooleanElement extends AbstractElement {
      *            The name for the BSON boolean.
      * @param value
      *            The BSON boolean value.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
      */
     public BooleanElement(final String name, final boolean value) {
         super(name);
@@ -99,25 +101,6 @@ public class BooleanElement extends AbstractElement {
     @Override
     public int hashCode() {
         return super.hashCode() + (myValue ? 31 : 11);
-    }
-
-    /**
-     * String form of the object.
-     * 
-     * @return A human readable form of the object.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        builder.append(getName());
-        builder.append("\" : ");
-        builder.append(getValue());
-
-        return builder.toString();
     }
 
     /**

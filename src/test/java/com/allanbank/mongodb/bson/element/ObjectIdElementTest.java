@@ -54,16 +54,6 @@ public class ObjectIdElementTest {
     }
 
     /**
-     * Test method for
-     * {@link ObjectIdElement#ObjectIdElement(java.lang.String, ObjectId)} .
-     */
-    @Test(expected = AssertionError.class)
-    @SuppressWarnings("unused")
-    public void testConstructorWithNullId() {
-        new ObjectIdElement("foo", null);
-    }
-
-    /**
      * Test method for {@link ObjectIdElement#equals(java.lang.Object)} .
      */
     @Test
@@ -72,8 +62,7 @@ public class ObjectIdElementTest {
         final List<Element> objs1 = new ArrayList<Element>();
         final List<Element> objs2 = new ArrayList<Element>();
 
-        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2",
-                null)) {
+        for (final String name : Arrays.asList("1", "foo", "bar", "baz", "2")) {
             for (int i = 0; i < 10; ++i) {
                 final ObjectId id = new ObjectId();
 
@@ -135,14 +124,35 @@ public class ObjectIdElementTest {
     }
 
     /**
+     * Test method for {@link ObjectIdElement#ObjectIdElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullName() {
+
+        new ObjectIdElement(null, new ObjectId());
+    }
+
+    /**
+     * Test method for {@link ObjectIdElement#ObjectIdElement}.
+     */
+    @SuppressWarnings("unused")
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowsOnNullValue() {
+
+        new ObjectIdElement("s", null);
+    }
+
+    /**
      * Test method for {@link ObjectIdElement#toString()}.
      */
     @Test
     public void testToString() {
         final ObjectIdElement element = new ObjectIdElement("foo",
-                new ObjectId());
+                new ObjectId(0x11223344, 0x1122334455667788L));
 
-        assertEquals("\"foo\" : " + element.getId(), element.toString());
+        assertEquals("foo : ObjectId('112233441122334455667788')",
+                element.toString());
     }
 
     /**
