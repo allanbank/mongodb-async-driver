@@ -33,7 +33,7 @@ public interface Mongo extends MongoClient {
      * allocation and no server interaction.
      * </p>
      * 
-     * @return A list of available database names.
+     * @return Serialized view of the connections to the MongoDB Server.
      * @deprecated Use {@link MongoClient#asSerializedClient()} instead.
      */
     @Deprecated

@@ -84,7 +84,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
+        assertTrue(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
 
         try {
             // Need to give the primary time to discover the others are
@@ -96,7 +96,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             myMongo.getDatabase("admin").runAdminCommand("replSetStepDown");
 
             // Quick command that should then fail.
-            myMongo.listDatabases();
+            myMongo.listDatabaseNames();
 
             // ... but its OK if it misses getting out before the Process dies.
         }
@@ -113,7 +113,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             Thread.sleep(1000);
 
             // Should switch to the other shards.
-            myMongo.listDatabases();
+            myMongo.listDatabaseNames();
         }
         catch (final Exception e) {
             final AssertionError error = new AssertionError(e.getMessage());
@@ -307,7 +307,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
+        assertTrue(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
 
         try {
             // Stop the main shard.
@@ -317,7 +317,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             kill.waitFor();
 
             // Quick command that should then fail.
-            myMongo.listDatabases();
+            myMongo.listDatabaseNames();
 
             // ... but its OK if it misses getting out before the Process dies.
         }
@@ -334,7 +334,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             Thread.sleep(1000);
 
             // Should switch to the other shards.
-            myMongo.listDatabases();
+            myMongo.listDatabaseNames();
         }
         catch (final Exception e) {
             final AssertionError error = new AssertionError(e.getMessage());

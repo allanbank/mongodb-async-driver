@@ -75,7 +75,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
         myCollection.insert(BuilderFactory.start().build());
 
         assertEquals(Arrays.asList(TEST_DB_NAME, "config"),
-                myMongo.listDatabases());
+                myMongo.listDatabaseNames());
 
         try {
             // Stop the main mongos.
@@ -85,7 +85,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
             kill.waitFor();
 
             // Quick command that should then fail.
-            myMongo.listDatabases();
+            myMongo.listDatabaseNames();
 
             // ... but its OK if it misses getting out before the Process dies.
         }
@@ -102,7 +102,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
             Thread.sleep(1000);
 
             // Should switch to the other shards.
-            myMongo.listDatabases();
+            myMongo.listDatabaseNames();
         }
         catch (final Exception e) {
             final AssertionError error = new AssertionError(e.getMessage());

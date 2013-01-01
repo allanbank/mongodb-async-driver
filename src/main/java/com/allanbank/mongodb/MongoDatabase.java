@@ -139,6 +139,17 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error listing the collections.
      */
+    public List<String> listCollectionNames() throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     * 
+     * @return The list of the collections contained within the database.
+     * @throws MongoDbException
+     *             On an error listing the collections.
+     * @deprecated Use the {@link #listCollectionNames()} method instead.
+     */
+    @Deprecated
     public List<String> listCollections() throws MongoDbException;
 
     /**

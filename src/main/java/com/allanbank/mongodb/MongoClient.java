@@ -34,7 +34,7 @@ public interface MongoClient extends Closeable {
      * allocation and no server interaction.
      * </p>
      * 
-     * @return A list of available database names.
+     * @return A serialized view of the MongoDB connections.
      */
     public MongoClient asSerializedClient();
 
@@ -56,9 +56,18 @@ public interface MongoClient extends Closeable {
     public MongoDatabase getDatabase(String name);
 
     /**
-     * Returns a future for the list of database names.
+     * Returns a list of database names.
      * 
      * @return A list of available database names.
      */
+    public List<String> listDatabaseNames();
+
+    /**
+     * Returns a list of database names.
+     * 
+     * @return A list of available database names.
+     * @deprecated Use the {@link #listDatabaseNames()} method instead.
+     */
+    @Deprecated
     public List<String> listDatabases();
 }

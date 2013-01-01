@@ -111,10 +111,10 @@ public class MongoClientImpl implements MongoClient {
      * Overridden to issue a listDatabases command against the 'admin' database.
      * </p>
      * 
-     * @see com.allanbank.mongodb.Mongo#listDatabases()
+     * @see com.allanbank.mongodb.Mongo#listDatabaseNames()
      */
     @Override
-    public List<String> listDatabases() {
+    public List<String> listDatabaseNames() {
 
         final MongoDatabase db = getDatabase("admin");
         final Document result = db.runAdminCommand("listDatabases");
@@ -127,5 +127,13 @@ public class MongoClientImpl implements MongoClient {
         }
 
         return names;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> listDatabases() {
+        return listDatabaseNames();
     }
 }

@@ -128,6 +128,32 @@ public class MongoClientImplTest {
     }
 
     /**
+     * Test method for {@link MongoClientImpl#listDatabaseNames()}.
+     */
+    @Test
+    public void testListDatabaseNames() {
+        final DocumentBuilder reply = BuilderFactory.start();
+        final ArrayBuilder dbEntry = reply.pushArray("databases");
+        dbEntry.push().addString("name", "db_1");
+        dbEntry.push().addString("name", "db_2");
+
+        final DocumentBuilder commandDoc = BuilderFactory.start();
+        commandDoc.addInteger("listDatabases", 1);
+
+        final Command message = new Command("admin", commandDoc.build());
+
+        expect(myMockClient.send(eq(message), callback(reply(reply.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Arrays.asList("db_1", "db_2"),
+                myTestInstance.listDatabaseNames());
+
+        verify();
+    }
+
+    /**
      * Test method for {@link MongoClientImpl#listDatabases()}.
      */
     @Test

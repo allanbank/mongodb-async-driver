@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
 
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.IOUtils;
@@ -1016,7 +1015,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * </p>
      * <p>
      * For SSL based connections this can be an appropriately configured
-     * {@link SSLSocketFactory}.
+     * {@link javax.net.ssl.SSLSocketFactory}.
      * </p>
      * <p>
      * Other {@link Socket} and {@link InetSocketAddress} implementations with

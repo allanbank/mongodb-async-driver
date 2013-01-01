@@ -153,7 +153,7 @@ public class MongoImplTest {
 
     /**
      * Test method for
-     * {@link com.allanbank.mongodb.client.MongoImpl#listDatabases()}.
+     * {@link com.allanbank.mongodb.client.MongoImpl#listDatabaseNames()}.
      */
     @Test
     public void testListDatabases() {
@@ -173,7 +173,7 @@ public class MongoImplTest {
         replay();
 
         assertEquals(Arrays.asList("db_1", "db_2"),
-                myTestInstance.listDatabases());
+                myTestInstance.listDatabaseNames());
 
         verify();
     }

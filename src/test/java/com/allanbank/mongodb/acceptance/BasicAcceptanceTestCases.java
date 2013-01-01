@@ -521,7 +521,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 + Math.abs(myRandom.nextLong()));
         assertTrue(myDb.createCappedCollection(name, 100000));
         assertFalse(myDb.createCollection(name, BuilderFactory.start()));
-        assertTrue(myDb.listCollections().contains(name));
+        assertTrue(myDb.listCollectionNames().contains(name));
 
         assertTrue(myDb.getCollection(name).isCapped());
 
@@ -542,7 +542,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 + myRandom.nextLong());
         assertTrue(myDb.createCollection(name, BuilderFactory.start()));
         assertFalse(myDb.createCollection(name, BuilderFactory.start()));
-        assertTrue(myDb.listCollections().contains(name));
+        assertTrue(myDb.listCollectionNames().contains(name));
 
         myDb.getCollection(name).drop();
     }
@@ -724,11 +724,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        assertTrue(myDb.listCollections().contains(myCollection.getName()));
+        assertTrue(myDb.listCollectionNames().contains(myCollection.getName()));
 
         myCollection.drop();
 
-        assertFalse(myDb.listCollections().contains(myCollection.getName()));
+        assertFalse(myDb.listCollectionNames().contains(myCollection.getName()));
     }
 
     /**
@@ -739,11 +739,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabases().contains(TEST_DB_NAME));
+        assertTrue(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
 
         myDb.drop();
 
-        assertFalse(myMongo.listDatabases().contains(TEST_DB_NAME));
+        assertFalse(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
     }
 
     /**
@@ -1097,7 +1097,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        final Collection<String> names = myDb.listCollections();
+        final Collection<String> names = myDb.listCollectionNames();
 
         assertTrue(names.contains(myCollection.getName()));
         assertTrue(names.contains("system.indexes"));
@@ -1111,7 +1111,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        final List<String> names = myMongo.listDatabases();
+        final List<String> names = myMongo.listDatabaseNames();
 
         assertTrue(
                 "Missing the '" + TEST_DB_NAME + "' database name: " + names,
