@@ -8,7 +8,6 @@ package com.allanbank.mongodb;
 import java.io.Serializable;
 
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -48,7 +47,7 @@ import com.allanbank.mongodb.error.JsonParseException;
  *          removed or modified.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Durability implements Serializable, DocumentAssignable {
+public class Durability implements Serializable {
 
     /** The durability that says no durability is required. */
     public final static Durability ACK = new Durability(true, false, false, 0,
@@ -438,14 +437,10 @@ public class Durability implements Serializable, DocumentAssignable {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return a suitable getlasterror command's document.
-     * </p>
+     * Returns a suitable getlasterror command's document.
      * 
      * @return The getlasterror command's document.
      */
-    @Override
     public Document asDocument() {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addInteger("getlasterror", 1);
