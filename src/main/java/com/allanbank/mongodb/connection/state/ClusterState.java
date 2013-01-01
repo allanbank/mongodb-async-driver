@@ -173,7 +173,7 @@ public class ClusterState implements Closeable {
         ServerState state = myServers.get(normalized);
         if (state == null) {
 
-            state = new ServerState(normalized);
+            state = new ServerState(ServerNameUtils.parse(normalized));
             state.setWritable(false);
 
             synchronized (this) {

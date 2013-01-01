@@ -159,8 +159,8 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         for (int i = 0; i < ports.length; ++i) {
             final int port = ports[i];
 
-            conns[i] = new SocketConnection(
-                    new ServerState("localhost:" + port), myConfig);
+            conns[i] = new SocketConnection(new ServerState(
+                    new InetSocketAddress("localhost", port)), myConfig);
             conns[i].start();
         }
 

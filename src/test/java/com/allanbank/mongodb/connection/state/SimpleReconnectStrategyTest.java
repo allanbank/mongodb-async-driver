@@ -15,6 +15,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,7 +74,8 @@ public class SimpleReconnectStrategyTest {
     @Test
     public void testReconnect() throws IOException, InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final ServerState server = new ServerState("localhost:27017");
+        final ServerState server = new ServerState(new InetSocketAddress(
+                "localhost", 27017));
 
         final Connection mockOldConnection = createMock(Connection.class);
         final Connection mockNewConnection = createMock(Connection.class);
@@ -218,7 +220,8 @@ public class SimpleReconnectStrategyTest {
     @Test
     public void testReconnectPingFails() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final ServerState server = new ServerState("localhost:27017");
+        final ServerState server = new ServerState(new InetSocketAddress(
+                "localhost", 27017));
 
         final Connection mockOldConnection = createMock(Connection.class);
         final Connection mockNewConnection = createMock(Connection.class);

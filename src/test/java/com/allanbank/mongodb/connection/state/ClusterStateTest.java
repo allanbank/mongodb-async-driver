@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -92,23 +93,23 @@ public class ClusterStateTest {
     public void testCdf() {
 
         final List<ServerState> servers = new ArrayList<ServerState>(5);
-        ServerState server = new ServerState("localhost:1024");
+        ServerState server = new ServerState(new InetSocketAddress(1024));
         server.updateAverageLatency(100);
         servers.add(server);
 
-        server = new ServerState("localhost:1025");
+        server = new ServerState(new InetSocketAddress(1025));
         server.updateAverageLatency(100);
         servers.add(server);
 
-        server = new ServerState("localhost:1026");
+        server = new ServerState(new InetSocketAddress(1026));
         server.updateAverageLatency(200);
         servers.add(server);
 
-        server = new ServerState("localhost:1027");
+        server = new ServerState(new InetSocketAddress(1027));
         server.updateAverageLatency(200);
         servers.add(server);
 
-        server = new ServerState("localhost:1028");
+        server = new ServerState(new InetSocketAddress(1028));
         server.updateAverageLatency(1000);
         servers.add(server);
 
@@ -648,8 +649,8 @@ public class ClusterStateTest {
         final List<ServerState> servers = new ArrayList<ServerState>(count);
         for (int i = 0; i < count; i++) {
 
-            final ServerState server = new ServerState("localhost:"
-                    + (i + 1024));
+            final ServerState server = new ServerState(new InetSocketAddress(
+                    "localhost:", i + 1024));
             server.updateAverageLatency(Math.random() * 100000);
 
             servers.add(server);

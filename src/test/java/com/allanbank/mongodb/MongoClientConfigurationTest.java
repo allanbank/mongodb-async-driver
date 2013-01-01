@@ -25,6 +25,8 @@ import javax.net.SocketFactory;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.util.ServerNameUtils;
+
 /**
  * MongoClientConfigurationTest provides tests for the
  * {@link MongoClientConfiguration} class.
@@ -640,7 +642,8 @@ public class MongoClientConfigurationTest {
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
-        assertEquals(Collections.singletonList(addr1 + ":27017"),
+        assertEquals(Collections.singletonList(ServerNameUtils
+                .normalize(new InetSocketAddress(addr1, 27017))),
                 config.getServers());
         assertNotNull(config.getThreadFactory());
         assertNull(config.getUserName());
@@ -659,10 +662,11 @@ public class MongoClientConfigurationTest {
      */
     @Test
     public void testMongoUriWithIPV6LastTupleLooksLikePort() {
-        final String addr1 = "fe80::868f:69ff:feb2:9534";
+        final String addr1 = "fe80::868f:69ff:feb2";
+        final int port = 9534;
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
-                "mongodb://" + addr1);
+                "mongodb://" + addr1 + ":" + port);
 
         assertEquals(0, config.getConnectTimeout());
         assertEquals(Durability.ACK, config.getDefaultDurability());
@@ -670,7 +674,8 @@ public class MongoClientConfigurationTest {
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
-        assertEquals(Collections.singletonList(addr1 + ":27017"),
+        assertEquals(Collections.singletonList(ServerNameUtils
+                .normalize(new InetSocketAddress(addr1, port))),
                 config.getServers());
         assertNotNull(config.getThreadFactory());
         assertNull(config.getUserName());
@@ -690,9 +695,10 @@ public class MongoClientConfigurationTest {
     @Test
     public void testMongoUriWithIPV6WithPort() {
         final String addr1 = "fe80::868f:69ff:feb2:9534:12345";
+        final int port = 12345;
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
-                "mongodb://" + addr1);
+                "mongodb://" + addr1 + ":" + port);
 
         assertEquals(0, config.getConnectTimeout());
         assertEquals(Durability.ACK, config.getDefaultDurability());
@@ -700,7 +706,9 @@ public class MongoClientConfigurationTest {
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
-        assertEquals(Collections.singletonList(addr1), config.getServers());
+        assertEquals(Collections.singletonList(ServerNameUtils
+                .normalize(new InetSocketAddress(addr1, port))),
+                config.getServers());
         assertNotNull(config.getThreadFactory());
         assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
@@ -795,23 +803,6 @@ public class MongoClientConfigurationTest {
                 config.getDefaultReadPreference());
         config.setDefaultReadPreference(null);
         assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
-    }
-
-    /**
-     * Test method for {@link MongoClientConfiguration#setDefaultReadPreference}
-     * .
-     */
-    @Test
-    public void testSetSocketFactory() {
-        final MongoClientConfiguration config = new MongoClientConfiguration();
-
-        SocketFactory custom = createMock(SocketFactory.class);
-
-        assertSame(SocketFactory.getDefault(), config.getSocketFactory());
-        config.setSocketFactory(custom);
-        assertSame(custom, config.getSocketFactory());
-        config.setSocketFactory(null);
-        assertSame(SocketFactory.getDefault(), config.getSocketFactory());
     }
 
     /**
@@ -933,6 +924,23 @@ public class MongoClientConfigurationTest {
         config.setServers(null);
 
         assertEquals(0, config.getServers().size());
+    }
+
+    /**
+     * Test method for {@link MongoClientConfiguration#setDefaultReadPreference}
+     * .
+     */
+    @Test
+    public void testSetSocketFactory() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        final SocketFactory custom = createMock(SocketFactory.class);
+
+        assertSame(SocketFactory.getDefault(), config.getSocketFactory());
+        config.setSocketFactory(custom);
+        assertSame(custom, config.getSocketFactory());
+        config.setSocketFactory(null);
+        assertSame(SocketFactory.getDefault(), config.getSocketFactory());
     }
 
     /**

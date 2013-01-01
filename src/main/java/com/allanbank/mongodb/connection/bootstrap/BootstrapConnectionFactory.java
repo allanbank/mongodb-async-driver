@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.connection.bootstrap;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -90,7 +91,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
             factory = new AuthenticationConnectionFactory(factory, myConfig);
         }
         try {
-            for (final String addr : myConfig.getServers()) {
+            for (final InetSocketAddress addr : myConfig.getServerAddresses()) {
                 Connection conn = null;
                 final FutureCallback<Reply> future = new FutureCallback<Reply>();
                 try {

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import org.easymock.Capture;
@@ -44,6 +45,7 @@ import com.allanbank.mongodb.connection.message.ReplicaSetStatus;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * ClusterPingerTest provides tests for the {@link ClusterPinger} class.
@@ -763,15 +765,16 @@ public class ClusterPingerTest {
         reply.addDocument("tags", tags.build());
         reply.add("ismaster", true);
 
-        final String address = "localhost:27017";
+        final InetSocketAddress addr = new InetSocketAddress("localhost", 27017);
+        final String address = ServerNameUtils.normalize(addr);
 
         final ClusterState cluster = new ClusterState(
                 new MongoClientConfiguration());
-        cluster.myServers.put(address, new ServerState(address) {
+        cluster.myServers.put(address, new ServerState(addr) {
             @Override
             public long getConnectionGeneration() {
-                // Randomize the generation to make it look like a very busy
-                // server.
+                // Randomize the generation to make it look like a very
+                // busy server.
                 return (long) Math.ceil(Math.random() * 1000000000);
             }
         });

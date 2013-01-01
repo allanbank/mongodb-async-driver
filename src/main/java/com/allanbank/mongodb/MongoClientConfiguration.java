@@ -177,7 +177,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * The list of servers to initially attempt to connect to. Not final for
      * clone.
      */
-    private List<String> myServers = new ArrayList<String>();
+    private List<InetSocketAddress> myServers = new ArrayList<InetSocketAddress>();
 
     /** The socket factory for creating sockets. */
     private transient SocketFactory mySocketFactory = SocketFactory
@@ -230,7 +230,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     public MongoClientConfiguration(final MongoClientConfiguration other) {
         this();
 
-        myServers.addAll(other.getServers());
+        myServers.addAll(other.getServerAddresses());
 
         myAutoDiscoverServers = other.isAutoDiscoverServers();
         myMaxConnectionCount = other.getMaxConnectionCount();
@@ -451,7 +451,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The server to add.
      */
     public void addServer(final InetSocketAddress server) {
-        myServers.add(ServerNameUtils.normalize(server));
+        myServers.add(server);
     }
 
     /**
@@ -461,7 +461,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The server to add.
      */
     public void addServer(final String server) {
-        myServers.add(ServerNameUtils.normalize(server));
+        myServers.add(ServerNameUtils.parse(server));
     }
 
     /**
@@ -522,7 +522,8 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         MongoClientConfiguration clone = null;
         try {
             clone = (MongoClientConfiguration) super.clone();
-            clone.myServers = new ArrayList<String>(getServers());
+            clone.myServers = new ArrayList<InetSocketAddress>(
+                    getServerAddresses());
         }
         catch (final CloneNotSupportedException shouldNotHappen) {
             clone = new MongoClientConfiguration(this);
@@ -713,8 +714,21 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * 
      * @return The list of servers to initially attempt to connect to.
      */
-    public List<String> getServers() {
+    public List<InetSocketAddress> getServerAddresses() {
         return Collections.unmodifiableList(myServers);
+    }
+
+    /**
+     * Returns the list of servers to initially attempt to connect to.
+     * 
+     * @return The list of servers to initially attempt to connect to.
+     */
+    public List<String> getServers() {
+        final List<String> servers = new ArrayList<String>(myServers.size());
+        for (final InetSocketAddress addr : myServers) {
+            servers.add(ServerNameUtils.normalize(addr));
+        }
+        return servers;
     }
 
     /**
@@ -997,8 +1011,8 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * server. Setting the SocketFactory to null resets the factory to the
      * default.
      * <p>
-     * Defaults to {@link SocketFactory#getDefault() SocketFactory.getDefault()}
-     * .
+     * Defaults to {@link SocketFactory#getDefault()
+     * SocketFactory.getDefault().}
      * </p>
      * <p>
      * For SSL based connections this can be an appropriately configured

@@ -7,6 +7,7 @@ package com.allanbank.mongodb.connection.auth;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
 
 import org.junit.After;
@@ -68,7 +69,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
                     .addObjectId("_id", new ObjectId()).build();
 
             socketConn = socketFactory.connect(new ServerState(
-                    "127.0.0.1:27017"), config);
+                    new InetSocketAddress("localhost", 27017)), config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();
@@ -115,7 +116,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
                     .addObjectId("_id", new ObjectId()).build();
 
             socketConn = socketFactory.connect(new ServerState(
-                    "127.0.0.1:27017"), config);
+                    new InetSocketAddress("localhost", 27017)), config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();

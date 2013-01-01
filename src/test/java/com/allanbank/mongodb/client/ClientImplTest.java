@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -601,7 +602,7 @@ public class ClientImplTest {
             @Override
             public List<ServerState> pickServers() {
                 return Collections.singletonList(new ServerState(
-                        "localhost:27017"));
+                        new InetSocketAddress("localhost", 27017)));
             }
         });
         strategy.setConnectionFactory(myMockConnectionFactory);

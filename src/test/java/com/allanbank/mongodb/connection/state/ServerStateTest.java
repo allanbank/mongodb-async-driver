@@ -40,7 +40,8 @@ public class ServerStateTest {
 
         replay(mockConnection, mockConnection2);
 
-        final ServerState state = new ServerState("foo");
+        final ServerState state = new ServerState(new InetSocketAddress("foo",
+                27017));
         assertNull(state.takeConnection());
 
         assertTrue(state.addConnection(mockConnection));
@@ -61,7 +62,8 @@ public class ServerStateTest {
     @Test
     public void testGetAverageLatency() {
 
-        final ServerState state = new ServerState("foo");
+        final ServerState state = new ServerState(new InetSocketAddress("foo",
+                27017));
 
         assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.001);
         state.updateAverageLatency(10);
@@ -80,7 +82,8 @@ public class ServerStateTest {
      */
     @Test
     public void testGetSetTags() {
-        final ServerState state = new ServerState("foo:27017");
+        final ServerState state = new ServerState(new InetSocketAddress("foo",
+                27017));
 
         assertNull(state.getTags());
 
@@ -97,7 +100,8 @@ public class ServerStateTest {
      */
     @Test
     public void testIsWritable() {
-        final ServerState state = new ServerState("foo");
+        final ServerState state = new ServerState(new InetSocketAddress("foo",
+                27017));
 
         assertFalse(state.isWritable());
 
@@ -107,50 +111,12 @@ public class ServerStateTest {
     }
 
     /**
-     * Test method for {@link ServerState#ServerState(String)}.
-     */
-    @Test
-    public void testServerStateInvalidPort() {
-        final ServerState state = new ServerState("foo:bar");
-        final InetSocketAddress addr = state.getServer();
-        assertEquals(ServerState.DEFAULT_PORT, addr.getPort());
-        assertEquals("foo:bar", addr.getHostName());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.001);
-        assertFalse(state.isWritable());
-    }
-
-    /**
-     * Test method for {@link ServerState#ServerState(String)}.
-     */
-    @Test
-    public void testServerStateMultipleColons() {
-        final ServerState state = new ServerState("foo:bar:1234");
-        final InetSocketAddress addr = state.getServer();
-        assertEquals(1234, addr.getPort());
-        assertEquals("foo:bar", addr.getHostName());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.001);
-        assertFalse(state.isWritable());
-    }
-
-    /**
-     * Test method for {@link ServerState#ServerState(String)}.
-     */
-    @Test
-    public void testServerStateNoPort() {
-        final ServerState state = new ServerState("foo");
-        final InetSocketAddress addr = state.getServer();
-        assertEquals(ServerState.DEFAULT_PORT, addr.getPort());
-        assertEquals("foo", addr.getHostName());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.001);
-        assertFalse(state.isWritable());
-    }
-
-    /**
      * Test method for {@link ServerState#toString}.
      */
     @Test
     public void testToString() {
-        final ServerState state = new ServerState("foo");
+        final ServerState state = new ServerState(new InetSocketAddress("foo",
+                27017));
 
         assertEquals("foo:27017(1.7976931348623157E308)", state.toString());
 

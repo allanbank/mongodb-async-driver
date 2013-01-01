@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.connection.socket;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,13 +82,13 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      */
     @Override
     public Connection connect() throws IOException {
-        final List<String> servers = new ArrayList<String>(
-                myConfig.getServers());
+        final List<InetSocketAddress> servers = new ArrayList<InetSocketAddress>(
+                myConfig.getServerAddresses());
 
         // Shuffle the servers and try to connect to each until one works.
         IOException last = null;
         Collections.shuffle(servers);
-        for (final String address : servers) {
+        for (final InetSocketAddress address : servers) {
             try {
                 return connect(new ServerState(address), myConfig);
             }

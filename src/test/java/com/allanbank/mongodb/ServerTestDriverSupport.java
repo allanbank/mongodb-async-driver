@@ -37,14 +37,14 @@ public class ServerTestDriverSupport {
     public static final String USER_NAME = "user";
 
     /** Support for spinning up clusters. */
-    private static final ClusterTestSupport myClusterTestSupport = new ClusterTestSupport();
+    protected static final ClusterTestSupport ourClusterTestSupport = new ClusterTestSupport();
 
     /**
      * Stops the servers running in a replica set mode.
      */
     @AfterClass
     public static void stopReplicaSet() {
-        myClusterTestSupport.stopAll();
+        ourClusterTestSupport.stopAll();
     }
 
     /**
@@ -52,7 +52,7 @@ public class ServerTestDriverSupport {
      */
     @AfterClass
     public static void stopSharded() {
-        myClusterTestSupport.stopAll();
+        ourClusterTestSupport.stopAll();
     }
 
     /**
@@ -60,7 +60,7 @@ public class ServerTestDriverSupport {
      */
     @AfterClass
     public static void stopShardedReplicaSets() {
-        myClusterTestSupport.stopAll();
+        ourClusterTestSupport.stopAll();
     }
 
     /**
@@ -68,7 +68,7 @@ public class ServerTestDriverSupport {
      */
     @AfterClass
     public static void stopStandAlone() {
-        myClusterTestSupport.stopAll();
+        ourClusterTestSupport.stopAll();
     }
 
     /**
@@ -137,7 +137,7 @@ public class ServerTestDriverSupport {
      * @see ClusterTestSupport#startReplicaSet
      */
     protected static void startReplicaSet() {
-        myClusterTestSupport.startReplicaSet();
+        ourClusterTestSupport.startReplicaSet();
     }
 
     /**
@@ -146,7 +146,7 @@ public class ServerTestDriverSupport {
      * @see ClusterTestSupport#startSharded
      */
     protected static void startSharded() {
-        myClusterTestSupport.startSharded();
+        ourClusterTestSupport.startSharded();
     }
 
     /**
@@ -155,7 +155,7 @@ public class ServerTestDriverSupport {
      * @see ClusterTestSupport#startShardedReplicaSets
      */
     protected static void startShardedReplicaSets() {
-        myClusterTestSupport.startShardedReplicaSets();
+        ourClusterTestSupport.startShardedReplicaSets();
     }
 
     /**
@@ -164,6 +164,6 @@ public class ServerTestDriverSupport {
      * @see ClusterTestSupport#startStandAlone
      */
     protected static void startStandAlone() {
-        myClusterTestSupport.startStandAlone();
+        ourClusterTestSupport.startStandAlone();
     }
 }

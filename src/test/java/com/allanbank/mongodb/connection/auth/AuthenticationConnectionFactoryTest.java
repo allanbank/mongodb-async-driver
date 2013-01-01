@@ -114,8 +114,6 @@ public class AuthenticationConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        final String socketAddr = "localhost:27017";
-
         myTestFactory = new AuthenticationConnectionFactory(mockFactory, config);
 
         expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
@@ -124,7 +122,8 @@ public class AuthenticationConnectionFactoryTest {
         replay(mockFactory, mockConnection);
 
         final AuthenticatingConnection conn = myTestFactory.connect(
-                new ServerState(socketAddr), config);
+                new ServerState(new InetSocketAddress("localhost", 27017)),
+                config);
         assertSame(mockConnection, conn.getProxiedConnection());
 
         verify(mockFactory, mockConnection);

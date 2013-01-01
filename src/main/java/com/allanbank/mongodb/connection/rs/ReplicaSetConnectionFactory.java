@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.connection.rs;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -85,7 +86,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      * Finds the primary member of the replica set.
      */
     public void bootstrap() {
-        for (final String addr : myConfig.getServers()) {
+        for (final InetSocketAddress addr : myConfig.getServerAddresses()) {
             Connection conn = null;
             final FutureCallback<Reply> future = new FutureCallback<Reply>();
             try {

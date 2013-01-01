@@ -129,12 +129,8 @@ public class SocketConnection implements Connection {
         myShutdown = new AtomicBoolean(false);
 
         mySocket = config.getSocketFactory().createSocket();
-        mySocket.setTcpNoDelay(true);
-        mySocket.setKeepAlive(config.isUsingSoKeepalive());
-        mySocket.setSoTimeout(config.getReadTimeout());
-        mySocket.setPerformancePreferences(1, 5, 6);
-
         mySocket.connect(myServer.getServer(), config.getConnectTimeout());
+        updateSocketWithOptions(config);
 
         myOpen.set(true);
 
@@ -549,6 +545,33 @@ public class SocketConnection implements Connection {
      */
     protected void reply(final Reply reply, final Callback<Reply> replyCallback) {
         ReplyHandler.reply(reply, replyCallback, myExecutor);
+    }
+
+    /**
+     * Updates the socket with the configuration's socket options.
+     * 
+     * @param config
+     *            The configuration to apply.
+     * @throws SocketException
+     *             On a failure setting the socket options.
+     */
+    protected void updateSocketWithOptions(final MongoClientConfiguration config)
+            throws SocketException {
+        mySocket.setKeepAlive(config.isUsingSoKeepalive());
+        mySocket.setSoTimeout(config.getReadTimeout());
+        try {
+            mySocket.setTcpNoDelay(true);
+        }
+        catch (final SocketException seIgnored) {
+            // The junixsocket implementation does not support TCP_NO_DELAY,
+            // which makes sense but it throws an exception instead of silently
+            // ignoring - ignore it here.
+            if (!"AFUNIXSocketException".equals(seIgnored.getClass()
+                    .getSimpleName())) {
+                throw seIgnored;
+            }
+        }
+        mySocket.setPerformancePreferences(1, 5, 6);
     }
 
     /**

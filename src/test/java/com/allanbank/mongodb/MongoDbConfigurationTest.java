@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.util.ServerNameUtils;
+
 /**
  * MongoDbConfigurationTest provides tests for the {@link MongoDbConfiguration}
  * class.
@@ -638,7 +640,8 @@ public class MongoDbConfigurationTest {
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
-        assertEquals(Collections.singletonList(addr1 + ":27017"),
+        assertEquals(Collections.singletonList(ServerNameUtils
+                .normalize(new InetSocketAddress(addr1, 27017))),
                 config.getServers());
         assertNotNull(config.getThreadFactory());
         assertNull(config.getUserName());
@@ -657,10 +660,11 @@ public class MongoDbConfigurationTest {
      */
     @Test
     public void testMongoUriWithIPV6LastTupleLooksLikePort() {
-        final String addr1 = "fe80::868f:69ff:feb2:9534";
+        final String addr1 = "fe80::868f:69ff:feb2";
+        final int port = 9534;
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
-                "mongodb://" + addr1);
+                "mongodb://" + addr1 + ":" + port);
 
         assertEquals(0, config.getConnectTimeout());
         assertEquals(Durability.NONE, config.getDefaultDurability());
@@ -668,7 +672,8 @@ public class MongoDbConfigurationTest {
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
-        assertEquals(Collections.singletonList(addr1 + ":27017"),
+        assertEquals(Collections.singletonList(ServerNameUtils
+                .normalize(new InetSocketAddress(addr1, port))),
                 config.getServers());
         assertNotNull(config.getThreadFactory());
         assertNull(config.getUserName());
@@ -688,9 +693,10 @@ public class MongoDbConfigurationTest {
     @Test
     public void testMongoUriWithIPV6WithPort() {
         final String addr1 = "fe80::868f:69ff:feb2:9534:12345";
+        final int port = 12345;
 
         final MongoDbConfiguration config = new MongoDbConfiguration(
-                "mongodb://" + addr1);
+                "mongodb://" + addr1 + ":" + port);
 
         assertEquals(0, config.getConnectTimeout());
         assertEquals(Durability.NONE, config.getDefaultDurability());
@@ -698,7 +704,9 @@ public class MongoDbConfigurationTest {
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
-        assertEquals(Collections.singletonList(addr1), config.getServers());
+        assertEquals(Collections.singletonList(ServerNameUtils
+                .normalize(new InetSocketAddress(addr1, port))),
+                config.getServers());
         assertNotNull(config.getThreadFactory());
         assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());

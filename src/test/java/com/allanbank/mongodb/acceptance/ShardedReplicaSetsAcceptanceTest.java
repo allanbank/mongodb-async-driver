@@ -880,8 +880,8 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
                 SocketConnection conn = null;
                 try {
-                    conn = new SocketConnection(new ServerState("localhost:"
-                            + port), myConfig);
+                    conn = new SocketConnection(new ServerState(
+                            new InetSocketAddress("localhost", port)), myConfig);
                     conn.start();
 
                     final FutureCallback<Reply> replyFuture = new FutureCallback<Reply>();
@@ -939,8 +939,8 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
                 SocketConnection conn = null;
                 try {
-                    conn = new SocketConnection(new ServerState("localhost:"
-                            + port), myConfig);
+                    conn = new SocketConnection(new ServerState(
+                            new InetSocketAddress("localhost", port)), myConfig);
                     conn.start();
 
                     final FutureCallback<Reply> replyFuture = new FutureCallback<Reply>();

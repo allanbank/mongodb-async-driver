@@ -91,8 +91,8 @@ public class ServerState {
      * @param server
      *            The server being tracked.
      */
-    public ServerState(final String server) {
-        myServer = ServerNameUtils.parse(server);
+    public ServerState(final InetSocketAddress server) {
+        myServer = server;
         myName = ServerNameUtils.normalize(server);
         myWritable = new AtomicBoolean(false);
         myAverageLatency = new AtomicLong(
