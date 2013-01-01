@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.connection.message;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
@@ -184,8 +184,10 @@ public class UpdateTest {
         assertEquals(collectionName, message.getCollectionName());
         assertSame(query, message.getQuery());
         assertSame(update, message.getUpdate());
-        assertEquals(multiUpdate, message.isMultiUpdate());
-        assertEquals(upsert, message.isUpsert());
+        assertEquals(Boolean.valueOf(multiUpdate),
+                Boolean.valueOf(message.isMultiUpdate()));
+        assertEquals(Boolean.valueOf(upsert),
+                Boolean.valueOf(message.isUpsert()));
     }
 
     /**

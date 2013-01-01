@@ -6,8 +6,8 @@
 package com.allanbank.mongodb.connection.rs;
 
 import static com.allanbank.mongodb.connection.CallbackReply.reply;
-import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.util.List;

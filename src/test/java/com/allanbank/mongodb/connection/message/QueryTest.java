@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.connection.message;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
@@ -162,12 +162,17 @@ public class QueryTest {
         assertEquals(numberToSkip, message.getNumberToSkip());
         assertEquals(query, message.getQuery());
         assertEquals(returnFields, message.getReturnFields());
-        assertEquals(awaitData, message.isAwaitData());
-        assertEquals(exhaust, message.isExhaust());
-        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
-        assertEquals(partial, message.isPartial());
+        assertEquals(Boolean.valueOf(awaitData),
+                Boolean.valueOf(message.isAwaitData()));
+        assertEquals(Boolean.valueOf(exhaust),
+                Boolean.valueOf(message.isExhaust()));
+        assertEquals(Boolean.valueOf(noCursorTimeout),
+                Boolean.valueOf(message.isNoCursorTimeout()));
+        assertEquals(Boolean.valueOf(partial),
+                Boolean.valueOf(message.isPartial()));
         assertSame(readPreference, message.getReadPreference());
-        assertEquals(tailable, message.isTailable());
+        assertEquals(Boolean.valueOf(tailable),
+                Boolean.valueOf(message.isTailable()));
 
         assertEquals(batchSize, message.getBatchSize());
         assertEquals(limit, message.getLimit());
@@ -209,12 +214,17 @@ public class QueryTest {
         assertEquals(numberToSkip, message.getNumberToSkip());
         assertEquals(query, message.getQuery());
         assertEquals(returnFields, message.getReturnFields());
-        assertEquals(awaitData, message.isAwaitData());
-        assertEquals(exhaust, message.isExhaust());
-        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
-        assertEquals(partial, message.isPartial());
+        assertEquals(Boolean.valueOf(awaitData),
+                Boolean.valueOf(message.isAwaitData()));
+        assertEquals(Boolean.valueOf(exhaust),
+                Boolean.valueOf(message.isExhaust()));
+        assertEquals(Boolean.valueOf(noCursorTimeout),
+                Boolean.valueOf(message.isNoCursorTimeout()));
+        assertEquals(Boolean.valueOf(partial),
+                Boolean.valueOf(message.isPartial()));
         assertSame(readPreference, message.getReadPreference());
-        assertEquals(tailable, message.isTailable());
+        assertEquals(Boolean.valueOf(tailable),
+                Boolean.valueOf(message.isTailable()));
 
         assertEquals(batchSize, message.getBatchSize());
         assertEquals(limit, message.getLimit());
@@ -256,12 +266,17 @@ public class QueryTest {
         assertEquals(numberToSkip, message.getNumberToSkip());
         assertEquals(query, message.getQuery());
         assertEquals(returnFields, message.getReturnFields());
-        assertEquals(awaitData, message.isAwaitData());
-        assertEquals(exhaust, message.isExhaust());
-        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
-        assertEquals(partial, message.isPartial());
+        assertEquals(Boolean.valueOf(awaitData),
+                Boolean.valueOf(message.isAwaitData()));
+        assertEquals(Boolean.valueOf(exhaust),
+                Boolean.valueOf(message.isExhaust()));
+        assertEquals(Boolean.valueOf(noCursorTimeout),
+                Boolean.valueOf(message.isNoCursorTimeout()));
+        assertEquals(Boolean.valueOf(partial),
+                Boolean.valueOf(message.isPartial()));
         assertSame(readPreference, message.getReadPreference());
-        assertEquals(tailable, message.isTailable());
+        assertEquals(Boolean.valueOf(tailable),
+                Boolean.valueOf(message.isTailable()));
 
         assertEquals(batchSize, message.getBatchSize());
         assertEquals(limit, message.getLimit());
@@ -303,12 +318,17 @@ public class QueryTest {
         assertEquals(numberToSkip, message.getNumberToSkip());
         assertEquals(query, message.getQuery());
         assertEquals(returnFields, message.getReturnFields());
-        assertEquals(awaitData, message.isAwaitData());
-        assertEquals(exhaust, message.isExhaust());
-        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
-        assertEquals(partial, message.isPartial());
+        assertEquals(Boolean.valueOf(awaitData),
+                Boolean.valueOf(message.isAwaitData()));
+        assertEquals(Boolean.valueOf(exhaust),
+                Boolean.valueOf(message.isExhaust()));
+        assertEquals(Boolean.valueOf(noCursorTimeout),
+                Boolean.valueOf(message.isNoCursorTimeout()));
+        assertEquals(Boolean.valueOf(partial),
+                Boolean.valueOf(message.isPartial()));
         assertSame(readPreference, message.getReadPreference());
-        assertEquals(tailable, message.isTailable());
+        assertEquals(Boolean.valueOf(tailable),
+                Boolean.valueOf(message.isTailable()));
 
         assertEquals(batchSize, message.getBatchSize());
         assertEquals(limit, message.getLimit());
@@ -350,12 +370,17 @@ public class QueryTest {
         assertEquals(numberToSkip, message.getNumberToSkip());
         assertEquals(query, message.getQuery());
         assertEquals(returnFields, message.getReturnFields());
-        assertEquals(awaitData, message.isAwaitData());
-        assertEquals(exhaust, message.isExhaust());
-        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
-        assertEquals(partial, message.isPartial());
+        assertEquals(Boolean.valueOf(awaitData),
+                Boolean.valueOf(message.isAwaitData()));
+        assertEquals(Boolean.valueOf(exhaust),
+                Boolean.valueOf(message.isExhaust()));
+        assertEquals(Boolean.valueOf(noCursorTimeout),
+                Boolean.valueOf(message.isNoCursorTimeout()));
+        assertEquals(Boolean.valueOf(partial),
+                Boolean.valueOf(message.isPartial()));
         assertSame(readPreference, message.getReadPreference());
-        assertEquals(tailable, message.isTailable());
+        assertEquals(Boolean.valueOf(tailable),
+                Boolean.valueOf(message.isTailable()));
 
         assertEquals(batchSize, message.getBatchSize());
         assertEquals(limit, message.getLimit());
@@ -397,12 +422,17 @@ public class QueryTest {
         assertEquals(numberToSkip, message.getNumberToSkip());
         assertEquals(query, message.getQuery());
         assertEquals(returnFields, message.getReturnFields());
-        assertEquals(awaitData, message.isAwaitData());
-        assertEquals(exhaust, message.isExhaust());
-        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
-        assertEquals(partial, message.isPartial());
+        assertEquals(Boolean.valueOf(awaitData),
+                Boolean.valueOf(message.isAwaitData()));
+        assertEquals(Boolean.valueOf(exhaust),
+                Boolean.valueOf(message.isExhaust()));
+        assertEquals(Boolean.valueOf(noCursorTimeout),
+                Boolean.valueOf(message.isNoCursorTimeout()));
+        assertEquals(Boolean.valueOf(partial),
+                Boolean.valueOf(message.isPartial()));
         assertSame(readPreference, message.getReadPreference());
-        assertEquals(tailable, message.isTailable());
+        assertEquals(Boolean.valueOf(tailable),
+                Boolean.valueOf(message.isTailable()));
 
         assertEquals(batchSize, message.getBatchSize());
         assertEquals(limit, message.getLimit());
@@ -525,12 +555,17 @@ public class QueryTest {
         assertEquals(numberToSkip, message.getNumberToSkip());
         assertEquals(query, message.getQuery());
         assertEquals(returnFields, message.getReturnFields());
-        assertEquals(awaitData, message.isAwaitData());
-        assertEquals(exhaust, message.isExhaust());
-        assertEquals(noCursorTimeout, message.isNoCursorTimeout());
-        assertEquals(partial, message.isPartial());
+        assertEquals(Boolean.valueOf(awaitData),
+                Boolean.valueOf(message.isAwaitData()));
+        assertEquals(Boolean.valueOf(exhaust),
+                Boolean.valueOf(message.isExhaust()));
+        assertEquals(Boolean.valueOf(noCursorTimeout),
+                Boolean.valueOf(message.isNoCursorTimeout()));
+        assertEquals(Boolean.valueOf(partial),
+                Boolean.valueOf(message.isPartial()));
         assertSame(readPreference, message.getReadPreference());
-        assertEquals(tailable, message.isTailable());
+        assertEquals(Boolean.valueOf(tailable),
+                Boolean.valueOf(message.isTailable()));
     }
 
     /**

@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -252,7 +252,8 @@ public class DurabilityTest {
                 replicaCount, wait);
 
         assertFalse(durability.isWaitForFsync());
-        assertEquals(journal, durability.isWaitForJournal());
+        assertEquals(Boolean.valueOf(journal),
+                Boolean.valueOf(durability.isWaitForJournal()));
         assertTrue(durability.isWaitForReply());
         assertEquals(wait, durability.getWaitTimeoutMillis());
         assertEquals(replicaCount, durability.getWaitForReplicas());
@@ -273,7 +274,8 @@ public class DurabilityTest {
                 wait);
 
         assertFalse(durability.isWaitForFsync());
-        assertEquals(journal, durability.isWaitForJournal());
+        assertEquals(Boolean.valueOf(journal),
+                Boolean.valueOf(durability.isWaitForJournal()));
         assertTrue(durability.isWaitForReply());
         assertEquals(wait, durability.getWaitTimeoutMillis());
         assertEquals(0, durability.getWaitForReplicas());

@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.connection.message;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
@@ -149,7 +149,7 @@ public class DeleteTest {
         assertEquals("db", message.getDatabaseName());
         assertEquals("collection", message.getCollectionName());
         assertSame(doc, message.getQuery());
-        assertEquals(true, message.isSingleDelete());
+        assertTrue(message.isSingleDelete());
 
     }
 
@@ -161,7 +161,7 @@ public class DeleteTest {
         final Document doc = BuilderFactory.start().addInteger("1", 1).build();
         final Delete message = new Delete("db", "collection", doc, false);
 
-        assertEquals(false, message.isSingleDelete());
+        assertFalse(message.isSingleDelete());
     }
 
     /**

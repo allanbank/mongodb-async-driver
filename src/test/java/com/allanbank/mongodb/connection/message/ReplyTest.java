@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.connection.message;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
@@ -238,10 +238,14 @@ public class ReplyTest {
         assertEquals(cursorId, message.getCursorId());
         assertEquals(cursorOffset, message.getCursorOffset());
         assertEquals(results, message.getResults());
-        assertEquals(awaitCapable, message.isAwaitCapable());
-        assertEquals(cursorNotFound, message.isCursorNotFound());
-        assertEquals(queryFailed, message.isQueryFailed());
-        assertEquals(shardConfigStale, message.isShardConfigStale());
+        assertEquals(Boolean.valueOf(awaitCapable),
+                Boolean.valueOf(message.isAwaitCapable()));
+        assertEquals(Boolean.valueOf(cursorNotFound),
+                Boolean.valueOf(message.isCursorNotFound()));
+        assertEquals(Boolean.valueOf(queryFailed),
+                Boolean.valueOf(message.isQueryFailed()));
+        assertEquals(Boolean.valueOf(shardConfigStale),
+                Boolean.valueOf(message.isShardConfigStale()));
     }
 
     /**

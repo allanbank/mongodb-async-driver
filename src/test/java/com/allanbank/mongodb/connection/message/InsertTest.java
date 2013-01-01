@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.connection.message;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
@@ -194,7 +194,7 @@ public class InsertTest {
         assertEquals(db, message.getDatabaseName());
         assertEquals(collection, message.getCollectionName());
         assertEquals(docs, message.getDocuments());
-        assertEquals(false, message.isContinueOnError());
+        assertFalse(message.isContinueOnError());
     }
 
     /**

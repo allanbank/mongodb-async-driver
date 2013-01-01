@@ -179,8 +179,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     private List<InetSocketAddress> myServers = new ArrayList<InetSocketAddress>();
 
     /** The socket factory for creating sockets. */
-    private transient SocketFactory mySocketFactory = SocketFactory
-            .getDefault();
+    private transient SocketFactory mySocketFactory = null;
 
     /** The factory for creating threads to handle connections. */
     private transient ThreadFactory myThreadFactory = null;
@@ -743,6 +742,9 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *      examples and suggestions.
      */
     public SocketFactory getSocketFactory() {
+        if (mySocketFactory == null) {
+            mySocketFactory = SocketFactory.getDefault();
+        }
         return mySocketFactory;
     }
 
