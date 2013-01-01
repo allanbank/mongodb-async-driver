@@ -3,28 +3,28 @@
             ------
             ------
 
-Getting Connected - Mongo Interface
+Getting Connected - MongoClient Interface
 
   We start looking at how to connect to a MongoDB server via the driver's API. The main interface to 
 the driver is via the 
-{{{./apidocs/index.html?com/allanbank/mongodb/Mongo.html}Mongo}} interface.  The 
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient}} interface.  The 
 {{{./apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory}} class provides the ability
-to create a Mongo instance from either a 
-{{{./apidocs/index.html?com/allanbank/mongodb/MongoDbConfiguration.html}MongoDbConfiguration}} or a
+to create a MongoClient instance from either a 
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}} or a
 {{{http://www.mongodb.org/display/DOCS/Connections}MongoDB Connection String}}.
 
 +----------------------------------------+
-Mongo mongo = MongoFactory.create( "mongodb://server:port/db?maxConnectionCount=10" );
+MongoClient mongo = MongoFactory.createClient( "mongodb://server:port/db?maxConnectionCount=10" );
 
-MongoDbConfiguration config = new MongoDbConfiguration();
+MongoClientConfiguration config = new MongoClientConfiguration();
 config.addServer("server:port");
 config.setMaxConnectionCount(10);
 
-Mongo mongo2 = MongoFactory.create( config );
+MongoClient mongo2 = MongoFactory.create( config );
 +----------------------------------------+
 
-  The <<<Mongo>>> instance returned represents the logical connection to the MongoDB servers.  The 
-{{{./apidocs/index.html?com/allanbank/mongodb/Mongo.html}close()}} method should be used to cleanly
+  The <<<MongoClient>>> instance returned represents the logical connection to the MongoDB servers.  The 
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoClient.html}close()}} method should be used to cleanly
 shutdown the connections to the server.
 
 Manipulating Documents - The BSON Library
@@ -135,10 +135,10 @@ Talking to the Server - MongoDatabase and MongoCollection
   Commands, queries, updates and deletes are sent to the server via the  
 {{{./apidocs/index.html?com/allanbank/mongodb/MongoDatabase.html}MongoDatabase}} and 
 {{{./apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} interfaces.  They 
-are created from a <<<Mongo>>> instance. 
+are created from a <<<MongoClient>>> instance. 
 
 +----------------------------------------+
-Mongo mongo = ...;
+MongoClient mongo = ...;
 
 MongoDatabase db = mongo.getDatabase( "database_name" );
 MongoCollection collection = db.getCollection( "collection_name" );
@@ -202,7 +202,7 @@ Query and Command Support
   For queries and common commands a set of domain objects and associated 
 {{{./apidocs/index.html?com/allanbank/mongodb/builder/package-summary.html}builders}} are provided.  The 
 {{{./apidocs/index.html?com/allanbank/mongodb/builder/QueryBuilder.html}query builder}} 
-provides a natural mechanism for defining event the most complicated of queries.
+provides a natural mechanism for defining even the most complicated of queries.
 
 +----------------------------------------+
  import static com.allanbank.mongodb.builder.QueryBuilder.and;
@@ -269,3 +269,7 @@ the MongoDB documentation:
                                  set("pop", field("smallestpop")))))
          .sort(desc("biggestCity.pop"));
 +----------------------------------------+
+
+Advanced Topics
+
+  * {{{./userguide/unix_domain_sockets.html}Connecting to the MongoDB server via UNIX Domain Sockets}}

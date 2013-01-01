@@ -1,0 +1,101 @@
+            ------
+            Changes in MongoDB Asynchronous Java Driver 1.1.0
+            ------
+            ------
+            2013-01-01
+
+Upgrading
+
+  This version is source compatible with the 1.0.2 version of the driver.  
+  
+  It is recommended that users recompile against the new driver as many methods have moved to different
+interfaces and classes to support the Mongo --> MongoClient migration. 
+
+Updates and Improvements:
+
+  * The {{{../apidocs/index.html?com/allanbank/mongodb/Mongo.html}Mongo}} interface has been 
+deprecated and replaced with the {{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient}}
+interface to stay inline with the 10gen naming convention for drivers.
+
+  * The {{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient}} interface is constructed 
+with {{{../apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}
+object via the {{{../apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory}}.  The 
+<<<MongoClientConfiguration>>> defaults to {{{../apidocs/index.html?com/allanbank/mongodb/Durability.html}Durability.ACK}}
+instead of <<<Durability.NONE>> of the now deprecated 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoDbConfiguration.html}MongoDbConfiguration}}. This is again to
+remain consistent with the 10gen supported drivers.
+
+  * Support for custom <<<SocketFactory>>> implementations including an SSLSocketFactory.
+
+  * Support for connecting to the MongoDB server via {{{./../userguide/unix_domain_sockets.html}UNIX Domain Sockets}}
+
+  * Initial {{{../apidocs/index.html?com/allanbank/mongodb/bson/json/Json.html}JSON}} to 
+{{{../apidocs/index.html?com/allanbank/mongodb/bson/Document.html}Document}} support and <<<Document>>> to <<<JSON>>>
+support.  Note that not all {{{../apidocs/index.html?com/allanbank/mongodb/bson/Element.html}element}} types will be 
+successfully serialized and parsed to the same form during a Document-->JSON-->Document transformation.  The JSON parser 
+is genered from a JavaCC grammer so there are no additional runtime library dependancies.
+ 
+  * Support for a application provided <<Executor>> to be used for handling each response from the server offloading the
+work from the receive thread.
+   
+  * Added support for a <<streaming>> or <<push>> query to the datastore.  Instead of the client iterating over the
+set of returned documents the driver will invoke a callback with each document as it is received.  See the 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection.streamingFind(...)}} methods.
+   
+  * Better performance for selecting an active connection when the pool is large.
+
+  * Better reconnect logic, support and testing.
+
+  * Updated the BSON {{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/DocumentBuilder.html}DocumentBuilder}} 
+with a <<<add(String name, Object value)>>> method that will create the "best fit" element for the value.  A similar 
+method was added to the {{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/ArrayBuilder.html}ArrayBuilder}}.
+
+  * Updated the BSON {{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/DocumentBuilder.html}DocumentBuilder}} 
+so that the <<<add(String name, ??? value)>>> methods will create a 
+{{{../apidocs/index.html?com/allanbank/mongodb/bson/element/NullElement.html}NullElement}} if the value is <<<null>>>.  A similar 
+logic was added to the {{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/ArrayBuilder.html}ArrayBuilder's}} 
+<<<add(??? value)>>> methods.
+
+  * Updated the BSON {{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/DocumentBuilder.html}DocumentBuilder}} 
+and {{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/ArrayBuilder.html}ArrayBuilder}} to more defensively validate
+the values used to construct documents. 
+  
+  * Update the BSON {{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/DocumentBuilder.html}DocumentBuilder}} 
+and {{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/ArrayBuilder.html}ArrayBuilder}} to support UUID elements 
+in both the standard and Java legacy byte encoding.
+
+Deprecations
+
+  The following classes have been deprecated:
+  
+  * {{{../apidocs/index.html?com/allanbank/mongodb/Mongo.html}Mongo}} is replaced by 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient}}.
+
+  * {{{../apidocs/index.html?com/allanbank/mongodb/MongoDbConfiguration.html}MongoDbConfiguration}} is replaced by 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}.
+
+  * {{{../apidocs/index.html?com/allanbank/mongodb/client/MongoImpl.html}MongoImpl}} is replaced by 
+{{{../apidocs/index.html?com/allanbank/mongodb/client/MongoClientImpl.html}MongoClientImpl}}.  This is an internal class
+that should not be used by applications.
+    
+  The following methods have been deprecated.
+  
+  * {{{../apidocs/index.html?com/allanbank/mongodb/Mongo.html}Mongo.asSerializedMongo()}} is replaced by 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient.asSerializedClient()}}.
+  
+  * {{{../apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory.create(MongoDbConfiguration)}} is replaced by 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory.createClient(MongoClientConfiguration)}}.
+  
+  * {{{../apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory.create(MongoDbUri)}} is replaced by 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory.createClient(MongoDbUri)}}.
+  
+  * {{{../apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory.create(String)}} is replaced by 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoFactory.html}MongoFactory.createClient(String)}}.
+
+  * {{{../apidocs/index.html?com/allanbank/mongodb/Mongo.html}Mongo.listDatabases()}} is replaced by 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient.listDatabaseNames()}}.
+
+  * {{{../apidocs/index.html?com/allanbank/mongodb/MongoDatabase.html}MongoDatabase.listCollections()}} is replaced by 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoDatabase.html}MongoDatabase.listCollectionNames()}}.
+  
+  

@@ -1,0 +1,69 @@
+            ------
+            MongoDB Asynchronous Java Driver with UNIX Domain Sockets
+            ------
+            ------
+
+Pluggable Socket Factory 
+
+  The driver provides the ability for users to customize the creation of sockets via the standard Java
+<<<SocketFactory>>> mechanism.   The 
+{{{./apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}
+support setting the <<<SocketFactory>>> that will implementation that will be used to connect to the 
+MongoDB server.  By extending <<<SocketFactory>>> class and leveraging the 
+{{{http://code.google.com/p/junixsocket}junixsocket}} library the driver can use UNIX domain sockets 
+to connect to the MongoDB server.
+
+  The <<<junixsocket>>> library uses a native library to create and manage the UNIX domain sockets.  
+Getting the library installed and working is beyond the scope of this guide.  Please review the 
+{{{http://code.google.com/p/junixsocket/wiki/GettingStarted}}junixsocket Getting Started}} Wiki page 
+and ensure that your installation is working before proceeding.
+
+AFUNIX Socket Factory
+
+  With a working <<<junixsocket>>> we need to one additional piece to getting the driver to communicate of
+Unix domain sockets: A custom SocketFactory.  Below is a very simple implementation that will work with the 
+driver. 
++----------------------------------------+
+public class AFUNIXSocketFactory extends javax.net.SocketFactory {
+    public Socket createSocket() throws java.io.IOException {
+        return new org.newsclub.net.unix.AFUNIXSocket.newInstance();
+    }
+    
+    public Socket createSocket(String host, int port) throws SocketException {
+        throw new SocketException("AFUNIX socket does not support connections to a host/port");
+    }
+
+    public Socket createSocket(InetAddress host, int port) throws SocketException {
+        throw new SocketException("AFUNIX socket does not support connections to a host/port");
+    }
+
+    public Socket createSocket(String host, int port, InetAddress localHost,
+            int localPort) throws SocketException {
+        throw new SocketException("AFUNIX socket does not support connections to a host/port");
+    }
+
+    public Socket createSocket(InetAddress address, int port,
+            InetAddress localAddress, int localPort) throws SocketException {
+        throw new SocketException("AFUNIX socket does not support connections to a host/port");
+    }
+}
++----------------------------------------+
+
+  This class is not included in the driver's jar since it would cause the driver to depend (even optionally)
+on the <<<junixsocket>>> jar.  The driver does include an accepatance test that downloads the <<<junixsocket>>>
+distribution, unpacks and accesses the library via reflection.  The reflection version of the socket factory is 
+equivalent to the implementation above.
+
+AFUNIXSocketAddress
+
+  The last peice of the puzzle is to tell the driver to connect to the server via the UNIX domain socket via a 
+<<<AFUNIXSocketAddress>>> instead of a normal <<<InetSocketAddress>>>.
++----------------------------------------+
+import org.newsclub.net.unix.AFUNIXSocketAddress;
+
+MongoClientConfiguration config = ...;
+File socketFile = new File( "/tmp/mongodb-27017.sock");
+config.addServer( new AFUNIXSocketAddress( socketFile ) );
++----------------------------------------+
+
+
