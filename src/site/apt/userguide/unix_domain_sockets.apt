@@ -3,7 +3,7 @@
             ------
             ------
 
-Pluggable Socket Factory 
+Using UNIX Domain Sockets via the Pluggable Socket Factory 
 
   The driver provides the ability for users to customize the creation of sockets via the standard Java
 <<<SocketFactory>>> mechanism.   The 
@@ -54,6 +54,7 @@ AFUNIXSocketAddress
 
   The last peice of the puzzle is to tell the driver to connect to the server via the UNIX domain socket via a 
 <<<AFUNIXSocketAddress>>> instead of a <<<InetSocketAddress>>>.
+
 +----------------------------------------+
 MongoClientConfiguration config = ...;
 File socketFile = new File( "/tmp/mongodb-27017.sock");
