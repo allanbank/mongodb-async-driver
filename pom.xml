@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.allanbank</groupId>
     <artifactId>mongodb-async-driver</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
 
     <name>mongodb-async-driver</name>
     <description>Asynchronous driver for connecting to MongoDB from Java.</description>
@@ -45,7 +44,7 @@
     <scm>
         <url>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</url>
         <connection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</connection>
-        <tag>master</tag>
+        <tag>rel_1.1.0</tag>
         <developerConnection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</developerConnection>
     </scm>
     <distributionManagement>
@@ -184,7 +183,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore></ignore>
+                                        <ignore />
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
