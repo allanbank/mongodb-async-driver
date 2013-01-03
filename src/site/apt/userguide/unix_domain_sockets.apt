@@ -7,7 +7,7 @@ Using UNIX Domain Sockets via the Pluggable Socket Factory
 
   The driver provides the ability for users to customize the creation of sockets via the standard Java
 <<<SocketFactory>>> mechanism.   The 
-{{{./apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}
+{{{./../apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}
 supports setting the <<<SocketFactory>>> that creates the appropriate <<<Socket>>> implementation used 
 to connect to the MongoDB server.  By extending <<<SocketFactory>>> class and leveraging the 
 {{{http://code.google.com/p/junixsocket}junixsocket}} library the driver can use UNIX domain sockets 
