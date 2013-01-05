@@ -181,13 +181,11 @@ public class MockMongoDBServer extends Thread {
                     client.setName("MongoDBServer Client: "
                             + conn.getRemoteSocketAddress());
                     client.start();
-                }
-                else {
+                } else {
                     sleep();
                 }
             }
-        }
-        catch (final IOException error) {
+        } catch (final IOException error) {
             // Exit.
             error.printStackTrace();
         }
@@ -246,8 +244,7 @@ public class MockMongoDBServer extends Thread {
                 try {
                     notifyAll();
                     wait(deadline - now);
-                }
-                catch (final InterruptedException e) {
+                } catch (final InterruptedException e) {
                     // Ignored. Handled by while.
                 }
                 now = System.currentTimeMillis();
@@ -275,8 +272,7 @@ public class MockMongoDBServer extends Thread {
                 try {
                     notifyAll();
                     wait(deadline - now);
-                }
-                catch (final InterruptedException e) {
+                } catch (final InterruptedException e) {
                     // Ignored. Handled by while.
                 }
                 now = System.currentTimeMillis();
@@ -305,8 +301,7 @@ public class MockMongoDBServer extends Thread {
                     notifyAll();
 
                     wait(deadline - now);
-                }
-                catch (final InterruptedException e) {
+                } catch (final InterruptedException e) {
                     // Ignored. Handled by while.
                 }
                 now = System.currentTimeMillis();
@@ -328,8 +323,7 @@ public class MockMongoDBServer extends Thread {
         if (socket != null) {
             try {
                 socket.close();
-            }
-            catch (final IOException ignored) {
+            } catch (final IOException ignored) {
                 // Ignored
             }
         }
@@ -387,17 +381,13 @@ public class MockMongoDBServer extends Thread {
 
                 count += 1;
             }
-        }
-        catch (final EOFException eof) {
+        } catch (final EOFException eof) {
             // Client disconnected.
-        }
-        catch (final SocketException eof) {
+        } catch (final SocketException eof) {
             // Client disconnected.
-        }
-        catch (final MongoDbException eof) {
+        } catch (final MongoDbException eof) {
             // Client disconnected.
-        }
-        finally {
+        } finally {
             IOUtils.close(buffIn);
             IOUtils.close(in);
 
@@ -490,8 +480,7 @@ public class MockMongoDBServer extends Thread {
                     now = deadline;
                 }
             }
-        }
-        catch (final InterruptedException e) {
+        } catch (final InterruptedException e) {
             // Ignore.
         }
     }
@@ -515,6 +504,9 @@ public class MockMongoDBServer extends Thread {
             myConn = conn;
         }
 
+        /**
+         * Process client messages.
+         */
         @Override
         public void run() {
             try {
@@ -524,11 +516,9 @@ public class MockMongoDBServer extends Thread {
                 }
 
                 handleClient(myConn);
-            }
-            catch (final IOException error) {
+            } catch (final IOException error) {
                 // OK. Just close.
-            }
-            finally {
+            } finally {
                 synchronized (MockMongoDBServer.this) {
                     myClientConnected -= 1;
                     MockMongoDBServer.this.notifyAll();

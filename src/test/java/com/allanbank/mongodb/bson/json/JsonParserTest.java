@@ -302,14 +302,12 @@ public class JsonParserTest {
      * 
      * @throws ParseException
      *             On a test failure.
-     * @throws UnsupportedEncodingException
-     *             On a test failure.
      * @throws IllegalArgumentException
      *             On a test failure.
      */
     @Test
     public void testParseHexData() throws ParseException,
-            IllegalArgumentException, UnsupportedEncodingException {
+            IllegalArgumentException {
         final String docText = "{ a : HexData( 6, 'cafe' ) }";
 
         final JsonParser parser = new JsonParser();
@@ -328,14 +326,12 @@ public class JsonParserTest {
      * 
      * @throws ParseException
      *             On a test failure.
-     * @throws UnsupportedEncodingException
-     *             On a test failure.
      * @throws IllegalArgumentException
      *             On a test failure.
      */
     @Test
     public void testParseHexDataInArray() throws ParseException,
-            IllegalArgumentException, UnsupportedEncodingException {
+            IllegalArgumentException {
         final String docText = "{ a : [ HexData( 6, 'cafe' ) ] }";
 
         final JsonParser parser = new JsonParser();

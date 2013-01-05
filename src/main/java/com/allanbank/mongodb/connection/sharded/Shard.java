@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.connection.sharded;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+
 /**
  * Shard contains the runtime state for a single shard within the cluster.
  * 
@@ -21,8 +23,6 @@ public class Shard {
      */
     private final String myShardId;
 
-    // TODO - need a chunk/split version.
-
     /**
      * Creates a new Shard.
      * 
@@ -32,7 +32,7 @@ public class Shard {
      *            form name/host1:port1,host2:port2,...
      */
     public Shard(final String shardServers) {
-        super();
+        assertNotNull(shardServers, "The shard server's id should not be null.");
 
         myShardId = shardServers;
     }
@@ -51,8 +51,7 @@ public class Shard {
         boolean result = false;
         if (this == object) {
             result = true;
-        }
-        else if ((object != null) && (getClass() == object.getClass())) {
+        } else if ((object != null) && (getClass() == object.getClass())) {
             final Shard other = (Shard) object;
 
             result = myShardId.equals(other.myShardId);
@@ -83,6 +82,19 @@ public class Shard {
      */
     @Override
     public String toString() {
+        return myShardId;
+    }
+
+    /**
+     * Returns shard server id string from the configuration database. This is
+     * could be a simple host:port or for a replica set of the form
+     * name/host1:port1,host2:port2,...
+     * 
+     * @return The shard server id string from the configuration database. This
+     *         is could be a simple host:port or for a replica set of the form
+     *         name/host1:port1,host2:port2,...
+     */
+    public String getShardId() {
         return myShardId;
     }
 }

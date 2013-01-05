@@ -122,14 +122,12 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
                     File.class)
                     .newInstance(new File("/tmp/mongodb-27017.sock"));
 
-        }
-        catch (final Exception e) {
+        } catch (final Exception e) {
             // Reflection throws too many types and any exception should abort
             // anyway.
             e.printStackTrace();
             assumeNoException(e);
-        }
-        finally {
+        } finally {
             IOUtils.close(out);
             IOUtils.close(in);
         }
@@ -176,6 +174,9 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
      */
     public static class UnixDomainSocketFactory extends SocketFactory {
 
+        /**
+         * Creates a org.newsclub.net.unix.AFUNIXSocket via reflection.
+         */
         @Override
         public Socket createSocket() throws java.io.IOException {
             try {
@@ -183,8 +184,7 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
                         .loadClass("org.newsclub.net.unix.AFUNIXSocket");
 
                 return (Socket) clazz.getMethod("newInstance").invoke(null);
-            }
-            catch (final Exception error) {
+            } catch (final Exception error) {
                 final SocketException socketError = new SocketException(
                         error.getMessage());
                 socketError.initCause(error);
@@ -192,6 +192,9 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
             }
         }
 
+        /**
+         * Always throws a {@link SocketException}.
+         */
         @Override
         public Socket createSocket(final InetAddress host, final int port)
                 throws SocketException {
@@ -199,6 +202,9 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
                     "AFUNIX socket does not support connections to a host/port");
         }
 
+        /**
+         * Always throws a {@link SocketException}.
+         */
         @Override
         public Socket createSocket(final InetAddress address, final int port,
                 final InetAddress localAddress, final int localPort)
@@ -207,6 +213,9 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
                     "AFUNIX socket does not support connections to a host/port");
         }
 
+        /**
+         * Always throws a {@link SocketException}.
+         */
         @Override
         public Socket createSocket(final String host, final int port)
                 throws SocketException {
@@ -214,6 +223,9 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
                     "AFUNIX socket does not support connections to a host/port");
         }
 
+        /**
+         * Always throws a {@link SocketException}.
+         */
         @Override
         public Socket createSocket(final String host, final int port,
                 final InetAddress localHost, final int localPort)

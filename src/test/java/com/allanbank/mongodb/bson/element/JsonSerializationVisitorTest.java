@@ -308,16 +308,25 @@ public class JsonSerializationVisitorTest {
      */
     public static class ThrowingWriter extends Writer {
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void close() throws IOException {
             throw new IOException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void flush() throws IOException {
             throw new IOException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void write(final char[] cbuf, final int off, final int len)
                 throws IOException {

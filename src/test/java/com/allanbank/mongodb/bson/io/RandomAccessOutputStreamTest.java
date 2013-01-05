@@ -46,12 +46,9 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#flush()}.
-     * 
-     * @throws IOException
-     *             On a failure writing the test results.
      */
     @Test
-    public void testFlush() throws IOException {
+    public void testFlush() {
         myTestStream.flush();
     }
 
@@ -196,12 +193,9 @@ public class RandomAccessOutputStreamTest {
     /**
      * Test method for
      * {@link RandomAccessOutputStream#writeAt(long, byte[], int, int)}.
-     * 
-     * @throws IOException
-     *             On a failure writing the test results.
      */
     @Test
-    public void testWriteAtLongByteArrayIntIntErrors() throws IOException {
+    public void testWriteAtLongByteArrayIntIntErrors() {
         // First fill the test stream with zero data.
         for (int i = 0; i < 100; ++i) {
             myTestStream.write(0);
@@ -210,55 +204,48 @@ public class RandomAccessOutputStreamTest {
         try {
             myTestStream.writeAt(0, null, 0, 0);
             fail("Should have thrown.");
-        }
-        catch (final NullPointerException npe) {
+        } catch (final NullPointerException npe) {
             // Good.
         }
 
         try {
             myTestStream.writeAt(0, new byte[1], -1, 0);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
 
         try {
             myTestStream.writeAt(0, new byte[1], 3, 0);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
 
         try {
             myTestStream.writeAt(0, new byte[1], 0, -1);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
 
         try {
             myTestStream.writeAt(0, new byte[1], 1, 1);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
 
         try {
             myTestStream.writeAt(99, new byte[10], 0, 2);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
         try {
             myTestStream.writeAt(0, new byte[1], 1, Integer.MAX_VALUE);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
 
@@ -409,57 +396,48 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#write(byte[], int, int)}.
-     * 
-     * @throws IOException
-     *             On a failure writing the test results.
      */
     @Test
-    public void testWriteByteArrayIntIntErrors() throws IOException {
+    public void testWriteByteArrayIntIntErrors() {
         try {
             myTestStream.write(null, 0, 0);
             fail("Should have thrown.");
-        }
-        catch (final NullPointerException npe) {
+        } catch (final NullPointerException npe) {
             // Good.
         }
 
         try {
             myTestStream.write(new byte[1], -1, 0);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
 
         try {
             myTestStream.write(new byte[1], 3, 0);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
 
         try {
             myTestStream.write(new byte[1], 0, -1);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
 
         try {
             myTestStream.write(new byte[1], 1, 1);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
 
         try {
             myTestStream.write(new byte[1], 1, Integer.MAX_VALUE);
             fail("Should have thrown.");
-        }
-        catch (final IndexOutOfBoundsException npe) {
+        } catch (final IndexOutOfBoundsException npe) {
             // Good.
         }
     }

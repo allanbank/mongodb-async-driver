@@ -15,7 +15,7 @@
  * <p>
  * The driver out performs the legacy driver when talking directly to either a
  * stand-alone <tt>mongod</tt> process or when talking to a replica-set of 
- * <tt>mongod</tt> processes since it can effectively remove the wait time for
+ * <tt>mongod</tt> processes since it can effectively remove the wait time 
  * between requests to zero.  For a sharded configuration the <tt>mongos</tt>
  * still uses blocking requests which limits the performance capabilities of the
  * driver.
@@ -110,9 +110,11 @@
  * </code></pre></blockquote></li>
  * </ul>
  * <p>
- * The last query will also be used with a limit of 1 to return the newest chunk (by MongoTimestamp) for a collection.
+ * The last query will also be used with a limit of 1 to return the newest chunk 
+ * (by {@link com.allanbank.mongodb.bson.element.MongoTimestampElement}) for a collection.
  * </p>
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 package com.allanbank.mongodb.connection.sharded;
+

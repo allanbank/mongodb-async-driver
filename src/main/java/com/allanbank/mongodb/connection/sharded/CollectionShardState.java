@@ -96,8 +96,7 @@ public class CollectionShardState {
             if (keyElement.getType() == ElementType.DOCUMENT) {
                 result = findShardForDocument(chunkMapping,
                         (DocumentElement) keyElement);
-            }
-            else {
+            } else {
                 result = findShardForElement(chunkMapping, keyElement);
             }
 
@@ -163,8 +162,7 @@ public class CollectionShardState {
             if (key.equals(tail.firstKey())) {
                 // Need the next tail map.
                 greaterThan = chunks.tailMap(secondKey(tail, tail.firstKey()));
-            }
-            else {
+            } else {
                 greaterThan = tail;
             }
         }
@@ -234,8 +232,7 @@ public class CollectionShardState {
                 }
 
             }
-        }
-        else {
+        } else {
             // Assume the value is a single entry.
             final Element shardKey = findKeyFor(chunks, key);
             if (shardKey != null) {
@@ -303,8 +300,7 @@ public class CollectionShardState {
                 // need the key past that for the headMap() since it is
                 // non-inclusive.
                 headKey = thirdKey(tail, headKey);
-            }
-            else {
+            } else {
                 // Only iterate 1 past.
                 headKey = secondKey(tail, headKey);
             }
@@ -333,11 +329,10 @@ public class CollectionShardState {
         Shard result = null;
 
         // Look for "$" operators.
-        if (keyDocument.findFirst("$.*") == null) {
+        if (keyDocument.findFirst("^$.*") == null) {
             // Using a document as the key. Just treat as a plain element.
             result = findShardForElement(chunkMapping, keyDocument);
-        }
-        else {
+        } else {
             // Limit the mapping based on the operators.
             SortedMap<Element, Shard> remainingChunks = chunkMapping;
             for (final Element operator : keyDocument) {
@@ -346,19 +341,15 @@ public class CollectionShardState {
 
                 if (ComparisonOperator.LT.getToken().equals(name)) {
                     remainingChunks = filterForLessThan(remainingChunks, key);
-                }
-                else if (ComparisonOperator.LTE.getToken().equals(name)) {
+                } else if (ComparisonOperator.LTE.getToken().equals(name)) {
                     remainingChunks = filterForLessThanOrEqual(remainingChunks,
                             key);
-                }
-                else if (ComparisonOperator.GT.getToken().equals(name)) {
+                } else if (ComparisonOperator.GT.getToken().equals(name)) {
                     remainingChunks = filterForGreaterThan(remainingChunks, key);
-                }
-                else if (ComparisonOperator.GTE.getToken().equals(name)) {
+                } else if (ComparisonOperator.GTE.getToken().equals(name)) {
                     remainingChunks = filterForGreaterThanOrEqual(
                             remainingChunks, key);
-                }
-                else if (MiscellaneousOperator.IN.getToken().equals(name)) {
+                } else if (MiscellaneousOperator.IN.getToken().equals(name)) {
                     remainingChunks = filterForIn(keyDocument.getName(),
                             remainingChunks, key);
                 }
@@ -439,12 +430,10 @@ public class CollectionShardState {
         if (tail.isEmpty()) {
             // Something.
             result = mapping.lastKey();
-        }
-        else if (keyElement.equals(tail.firstKey())) {
+        } else if (keyElement.equals(tail.firstKey())) {
             // The key is actually in the next chunk.
             result = secondKey(tail, tail.lastKey());
-        }
-        else {
+        } else {
             result = tail.firstKey();
         }
         return result;

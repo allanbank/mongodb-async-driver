@@ -22,10 +22,10 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.Mongo;
+import com.allanbank.mongodb.MongoClient;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
-import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.MongoFactory;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -91,11 +91,11 @@ public class ElementTypeITest extends ServerTestDriverSupport {
 
         Collections.shuffle(docs);
 
-        final MongoDbConfiguration config = new MongoDbConfiguration(
+        final MongoClientConfiguration config = new MongoClientConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
         config.setDefaultDurability(Durability.ACK);
 
-        final Mongo m = MongoFactory.create(config);
+        final MongoClient m = MongoFactory.createClient(config);
         try {
             final MongoDatabase db = m.getDatabase("test");
             final MongoCollection c = db.getCollection("testSortOrder");
@@ -160,8 +160,7 @@ public class ElementTypeITest extends ServerTestDriverSupport {
             assertTrue(iter.hasNext());
             assertSame(ElementType.MAX_KEY, iter.next().get("f").getType());
             assertFalse(iter.hasNext());
-        }
-        finally {
+        } finally {
             IOUtils.close(m);
         }
     }

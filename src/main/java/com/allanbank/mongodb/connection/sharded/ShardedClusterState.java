@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.allanbank.mongodb.MongoDbConfiguration;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.connection.state.ClusterState;
 
@@ -25,9 +25,10 @@ public class ShardedClusterState extends ClusterState {
 
     /**
      * The URIs to pass to the shard servers as the configuration mongod
-     * locations.
+     * locations. This is determined as part of the cluster bootstrap so it
+     * cannot be final. It should be set once.
      */
-    private final String myConfigDatabases;
+    private String myConfigDatabases;
 
     /** The state of the databases in the cluster. */
     private final ConcurrentMap<String, DatabaseShardState> myDatabases;
@@ -35,19 +36,14 @@ public class ShardedClusterState extends ClusterState {
     /**
      * Creates a new ShardedClusterState.
      * 
-     * @param configDatabases
-     *            The string to pass to the shard servers as the configuration
-     *            mongod locations.
      * @param config
      *            The configuration of this MongoDB client.
      */
-    public ShardedClusterState(final String configDatabases,
-            final MongoDbConfiguration config) {
+    public ShardedClusterState(final MongoClientConfiguration config) {
         super(config);
 
-        myConfigDatabases = configDatabases;
-        myDatabases = new ConcurrentHashMap<String, DatabaseShardState>(
-                config.getMaxConnectionCount() * 2);
+        myConfigDatabases = null;
+        myDatabases = new ConcurrentHashMap<String, DatabaseShardState>();
     }
 
     /**
@@ -101,8 +97,8 @@ public class ShardedClusterState extends ClusterState {
         }
 
         // ... otherwise TODO request the database information.
+        // U... and use the mongos for now.
 
-        // Use the mongos for now.
         return result;
     }
 
@@ -127,12 +123,24 @@ public class ShardedClusterState extends ClusterState {
     }
 
     /**
+     * Returns the URIs to pass to the shard servers as the configuration mongod
+     * locations.
+     * 
+     * @param configDatabases
+     *            The URIs to pass to the shard servers as the configuration
+     *            mongod locations.
+     */
+    public void setConfigDatabases(String configDatabases) {
+        myConfigDatabases = configDatabases;
+    }
+
+    /**
      * Sets the state of the databases within the cluster.
      * 
      * @param databases
      *            The state of the databases.
      */
-    public void setDataabses(final Map<String, DatabaseShardState> databases) {
+    public void setDatabases(final Map<String, DatabaseShardState> databases) {
         myDatabases.clear();
         if (databases != null) {
             myDatabases.putAll(databases);

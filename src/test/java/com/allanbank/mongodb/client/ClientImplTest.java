@@ -456,12 +456,9 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#getClusterType()}.
-     * 
-     * @throws IOException
-     *             on a test failure.
      */
     @Test
-    public void testGetClusterType() throws IOException {
+    public void testGetClusterType() {
 
         expect(myMockConnectionFactory.getClusterType()).andReturn(
                 ClusterType.STAND_ALONE);
@@ -561,11 +558,9 @@ public class ClientImplTest {
 
             myTestInstance.send(message, null);
             ourServer.waitForRequest(3, 10000);
-        }
-        catch (final InterruptedException e) {
+        } catch (final InterruptedException e) {
             // Ignore.
-        }
-        finally {
+        } finally {
             myTestInstance.close();
         }
 
@@ -724,8 +719,7 @@ public class ClientImplTest {
         try {
             myTestInstance.send(message, null);
             fail("Should have thrown a MongoDbException.");
-        }
-        catch (final MongoDbException good) {
+        } catch (final MongoDbException good) {
             // good.
         }
 
