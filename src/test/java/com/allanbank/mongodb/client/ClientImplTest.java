@@ -12,8 +12,12 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -36,13 +40,20 @@ import org.junit.Test;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.StreamCallback;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
+import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.GetMore;
@@ -55,6 +66,7 @@ import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerSelector;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
+import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
@@ -92,14 +104,14 @@ public class ClientImplTest {
         ourServer = null;
     }
 
+    /** The instance under test. */
+    protected ClientImpl myTestInstance;
+
     /** The active configuration. */
     private MongoClientConfiguration myConfig;
 
     /** A mock connection factory. */
     private ProxiedConnectionFactory myMockConnectionFactory;
-
-    /** The instance under test. */
-    private ClientImpl myTestInstance;
 
     /**
      * Creates the base set of objects for the test.
@@ -208,6 +220,58 @@ public class ClientImplTest {
         expect(mockConnection.isOpen()).andReturn(true);
         mockConnection.close();
         expectLastCall();
+        mockConnection
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        myMockConnectionFactory.close();
+        expectLastCall();
+
+        replay(mockConnection);
+
+        myTestInstance.close();
+        myTestInstance.send(message, null);
+        myTestInstance.close();
+
+        verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link ClientImpl#close()}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testCloseOnThrownIoException() throws IOException {
+
+        final Command message = new Command("testDb", BuilderFactory.start()
+                .build());
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        myMockConnectionFactory.close();
+        expectLastCall();
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        expect(mockConnection.send(message, null)).andReturn(
+                ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
+
+        mockConnection.shutdown();
+        expectLastCall();
+
+        mockConnection.waitForClosed(myConfig.getReadTimeout(),
+                TimeUnit.MILLISECONDS);
+        expectLastCall();
+
+        expect(mockConnection.isOpen()).andReturn(true);
+        mockConnection.close();
+        expectLastCall().andThrow(new IOException("This is a test."));
         mockConnection
                 .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
@@ -494,6 +558,76 @@ public class ClientImplTest {
     }
 
     /**
+     * Test method for {@link ClientImpl#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the test.
+     */
+    @Test
+    public void testHandleConnectionClosedForUnknownConnection()
+            throws IOException {
+        final Connection mockConnection = createMock(Connection.class);
+
+        // Response to the handleConnextionClosed.
+        mockConnection
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        replay(mockConnection);
+
+        myTestInstance.handleConnectionClosed(mockConnection);
+
+        verify(mockConnection);
+    }
+
+    /**
+     * Test method for reconnect logic.
+     * 
+     * @throws IOException
+     *             On a test failure.
+     */
+    @Test
+    public void testInvalidPrpertyChange() throws IOException {
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
+
+        final Capture<PropertyChangeListener> propListenerCapture = new Capture<PropertyChangeListener>();
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection.addPropertyChangeListener(capture(propListenerCapture));
+        expectLastCall();
+
+        // First send to create the connection.
+        expect(mockConnection.send(message, null)).andReturn(
+                ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
+
+        replay(mockConnection);
+
+        myTestInstance.send(message, null);
+
+        propListenerCapture.getValue().propertyChange(
+                new PropertyChangeEvent(mockConnection,
+                        Connection.OPEN_PROP_NAME + "g", Boolean.TRUE,
+                        Boolean.FALSE));
+        propListenerCapture.getValue()
+                .propertyChange(
+                        new PropertyChangeEvent(mockConnection,
+                                Connection.OPEN_PROP_NAME, Boolean.FALSE,
+                                Boolean.TRUE));
+        propListenerCapture.getValue().propertyChange(
+                new PropertyChangeEvent(mockConnection,
+                        Connection.OPEN_PROP_NAME, Boolean.TRUE, Integer
+                                .valueOf(1)));
+
+        // Verify that the connection is not removed.
+        assertEquals(1, myTestInstance.getConnectionCount());
+
+        verify(mockConnection);
+
+    }
+
+    /**
      * Test method for reconnect logic.
      */
     @Test
@@ -628,6 +762,9 @@ public class ClientImplTest {
 
         mockConnection.raiseErrors(anyObject(MongoDbException.class), eq(true));
         expectLastCall();
+        mockConnection
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
 
         replay(mockConnection, mockConnection2);
 
@@ -643,6 +780,422 @@ public class ClientImplTest {
         assertEquals(0, myTestInstance.getConnectionCount());
 
         verify(mockConnection, mockConnection2);
+
+    }
+
+    /**
+     * Test method for {@link ClientImpl#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the test.
+     * @throws InterruptedException
+     *             On a failure to pause in the test.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testReconnectThatFails() throws IOException,
+            InterruptedException {
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
+
+        myConfig.setMaxConnectionCount(1);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ReconnectStrategy mockStrategy = createMock(ReconnectStrategy.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        expect(mockConnection.send(message, null)).andReturn(
+                ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
+
+        // Reconnect.
+        mockConnection
+                .raiseErrors(anyObject(MongoDbException.class), eq(false));
+        expectLastCall();
+        expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
+                mockStrategy);
+        expect(mockStrategy.reconnect(mockConnection)).andReturn(null);
+        mockConnection
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        mockConnection.raiseErrors(anyObject(MongoDbException.class), eq(true));
+        expectLastCall();
+
+        replay(mockConnection, mockStrategy);
+
+        myTestInstance.send(message, null);
+        myTestInstance.handleConnectionClosed(mockConnection);
+
+        verify(mockConnection, mockStrategy);
+    }
+
+    /**
+     * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testRestartDocumentAssignable() throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("ns", "a.b");
+        b.add("$cursor_id", 123456);
+        b.add("$server", "server");
+        b.add("$limit", 4321);
+        b.add("$batch_size", 23);
+
+        final GetMore message = new GetMore("a", "b", 123456, 23,
+                ReadPreference.server("server"));
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        expect(mockConnection.send(eq(message), anyObject(Callback.class)))
+                .andReturn(
+                        ServerNameUtils.normalize(ourServer
+                                .getInetSocketAddress()));
+
+        replay(mockConnection);
+
+        final MongoIterator<Document> iter = myTestInstance.restart(b);
+
+        verify(mockConnection);
+
+        assertThat(iter, instanceOf(MongoIteratorImpl.class));
+        final MongoIteratorImpl iterImpl = (MongoIteratorImpl) iter;
+        assertThat(iterImpl.getBatchSize(), is(23));
+        assertThat(iterImpl.getLimit(), is(4321));
+        assertThat(iterImpl.getCursorId(), is(123456L));
+        assertThat(iterImpl.getDatabaseName(), is("a"));
+        assertThat(iterImpl.getCollectionName(), is("b"));
+        assertThat(iterImpl.getClient(), is((Client) myTestInstance));
+        assertThat(iterImpl.getReadPerference(),
+                is(ReadPreference.server("server")));
+    }
+
+    /**
+     * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testRestartDocumentAssignableNonCursorDoc() throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("ns", "a.b");
+        b.add("$cursor_id", 123456);
+        b.add("$server", "server");
+        b.add("$limit", 4321);
+        b.add("$batch_size", 23);
+
+        replay();
+
+        // Missing fields.
+        b.remove("$batch_size");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$batch_size", 23);
+
+        b.remove("$limit");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$limit", 23);
+
+        b.remove("$server");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$server", "server");
+
+        b.remove("$cursor_id");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$cursor_id", 23);
+
+        b.remove("ns");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("ns", "a.b");
+
+        // Too few fields.
+        b.remove("$batch_size");
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.add("$batch_size", 23);
+
+        // Wrong Field type.
+        b.remove("$batch_size");
+        b.add("$batch_size", "s");
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$batch_size");
+        b.add("$batch_size", 23);
+
+        b.remove("$limit");
+        b.add("$limit", "s");
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$limit");
+        b.add("$limit", 23);
+
+        b.remove("$server");
+        b.add("$server", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$server");
+        b.add("$server", "server");
+
+        b.remove("$cursor_id");
+        b.add("$cursor_id", "s");
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$cursor_id");
+        b.add("$cursor_id", 23);
+
+        b.remove("ns");
+        b.add("ns", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("ns");
+        b.add("ns", "a.b");
+
+        verify();
+
+    }
+
+    /**
+     * Test method for
+     * {@link ClientImpl#restart(StreamCallback, DocumentAssignable)}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testRestartStreamCallbackDocumentAssignable()
+            throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("ns", "a.b");
+        b.add("$cursor_id", 123456);
+        b.add("$server", "server");
+        b.add("$limit", 4321);
+        b.add("$batch_size", 23);
+
+        final GetMore message = new GetMore("a", "b", 123456, 23,
+                ReadPreference.server("server"));
+        final StreamCallback<Document> mockStreamCallback = createMock(StreamCallback.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        expect(mockConnection.send(eq(message), anyObject(Callback.class)))
+                .andReturn(
+                        ServerNameUtils.normalize(ourServer
+                                .getInetSocketAddress()));
+
+        replay(mockConnection, mockStreamCallback);
+
+        final MongoCursorControl iter = myTestInstance.restart(
+                mockStreamCallback, b);
+
+        verify(mockConnection, mockStreamCallback);
+
+        assertThat(iter, instanceOf(QueryStreamingCallback.class));
+        final QueryStreamingCallback iterImpl = (QueryStreamingCallback) iter;
+        assertThat(iterImpl.getBatchSize(), is(23));
+        assertThat(iterImpl.getLimit(), is(4321));
+        assertThat(iterImpl.getCursorId(), is(123456L));
+        assertThat(iterImpl.getDatabaseName(), is("a"));
+        assertThat(iterImpl.getCollectionName(), is("b"));
+        assertThat(iterImpl.getClient(), is((Client) myTestInstance));
+        assertThat(iterImpl.getAddress(), is("server"));
+    }
+
+    /**
+     * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testRestartStreamCallbackDocumentAssignableNonCursorDoc()
+            throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("ns", "a.b");
+        b.add("$cursor_id", 123456);
+        b.add("$server", "server");
+        b.add("$limit", 4321);
+        b.add("$batch_size", 23);
+
+        final StreamCallback<Document> mockStreamCallback = createMock(StreamCallback.class);
+
+        replay(mockStreamCallback);
+
+        // Missing fields.
+        b.remove("$batch_size");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$batch_size", 23);
+
+        b.remove("$limit");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$limit", 23);
+
+        b.remove("$server");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$server", "server");
+
+        b.remove("$cursor_id");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$cursor_id", 23);
+
+        b.remove("ns");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("ns", "a.b");
+
+        // Too few fields.
+        b.remove("$batch_size");
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.add("$batch_size", 23);
+
+        // Wrong Field type.
+        b.remove("$batch_size");
+        b.add("$batch_size", "s");
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$batch_size");
+        b.add("$batch_size", 23);
+
+        b.remove("$limit");
+        b.add("$limit", "s");
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$limit");
+        b.add("$limit", 23);
+
+        b.remove("$server");
+        b.add("$server", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$server");
+        b.add("$server", "server");
+
+        b.remove("$cursor_id");
+        b.add("$cursor_id", "s");
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$cursor_id");
+        b.add("$cursor_id", 23);
+
+        b.remove("ns");
+        b.add("ns", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("ns");
+        b.add("ns", "a.b");
+
+        verify(mockStreamCallback);
 
     }
 
@@ -780,6 +1333,11 @@ public class ClientImplTest {
         expect(mockConnection2.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
+        // Response to the handleConnextionClosed.
+        mockConnection
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
         replay(mockConnection, mockConnection2);
 
         myConfig.setMaxConnectionCount(2);
@@ -788,6 +1346,7 @@ public class ClientImplTest {
         myConfig.setMaxConnectionCount(1);
         myTestInstance.send(message, null);
         myTestInstance.send(message, null);
+        myTestInstance.handleConnectionClosed(mockConnection);
 
         verify(mockConnection, mockConnection2);
     }
@@ -892,6 +1451,64 @@ public class ClientImplTest {
         myTestInstance.send(message, null);
         myTestInstance.send(message, null);
 
+        verify(mockConnection, mockConnection2);
+    }
+
+    /**
+     * Test method for {@link ClientImpl#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the test.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testSendMessageFailsWhenAllAreClosed() throws IOException {
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
+
+        myConfig.setMaxConnectionCount(2);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final Connection mockConnection2 = createMock(Connection.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        expect(mockConnection.send(message, null)).andReturn(
+                ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
+
+        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.getPendingCount()).andReturn(1);
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
+        mockConnection2
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        expect(mockConnection2.send(message, null)).andReturn(
+                ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
+
+        // First pass for idle.
+        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.getPendingCount()).andReturn(2);
+        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
+        // Now most idle.
+        expect(mockConnection.isOpen()).andReturn(false);
+        expect(mockConnection2.isOpen()).andReturn(false);
+
+        replay(mockConnection, mockConnection2);
+
+        myTestInstance.send(message, null);
+        myTestInstance.send(message, null);
+        try {
+            myTestInstance.send(message, null);
+            fail("Should have failed.");
+        }
+        catch (final CannotConnectException failure) {
+            assertThat(
+                    failure.getMessage(),
+                    containsString("Could not create a connection to the server."));
+        }
         verify(mockConnection, mockConnection2);
     }
 
@@ -1020,6 +1637,170 @@ public class ClientImplTest {
      * 
      * @throws IOException
      *             On a failure setting up the test.
+     * @throws InterruptedException
+     *             On a failure to pause in the test.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testSendMessageWaitsForReconnect() throws IOException,
+            InterruptedException {
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
+
+        myConfig.setMaxConnectionCount(1);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final Connection mockConnection2 = createMock(Connection.class);
+        makeThreadSafe(mockConnection, mockConnection2);
+
+        final ReconnectStrategy pauseStrategy = new SimpleReconnectStrategy() {
+            @Override
+            public Connection reconnect(final Connection oldConnection) {
+                try {
+                    Thread.sleep(500);
+                }
+                catch (final InterruptedException e) {
+                    // Ignore.
+                }
+                return mockConnection2;
+            }
+        };
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        expect(mockConnection.send(message, null)).andReturn(
+                ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
+
+        // Reconnect.
+        mockConnection
+                .raiseErrors(anyObject(MongoDbException.class), eq(false));
+        expectLastCall();
+        expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
+                pauseStrategy);
+        mockConnection
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        mockConnection2
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        // Second message.
+        expect(mockConnection.isOpen()).andReturn(false).times(2);
+        // Wait for the reconnect.
+
+        // After reconnect.
+        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.getPendingCount()).andReturn(0);
+        expect(mockConnection2.send(message, null)).andReturn(
+                ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
+
+        replay(mockConnection, mockConnection2);
+
+        myTestInstance.send(message, null);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                myTestInstance.handleConnectionClosed(mockConnection);
+            }
+        }).start();
+        Thread.sleep(100);
+
+        myTestInstance.send(message, null);
+
+        verify(mockConnection, mockConnection2);
+    }
+
+    /**
+     * Test method for {@link ClientImpl#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the test.
+     * @throws InterruptedException
+     *             On a failure to pause in the test.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testSendMessageWaitsForReconnectTimesOut() throws IOException,
+            InterruptedException {
+
+        myConfig.setReconnectTimeout(250);
+
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
+
+        myConfig.setMaxConnectionCount(1);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final Connection mockConnection2 = createMock(Connection.class);
+        makeThreadSafe(mockConnection, mockConnection2);
+
+        final ReconnectStrategy pauseStrategy = new SimpleReconnectStrategy() {
+            @Override
+            public Connection reconnect(final Connection oldConnection) {
+                try {
+                    Thread.sleep(500);
+                }
+                catch (final InterruptedException e) {
+                    // Ignore.
+                }
+                return mockConnection2;
+            }
+        };
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        expect(mockConnection.send(message, null)).andReturn(
+                ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
+
+        // Reconnect.
+        mockConnection
+                .raiseErrors(anyObject(MongoDbException.class), eq(false));
+        expectLastCall();
+        expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
+                pauseStrategy);
+
+        // Second message.
+        expect(mockConnection.isOpen()).andReturn(false).times(2);
+        // Wait for the reconnect.
+
+        // After reconnect.
+        expect(mockConnection.isOpen()).andReturn(false).times(2);
+
+        replay(mockConnection, mockConnection2);
+
+        myTestInstance.send(message, null);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                myTestInstance.handleConnectionClosed(mockConnection);
+            }
+        }).start();
+        Thread.sleep(100);
+
+        try {
+            myTestInstance.send(message, null);
+        }
+        catch (final CannotConnectException failure) {
+            assertThat(
+                    failure.getMessage(),
+                    containsString("Could not create a connection to the server."));
+
+        }
+
+        verify(mockConnection, mockConnection2);
+    }
+
+    /**
+     * Test method for {@link ClientImpl#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the test.
      */
     @Test
     public void testSendQueryCallbackOfReply() throws IOException {
@@ -1042,6 +1823,20 @@ public class ClientImplTest {
         myTestInstance.send(message, callback);
 
         verify(mockConnection);
+    }
+
+    /**
+     * Performs a {@link EasyMock#makeThreadSafe(Object, boolean)} on the
+     * provided mocks and the {@link #myMockConnectionFactory} object.
+     * 
+     * @param mocks
+     *            The mock to replay.
+     */
+    private void makeThreadSafe(final Object... mocks) {
+        for (final Object mock : mocks) {
+            EasyMock.makeThreadSafe(mock, true);
+        }
+        EasyMock.makeThreadSafe(myMockConnectionFactory, true);
     }
 
     /**

@@ -763,11 +763,11 @@ public interface MongoCollection {
      * 
      * @param query
      *            The query document.
-     * @return The ClosableIterator over the documents.
+     * @return The MongoIterator over the documents.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public ClosableIterator<Document> find(DocumentAssignable query)
+    public MongoIterator<Document> find(DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -779,11 +779,11 @@ public interface MongoCollection {
      * 
      * @param query
      *            The query details.
-     * @return The ClosableIterator over the documents.
+     * @return The MongoIterator over the documents.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public ClosableIterator<Document> find(Find query) throws MongoDbException;
+    public MongoIterator<Document> find(Find query) throws MongoDbException;
 
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
@@ -835,7 +835,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void findAsync(Callback<ClosableIterator<Document>> results,
+    public void findAsync(Callback<MongoIterator<Document>> results,
             DocumentAssignable query) throws MongoDbException;
 
     /**
@@ -848,19 +848,19 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void findAsync(Callback<ClosableIterator<Document>> results,
-            Find query) throws MongoDbException;
+    public void findAsync(Callback<MongoIterator<Document>> results, Find query)
+            throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection.
      * 
      * @param query
      *            The query document.
-     * @return A future for the ClosableIterator over the documents.
+     * @return A future for the MongoIterator over the documents.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<ClosableIterator<Document>> findAsync(DocumentAssignable query)
+    public Future<MongoIterator<Document>> findAsync(DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -868,11 +868,11 @@ public interface MongoCollection {
      * 
      * @param query
      *            The query details.
-     * @return A future for the ClosableIterator over the documents.
+     * @return A future for the MongoIterator over the documents.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<ClosableIterator<Document>> findAsync(Find query)
+    public Future<MongoIterator<Document>> findAsync(Find query)
             throws MongoDbException;
 
     /**
@@ -1545,21 +1545,29 @@ public interface MongoCollection {
      * may change over time.
      * </p>
      * <p>
-     * If the callback processing requires any signifigant time (including I/O)
+     * If the callback processing requires any significant time (including I/O)
      * it is recommended that an
      * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
      * Executor} be configured within the {@link MongoClientConfiguration} to
-     * offload the processing from the receive thread.
+     * off-load the processing from the receive thread.
      * </p>
      * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
      *            The query document.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
      * @throws MongoDbException
      *             On an error finding the documents.
+     * @deprecated Use the
+     *             {@link #streamingFind(StreamCallback, DocumentAssignable)}
+     *             method instead. This method will be removed after the 1.3.0
+     *             release.
      */
-    public void streamingFind(Callback<Document> results,
+    @Deprecated
+    public MongoCursorControl streamingFind(Callback<Document> results,
             DocumentAssignable query) throws MongoDbException;
 
     /**
@@ -1581,22 +1589,108 @@ public interface MongoCollection {
      * may change over time.
      * </p>
      * <p>
-     * If the callback processing requires any signifigant time (including I/O)
+     * If the callback processing requires any significant time (including I/O)
      * it is recommended that an
      * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
      * Executor} be configured within the {@link MongoClientConfiguration} to
-     * offload the processing from the receive thread.
+     * off-load the processing from the receive thread.
      * </p>
      * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
      *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @deprecated Use the {@link #streamingFind(StreamCallback, Find)} method
+     *             instead. This method will be removed after the 1.3.0 release.
+     */
+    @Deprecated
+    public MongoCursorControl streamingFind(Callback<Document> results,
+            Find query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query document in the collection
+     * and streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query document.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void streamingFind(Callback<Document> results, Find query)
-            throws MongoDbException;
+    public MongoCursorControl streamingFind(StreamCallback<Document> results,
+            DocumentAssignable query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection and
+     * streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl streamingFind(StreamCallback<Document> results,
+            Find query) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The

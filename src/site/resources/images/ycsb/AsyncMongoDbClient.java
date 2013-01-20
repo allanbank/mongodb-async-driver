@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.allanbank.mongodb.ClosableIterator;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.LockType;
 import com.allanbank.mongodb.Mongo;

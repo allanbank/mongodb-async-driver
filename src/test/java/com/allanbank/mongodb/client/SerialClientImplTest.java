@@ -7,10 +7,14 @@ package com.allanbank.mongodb.client;
 
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.beans.PropertyChangeListener;
@@ -24,9 +28,15 @@ import org.junit.Test;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.StreamCallback;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
@@ -37,6 +47,7 @@ import com.allanbank.mongodb.connection.message.GetMore;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * ClientImplTest provides tests for the {@link ClientImpl} class.
@@ -173,6 +184,370 @@ public class SerialClientImplTest {
                 myTestInstance.getDefaultReadPreference());
 
         verify();
+    }
+
+    /**
+     * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testRestartDocumentAssignable() throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("ns", "a.b");
+        b.add("$cursor_id", 123456);
+        b.add("$server", "server");
+        b.add("$limit", 4321);
+        b.add("$batch_size", 23);
+
+        final GetMore message = new GetMore("a", "b", 123456, 23,
+                ReadPreference.server("server"));
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        expect(mockConnection.send(eq(message), anyObject(Callback.class)))
+                .andReturn(ServerNameUtils.normalize("foo"));
+
+        replay(mockConnection);
+
+        final MongoIterator<Document> iter = myTestInstance.restart(b);
+
+        verify(mockConnection);
+
+        assertThat(iter, instanceOf(MongoIteratorImpl.class));
+        final MongoIteratorImpl iterImpl = (MongoIteratorImpl) iter;
+        assertThat(iterImpl.getBatchSize(), is(23));
+        assertThat(iterImpl.getLimit(), is(4321));
+        assertThat(iterImpl.getCursorId(), is(123456L));
+        assertThat(iterImpl.getDatabaseName(), is("a"));
+        assertThat(iterImpl.getCollectionName(), is("b"));
+        assertThat(iterImpl.getClient(), is((Client) myClient));
+        assertThat(iterImpl.getReadPerference(),
+                is(ReadPreference.server("server")));
+    }
+
+    /**
+     * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testRestartDocumentAssignableNonCursorDoc() throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("ns", "a.b");
+        b.add("$cursor_id", 123456);
+        b.add("$server", "server");
+        b.add("$limit", 4321);
+        b.add("$batch_size", 23);
+
+        replay();
+
+        // Missing fields.
+        b.remove("$batch_size");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$batch_size", 23);
+
+        b.remove("$limit");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$limit", 23);
+
+        b.remove("$server");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$server", "server");
+
+        b.remove("$cursor_id");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$cursor_id", 23);
+
+        b.remove("ns");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("ns", "a.b");
+
+        // Too few fields.
+        b.remove("$batch_size");
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.add("$batch_size", 23);
+
+        // Wrong Field type.
+        b.remove("$batch_size");
+        b.add("$batch_size", "s");
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$batch_size");
+        b.add("$batch_size", 23);
+
+        b.remove("$limit");
+        b.add("$limit", "s");
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$limit");
+        b.add("$limit", 23);
+
+        b.remove("$server");
+        b.add("$server", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$server");
+        b.add("$server", "server");
+
+        b.remove("$cursor_id");
+        b.add("$cursor_id", "s");
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$cursor_id");
+        b.add("$cursor_id", 23);
+
+        b.remove("ns");
+        b.add("ns", 1);
+        try {
+            myTestInstance.restart(b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("ns");
+        b.add("ns", "a.b");
+
+        verify();
+
+    }
+
+    /**
+     * Test method for
+     * {@link ClientImpl#restart(StreamCallback, DocumentAssignable)}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testRestartStreamCallbackDocumentAssignable()
+            throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("ns", "a.b");
+        b.add("$cursor_id", 123456);
+        b.add("$server", "server");
+        b.add("$limit", 4321);
+        b.add("$batch_size", 23);
+
+        final GetMore message = new GetMore("a", "b", 123456, 23,
+                ReadPreference.server("server"));
+        final StreamCallback<Document> mockStreamCallback = createMock(StreamCallback.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+
+        expect(mockConnection.send(eq(message), anyObject(Callback.class)))
+                .andReturn("foo");
+
+        replay(mockConnection, mockStreamCallback);
+
+        final MongoCursorControl iter = myTestInstance.restart(
+                mockStreamCallback, b);
+
+        verify(mockConnection, mockStreamCallback);
+
+        assertThat(iter, instanceOf(QueryStreamingCallback.class));
+        final QueryStreamingCallback iterImpl = (QueryStreamingCallback) iter;
+        assertThat(iterImpl.getBatchSize(), is(23));
+        assertThat(iterImpl.getLimit(), is(4321));
+        assertThat(iterImpl.getCursorId(), is(123456L));
+        assertThat(iterImpl.getDatabaseName(), is("a"));
+        assertThat(iterImpl.getCollectionName(), is("b"));
+        assertThat(iterImpl.getClient(), is((Client) myClient));
+        assertThat(iterImpl.getAddress(), is("server"));
+    }
+
+    /**
+     * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testRestartStreamCallbackDocumentAssignableNonCursorDoc()
+            throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("ns", "a.b");
+        b.add("$cursor_id", 123456);
+        b.add("$server", "server");
+        b.add("$limit", 4321);
+        b.add("$batch_size", 23);
+
+        final StreamCallback<Document> mockStreamCallback = createMock(StreamCallback.class);
+
+        replay(mockStreamCallback);
+
+        // Missing fields.
+        b.remove("$batch_size");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$batch_size", 23);
+
+        b.remove("$limit");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$limit", 23);
+
+        b.remove("$server");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$server", "server");
+
+        b.remove("$cursor_id");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("$cursor_id", 23);
+
+        b.remove("ns");
+        b.add("c", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("c");
+        b.add("ns", "a.b");
+
+        // Too few fields.
+        b.remove("$batch_size");
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.add("$batch_size", 23);
+
+        // Wrong Field type.
+        b.remove("$batch_size");
+        b.add("$batch_size", "s");
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$batch_size");
+        b.add("$batch_size", 23);
+
+        b.remove("$limit");
+        b.add("$limit", "s");
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$limit");
+        b.add("$limit", 23);
+
+        b.remove("$server");
+        b.add("$server", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$server");
+        b.add("$server", "server");
+
+        b.remove("$cursor_id");
+        b.add("$cursor_id", "s");
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("$cursor_id");
+        b.add("$cursor_id", 23);
+
+        b.remove("ns");
+        b.add("ns", 1);
+        try {
+            myTestInstance.restart(mockStreamCallback, b);
+        }
+        catch (final IllegalArgumentException good) { // Good.
+        }
+        b.remove("ns");
+        b.add("ns", "a.b");
+
+        verify(mockStreamCallback);
+
     }
 
     /**

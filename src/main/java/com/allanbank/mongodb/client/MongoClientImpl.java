@@ -10,8 +10,12 @@ import java.util.List;
 
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDatabase;
+import com.allanbank.mongodb.MongoIterator;
+import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
@@ -135,5 +139,38 @@ public class MongoClientImpl implements MongoClient {
     @Override
     public List<String> listDatabases() {
         return listDatabaseNames();
+    }
+
+    /**
+     * Restarts an iterator that was previously saved.
+     * 
+     * @param cursorDocument
+     *            The document containing the state of the cursor.
+     * @return The restarted iterator.
+     * @throws IllegalArgumentException
+     *             If the document does not contain a valid cursor state.
+     */
+    @Override
+    public MongoIterator<Document> restart(
+            final DocumentAssignable cursorDocument)
+            throws IllegalArgumentException {
+        return myClient.restart(cursorDocument);
+    }
+
+    /**
+     * Restarts a document stream from a cursor that was previously saved.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the cursor.
+     * @param cursorDocument
+     *            The document containing the state of the cursor.
+     * @throws IllegalArgumentException
+     *             If the document does not contain a valid cursor state.
+     */
+    @Override
+    public MongoCursorControl restart(final StreamCallback<Document> results,
+            final DocumentAssignable cursorDocument)
+            throws IllegalArgumentException {
+        return myClient.restart(results, cursorDocument);
     }
 }

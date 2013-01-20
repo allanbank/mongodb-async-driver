@@ -8,6 +8,9 @@ package com.allanbank.mongodb;
 import java.io.Closeable;
 import java.util.List;
 
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
+
 /**
  * Interface to bootstrap into interactions with MongoDB.
  * 
@@ -70,4 +73,33 @@ public interface MongoClient extends Closeable {
      */
     @Deprecated
     public List<String> listDatabases();
+
+    /**
+     * Restarts an iterator that was previously saved.
+     * 
+     * @param cursorDocument
+     *            The document containing the state of the cursor.
+     * @return The restarted iterator.
+     * @throws IllegalArgumentException
+     *             If the document does not contain a valid cursor state.
+     */
+    public MongoIterator<Document> restart(DocumentAssignable cursorDocument)
+            throws IllegalArgumentException;
+
+    /**
+     * Restarts a document stream from a cursor that was previously saved.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the cursor.
+     * @param cursorDocument
+     *            The document containing the state of the cursor.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws IllegalArgumentException
+     *             If the document does not contain a valid cursor state.
+     */
+    public MongoCursorControl restart(final StreamCallback<Document> results,
+            DocumentAssignable cursorDocument) throws IllegalArgumentException;
+
 }

@@ -10,8 +10,13 @@ import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.StreamCallback;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
@@ -114,6 +119,36 @@ public class SerialClientImpl extends AbstractClient {
     @Override
     public ReadPreference getDefaultReadPreference() {
         return myDelegate.getDefaultReadPreference();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to forward to the delegate client.
+     * </p>
+     * 
+     * @see Client#restart(DocumentAssignable)
+     */
+    @Override
+    public MongoIterator<Document> restart(
+            final DocumentAssignable cursorDocument)
+            throws IllegalArgumentException {
+        return myDelegate.restart(cursorDocument);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to forward to the delegate client.
+     * </p>
+     * 
+     * @see Client#restart(StreamCallback, DocumentAssignable)
+     */
+    @Override
+    public MongoCursorControl restart(final StreamCallback<Document> results,
+            final DocumentAssignable cursorDocument)
+            throws IllegalArgumentException {
+        return myDelegate.restart(results, cursorDocument);
     }
 
     /**

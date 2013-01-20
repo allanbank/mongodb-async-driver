@@ -25,8 +25,8 @@ import org.easymock.EasyMock;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -55,7 +55,7 @@ public class QueryCallbackTest {
                 false, false);
         final Reply reply = reply();
 
-        final Callback<ClosableIterator<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
@@ -87,7 +87,7 @@ public class QueryCallbackTest {
                 false, false);
         final Reply reply = reply();
 
-        final Callback<ClosableIterator<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
@@ -96,7 +96,8 @@ public class QueryCallbackTest {
 
         callback = new QueryCallback(null, q, mockCallback);
         callback.setAddress("server");
-        final MongoIterator mIter = (MongoIterator) callback.convert(reply);
+        final MongoIteratorImpl mIter = (MongoIteratorImpl) callback
+                .convert(reply);
         assertEquals("server", mIter.getReadPerference().getServer());
 
         verify(mockCallback);
@@ -114,7 +115,7 @@ public class QueryCallbackTest {
                 false, false);
         final Reply reply = reply();
 
-        final Callback<ClosableIterator<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
@@ -127,7 +128,7 @@ public class QueryCallbackTest {
 
         reset(mockCallback);
 
-        final Capture<ClosableIterator<Document>> capture1 = new Capture<ClosableIterator<Document>>();
+        final Capture<MongoIterator<Document>> capture1 = new Capture<MongoIterator<Document>>();
 
         mockCallback.callback(capture(capture1));
         EasyMock.expectLastCall();
@@ -138,12 +139,12 @@ public class QueryCallbackTest {
         callback.callback(reply);
         verify(mockCallback);
 
-        ClosableIterator<Document> iter = capture1.getValue();
+        MongoIterator<Document> iter = capture1.getValue();
         assertNull(iter);
 
         reset(mockCallback);
 
-        final Capture<ClosableIterator<Document>> capture2 = new Capture<ClosableIterator<Document>>();
+        final Capture<MongoIterator<Document>> capture2 = new Capture<MongoIterator<Document>>();
         mockCallback.callback(capture(capture2));
         EasyMock.expectLastCall();
 
@@ -154,8 +155,8 @@ public class QueryCallbackTest {
         assertEquals("server", callback.getAddress());
 
         iter = capture2.getValue();
-        assertThat(iter, instanceOf(MongoIterator.class));
-        final MongoIterator mIter = (MongoIterator) iter;
+        assertThat(iter, instanceOf(MongoIteratorImpl.class));
+        final MongoIteratorImpl mIter = (MongoIteratorImpl) iter;
         assertEquals("server", mIter.getReadPerference().getServer());
 
         verify(mockCallback);
@@ -173,7 +174,7 @@ public class QueryCallbackTest {
                 false, false);
         final Reply reply = new Reply(0, 0, 0, docs, false, true, false, false);
 
-        final Callback<ClosableIterator<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final Capture<Throwable> capture = new Capture<Throwable>();
 
         mockCallback.exception(capture(capture));
@@ -201,7 +202,7 @@ public class QueryCallbackTest {
                 false, false);
         final Reply reply = new Reply(0, 0, 0, docs, false, false, true, false);
 
-        final Callback<ClosableIterator<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final Capture<Throwable> capture = new Capture<Throwable>();
 
         mockCallback.exception(capture(capture));
@@ -229,7 +230,7 @@ public class QueryCallbackTest {
                 false, false);
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<ClosableIterator<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final Capture<Throwable> capture = new Capture<Throwable>();
 
         mockCallback.exception(capture(capture));

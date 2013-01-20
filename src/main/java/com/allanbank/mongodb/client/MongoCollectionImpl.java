@@ -9,12 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -333,7 +335,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void findAsync(final Callback<ClosableIterator<Document>> results,
+    public void findAsync(final Callback<MongoIterator<Document>> results,
             final Find query) throws MongoDbException {
 
         final Query queryMessage = createQuery(query, query.getLimit(),
@@ -593,7 +595,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void streamingFind(final Callback<Document> results, final Find query)
+    public MongoCursorControl streamingFind(
+            final StreamCallback<Document> results, final Find query)
             throws MongoDbException {
         final Query queryMessage = createQuery(query, query.getLimit(),
                 query.getBatchSize(), query.isTailable());
@@ -604,6 +607,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         callback.setAddress(address);
 
+        return callback;
     }
 
     /**

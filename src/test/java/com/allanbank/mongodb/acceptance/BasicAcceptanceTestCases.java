@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -47,7 +48,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -55,8 +55,10 @@ import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoFactory;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ServerTestDriverSupport;
+import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -81,10 +83,12 @@ import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.builder.Sort;
 import com.allanbank.mongodb.client.Client;
+import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * BasicAcceptanceTestCases provides the base tests for the interactions with
@@ -576,7 +580,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         findBuilder.setReturnFields(BuilderFactory.start()
                 .addBoolean("_id", false).addBoolean("foo", true)
                 .addBoolean("bar", true).build());
-        final ClosableIterator<Document> iter = myCollection.find(findBuilder
+        final MongoIterator<Document> iter = myCollection.find(findBuilder
                 .build());
         int expectedId = 0;
         for (final Document found : iter) {
@@ -743,8 +747,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
         List<String> names = myMongo.listDatabaseNames();
-        assertTrue("Database should be in the list: '" + TEST_DB_NAME
-                + "' in " + names, names.contains(TEST_DB_NAME));
+        assertTrue("Database should be in the list: '" + TEST_DB_NAME + "' in "
+                + names, names.contains(TEST_DB_NAME));
 
         myDb.drop();
 
@@ -919,7 +923,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         find.setReturnFields(BuilderFactory.start().add("a", 1).add("b", 1));
 
         find.setQuery(and(where("a").equals(1), where("b").equals(1)));
-        ClosableIterator<Document> iter = myCollection.find(find.build());
+        MongoIterator<Document> iter = myCollection.find(find.build());
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -1275,7 +1279,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Fetch a lot.
         findBuilder.setBatchSize(10);
 
-        final ClosableIterator<Document> iter = myCollection.find(findBuilder
+        final MongoIterator<Document> iter = myCollection.find(findBuilder
                 .build());
         int count = 0;
         for (final Document found : iter) {
@@ -1315,7 +1319,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         findBuilder.setBatchSize(10);
         findBuilder.setLimit(123);
 
-        final ClosableIterator<Document> iter = myCollection.find(findBuilder
+        final MongoIterator<Document> iter = myCollection.find(findBuilder
                 .build());
         int count = 0;
         for (final Document found : iter) {
@@ -1325,6 +1329,64 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             count += 1;
         }
 
+        assertEquals(findBuilder.build().getLimit(), count);
+    }
+
+    /**
+     * Verifies that the MongoDB iteration over a large collection works as
+     * expected.
+     */
+    @Test
+    public void testMultiFetchIteratorWithLimitRestart() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            builder.addInteger("_id", i);
+
+            myCollection.insert(builder.build());
+        }
+
+        // Now go find all of them.
+        final Find.Builder findBuilder = new Find.Builder(BuilderFactory
+                .start().build());
+        findBuilder.setReturnFields(BuilderFactory.start()
+                .addBoolean("_id", true).build());
+        // Fetch a lot.
+        findBuilder.setBatchSize(10);
+        findBuilder.setLimit(123);
+
+        MongoIterator<Document> iter = myCollection.find(findBuilder.build());
+        int count = 0;
+        for (final Document found : iter) {
+
+            assertNotNull(found);
+
+            count += 1;
+
+            // Only read a few documents and then stop.
+            iter.stop();
+        }
+        // Should not have read all of the documents, yet.
+        assertNotEquals(findBuilder.build().getLimit(), count);
+
+        // Restart the connections.
+        IOUtils.close(myMongo);
+        connect();
+
+        // Restart the iterator.
+        iter = myMongo.restart(iter.asDocument());
+        for (final Document found : iter) {
+
+            assertNotNull(found);
+
+            count += 1;
+        }
+
+        // Now we have read all of the documents.
         assertEquals(findBuilder.build().getLimit(), count);
     }
 
@@ -1395,8 +1457,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
-                .all(constant(true), constant("b")));
+        final MongoIterator<Document> iter = myCollection.find(where("a").all(
+                constant(true), constant("b")));
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -1424,8 +1486,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        ClosableIterator<Document> iter = myCollection.find(and(where("a")
-                .equals(1), where("b").equals(1)));
+        MongoIterator<Document> iter = myCollection.find(and(
+                where("a").equals(1), where("b").equals(1)));
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -1468,7 +1530,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .elementMatches(where("b").equals(1)));
         try {
             assertTrue(iter.hasNext());
@@ -1499,7 +1561,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals(true));
         try {
             assertTrue(iter.hasNext());
@@ -1535,7 +1597,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals(bytes1));
         try {
             assertTrue(iter.hasNext());
@@ -1575,7 +1637,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals((byte) 12, bytes1));
         try {
             assertTrue(iter.hasNext());
@@ -1607,7 +1669,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals(BuilderFactory.start().addInteger("b", 1)));
         try {
             assertTrue(iter.hasNext());
@@ -1645,7 +1707,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals(d1));
         try {
             final Set<Document> expected = new HashSet<Document>();
@@ -1695,7 +1757,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals(d1));
         try {
             assertTrue(iter.hasNext());
@@ -1737,7 +1799,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals(v1));
         try {
             final Set<Document> expected = new HashSet<Document>();
@@ -1791,7 +1853,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equalsJavaScript(v1));
         try {
             assertTrue(iter.hasNext());
@@ -1838,7 +1900,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equalsJavaScript(v1, d1));
         try {
             // Bug in MongoDB? - Scope is being ignored.
@@ -1890,7 +1952,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals(v1));
         try {
             final Set<Document> expected = new HashSet<Document>();
@@ -1941,7 +2003,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equalsMaxKey());
         try {
             // Bug in MongoDB? - Matching all documents.
@@ -2004,7 +2066,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equalsMinKey());
         try {
             // Bug in MongoDB? - Matching all documents.
@@ -2061,7 +2123,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equalsMongoTimestamp(v1));
         try {
             assertTrue(iter.hasNext());
@@ -2099,7 +2161,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4);
 
-        ClosableIterator<Document> iter = null;
+        MongoIterator<Document> iter = null;
         try {
             iter = myCollection.find(where("a").equalsMongoTimestamp(v1));
             iter.hasNext();
@@ -2144,7 +2206,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equalsNull());
         try {
             final Set<Document> expected = new HashSet<Document>();
@@ -2187,7 +2249,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals(v1));
         try {
             assertTrue(iter.hasNext());
@@ -2233,7 +2295,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5, doc6);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals(v1));
         try {
             final Set<Document> expected = new HashSet<Document>();
@@ -2287,7 +2349,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equals(v1));
         try {
             final Set<Document> expected = new HashSet<Document>();
@@ -2338,7 +2400,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equalsSymbol(v1));
         try {
             final Set<Document> expected = new HashSet<Document>();
@@ -2385,7 +2447,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .equalsTimestamp(v1));
         try {
             final Set<Document> expected = new HashSet<Document>();
@@ -2425,8 +2487,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        ClosableIterator<Document> iter = myCollection
-                .find(where("a").exists());
+        MongoIterator<Document> iter = myCollection.find(where("a").exists());
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -2470,7 +2531,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThan(bytes2));
         try {
             assertTrue(iter.hasNext());
@@ -2504,7 +2565,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        ClosableIterator<Document> iter = myCollection.find(where("a")
+        MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThan((byte) 11, bytes1));
         try {
             assertTrue(iter.hasNext());
@@ -2545,7 +2606,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThan(d2));
         try {
             assertTrue(iter.hasNext());
@@ -2575,7 +2636,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThan(v2));
         try {
             assertTrue(iter.hasNext());
@@ -2605,7 +2666,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThan(v2));
         try {
             assertTrue(iter.hasNext());
@@ -2635,7 +2696,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanMongoTimestamp(v2));
         try {
             assertTrue(iter.hasNext());
@@ -2666,7 +2727,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThan(v2));
         try {
             assertTrue(iter.hasNext());
@@ -2701,7 +2762,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanOrEqualTo(bytes1));
         try {
             assertTrue(iter.hasNext());
@@ -2737,7 +2798,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        ClosableIterator<Document> iter = myCollection.find(where("a")
+        MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanOrEqualTo((byte) 11, bytes1));
         try {
             assertTrue(iter.hasNext());
@@ -2778,7 +2839,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanOrEqualTo(d1));
         try {
             assertTrue(iter.hasNext());
@@ -2808,7 +2869,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanOrEqualTo(v1));
         try {
             assertTrue(iter.hasNext());
@@ -2838,7 +2899,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanOrEqualTo(v1));
         try {
             assertTrue(iter.hasNext());
@@ -2869,7 +2930,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanOrEqualToMongoTimestamp(v1));
         try {
             assertTrue(iter.hasNext());
@@ -2900,7 +2961,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanOrEqualTo(v1));
         try {
             assertTrue(iter.hasNext());
@@ -2930,7 +2991,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanOrEqualTo(v1));
         try {
             assertTrue(iter.hasNext());
@@ -2961,7 +3022,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanOrEqualToSymbol(v1));
         try {
             assertTrue(iter.hasNext());
@@ -2992,7 +3053,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanOrEqualToTimestamp(v1));
         try {
             assertTrue(iter.hasNext());
@@ -3022,7 +3083,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThan(v2));
         try {
             assertTrue(iter.hasNext());
@@ -3052,7 +3113,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanSymbol(v2));
         try {
             assertTrue(iter.hasNext());
@@ -3082,7 +3143,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .greaterThanTimestamp(v2));
         try {
             assertTrue(iter.hasNext());
@@ -3113,8 +3174,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
-                .in(constant(true), constant("b")));
+        final MongoIterator<Document> iter = myCollection.find(where("a").in(
+                constant(true), constant("b")));
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -3144,7 +3205,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .instanceOf(ElementType.STRING));
         try {
             assertTrue(iter.hasNext());
@@ -3179,7 +3240,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThan(bytes2));
         try {
             assertTrue(iter.hasNext());
@@ -3213,8 +3274,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        ClosableIterator<Document> iter = myCollection.find(where("a")
-                .lessThan((byte) 13, bytes1));
+        MongoIterator<Document> iter = myCollection.find(where("a").lessThan(
+                (byte) 13, bytes1));
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -3254,7 +3315,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThan(d2));
         try {
             assertTrue(iter.hasNext());
@@ -3284,7 +3345,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThan(v2));
         try {
             assertTrue(iter.hasNext());
@@ -3314,7 +3375,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThan(v2));
         try {
             assertTrue(iter.hasNext());
@@ -3344,7 +3405,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanMongoTimestamp(v2));
         try {
             assertTrue(iter.hasNext());
@@ -3375,7 +3436,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThan(v2));
         try {
             assertTrue(iter.hasNext());
@@ -3410,7 +3471,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanOrEqualTo(bytes1));
         try {
             assertTrue(iter.hasNext());
@@ -3445,7 +3506,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        ClosableIterator<Document> iter = myCollection.find(where("a")
+        MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanOrEqualTo((byte) 13, bytes1));
         try {
             assertTrue(iter.hasNext());
@@ -3486,7 +3547,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanOrEqualTo(d1));
         try {
             assertTrue(iter.hasNext());
@@ -3516,7 +3577,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanOrEqualTo(v1));
         try {
             assertTrue(iter.hasNext());
@@ -3546,7 +3607,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanOrEqualTo(v1));
         try {
             assertTrue(iter.hasNext());
@@ -3577,7 +3638,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanOrEqualToMongoTimestamp(v1));
         try {
             assertTrue(iter.hasNext());
@@ -3608,7 +3669,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanOrEqualTo(v1));
         try {
             assertTrue(iter.hasNext());
@@ -3638,7 +3699,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanOrEqualTo(v1));
         try {
             assertTrue(iter.hasNext());
@@ -3668,7 +3729,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanOrEqualToSymbol(v1));
         try {
             assertTrue(iter.hasNext());
@@ -3699,7 +3760,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanOrEqualToTimestamp(v1));
         try {
             assertTrue(iter.hasNext());
@@ -3729,7 +3790,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThan(v2));
         try {
             assertTrue(iter.hasNext());
@@ -3759,7 +3820,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanSymbol(v2));
         try {
             assertTrue(iter.hasNext());
@@ -3789,7 +3850,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .lessThanTimestamp(v2));
         try {
             assertTrue(iter.hasNext());
@@ -3836,7 +3897,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2, doc3, doc4, doc5, doc6);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .matches(v1));
         try {
             final Set<Document> expected = new HashSet<Document>();
@@ -3878,8 +3939,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
-                .mod(10, v1 % 10));
+        final MongoIterator<Document> iter = myCollection.find(where("a").mod(
+                10, v1 % 10));
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -3908,8 +3969,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
-                .mod(100, v1 % 100));
+        final MongoIterator<Document> iter = myCollection.find(where("a").mod(
+                100, v1 % 100));
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -3942,7 +4003,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").near(x, y));
         try {
             assertTrue(iter.hasNext());
@@ -3980,7 +4041,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").near(x, y, 2.3));
         try {
             assertTrue(iter.hasNext());
@@ -4016,7 +4077,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").near(x, y));
         try {
             assertTrue(iter.hasNext());
@@ -4054,7 +4115,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").near(x, y, 3));
         try {
             assertTrue(iter.hasNext());
@@ -4090,7 +4151,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").near(x, y));
         try {
             assertTrue(iter.hasNext());
@@ -4128,7 +4189,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").near(x, y, 3));
         try {
             assertTrue(iter.hasNext());
@@ -4164,7 +4225,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").near(x, y));
         try {
             assertTrue(iter.hasNext());
@@ -4203,7 +4264,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").nearSphere(x, y, 0.1));
         try {
             assertTrue(iter.hasNext());
@@ -4239,7 +4300,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").nearSphere(x, y));
         try {
             assertTrue(iter.hasNext());
@@ -4277,7 +4338,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").nearSphere(x, y, 1));
         try {
             assertTrue(iter.hasNext());
@@ -4313,7 +4374,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").nearSphere(x, y));
         try {
             assertTrue(iter.hasNext());
@@ -4351,7 +4412,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").nearSphere(x, y, 1));
         try {
             assertTrue(iter.hasNext());
@@ -4380,7 +4441,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualTo(false));
         try {
             assertTrue(iter.hasNext());
@@ -4412,7 +4473,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualTo(bytes2));
         try {
             assertTrue(iter.hasNext());
@@ -4444,8 +4505,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        ClosableIterator<Document> iter = myCollection.find(where("a")
-                .notEqualTo((byte) 13, bytes1));
+        MongoIterator<Document> iter = myCollection.find(where("a").notEqualTo(
+                (byte) 13, bytes1));
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -4487,7 +4548,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualTo(BuilderFactory.start().addInteger("b", 2)));
         try {
             assertTrue(iter.hasNext());
@@ -4517,7 +4578,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualTo(v2));
         try {
             assertTrue(iter.hasNext());
@@ -4547,7 +4608,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualTo(v2));
         try {
             assertTrue(iter.hasNext());
@@ -4577,7 +4638,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualToJavaScript(v2));
         try {
             assertTrue(iter.hasNext());
@@ -4613,7 +4674,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        ClosableIterator<Document> iter = myCollection.find(where("a")
+        MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualToJavaScript(v2, d1));
         try {
             // Bug in MongoDB? - Scope is being ignored.
@@ -4659,7 +4720,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualTo(v2));
         try {
             assertTrue(iter.hasNext());
@@ -4688,7 +4749,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualToMaxKey());
         try {
             // Bug in MongoDB? - Matching all documents.
@@ -4727,7 +4788,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualToMinKey());
         try {
             // Bug in MongoDB? - Matching all documents.
@@ -4767,7 +4828,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualToMongoTimestamp(v2));
         try {
             assertTrue(iter.hasNext());
@@ -4796,7 +4857,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualToNull());
         try {
             assertTrue(iter.hasNext());
@@ -4826,7 +4887,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualTo(v2));
         try {
             assertTrue(iter.hasNext());
@@ -4856,7 +4917,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        ClosableIterator<Document> iter = null;
+        MongoIterator<Document> iter = null;
         try {
             iter = myCollection.find(where("a").notEqualTo(v2));
             fail("Expect a QueryFailedException.");
@@ -4892,7 +4953,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualTo(v2));
         try {
             assertTrue(iter.hasNext());
@@ -4922,7 +4983,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualToSymbol(v2));
         try {
             assertTrue(iter.hasNext());
@@ -4952,7 +5013,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notEqualToTimestamp(v2));
         try {
             assertTrue(iter.hasNext());
@@ -4983,7 +5044,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .notIn(constant(true), constant("b")));
         try {
             assertTrue(iter.hasNext());
@@ -5010,8 +5071,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
-                .size(3));
+        final MongoIterator<Document> iter = myCollection.find(where("a").size(
+                3));
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -5041,7 +5102,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final ClosableIterator<Document> iter = myCollection.find(where("a")
+        final MongoIterator<Document> iter = myCollection.find(where("a")
                 .where("this.a == 'c'"));
         try {
             assertTrue(iter.hasNext());
@@ -5091,7 +5152,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
         // Find on a slightly deformed square
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(false, new Point2D.Double(minx - 0.5, miny),
                         new Point2D.Double(maxx, miny),
                         new Point2D.Double(maxx, maxy + 0.75),
@@ -5141,7 +5202,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5186,7 +5247,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius, false));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5242,7 +5303,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5295,7 +5356,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2, false));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5342,7 +5403,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5386,7 +5447,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius, false));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5448,7 +5509,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5508,7 +5569,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2, false));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5555,7 +5616,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5600,7 +5661,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius, false));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5662,7 +5723,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5722,7 +5783,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2, false));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5770,7 +5831,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5815,7 +5876,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius, false));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5862,7 +5923,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5907,7 +5968,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius, false));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -5955,7 +6016,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -6000,7 +6061,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius, false));
         try {
             final List<Document> expected = new ArrayList<Document>();
@@ -6048,7 +6109,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        ClosableIterator<Document> iter = null;
+        MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").withinOnSphere(x, y, radius));
@@ -6102,7 +6163,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
         // Find on a slightly deformed square
-        final ClosableIterator<Document> iter = getGeoCollection().find(
+        final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(new Point2D.Double(minx - 0.5, miny),
                         new Point2D.Double(maxx, miny),
                         new Point2D.Double(maxx, maxy + 0.5),
@@ -6121,6 +6182,80 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
         finally {
             iter.close();
+        }
+    }
+
+    /**
+     * Verifies that the MongoDB iteration over a large collection works as
+     * expected.
+     */
+    @Test
+    public void testRestartWithBadCursorIdFails() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            builder.addInteger("_id", i);
+
+            myCollection.insert(builder.build());
+        }
+
+        // Now go find all of them.
+        final Find.Builder findBuilder = new Find.Builder(BuilderFactory
+                .start().build());
+        findBuilder.setReturnFields(BuilderFactory.start()
+                .addBoolean("_id", true).build());
+        // Fetch a lot.
+        findBuilder.setBatchSize(10);
+        findBuilder.setLimit(123);
+
+        MongoIterator<Document> iter = myCollection.find(findBuilder.build());
+        int count = 0;
+        for (final Document found : iter) {
+
+            assertNotNull(found);
+
+            count += 1;
+
+            // Only read a few documents and then stop.
+            iter.stop();
+        }
+        // Should not have read all of the documents, yet.
+        assertNotEquals(findBuilder.build().getLimit(), count);
+
+        // Restart the connections.
+        IOUtils.close(myMongo);
+        connect();
+
+        final Document goodDoc = iter.asDocument();
+        final DocumentBuilder builder = BuilderFactory.start(goodDoc);
+        builder.remove("$cursor_id");
+        builder.add("$cursor_id", 12345678L);
+
+        // Restart the bad iterator.
+        iter = myMongo.restart(builder.asDocument());
+        try {
+            iter.hasNext();
+            fail("Should not have found the bogus cursor id.");
+        }
+        catch (final CursorNotFoundException good) {
+            assertThat(good.getMessage(), containsString("12345678"));
+        }
+        finally {
+            // Now cleanup the iterator.
+            iter = myMongo.restart(goodDoc);
+            for (final Document found : iter) {
+
+                assertNotNull(found);
+
+                count += 1;
+            }
+
+            // Now we have read all of the documents.
+            assertEquals(findBuilder.build().getLimit(), count);
         }
     }
 
@@ -6200,6 +6335,48 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         callback.waitFor(TimeUnit.SECONDS.toMillis(60));
 
         assertTrue(callback.isTerminated());
+        assertFalse(callback.isTerminatedByNull());
+        assertFalse(callback.isTerminatedByException());
+        assertEquals(find.getLimit(), callback.getCount());
+        assertNull(callback.getException());
+    }
+
+    /**
+     * Verifies doing a streaming find.
+     */
+    @Test
+    @Deprecated
+    public void testStreamingFindLegacy() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            builder.addInteger("_id", i);
+
+            myCollection.insert(builder.build());
+        }
+
+        // Now go find all of them.
+        final Find.Builder findBuilder = new Find.Builder(BuilderFactory
+                .start().build());
+        findBuilder.setReturnFields(BuilderFactory.start()
+                .addBoolean("_id", true).build());
+        // Fetch a lot.
+        findBuilder.setBatchSize(50);
+        findBuilder.setLimit((LARGE_COLLECTION_COUNT / 10) + 4);
+        final Find find = findBuilder.build();
+
+        final DocumentCallback callback = new DocumentCallback();
+        myCollection.streamingFind((Callback<Document>) callback, find);
+
+        callback.waitFor(TimeUnit.SECONDS.toMillis(60));
+
+        assertTrue(callback.isTerminated());
+        assertTrue(callback.isTerminatedByNull());
+        assertFalse(callback.isTerminatedByException());
         assertEquals(find.getLimit(), callback.getCount());
         assertNull(callback.getException());
     }
@@ -6438,7 +6615,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * 
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static final class DocumentCallback implements Callback<Document> {
+    public static final class DocumentCallback implements
+            StreamCallback<Document> {
 
         /** The number of documents received. */
         private int myCount = 0;
@@ -6446,22 +6624,48 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         /** The exception if seen. */
         private Throwable myException = null;
 
-        /** True if the callback has been terminted. */
+        /** True if the callback has been terminated. */
         private boolean myTerminated = false;
 
+        /** True if the callback has been terminated. */
+        private boolean myTerminatedByException = false;
+
+        /** True if the callback has been terminated. */
+        private boolean myTerminatedByNull = false;
+
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public synchronized void callback(final Document result) {
             if (result != null) {
                 myCount += 1;
             }
             else {
+                myTerminatedByNull = true;
                 myTerminated = true;
             }
             notifyAll();
         }
 
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to mark the callback as terminated.
+         * </p>
+         */
+        @Override
+        public synchronized void done() {
+            myTerminated = true;
+            notifyAll();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public synchronized void exception(final Throwable thrown) {
+            myTerminatedByException = true;
             myTerminated = true;
             myException = thrown;
             notifyAll();
@@ -6486,12 +6690,30 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
 
         /**
-         * Returns true if the callback has been terminted.
+         * Returns true if the callback has been terminated.
          * 
-         * @return True if the callback has been terminted.
+         * @return True if the callback has been terminated.
          */
         public synchronized boolean isTerminated() {
             return myTerminated;
+        }
+
+        /**
+         * Returns the terminatedByException value.
+         * 
+         * @return The terminatedByException value.
+         */
+        public boolean isTerminatedByException() {
+            return myTerminatedByException;
+        }
+
+        /**
+         * Returns the terminatedByNull value.
+         * 
+         * @return The terminatedByNull value.
+         */
+        public boolean isTerminatedByNull() {
+            return myTerminatedByNull;
         }
 
         /**

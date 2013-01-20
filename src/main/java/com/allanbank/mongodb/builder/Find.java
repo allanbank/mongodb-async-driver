@@ -5,9 +5,9 @@
 
 package com.allanbank.mongodb.builder;
 
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -25,6 +25,12 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class Find {
+
+    /**
+     * If set to true requests for data will block, waiting for data. Useful
+     * with {@link Builder#tailable()} cursors.
+     */
+    private final boolean myAwaitData;
 
     /** The number of documents to be returned in each batch of results. */
     private final int myBatchSize;
@@ -62,7 +68,7 @@ public class Find {
     /** The fields to order the document by. */
     private final Document mySort;
 
-    /** If set to true the cursur returned from the query will be tailable. */
+    /** If set to true the cursor returned from the query will be tailable. */
     private final boolean myTailable;
 
     /**
@@ -84,6 +90,7 @@ public class Find {
         mySnapshot = builder.mySnapshot;
         mySort = builder.mySort;
         myTailable = builder.myTailable;
+        myAwaitData = builder.myAwaitData;
     }
 
     /**
@@ -172,6 +179,17 @@ public class Find {
     }
 
     /**
+     * Returns true if the cursor returned from the query will block or wait for
+     * data. This is mainly useful with {@link Builder#tailable()} cursors.
+     * 
+     * @return True if the cursor returned from the query will block or wait for
+     *         data.
+     */
+    public boolean isAwaitData() {
+        return myAwaitData;
+    }
+
+    /**
      * Returns the partial okay value. If true then an error in the query should
      * return any partial results.
      * 
@@ -194,10 +212,10 @@ public class Find {
     }
 
     /**
-     * Returns true if the cursur returned from the query will be tailable,
+     * Returns true if the cursor returned from the query will be tailable,
      * false otherwise.
      * 
-     * @return True if the cursur returned from the query will be tailable,
+     * @return True if the cursor returned from the query will be tailable,
      *         false otherwise.
      * @see Builder#setTailable(boolean) Find.Builder.setTailable(boolean) for
      *      important usage information.
@@ -290,6 +308,12 @@ public class Find {
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {
+        /**
+         * If set to true requests for data will block, waiting for data. Useful
+         * with {@link #tailable()} cursors.
+         */
+        protected boolean myAwaitData;
+
         /** The number of documents to be returned in each batch of results. */
         protected int myBatchSize;
 
@@ -328,7 +352,7 @@ public class Find {
         /** The fields to order the document on. */
         protected Document mySort;
 
-        /** If set to true the cursur returned from the query will be tailable. */
+        /** If set to true the cursor returned from the query will be tailable. */
         protected boolean myTailable;
 
         /**
@@ -386,7 +410,22 @@ public class Find {
             mySnapshot = false;
             mySort = null;
             myTailable = false;
+            myAwaitData = false;
 
+            return this;
+        }
+
+        /**
+         * If set to true requests for data will block, waiting for data. Useful
+         * with {@link #tailable()} cursors.
+         * 
+         * @param awaitData
+         *            True if requests for data will block, waiting for data.
+         *            Useful with {@link #tailable()} cursors.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setAwaitData(final boolean awaitData) {
+            myAwaitData = awaitData;
             return this;
         }
 
@@ -611,19 +650,19 @@ public class Find {
         }
 
         /**
-         * If set to true the cursur returned from the query will be tailable.
+         * If set to true the cursor returned from the query will be tailable.
          * <p>
          * Testing has shown that a tailable cursor on an empty collection will
          * not setup a cursor on the MongoDB server and will immediately return
-         * false from {@link ClosableIterator#hasNext()}.
+         * false from {@link MongoIterator#hasNext()}.
          * </p>
          * <p>
          * When using a tailable cursor that has exhausted the available data
-         * will cause the {@link ClosableIterator#hasNext()} calls to block
-         * until more data is available. The connection that is used to request
-         * more documents will also be blocked for short intervals (measured to
-         * be ~2.25 seconds with 2.0.7). Any requests submitted behind the
-         * cursors request will also be blocked.
+         * will cause the {@link MongoIterator#hasNext()} calls to block until
+         * more data is available. The connection that is used to request more
+         * documents will also be blocked for short intervals (measured to be
+         * ~2.25 seconds with 2.0.7). Any requests submitted behind the cursors
+         * request will also be blocked.
          * </p>
          * <p>
          * It is highly recommended that the number of connections within the
@@ -632,7 +671,7 @@ public class Find {
          * </p>
          * 
          * @param tailable
-         *            The new value for if the cursur returned from the query
+         *            The new value for if the cursor returned from the query
          *            will be tailable.
          * @return This builder for chaining method calls.
          */
@@ -653,14 +692,16 @@ public class Find {
         }
 
         /**
-         * Sets the the cursur returned from the query to be tailable.
+         * Sets the the cursor returned from the query to be
+         * {@link #setTailable(boolean) setTailable(true)} and
+         * {@link #setAwaitData(boolean) setAwaitData(true)}.
          * 
          * @return This builder for chaining method calls.
          * @see #setTailable(boolean) setTailable(boolean) for important usage
          *      information.
          */
         public Builder tailable() {
-            return setTailable(true);
+            return setTailable(true).setAwaitData(true);
         }
     }
 }

@@ -992,7 +992,7 @@ public class BsonPerformanceITest {
     }
 
     /**
-     * NoopOutputStream provides an {@link OutputStream} implementation to
+     * DevNullOutputStream provides an {@link OutputStream} implementation to
      * nowhere.
      * 
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
@@ -1011,6 +1011,7 @@ public class BsonPerformanceITest {
          */
         @Override
         public void close() {
+            // Nothing.
         }
 
         /**
@@ -1018,6 +1019,7 @@ public class BsonPerformanceITest {
          */
         @Override
         public void flush() {
+            // Nothing.
         }
 
         /**
@@ -1025,6 +1027,7 @@ public class BsonPerformanceITest {
          */
         @Override
         public void write(final byte b[]) {
+            // Nothing.
         }
 
         /**
@@ -1032,6 +1035,7 @@ public class BsonPerformanceITest {
          */
         @Override
         public void write(final byte b[], final int off, final int len) {
+            // Nothing.
         }
 
         /**
@@ -1039,6 +1043,7 @@ public class BsonPerformanceITest {
          */
         @Override
         public void write(final int b) {
+            // Nothing.
         }
     }
 }

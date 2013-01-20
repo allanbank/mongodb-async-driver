@@ -6,8 +6,8 @@
 package com.allanbank.mongodb.client;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
@@ -15,14 +15,14 @@ import com.allanbank.mongodb.error.ReplyException;
 
 /**
  * Callback to convert a {@link Query} {@link Reply} into a
- * {@link MongoIterator}.
+ * {@link MongoIteratorImpl}.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 /* package */final class QueryCallback extends
-        AbstractReplyCallback<ClosableIterator<Document>> {
+        AbstractReplyCallback<MongoIterator<Document>> {
 
     /** The server the original request was sent to. */
     private volatile String myAddress;
@@ -48,7 +48,7 @@ import com.allanbank.mongodb.error.ReplyException;
      *            ready.
      */
     public QueryCallback(final Client client, final Query queryMessage,
-            final Callback<ClosableIterator<Document>> results) {
+            final Callback<MongoIterator<Document>> results) {
 
         super(results);
 
@@ -97,17 +97,18 @@ import com.allanbank.mongodb.error.ReplyException;
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to construct a {@link MongoIterator} around the reply.
+     * Overridden to construct a {@link MongoIteratorImpl} around the reply.
      * </p>
      * 
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override
-    protected ClosableIterator<Document> convert(final Reply reply)
+    protected MongoIterator<Document> convert(final Reply reply)
             throws MongoDbException {
         myReply = reply;
         if (myAddress != null) {
-            return new MongoIterator(myQueryMessage, myClient, myAddress, reply);
+            return new MongoIteratorImpl(myQueryMessage, myClient, myAddress,
+                    reply);
         }
         return null;
     }

@@ -13,26 +13,35 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.ClosableIterator;
+import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.NumericElement;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.GetMore;
 import com.allanbank.mongodb.connection.message.KillCursors;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.error.CursorNotFoundException;
 
 /**
  * Iterator over the results of the MongoDB cursor.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoIterator implements ClosableIterator<Document> {
+public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /** The log for the iterator. */
-    private static final Logger LOG = Logger.getLogger(MongoIterator.class
+    private static final Logger LOG = Logger.getLogger(MongoIteratorImpl.class
             .getName());
 
     /** The size of batches that are requested from the servers. */
@@ -41,11 +50,17 @@ public class MongoIterator implements ClosableIterator<Document> {
     /** The client for sending get_more requests to the server. */
     private final Client myClient;
 
+    /** The name of the collection the query was originally created on. */
+    private final String myCollectionName;
+
     /** The iterator over the current set of documents. */
     private Iterator<Document> myCurrentIterator;
 
     /** The original query. */
     private long myCursorId = 0;
+
+    /** The name of the database the query was originally created on. */
+    private final String myDatabaseName;
 
     /**
      * The maximum number of document to return from the cursor. Zero or
@@ -56,11 +71,48 @@ public class MongoIterator implements ClosableIterator<Document> {
     /** The {@link Future} that will be updated with the next set of results. */
     private FutureCallback<Reply> myNextReply;
 
-    /** The original query. */
-    private final Query myOriginalQuery;
-
     /** The read preference to subsequent requests. */
     private final ReadPreference myReadPerference;
+
+    /**
+     * Flag to shutdown this iterator gracefully without closing the cursor on
+     * the server.
+     */
+    private boolean myShutdown = false;
+
+    /**
+     * Create a new MongoIteratorImpl from a cursor document.
+     * 
+     * @param client
+     *            The client interface to the server.
+     * @param cursorDocument
+     *            The original query.
+     * 
+     * @see MongoIteratorImpl#asDocument()
+     */
+    public MongoIteratorImpl(final Document cursorDocument, final Client client) {
+        final String ns = cursorDocument.get(StringElement.class, "ns")
+                .getValue();
+        String db = ns;
+        String collection = ns;
+        final int index = ns.indexOf('.');
+        if (0 < index) {
+            db = ns.substring(0, index);
+            collection = ns.substring(index + 1);
+        }
+
+        myClient = client;
+        myDatabaseName = db;
+        myCollectionName = collection;
+        myCursorId = cursorDocument.get(NumericElement.class, "$cursor_id")
+                .getLongValue();
+        myLimit = cursorDocument.get(NumericElement.class, "$limit")
+                .getIntValue();
+        myBatchSize = cursorDocument.get(NumericElement.class, "$batch_size")
+                .getIntValue();
+        myReadPerference = ReadPreference.server(cursorDocument.get(
+                StringElement.class, "$server").getValue());
+    }
 
     /**
      * Create a new MongoDBInterator.
@@ -74,7 +126,7 @@ public class MongoIterator implements ClosableIterator<Document> {
      * @param reply
      *            The initial results of the query that are available.
      */
-    public MongoIterator(final Query originalQuery, final Client client,
+    public MongoIteratorImpl(final Query originalQuery, final Client client,
             final String server, final Reply reply) {
         myNextReply = new FutureCallback<Reply>();
         myNextReply.callback(reply);
@@ -82,10 +134,41 @@ public class MongoIterator implements ClosableIterator<Document> {
         myReadPerference = ReadPreference.server(server);
         myCursorId = 0;
         myClient = client;
-        myOriginalQuery = originalQuery;
         myCurrentIterator = null;
         myBatchSize = originalQuery.getBatchSize();
         myLimit = originalQuery.getLimit();
+        myDatabaseName = originalQuery.getDatabaseName();
+        myCollectionName = originalQuery.getCollectionName();
+
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the active cursor in the defined format.
+     * </p>
+     * 
+     * @see ClientImpl#isCursorDocument(Document)
+     */
+    @Override
+    public Document asDocument() {
+        long cursorId = myCursorId;
+        final Future<Reply> replyFuture = myNextReply;
+
+        cursorId = retreiveCursorIdFromPendingRequest(cursorId, replyFuture);
+
+        if (cursorId != 0) {
+            final DocumentBuilder b = BuilderFactory.start();
+            b.add("ns", myDatabaseName + "." + myCollectionName);
+            b.add("$cursor_id", cursorId);
+            b.add("$server", myReadPerference.getServer());
+            b.add("$limit", myLimit);
+            b.add("$batch_size", myBatchSize);
+
+            return b.build();
+        }
+
+        return null;
     }
 
     /**
@@ -97,39 +180,17 @@ public class MongoIterator implements ClosableIterator<Document> {
      */
     @Override
     public void close() {
-        final long cursorId = myCursorId;
+        long cursorId = myCursorId;
         final Future<Reply> replyFuture = myNextReply;
 
         myCurrentIterator = null;
         myNextReply = null;
         myCursorId = 0;
 
-        if (cursorId == 0) {
-            // May not have processed any of the results yet...
-            if (replyFuture != null) {
-                try {
-                    final Reply reply = replyFuture.get();
+        cursorId = retreiveCursorIdFromPendingRequest(cursorId, replyFuture);
 
-                    if (reply.getCursorId() != 0) {
-                        myClient.send(
-                                new KillCursors(new long[] { reply
-                                        .getCursorId() }, myReadPerference),
-                                null);
-                    }
-                }
-                catch (final InterruptedException e) {
-                    LOG.log(Level.WARNING,
-                            "Intertrupted waiting for a query reply to close the cursor.",
-                            e);
-                }
-                catch (final ExecutionException e) {
-                    LOG.log(Level.WARNING,
-                            "Intertrupted waiting for a query reply to close the cursor.",
-                            e);
-                }
-            }
-        }
-        else {
+        if ((cursorId != 0) && !myShutdown) {
+            // The user asked us to leave the cursor be.
             myClient.send(new KillCursors(new long[] { cursorId },
                     myReadPerference), null);
         }
@@ -229,6 +290,16 @@ public class MongoIterator implements ClosableIterator<Document> {
     }
 
     /**
+     * Restarts the iterator by sending a request for more documents.
+     * 
+     * @throws MongoDbException
+     *             On a failure to send the request for more document.
+     */
+    public void restart() throws MongoDbException {
+        sendRequest();
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to set the batch size.
@@ -237,6 +308,71 @@ public class MongoIterator implements ClosableIterator<Document> {
     @Override
     public void setBatchSize(final int batchSize) {
         myBatchSize = batchSize;
+    }
+
+    /**
+     * Stops the iterator after consuming any received and/or requested batches.
+     * <p>
+     * <b>WARNING</b>: This will leave the cursor open on the server. Users
+     * should persist the state of the cursor as returned from
+     * {@link #asDocument()} and restart the cursor using one of the
+     * {@link MongoCollection#find(DocumentAssignable)} or
+     * {@link MongoCollection#streamingFind(Callback, DocumentAssignable)}
+     * methods. Use with extreme caution.
+     * </p>
+     * <p>
+     * The iterator will naturally stop ({@link #hasNext()} will return false)
+     * when the current batch and any already requested batches are finished.
+     * </p>
+     */
+    @Override
+    public void stop() {
+        myShutdown = true;
+    }
+
+    /**
+     * Returns the client value.
+     * 
+     * @return The client value.
+     */
+    protected Client getClient() {
+        return myClient;
+    }
+
+    /**
+     * Returns the collection name.
+     * 
+     * @return The collection name.
+     */
+    protected String getCollectionName() {
+        return myCollectionName;
+    }
+
+    /**
+     * Returns the cursor Id value.
+     * 
+     * @return The cursor Id value.
+     */
+    protected long getCursorId() {
+        return myCursorId;
+    }
+
+    /**
+     * Returns the database name value.
+     * 
+     * @return The database name value.
+     */
+    protected String getDatabaseName() {
+        return myDatabaseName;
+    }
+
+    /**
+     * Returns the limit value.
+     * 
+     * @return The limit value.
+     */
+    protected int getLimit() {
+        return myLimit;
     }
 
     /**
@@ -271,6 +407,13 @@ public class MongoIterator implements ClosableIterator<Document> {
         try {
             // Pull the reply from the future. Hopefully it is already there!
             final Reply reply = myNextReply.get();
+            if (reply.isCursorNotFound()) {
+                final long cursorid = myCursorId;
+                myCursorId = 0;
+                throw new CursorNotFoundException(reply, "Cursor id ("
+                        + cursorid + ") not found by the MongoDB server.");
+            }
+
             myCursorId = reply.getCursorId();
 
             // Setup and iterator over the documents and adjust the limit
@@ -295,14 +438,8 @@ public class MongoIterator implements ClosableIterator<Document> {
 
             // Pre-fetch the next set of documents while we iterate over the
             // documents we just got.
-            if (myCursorId != 0) {
-                final GetMore getMore = new GetMore(
-                        myOriginalQuery.getDatabaseName(),
-                        myOriginalQuery.getCollectionName(), myCursorId,
-                        nextBatchSize(), myReadPerference);
-
-                myNextReply = new FutureCallback<Reply>();
-                myClient.send(getMore, myNextReply);
+            if ((myCursorId != 0) && !myShutdown) {
+                sendRequest();
 
                 // Include the (myNextReply != null) to catch failures on the
                 // server.
@@ -313,10 +450,11 @@ public class MongoIterator implements ClosableIterator<Document> {
                 }
             }
             else {
-                // Exhausted the cursor - no more results.
+                // Exhausted the cursor or are shutting down - no more results.
                 myNextReply = null;
 
-                // Don't need to kill the cursor since we exhausted it.
+                // Don't need to kill the cursor since we exhausted it or are
+                // shutting down.
             }
 
         }
@@ -328,5 +466,54 @@ public class MongoIterator implements ClosableIterator<Document> {
         }
 
         return docs;
+    }
+
+    /**
+     * If the current cursor id is zero then waits for the response from the
+     * pending request to determine the real cursor id.
+     * 
+     * @param cursorId
+     *            The presumed cursor id.
+     * @param replyFuture
+     *            The pending reply's future.
+     * @return The best known cursor id.
+     */
+    protected long retreiveCursorIdFromPendingRequest(final long cursorId,
+            final Future<Reply> replyFuture) {
+        if (cursorId == 0) {
+            // May not have processed any of the results yet...
+            if (replyFuture != null) {
+                try {
+                    final Reply reply = replyFuture.get();
+
+                    return reply.getCursorId();
+                }
+                catch (final InterruptedException e) {
+                    LOG.log(Level.WARNING,
+                            "Intertrupted waiting for a query reply: "
+                                    + e.getMessage(), e);
+                }
+                catch (final ExecutionException e) {
+                    LOG.log(Level.WARNING,
+                            "Intertrupted waiting for a query reply: "
+                                    + e.getMessage(), e);
+                }
+            }
+        }
+        return cursorId;
+    }
+
+    /**
+     * Sends a request for more documents.
+     * 
+     * @throws MongoDbException
+     *             On a failure to send the request for more document.
+     */
+    protected void sendRequest() throws MongoDbException {
+        final GetMore getMore = new GetMore(myDatabaseName, myCollectionName,
+                myCursorId, nextBatchSize(), myReadPerference);
+
+        myNextReply = new FutureCallback<Reply>();
+        myClient.send(getMore, myNextReply);
     }
 }

@@ -9,12 +9,14 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -752,7 +754,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(DocumentAssignable)
      */
     @Override
-    public ClosableIterator<Document> find(final DocumentAssignable query)
+    public MongoIterator<Document> find(final DocumentAssignable query)
             throws MongoDbException {
         return FutureUtils.unwrap(findAsync(query));
     }
@@ -766,7 +768,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Find)
      */
     @Override
-    public ClosableIterator<Document> find(final Find query)
+    public MongoIterator<Document> find(final Find query)
             throws MongoDbException {
         return FutureUtils.unwrap(findAsync(query));
     }
@@ -826,9 +828,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, DocumentAssignable)
      */
     @Override
-    public void findAsync(final Callback<ClosableIterator<Document>> results,
+    public void findAsync(final Callback<MongoIterator<Document>> results,
             final DocumentAssignable query) throws MongoDbException {
-        findAsync(results, new Find.Builder(query.asDocument()).build());
+        findAsync(results, new Find.Builder(query).build());
     }
 
     /**
@@ -842,7 +844,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      */
     @Override
     public abstract void findAsync(
-            final Callback<ClosableIterator<Document>> results, final Find query)
+            final Callback<MongoIterator<Document>> results, final Find query)
             throws MongoDbException;
 
     /**
@@ -854,9 +856,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, DocumentAssignable)
      */
     @Override
-    public Future<ClosableIterator<Document>> findAsync(
+    public Future<MongoIterator<Document>> findAsync(
             final DocumentAssignable query) throws MongoDbException {
-        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
+        final FutureCallback<MongoIterator<Document>> future = new FutureCallback<MongoIterator<Document>>();
 
         findAsync(future, query);
 
@@ -872,9 +874,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Find)
      */
     @Override
-    public Future<ClosableIterator<Document>> findAsync(final Find query)
+    public Future<MongoIterator<Document>> findAsync(final Find query)
             throws MongoDbException {
-        final FutureCallback<ClosableIterator<Document>> future = new FutureCallback<ClosableIterator<Document>>();
+        final FutureCallback<MongoIterator<Document>> future = new FutureCallback<MongoIterator<Document>>();
 
         findAsync(future, query);
 
@@ -1438,10 +1440,41 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * 
      * @see #streamingFind(Callback, Find)
      */
+    @Deprecated
     @Override
-    public void streamingFind(final Callback<Document> results,
+    public MongoCursorControl streamingFind(final Callback<Document> results,
             final DocumentAssignable query) throws MongoDbException {
-        streamingFind(results, new Find.Builder(query).build());
+        return streamingFind(results, new Find.Builder(query).build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #streamingFind(StreamCallback, Find)}.
+     * </p>
+     * 
+     * @see #streamingFind(StreamCallback, Find)
+     */
+    @Deprecated
+    @Override
+    public MongoCursorControl streamingFind(final Callback<Document> results,
+            final Find query) throws MongoDbException {
+        return streamingFind(new LegacyStreamCallbackAdapter(results), query);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #streamingFind(StreamCallback, Find)}.
+     * </p>
+     * 
+     * @see #streamingFind(StreamCallback, Find)
+     */
+    @Override
+    public MongoCursorControl streamingFind(
+            final StreamCallback<Document> results,
+            final DocumentAssignable query) throws MongoDbException {
+        return streamingFind(results, new Find.Builder(query).build());
     }
 
     /**
@@ -1452,7 +1485,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public abstract void streamingFind(Callback<Document> results, Find query)
+    public abstract MongoCursorControl streamingFind(
+            StreamCallback<Document> results, Find query)
             throws MongoDbException;
 
     /**

@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.error;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import java.util.Collections;
@@ -38,5 +39,22 @@ public class CursorNotFoundExceptionTest {
         final CursorNotFoundException cnfe = new CursorNotFoundException(r, t);
         assertSame(r, cnfe.getReply());
         assertSame(t, cnfe.getCause());
+    }
+
+    /**
+     * Test method for
+     * {@link CursorNotFoundException#CursorNotFoundException(Reply, String)} .
+     */
+    @Test
+    public void testCursorNotFoundExceptionWithoutCause() {
+        final List<Document> docs = Collections.emptyList();
+
+        final Reply r = new Reply(1, 1, 1, docs, false, false, false, false);
+        final String msg = "This is a test...";
+
+        final CursorNotFoundException cnfe = new CursorNotFoundException(r, msg);
+        assertSame(r, cnfe.getReply());
+        assertSame(msg, cnfe.getMessage());
+        assertNull(cnfe.getCause());
     }
 }

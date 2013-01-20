@@ -30,12 +30,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -2179,7 +2180,7 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testFindAsyncCallbackOfClosableIteratorOfDocumentDocument() {
-        final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
@@ -2205,7 +2206,7 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testFindAsyncCallbackOfClosableIteratorOfDocumentFind() {
-        final Callback<ClosableIterator<Document>> mockCountCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory.start().build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
@@ -2256,9 +2257,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<ClosableIterator<Document>> future = myTestInstance
+        final Future<MongoIterator<Document>> future = myTestInstance
                 .findAsync(doc);
-        final ClosableIterator<Document> iter = future.get();
+        final MongoIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
         assertTrue(iter.hasNext());
@@ -2295,9 +2296,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<ClosableIterator<Document>> future = myTestInstance
+        final Future<MongoIterator<Document>> future = myTestInstance
                 .findAsync(findBuilder.build());
-        final ClosableIterator<Document> iter = future.get();
+        final MongoIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
         assertTrue(iter.hasNext());
@@ -2335,9 +2336,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<ClosableIterator<Document>> future = myTestInstance
+        final Future<MongoIterator<Document>> future = myTestInstance
                 .findAsync(findBuilder.build());
-        final ClosableIterator<Document> iter = future.get();
+        final MongoIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
         assertTrue(iter.hasNext());
@@ -2372,7 +2373,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final ClosableIterator<Document> iter = myTestInstance.find(doc);
+        final MongoIterator<Document> iter = myTestInstance.find(doc);
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
         assertTrue(iter.hasNext());
@@ -2406,7 +2407,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final ClosableIterator<Document> iter = myTestInstance.find(findBuilder
+        final MongoIterator<Document> iter = myTestInstance.find(findBuilder
                 .build());
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
@@ -2826,9 +2827,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<ClosableIterator<Document>> future = myTestInstance
+        final Future<MongoIterator<Document>> future = myTestInstance
                 .findAsync(request);
-        final ClosableIterator<Document> iter = future.get();
+        final MongoIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
         assertTrue(iter.hasNext());
@@ -2887,9 +2888,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<ClosableIterator<Document>> future = myTestInstance
+        final Future<MongoIterator<Document>> future = myTestInstance
                 .findAsync(request);
-        final ClosableIterator<Document> iter = future.get();
+        final MongoIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
         assertTrue(iter.hasNext());
@@ -2939,9 +2940,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<ClosableIterator<Document>> future = myTestInstance
+        final Future<MongoIterator<Document>> future = myTestInstance
                 .findAsync(request);
-        final ClosableIterator<Document> iter = future.get();
+        final MongoIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
         assertTrue(iter.hasNext());
@@ -4347,6 +4348,7 @@ public class MongoCollectionImplTest {
      * {@link AbstractMongoCollection#streamingFind(Callback,DocumentAssignable)}
      * .
      */
+    @Deprecated
     @Test
     public void testStreamingFindDocument() {
         final Document result1 = BuilderFactory.start().build();
@@ -4386,6 +4388,7 @@ public class MongoCollectionImplTest {
      * Test method for {@link MongoCollectionImpl#streamingFind(Callback,Find)}
      * .
      */
+    @Deprecated
     @Test
     public void testStreamingFindFind() {
         final Document result1 = BuilderFactory.start().build();
@@ -4423,12 +4426,157 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test method for
+     * {@link AbstractMongoCollection#streamingFind(StreamCallback,DocumentAssignable)}
+     * .
+     */
+    @Test
+    public void testStreamingFindStreamCallbackDocument() {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        mockCallback.callback(result1);
+        expectLastCall();
+        mockCallback.callback(result2);
+        expectLastCall();
+        mockCallback.done();
+        expectLastCall();
+
+        replay(mockCallback);
+
+        assertNotNull(myTestInstance.streamingFind(mockCallback, doc));
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#streamingFind(StreamCallback,Find)} .
+     */
+    @Test
+    public void testStreamingFindStreamCallbackFind() {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        mockCallback.callback(result1);
+        expectLastCall();
+        mockCallback.callback(result2);
+        expectLastCall();
+        mockCallback.done();
+        expectLastCall();
+
+        replay();
+
+        myTestInstance.streamingFind(mockCallback,
+                new Find.Builder(doc).build());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#streamingFind(StreamCallback, Find)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testStreamingFindStreamCallbackWithAllOptionsNonSharded()
+            throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final DocumentBuilder sort = BuilderFactory.start()
+                .addInteger("baz", 1);
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder);
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        builder.setSort(sort);
+
+        final Find request = builder.build();
+
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.addDocument("orderby", sort.asDocument());
+
+        final Query message = new Query("test", "test",
+                qRequestBuilder.build(), request.getReturnFields(),
+                request.getBatchSize(), request.getLimit(),
+                request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+        mockCallback.callback(result1);
+        expectLastCall();
+        mockCallback.callback(result2);
+        expectLastCall();
+        mockCallback.done();
+        expectLastCall();
+
+        replay(mockCallback);
+
+        myTestInstance.streamingFind(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
      * Test method for {@link MongoCollectionImpl#streamingFind(Callback, Find)}
      * .
      * 
      * @throws Exception
      *             On an error.
      */
+    @Deprecated
     @Test
     public void testStreamingFindWithAllOptions() throws Exception {
         final Document result1 = BuilderFactory.start().build();
@@ -4493,6 +4641,7 @@ public class MongoCollectionImplTest {
      * @throws Exception
      *             On an error.
      */
+    @Deprecated
     @Test
     public void testStreamingFindWithAllOptionsNonSharded() throws Exception {
         final Document result1 = BuilderFactory.start().build();
@@ -4589,12 +4738,77 @@ public class MongoCollectionImplTest {
                         callback(reply(result1, result2))))
                 .andReturn(myAddress);
 
-        final Callback<Document> mockCallback = createMock(Callback.class);
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
         mockCallback.callback(result1);
         expectLastCall();
         mockCallback.callback(result2);
         expectLastCall();
-        mockCallback.callback(null);
+        mockCallback.done();
+        expectLastCall();
+
+        replay(mockCallback);
+
+        myTestInstance.streamingFind(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#streamingFind(StreamCallback, Find)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testStreamingStreamCallbackFindWithAllOptions()
+            throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final DocumentBuilder sort = BuilderFactory.start()
+                .addInteger("baz", 1);
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder);
+        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        builder.setSort(sort);
+
+        final Find request = builder.build();
+
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.addDocument("$readPreference",
+                ReadPreference.PREFER_SECONDARY.asDocument());
+
+        final Query message = new Query("test", "test",
+                qRequestBuilder.build(), request.getReturnFields(),
+                request.getBatchSize(), request.getLimit(),
+                request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+        mockCallback.callback(result1);
+        expectLastCall();
+        mockCallback.callback(result2);
+        expectLastCall();
+        mockCallback.done();
         expectLastCall();
 
         replay(mockCallback);

@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbUri;
 import com.allanbank.mongodb.MongoFactory;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -187,7 +187,7 @@ public class GridFs {
         // Small batch size since the docs are big and we can do parallel I/O.
         findBuilder.setBatchSize(2);
 
-        final ClosableIterator<Document> iter = myChunksCollection
+        final MongoIterator<Document> iter = myChunksCollection
                 .find(findBuilder.build());
         for (final Document chunk : iter) {
             for (final BinaryElement bytes : chunk.find(BinaryElement.class,

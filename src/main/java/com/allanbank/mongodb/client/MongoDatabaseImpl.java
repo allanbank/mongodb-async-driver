@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
@@ -218,7 +218,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
         /* noCursorTimeout= */false, /* awaitData= */false,
         /* exhaust= */false, /* partial= */false);
 
-        final FutureCallback<ClosableIterator<Document>> iterFuture = new FutureCallback<ClosableIterator<Document>>();
+        final FutureCallback<MongoIterator<Document>> iterFuture = new FutureCallback<MongoIterator<Document>>();
         final QueryCallback callback = new QueryCallback(myClient, query,
                 iterFuture);
 

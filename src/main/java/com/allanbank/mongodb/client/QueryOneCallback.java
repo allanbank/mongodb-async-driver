@@ -12,8 +12,7 @@ import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 
 /**
- * Callback to convert a {@link Query} {@link Reply} into a
- * {@link MongoIterator}.
+ * Callback to convert a {@link Query} {@link Reply} into a single document.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
@@ -36,7 +35,7 @@ import com.allanbank.mongodb.connection.message.Reply;
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to construct a {@link MongoIterator} around the reply.
+     * Overridden to construct a {@link MongoIteratorImpl} around the reply.
      * </p>
      * 
      * @see AbstractReplyCallback#convert(Reply)

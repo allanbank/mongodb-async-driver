@@ -16,9 +16,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -126,7 +126,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
         myDb.createCappedCollection("capped", 1000000);
 
         final MongoCollection collection = myDb.getCollection("capped");
-        ClosableIterator<Document> iter = null;
+        MongoIterator<Document> iter = null;
         Thread backgroundReader = null;
         try {
             // Appear to need at least 1 document in the collection.
@@ -192,7 +192,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
         myDb.createCappedCollection("capped", 1000000);
 
         final MongoCollection collection = myDb.getCollection("capped");
-        ClosableIterator<Document> iter = null;
+        MongoIterator<Document> iter = null;
         try {
             // Appear to need at least 1 document in the collection.
             collection.insert(Durability.ACK,
@@ -237,7 +237,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
         private final int myDocsToRead;
 
         /** The iterator to read from. */
-        private final ClosableIterator<Document> myIterator;
+        private final MongoIterator<Document> myIterator;
 
         /** The thrown exception, if any. */
         private RuntimeException myThrown;
@@ -251,7 +251,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
          *            The number of documents to read.
          */
         public BackgroundTailableCursorReader(
-                final ClosableIterator<Document> iterator, final int docsToRead) {
+                final MongoIterator<Document> iterator, final int docsToRead) {
             myIterator = iterator;
             myDocsToRead = docsToRead;
             myThrown = null;

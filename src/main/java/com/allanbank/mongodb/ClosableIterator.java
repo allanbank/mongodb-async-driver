@@ -17,12 +17,15 @@ import java.util.Iterator;
  * @param <T>
  *            The type of elements being iterated over.
  * 
+ * @deprecated Use the {@link MongoIterator} interface instead. This interface
+ *             will be removed after the 1.3.0 release.
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Deprecated
 public interface ClosableIterator<T> extends Iterator<T>, Iterable<T> {
 
     /**

@@ -25,9 +25,9 @@ import java.io.IOException;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-import com.allanbank.mongodb.ClosableIterator;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -105,7 +105,7 @@ public class GridFsTest {
         final MongoDatabase mockDb = createMock(MongoDatabase.class);
         final MongoCollection mockFiles = createMock(MongoCollection.class);
         final MongoCollection mockChunks = createMock(MongoCollection.class);
-        final ClosableIterator<Document> mockIterator = createMock(ClosableIterator.class);
+        final MongoIterator<Document> mockIterator = createMock(MongoIterator.class);
 
         expect(mockDb.getCollection("fs" + GridFs.FILES_SUFFIX)).andReturn(
                 mockFiles);

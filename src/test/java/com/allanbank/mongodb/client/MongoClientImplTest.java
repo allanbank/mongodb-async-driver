@@ -6,15 +6,18 @@
 package com.allanbank.mongodb.client;
 
 import static com.allanbank.mongodb.AnswerCallback.callback;
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.easymock.EasyMock;
@@ -25,7 +28,9 @@ import org.junit.Test;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDatabase;
+import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -177,6 +182,61 @@ public class MongoClientImplTest {
                 myTestInstance.listDatabases());
 
         verify();
+    }
+
+    /**
+     * Test method for {@link MongoClientImpl#restart(DocumentAssignable)}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @Test
+    public void testRestartDocumentAssignable() throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("ns", "a.b");
+        b.add("$cursor_id", 123456);
+        b.add("$server", "server");
+        b.add("$limit", 4321);
+        b.add("$batch_size", 23);
+
+        expect(myMockClient.restart(b)).andReturn(null);
+
+        replay();
+
+        assertNull(myTestInstance.restart(b));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientImpl#restart(StreamCallback,DocumentAssignable)}.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testRestartStreamCallbackDocumentAssignable()
+            throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("ns", "a.b");
+        b.add("$cursor_id", 123456);
+        b.add("$server", "server");
+        b.add("$limit", 4321);
+        b.add("$batch_size", 23);
+
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+
+        expect(myMockClient.restart(mockCallback, b)).andReturn(null);
+
+        replay(mockCallback);
+
+        assertNull(myTestInstance.restart(mockCallback, b));
+
+        verify(mockCallback);
     }
 
     /**

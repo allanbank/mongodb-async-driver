@@ -18,7 +18,6 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.client.MongoIterator;
 
 /**
  * ReadPreference encapsulates a {@link Mode} and a set of tag matching

@@ -26,11 +26,22 @@ public class CursorNotFoundException extends ReplyException {
      * 
      * @param reply
      *            The reply that raised the exception.
+     * @param message
+     *            Reason for the error.
+     */
+    public CursorNotFoundException(final Reply reply, final String message) {
+        super(reply, message);
+    }
+
+    /**
+     * Create a new CursorNotFoundException.
+     * 
+     * @param reply
+     *            The reply that raised the exception.
      * @param cause
      *            If known the cause of the exception.
      */
     public CursorNotFoundException(final Reply reply, final Throwable cause) {
         super(reply, cause);
     }
-
 }

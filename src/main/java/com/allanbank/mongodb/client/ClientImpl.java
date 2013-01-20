@@ -23,8 +23,15 @@ import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.StreamCallback;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.NumericElement;
+import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
@@ -204,6 +211,67 @@ public class ClientImpl extends AbstractClient {
     }
 
     /**
+     * Returns true if the document looks like a cursor restart document. e.g.,
+     * one that is created by {@link MongoIteratorImpl#asDocument()}.
+     * 
+     * @param doc
+     *            The potential cursor document.
+     * @return True if the document looks like it was created by
+     *         {@link MongoIteratorImpl#asDocument()}.
+     */
+    public boolean isCursorDocument(final Document doc) {
+        return (doc.getElements().size() == 5)
+                && (doc.get(StringElement.class, "ns") != null)
+                && (doc.get(NumericElement.class, "$cursor_id") != null)
+                && (doc.get(StringElement.class, "$server") != null)
+                && (doc.get(NumericElement.class, "$batch_size") != null)
+                && (doc.get(NumericElement.class, "$limit") != null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MongoIterator<Document> restart(
+            final DocumentAssignable cursorDocument)
+            throws IllegalArgumentException {
+        final Document cursorDoc = cursorDocument.asDocument();
+
+        if (isCursorDocument(cursorDoc)) {
+            final MongoIteratorImpl iter = new MongoIteratorImpl(cursorDoc,
+                    this);
+            iter.restart();
+
+            return iter;
+        }
+
+        throw new IllegalArgumentException(
+                "Cannot restart without a well formed cursor document: "
+                        + cursorDoc);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MongoCursorControl restart(final StreamCallback<Document> results,
+            final DocumentAssignable cursorDocument)
+            throws IllegalArgumentException {
+        final Document cursorDoc = cursorDocument.asDocument();
+
+        if (isCursorDocument(cursorDoc)) {
+            final QueryStreamingCallback cb = new QueryStreamingCallback(this,
+                    cursorDoc, results);
+            cb.restart();
+
+            return cb;
+        }
+        throw new IllegalArgumentException(
+                "Cannot restart without a well formed cursor document: "
+                        + cursorDoc);
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Tries to locate a connection that can quickly dispatch the message to a
@@ -246,16 +314,7 @@ public class ClientImpl extends AbstractClient {
         }
 
         // Locate a connection to use.
-        Connection conn = findIdleConnection();
-        if (conn == null) {
-            conn = tryCreateConnection();
-            if (conn == null) {
-                conn = findMostIdleConnection();
-                if (conn == null) {
-                    conn = waitForReconnect(message1, message2);
-                }
-            }
-        }
+        final Connection conn = searchConnection(message1, message2, true);
 
         if (conn == null) {
             throw new CannotConnectException(
@@ -318,6 +377,7 @@ public class ClientImpl extends AbstractClient {
                 myConnections.remove(connection);
                 myConnections.add(newConnection);
                 connection.removePropertyChangeListener(myConnectionListener);
+                newConnection.addPropertyChangeListener(myConnectionListener);
             }
             else {
                 // Reconnect failed.
@@ -325,6 +385,7 @@ public class ClientImpl extends AbstractClient {
                 exception = new CannotConnectException(
                         "Could not reconnect to MongoDB.");
                 connection.raiseErrors(exception, true);
+                connection.removePropertyChangeListener(myConnectionListener);
                 myConnections.remove(connection);
             }
         }
@@ -334,6 +395,59 @@ public class ClientImpl extends AbstractClient {
                 notifyAll();
             }
         }
+    }
+
+    /**
+     * Searches for a connection to use.
+     * <p>
+     * Tries to locate a connection that can quickly dispatch the message to a
+     * MongoDB server. The basic metrics for determining if a connection is idle
+     * is to look at the number of messages waiting to be sent. The basic logic
+     * for finding a connection is:
+     * <ol>
+     * <li>Scan the list of connection looking for an idle connection. If one is
+     * found use it.</li>
+     * <li>If there are no idle connections determine the maximum number of
+     * allowed connections and if there are fewer that the maximum allowed then
+     * take the connection creation lock, create a new connection, use it, and
+     * add to the set of available connections and release the lock.</li>
+     * <li>If there are is still not a connection idle then sort the connections
+     * based on a snapshot of pending messages and use the connection with the
+     * least messages.</li>
+     * <ul>
+     * 
+     * @param message1
+     *            The first message that will be sent. The connection return
+     *            should be compatible with all of the messages
+     *            {@link ReadPreference}.
+     * @param message2
+     *            The second message that will be sent. The connection return
+     *            should be compatible with all of the messages
+     *            {@link ReadPreference}. May be <code>null</code>.
+     * @param waitForReconnect
+     *            If true then the search will block while there is an active
+     *            reconnect attempt.
+     * 
+     * @return The {@link Connection} to send a message on.
+     * @throws MongoDbException
+     *             In the case of an error finding a {@link Connection}.
+     */
+    protected Connection searchConnection(final Message message1,
+            final Message message2, final boolean waitForReconnect)
+            throws MongoDbException {
+        // Locate a connection to use.
+        Connection conn = findIdleConnection();
+        if (conn == null) {
+            conn = tryCreateConnection();
+            if (conn == null) {
+                conn = findMostIdleConnection();
+                if ((conn == null) && waitForReconnect) {
+                    conn = waitForReconnect(message1, message2);
+                }
+            }
+        }
+
+        return conn;
     }
 
     /**
@@ -483,13 +597,13 @@ public class ClientImpl extends AbstractClient {
         Connection conn = null;
         boolean wasReconnecting = false;
         synchronized (this) {
-            wasReconnecting = (myActiveReconnects > 0);
+            wasReconnecting = (0 < myActiveReconnects);
             if (wasReconnecting) {
                 long now = System.currentTimeMillis();
                 final long deadline = (myConfig.getReconnectTimeout() <= 0) ? Long.MAX_VALUE
                         : now + myConfig.getReconnectTimeout();
 
-                while (now < deadline) {
+                while ((now < deadline) && (0 < myActiveReconnects)) {
                     try {
                         LOG.fine("Waiting for reconnect to MongoDB.");
                         wait(deadline - now);
@@ -505,7 +619,7 @@ public class ClientImpl extends AbstractClient {
 
         if (wasReconnecting) {
             // Look again now that we may have reconnected.
-            conn = findConnection(message1, message2);
+            conn = searchConnection(message1, message2, false);
         }
         return conn;
     }
