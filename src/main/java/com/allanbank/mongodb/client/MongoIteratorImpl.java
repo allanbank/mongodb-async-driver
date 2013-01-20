@@ -407,7 +407,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
         try {
             // Pull the reply from the future. Hopefully it is already there!
             final Reply reply = myNextReply.get();
-            if (reply.isCursorNotFound()) {
+            if (reply.isCursorNotFound() || reply.isQueryFailed()) {
                 final long cursorid = myCursorId;
                 myCursorId = 0;
                 throw new CursorNotFoundException(reply, "Cursor id ("

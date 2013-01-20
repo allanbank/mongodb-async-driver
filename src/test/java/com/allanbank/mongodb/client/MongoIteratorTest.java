@@ -326,6 +326,52 @@ public class MongoIteratorTest {
      * .
      */
     @Test
+    public void testAskForMoreGetQueryFailed() {
+        final List<Document> empty = Collections.emptyList();
+
+        final Client mockClient = createMock(Client.class);
+        final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
+                false);
+        final Reply reply2 = new Reply(0, 0, 0, empty, false, false, true,
+                false);
+        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
+                .andReturn(myAddress);
+
+        replay(mockClient);
+
+        final MongoIteratorImpl iter = new MongoIteratorImpl(myQuery,
+                mockClient, myAddress, reply);
+        assertSame(iter, iter.iterator());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(0), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(1), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(2), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(3), iter.next());
+        assertTrue(iter.hasNext());
+        assertSame(myDocs.get(4), iter.next());
+
+        try {
+            iter.hasNext();
+            fail("Should have thrown a CursorNotFound.");
+        }
+        catch (final CursorNotFoundException good) {
+            assertThat(good.getMessage(), containsString("10"));
+        }
+
+        iter.close();
+
+        verify(mockClient);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoIteratorImpl#MongoIteratorImpl(Query, Client, String, Reply)}
+     * .
+     */
+    @Test
     public void testAskForMoreGetNone() {
         final List<Document> empty = Collections.emptyList();
 

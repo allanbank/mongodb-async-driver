@@ -1571,6 +1571,9 @@ public class SocketConnectionTest {
         ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10));
         myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
 
+        // Pause for everything to cleanup.
+        Thread.sleep(100);
+
         assertTrue(myTestConnection.isIdle());
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Send thread should have died.", send.isAlive());
