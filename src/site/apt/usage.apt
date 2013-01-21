@@ -178,13 +178,13 @@ for( Future<Long> future : deleteReplies ) {
 System.out.println("Deleted " + totalCount + " documents.");
 +----------------------------------------+
 
-  When querying for documents a {{{./apidocs/index.html?com/allanbank/mongodb/ClosableIterator.html}ClosableIterator}} 
+  When querying for documents a {{{./apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} 
 is returned.  It is important to close the iterator if the documents are not exhausted.  This can be done with a 
 traditional try/finally block or the, new in Java 7, try-with-resource block.
  
 +----------------------------------------+
 MongoCollection collection = ...;
-try ( ClosableIterator iter = collection.find( where("_id").lessThan(42) ) )
+try ( MongoIterator iter = collection.find( where("_id").lessThan(42) ) )
 {
    for( Document document : iter ) {
        // Process the document.
@@ -272,4 +272,7 @@ the MongoDB documentation:
 
 Advanced Topics
 
+  * {{{./userguide/cursor_restart.html}Restarting Iterators and Streams}}
+
   * {{{./userguide/unix_domain_sockets.html}Connecting to the MongoDB server via UNIX Domain Sockets}}
+  

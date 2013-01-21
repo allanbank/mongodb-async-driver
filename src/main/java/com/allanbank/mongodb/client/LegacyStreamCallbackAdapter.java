@@ -9,21 +9,22 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.DocumentAssignable;
-import com.allanbank.mongodb.builder.Find;
 
 /**
  * LegacyStreamCallbackAdapter provides an adapter from a {@link Callback} to a
  * {@link StreamCallback}. This adapter simulates the old behaviour specified in
- * the {@link MongoCollection#streamingFind(Callback, DocumentAssignable)} and
- * {@link MongoCollection#streamingFind(Callback, Find)} using the new
- * interface.
+ * the
+ * {@link MongoCollection#streamingFind(Callback, com.allanbank.mongodb.bson.DocumentAssignable)}
+ * and
+ * {@link MongoCollection#streamingFind(Callback, com.allanbank.mongodb.builder.Find)}
+ * using the new interface.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @deprecated Deprecated to ensure this class is removed with the
- *             {@link MongoCollection#streamingFind(Callback, DocumentAssignable)}
- *             and {@link MongoCollection#streamingFind(Callback, Find)}
+ *             {@link MongoCollection#streamingFind(Callback, com.allanbank.mongodb.bson.DocumentAssignable)}
+ *             and
+ *             {@link MongoCollection#streamingFind(Callback, com.allanbank.mongodb.builder.Find)}
  *             methods.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */

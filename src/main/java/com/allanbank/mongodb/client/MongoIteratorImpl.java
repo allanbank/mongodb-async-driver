@@ -13,13 +13,11 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -316,8 +314,9 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
      * <b>WARNING</b>: This will leave the cursor open on the server. Users
      * should persist the state of the cursor as returned from
      * {@link #asDocument()} and restart the cursor using one of the
-     * {@link MongoCollection#find(DocumentAssignable)} or
-     * {@link MongoCollection#streamingFind(Callback, DocumentAssignable)}
+     * {@link MongoClient#restart(com.allanbank.mongodb.bson.DocumentAssignable)}
+     * or
+     * {@link MongoClient#restart(com.allanbank.mongodb.StreamCallback, com.allanbank.mongodb.bson.DocumentAssignable)}
      * methods. Use with extreme caution.
      * </p>
      * <p>
@@ -480,24 +479,22 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
      */
     protected long retreiveCursorIdFromPendingRequest(final long cursorId,
             final Future<Reply> replyFuture) {
-        if (cursorId == 0) {
-            // May not have processed any of the results yet...
-            if (replyFuture != null) {
-                try {
-                    final Reply reply = replyFuture.get();
+        // May not have processed any of the results yet...
+        if ((cursorId == 0) && (replyFuture != null)) {
+            try {
+                final Reply reply = replyFuture.get();
 
-                    return reply.getCursorId();
-                }
-                catch (final InterruptedException e) {
-                    LOG.log(Level.WARNING,
-                            "Intertrupted waiting for a query reply: "
-                                    + e.getMessage(), e);
-                }
-                catch (final ExecutionException e) {
-                    LOG.log(Level.WARNING,
-                            "Intertrupted waiting for a query reply: "
-                                    + e.getMessage(), e);
-                }
+                return reply.getCursorId();
+            }
+            catch (final InterruptedException e) {
+                LOG.log(Level.WARNING,
+                        "Intertrupted waiting for a query reply: "
+                                + e.getMessage(), e);
+            }
+            catch (final ExecutionException e) {
+                LOG.log(Level.WARNING,
+                        "Intertrupted waiting for a query reply: "
+                                + e.getMessage(), e);
             }
         }
         return cursorId;

@@ -8,7 +8,6 @@ package com.allanbank.mongodb;
 import java.io.Closeable;
 
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.builder.Find;
 
 /**
@@ -16,6 +15,10 @@ import com.allanbank.mongodb.builder.Find;
  * Normally this interface is used via a {@link MongoIterator} but in the case
  * of streaming only the controls are returned.
  * 
+ * @api.yes This interface is part of the driver's API. Public and protected
+ *          members will be deprecated for at least 1 non-bugfix release
+ *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
+ *          before being removed or modified.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface MongoCursorControl extends Closeable {
@@ -82,9 +85,10 @@ public interface MongoCursorControl extends Closeable {
      * {@link #close()} on this object will not close the cursor on the server.
      * Users should persist the state of the cursor as returned from
      * {@link #asDocument()} and restart the cursor using one of the
-     * {@link MongoClient#restart(DocumentAssignable)} or
-     * {@link MongoClient#restart(StreamCallback, DocumentAssignable)} methods.
-     * Use {@link #stop()} with extreme caution.
+     * {@link MongoClient#restart(com.allanbank.mongodb.bson.DocumentAssignable)}
+     * or
+     * {@link MongoClient#restart(StreamCallback, com.allanbank.mongodb.bson.DocumentAssignable)}
+     * methods. Use {@link #stop()} with extreme caution.
      * </p>
      * <p>
      * The iterator or stream will naturally stop (

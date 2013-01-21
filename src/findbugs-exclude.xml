@@ -11,6 +11,9 @@
 	</Match>
 	<Match>
 		<Class name="com.allanbank.mongodb.bson.json.JsonParser" />
-		<Method name="ReInit" />
+		<Or>
+			<Method name="ReInit" />
+			<Method name="jj_rescan_token" />
+		</Or>
 	</Match>
 </FindBugsFilter>

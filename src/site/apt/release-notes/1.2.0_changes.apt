@@ -1,0 +1,28 @@
+            ------
+            Changes in MongoDB Asynchronous Java Driver 1.2.0
+            ------
+            ------
+            TBD
+
+Upgrading
+
+  This version is TBD compatible with the 1.0.2 version of the driver.  
+  
+Updates and Improvements:
+
+  * Added the ability to persist and restart fetching the results of a query from either a 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} or 
+stream.  See the user's guide on {{{../userguide/cursor_restart.html}cursor restarts}} for more information.
+   
+  * The {{{../apidocs/index.html?com/allanbank/mongodb/bson/json/Json.html}Json}} class to parse strict
+formated extended JSON as specified in the 
+{{{http://docs.mongodb.org/manual/reference/mongodb-extended-json/}MongoDB Extended JSON}} documentation.
+  
+Deprecations
+
+  The following classes have been deprecated:
+  
+  * {{{../apidocs/index.html?com/allanbank/mongodb/ClosableIterator.html}ClosableIterator}} is replaced by 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} and 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoCursorControl.html}MongoCursorControl}} interfaces.
+  
