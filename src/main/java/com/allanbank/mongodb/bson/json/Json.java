@@ -21,6 +21,7 @@ import com.allanbank.mongodb.bson.element.MaxKeyElement;
 import com.allanbank.mongodb.bson.element.MinKeyElement;
 import com.allanbank.mongodb.bson.element.MongoTimestampElement;
 import com.allanbank.mongodb.bson.element.ObjectIdElement;
+import com.allanbank.mongodb.bson.element.RegularExpressionElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
 import com.allanbank.mongodb.error.JsonException;
 import com.allanbank.mongodb.error.JsonParseException;
@@ -36,37 +37,45 @@ import com.allanbank.mongodb.error.JsonParseException;
  * <dt>BinData</dt>
  * <dd>Creates a {@link BinaryElement}. The first field is the sub-type,
  * normally zero. The second field is the base64 encoded binary value: <br/>
- * <code>{ a : BinData(0, "VVU=") }</code></dd>
+ * <code>{ a : BinData(0, "VVU=") }</code> or
+ * <code>{ a : { $binary:"VVU=", $type:0 } }</code></dd>
  * <dt>HexData</dt>
  * <dd>Creates a {@link BinaryElement}. The first field is the sub-type,
  * normally zero. The second field is the hex encoded binary value: <br/>
  * <code>{ a : HexData(0, "cafe") }</code></dd>
  * <dt>ISODate</dt>
  * <dd>Creates a {@link TimestampElement}: <br/>
- * <code>{ a : ISODate("2012-07-14T01:00:00.000") }</code></dd>
+ * <code>{ a : ISODate("2012-07-14T01:00:00.000") }</code> or
+ * <code>{ a : { $date : "2012-07-14T01:00:00.000" } }</code> or
+ * <code>{ a : { $date : 1234567890 } }</code></dd>
+ * <dt>MaxKey</dt>
+ * <dd>Creates a {@link MaxKeyElement}: <br/>
+ * <code>{ a : MaxKey }</code> or <code>{ a : MaxKey() }</code></dd>
+ * <dt>MinKey</dt>
+ * <dd>Creates a {@link MinKeyElement}: <br/>
+ * <code>{ a : MinKey }</code> or <code>{ a : MinKey() }</code></dd>
  * <dt>NumberLong</dt>
  * <dd>Creates a {@link LongElement}: <br/>
  * <code>{ a : NumberLong("123456789") }</code></dd>
  * <dt>ObjectId</dt>
  * <dd>Creates an {@link ObjectIdElement}. The string is the hex encoding of the
  * 128 bit value: <br/>
- * <code>{ a : ObjectId("4e9d87aa5825b60b637815a6") }</code></dd>
+ * <code>{ a : ObjectId("4e9d87aa5825b60b637815a6") }</code> or
+ * <code>{ a : { $oid : "4e9d87aa5825b60b637815a6" } }</code></dd>
+ * <dt>$regex</dt>
+ * <dd>Creates an {@link RegularExpressionElement}: <br/>
+ * <code>{ a : { $regex : 'cat' , $options : 'i' } }</code></dd>
  * <dt>Timestamp</dt>
  * <dd>Creates a {@link MongoTimestampElement}. The first value is the seconds
  * since the UNIX epoch. The second value is an ordinal: <br/>
- * <code>{ a : Timestamp(0,0) }</code></dd>
+ * <code>{ a : Timestamp(0,0) }</code> or
+ * <code>{ a : { $timestamp : { t : 0, i : 0 } } }</code></dd>
  * </dl>
  * <p>
  * The following non-standard extensions are also provided. These extensions may
- * be deprectated in future releases if standard extensions are created:
+ * be deprecated in future releases if standard extensions are created:
  * </p>
  * <dl>
- * <dt>MaxKey</dt>
- * <dd>Creates a {@link MaxKeyElement}: <br/>
- * <code>{ a : MaxKey() }</code></dd>
- * <dt>MinKey</dt>
- * <dd>Creates a {@link MinKeyElement}: <br/>
- * <code>{ a : MinKey() }</code></dd>
  * <dt>DBPointer</dt>
  * <dd>Creates a {@link com.allanbank.mongodb.bson.element.DBPointerElement
  * DBPointerElement}:<br/>
@@ -83,11 +92,12 @@ import com.allanbank.mongodb.error.JsonParseException;
  * JavaScriptElement}</li>
  * <li>{@link com.allanbank.mongodb.bson.element.JavaScriptWithScopeElement
  * JavaScriptWithScopeElement}</li>
- * <li>{@link com.allanbank.mongodb.bson.element.RegularExpressionElement
- * RegularExpressionElement}</li>
  * </ul>
  * </p>
  * 
+ * @see <a
+ *      href="http://docs.mongodb.org/manual/reference/mongodb-extended-json/">MongoDB
+ *      Extended JSON</a>
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being

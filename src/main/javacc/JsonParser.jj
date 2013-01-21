@@ -184,6 +184,29 @@ import com.allanbank.mongodb.util.IOUtils;
     }
 
     /**
+     * Parses the ISO date string into a long field.
+     * 
+     * @param timestampToken
+     *            The timestamp string.
+     * @return The Date for the time string.
+     * @throws JsonParseException
+     *             On a failure to parse the date string.
+     */
+    private Date toDateFromEpoch(final Token timestampToken)
+            throws JsonParseException {
+
+        try {
+            return new Date(Long.parseLong(timestampToken.image));
+        }
+        catch (NumberFormatException nfe) {
+            throw new JsonParseException("Could not parse the time milliseconds '"
+                    + timestampToken.image + "' @ line " + timestampToken.beginLine
+                    + ", column " + timestampToken.beginColumn + ".", nfe,
+                    timestampToken.beginLine, timestampToken.beginColumn);
+        }
+    }
+
+    /**
      * Converts the timestamp and increment into a MongoTimestamp Long value..
      * 
      * @param timestampToken
@@ -216,6 +239,58 @@ import com.allanbank.mongodb.util.IOUtils;
                     timestampToken.beginLine, timestampToken.beginColumn);
         }
         return value;
+    }
+
+    /**
+     * Tries to create a Mongo Timestamp from the four tokens in a document that
+     * looks like:
+     * <code>{ $timestamp : { &lt;token1&gt; : &lt;token2&gt; , &lt;token3&gt; : &lt;token4&gt; } }</code>
+     * The second and fourth tokens should be integers. The first and third
+     * should be either 't' or 'i'.
+     * 
+     * @param t1
+     *            The first token in the document.
+     * @param t2
+     *            The second token in the document, should be an integer.
+     * @param t3
+     *            The third token in the document.
+     * @param t4
+     *            The fourth token in the document, should be an integer.
+     */
+    private long toMongoTimestamp(Token t1, Token t2, Token t3, Token t4) {
+        try {
+            long t2Int = Long.parseLong(trimQuotes(t2.image));
+            long t4Int = Long.parseLong(trimQuotes(t4.image));
+
+            String t1Str = trimQuotes(t1.image);
+            String t3Str = trimQuotes(t3.image);
+
+            long value = 0;
+            if ("t".equals(t1Str) && "i".equals(t3Str)) {
+                // Time is specified in milliseconds but only store seconds
+                // so we truncate the time to milliseconds.
+                value = TimeUnit.MILLISECONDS.toSeconds(t2Int);
+                value <<= Integer.SIZE;
+                value += (t4Int & 0xFFFFFFFFL);
+            }
+            else if ("t".equals(t3Str) && "i".equals(t1Str)) {
+                value = TimeUnit.MILLISECONDS.toSeconds(t4Int);
+                value <<= Integer.SIZE;
+                value += (t2Int & 0xFFFFFFFFL);
+            }
+            else {
+                throw new JsonParseException(
+                        "Invalid MongoDB Timestamp document at line "
+                                + t1.beginLine + ", column " + t1.beginColumn
+                                + ":", t1.beginLine, t1.beginColumn);
+            }
+            return value;
+        }
+        catch (NumberFormatException nfe) {
+            throw new JsonParseException(nfe.getMessage() + " (line "
+                    + t1.beginLine + ", column " + t1.beginColumn + ")", nfe,
+                    t1.beginLine, t1.beginColumn);
+        }
     }
 
     /**
@@ -378,6 +453,15 @@ TOKEN : {
      |  <TOKEN_MAXKEY: "MaxKey">
      |  <TOKEN_MINKEY: "MinKey">
      |  <TOKEN_DB_POINTER: "DBPointer">
+     |  <TOKEN_BINARY: "\"$binary\"" |  "'$binary'" | "$binary" >
+     |  <TOKEN_TYPE: "\"$type\"" |  "'$type'" | "$type" >
+     |  <TOKEN_DATE: "\"$date\"" |  "'$date'" | "$date" >
+     |  <TOKEN_TS: "\"$timestamp\"" |  "'$timestamp'" | "$timestamp" >
+     |  <TOKEN_REGEX: "\"$regex\"" |  "'$regex'" | "$regex" >
+     |  <TOKEN_OPTIONS: "\"$options\"" |  "'$options'" | "$options" >
+     |  <TOKEN_OID: "\"$oid\"" |  "'$oid'" | "$oid" >
+     |  <TOKEN_MAX: "\"$maxKey\"" |  "'$maxKey'" | "$maxKey" >
+     |  <TOKEN_MIN: "\"$minKey\"" |  "'$minKey'" | "$minKey" >
 }        
 
 /* Identifiers */
@@ -672,10 +756,62 @@ private void arrayValue(ArrayBuilder builder) : {
     Token t1 = null;
     Token t2 = null;
     Token t3 = null;
+    Token t4 = null;
 }
 {
     (
-          document(builder.push())
+        LOOKAHEAD(2) 
+        "{" 
+        ( 
+           <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL> <TOKEN_COMMA> <TOKEN_TYPE> <TOKEN_COLON> t1 = <INTEGER>
+           {
+              builder.addBinary( (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+           }
+         | <TOKEN_TYPE> <TOKEN_COLON> t1 = <INTEGER> <TOKEN_COMMA> <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL>
+           {
+              builder.addBinary( (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+           }
+         | <TOKEN_DATE> <TOKEN_COLON> ( t1 = <INTEGER> | t2 = <STRING_LITERAL> )
+           {
+              if ( t1 != null ) {
+                  builder.add( toDateFromEpoch(t1) );
+              } else { 
+                  builder.add( toDate(t2) );
+              }
+           }
+         | <TOKEN_TS>  <TOKEN_COLON> "{" 
+                 (t1 = <IDENTIFIER_NAME> | t1 = <STRING_LITERAL> ) <TOKEN_COLON> t2 = <INTEGER> <TOKEN_COMMA> 
+                 (t3 = <IDENTIFIER_NAME> | t3 = <STRING_LITERAL> ) <TOKEN_COLON> t4 = <INTEGER> "}"
+           {
+              builder.addMongoTimestamp( toMongoTimestamp(t1, t2, t3, t4) );
+           }
+         | <TOKEN_REGEX> <TOKEN_COLON> t1 = <STRING_LITERAL> ( <TOKEN_COMMA> <TOKEN_OPTIONS> <TOKEN_COLON> t2 = <STRING_LITERAL> )?
+           {
+              if ( t2 != null ) {
+                  builder.addRegularExpression( trimQuotes(t1.image), trimQuotes(t2.image) );
+              } else {
+                  builder.addRegularExpression( trimQuotes(t1.image), "" );
+              }
+           }
+         | <TOKEN_OPTIONS> <TOKEN_COLON> t2 = <STRING_LITERAL> <TOKEN_COMMA> <TOKEN_REGEX> <TOKEN_COLON> t1 = <STRING_LITERAL>
+          {
+              builder.addRegularExpression( trimQuotes(t1.image), trimQuotes(t2.image) );
+          }
+         | <TOKEN_OID> <TOKEN_COLON> t1 = <STRING_LITERAL>
+          {
+              builder.addObjectId( toObjectId(t1) );
+          }
+         | <TOKEN_MAX> <TOKEN_COLON> <INTEGER>
+          {
+             builder.addMaxKey();
+          }
+         | <TOKEN_MIN> <TOKEN_COLON> <INTEGER>
+          {
+             builder.addMinKey();
+          }
+        ) 
+        "}"
+        | document(builder.push())
         | array(builder.pushArray()) 
         | t1 = <HEX_DIGIT> { builder.addSymbol(t1.image); }
         | t1 = <IDENTIFIER_NAME> { builder.addSymbol(t1.image); }
@@ -709,11 +845,11 @@ private void arrayValue(ArrayBuilder builder) : {
           { 
              builder.addMongoTimestamp( toMongoTimestamp(t1, t2) );
           }
-        | <TOKEN_MAXKEY> "(" ")" 
+        | <TOKEN_MAXKEY> ( "(" ")" )?
           {
              builder.addMaxKey();
           }
-        | <TOKEN_MINKEY> "(" ")" 
+        | <TOKEN_MINKEY> ( "(" ")" )?
           { 
              builder.addMinKey();
           }
@@ -731,10 +867,63 @@ private void documentValue(String name, DocumentBuilder builder) : {
     Token t1 = null;
     Token t2 = null;
     Token t3 = null;
+    Token t4 = null;
 }
 {
-    ( 
-          document(builder.push(name)) 
+    
+    (
+        LOOKAHEAD(2) 
+        "{" 
+        ( 
+           <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL> <TOKEN_COMMA> <TOKEN_TYPE> <TOKEN_COLON> t1 = <INTEGER>
+           {
+              builder.addBinary( name, (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+           }
+         | <TOKEN_TYPE> <TOKEN_COLON> t1 = <INTEGER> <TOKEN_COMMA> <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL>
+           {
+              builder.addBinary( name, (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+           }
+         | <TOKEN_DATE> <TOKEN_COLON> ( t1 = <INTEGER> | t2 = <STRING_LITERAL> )
+           {
+              if ( t1 != null ) {
+                  builder.add( name, toDateFromEpoch(t1) );
+              } else { 
+                  builder.add( name, toDate(t2) );
+              }
+           }
+         | <TOKEN_TS>  <TOKEN_COLON> "{" 
+                 (t1 = <IDENTIFIER_NAME> | t1 = <STRING_LITERAL> ) <TOKEN_COLON> t2 = <INTEGER> <TOKEN_COMMA> 
+                 (t3 = <IDENTIFIER_NAME> | t3 = <STRING_LITERAL> ) <TOKEN_COLON> t4 = <INTEGER> "}"
+           {
+              builder.addMongoTimestamp( name, toMongoTimestamp(t1, t2, t3, t4) );
+           }
+         | <TOKEN_REGEX> <TOKEN_COLON> t1 = <STRING_LITERAL> ( <TOKEN_COMMA> <TOKEN_OPTIONS> <TOKEN_COLON> t2 = <STRING_LITERAL> )?
+           {
+              if ( t2 != null ) {
+                  builder.addRegularExpression( name, trimQuotes(t1.image), trimQuotes(t2.image) );
+              } else {
+                  builder.addRegularExpression( name, trimQuotes(t1.image), "" );
+              }
+           }
+         | <TOKEN_OPTIONS> <TOKEN_COLON> t2 = <STRING_LITERAL> <TOKEN_COMMA> <TOKEN_REGEX> <TOKEN_COLON> t1 = <STRING_LITERAL>
+          {
+              builder.addRegularExpression( name, trimQuotes(t1.image), trimQuotes(t2.image) );
+          }
+         | <TOKEN_OID> <TOKEN_COLON> t1 = <STRING_LITERAL>
+          {
+              builder.addObjectId( name, toObjectId(t1) );
+          }
+         | <TOKEN_MAX> <TOKEN_COLON> <INTEGER>
+          {
+             builder.addMaxKey(name);
+          }
+         | <TOKEN_MIN> <TOKEN_COLON> <INTEGER>
+          {
+             builder.addMinKey(name);
+          }
+        ) 
+        "}"
+        | document(builder.push(name)) 
         | array(builder.pushArray(name)) 
         | t1 = <HEX_DIGIT> { builder.addSymbol(name, t1.image); }
         | t1 = <IDENTIFIER_NAME> { builder.addSymbol(name, t1.image); }
@@ -768,11 +957,11 @@ private void documentValue(String name, DocumentBuilder builder) : {
           { 
              builder.addMongoTimestamp( name, toMongoTimestamp(t1, t2) );
           }
-        | <TOKEN_MAXKEY> "(" ")" 
+        | <TOKEN_MAXKEY> ( "(" ")" )? 
           {
              builder.addMaxKey(name);
           }
-        | <TOKEN_MINKEY> "(" ")" 
+        | <TOKEN_MINKEY> ( "(" ")" )? 
           { 
              builder.addMinKey(name);
           }
