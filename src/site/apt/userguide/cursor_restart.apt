@@ -25,8 +25,7 @@ already requested from the server.
   [[3]] Persist the state of the iterator or stream.
   
   [[4]] Restart the iterator or stream from the persisted state.
-  
-  [[]]
+
  
 * Executing the query
 
