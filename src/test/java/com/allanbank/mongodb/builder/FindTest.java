@@ -61,9 +61,11 @@ public class FindTest {
         assertFalse(request.isSnapshot());
         assertTrue(request.isTailable());
         assertTrue(request.isAwaitData());
+        assertFalse(request.isImmortalCursor());
 
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
         builder.setTailable(false);
+        builder.setImmortalCursor(true);
 
         request = builder.build();
         assertSame(query, request.getQuery());
@@ -78,6 +80,7 @@ public class FindTest {
         assertFalse(request.isSnapshot());
         assertFalse(request.isTailable());
         assertTrue(request.isAwaitData());
+        assertTrue(request.isImmortalCursor());
     }
 
     /**
@@ -102,6 +105,7 @@ public class FindTest {
         assertFalse(request.isSnapshot());
         assertFalse(request.isTailable());
         assertFalse(request.isAwaitData());
+        assertFalse(request.isImmortalCursor());
 
         assertEquals(request.getQuery(), request.toQueryRequest(false));
         assertEquals(

@@ -68,7 +68,7 @@ until data is available or the request times out (typically 2 seconds).  The adv
 is no additional data available the await data avoid the iterator or stream entering a busy spin loop constantly 
 requesting more data.
 
-  * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.Builder.html}Find.Builder.setNoCursorTimeout(boolean)}} 
+  * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.Builder.html}Find.Builder.setImmortalCursor(boolean)}} 
 
   Of particular use with iterator and stream restarts is a setting the MongoDB server side cursor to not timeout.  
 Normally the server will delete any inactive cursors after a period of time.  By setting the cursor to not timeout 

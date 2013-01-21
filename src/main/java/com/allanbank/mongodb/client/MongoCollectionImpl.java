@@ -339,7 +339,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             final Find query) throws MongoDbException {
 
         final Query queryMessage = createQuery(query, query.getLimit(),
-                query.getBatchSize(), query.isTailable());
+                query.getBatchSize(), query.isTailable(), query.isAwaitData(),
+                query.isImmortalCursor());
 
         final QueryCallback callback = new QueryCallback(myClient,
                 queryMessage, results);
@@ -359,7 +360,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void findOneAsync(final Callback<Document> results, final Find query)
             throws MongoDbException {
-        final Query queryMessage = createQuery(query, 1, 1, false);
+        final Query queryMessage = createQuery(query, 1, 1, false, false, false);
 
         myClient.send(queryMessage, new QueryOneCallback(results));
     }
@@ -599,7 +600,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             final StreamCallback<Document> results, final Find query)
             throws MongoDbException {
         final Query queryMessage = createQuery(query, query.getLimit(),
-                query.getBatchSize(), query.isTailable());
+                query.getBatchSize(), query.isTailable(), query.isAwaitData(),
+                query.isImmortalCursor());
 
         final QueryStreamingCallback callback = new QueryStreamingCallback(
                 myClient, queryMessage, results);
@@ -686,10 +688,16 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      *            The batch size for the query.
      * @param tailable
      *            If the query should create a tailable cursor.
+     * @param awaitData
+     *            If the query should await data.
+     * @param immortal
+     *            If the query should create a cursor that does not timeout,
+     *            e.g., immortal.
      * @return The {@link Query} message.
      */
     protected Query createQuery(final Find query, final int limit,
-            final int batchSize, final boolean tailable) {
+            final int batchSize, final boolean tailable,
+            final boolean awaitData, final boolean immortal) {
         ReadPreference readPreference = query.getReadPreference();
         if (readPreference == null) {
             readPreference = getReadPreference();
@@ -705,11 +713,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         return new Query(getDatabaseName(), myName, queryDoc,
-                query.getReturnFields(), batchSize /* batchSize */,
-                limit /* limit */, query.getNumberToSkip(), tailable,
-                readPreference, false /* noCursorTimeout */,
-                tailable /* awaitData */, false /* exhaust */,
-                query.isPartialOk());
+                query.getReturnFields(), batchSize, limit,
+                query.getNumberToSkip(), tailable, readPreference, immortal,
+                awaitData, false /* exhaust */, query.isPartialOk());
     }
 
     /**

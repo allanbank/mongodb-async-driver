@@ -7,6 +7,7 @@ package com.allanbank.mongodb.builder;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
@@ -40,6 +41,12 @@ public class Find {
 
     /** The hint for which index to use by name. */
     private final String myHintName;
+
+    /**
+     * If set to true the cursor returned from the query will not timeout or die
+     * automatically, e.g., immortal.
+     */
+    private final boolean myImmortalCursor;
 
     /** The total number of documents to be returned. */
     private final int myLimit;
@@ -91,6 +98,7 @@ public class Find {
         mySort = builder.mySort;
         myTailable = builder.myTailable;
         myAwaitData = builder.myAwaitData;
+        myImmortalCursor = builder.myImmortalCursor;
     }
 
     /**
@@ -187,6 +195,20 @@ public class Find {
      */
     public boolean isAwaitData() {
         return myAwaitData;
+    }
+
+    /**
+     * Returns true if the cursor returned from the query will not timeout or
+     * die automatically, e.g., immortal, false otherwise.
+     * 
+     * @return True if the cursor returned from the query will not timeout or
+     *         die automatically, e.g., immortal.
+     * @see Builder#setImmortalCursor(boolean)
+     *      Find.Builder.setimmortalCursor(boolean) for important usage
+     *      information.
+     */
+    public boolean isImmortalCursor() {
+        return myImmortalCursor;
     }
 
     /**
@@ -323,6 +345,12 @@ public class Find {
         /** The hint for which index to use. */
         protected String myHintName;
 
+        /**
+         * If set to true the cursor returned from the query will not timeout or
+         * die automatically, e.g., immortal.
+         */
+        protected boolean myImmortalCursor;
+
         /** The total number of documents to be returned. */
         protected int myLimit;
 
@@ -411,6 +439,7 @@ public class Find {
             mySort = null;
             myTailable = false;
             myAwaitData = false;
+            myImmortalCursor = false;
 
             return this;
         }
@@ -506,6 +535,29 @@ public class Find {
         public Builder setHint(final String indexName) {
             myHintName = indexName;
             myHint = null;
+            return this;
+        }
+
+        /**
+         * If set to true the cursor returned from the query will not timeout or
+         * die automatically, e.g., immortal. The user most either exhaust the
+         * results of the query or explicitly close the {@link MongoIterator} or
+         * {@link MongoCursorControl} returned.
+         * <p>
+         * Under normal circumstances using an immortal cursor is not needed and
+         * its repeated incorrect usage could cause a memory leak on the MongoDB
+         * server and impact performance. Extreme caution should be used to
+         * ensure the number of active cursors on the server does not grow
+         * without bounds.
+         * </p>
+         * 
+         * @param immortal
+         *            True if the cursor returned from the query should be
+         *            immortal.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setImmortalCursor(final boolean immortal) {
+            myImmortalCursor = immortal;
             return this;
         }
 
