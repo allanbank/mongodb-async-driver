@@ -153,6 +153,28 @@ public class JavaScriptElementTest {
     }
 
     /**
+     * Test method for {@link JavaScriptElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final JavaScriptElement element = new JavaScriptElement("foo",
+                "func code() {}");
+
+        assertEquals(element.getJavaScript(), element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link JavaScriptElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final JavaScriptElement element = new JavaScriptElement("foo",
+                "func code() {}");
+
+        assertEquals("{ $code : 'func code() {}' }", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link JavaScriptElement#withName(String)}.
      */
     @Test

@@ -100,6 +100,21 @@ public class MongoTimestampElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a {@link Long} with the value of the timestamp.
+     * </p>
+     * <p>
+     * <b>Note:</b> This value will not be recreated is a Object-->Element
+     * conversion. Long with the value of the timestamp is created instead.
+     * </p>
+     */
+    @Override
+    public Long getValueAsObject() {
+        return Long.valueOf(myTimestamp);
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

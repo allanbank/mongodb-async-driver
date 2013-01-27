@@ -313,6 +313,18 @@ public abstract class AbstractBuilder implements Builder {
         /**
          * {@inheritDoc}
          * <p>
+         * Overridden to return null as this class should not be seen outside of
+         * the builders.
+         * </p>
+         */
+        @Override
+        public Object getValueAsObject() {
+            return null;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
          * Returns a new {@link BuilderElement}.
          * </p>
          */

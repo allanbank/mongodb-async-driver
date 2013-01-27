@@ -586,6 +586,17 @@ public class JsonSerializationVisitor implements Visitor {
     }
 
     /**
+     * Returns if the visitor is currently suppressing the names of elements.
+     * This is true when serializing an array.
+     * 
+     * @return If the visitor is currently suppressing the names of elements.
+     *         This is true when serializing an array.
+     */
+    protected boolean isSuppressNames() {
+        return mySuppressNames;
+    }
+
+    /**
      * Writes a new line if {@link #myOneLine} is false and indents to the
      * {@link #myIndentLevel}.
      * 
@@ -602,6 +613,17 @@ public class JsonSerializationVisitor implements Visitor {
         else {
             mySink.write(' ');
         }
+    }
+
+    /**
+     * Sets the value for if the visitor is currently suppressing the names of
+     * elements. This is true, for example, when serializing an array.
+     * 
+     * @param suppressNames
+     *            The new value for if names should be suppressed.
+     */
+    protected void setSuppressNames(final boolean suppressNames) {
+        mySuppressNames = suppressNames;
     }
 
     /**

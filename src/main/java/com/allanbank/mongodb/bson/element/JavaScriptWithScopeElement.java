@@ -10,6 +10,8 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * A wrapper for a BSON JavaScript with Scope.
@@ -104,6 +106,26 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
     @Override
     public ElementType getType() {
         return TYPE;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a document representing the code and scope similar to the strict
+     * JSON encoding.
+     * </p>
+     * <p>
+     * <b>Note:</b> This value will not be recreated is a Object-->Element
+     * conversion. A more generic sub-document is created instead.
+     * </p>
+     */
+    @Override
+    public Document getValueAsObject() {
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("$code", getJavaScript());
+        b.add("$scope", myScope);
+
+        return b.build();
     }
 
     /**

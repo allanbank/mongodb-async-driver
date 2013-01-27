@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import java.util.Date;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -92,6 +94,17 @@ public class TimestampElement extends AbstractElement {
     @Override
     public ElementType getType() {
         return TYPE;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the {@link Date}.
+     * </p>
+     */
+    @Override
+    public Date getValueAsObject() {
+        return new Date(getTime());
     }
 
     /**

@@ -22,6 +22,7 @@ import com.allanbank.mongodb.bson.DocumentReference;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.util.PatternUtils;
 
@@ -455,6 +456,17 @@ public class DocumentElement extends AbstractElement implements Document {
     @Override
     public ElementType getType() {
         return TYPE;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a stand-alone {@link Document}.
+     * </p>
+     */
+    @Override
+    public Document getValueAsObject() {
+        return BuilderFactory.start(this).build();
     }
 
     /**

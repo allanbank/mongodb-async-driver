@@ -124,6 +124,27 @@ public class MinKeyElementTest {
     }
 
     /**
+     * Test method for {@link MinKeyElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final MinKeyElement element = new MinKeyElement("foo");
+
+        assertEquals(Double.valueOf(Double.NEGATIVE_INFINITY),
+                element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link MinKeyElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final MinKeyElement element = new MinKeyElement("foo");
+
+        assertEquals("MinKey()", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link MinKeyElement#withName(String)}.
      */
     @Test

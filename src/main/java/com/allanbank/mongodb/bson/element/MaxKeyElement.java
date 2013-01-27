@@ -58,6 +58,22 @@ public class MaxKeyElement extends AbstractElement {
     /**
      * {@inheritDoc}
      * <p>
+     * Returns a {@link Double} with the value {@link Double#POSITIVE_INFINITY}.
+     * </p>
+     * <p>
+     * <b>Note:</b> This value will not be recreated is a Object-->Element
+     * conversion. Double with the {@link Double#POSITIVE_INFINITY} value is
+     * created instead.
+     * </p>
+     */
+    @Override
+    public Double getValueAsObject() {
+        return Double.valueOf(Double.POSITIVE_INFINITY);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Returns a new {@link MaxKeyElement}.
      * </p>
      */

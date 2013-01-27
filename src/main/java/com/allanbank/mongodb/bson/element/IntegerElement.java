@@ -129,6 +129,28 @@ public class IntegerElement extends AbstractElement implements NumericElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a {@link Integer} with the value.
+     * </p>
+     */
+    @Override
+    public Integer getValueAsObject() {
+        return Integer.valueOf(myValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the result of {@link Integer#toString(int)}.
+     * </p>
+     */
+    @Override
+    public String getValueAsString() {
+        return Integer.toString(myValue);
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

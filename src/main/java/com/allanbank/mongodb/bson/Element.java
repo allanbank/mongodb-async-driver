@@ -7,6 +7,10 @@ package com.allanbank.mongodb.bson;
 import java.io.Serializable;
 import java.util.List;
 
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
+import com.allanbank.mongodb.bson.element.TimestampElement;
+
 /**
  * A common interface for the basic BSON types used to construct Documents and
  * arrays.
@@ -88,6 +92,42 @@ public interface Element extends Serializable, ElementAssignable {
     public ElementType getType();
 
     /**
+     * Returns the value for BSON element as a Java {@link Object} type.
+     * <p>
+     * Automatic conversion from the Object-ified value to an element is
+     * provided via the {@link DocumentBuilder#add(String, Object)} method. Not
+     * all element types will be successfully converted to the same element
+     * duing a Element-->Object value-->Element conversion. This cases are noted
+     * in the appropriate sub-type's JavaDoc.
+     * <p>
+     * Sub-types will also overload this method with the appropriate type
+     * returned. e.g., The
+     * {@link com.allanbank.mongodb.bson.element.StringElement#getValueAsObject()}
+     * method signature returns a {@link String}.
+     * </p>
+     * 
+     * @return The value for BSON element as a Java {@link Object} type.
+     */
+    public Object getValueAsObject();
+
+    /**
+     * Returns the value for BSON element as a Java {@link String}. Automatic
+     * conversion from the string value back to an Element is not provided.
+     * <p>
+     * Generally the string returned will be the expected value. As an example
+     * for a LongElement with the value 101 the returned string will be "101".
+     * In those cases where there is not canonical form for the value (e.g., a
+     * {@link com.allanbank.mongodb.bson.element.TimestampElement} the returned
+     * string will match the value when converted to JSON by the
+     * {@link JsonSerializationVisitor}. For a {@link TimestampElement} that is
+     * a string of the form "ISODate('1970-01-01T00:00:00.000+0000')".
+     * </p>
+     * 
+     * @return The value for BSON element as a {@link String}.
+     */
+    public String getValueAsString();
+
+    /**
      * Returns the elements matching the path of regular expressions.
      * 
      * @param <E>
@@ -127,5 +167,4 @@ public interface Element extends Serializable, ElementAssignable {
      * @return The created element.
      */
     public Element withName(String name);
-
 }

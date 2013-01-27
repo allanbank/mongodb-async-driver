@@ -160,6 +160,28 @@ public abstract class AbstractElement implements Element {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Uses the {@link JsonSerializationVisitor} to encode the value. In some
+     * cases it will be more efficient to override this method with a more
+     * straight forward conversion.
+     * </p>
+     */
+    @Override
+    public String getValueAsString() {
+        final StringWriter writer = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                writer, false);
+
+        // Just the value.
+        visitor.setSuppressNames(true);
+
+        accept(visitor);
+
+        return writer.toString();
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

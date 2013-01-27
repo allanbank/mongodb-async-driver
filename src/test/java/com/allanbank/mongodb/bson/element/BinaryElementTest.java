@@ -332,6 +332,40 @@ public class BinaryElementTest {
     }
 
     /**
+     * Test method for {@link BinaryElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        assertArrayEquals(element.getValue(),
+                (byte[]) element.getValueAsObject());
+
+        element = new BinaryElement("foo", (byte) 0x11, new byte[] { 0x31,
+                0x22, 0x13 });
+
+        assertArrayEquals(element.getValue(),
+                (byte[]) element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link BinaryElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        assertEquals("BinData( 1, 'AQID' )", element.getValueAsString());
+
+        element = new BinaryElement("foo", (byte) 0x11, new byte[] { 0x31,
+                0x22, 0x13 });
+
+        assertEquals("BinData( 17, 'MSIT' )", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link BinaryElement#withName(String)}.
      */
     @Test

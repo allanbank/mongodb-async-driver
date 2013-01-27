@@ -100,6 +100,28 @@ public class SymbolElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the {@link String} symbol.
+     * </p>
+     */
+    @Override
+    public String getValueAsObject() {
+        return getSymbol();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the {@link String} symbol.
+     * </p>
+     */
+    @Override
+    public String getValueAsString() {
+        return getSymbol();
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

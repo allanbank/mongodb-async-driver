@@ -6,6 +6,7 @@ package com.allanbank.mongodb.bson.element;
 
 import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 
+import com.allanbank.mongodb.bson.DocumentReference;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -139,6 +140,23 @@ public class DBPointerElement extends AbstractElement {
     @Override
     public ElementType getType() {
         return TYPE;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a {@link DocumentReference}.
+     * </p>
+     * <p>
+     * <b>Note:</b> This value will not be recreated is a Object-->Element
+     * conversion. A more generic sub-document following the DBRef convention is
+     * created instead.
+     * </p>
+     */
+    @Override
+    public DocumentReference getValueAsObject() {
+        return new DocumentReference(myDatabaseName, myCollectionName,
+                new ObjectIdElement("_id", myId));
     }
 
     /**

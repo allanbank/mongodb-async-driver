@@ -100,6 +100,28 @@ public class StringElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the {@link String} value.
+     * </p>
+     */
+    @Override
+    public String getValueAsObject() {
+        return getValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the {@link String} value.
+     * </p>
+     */
+    @Override
+    public String getValueAsString() {
+        return getValue();
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

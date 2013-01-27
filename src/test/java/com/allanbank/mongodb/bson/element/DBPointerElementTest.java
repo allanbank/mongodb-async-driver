@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.bson.DocumentReference;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -179,6 +180,33 @@ public class DBPointerElementTest {
         assertEquals(
                 "foo : DBPointer( 'bar', 'baz', ObjectId('50d615d28544eba9a10004e8') )",
                 element.toString());
+    }
+
+    /**
+     * Test method for {@link DBPointerElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final ObjectId id = new ObjectId(0x50d615d2, 0x8544eba9a10004e8L);
+        final DBPointerElement element = new DBPointerElement("foo", "bar",
+                "baz", id);
+
+        assertEquals(new DocumentReference("bar", "baz", new ObjectIdElement(
+                "_id", id)), element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link DBPointerElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final ObjectId id = new ObjectId(0x50d615d2, 0x8544eba9a10004e8L);
+        final DBPointerElement element = new DBPointerElement("foo", "bar",
+                "baz", id);
+
+        assertEquals(
+                "DBPointer( 'bar', 'baz', ObjectId('50d615d28544eba9a10004e8') )",
+                element.getValueAsString());
     }
 
     /**

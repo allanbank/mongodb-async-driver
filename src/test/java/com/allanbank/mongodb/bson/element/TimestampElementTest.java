@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -139,6 +140,27 @@ public class TimestampElementTest {
 
         assertEquals("foo : ISODate('1970-01-01T00:16:50.101+0000')",
                 element.toString());
+    }
+
+    /**
+     * Test method for {@link TimestampElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final TimestampElement element = new TimestampElement("foo", 1010101);
+
+        assertEquals(new Date(1010101L), element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link TimestampElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final TimestampElement element = new TimestampElement("foo", 1010101);
+
+        assertEquals("ISODate('1970-01-01T00:16:50.101+0000')",
+                element.getValueAsString());
     }
 
     /**

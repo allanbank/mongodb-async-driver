@@ -94,6 +94,28 @@ public class BooleanElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a {@link Boolean}.
+     * </p>
+     */
+    @Override
+    public Boolean getValueAsObject() {
+        return Boolean.valueOf(getValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns "true" or "false".
+     * </p>
+     */
+    @Override
+    public String getValueAsString() {
+        return Boolean.toString(myValue);
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

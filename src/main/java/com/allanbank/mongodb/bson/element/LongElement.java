@@ -129,6 +129,28 @@ public class LongElement extends AbstractElement implements NumericElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a {@link Long} with the value.
+     * </p>
+     */
+    @Override
+    public Long getValueAsObject() {
+        return Long.valueOf(myValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the result of {@link Long#toString(long)}.
+     * </p>
+     */
+    @Override
+    public String getValueAsString() {
+        return Long.toString(myValue);
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

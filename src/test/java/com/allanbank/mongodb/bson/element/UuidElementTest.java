@@ -150,6 +150,26 @@ public class UuidElementTest {
     }
 
     /**
+     * Test method for {@link UuidElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final UuidElement element = new UuidElement("f", TEST_UUID);
+
+        assertEquals(TEST_UUID, element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link UuidElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final UuidElement element = new UuidElement("f", TEST_UUID);
+
+        assertEquals(TEST_UUID.toString(), element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link UuidElement#withName(String)}.
      */
     @Test

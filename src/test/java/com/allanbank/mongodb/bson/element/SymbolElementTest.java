@@ -151,6 +151,26 @@ public class SymbolElementTest {
     }
 
     /**
+     * Test method for {@link SymbolElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final SymbolElement element = new SymbolElement("foo", "string");
+
+        assertEquals("string", element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link SymbolElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final SymbolElement element = new SymbolElement("foo", "string");
+
+        assertEquals("string", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link SymbolElement#withName(String)}.
      */
     @Test

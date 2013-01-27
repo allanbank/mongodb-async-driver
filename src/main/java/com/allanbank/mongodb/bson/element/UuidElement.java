@@ -17,11 +17,11 @@ import com.allanbank.mongodb.util.IOUtils;
  * sub-types.
  * <p>
  * If no sub-type is provided this class defaults to the standardized sub-type 4
- * binary element which encodes the UUID from most signifigant byte to least
- * signifigant byte. If the deprecated sub-type 3 is specified this class
+ * binary element which encodes the UUID from most significant byte to least
+ * significant byte. If the deprecated sub-type 3 is specified this class
  * assumes the legacy Java encoding of the UUID which encodes the most
- * signifigant long in least-signifigant-byte order and then the least
- * signifigant long in least-signifigant-byte order.
+ * significant long in least-significant-byte order and then the least
+ * significant long in least-significant-byte order.
  * </p>
  * 
  * @api.yes This class is part of the driver's API. Public and protected members
@@ -178,6 +178,32 @@ public class UuidElement extends BinaryElement {
      */
     public UUID getUuid() {
         return myUuid;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the UUID value.
+     * </p>
+     * <p>
+     * <b>Note:</b> This value will not be recreated is a Object-->Element
+     * conversion. The sub type is lost in this conversion to an {@link Object}.
+     * </p>
+     */
+    @Override
+    public UUID getValueAsObject() {
+        return myUuid;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the result of the {@link UUID#toString()}.
+     * </p>
+     */
+    @Override
+    public String getValueAsString() {
+        return myUuid.toString();
     }
 
     /**

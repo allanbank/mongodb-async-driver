@@ -156,6 +156,30 @@ public class ObjectIdElementTest {
     }
 
     /**
+     * Test method for {@link ObjectIdElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final ObjectIdElement element = new ObjectIdElement("foo",
+                new ObjectId(0x11223344, 0x1122334455667788L));
+
+        assertEquals(new ObjectId(0x11223344, 0x1122334455667788L),
+                element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link ObjectIdElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final ObjectIdElement element = new ObjectIdElement("foo",
+                new ObjectId(0x11223344, 0x1122334455667788L));
+
+        assertEquals("ObjectId('112233441122334455667788')",
+                element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link ObjectIdElement#withName(String)}.
      */
     @Test

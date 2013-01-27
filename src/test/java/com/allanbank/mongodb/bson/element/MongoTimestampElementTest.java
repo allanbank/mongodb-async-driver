@@ -148,6 +148,28 @@ public class MongoTimestampElementTest {
     }
 
     /**
+     * Test method for {@link MongoTimestampElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final MongoTimestampElement element = new MongoTimestampElement("foo",
+                1010101);
+
+        assertEquals(new Long(1010101), element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link MongoTimestampElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final MongoTimestampElement element = new MongoTimestampElement("foo",
+                1010101);
+
+        assertEquals("Timestamp(0, 1010101)", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link MongoTimestampElement#withName(String)}.
      */
     @Test

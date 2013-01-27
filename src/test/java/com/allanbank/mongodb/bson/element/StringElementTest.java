@@ -151,6 +151,26 @@ public class StringElementTest {
     }
 
     /**
+     * Test method for {@link StringElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final StringElement element = new StringElement("foo", "string");
+
+        assertEquals("string", element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link StringElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final StringElement element = new StringElement("foo", "string");
+
+        assertEquals("string", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link StringElement#withName(String)}.
      */
     @Test

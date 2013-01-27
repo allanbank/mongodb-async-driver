@@ -94,10 +94,10 @@ public class RegularExpressionElement extends AbstractElement {
         UNICODE = OPTION_U;
         VERBOSE = OPTION_X;
 
-        final String[] options = new String[OPTION_MASK];
+        final String[] options = new String[OPTION_MASK + 1];
 
         final StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < OPTION_MASK; ++i) {
+        for (int i = 0; i < (OPTION_MASK + 1); ++i) {
             builder.setLength(0);
 
             // Options must be in alphabetic order.
@@ -335,6 +335,32 @@ public class RegularExpressionElement extends AbstractElement {
     @Override
     public ElementType getType() {
         return TYPE;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the {@link Pattern}.
+     * </p>
+     */
+    @Override
+    public Pattern getValueAsObject() {
+
+        int options = 0;
+        if ((myOptions & CASE_INSENSITIVE) == CASE_INSENSITIVE) {
+            options |= Pattern.CASE_INSENSITIVE;
+        }
+        if ((myOptions & MULTILINE) == MULTILINE) {
+            options |= Pattern.MULTILINE;
+        }
+        if ((myOptions & DOT_ALL) == DOT_ALL) {
+            options |= Pattern.DOTALL;
+        }
+        if ((myOptions & UNICODE) == UNICODE) {
+            options |= PATTERN_UNICODE;
+        }
+
+        return Pattern.compile(myPattern, options);
     }
 
     /**

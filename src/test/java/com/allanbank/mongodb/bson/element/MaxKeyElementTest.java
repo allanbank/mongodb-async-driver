@@ -124,6 +124,27 @@ public class MaxKeyElementTest {
     }
 
     /**
+     * Test method for {@link MaxKeyElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final MaxKeyElement element = new MaxKeyElement("foo");
+
+        assertEquals(Double.valueOf(Double.POSITIVE_INFINITY),
+                element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link MaxKeyElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final MaxKeyElement element = new MaxKeyElement("foo");
+
+        assertEquals("MaxKey()", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link MaxKeyElement#withName(String)}.
      */
     @Test

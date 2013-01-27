@@ -58,6 +58,29 @@ public class NullElement extends AbstractElement {
     /**
      * {@inheritDoc}
      * <p>
+     * Returns <code>null</code>.
+     * </p>
+     */
+    @Override
+    public Object getValueAsObject() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the result of {@link String#valueOf(Object) String.valueOf(null)}
+     * .
+     * </p>
+     */
+    @Override
+    public String getValueAsString() {
+        return String.valueOf((Object) null);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Returns a new {@link NullElement}.
      * </p>
      */

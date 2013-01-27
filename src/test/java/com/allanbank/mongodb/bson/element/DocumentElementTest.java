@@ -948,6 +948,34 @@ public class DocumentElementTest {
     }
 
     /**
+     * Test method for {@link DocumentElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement2 = new BooleanElement("2", false);
+        final DocumentElement element = new DocumentElement("foo", subElement,
+                subElement2);
+
+        assertEquals(BuilderFactory.start(element).build(),
+                element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link DocumentElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement2 = new BooleanElement("2", false);
+        final DocumentElement element = new DocumentElement("foo", subElement,
+                subElement2);
+
+        assertEquals("{\n  '1' : false,\n  '2' : false\n}",
+                element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link DocumentElement#withName(String)}.
      */
     @Test

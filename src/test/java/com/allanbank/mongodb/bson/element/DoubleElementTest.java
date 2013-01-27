@@ -169,6 +169,27 @@ public class DoubleElementTest {
     }
 
     /**
+     * Test method for {@link DoubleElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final DoubleElement element = new DoubleElement("foo", 1.0101);
+
+        assertEquals(Double.valueOf(element.getDoubleValue()),
+                element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link DoubleElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final DoubleElement element = new DoubleElement("foo", 1.0101);
+
+        assertEquals("1.0101", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link DoubleElement#withName(String)}.
      */
     @Test

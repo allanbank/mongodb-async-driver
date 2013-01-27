@@ -228,6 +228,17 @@ public class ArrayElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns an Element[].
+     * </p>
+     */
+    @Override
+    public Element[] getValueAsObject() {
+        return myEntries.toArray(new Element[myEntries.size()]);
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

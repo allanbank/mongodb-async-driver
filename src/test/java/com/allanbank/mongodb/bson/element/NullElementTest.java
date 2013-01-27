@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -121,6 +122,26 @@ public class NullElementTest {
         final NullElement element = new NullElement("foo");
 
         assertEquals("foo : null", element.toString());
+    }
+
+    /**
+     * Test method for {@link NullElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final NullElement element = new NullElement("foo");
+
+        assertNull(element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link NullElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final NullElement element = new NullElement("foo");
+
+        assertEquals("null", element.getValueAsString());
     }
 
     /**

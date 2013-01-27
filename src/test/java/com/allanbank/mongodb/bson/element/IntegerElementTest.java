@@ -170,6 +170,27 @@ public class IntegerElementTest {
     }
 
     /**
+     * Test method for {@link IntegerElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final IntegerElement element = new IntegerElement("foo", 1010101);
+
+        assertEquals(Integer.valueOf(element.getIntValue()),
+                element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link IntegerElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final IntegerElement element = new IntegerElement("foo", 1010101);
+
+        assertEquals("1010101", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link IntegerElement#withName(String)}.
      */
     @Test

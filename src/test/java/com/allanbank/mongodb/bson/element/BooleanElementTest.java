@@ -122,9 +122,41 @@ public class BooleanElementTest {
      */
     @Test
     public void testToString() {
-        final BooleanElement element = new BooleanElement("foo", false);
+        BooleanElement element = new BooleanElement("foo", false);
 
         assertEquals("foo : false", element.toString());
+
+        element = new BooleanElement("foo", true);
+
+        assertEquals("foo : true", element.toString());
+    }
+
+    /**
+     * Test method for {@link BooleanElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        BooleanElement element = new BooleanElement("foo", false);
+
+        assertEquals(Boolean.FALSE, element.getValueAsObject());
+
+        element = new BooleanElement("foo", true);
+
+        assertEquals(Boolean.TRUE, element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link BooleanElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        BooleanElement element = new BooleanElement("foo", false);
+
+        assertEquals("false", element.getValueAsString());
+
+        element = new BooleanElement("foo", true);
+
+        assertEquals("true", element.getValueAsString());
     }
 
     /**

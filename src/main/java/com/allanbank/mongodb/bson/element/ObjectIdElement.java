@@ -102,6 +102,17 @@ public class ObjectIdElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the {@link ObjectId}.
+     * </p>
+     */
+    @Override
+    public ObjectId getValueAsObject() {
+        return myId;
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

@@ -291,6 +291,63 @@ public class RegularExpressionElementTest {
     }
 
     /**
+     * Test method for {@link RegularExpressionElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        RegularExpressionElement element = new RegularExpressionElement("foo",
+                "func code", RegularExpressionElement.OPTION_I
+                        | RegularExpressionElement.OPTION_L
+                        | RegularExpressionElement.OPTION_M
+                        | RegularExpressionElement.OPTION_S
+                        | RegularExpressionElement.OPTION_U
+                        | RegularExpressionElement.OPTION_X);
+
+        assertEquals(
+                Pattern.compile(
+                        "func code",
+                        Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+                                | Pattern.DOTALL
+                                | RegularExpressionElement.PATTERN_UNICODE)
+                        .pattern(), element.getValueAsObject().pattern());
+        assertEquals(
+                Pattern.compile(
+                        "func code",
+                        Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+                                | Pattern.DOTALL
+                                | RegularExpressionElement.PATTERN_UNICODE)
+                        .flags(), element.getValueAsObject().flags());
+
+        element = new RegularExpressionElement("foo", "func code", "");
+
+        assertEquals(Pattern.compile("func code").pattern(), element
+                .getValueAsObject().pattern());
+        assertEquals(Pattern.compile("func code").flags(), element
+                .getValueAsObject().flags());
+    }
+
+    /**
+     * Test method for {@link RegularExpressionElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        RegularExpressionElement element = new RegularExpressionElement("foo",
+                "func code", RegularExpressionElement.OPTION_I
+                        | RegularExpressionElement.OPTION_L
+                        | RegularExpressionElement.OPTION_M
+                        | RegularExpressionElement.OPTION_S
+                        | RegularExpressionElement.OPTION_U
+                        | RegularExpressionElement.OPTION_X);
+
+        assertEquals("{ $regex : 'func code', $options : 'ilmsux' }",
+                element.getValueAsString());
+
+        element = new RegularExpressionElement("foo", "func code", "");
+
+        assertEquals("{ $regex : 'func code' }", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link RegularExpressionElement#withName(String)}.
      */
     @Test

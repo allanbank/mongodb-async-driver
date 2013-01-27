@@ -170,6 +170,27 @@ public class LongElementTest {
     }
 
     /**
+     * Test method for {@link LongElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final LongElement element = new LongElement("foo", 1010101);
+
+        assertEquals(Long.valueOf(element.getLongValue()),
+                element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link LongElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final LongElement element = new LongElement("foo", 1010101);
+
+        assertEquals("1010101", element.getValueAsString());
+    }
+
+    /**
      * Test method for {@link LongElement#withName(String)}.
      */
     @Test

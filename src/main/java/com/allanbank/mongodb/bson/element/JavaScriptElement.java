@@ -6,6 +6,7 @@ package com.allanbank.mongodb.bson.element;
 
 import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 
+import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -101,6 +102,21 @@ public class JavaScriptElement extends AbstractElement {
     @Override
     public ElementType getType() {
         return TYPE;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the result of {@link #getJavaScript()}.
+     * </p>
+     * <p>
+     * <em>Implementation Note:</em> The return type cannot be a String here as
+     * {@link JavaScriptWithScopeElement} returns a {@link Document}.
+     * </p>
+     */
+    @Override
+    public Object getValueAsObject() {
+        return getJavaScript();
     }
 
     /**

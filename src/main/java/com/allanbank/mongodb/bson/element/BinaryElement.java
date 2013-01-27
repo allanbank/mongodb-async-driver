@@ -137,6 +137,25 @@ public class BinaryElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a byte[].
+     * </p>
+     * <p>
+     * <b>Note:</b> This value will not be recreated is a Object-->Element
+     * conversion. The sub type is lost in this conversion to an {@link Object}.
+     * </p>
+     * <p>
+     * <em>Implementation Note:</em> The return type cannot be a byte[] here as
+     * {@link UuidElement} returns a {@link java.util.UUID}.
+     * </p>
+     */
+    @Override
+    public Object getValueAsObject() {
+        return getValue();
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

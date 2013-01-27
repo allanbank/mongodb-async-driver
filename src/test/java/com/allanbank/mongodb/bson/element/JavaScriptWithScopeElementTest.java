@@ -26,6 +26,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * JavaScriptWithScopeElementTest provides tests for the
@@ -195,6 +196,33 @@ public class JavaScriptWithScopeElementTest {
         assertEquals(
                 "foo : { $code : 'func code() {}', $scope : { f : true } }",
                 element.toString());
+    }
+
+    /**
+     * Test method for {@link JavaScriptWithScopeElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final JavaScriptWithScopeElement element = new JavaScriptWithScopeElement(
+                "foo", "func code() {}", SCOPE_1);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add("$code", element.getJavaScript());
+        b.add("$scope", element.getScope());
+
+        assertEquals(b.build(), element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link JavaScriptWithScopeElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final JavaScriptWithScopeElement element = new JavaScriptWithScopeElement(
+                "foo", "func code() {}", SCOPE_1);
+
+        assertEquals("{ $code : 'func code() {}', $scope : { f : true } }",
+                element.getValueAsString());
     }
 
     /**

@@ -129,6 +129,28 @@ public class DoubleElement extends AbstractElement implements NumericElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a {@link Double} with the value.
+     * </p>
+     */
+    @Override
+    public Double getValueAsObject() {
+        return Double.valueOf(myValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the result of {@link Double#toString(double)}.
+     * </p>
+     */
+    @Override
+    public String getValueAsString() {
+        return Double.toString(myValue);
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

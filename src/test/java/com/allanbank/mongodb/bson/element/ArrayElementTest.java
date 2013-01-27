@@ -9,6 +9,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -461,6 +462,50 @@ public class ArrayElementTest {
 
         element = new ArrayElement("foo", new DocumentElement("0"));
         assertEquals("foo : [\n  {}\n]", element.toString());
+    }
+
+    /**
+     * Test method for {@link ArrayElement#getValueAsObject()}.
+     */
+    @Test
+    public void testValueAsObject() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+
+        ArrayElement element = new ArrayElement("foo", subElement, subElement);
+        assertArrayEquals(new Element[] { subElement, subElement },
+                element.getValueAsObject());
+
+        element = new ArrayElement("foo", subElement);
+        assertArrayEquals(new Element[] { subElement },
+                element.getValueAsObject());
+
+        element = new ArrayElement("foo", new ArrayElement("0"));
+        assertArrayEquals(new Element[] { new ArrayElement("0") },
+                element.getValueAsObject());
+
+        element = new ArrayElement("foo", new DocumentElement("0"));
+        assertArrayEquals(new Element[] { new DocumentElement("0") },
+                element.getValueAsObject());
+    }
+
+    /**
+     * Test method for {@link ArrayElement#getValueAsString()}.
+     */
+    @Test
+    public void testValueAsString() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+
+        ArrayElement element = new ArrayElement("foo", subElement, subElement);
+        assertEquals("[\n  false, \n  false\n]", element.getValueAsString());
+
+        element = new ArrayElement("foo", subElement);
+        assertEquals("[ false ]", element.getValueAsString());
+
+        element = new ArrayElement("foo", new ArrayElement("0"));
+        assertEquals("[\n  []\n]", element.getValueAsString());
+
+        element = new ArrayElement("foo", new DocumentElement("0"));
+        assertEquals("[\n  {}\n]", element.getValueAsString());
     }
 
     /**
