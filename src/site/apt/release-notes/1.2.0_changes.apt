@@ -18,6 +18,10 @@ stream.  See the user's guide on {{{../userguide/cursor_restart.html}cursor rest
 formated extended JSON as specified in the 
 {{{http://docs.mongodb.org/manual/reference/mongodb-extended-json/}MongoDB Extended JSON}} documentation.
   
+  * Add the <<<getValueAsObject()>>> and <<<getValueAsString()>>> methods to the 
+{{{../apidocs/index.html?com/allanbank/mongodb/bson/Element.html}Element}} interface to make type accessing
+the value of an <<<Element>>> in a type agnostic way possible.
+  
 Deprecations
 
   The following classes have been deprecated:
