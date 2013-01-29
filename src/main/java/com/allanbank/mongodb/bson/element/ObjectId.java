@@ -13,6 +13,9 @@ import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.allanbank.mongodb.bson.io.EndianUtils;
+import com.allanbank.mongodb.util.IOUtils;
+
 /**
  * An Object Id.
  * 
@@ -137,6 +140,40 @@ public class ObjectId implements Serializable {
     public ObjectId(final int timestamp, final long machineId) {
         myTimestamp = timestamp;
         myMachineId = machineId;
+    }
+
+    /**
+     * Constructs a new {@link ObjectId}.
+     * 
+     * @param hexBytes
+     *            The hex encoded byte value.
+     * @throws IllegalArgumentException
+     *             If the hex encoded string is not 24 characters.
+     */
+    public ObjectId(final String hexBytes) throws IllegalArgumentException {
+
+        if (hexBytes.length() != 24) {
+            throw new IllegalArgumentException(
+                    "Invalid ObjectId value.  Must be a 24 character hex string.");
+        }
+
+        final byte[] bytes = IOUtils.hexToBytes(hexBytes);
+        int timestamp = 0;
+        for (int i = 0; i < 4; ++i) {
+            int value = (bytes[i] & 0xFF);
+            value <<= (Byte.SIZE * i);
+            timestamp += value;
+        }
+
+        long machineId = 0;
+        for (int i = 4; i < 12; ++i) {
+            long value = (bytes[i] & 0xFF);
+            value <<= (Byte.SIZE * (i - 4));
+            machineId += value;
+        }
+
+        myTimestamp = EndianUtils.swap(timestamp);
+        myMachineId = EndianUtils.swap(machineId);
     }
 
     /**

@@ -309,25 +309,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
         final String hexBytes = trimQuotes(hexBytesToken.image);
         try {
-            final byte[] bytes = IOUtils.hexToBytes(hexBytes);
-
-            if (bytes.length != 12) {
-                throw new JsonParseException(
-                        "Invalid ObjectId value.  Must be a 24 character hex string.",
-                        hexBytesToken.beginLine, hexBytesToken.beginColumn);
-            }
-
-            for (int i = 0; i < 4; ++i) {
-                int value = (bytes[i] & 0xFF);
-                value <<= (Byte.SIZE * i);
-                timestamp += value;
-            }
-
-            for (int i = 4; i < 12; ++i) {
-                long value = (bytes[i] & 0xFF);
-                value <<= (Byte.SIZE * (i - 4));
-                machineId += value;
-            }
+            return new ObjectId(hexBytes);
         }
         catch (final IllegalArgumentException iae) {
             throw new JsonParseException(iae.getMessage() + " (line "
@@ -335,8 +317,6 @@ import com.allanbank.mongodb.util.IOUtils;
                     + hexBytesToken.beginColumn + ")", iae,
                     hexBytesToken.beginLine, hexBytesToken.beginColumn);
         }
-        return new ObjectId(EndianUtils.swap(timestamp),
-                EndianUtils.swap(machineId));
     }
 
     /**
