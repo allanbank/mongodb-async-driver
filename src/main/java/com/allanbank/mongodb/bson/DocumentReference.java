@@ -94,7 +94,7 @@ public class DocumentReference implements DocumentAssignable {
 
         myDatabaseName = databaseName;
         myCollectionName = collectionName;
-        myId = id;
+        myId = id.withName(ID_FIELD_NAME);
     }
 
     /**

@@ -86,6 +86,39 @@ public class ObjectIdTest {
     }
 
     /**
+     * Test Parsing a ObjectId(..) from a hex string.
+     */
+    @Test
+    public void testObjectId() {
+        final ObjectId id = new ObjectId("4e9d87aa5825b60b637815a6");
+        assertEquals(new ObjectId(0x4e9d87aa, 0x5825b60b637815a6L), id);
+    }
+
+    /**
+     * Test Parsing a ObjectId(..) from a hex string that is not Hex.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testObjectIdNonHex() {
+        new ObjectId("4e9d87aa5825b60b637815ZZ").getTimestamp();
+    }
+
+    /**
+     * Test Parsing a ObjectId(..) from a hex string that is too long.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testObjectIdToLong() {
+        new ObjectId("4e9d87aa5825b60b6378150000").getTimestamp();
+    }
+
+    /**
+     * Test Parsing a ObjectId(..) from a hex string that is too short.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testObjectIdToShort() {
+        new ObjectId("4e9d87aa5825b60b637815").getTimestamp();
+    }
+
+    /**
      * Test method for {@link ObjectId#toString()}.
      */
     @Test
