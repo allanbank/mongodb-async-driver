@@ -74,7 +74,7 @@ public class DocumentReferenceTest {
 
         assertNull(ref.getDatabaseName());
         assertEquals("c", ref.getCollectionName());
-        assertEquals(new IntegerElement("a", 1), ref.getId());
+        assertEquals(new IntegerElement("$id", 1), ref.getId());
     }
 
     /**
@@ -108,7 +108,7 @@ public class DocumentReferenceTest {
 
         assertEquals("d", ref.getDatabaseName());
         assertEquals("c", ref.getCollectionName());
-        assertEquals(new IntegerElement("a", 1), ref.getId());
+        assertEquals(new IntegerElement("$id", 1), ref.getId());
     }
 
     /**
