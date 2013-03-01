@@ -28,18 +28,17 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 public interface Authenticator extends Cloneable {
 
     /**
-     * Starts to authenticate the user with the specified credentials.
+     * Privides the ability to clone the authenticator. A new
+     * {@link Authenticator} instance is created for each physical connection in
+     * use.
+     * <p>
+     * Using clone allows users to create a "template" version of the
+     * authenticator that is then copied prior to use by each connection.
+     * </p>
      * 
-     * @param credentials
-     *            The credentials to use to login to the database.
-     * @param connection
-     *            The connection to authenticate the user with.
-     * @throws MongoDbAuthenticationException
-     *             On a failure in the protocol to authenticate the user on the
-     *             connection.
+     * @return The cloned authenticator.
      */
-    public void startAuthentication(Credential credentials,
-            Connection connection) throws MongoDbAuthenticationException;
+    public Authenticator clone();
 
     /**
      * Returns the results of the authentication attempt.
@@ -53,15 +52,16 @@ public interface Authenticator extends Cloneable {
     public boolean result() throws MongoDbAuthenticationException;
 
     /**
-     * Privides the ability to clone the authenticator. A new
-     * {@link Authenticator} instance is created for each physical connection in
-     * use.
-     * <p>
-     * Using clone allows users to create a "template" version of the
-     * authenticator that is then copied prior to use by each connection.
-     * </p>
+     * Starts to authenticate the user with the specified credentials.
      * 
-     * @return The cloned authenticator.
+     * @param credentials
+     *            The credentials to use to login to the database.
+     * @param connection
+     *            The connection to authenticate the user with.
+     * @throws MongoDbAuthenticationException
+     *             On a failure in the protocol to authenticate the user on the
+     *             connection.
      */
-    public Authenticator clone();
+    public void startAuthentication(Credential credentials,
+            Connection connection) throws MongoDbAuthenticationException;
 }

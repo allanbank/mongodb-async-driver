@@ -247,6 +247,17 @@ public class SocketConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to returns the server's name.
+     * </p>
+     */
+    @Override
+    public String getServerName() {
+        return myServer.getServer().getHostName();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * True if the send and pending queues are empty.
      * </p>
      */
@@ -881,16 +892,5 @@ public class SocketConnection implements Connection {
                 doFlush();
             }
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to returns the server's name.
-     * </p>
-     */
-    @Override
-    public String getServerName() {
-        return myServer.getServer().getHostName();
     }
 }

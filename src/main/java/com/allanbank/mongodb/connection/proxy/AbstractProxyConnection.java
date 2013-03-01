@@ -155,6 +155,17 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to forward the call to the proxied connection.
+     * </p>
+     */
+    @Override
+    public String getServerName() {
+        return getProxiedConnection().getServerName();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Forwards the call to the proxied {@link Connection}.
      * </p>
      */
@@ -275,17 +286,6 @@ public abstract class AbstractProxyConnection implements Connection {
             onExceptin(error);
             throw error;
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to forward the call to the proxied connection.
-     * </p>
-     */
-    @Override
-    public String getServerName() {
-        return getProxiedConnection().getServerName();
     }
 
     /**

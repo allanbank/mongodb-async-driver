@@ -56,9 +56,6 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /** The serialization version for the class. */
     private static final long serialVersionUID = 2964127883934086500L;
 
-    /** The credentials for the user. */
-    private final ConcurrentHashMap<String, Credential> myCredentials;
-
     /**
      * Determines if additional servers are auto discovered or if connections
      * are limited to the ones manually configured.
@@ -76,6 +73,9 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * </p>
      */
     private int myConnectTimeout = 0;
+
+    /** The credentials for the user. */
+    private final ConcurrentHashMap<String, Credential> myCredentials;
 
     /**
      * The default database for the connection. This is used as the database to
@@ -444,6 +444,42 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Adds the specified credentials to the configuration.
+     * 
+     * @param credentials
+     *            The credentials to use when accessing the MongoDB server.
+     * @throws IllegalArgumentException
+     *             If the credentials refer to an unknown authentication type or
+     *             the configuration already has a set of credentials for the
+     *             credentials specified database.
+     */
+    public void addCredential(final Credential credentials)
+            throws IllegalArgumentException {
+        try {
+            credentials.loadAuthenticator();
+
+            final Credential previous = myCredentials.putIfAbsent(
+                    credentials.getDatabase(), credentials);
+            if (previous != null) {
+                throw new IllegalArgumentException(
+                        "There can only be one set of credentials for each database.");
+            }
+        }
+        catch (final ClassNotFoundException cnfe) {
+            throw new IllegalArgumentException(
+                    "Could not load the credentials authenticator.", cnfe);
+        }
+        catch (final InstantiationException ie) {
+            throw new IllegalArgumentException(
+                    "Could not load the credentials authenticator.", ie);
+        }
+        catch (final IllegalAccessException iae) {
+            throw new IllegalArgumentException(
+                    "Could not load the credentials authenticator.", iae);
+        }
+    }
+
+    /**
      * Adds a server to initially attempt to connect to.
      * 
      * @param server
@@ -461,71 +497,6 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public void addServer(final String server) {
         myServers.add(ServerNameUtils.parse(server));
-    }
-
-    /**
-     * Adds the specified credentials to the configuration.
-     * 
-     * @param credentials
-     *            The credentials to use when accessing the MongoDB server.
-     * @throws IllegalArgumentException
-     *             If the credentials refer to an unknown authentication type or
-     *             the configuration already has a set of credentials for the
-     *             credentials specified database.
-     */
-    public void addCredential(Credential credentials)
-            throws IllegalArgumentException {
-        try {
-            credentials.loadAuthenticator();
-
-            Credential previous = myCredentials.putIfAbsent(
-                    credentials.getDatabase(), credentials);
-            if (previous != null) {
-                throw new IllegalArgumentException(
-                        "There can only be one set of credentials for each database.");
-            }
-        }
-        catch (ClassNotFoundException cnfe) {
-            throw new IllegalArgumentException(
-                    "Could not load the credentials authenticator.", cnfe);
-        }
-        catch (InstantiationException ie) {
-            throw new IllegalArgumentException(
-                    "Could not load the credentials authenticator.", ie);
-        }
-        catch (IllegalAccessException iae) {
-            throw new IllegalArgumentException(
-                    "Could not load the credentials authenticator.", iae);
-        }
-    }
-
-    /**
-     * Returns the map of database names to credentials to use to access that
-     * database on the server.
-     * 
-     * @return The map of database names to credentials to use to access that
-     *         database on the server.
-     */
-    public Collection<Credential> getCredentials() {
-        return Collections.unmodifiableCollection(myCredentials.values());
-    }
-
-    /**
-     * Sets the credentials to use to access the server. This removes all
-     * existing credentials.
-     * 
-     * @param credentials
-     *            The credentials to use to access the server..
-     * @throws IllegalArgumentException
-     *             If the credentials refer to an unknown authentication type or
-     *             the configuration already has a set of credentials for the
-     *             credentials specified database.
-     */
-    public void setCredentials(Collection<Credential> credentials) {
-        myCredentials.clear();
-        for (Credential credential : credentials) {
-            addCredential(credential);
-        }
     }
 
     /**
@@ -603,6 +574,17 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public int getConnectTimeout() {
         return myConnectTimeout;
+    }
+
+    /**
+     * Returns the map of database names to credentials to use to access that
+     * database on the server.
+     * 
+     * @return The map of database names to credentials to use to access that
+     *         database on the server.
+     */
+    public Collection<Credential> getCredentials() {
+        return Collections.unmodifiableCollection(myCredentials.values());
     }
 
     /**
@@ -747,8 +729,8 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     @Deprecated
     public String getPasswordHash() {
         if (!myCredentials.isEmpty()) {
-            Credential credentials = myCredentials.entrySet().iterator().next()
-                    .getValue();
+            final Credential credentials = myCredentials.entrySet().iterator()
+                    .next().getValue();
             try {
                 final MessageDigest md5 = MessageDigest.getInstance("MD5");
                 final byte[] digest = md5.digest((credentials.getUsername()
@@ -851,8 +833,8 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     @Deprecated
     public String getUserName() {
         if (!myCredentials.isEmpty()) {
-            Credential credentials = myCredentials.entrySet().iterator().next()
-                    .getValue();
+            final Credential credentials = myCredentials.entrySet().iterator()
+                    .next().getValue();
             return credentials.getUsername();
         }
         return null;
@@ -932,6 +914,24 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public void setConnectTimeout(final int connectTimeout) {
         myConnectTimeout = connectTimeout;
+    }
+
+    /**
+     * Sets the credentials to use to access the server. This removes all
+     * existing credentials.
+     * 
+     * @param credentials
+     *            The credentials to use to access the server..
+     * @throws IllegalArgumentException
+     *             If the credentials refer to an unknown authentication type or
+     *             the configuration already has a set of credentials for the
+     *             credentials specified database.
+     */
+    public void setCredentials(final Collection<Credential> credentials) {
+        myCredentials.clear();
+        for (final Credential credential : credentials) {
+            addCredential(credential);
+        }
     }
 
     /**

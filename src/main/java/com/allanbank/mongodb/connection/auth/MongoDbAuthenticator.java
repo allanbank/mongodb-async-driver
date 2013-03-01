@@ -72,6 +72,22 @@ public class MongoDbAuthenticator implements Authenticator {
     }
 
     /**
+     * Creates the MongoDB authentication hash of the password.
+     * 
+     * @param credentials
+     *            The credentials to hash.
+     * @return The hashed password/myCredential.
+     * @throws NoSuchAlgorithmException
+     *             On a failure to create a MD5 message digest.
+     */
+    public String passwordHash(final Credential credentials)
+            throws NoSuchAlgorithmException {
+        final MessageDigest md5 = MessageDigest.getInstance("MD5");
+
+        return passwordHash(md5, credentials);
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overriden to returns the results of the authentication, once complete.
@@ -88,46 +104,6 @@ public class MongoDbAuthenticator implements Authenticator {
         catch (final ExecutionException e) {
             throw new MongoDbAuthenticationException(e);
         }
-    }
-
-    /**
-     * Creates the MongoDB authentication hash of the password.
-     * 
-     * @param credentials
-     *            The credentials to hash.
-     * @return The hashed password/myCredential.
-     * @throws NoSuchAlgorithmException
-     *             On a failure to create a MD5 message digest.
-     */
-    public String passwordHash(Credential credentials)
-            throws NoSuchAlgorithmException {
-        final MessageDigest md5 = MessageDigest.getInstance("MD5");
-
-        return passwordHash(md5, credentials);
-    }
-
-    /**
-     * Creates the MongoDB authentication hash of the password.
-     * 
-     * @param md5
-     *            The MD5 digest to compute the hash.
-     * @param credentials
-     *            The credentials to hash.
-     * @return The hashed password/myCredential.
-     */
-    protected String passwordHash(final MessageDigest md5,
-            Credential credentials) {
-
-        final char[] password = credentials.getPassword();
-        ByteBuffer bb = ASCII.encode(CharBuffer.wrap(password));
-
-        md5.update((credentials.getUsername() + ":mongo:").getBytes(ASCII));
-        md5.update(bb.array(), 0, bb.limit());
-
-        Arrays.fill(password, ' ');
-        Arrays.fill(bb.array(), (byte) 0);
-
-        return IOUtils.toHex(md5.digest());
     }
 
     /**
@@ -154,6 +130,30 @@ public class MongoDbAuthenticator implements Authenticator {
 
             throw errorOnSend;
         }
+    }
+
+    /**
+     * Creates the MongoDB authentication hash of the password.
+     * 
+     * @param md5
+     *            The MD5 digest to compute the hash.
+     * @param credentials
+     *            The credentials to hash.
+     * @return The hashed password/myCredential.
+     */
+    protected String passwordHash(final MessageDigest md5,
+            final Credential credentials) {
+
+        final char[] password = credentials.getPassword();
+        final ByteBuffer bb = ASCII.encode(CharBuffer.wrap(password));
+
+        md5.update((credentials.getUsername() + ":mongo:").getBytes(ASCII));
+        md5.update(bb.array(), 0, bb.limit());
+
+        Arrays.fill(password, ' ');
+        Arrays.fill(bb.array(), (byte) 0);
+
+        return IOUtils.toHex(md5.digest());
     }
 
     /**
@@ -273,12 +273,12 @@ public class MongoDbAuthenticator implements Authenticator {
 
             // Send an authenticate request.
             try {
-                MessageDigest md5 = MessageDigest.getInstance("MD5");
+                final MessageDigest md5 = MessageDigest.getInstance("MD5");
                 final String passwordHash = passwordHash(md5, myCredential);
 
-                String text = nonce.getValue() + myCredential.getUsername()
-                        + passwordHash;
-                
+                final String text = nonce.getValue()
+                        + myCredential.getUsername() + passwordHash;
+
                 md5.reset();
                 md5.update(text.getBytes(ASCII));
                 final byte[] bytes = md5.digest();

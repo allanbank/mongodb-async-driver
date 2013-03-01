@@ -84,12 +84,13 @@ public class ServerTestDriverSupport {
             startStandAlone();
 
             // Use the authenticator to compute the hash.
-            MongoDbAuthenticator authenticator = new MongoDbAuthenticator();
+            final MongoDbAuthenticator authenticator = new MongoDbAuthenticator();
 
-            Credential adminCredentials = new Credential(ADMIN_USER_NAME,
+            final Credential adminCredentials = new Credential(ADMIN_USER_NAME,
                     PASSWORD, Credential.ADMIN_DB, Credential.MONGODB_CR);
-            String adminHash = authenticator.passwordHash(adminCredentials);
-            
+            final String adminHash = authenticator
+                    .passwordHash(adminCredentials);
+
             final MongoClientConfiguration config = new MongoClientConfiguration();
             config.addServer(new InetSocketAddress("127.0.0.1", 27017));
 
@@ -127,8 +128,8 @@ public class ServerTestDriverSupport {
             collection = db.getCollection("system.users");
 
             // Again - Authenticator does the hash for us.
-            Credential userCredentials = new Credential(USER_NAME, PASSWORD,
-                    "any", Credential.MONGODB_CR);
+            final Credential userCredentials = new Credential(USER_NAME,
+                    PASSWORD, "any", Credential.MONGODB_CR);
 
             docBuilder = BuilderFactory.start();
             docBuilder.addString("user", USER_NAME);
@@ -138,10 +139,10 @@ public class ServerTestDriverSupport {
 
             collection.insert(Durability.ACK, docBuilder.build());
         }
-        catch (IllegalArgumentException e) {
+        catch (final IllegalArgumentException e) {
             assertNull(e);
         }
-        catch (NoSuchAlgorithmException e) {
+        catch (final NoSuchAlgorithmException e) {
             assertNull(e);
         }
         finally {

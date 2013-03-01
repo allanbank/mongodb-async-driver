@@ -31,12 +31,12 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
  */
 public class AuthenticatingConnection extends AbstractProxyConnection {
 
+    /** The name of the administration database. */
+    public static final String ADMIN_DB_NAME = MongoClientConfiguration.ADMIN_DB_NAME;
+
     /** The logger for the authenticator. */
     public static final Logger LOG = Logger
             .getLogger(AuthenticatingConnection.class.getName());
-
-    /** The name of the administration database. */
-    public static final String ADMIN_DB_NAME = MongoClientConfiguration.ADMIN_DB_NAME;
 
     /** Map of the authenticators. */
     private final Map<String, Authenticator> myAuthenticators;
@@ -61,8 +61,8 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
 
         // With the advent of delegated credentials we must now authenticate
         // with all available credentials immediately.
-        for (Credential credential : config.getCredentials()) {
-            Authenticator authenticator = credential.authenticator();
+        for (final Credential credential : config.getCredentials()) {
+            final Authenticator authenticator = credential.authenticator();
 
             authenticator.startAuthentication(credential, connection);
 
@@ -77,7 +77,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                                             + " database."));
                 }
             }
-            catch (MongoDbException error) {
+            catch (final MongoDbException error) {
                 myFailures.put(credential.getDatabase(), error);
             }
 
@@ -154,10 +154,11 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
             throws MongoDbAuthenticationException {
         // Check the authentication results are done.
         if (!myAuthenticators.isEmpty()) {
-            Iterator<Map.Entry<String, Authenticator>> iter = myAuthenticators
+            final Iterator<Map.Entry<String, Authenticator>> iter = myAuthenticators
                     .entrySet().iterator();
             while (iter.hasNext()) {
-                Map.Entry<String, Authenticator> authenticator = iter.next();
+                final Map.Entry<String, Authenticator> authenticator = iter
+                        .next();
                 try {
                     if (!authenticator.getValue().result()) {
                         myFailures.put(authenticator.getKey(),
@@ -167,7 +168,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                                                 + " database."));
                     }
                 }
-                catch (MongoDbException error) {
+                catch (final MongoDbException error) {
                     // Just log the error here.
                     LOG.log(Level.WARNING,
                             "Authentication failed: " + error.getMessage(),

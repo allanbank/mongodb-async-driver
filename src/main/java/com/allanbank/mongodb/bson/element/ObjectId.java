@@ -233,6 +233,23 @@ public class ObjectId implements Serializable {
     }
 
     /**
+     * Returns the HEX string form of the ObjectId.
+     * 
+     * @return The HEX string form of the ObjectId.
+     */
+    public String toHexString() {
+        final StringBuilder builder = new StringBuilder();
+        String hex = Integer.toHexString(myTimestamp);
+        builder.append("00000000".substring(hex.length()));
+        builder.append(hex);
+
+        hex = Long.toHexString(myMachineId);
+        builder.append("0000000000000000".substring(hex.length()));
+        builder.append(hex);
+        return builder.toString();
+    }
+
+    /**
      * String form of the object.
      * 
      * @return A human readable form of the object.
@@ -247,23 +264,6 @@ public class ObjectId implements Serializable {
         builder.append(toHexString());
         builder.append(")");
 
-        return builder.toString();
-    }
-
-    /**
-     * Returns the HEX string form of the ObjectId.
-     * 
-     * @return The HEX string form of the ObjectId.
-     */
-    public String toHexString() {
-        final StringBuilder builder = new StringBuilder();
-        String hex = Integer.toHexString(myTimestamp);
-        builder.append("00000000".substring(hex.length()));
-        builder.append(hex);
-
-        hex = Long.toHexString(myMachineId);
-        builder.append("0000000000000000".substring(hex.length()));
-        builder.append(hex);
         return builder.toString();
     }
 }

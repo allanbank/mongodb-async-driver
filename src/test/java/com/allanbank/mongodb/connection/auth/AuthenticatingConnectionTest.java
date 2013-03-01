@@ -48,11 +48,11 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class AuthenticatingConnectionTest {
 
-    /** The database name used for testing. */
-    public static final String TEST_DB = "db";
-
     /** An empty document for use in constructing messages. */
     public static final Document EMPTY_DOC = BuilderFactory.start().build();
+
+    /** The database name used for testing. */
+    public static final String TEST_DB = "db";
 
     /** The address for the test. */
     private String myAddress = null;
@@ -98,26 +98,6 @@ public class AuthenticatingConnectionTest {
         myAuthReply.addInteger("ok", 1);
 
         myAddress = "localhost:27017";
-    }
-
-    /**
-     * Test that the old and new password hash values match.
-     * 
-     * @throws NoSuchAlgorithmException
-     *             On a failure.
-     */
-    @Test
-    @Deprecated
-    public void testPasswordHash() throws NoSuchAlgorithmException {
-        MongoClientConfiguration config = new MongoClientConfiguration();
-        config.authenticate("allanbank", "super_secret_password");
-
-        Credential credential = new Credential("allanbank",
-                "super_secret_password".toCharArray(), TEST_DB,
-                Credential.MONGODB_CR);
-
-        assertEquals(config.getPasswordHash(),
-                new MongoDbAuthenticator().passwordHash(credential));
     }
 
     /**
@@ -560,7 +540,7 @@ public class AuthenticatingConnectionTest {
         replay(mockConnetion);
 
         try {
-            AuthenticatingConnection conn = new AuthenticatingConnection(
+            final AuthenticatingConnection conn = new AuthenticatingConnection(
                     mockConnetion, myConfig);
 
             fail("Should throw an exception when nonce fails.");
@@ -573,6 +553,26 @@ public class AuthenticatingConnectionTest {
         }
 
         verify(mockConnetion);
+    }
+
+    /**
+     * Test that the old and new password hash values match.
+     * 
+     * @throws NoSuchAlgorithmException
+     *             On a failure.
+     */
+    @Test
+    @Deprecated
+    public void testPasswordHash() throws NoSuchAlgorithmException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.authenticate("allanbank", "super_secret_password");
+
+        final Credential credential = new Credential("allanbank",
+                "super_secret_password".toCharArray(), TEST_DB,
+                Credential.MONGODB_CR);
+
+        assertEquals(config.getPasswordHash(),
+                new MongoDbAuthenticator().passwordHash(credential));
     }
 
     /**

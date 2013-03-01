@@ -190,6 +190,30 @@ public final class Credential implements Serializable {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return true if the passed value equals these credential.
+     * </p>
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final Credential other = (Credential) object;
+
+            result = nullSafeEquals(myAuthenticationType,
+                    other.myAuthenticationType)
+                    && nullSafeEquals(myDatabase, other.myDatabase)
+                    && nullSafeEquals(myUsername, other.myUsername)
+                    && Arrays.equals(myPassword, other.myPassword);
+        }
+        return result;
+    }
+
+    /**
      * Returns the authentication type or mode that the credentials should be
      * used with.
      * 
@@ -250,55 +274,16 @@ public final class Credential implements Serializable {
     public int hashCode() {
         int result = 1;
 
-        result = 31
-                * result
+        result = (31 * result)
                 + ((myAuthenticationType == null) ? 0 : myAuthenticationType
                         .hashCode());
-        result = 31 * result
+        result = (31 * result)
                 + ((myDatabase == null) ? 0 : myDatabase.hashCode());
-        result = 31 * result + Arrays.hashCode(myPassword);
-        result = 31 * result
+        result = (31 * result) + Arrays.hashCode(myPassword);
+        result = (31 * result)
                 + ((myUsername == null) ? 0 : myUsername.hashCode());
 
         return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return true if the passed value equals these credential.
-     * </p>
-     */
-    @Override
-    public boolean equals(Object object) {
-        boolean result = false;
-        if (this == object) {
-            result = true;
-        }
-        else if ((object != null) && (getClass() == object.getClass())) {
-            final Credential other = (Credential) object;
-
-            result = nullSafeEquals(myAuthenticationType,
-                    other.myAuthenticationType)
-                    && nullSafeEquals(myDatabase, other.myDatabase)
-                    && nullSafeEquals(myUsername, other.myUsername)
-                    && Arrays.equals(myPassword, other.myPassword);
-        }
-        return result;
-    }
-
-    /**
-     * Does a null safe equals comparison.
-     * 
-     * @param rhs
-     *            The right-hand-side of the comparison.
-     * @param lhs
-     *            The left-hand-side of the comparison.
-     * @return True if the rhs equals the lhs. Note: nullSafeEquals(null, null)
-     *         returns true.
-     */
-    private boolean nullSafeEquals(final Object rhs, final Object lhs) {
-        return (rhs == lhs) || ((rhs != null) && rhs.equals(lhs));
     }
 
     /**
@@ -309,7 +294,7 @@ public final class Credential implements Serializable {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("{ username : '");
         builder.append(myUsername);
         builder.append("', database : '");
@@ -346,5 +331,19 @@ public final class Credential implements Serializable {
             myAuthenticator = (Authenticator) Class.forName(
                     getAuthenticationType()).newInstance();
         }
+    }
+
+    /**
+     * Does a null safe equals comparison.
+     * 
+     * @param rhs
+     *            The right-hand-side of the comparison.
+     * @param lhs
+     *            The left-hand-side of the comparison.
+     * @return True if the rhs equals the lhs. Note: nullSafeEquals(null, null)
+     *         returns true.
+     */
+    private boolean nullSafeEquals(final Object rhs, final Object lhs) {
+        return (rhs == lhs) || ((rhs != null) && rhs.equals(lhs));
     }
 }

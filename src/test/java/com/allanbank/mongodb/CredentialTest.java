@@ -30,57 +30,12 @@ import com.allanbank.mongodb.connection.auth.MongoDbAuthenticator;
 public class CredentialTest {
 
     /**
-     * Test method for {@link Credential#Credential(String, char[], String)} .
-     */
-    @Test
-    public void testCredentialStringCharArrayString() {
-        Credential c = new Credential("user", new char[1], "foo");
-
-        assertEquals("user", c.getUsername());
-        assertArrayEquals(new char[1], c.getPassword());
-        assertEquals(Credential.ADMIN_DB, c.getDatabase());
-        assertEquals("foo", c.getAuthenticationType());
-    }
-
-    /**
-     * Test method for
-     * {@link Credential#Credential(String, char[], String, com.allanbank.mongodb.connection.auth.Authenticator)}
-     * .
-     */
-    @Test
-    public void testCredentialStringCharArrayStringAuthenticator() {
-        MongoDbAuthenticator auth = new MongoDbAuthenticator();
-        Credential c = new Credential("user", new char[1], "foo", auth);
-
-        assertEquals("user", c.getUsername());
-        assertArrayEquals(new char[1], c.getPassword());
-        assertEquals("foo", c.getDatabase());
-        assertEquals(MongoDbAuthenticator.class.getName(),
-                c.getAuthenticationType());
-        assertSame(auth, c.getAuthenticator());
-    }
-
-    /**
-     * Test method for
-     * {@link Credential#Credential(String, char[], String, String)} .
-     */
-    @Test
-    public void testCredentialStringCharArrayStringString() {
-        Credential c = new Credential("user", new char[1], "foo", "auth");
-
-        assertEquals("user", c.getUsername());
-        assertArrayEquals(new char[1], c.getPassword());
-        assertEquals("foo", c.getDatabase());
-        assertEquals("auth", c.getAuthenticationType());
-    }
-
-    /**
      * Test method for {@link Credential#authenticator()}.
      */
     @Test
     public void testAuthenticator() {
-        MongoDbAuthenticator auth = new MongoDbAuthenticator();
-        Credential c = new Credential("user", new char[1], "foo", auth);
+        final MongoDbAuthenticator auth = new MongoDbAuthenticator();
+        final Credential c = new Credential("user", new char[1], "foo", auth);
 
         assertEquals("user", c.getUsername());
         assertArrayEquals(new char[1], c.getPassword());
@@ -97,9 +52,54 @@ public class CredentialTest {
      */
     @Test(expected = MongoDbException.class)
     public void testAuthenticatorFails() {
-        Credential c = new Credential("user", new char[1], "foo", "fail");
+        final Credential c = new Credential("user", new char[1], "foo", "fail");
 
         c.authenticator();
+    }
+
+    /**
+     * Test method for {@link Credential#Credential(String, char[], String)} .
+     */
+    @Test
+    public void testCredentialStringCharArrayString() {
+        final Credential c = new Credential("user", new char[1], "foo");
+
+        assertEquals("user", c.getUsername());
+        assertArrayEquals(new char[1], c.getPassword());
+        assertEquals(Credential.ADMIN_DB, c.getDatabase());
+        assertEquals("foo", c.getAuthenticationType());
+    }
+
+    /**
+     * Test method for
+     * {@link Credential#Credential(String, char[], String, com.allanbank.mongodb.connection.auth.Authenticator)}
+     * .
+     */
+    @Test
+    public void testCredentialStringCharArrayStringAuthenticator() {
+        final MongoDbAuthenticator auth = new MongoDbAuthenticator();
+        final Credential c = new Credential("user", new char[1], "foo", auth);
+
+        assertEquals("user", c.getUsername());
+        assertArrayEquals(new char[1], c.getPassword());
+        assertEquals("foo", c.getDatabase());
+        assertEquals(MongoDbAuthenticator.class.getName(),
+                c.getAuthenticationType());
+        assertSame(auth, c.getAuthenticator());
+    }
+
+    /**
+     * Test method for
+     * {@link Credential#Credential(String, char[], String, String)} .
+     */
+    @Test
+    public void testCredentialStringCharArrayStringString() {
+        final Credential c = new Credential("user", new char[1], "foo", "auth");
+
+        assertEquals("user", c.getUsername());
+        assertArrayEquals(new char[1], c.getPassword());
+        assertEquals("foo", c.getDatabase());
+        assertEquals("auth", c.getAuthenticationType());
     }
 
     /**
@@ -160,7 +160,7 @@ public class CredentialTest {
      */
     @Test
     public void testToString() {
-        MongoDbAuthenticator auth = new MongoDbAuthenticator();
+        final MongoDbAuthenticator auth = new MongoDbAuthenticator();
         Credential c = new Credential("user", new char[1], "foo", auth);
 
         assertThat(

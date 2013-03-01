@@ -70,6 +70,13 @@ public interface Connection extends Closeable, Flushable {
     public int getPendingCount();
 
     /**
+     * Returns the name of a server the connection is currently connected to.
+     * 
+     * @return The name of a server the connection is currently connected to.
+     */
+    public String getServerName();
+
+    /**
      * Determines if the connection is idle.
      * 
      * @return True if the connection is waiting for messages to send and has no
@@ -142,13 +149,6 @@ public interface Connection extends Closeable, Flushable {
      * will return prior to the connection being closed.
      */
     public void shutdown();
-
-    /**
-     * Returns the name of a server the connection is currently connected to.
-     * 
-     * @return The name of a server the connection is currently connected to.
-     */
-    public String getServerName();
 
     /**
      * Waits for the connection to become idle.
