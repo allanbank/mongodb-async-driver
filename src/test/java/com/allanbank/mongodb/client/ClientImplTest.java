@@ -791,7 +791,6 @@ public class ClientImplTest {
      * @throws InterruptedException
      *             On a failure to pause in the test.
      */
-    @SuppressWarnings("boxing")
     @Test
     public void testReconnectThatFails() throws IOException,
             InterruptedException {
@@ -837,6 +836,7 @@ public class ClientImplTest {
      * @throws IOException
      *             on a test failure.
      */
+    @SuppressWarnings("boxing")
     @Test
     public void testRestartDocumentAssignable() throws IOException {
 
@@ -1019,6 +1019,7 @@ public class ClientImplTest {
      * @throws IOException
      *             on a test failure.
      */
+    @SuppressWarnings("boxing")
     @Test
     public void testRestartStreamCallbackDocumentAssignable()
             throws IOException {

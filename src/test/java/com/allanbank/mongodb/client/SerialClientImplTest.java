@@ -192,6 +192,7 @@ public class SerialClientImplTest {
      * @throws IOException
      *             on a test failure.
      */
+    @SuppressWarnings("boxing")
     @Test
     public void testRestartDocumentAssignable() throws IOException {
 
@@ -372,6 +373,7 @@ public class SerialClientImplTest {
      * @throws IOException
      *             on a test failure.
      */
+    @SuppressWarnings("boxing")
     @Test
     public void testRestartStreamCallbackDocumentAssignable()
             throws IOException {

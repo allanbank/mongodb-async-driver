@@ -6,11 +6,14 @@
 package com.allanbank.mongodb;
 
 import static org.easymock.EasyMock.createMock;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.net.InetSocketAddress;
@@ -33,6 +36,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * 
  * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
  */
+@SuppressWarnings("boxing")
 public class MongoClientConfigurationTest {
 
     /**
@@ -69,14 +73,13 @@ public class MongoClientConfigurationTest {
      * Test method for
      * {@link MongoClientConfiguration#authenticate(String, String)} .
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testAuthenticate() {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertFalse(config.isAuthenticating());
-        assertNull(config.getUserName());
-        assertNull(config.getPasswordHash());
 
         config.authenticate("allanbank", "super_secret_password");
 
@@ -85,20 +88,23 @@ public class MongoClientConfigurationTest {
         assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
                 config.getPasswordHash());
         assertFalse(config.isAdminUser());
+
+        assertThat(config.getCredentials(), hasItem(new Credential("allanbank",
+                "super_secret_password".toCharArray(), "local",
+                Credential.MONGODB_CR)));
     }
 
     /**
      * Test method for
      * {@link MongoClientConfiguration#authenticateAsAdmin(String, String)} .
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testAuthenticateAsAdmin() {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertFalse(config.isAuthenticating());
-        assertNull(config.getUserName());
-        assertNull(config.getPasswordHash());
 
         config.authenticateAsAdmin("allanbank", "super_secret_password");
 
@@ -107,6 +113,10 @@ public class MongoClientConfigurationTest {
         assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
                 config.getPasswordHash());
         assertTrue(config.isAdminUser());
+
+        assertThat(config.getCredentials(), hasItem(new Credential("allanbank",
+                "super_secret_password".toCharArray(), Credential.ADMIN_DB,
+                Credential.MONGODB_CR)));
     }
 
     /**
@@ -126,21 +136,21 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.NONE, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
         assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
+
+        assertThat(config.getCredentials().size(), is(0));
     }
 
     /**
      * Test method for
      * {@link MongoClientConfiguration#MongoClientConfiguration()}.
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testMongoClientConfiguration() {
 
@@ -150,15 +160,18 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.NONE, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
         assertEquals(0, config.getServers().size());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
+
+        assertThat(config.getCredentials().size(), is(0));
+
+        assertNull(config.getPasswordHash());
+        assertNull(config.getUserName());
+        assertFalse(config.isAdminUser());
     }
 
     /**
@@ -178,14 +191,13 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.NONE, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
         assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
         assertFalse(config.isAuthenticating());
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
+        assertThat(config.getCredentials().size(), is(0));
     }
 
     /**
@@ -205,11 +217,10 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.NONE, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
         assertEquals(0, config.getReadTimeout());
         assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
@@ -232,13 +243,13 @@ public class MongoClientConfigurationTest {
         assertEquals(0, config.getConnectTimeout());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
     }
@@ -260,13 +271,13 @@ public class MongoClientConfigurationTest {
         assertEquals(0, config.getConnectTimeout());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
     }
@@ -288,13 +299,13 @@ public class MongoClientConfigurationTest {
         assertEquals(0, config.getConnectTimeout());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
     }
@@ -316,13 +327,13 @@ public class MongoClientConfigurationTest {
         assertEquals(0, config.getConnectTimeout());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
     }
@@ -342,24 +353,22 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
-        assertEquals(MongoClientConfiguration.DEFAULT_DB_NAME,
-                config.getDefaultDatabase());
-
     }
 
     /**
      * Test method for
      * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testMongoUriAck() {
         final String addr1 = "foo:27017";
@@ -371,13 +380,13 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
         assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
@@ -388,6 +397,7 @@ public class MongoClientConfigurationTest {
      * Test method for
      * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testMongoUriAdminUserNamePassword() {
         final String addr1 = "foo:27017";
@@ -403,12 +413,16 @@ public class MongoClientConfigurationTest {
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertTrue(config.isAuthenticating());
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+
         assertEquals("user", config.getUserName());
         assertEquals("3c80f7cd19bca626d409b336def9ec35",
                 config.getPasswordHash());
         assertTrue(config.isAdminUser());
-        assertTrue(config.isAutoDiscoverServers());
-        assertTrue(config.isUsingSoKeepalive());
+
+        assertThat(config.getCredentials(), hasItem(new Credential("user",
+                "pass:ord".toCharArray(), Credential.MONGODB_CR)));
     }
 
     /**
@@ -432,9 +446,8 @@ public class MongoClientConfigurationTest {
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertFalse(config.isAuthenticating());
-        assertNull(config.getUserName());
-        assertNull(config.getPasswordHash());
-        assertFalse(config.isAdminUser());
+
+        assertThat(config.getCredentials().size(), is(0));
         assertFalse(config.isAutoDiscoverServers());
         assertFalse(config.isUsingSoKeepalive());
     }
@@ -453,6 +466,7 @@ public class MongoClientConfigurationTest {
      * Test method for
      * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testMongoUriExplicitAdminUserNamePassword() {
         final String addr1 = "foo:27017";
@@ -468,12 +482,17 @@ public class MongoClientConfigurationTest {
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertTrue(config.isAuthenticating());
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+
         assertEquals("user", config.getUserName());
         assertEquals("3c80f7cd19bca626d409b336def9ec35",
                 config.getPasswordHash());
         assertTrue(config.isAdminUser());
-        assertTrue(config.isAutoDiscoverServers());
-        assertTrue(config.isUsingSoKeepalive());
+
+        assertThat(config.getCredentials(), hasItem(new Credential("user",
+                "pass:ord".toCharArray(), "admin", Credential.MONGODB_CR)));
+
     }
 
     /**
@@ -531,13 +550,13 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
         assertEquals(ReadPreference.PRIMARY, config.getDefaultReadPreference());
@@ -558,13 +577,13 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
         assertEquals(ReadPreference.SECONDARY,
@@ -587,13 +606,13 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Arrays.asList(addr1, addr2), config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
     }
@@ -602,6 +621,7 @@ public class MongoClientConfigurationTest {
      * Test method for
      * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testMongoUriUserNamePassword() {
         final String addr1 = "foo:27017";
@@ -617,18 +637,23 @@ public class MongoClientConfigurationTest {
         assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
         assertTrue(config.isAuthenticating());
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+
         assertEquals("user", config.getUserName());
         assertEquals("3c80f7cd19bca626d409b336def9ec35",
                 config.getPasswordHash());
         assertFalse(config.isAdminUser());
-        assertTrue(config.isAutoDiscoverServers());
-        assertTrue(config.isUsingSoKeepalive());
+
+        assertThat(config.getCredentials(), hasItem(new Credential("user",
+                "pass:ord".toCharArray(), "db", Credential.MONGODB_CR)));
     }
 
     /**
      * Test method for
      * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testMongoUriWithIPV6() {
         final String addr1 = "fe80::868f:69ff:feb2:95d4";
@@ -640,20 +665,19 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(ServerNameUtils
                 .normalize(new InetSocketAddress(addr1, 27017))),
                 config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
         assertEquals(MongoClientConfiguration.DEFAULT_DB_NAME,
                 config.getDefaultDatabase());
-
     }
 
     /**
@@ -672,20 +696,17 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(ServerNameUtils
                 .normalize(new InetSocketAddress(addr1, port))),
                 config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
-        assertEquals(MongoClientConfiguration.DEFAULT_DB_NAME,
-                config.getDefaultDatabase());
-
     }
 
     /**
@@ -704,20 +725,17 @@ public class MongoClientConfigurationTest {
         assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
-        assertNull(config.getPasswordHash());
+
         assertEquals(0, config.getReadTimeout());
         assertEquals(Collections.singletonList(ServerNameUtils
                 .normalize(new InetSocketAddress(addr1, port))),
                 config.getServers());
         assertNotNull(config.getThreadFactory());
-        assertNull(config.getUserName());
+
         assertFalse(config.isAuthenticating());
-        assertFalse(config.isAdminUser());
+        assertThat(config.getCredentials().size(), is(0));
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
-        assertEquals(MongoClientConfiguration.DEFAULT_DB_NAME,
-                config.getDefaultDatabase());
-
     }
 
     /**
@@ -761,6 +779,7 @@ public class MongoClientConfigurationTest {
     /**
      * Test method for {@link MongoClientConfiguration#setDefaultDatabase}.
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testSetDefaultDataabse() {
         final MongoClientConfiguration config = new MongoClientConfiguration();

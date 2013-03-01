@@ -709,7 +709,7 @@ public class QueryStreamingCallbackTest {
      * Test method for
      * {@link MongoIteratorImpl#MongoIteratorImpl(Document, Client)} .
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "boxing" })
     @Test
     public void testWithCursorDocButNoDotInName() {
 

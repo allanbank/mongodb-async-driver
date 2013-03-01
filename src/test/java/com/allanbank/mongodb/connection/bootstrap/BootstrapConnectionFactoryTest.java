@@ -27,6 +27,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -49,7 +50,7 @@ import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
 public class BootstrapConnectionFactoryTest {
 
     /** A test password. You really shouldn't use this as a password... */
-    public static final String PASSWORD = "password";
+    public static final char[] PASSWORD = "password".toCharArray();
 
     /** A test user name. */
     public static final String USER_NAME = "user";
@@ -122,15 +123,9 @@ public class BootstrapConnectionFactoryTest {
      */
     @Test
     public void testBootstrapReplicaSet() {
-        final String serverName = ourServer.getInetSocketAddress()
-                .getHostName()
-                + ":"
-                + ourServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
-        replStatusBuilder.push("repl");
-        replStatusBuilder.addString("primary", serverName);
-        replStatusBuilder.pushArray("hosts").addString(serverName);
+        replStatusBuilder.addString("setName", "foo");
 
         ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder), reply());
@@ -153,7 +148,7 @@ public class BootstrapConnectionFactoryTest {
     public void testBootstrapSharded() {
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
-        replStatusBuilder.addString("process", "mongos");
+        replStatusBuilder.addString("msg", "isdbgrid");
 
         ourServer.setReplies(reply(replStatusBuilder), reply());
 
@@ -236,7 +231,8 @@ public class BootstrapConnectionFactoryTest {
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
-        config.authenticate(USER_NAME, PASSWORD);
+        config.addCredential(new Credential(USER_NAME, PASSWORD, "foo",
+                Credential.MONGODB_CR));
 
         myTestFactory = new BootstrapConnectionFactory(config);
 

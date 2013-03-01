@@ -974,6 +974,7 @@ public class MongoIteratorTest {
      * Test method for
      * {@link MongoIteratorImpl#MongoIteratorImpl(Document, Client)} .
      */
+    @SuppressWarnings("boxing")
     @Test
     public void testWithCursorDocButNoDotInName() {
 

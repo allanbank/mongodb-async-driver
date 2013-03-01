@@ -5,12 +5,16 @@
 
 package com.allanbank.mongodb;
 
+import static org.junit.Assert.assertNull;
+
 import java.net.InetSocketAddress;
+import java.security.NoSuchAlgorithmException;
 
 import org.junit.AfterClass;
 
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.connection.auth.MongoDbAuthenticator;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -22,13 +26,13 @@ import com.allanbank.mongodb.util.IOUtils;
 public class ServerTestDriverSupport {
 
     /** A test admin user name. */
-    public static final String ADMIN_USER_NAME = "admin";
+    public static final String ADMIN_USER_NAME = "admin_user";
 
     /** The default MongoDB port. */
     public static final int DEFAULT_PORT = 27017;
 
     /** A test password. You really shouldn't use this as a password... */
-    public static final String PASSWORD = "password";
+    public static final char[] PASSWORD = "password".toCharArray();
 
     /** A test admin user name. */
     public static final String USER_DB = "db";
@@ -79,11 +83,13 @@ public class ServerTestDriverSupport {
         try {
             startStandAlone();
 
-            // Use the config to compute the hash.
-            final MongoClientConfiguration adminConfig = new MongoClientConfiguration();
-            adminConfig.authenticateAsAdmin(ADMIN_USER_NAME, PASSWORD);
-            adminConfig.addServer(new InetSocketAddress("127.0.0.1", 27017));
+            // Use the authenticator to compute the hash.
+            MongoDbAuthenticator authenticator = new MongoDbAuthenticator();
 
+            Credential adminCredentials = new Credential(ADMIN_USER_NAME,
+                    PASSWORD, Credential.ADMIN_DB, Credential.MONGODB_CR);
+            String adminHash = authenticator.passwordHash(adminCredentials);
+            
             final MongoClientConfiguration config = new MongoClientConfiguration();
             config.addServer(new InetSocketAddress("127.0.0.1", 27017));
 
@@ -93,7 +99,7 @@ public class ServerTestDriverSupport {
 
             DocumentBuilder docBuilder = BuilderFactory.start();
             docBuilder.addString("user", ADMIN_USER_NAME);
-            docBuilder.addString("pwd", adminConfig.getPasswordHash());
+            docBuilder.addString("pwd", adminHash);
             docBuilder.addBoolean("readOnly", false);
             try {
                 collection.insert(Durability.ACK, docBuilder.build());
@@ -112,19 +118,31 @@ public class ServerTestDriverSupport {
 
             // Start a new connection authenticating as the admin user to add
             // the non-admin user...
+            final MongoClientConfiguration adminConfig = new MongoClientConfiguration();
+            adminConfig.addCredential(adminCredentials);
+            adminConfig.addServer(new InetSocketAddress("127.0.0.1", 27017));
+
             mongo = MongoFactory.createClient(adminConfig);
             db = mongo.getDatabase(USER_DB);
             collection = db.getCollection("system.users");
 
-            // Again - Config does the hash for us.
-            config.authenticate(USER_NAME, PASSWORD);
+            // Again - Authenticator does the hash for us.
+            Credential userCredentials = new Credential(USER_NAME, PASSWORD,
+                    "any", Credential.MONGODB_CR);
 
             docBuilder = BuilderFactory.start();
             docBuilder.addString("user", USER_NAME);
-            docBuilder.addString("pwd", config.getPasswordHash());
+            docBuilder.addString("pwd",
+                    authenticator.passwordHash(userCredentials));
             docBuilder.addBoolean("readOnly", false);
 
             collection.insert(Durability.ACK, docBuilder.build());
+        }
+        catch (IllegalArgumentException e) {
+            assertNull(e);
+        }
+        catch (NoSuchAlgorithmException e) {
+            assertNull(e);
         }
         finally {
             IOUtils.close(mongo);

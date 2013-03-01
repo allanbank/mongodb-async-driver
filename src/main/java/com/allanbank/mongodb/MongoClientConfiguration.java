@@ -11,9 +11,12 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -51,10 +54,10 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
             .getLogger(MongoClientConfiguration.class.getCanonicalName());
 
     /** The serialization version for the class. */
-    private static final long serialVersionUID = 2964127883934086509L;
+    private static final long serialVersionUID = 2964127883934086500L;
 
-    /** If true then the user should be authenticated as an administrative user. */
-    private boolean myAdminUser = false;
+    /** The credentials for the user. */
+    private final ConcurrentHashMap<String, Credential> myCredentials;
 
     /**
      * Determines if additional servers are auto discovered or if connections
@@ -151,9 +154,6 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     private long myMaxSecondaryLag = TimeUnit.MINUTES.toMillis(5);
 
-    /** The password for authentication with the servers. */
-    private String myPasswordHash = null;
-
     /**
      * Determines how long to wait (in milliseconds) for a socket read to
      * complete.
@@ -184,9 +184,6 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /** The factory for creating threads to handle connections. */
     private transient ThreadFactory myThreadFactory = null;
 
-    /** The user name for authentication with the servers. */
-    private String myUserName = null;
-
     /**
      * Determines if the {@link java.net.Socket#setKeepAlive(boolean)
      * SO_KEEPALIVE} socket option is set.
@@ -203,6 +200,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         super();
 
         myThreadFactory = Executors.defaultThreadFactory();
+        myCredentials = new ConcurrentHashMap<String, Credential>();
     }
 
     /**
@@ -312,12 +310,15 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         }
 
         if (mongoDbUri.getUserName() != null) {
-            if (database.isEmpty() || database.equals(ADMIN_DB_NAME)) {
-                authenticateAsAdmin(mongoDbUri.getUserName(),
-                        mongoDbUri.getPassword());
+            if (database.isEmpty()) {
+                setCredentials(Arrays.asList(new Credential(mongoDbUri
+                        .getUserName(), mongoDbUri.getPassword().toCharArray(),
+                        Credential.MONGODB_CR)));
             }
             else {
-                authenticate(mongoDbUri.getUserName(), mongoDbUri.getPassword());
+                setCredentials(Arrays.asList(new Credential(mongoDbUri
+                        .getUserName(), mongoDbUri.getPassword().toCharArray(),
+                        database, Credential.MONGODB_CR)));
             }
         }
 
@@ -463,30 +464,67 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
-     * Sets up the instance to authenticate with the MongoDB servers. This
-     * should be done before using this configuration to instantiate a
-     * {@link Mongo} instance.
+     * Adds the specified credentials to the configuration.
      * 
-     * @param userName
-     *            The user name.
-     * @param password
-     *            the password.
-     * @throws MongoDbAuthenticationException
-     *             On a failure initializing the authentication information.
+     * @param credentials
+     *            The credentials to use when accessing the MongoDB server.
+     * @throws IllegalArgumentException
+     *             If the credentials refer to an unknown authentication type or
+     *             the configuration already has a set of credentials for the
+     *             credentials specified database.
      */
-    public void authenticate(final String userName, final String password)
-            throws MongoDbAuthenticationException {
+    public void addCredential(Credential credentials)
+            throws IllegalArgumentException {
         try {
-            final MessageDigest md5 = MessageDigest.getInstance("MD5");
-            final byte[] digest = md5.digest((userName + ":mongo:" + password)
-                    .getBytes(UTF8));
+            credentials.loadAuthenticator();
 
-            myAdminUser = false;
-            myUserName = userName;
-            myPasswordHash = IOUtils.toHex(digest);
+            Credential previous = myCredentials.putIfAbsent(
+                    credentials.getDatabase(), credentials);
+            if (previous != null) {
+                throw new IllegalArgumentException(
+                        "There can only be one set of credentials for each database.");
+            }
         }
-        catch (final NoSuchAlgorithmException e) {
-            throw new MongoDbAuthenticationException(e);
+        catch (ClassNotFoundException cnfe) {
+            throw new IllegalArgumentException(
+                    "Could not load the credentials authenticator.", cnfe);
+        }
+        catch (InstantiationException ie) {
+            throw new IllegalArgumentException(
+                    "Could not load the credentials authenticator.", ie);
+        }
+        catch (IllegalAccessException iae) {
+            throw new IllegalArgumentException(
+                    "Could not load the credentials authenticator.", iae);
+        }
+    }
+
+    /**
+     * Returns the map of database names to credentials to use to access that
+     * database on the server.
+     * 
+     * @return The map of database names to credentials to use to access that
+     *         database on the server.
+     */
+    public Collection<Credential> getCredentials() {
+        return Collections.unmodifiableCollection(myCredentials.values());
+    }
+
+    /**
+     * Sets the credentials to use to access the server. This removes all
+     * existing credentials.
+     * 
+     * @param credentials
+     *            The credentials to use to access the server..
+     * @throws IllegalArgumentException
+     *             If the credentials refer to an unknown authentication type or
+     *             the configuration already has a set of credentials for the
+     *             credentials specified database.
+     */
+    public void setCredentials(Collection<Credential> credentials) {
+        myCredentials.clear();
+        for (Credential credential : credentials) {
+            addCredential(credential);
         }
     }
 
@@ -501,11 +539,35 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            the password.
      * @throws MongoDbAuthenticationException
      *             On a failure initializing the authentication information.
+     * @deprecated Replaced with the more general {@link Credential} capability.
+     *             Will be removed after the 1.3.0 release.
      */
+    @Deprecated
+    public void authenticate(final String userName, final String password)
+            throws MongoDbAuthenticationException {
+        addCredential(new Credential(userName, password.toCharArray(),
+                getDefaultDatabase(), Credential.MONGODB_CR));
+    }
+
+    /**
+     * Sets up the instance to authenticate with the MongoDB servers. This
+     * should be done before using this configuration to instantiate a
+     * {@link Mongo} instance.
+     * 
+     * @param userName
+     *            The user name.
+     * @param password
+     *            the password.
+     * @throws MongoDbAuthenticationException
+     *             On a failure initializing the authentication information.
+     * @deprecated Replaced with the more general {@link Credential} capability.
+     *             Will be removed after the 1.3.0 release.
+     */
+    @Deprecated
     public void authenticateAsAdmin(final String userName, final String password)
             throws MongoDbAuthenticationException {
-        authenticate(userName, password);
-        myAdminUser = true;
+        addCredential(new Credential(userName, password.toCharArray(),
+                ADMIN_DB_NAME, Credential.MONGODB_CR));
     }
 
     /**
@@ -554,7 +616,10 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * </p>
      * 
      * @return The default database value.
+     * @deprecated Replaced with the more general {@link Credential} capability.
+     *             Will be removed after the 1.3.0 release.
      */
+    @Deprecated
     public String getDefaultDatabase() {
         return myDefaultDatabase;
     }
@@ -676,9 +741,28 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Gets the password hash for authentication with the database.
      * 
      * @return The password hash for authentication with the database.
+     * @deprecated Replaced with the more general {@link Credential} capability.
+     *             Will be removed after the 1.3.0 release.
      */
+    @Deprecated
     public String getPasswordHash() {
-        return myPasswordHash;
+        if (!myCredentials.isEmpty()) {
+            Credential credentials = myCredentials.entrySet().iterator().next()
+                    .getValue();
+            try {
+                final MessageDigest md5 = MessageDigest.getInstance("MD5");
+                final byte[] digest = md5.digest((credentials.getUsername()
+                        + ":mongo:" + new String(credentials.getPassword()))
+                        .getBytes(UTF8));
+
+                return IOUtils.toHex(digest);
+            }
+            catch (final NoSuchAlgorithmException e) {
+                throw new MongoDbAuthenticationException(e);
+            }
+
+        }
+        return null;
     }
 
     /**
@@ -761,27 +845,40 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Gets the user name for authenticating with the database.
      * 
      * @return The user name for authenticating with the database.
+     * @deprecated Replaced with the more general {@link Credential} capability.
+     *             Will be removed after the 1.3.0 release.
      */
+    @Deprecated
     public String getUserName() {
-        return myUserName;
+        if (!myCredentials.isEmpty()) {
+            Credential credentials = myCredentials.entrySet().iterator().next()
+                    .getValue();
+            return credentials.getUsername();
+        }
+        return null;
     }
 
     /**
      * Returns true if the user should authenticate as an administrative user.
      * 
      * @return True if the user should authenticate as an administrative user.
+     * @deprecated Replaced with the more general {@link Credential} capability.
+     *             Will be removed after the 1.3.0 release.
      */
+    @Deprecated
     public boolean isAdminUser() {
-        return myAdminUser;
+        return myCredentials.containsKey(ADMIN_DB_NAME);
     }
 
     /**
-     * Returns true if the connection is authenticating.
+     * Returns true if the connection is authenticating. If any credentials have
+     * been added to this configuration then all connections will use
+     * authentication.
      * 
      * @return True if the connections should authenticate with the server.
      */
     public boolean isAuthenticating() {
-        return (myPasswordHash != null);
+        return !myCredentials.isEmpty();
     }
 
     /**
@@ -849,7 +946,10 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * 
      * @param defaultDatabase
      *            The new default database value.
+     * @deprecated Replaced with the more general {@link Credential} capability.
+     *             Will be removed after the 1.3.0 release.
      */
+    @Deprecated
     public void setDefaultDatabase(final String defaultDatabase) {
         myDefaultDatabase = defaultDatabase;
     }

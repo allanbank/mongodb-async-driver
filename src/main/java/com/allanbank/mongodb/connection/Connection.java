@@ -144,6 +144,13 @@ public interface Connection extends Closeable, Flushable {
     public void shutdown();
 
     /**
+     * Returns the name of a server the connection is currently connected to.
+     * 
+     * @return The name of a server the connection is currently connected to.
+     */
+    public String getServerName();
+
+    /**
      * Waits for the connection to become idle.
      * 
      * @param timeout

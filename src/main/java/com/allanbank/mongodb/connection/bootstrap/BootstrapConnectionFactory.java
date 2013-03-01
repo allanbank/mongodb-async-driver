@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
@@ -22,8 +21,8 @@ import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.auth.AuthenticationConnectionFactory;
+import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Reply;
-import com.allanbank.mongodb.connection.message.ServerStatus;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.rs.ReplicaSetConnectionFactory;
 import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
@@ -69,9 +68,8 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * users can reset the delegate by manually invoking this method.
      * <p>
      * A bootstrap will issue one commands to the first working MongoDB process.
-     * The reply to the {@link ServerStatus} command is used to detect
-     * connecting to a mongos <tt>process</tt> and by extension a Sharded
-     * configuration.
+     * The reply to the {@link IsMaster} command is used to detect connecting to
+     * a mongos <tt>process</tt> and by extension a Sharded configuration.
      * </p>
      * <p>
      * If not using a Sharded configuration then the server status is checked
@@ -97,7 +95,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                 try {
                     conn = factory.connect(new ServerState(addr), myConfig);
 
-                    conn.send(new ServerStatus(), future);
+                    conn.send(new IsMaster(), future);
                     final Reply reply = future.get();
 
                     // Close the connection now that we have the reply.
@@ -232,9 +230,9 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      */
     private boolean isMongos(final Document doc) {
 
-        final Element processName = doc.get("process");
+        final Element processName = doc.get("msg");
         if (processName instanceof StringElement) {
-            return "mongos".equals(((StringElement) processName).getValue());
+            return "isdbgrid".equals(((StringElement) processName).getValue());
         }
 
         return false;
@@ -250,6 +248,6 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      *         sub-document.
      */
     private boolean isReplicationSet(final Document doc) {
-        return (doc.get("repl") instanceof DocumentElement);
+        return (doc.get("setName") instanceof StringElement);
     }
 }

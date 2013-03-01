@@ -13,6 +13,7 @@ import java.util.Collections;
 import org.junit.After;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.ServerTestDriverSupport;
@@ -56,8 +57,8 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         startAuthenticated();
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        config.authenticateAsAdmin(ADMIN_USER_NAME, PASSWORD);
-        config.setDefaultDatabase(USER_DB);
+        config.addCredential(new Credential(ADMIN_USER_NAME, PASSWORD,
+                Credential.MONGODB_CR));
 
         Connection socketConn = null;
         AuthenticatingConnection authConn = null;
@@ -103,8 +104,8 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         startAuthenticated();
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        config.authenticate(USER_NAME, PASSWORD);
-        config.setDefaultDatabase(USER_DB);
+        config.addCredential(new Credential(USER_NAME, PASSWORD, USER_DB,
+                Credential.MONGODB_CR));
 
         Connection socketConn = null;
         AuthenticatingConnection authConn = null;

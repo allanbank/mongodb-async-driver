@@ -13,6 +13,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.connection.auth.AuthenticationConnectionFactory;
@@ -96,8 +97,8 @@ public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 new InetSocketAddress("127.0.0.1", 27017));
-        config.authenticate(USER_NAME, PASSWORD);
-        config.setDefaultDatabase(USER_DB);
+        config.addCredential(new Credential(USER_NAME, PASSWORD, USER_DB,
+                Credential.MONGODB_CR));
 
         myTestFactory = new BootstrapConnectionFactory(config);
 

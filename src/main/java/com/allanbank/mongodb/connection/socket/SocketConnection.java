@@ -148,10 +148,12 @@ public class SocketConnection implements Connection {
                 config.getLockType());
 
         myReceiver = config.getThreadFactory().newThread(new ReceiveRunnable());
+        myReceiver.setDaemon(true);
         myReceiver.setName("MongoDB " + mySocket.getLocalPort() + "<--"
                 + myServer.getServer().toString());
 
         mySender = config.getThreadFactory().newThread(new SendRunnable());
+        mySender.setDaemon(true);
         mySender.setName("MongoDB " + mySocket.getLocalPort() + "-->"
                 + myServer.getServer().toString());
     }
@@ -879,5 +881,16 @@ public class SocketConnection implements Connection {
                 doFlush();
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to returns the server's name.
+     * </p>
+     */
+    @Override
+    public String getServerName() {
+        return myServer.getServer().getHostName();
     }
 }

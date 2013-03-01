@@ -278,6 +278,17 @@ public abstract class AbstractProxyConnection implements Connection {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to forward the call to the proxied connection.
+     * </p>
+     */
+    @Override
+    public String getServerName() {
+        return getProxiedConnection().getServerName();
+    }
+
+    /**
      * Returns the proxiedConnection value.
      * 
      * @return The proxiedConnection value.
