@@ -1,0 +1,117 @@
+            ------
+            MongoDB Asynchronous Java Driver: Kerberos Authentication
+            ------
+            ------
+
+Kerberos Authentication
+
+  The driver provides the ability for users to authenticate to the MongoDB server via Kerberos.
+There are several steps involved in getting a working Kerberos environment.  Below are links to
+useful documentation for setting up your MongoDB server to use Kerberos and creating a working 
+Kerberos Java environment.
+
+  * {{{http://docs.mongodb.org/manual/release-notes/2.4/#new-modular-authentication-system-with-support-for-kerberos}MongoDB Kerberos}}
+
+  * {{{http://docs.oracle.com/javase/6/docs/technotes/guides//security/jgss/tutorials/KerberosReq.html}Java Kerberos Configuration}}
+
+  []
+
+  In particular one of the following must be completed to support locating the Kerberos domain controller:
+
+  [[1]] Set the system properties <<<java.security.krb5.realm>>> and <<<java.security.krb5.kdc>>> with the values for the Kerberos Realm and domain controller respectively.
+
+  [[2]] Set the system property <<<java.security.krb5.conf>>> to point to an appropriate <<krb5.conf>> or <<krb5.ini>> file.
+  
+  [[3]] Create a <<krb5.conf>> or <<krb5.ini>> in one of the default locations.  See the <<<Java Kerberos Configuration>>> link above.
+  
+  []
+  
+  With a working Kerberos infrastructure configuring the driver to use Kerberos for authentication is as
+simple as providing the appropriate credentials with the 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}.
+
++----------------------------------------+
+MongoClientConfiguration config = new MongoClientConfiguration("mongodb://locahost:27017/");
+
+char[] password = new char[] { 's', 'u', 'p', 'e', 'r', 's', 'e', 'c', 'r', 'e', 't' };
+config.addCredential(new Credential("<user>@<REALM>", password, Credentials.KERBEROS);
+Arrays.fill( password, ' ' );
++----------------------------------------+
+
+  The user does not need to have to have pre-authenticated with the server (via kinit) or within the Kerberos domain. 
+The driver will authenticate the user and obtain required tickets automatically from the Kerberos domain controller.
+The host running the application need not be explicitly part of the Kerberos domain but should, obviously, be 
+able to communicate with the Kerberos domain controller.
+
+Getting a MongoDB Server Running with Kerberos Support
+
+* Creating a Principle for the MongoDB server
+
+  Before starting a MongoDB server with Kerberos support we first need to provision or identify 
+the MongDB server within the Kerberos domain.  The first step is to create a principle for the MongoDB 
+service running on each host.  The following command will create the principle within the domain using a random key.  
+Replace <<\<fqdn\>>> with the fully qualified domain name of the machine on which MongoDB will be running. 
+
++----------------------------------------+
+kadmin -q "addprinc -randkey mongodb/<fqdn>"
++----------------------------------------+
+
+* Creating a keytab file for the MongoDB server
+
+  With the principle created we now export the key for the principle to a keytab file for 
+the MongoDB process to use.  The permissions on the keytab file should be checked to ensure that
+the file is readonly and only the runtime MongoDB user can read the file. For the command below we 
+have placed the keytab file in /opt/mongdb but can be any location on the file system.
+
++----------------------------------------+
+mkdir -p /opt/mongodb/
+kadmin -q "ktadd -k /opt/mongodb/mongodb.keytab mongodb/<fqdn>"
++----------------------------------------+
+
+* Starting MongoDB Server with Kerberos Support
+
++----------------------------------------+
+NOTE: Kerberos Support is only available in the 2.3/2.4 and later Subscriber additions or a locally built version with --use-sasl-client.
++----------------------------------------+
+
+  To start a MongoDB server with Kerberos support multiple command line options and environment variables
+must be used.
+
+  [--auth option] Enables authentication on the server.
+
+  [--setParameter option] Enabled the authentication modes.  Initially it is recommened to use the option
+with the authenticationMechanisms=GSSAPI,MONGODB-CR argument to enable support for Kerberos and traditional 
+challenge response.  Once the Kerberos authentication is working the user can switch to just GSSAPI.
+
+  [--keyFile option] If running a cluster of servers then provides the mechanism for the servers to authenticate
+to each other. All servers must have access to a copy of identical key files.
+
+  [KRB5_KTNAME Environment Variable] Points to the keytab file created above, e.g., /opt/mongodb/mongod.keytab
+
+  For a single stand-alone server the command would look like.
+
++----------------------------------------+
+KRB5_KTNAME=/opt/mongodb/mongodb.keytab                          \
+mongod --auth                                                    \
+       --setParameter authenticationMechanisms=GSSAPI,MONGODB-CR \
+       --dbpath /opt/mongodb/data                                \
+       --logpath /opt/mongodb/log/mongod.log                     \
+       --fork
++----------------------------------------+
+
+For more information on running and debugging MongoDB with Kerberos Support see the 
+{{{http://docs.mongodb.org/manual/tutorial/control-access-to-mongodb-with-kerberos-authentication/}MongoDB Tutorial}}
+
+
+Notes
+
+  Due to the difficulty in getting a working Kerberos environment we are asking users to contact us 
+before trying to use Kerberos with the driver so that we can provide assistant and utilities for 
+trouble shooting Kerberos infrastructure problems. For this reason we have placed the Kerberos support
+within an extensions jar. Without the extensions jar on the classpath any attempt to add a credential 
+to a configuration will throw an IllegalArguementException.
+
+  Please contact 
+{{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
+for information on obtaining the extensions jar.
+ 

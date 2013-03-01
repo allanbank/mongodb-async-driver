@@ -1,0 +1,36 @@
+            ------
+            MongoDB Asynchronous Java Driver: Maven
+            ------
+            ------
+
+Maven Repository
+
+  To automate the download of the driver's jar from your Maven project you need to add the 
+driver as a dependency and also add the driver's repository.
+
+  The current driver's pom coordinates are:
+
++-----------------+
+<dependency>
+	<groupId>com.allanbank</groupId>
+	<artifactId>${projectArtifactId}</artifactId>
+	<version>${projectVersion}</version>
+</dependency>
++-----------------+
+
+  To add the driver's repository to your pom include the following in the \<repositories /\> section.
+
++-----------------+
+<repository>
+	<releases>
+		<enabled>true</enabled>
+		<updatePolicy>always</updatePolicy>
+		<checksumPolicy>warn</checksumPolicy>
+	</releases>
+	<id>allanbank</id>
+	<name>Allanbank Releases</name>
+	<url>http://www.allanbank.com/repo/</url>
+	<layout>default</layout>
+</repository>
++-----------------+
+  
