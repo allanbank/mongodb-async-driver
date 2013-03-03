@@ -24,6 +24,15 @@ import com.allanbank.mongodb.bson.element.StringElement;
 public class AggregationGroupFieldTest {
 
     /**
+     * Test method for {@link AggregationGroupField.Builder#addToSet(String)}.
+     */
+    @Test
+    public void testAddToSet() {
+        assertEquals(new DocumentElement("f", new StringElement("$addToSet",
+                "$value")), set("f").addToSet("value").toElement());
+    }
+
+    /**
      * Test method for {@link AggregationGroupField.Builder#all} .
      */
     @Test
@@ -103,6 +112,15 @@ public class AggregationGroupFieldTest {
     public void testMinimum() {
         assertEquals(new DocumentElement("f", new StringElement("$min",
                 "$value")), set("f").minimum("value").toElement());
+    }
+
+    /**
+     * Test method for {@link AggregationGroupField.Builder#push} .
+     */
+    @Test
+    public void testPush() {
+        assertEquals(new DocumentElement("f", new StringElement("$push",
+                "$value")), set("f").push("$value").toElement());
     }
 
     /**

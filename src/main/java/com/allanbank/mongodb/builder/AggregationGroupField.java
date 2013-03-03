@@ -130,6 +130,26 @@ public class AggregationGroupField {
 
         /**
          * Constructs a new {@link AggregationGroupField} object that uses the
+         * <tt>$addToSet</tt> operator to accumulate the unique values of the
+         * <tt>fieldRef</tt>.
+         * <p>
+         * This is an alias for {@link #uniqueValuesOf(String)}.
+         * </p>
+         * 
+         * @param fieldRef
+         *            The field reference to use. If the <tt>fieldRef</tt> does
+         *            not start with a '$' then one will be added.
+         * @return The new {@link AggregationGroupField} object.
+         * @see <a href=
+         *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_addToSet">MongoDB
+         *      Aggregate Command $group Operator - $addToSet</a>
+         */
+        public AggregationGroupField addToSet(final String fieldRef) {
+            return uniqueValuesOf(fieldRef);
+        }
+
+        /**
+         * Constructs a new {@link AggregationGroupField} object that uses the
          * <tt>$push</tt> operator to accumulate all of the values seen from the
          * <tt>fieldRef</tt>.
          * 
@@ -279,6 +299,26 @@ public class AggregationGroupField {
          */
         public AggregationGroupField minimum(final String fieldRef) {
             return as("$min", fieldRef);
+        }
+
+        /**
+         * Constructs a new {@link AggregationGroupField} object that uses the
+         * <tt>$push</tt> operator to accumulate all of the values seen from the
+         * <tt>fieldRef</tt>.
+         * <p>
+         * This is an alias for {@link #all(String)}.
+         * </p>
+         * 
+         * @param fieldRef
+         *            The field reference to use. If the <tt>fieldRef</tt> does
+         *            not start with a '$' then one will be added.
+         * @return The new {@link AggregationGroupField} object.
+         * @see <a href=
+         *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_push">MongoDB
+         *      Aggregate Command $group Operator - $push</a>
+         */
+        public AggregationGroupField push(final String fieldRef) {
+            return all(fieldRef);
         }
 
         /**
