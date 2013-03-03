@@ -92,11 +92,11 @@ public class ObjectId implements Serializable {
         // Try and find the process id from the runtime.
         int processId;
         try {
-            RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
-            String processName = runtime.getName();
-            int atLoc = processName.indexOf('@');
+            final RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
+            final String processName = runtime.getName();
+            final int atLoc = processName.indexOf('@');
             if (atLoc >= 0) {
-                String pidString = processName.substring(0, atLoc);
+                final String pidString = processName.substring(0, atLoc);
                 processId = Integer.parseInt(pidString);
             }
             else {
@@ -105,7 +105,7 @@ public class ObjectId implements Serializable {
             }
 
         }
-        catch (Throwable t) {
+        catch (final Throwable t) {
             // Degenerate to a random process id.
             processId = rand.nextInt();
         }
@@ -224,6 +224,15 @@ public class ObjectId implements Serializable {
     }
 
     /**
+     * The low 3 byte value of the machine id.
+     * 
+     * @return The low 3 byte value of the machine id.
+     */
+    public int getCounterField() {
+        return (int) (myMachineId & 0xFFFFFFL);
+    }
+
+    /**
      * The lower 8 bytes of the object id. This is the machine identifier field
      * and counter.
      * 
@@ -234,22 +243,12 @@ public class ObjectId implements Serializable {
     }
 
     /**
-     * The upper 4 bytes of the object id. This is the <b>seconds</b> since the
-     * UNIX Epoch.
+     * The upper 3 bytes in the machine id.
      * 
-     * @return The upper 4 bytes of the object id.
+     * @return The upper 3 bytes of the object id.
      */
-    public int getTimestamp() {
-        return myTimestamp;
-    }
-
-    /**
-     * The low 3 byte value of the machine id.
-     * 
-     * @return The low 3 byte value of the machine id.
-     */
-    public int getCounterField() {
-        return (int) (myMachineId & 0xFFFFFFL);
+    public int getMachineIdentifier() {
+        return (int) ((myMachineId >> 40) & 0xFFFFFFL);
     }
 
     /**
@@ -262,12 +261,13 @@ public class ObjectId implements Serializable {
     }
 
     /**
-     * The upper 3 bytes in the machine id.
+     * The upper 4 bytes of the object id. This is the <b>seconds</b> since the
+     * UNIX Epoch.
      * 
-     * @return The upper 3 bytes of the object id.
+     * @return The upper 4 bytes of the object id.
      */
-    public int getMachineIdentifier() {
-        return (int) ((myMachineId >> 40) & 0xFFFFFFL);
+    public int getTimestamp() {
+        return myTimestamp;
     }
 
     /**

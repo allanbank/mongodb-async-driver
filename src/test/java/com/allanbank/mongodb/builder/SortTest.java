@@ -37,7 +37,10 @@ public class SortTest {
 
     /**
      * Test method for {@link Sort#geo2d(String)}.
+     * 
+     * @deprecated See {@link Sort#geo2d(String)}.
      */
+    @Deprecated
     @Test
     public void testGeo2d() {
         assertEquals(new StringElement("h", "2d"), Sort.geo2d("h"));

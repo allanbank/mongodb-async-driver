@@ -24,7 +24,6 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
-import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -1763,8 +1762,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             if (key instanceof NumericElement) {
                 nameBuilder.append(((NumericElement) key).getIntValue());
             }
-            else if (key instanceof StringElement) {
-                nameBuilder.append(((StringElement) key).getValue());
+            else {
+                nameBuilder.append(key.getValueAsString());
             }
         }
         return nameBuilder.toString();

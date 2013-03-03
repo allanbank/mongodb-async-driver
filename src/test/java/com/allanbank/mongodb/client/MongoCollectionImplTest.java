@@ -44,6 +44,7 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.builder.Aggregate;
@@ -51,6 +52,7 @@ import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Sort;
 import com.allanbank.mongodb.connection.ClusterType;
@@ -304,12 +306,15 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testBuildIndexName() {
-        String name = myTestInstance.buildIndexName(new StringElement("l",
-                "true"));
+        String name = myTestInstance
+                .buildIndexName(new DoubleElement("l", 1.2));
+        assertEquals("l_1", name);
+
+        name = myTestInstance.buildIndexName(new StringElement("l", "true"));
         assertEquals("l_true", name);
 
         name = myTestInstance.buildIndexName(new SymbolElement("l", "true"));
-        assertEquals("l_", name);
+        assertEquals("l_true", name);
     }
 
     /**
@@ -834,7 +839,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex(Sort.asc("k"), Sort.desc("l"));
+        myTestInstance.createIndex(Index.asc("k"), Index.desc("l"));
 
         verify();
     }
@@ -869,7 +874,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex(true, Sort.asc("k"), Sort.desc("l"));
+        myTestInstance.createIndex(true, Index.asc("k"), Index.desc("l"));
 
         verify();
     }
@@ -914,7 +919,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex("name", false, Sort.asc("k"));
+        myTestInstance.createIndex("name", false, Index.asc("k"));
 
         verify();
     }
@@ -948,7 +953,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex("name", false, Sort.asc("k"));
+        myTestInstance.createIndex("name", false, Index.asc("k"));
 
         verify();
     }
@@ -982,7 +987,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex("", false, Sort.asc("k"), Sort.desc("l"));
+        myTestInstance.createIndex("", false, Index.asc("k"), Index.desc("l"));
 
         verify();
     }
@@ -1016,7 +1021,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex(null, false, Sort.asc("k"), Sort.desc("l"));
+        myTestInstance
+                .createIndex(null, false, Index.asc("k"), Index.desc("l"));
 
         verify();
     }
@@ -1052,8 +1058,8 @@ public class MongoCollectionImplTest {
         replay();
 
         myTestInstance.createIndex(
-                AbstractMongoCollection.UNIQUE_INDEX_OPTIONS, Sort.asc("k"),
-                Sort.desc("l"));
+                AbstractMongoCollection.UNIQUE_INDEX_OPTIONS, Index.asc("k"),
+                Index.desc("l"));
 
         verify();
     }
@@ -1087,7 +1093,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.createIndex(false, Sort.asc("k"), Sort.desc("l"));
+        myTestInstance.createIndex(false, Index.asc("k"), Index.desc("l"));
 
         verify();
     }
@@ -1715,7 +1721,7 @@ public class MongoCollectionImplTest {
         assertTrue(myTestInstance.dropIndex("foo"));
         assertFalse(myTestInstance.dropIndex("foo"));
         assertFalse(myTestInstance.dropIndex("foo"));
-        assertTrue(myTestInstance.dropIndex(Sort.asc("f")));
+        assertTrue(myTestInstance.dropIndex(Index.asc("f")));
 
         verify();
     }

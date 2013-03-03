@@ -79,9 +79,9 @@ import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
-import com.allanbank.mongodb.builder.Sort;
 import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -557,7 +557,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testCreateIndex() {
 
-        myCollection.createIndex(Sort.asc("foo"), Sort.asc("bar"));
+        myCollection.createIndex(Index.asc("foo"), Index.asc("bar"));
 
         // Adjust the configuration to keep the connection count down
         // and let the inserts happen asynchronously.
@@ -768,14 +768,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testDropIndex() {
-        myCollection.createIndex(Sort.asc("foo"), Sort.asc("bar"));
+        myCollection.createIndex(Index.asc("foo"), Index.asc("bar"));
 
         Document found = myDb.getCollection("system.indexes").findOne(
                 BuilderFactory.start()
                         .addRegularExpression("name", ".*foo.*", "").build());
         assertNotNull(found);
 
-        myCollection.dropIndex(Sort.asc("foo"), Sort.asc("bar"));
+        myCollection.dropIndex(Index.asc("foo"), Index.asc("bar"));
         found = myDb.getCollection("system.indexes").findOne(
                 BuilderFactory.start()
                         .addRegularExpression("name", ".*foo.*", "").build());
@@ -792,7 +792,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.ACK);
         myConfig.setMaxConnectionCount(1);
 
-        myCollection.createIndex(Sort.asc("a"), Sort.asc("b"));
+        myCollection.createIndex(Index.asc("a"), Index.asc("b"));
 
         Document result = myCollection.explain(QueryBuilder.where("a")
                 .equals(3).and("b").equals(5));
@@ -6594,7 +6594,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         if (myGeoCollection == null) {
             myGeoCollection = myDb.getCollection(GEO_TEST_COLLECTION_NAME + "_"
                     + (++ourUniqueId));
-            myGeoCollection.createIndex(Sort.geo2d("p"));
+            myGeoCollection.createIndex(Index.geo2d("p"));
         }
         return myGeoCollection;
     }

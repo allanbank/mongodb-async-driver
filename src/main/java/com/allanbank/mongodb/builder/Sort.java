@@ -11,6 +11,11 @@ import com.allanbank.mongodb.bson.element.StringElement;
 /**
  * Provides the ability to easily specify the sort direction for an index or
  * sort specification.
+ * <p>
+ * MongoDB supports many different index types in addition to the simple
+ * ascending and descending order. See the {@link Index} helper for more
+ * information.
+ * </p>
  * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
@@ -23,6 +28,9 @@ public final class Sort {
     /**
      * Creates an ascending order specification, e.g.,
      * <tt>{ &lt;field&gt; : 1 }</tt>.
+     * <p>
+     * This method is equivalent to {@link Index#asc(String)} method.
+     * </p>
      * 
      * @param field
      *            The field to create the
@@ -35,6 +43,9 @@ public final class Sort {
     /**
      * Creates an descending order specification, e.g.,
      * <tt>{ &lt;field&gt; : -1 }</tt>.
+     * <p>
+     * This method is equivalent to {@link Index#desc(String)} method.
+     * </p>
      * 
      * @param field
      *            The field to create the
@@ -51,9 +62,13 @@ public final class Sort {
      * @param field
      *            The field to create the
      * @return The 2D index specification.
+     * @deprecated Moved to {@link Index#geo2d} in the {@link Index} class with
+     *             the other other index types. This method will be removed
+     *             after the 1.4.0 release.
      */
+    @Deprecated
     public static StringElement geo2d(final String field) {
-        return new StringElement(field, "2d");
+        return Index.geo2d(field);
     }
 
     /**

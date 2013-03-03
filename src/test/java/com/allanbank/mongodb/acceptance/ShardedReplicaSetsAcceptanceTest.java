@@ -52,6 +52,7 @@ import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.builder.Sort;
@@ -362,7 +363,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig.setDefaultDurability(Durability.ACK);
         myConfig.setMaxConnectionCount(1);
 
-        myCollection.createIndex(Sort.asc("a"), Sort.asc("b"));
+        myCollection.createIndex(Index.asc("a"), Index.asc("b"));
 
         Document result = myCollection.explain(QueryBuilder.where("a")
                 .equals(3).and("b").equals(5));

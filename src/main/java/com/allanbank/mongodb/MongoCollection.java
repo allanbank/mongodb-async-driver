@@ -254,13 +254,13 @@ public interface MongoCollection {
      * <tt>unique</tt> is true ensuring entries are unique.
      * <p>
      * This method is intended to be used with the
-     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
      * 
      * <pre>
      * <code>
-     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
-     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
+     * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
      * 
      * MongoCollection collection = ...;
      * 
@@ -287,14 +287,14 @@ public interface MongoCollection {
      * allowing duplicate entries.
      * <p>
      * This method is intended to be used with the
-     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
      * 
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.bson.builder.BuilderFactory#start com.allanbank.mongodb.bson.builder.BuilderFactory.start};
-     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
-     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
+     * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
      * 
      * MongoCollection collection = ...;
      * 
@@ -323,13 +323,13 @@ public interface MongoCollection {
      * allowing duplicate entries.
      * <p>
      * This method is intended to be used with the
-     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
      * 
      * <pre>
      * <code>
-     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
-     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
+     * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
      * 
      * MongoCollection collection = ...;
      * 
@@ -352,13 +352,13 @@ public interface MongoCollection {
      * if <tt>unique</tt> is true ensuring entries are unique.
      * <p>
      * This method is intended to be used with the
-     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
      * 
      * <pre>
      * <code>
-     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
-     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
+     * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
      * 
      * MongoCollection collection = ...;
      * 
@@ -388,14 +388,14 @@ public interface MongoCollection {
      * allowing duplicate entries.
      * <p>
      * This method is intended to be used with the
-     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
      * 
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.bson.builder.BuilderFactory#start com.allanbank.mongodb.bson.builder.BuilderFactory.start};
-     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
-     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
+     * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
      * 
      * MongoCollection collection = ...;
      * 
@@ -668,13 +668,13 @@ public interface MongoCollection {
      * Deletes the indexes matching the keys specified.
      * <p>
      * This method is intended to be used with the
-     * {@link com.allanbank.mongodb.builder.Sort} class's static methods:
+     * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
      * 
      * <pre>
      * <code>
-     * import static {@link com.allanbank.mongodb.builder.Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
-     * import static {@link com.allanbank.mongodb.builder.Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+     * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
+     * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
      * 
      * MongoCollection collection = ...;
      * 
