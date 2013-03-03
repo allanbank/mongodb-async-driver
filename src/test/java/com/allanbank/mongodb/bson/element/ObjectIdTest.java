@@ -83,6 +83,16 @@ public class ObjectIdTest {
 
         assertEquals(time, id.getTimestamp());
         assertEquals(l, id.getMachineId());
+
+        final ObjectId idHex = new ObjectId("4e9d87aa5825b60b637815a6");
+        assertEquals(new ObjectId(0x4e9d87aa, 0x5825b60b637815a6L), idHex);
+
+        assertEquals(0x4e9d87aa, idHex.getTimestamp());
+        assertEquals(0x5825b60b637815a6L, idHex.getMachineId());
+
+        assertEquals(0x7815a6, idHex.getCounterField());
+        assertEquals(0x5825b6, idHex.getMachineIdentifier());
+        assertEquals(0x0b63, idHex.getPidField());
     }
 
     /**

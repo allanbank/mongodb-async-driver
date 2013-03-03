@@ -5,6 +5,8 @@
 package com.allanbank.mongodb.bson.element;
 
 import java.io.Serializable;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.security.MessageDigest;
@@ -31,7 +33,7 @@ public class ObjectId implements Serializable {
     public static final long MACHINE_ID;
 
     /** The counter to add to the machine id. */
-    private static final AtomicLong COUNTER = new AtomicLong(0);
+    private static final AtomicLong COUNTER;
 
     /** Serialization version for the class. */
     private static final long serialVersionUID = -3035334151717895487L;
@@ -87,12 +89,33 @@ public class ObjectId implements Serializable {
             }
         }
 
-        // Use a random value for the pid.
-        value += rand.nextInt(256);
+        // Try and find the process id from the runtime.
+        int processId;
+        try {
+            RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
+            String processName = runtime.getName();
+            int atLoc = processName.indexOf('@');
+            if (atLoc >= 0) {
+                String pidString = processName.substring(0, atLoc);
+                processId = Integer.parseInt(pidString);
+            }
+            else {
+                // Degenerate to a random process id.
+                processId = rand.nextInt();
+            }
+
+        }
+        catch (Throwable t) {
+            // Degenerate to a random process id.
+            processId = rand.nextInt();
+        }
+
+        value += ((processId >> Byte.SIZE) & 0xFF);
         value <<= Byte.SIZE;
-        value += rand.nextInt(256);
+        value += (processId & 0xFF);
 
         MACHINE_ID = (value << 24);
+        COUNTER = new AtomicLong(rand.nextLong() & 0xFFFFFFL);
     }
 
     /**
@@ -201,7 +224,8 @@ public class ObjectId implements Serializable {
     }
 
     /**
-     * The lower 8 bytes of the object id.
+     * The lower 8 bytes of the object id. This is the machine identifier field
+     * and counter.
      * 
      * @return The lower 8 bytes of the object id.
      */
@@ -210,12 +234,40 @@ public class ObjectId implements Serializable {
     }
 
     /**
-     * The upper 4 bytes of the object id.
+     * The upper 4 bytes of the object id. This is the <b>seconds</b> since the
+     * UNIX Epoch.
      * 
      * @return The upper 4 bytes of the object id.
      */
     public int getTimestamp() {
         return myTimestamp;
+    }
+
+    /**
+     * The low 3 byte value of the machine id.
+     * 
+     * @return The low 3 byte value of the machine id.
+     */
+    public int getCounterField() {
+        return (int) (myMachineId & 0xFFFFFFL);
+    }
+
+    /**
+     * Middle 2 byte process id field from the machine id.
+     * 
+     * @return The lower 8 bytes of the object id.
+     */
+    public int getPidField() {
+        return (int) ((myMachineId >> 24) & 0xFFFFL);
+    }
+
+    /**
+     * The upper 3 bytes in the machine id.
+     * 
+     * @return The upper 3 bytes of the object id.
+     */
+    public int getMachineIdentifier() {
+        return (int) ((myMachineId >> 40) & 0xFFFFFFL);
     }
 
     /**
