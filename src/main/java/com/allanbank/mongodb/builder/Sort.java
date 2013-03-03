@@ -25,6 +25,12 @@ import com.allanbank.mongodb.bson.element.StringElement;
  */
 public final class Sort {
 
+    /** The value to indicate an ascending sort order. */
+    public static final int ASCENDING = 1;
+
+    /** The value to indicate an descending sort order. */
+    public static final int DESCENDING = -1;
+
     /**
      * Creates an ascending order specification, e.g.,
      * <tt>{ &lt;field&gt; : 1 }</tt>.
@@ -37,7 +43,7 @@ public final class Sort {
      * @return The ascending sort specification.
      */
     public static IntegerElement asc(final String field) {
-        return new IntegerElement(field, 1);
+        return new IntegerElement(field, ASCENDING);
     }
 
     /**
@@ -52,7 +58,7 @@ public final class Sort {
      * @return The descending sort specification.
      */
     public static IntegerElement desc(final String field) {
-        return new IntegerElement(field, -1);
+        return new IntegerElement(field, DESCENDING);
     }
 
     /**
@@ -62,13 +68,37 @@ public final class Sort {
      * @param field
      *            The field to create the
      * @return The 2D index specification.
-     * @deprecated Moved to {@link Index#geo2d} in the {@link Index} class with
-     *             the other other index types. This method will be removed
-     *             after the 1.4.0 release.
+     * @deprecated Moved to the {@link Index} class as {@link Index#geo2d} to
+     *             live with the other other index types. This method will be
+     *             removed after the 1.4.0 release.
      */
     @Deprecated
     public static StringElement geo2d(final String field) {
         return Index.geo2d(field);
+    }
+
+    /**
+     * Creates an natural ascending order sort specification, e.g.,
+     * <tt>{ "$natural" : 1 }</tt>.
+     * 
+     * @return The natural ascending sort specification.
+     */
+    public static IntegerElement natural() {
+        return natural(ASCENDING);
+    }
+
+    /**
+     * Creates an natural order sort specification with the specified
+     * {@link #ASCENDING} or {@link #DESCENDING} order, e.g.,
+     * <tt>{ "$natural" : &lt;direction&gt; }</tt>.
+     * 
+     * @param direction
+     *            The direction for the natural ordering, either
+     *            {@link #ASCENDING} or {@link #DESCENDING}.
+     * @return The descending sort specification.
+     */
+    public static IntegerElement natural(final int direction) {
+        return new IntegerElement("$natural", direction);
     }
 
     /**

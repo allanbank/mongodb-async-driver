@@ -45,4 +45,24 @@ public class SortTest {
     public void testGeo2d() {
         assertEquals(new StringElement("h", "2d"), Sort.geo2d("h"));
     }
+
+    /**
+     * Test method for {@link Sort#natural()}.
+     */
+    @Test
+    public void testNatural() {
+        assertEquals(new IntegerElement("$natural", 1), Sort.natural());
+    }
+
+    /**
+     * Test method for {@link Sort#natural(int)}.
+     */
+    @Test
+    public void testNaturalInt() {
+        assertEquals(new IntegerElement("$natural", 1),
+                Sort.natural(Sort.ASCENDING));
+        assertEquals(new IntegerElement("$natural", -1),
+                Sort.natural(Sort.DESCENDING));
+        assertEquals(new IntegerElement("$natural", -23), Sort.natural(-23));
+    }
 }
