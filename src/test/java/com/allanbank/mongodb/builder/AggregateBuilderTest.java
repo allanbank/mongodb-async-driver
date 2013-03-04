@@ -50,7 +50,7 @@ public class AggregateBuilderTest extends Builder {
      */
     @Test
     public void testGroupAggregationGroupIdAggregationGroupFieldArray() {
-        final Aggregate.Builder builder = new Aggregate.Builder();
+        final Aggregate.Builder builder = Aggregate.builder();
         builder.group(id("a"), set("d").average("e"));
 
         // Now the old fashioned way.

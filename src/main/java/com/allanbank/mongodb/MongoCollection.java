@@ -50,11 +50,35 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the aggregation request.
+     * @return The aggregation results returned.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     */
+    public List<Document> aggregate(Aggregate.Builder command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param command
+     *            The details of the aggregation request.
      * @return Future for the aggregation results returned.
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
     public Future<List<Document>> aggregateAsync(Aggregate command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param command
+     *            The details of the aggregation request.
+     * @return Future for the aggregation results returned.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     */
+    public Future<List<Document>> aggregateAsync(Aggregate.Builder command)
             throws MongoDbException;
 
     /**
@@ -69,6 +93,19 @@ public interface MongoCollection {
      */
     public void aggregateAsync(Callback<List<Document>> results,
             Aggregate command) throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     */
+    public void aggregateAsync(Callback<List<Document>> results,
+            Aggregate.Builder command) throws MongoDbException;
 
     /**
      * Counts the set of documents in the collection.
@@ -637,6 +674,18 @@ public interface MongoCollection {
     /**
      * Invokes a distinct command on the server.
      * 
+     * @param command
+     *            The details of the distinct request.
+     * @return The distinct results returned.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public ArrayElement distinct(Distinct.Builder command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a distinct command on the server.
+     * 
      * @param results
      *            Callback for the distinct results returned.
      * @param command
@@ -650,6 +699,19 @@ public interface MongoCollection {
     /**
      * Invokes a distinct command on the server.
      * 
+     * @param results
+     *            Callback for the distinct results returned.
+     * @param command
+     *            The details of the distinct request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void distinctAsync(Callback<ArrayElement> results,
+            Distinct.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a distinct command on the server.
+     * 
      * @param command
      *            The details of the distinct request.
      * @return Future for the distinct results returned.
@@ -657,6 +719,18 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public Future<ArrayElement> distinctAsync(Distinct command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a distinct command on the server.
+     * 
+     * @param command
+     *            The details of the distinct request.
+     * @return Future for the distinct results returned.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<ArrayElement> distinctAsync(Distinct.Builder command)
             throws MongoDbException;
 
     /**
@@ -736,6 +810,21 @@ public interface MongoCollection {
 
     /**
      * Explains the way that the document will be performed.
+     * <p>
+     * This is equivalent to calling {@link #explainAsync(Find)
+     * explainAsync(...).get()}
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The document describing the method used to execute the query.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Document explain(Find.Builder query) throws MongoDbException;
+
+    /**
+     * Explains the way that the document will be performed.
      * 
      * @param query
      *            The query details.
@@ -752,11 +841,36 @@ public interface MongoCollection {
      * 
      * @param query
      *            The query details.
+     * @param results
+     *            Callback that will be notified of the results of the explain.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void explainAsync(Callback<Document> results, Find.Builder query)
+            throws MongoDbException;
+
+    /**
+     * Explains the way that the document will be performed.
+     * 
+     * @param query
+     *            The query details.
      * @return The document describing the method used to execute the query.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
     public Future<Document> explainAsync(Find query) throws MongoDbException;
+
+    /**
+     * Explains the way that the document will be performed.
+     * 
+     * @param query
+     *            The query details.
+     * @return The document describing the method used to execute the query.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<Document> explainAsync(Find.Builder query)
+            throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection.
@@ -790,6 +904,22 @@ public interface MongoCollection {
     public MongoIterator<Document> find(Find query) throws MongoDbException;
 
     /**
+     * Finds the set of documents matching the query in the collection.
+     * <p>
+     * This is equivalent to calling {@link #findAsync(Find)
+     * findAsync(...).get()}
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The MongoIterator over the documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoIterator<Document> find(Find.Builder query)
+            throws MongoDbException;
+
+    /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
      * to locate a document to apply a set of <tt>update</tt>s to.
      * 
@@ -800,6 +930,19 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public Document findAndModify(FindAndModify command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a findAndModify command on the server. The <tt>query</tt> is used
+     * to locate a document to apply a set of <tt>update</tt>s to.
+     * 
+     * @param command
+     *            The details of the find and modify request.
+     * @return The found document.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Document findAndModify(FindAndModify.Builder command)
             throws MongoDbException;
 
     /**
@@ -820,6 +963,20 @@ public interface MongoCollection {
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
      * to locate a document to apply a set of <tt>update</tt>s to.
      * 
+     * @param results
+     *            Callback for the the found document.
+     * @param command
+     *            The details of the find and modify request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void findAndModifyAsync(Callback<Document> results,
+            FindAndModify.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a findAndModify command on the server. The <tt>query</tt> is used
+     * to locate a document to apply a set of <tt>update</tt>s to.
+     * 
      * @param command
      *            The details of the find and modify request.
      * @return Future for the found document.
@@ -827,6 +984,19 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public Future<Document> findAndModifyAsync(FindAndModify command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a findAndModify command on the server. The <tt>query</tt> is used
+     * to locate a document to apply a set of <tt>update</tt>s to.
+     * 
+     * @param command
+     *            The details of the find and modify request.
+     * @return Future for the found document.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<Document> findAndModifyAsync(FindAndModify.Builder command)
             throws MongoDbException;
 
     /**
@@ -856,6 +1026,19 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
+     * Finds the set of documents matching the query in the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void findAsync(Callback<MongoIterator<Document>> results,
+            Find.Builder query) throws MongoDbException;
+
+    /**
      * Finds the set of documents matching the query document in the collection.
      * 
      * @param query
@@ -877,6 +1060,18 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public Future<MongoIterator<Document>> findAsync(Find query)
+            throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection.
+     * 
+     * @param query
+     *            The query details.
+     * @return A future for the MongoIterator over the documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<MongoIterator<Document>> findAsync(Find.Builder query)
             throws MongoDbException;
 
     /**
@@ -910,6 +1105,27 @@ public interface MongoCollection {
      *             On an error finding the document.
      */
     public Document findOne(Find query) throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public Document findOne(Find.Builder query) throws MongoDbException;
 
     /**
      * Finds a single matching document in the collection.
@@ -949,6 +1165,29 @@ public interface MongoCollection {
 
     /**
      * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public void findOneAsync(Callback<Document> results, Find.Builder query)
+            throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
      * 
      * @param query
      *            The query document.
@@ -979,6 +1218,28 @@ public interface MongoCollection {
      *             On an error finding the document.
      */
     public Future<Document> findOneAsync(Find query) throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public Future<Document> findOneAsync(Find.Builder query)
+            throws MongoDbException;
 
     /**
      * Returns the name of the database.
@@ -1036,6 +1297,18 @@ public interface MongoCollection {
     /**
      * Invokes a group command on the server.
      * 
+     * @param command
+     *            The details of the group request.
+     * @return The group results returned.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public ArrayElement groupBy(GroupBy.Builder command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
      * @param results
      *            Callback for the group results returned.
      * @param command
@@ -1049,6 +1322,19 @@ public interface MongoCollection {
     /**
      * Invokes a group command on the server.
      * 
+     * @param results
+     *            Callback for the group results returned.
+     * @param command
+     *            The details of the group request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void groupByAsync(Callback<ArrayElement> results,
+            GroupBy.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
      * @param command
      *            The details of the group request.
      * @return Future for the group results returned.
@@ -1056,6 +1342,18 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public Future<ArrayElement> groupByAsync(GroupBy command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
+     * @param command
+     *            The details of the group request.
+     * @return Future for the group results returned.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<ArrayElement> groupByAsync(GroupBy.Builder command)
             throws MongoDbException;
 
     /**
@@ -1300,6 +1598,19 @@ public interface MongoCollection {
     /**
      * Invokes a mapReduce command on the server.
      * 
+     * @param command
+     *            The details of the map/reduce request.
+     * @return The map/reduce results returned. Note this might be empty if the
+     *         output type is not inline.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public List<Document> mapReduce(MapReduce.Builder command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a mapReduce command on the server.
+     * 
      * @param results
      *            Callback for the map/reduce results returned. Note this might
      *            be empty if the output type is not inline.
@@ -1314,6 +1625,20 @@ public interface MongoCollection {
     /**
      * Invokes a mapReduce command on the server.
      * 
+     * @param results
+     *            Callback for the map/reduce results returned. Note this might
+     *            be empty if the output type is not inline.
+     * @param command
+     *            The details of the map/reduce request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void mapReduceAsync(Callback<List<Document>> results,
+            MapReduce.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a mapReduce command on the server.
+     * 
      * @param command
      *            The details of the map/reduce request.
      * @return Future for the map/reduce results returned. Note this might be
@@ -1322,6 +1647,19 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public Future<List<Document>> mapReduceAsync(MapReduce command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a mapReduce command on the server.
+     * 
+     * @param command
+     *            The details of the map/reduce request.
+     * @return Future for the map/reduce results returned. Note this might be
+     *         empty if the output type is not inline.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public Future<List<Document>> mapReduceAsync(MapReduce.Builder command)
             throws MongoDbException;
 
     /**
@@ -1695,6 +2033,46 @@ public interface MongoCollection {
      */
     public MongoCursorControl streamingFind(StreamCallback<Document> results,
             Find query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection and
+     * streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl streamingFind(StreamCallback<Document> results,
+            Find.Builder query) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The

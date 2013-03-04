@@ -125,6 +125,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #aggregate(Aggregate)}.
+     * </p>
+     */
+    @Override
+    public List<Document> aggregate(final Aggregate.Builder command)
+            throws MongoDbException {
+        return aggregate(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #aggregateAsync(Callback, Aggregate)}.
      * </p>
      * 
@@ -143,6 +155,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #aggregateAsync(Aggregate)}.
+     * </p>
+     */
+    @Override
+    public Future<List<Document>> aggregateAsync(final Aggregate.Builder command)
+            throws MongoDbException {
+        return aggregateAsync(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * This is the canonical <code>aggregate</code> method that implementations
      * must override.
      * </p>
@@ -152,6 +176,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public abstract void aggregateAsync(Callback<List<Document>> results,
             Aggregate command) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #aggregateAsync(Callback, Aggregate)}.
+     * </p>
+     */
+    @Override
+    public void aggregateAsync(final Callback<List<Document>> results,
+            final Aggregate.Builder command) throws MongoDbException {
+        aggregateAsync(results, command.build());
+    }
 
     /**
      * {@inheritDoc}
@@ -754,6 +790,17 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #explain(Find)} method.
+     * </p>
+     */
+    @Override
+    public Document explain(final Find.Builder query) throws MongoDbException {
+        return explain(query.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * This is the canonical <code>count</code> method that implementations must
      * override.
      * </p>
@@ -761,6 +808,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public abstract void explainAsync(Callback<Document> results, Find query)
             throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #explainAsync(Callback,Find)} method.
+     * </p>
+     */
+    @Override
+    public void explainAsync(final Callback<Document> results,
+            final Find.Builder query) throws MongoDbException {
+        explainAsync(results, query.build());
+    }
 
     /**
      * {@inheritDoc}
@@ -778,6 +837,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         explainAsync(future, query);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #explainAsync(Find)} method.
+     * </p>
+     */
+    @Override
+    public Future<Document> explainAsync(final Find.Builder query)
+            throws MongoDbException {
+        return explainAsync(query.build());
     }
 
     /**
@@ -811,6 +882,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #find(Find)} method.
+     * </p>
+     */
+    @Override
+    public MongoIterator<Document> find(final Find.Builder query)
+            throws MongoDbException {
+        return find(query.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #findAndModifyAsync(FindAndModify)}.
      * </p>
      * 
@@ -820,6 +903,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public Document findAndModify(final FindAndModify command)
             throws MongoDbException {
         return FutureUtils.unwrap(findAndModifyAsync(command));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findAndModify(FindAndModify)}.
+     * </p>
+     */
+    @Override
+    public Document findAndModify(final FindAndModify.Builder command)
+            throws MongoDbException {
+        return findAndModify(command.build());
     }
 
     /**
@@ -839,6 +934,19 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@inheritDoc}
      * <p>
      * Overridden to call the
+     * {@link #findAndModifyAsync(Callback,FindAndModify)}.
+     * </p>
+     */
+    @Override
+    public void findAndModifyAsync(final Callback<Document> results,
+            final FindAndModify.Builder command) throws MongoDbException {
+        findAndModifyAsync(results, command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
      * {@link #findAndModifyAsync(Callback, FindAndModify)}.
      * </p>
      * 
@@ -852,6 +960,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         findAndModifyAsync(future, command);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findAndModifyAsync(FindAndModify)}.
+     * </p>
+     */
+    @Override
+    public Future<Document> findAndModifyAsync(
+            final FindAndModify.Builder command) throws MongoDbException {
+        return findAndModifyAsync(command.build());
     }
 
     /**
@@ -881,6 +1001,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public abstract void findAsync(
             final Callback<MongoIterator<Document>> results, final Find query)
             throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findAsync(Callback,Find)} method.
+     * </p>
+     */
+    @Override
+    public void findAsync(final Callback<MongoIterator<Document>> results,
+            final Find.Builder query) throws MongoDbException {
+        findAsync(results, query.build());
+    }
 
     /**
      * {@inheritDoc}
@@ -921,6 +1053,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #findAsync(Find)} method.
+     * </p>
+     */
+    @Override
+    public Future<MongoIterator<Document>> findAsync(final Find.Builder query)
+            throws MongoDbException {
+        return findAsync(query.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #findOneAsync(DocumentAssignable)}.
      * </p>
      * 
@@ -942,6 +1086,17 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public Document findOne(final Find query) throws MongoDbException {
         return FutureUtils.unwrap(findOneAsync(query));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findOne(Find)} method.
+     * </p>
+     */
+    @Override
+    public Document findOne(final Find.Builder query) throws MongoDbException {
+        return findOne(query.build());
     }
 
     /**
@@ -970,6 +1125,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public abstract void findOneAsync(Callback<Document> results, Find query)
             throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findOneAsync(Callback, Find)} method.
+     * </p>
+     */
+    @Override
+    public void findOneAsync(final Callback<Document> results,
+            final Find.Builder query) throws MongoDbException {
+        findOneAsync(results, query.build());
+    }
 
     /**
      * {@inheritDoc}
@@ -1006,6 +1173,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         findOneAsync(future, query);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findOneAsync(Find)} method.
+     * </p>
+     */
+    @Override
+    public Future<Document> findOneAsync(final Find.Builder query)
+            throws MongoDbException {
+        return findOneAsync(query.build());
     }
 
     /**
@@ -1066,6 +1245,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #groupBy(GroupBy)}.
+     * </p>
+     */
+    @Override
+    public ArrayElement groupBy(final GroupBy.Builder command)
+            throws MongoDbException {
+        return groupBy(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * This is the canonical <code>groupBy</code> method that implementations
      * must override.
      * </p>
@@ -1073,6 +1264,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public abstract void groupByAsync(Callback<ArrayElement> results,
             GroupBy command) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #groupByAsync(Callback,GroupBy)}.
+     * </p>
+     */
+    @Override
+    public void groupByAsync(final Callback<ArrayElement> results,
+            final GroupBy.Builder command) throws MongoDbException {
+        groupByAsync(results, command.build());
+    }
 
     /**
      * {@inheritDoc}
@@ -1088,6 +1291,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         groupByAsync(future, command);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #groupByAsync(GroupBy)}.
+     * </p>
+     */
+    @Override
+    public Future<ArrayElement> groupByAsync(final GroupBy.Builder command)
+            throws MongoDbException {
+        return groupByAsync(command.build());
     }
 
     /**
@@ -1337,6 +1552,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #mapReduce(MapReduce)}.
+     * </p>
+     */
+    @Override
+    public List<Document> mapReduce(final MapReduce.Builder command)
+            throws MongoDbException {
+        return mapReduce(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * This is the canonical <code>mapReduce</code> method that implementations
      * must override.
      * </p>
@@ -1346,6 +1573,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public abstract void mapReduceAsync(Callback<List<Document>> results,
             MapReduce command) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #mapReduceAsync(Callback,MapReduce)}.
+     * </p>
+     */
+    @Override
+    public void mapReduceAsync(final Callback<List<Document>> results,
+            final MapReduce.Builder command) throws MongoDbException {
+        mapReduceAsync(results, command.build());
+    }
 
     /**
      * {@inheritDoc}
@@ -1363,6 +1602,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         mapReduceAsync(future, command);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #mapReduceAsync(MapReduce)}.
+     * </p>
+     */
+    @Override
+    public Future<List<Document>> mapReduceAsync(final MapReduce.Builder command)
+            throws MongoDbException {
+        return mapReduceAsync(command.build());
     }
 
     /**
@@ -1523,6 +1774,20 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public abstract MongoCursorControl streamingFind(
             StreamCallback<Document> results, Find query)
             throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #streamingFind(StreamCallback, Find)}
+     * method.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl streamingFind(
+            final StreamCallback<Document> results, final Find.Builder query)
+            throws MongoDbException {
+        return streamingFind(results, query.build());
+    }
 
     /**
      * {@inheritDoc}

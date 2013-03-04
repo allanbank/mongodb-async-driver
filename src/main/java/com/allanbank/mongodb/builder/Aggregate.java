@@ -82,6 +82,15 @@ import com.allanbank.mongodb.builder.expression.Expressions;
  */
 public class Aggregate {
 
+    /**
+     * Creates a new builder for a {@link Aggregate}.
+     * 
+     * @return The builder to construct a {@link Aggregate}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
     /** The pipeline of operations to be applied. */
     private final List<Element> myPipeline;
 

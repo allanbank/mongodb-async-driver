@@ -119,8 +119,6 @@ public class MongoCollectionImplTest {
         final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
-        final Aggregate request = builder.build();
-
         final DocumentBuilder result = BuilderFactory.start();
         final DocumentBuilder value = result.pushArray("result").push();
         value.addInteger("foo", 1);
@@ -140,7 +138,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(Collections.singletonList(value.build()),
-                myTestInstance.aggregate(request));
+                myTestInstance.aggregate(builder));
 
         verify();
     }
@@ -156,8 +154,6 @@ public class MongoCollectionImplTest {
     public void testAggregateAsyncAggregate() throws Exception {
         final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
-
-        final Aggregate request = builder.build();
 
         final DocumentBuilder result = BuilderFactory.start();
         final DocumentBuilder value = result.pushArray("result").push();
@@ -178,7 +174,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(Collections.singletonList(value.build()), myTestInstance
-                .aggregateAsync(request).get());
+                .aggregateAsync(builder).get());
 
         verify();
     }
@@ -191,8 +187,6 @@ public class MongoCollectionImplTest {
     public void testAggregateAsyncCallbackOfListOfDocumentAggregate() {
         final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
-
-        final Aggregate request = builder.build();
 
         final DocumentBuilder result = BuilderFactory.start();
         final DocumentBuilder value = result.pushArray("result").push();
@@ -215,7 +209,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCallback);
 
-        myTestInstance.aggregateAsync(mockCallback, request);
+        myTestInstance.aggregateAsync(mockCallback, builder);
 
         verify(mockCallback);
     }
@@ -1482,7 +1476,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(result.build().find(ArrayElement.class, "values").get(0),
-                myTestInstance.distinct(request));
+                myTestInstance.distinct(builder));
 
         verify();
     }
@@ -1517,7 +1511,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCountCallback);
 
-        myTestInstance.distinctAsync(mockCountCallback, request);
+        myTestInstance.distinctAsync(mockCountCallback, builder);
 
         verify(mockCountCallback);
     }
@@ -1556,7 +1550,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(result.build().find(ArrayElement.class, "values").get(0),
-                myTestInstance.distinctAsync(request).get());
+                myTestInstance.distinctAsync(builder).get());
 
         verify();
     }
@@ -1569,8 +1563,6 @@ public class MongoCollectionImplTest {
     public void testDistinctAsyncNoQuery() {
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("foo");
-
-        final Distinct request = builder.build();
 
         final Callback<ArrayElement> mockCountCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
@@ -1589,7 +1581,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCountCallback);
 
-        myTestInstance.distinctAsync(mockCountCallback, request);
+        myTestInstance.distinctAsync(mockCountCallback, builder);
 
         verify(mockCountCallback);
     }
@@ -1603,8 +1595,6 @@ public class MongoCollectionImplTest {
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("foo");
         builder.setReadPreference(ReadPreference.CLOSEST);
-
-        final Distinct request = builder.build();
 
         final Callback<ArrayElement> mockCountCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
@@ -1624,7 +1614,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCountCallback);
 
-        myTestInstance.distinctAsync(mockCountCallback, request);
+        myTestInstance.distinctAsync(mockCountCallback, builder);
 
         verify(mockCountCallback);
     }
@@ -1638,8 +1628,6 @@ public class MongoCollectionImplTest {
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("foo");
         builder.setReadPreference(ReadPreference.CLOSEST);
-
-        final Distinct request = builder.build();
 
         final Callback<ArrayElement> mockCountCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
@@ -1659,7 +1647,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCountCallback);
 
-        myTestInstance.distinctAsync(mockCountCallback, request);
+        myTestInstance.distinctAsync(mockCountCallback, builder);
 
         verify(mockCountCallback);
     }
@@ -1753,8 +1741,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<Document> future = myTestInstance.explainAsync(findBuilder
-                .build());
+        final Future<Document> future = myTestInstance
+                .explainAsync(findBuilder);
         assertSame(result1, future.get());
 
         verify();
@@ -1787,6 +1775,39 @@ public class MongoCollectionImplTest {
 
         final Document iter = myTestInstance.explain(query);
         assertSame(result1, iter);
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#explain(Find)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testExplainFind() throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+
+        final Document query = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().add("$query", query)
+                .add("$explain", true).build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.SECONDARY, false, false, false, false);
+
+        final Find.Builder findBuilder = new Find.Builder(query);
+        findBuilder.setReadPreference(ReadPreference.SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result1))))
+                .andReturn(myAddress);
+
+        replay();
+
+        final Document result = myTestInstance.explain(findBuilder);
+        assertSame(result1, result);
 
         verify();
     }
@@ -1838,7 +1859,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<Document> future = myTestInstance.explainAsync(request);
+        final Future<Document> future = myTestInstance.explainAsync(builder);
         assertSame(result1, future.get());
 
         verify();
@@ -1852,7 +1873,8 @@ public class MongoCollectionImplTest {
      *             On an error.
      */
     @Test
-    public void testExplainWithNonLegacyOptionsAndNonSharded() throws Exception {
+    public void testExplainWithNonLegacyOptionsAndNonShardedAndCallback()
+            throws Exception {
         final Document result1 = BuilderFactory.start().build();
         final Document result2 = BuilderFactory.start().build();
 
@@ -1880,6 +1902,8 @@ public class MongoCollectionImplTest {
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
+        final Callback<Document> mockCallback = createMock(Callback.class);
+
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.STAND_ALONE);
@@ -1888,12 +1912,14 @@ public class MongoCollectionImplTest {
                         callback(reply(result1, result2))))
                 .andReturn(myAddress);
 
-        replay();
+        mockCallback.callback(result1);
+        expectLastCall();
 
-        final Future<Document> future = myTestInstance.explainAsync(request);
-        assertSame(result1, future.get());
+        replay(mockCallback);
 
-        verify();
+        myTestInstance.explainAsync(mockCallback, builder);
+
+        verify(mockCallback);
     }
 
     /**
@@ -1925,7 +1951,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(value.build(), myTestInstance.findAndModify(request));
+        assertEquals(value.build(), myTestInstance.findAndModify(builder));
 
         verify();
     }
@@ -1959,7 +1985,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(value.build(), myTestInstance.findAndModify(request));
+        assertEquals(value.build(), myTestInstance.findAndModify(builder));
 
         verify();
     }
@@ -1992,7 +2018,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCallback);
 
-        myTestInstance.findAndModifyAsync(mockCallback, request);
+        myTestInstance.findAndModifyAsync(mockCallback, builder);
 
         verify(mockCallback);
     }
@@ -2029,7 +2055,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(value.build(), myTestInstance.findAndModifyAsync(request)
+        assertEquals(value.build(), myTestInstance.findAndModifyAsync(builder)
                 .get());
 
         verify();
@@ -2067,7 +2093,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(value.build(), myTestInstance.findAndModify(request));
+        assertEquals(value.build(), myTestInstance.findAndModify(builder));
 
         verify();
     }
@@ -2103,7 +2129,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(value.build(), myTestInstance.findAndModify(request));
+        assertEquals(value.build(), myTestInstance.findAndModify(builder));
 
         verify();
     }
@@ -2139,7 +2165,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(value.build(), myTestInstance.findAndModify(request));
+        assertEquals(value.build(), myTestInstance.findAndModify(builder));
 
         verify();
     }
@@ -2175,7 +2201,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(value.build(), myTestInstance.findAndModify(request));
+        assertEquals(value.build(), myTestInstance.findAndModify(builder));
 
         verify();
     }
@@ -2229,7 +2255,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCountCallback);
 
-        myTestInstance.findAsync(mockCountCallback, findBuilder.build());
+        myTestInstance.findAsync(mockCountCallback, findBuilder);
 
         verify(mockCountCallback);
     }
@@ -2303,7 +2329,7 @@ public class MongoCollectionImplTest {
         replay();
 
         final Future<MongoIterator<Document>> future = myTestInstance
-                .findAsync(findBuilder.build());
+                .findAsync(findBuilder);
         final MongoIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
@@ -2343,7 +2369,7 @@ public class MongoCollectionImplTest {
         replay();
 
         final Future<MongoIterator<Document>> future = myTestInstance
-                .findAsync(findBuilder.build());
+                .findAsync(findBuilder);
         final MongoIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
@@ -2413,8 +2439,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final MongoIterator<Document> iter = myTestInstance.find(findBuilder
-                .build());
+        final MongoIterator<Document> iter = myTestInstance.find(findBuilder);
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
         assertTrue(iter.hasNext());
@@ -2477,7 +2502,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCountCallback);
 
-        myTestInstance.findOneAsync(mockCountCallback, findBuilder.build());
+        myTestInstance.findOneAsync(mockCountCallback, findBuilder);
 
         verify(mockCountCallback);
     }
@@ -2565,8 +2590,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<Document> future = myTestInstance.findOneAsync(findBuilder
-                .build());
+        final Future<Document> future = myTestInstance
+                .findOneAsync(findBuilder);
         assertSame(result1, future.get());
 
         verify();
@@ -2683,7 +2708,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<Document> future = myTestInstance.findOneAsync(request);
+        final Future<Document> future = myTestInstance.findOneAsync(builder);
         assertSame(result1, future.get());
 
         verify();
@@ -2734,7 +2759,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        final Future<Document> future = myTestInstance.findOneAsync(request);
+        final Future<Document> future = myTestInstance.findOneAsync(builder);
         assertSame(result1, future.get());
 
         verify();
@@ -2777,7 +2802,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertSame(result1, myTestInstance.findOne(request));
+        assertSame(result1, myTestInstance.findOne(builder));
 
         verify();
     }
@@ -2834,7 +2859,7 @@ public class MongoCollectionImplTest {
         replay();
 
         final Future<MongoIterator<Document>> future = myTestInstance
-                .findAsync(request);
+                .findAsync(builder);
         final MongoIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
@@ -2895,7 +2920,7 @@ public class MongoCollectionImplTest {
         replay();
 
         final Future<MongoIterator<Document>> future = myTestInstance
-                .findAsync(request);
+                .findAsync(builder);
         final MongoIterator<Document> iter = future.get();
         assertTrue(iter.hasNext());
         assertSame(result1, iter.next());
@@ -3067,8 +3092,6 @@ public class MongoCollectionImplTest {
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(Collections.singleton("foo"));
 
-        final GroupBy request = builder.build();
-
         final DocumentBuilder result = BuilderFactory.start();
         final ArrayBuilder value = result.pushArray("retval");
         value.push().addInteger("foo", 1);
@@ -3089,7 +3112,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(result.build().find(ArrayElement.class, "retval").get(0),
-                myTestInstance.groupBy(request));
+                myTestInstance.groupBy(builder));
 
         verify();
     }
@@ -3139,8 +3162,6 @@ public class MongoCollectionImplTest {
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(Collections.singleton("foo"));
 
-        final GroupBy request = builder.build();
-
         final DocumentBuilder result = BuilderFactory.start();
         final ArrayBuilder value = result.pushArray("retval");
         value.push().addInteger("foo", 1);
@@ -3161,7 +3182,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(result.build().find(ArrayElement.class, "retval").get(0),
-                myTestInstance.groupByAsync(request).get());
+                myTestInstance.groupByAsync(builder).get());
 
         verify();
     }
@@ -3254,8 +3275,6 @@ public class MongoCollectionImplTest {
         builder.setKeys(Collections.singleton("foo"));
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
 
-        final GroupBy request = builder.build();
-
         final Callback<ArrayElement> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         final DocumentBuilder group = expectedCommand.push("group");
@@ -3275,7 +3294,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCallback);
 
-        myTestInstance.groupByAsync(mockCallback, request);
+        myTestInstance.groupByAsync(mockCallback, builder);
 
         verify(mockCallback);
     }
@@ -3679,8 +3698,6 @@ public class MongoCollectionImplTest {
         builder.setReduceFunction("reduce");
         builder.setOutputType(MapReduce.OutputType.INLINE);
 
-        final MapReduce request = builder.build();
-
         final DocumentBuilder result = BuilderFactory.start();
         final DocumentBuilder value = result.pushArray("results").push();
         value.addInteger("foo", 1);
@@ -3702,7 +3719,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(Collections.singletonList(value.build()),
-                myTestInstance.mapReduce(request));
+                myTestInstance.mapReduce(builder));
 
         verify();
     }
@@ -3717,8 +3734,6 @@ public class MongoCollectionImplTest {
         builder.setMapFunction("map");
         builder.setReduceFunction("reduce");
         builder.setOutputType(MapReduce.OutputType.INLINE);
-
-        final MapReduce request = builder.build();
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
@@ -3739,7 +3754,7 @@ public class MongoCollectionImplTest {
 
         replay(mockCallback);
 
-        myTestInstance.mapReduceAsync(mockCallback, request);
+        myTestInstance.mapReduceAsync(mockCallback, builder);
 
         verify(mockCallback);
     }
@@ -3757,8 +3772,6 @@ public class MongoCollectionImplTest {
         builder.setMapFunction("map");
         builder.setReduceFunction("reduce");
         builder.setOutputType(MapReduce.OutputType.INLINE);
-
-        final MapReduce request = builder.build();
 
         final DocumentBuilder result = BuilderFactory.start();
         final DocumentBuilder value = result.pushArray("results").push();
@@ -3781,7 +3794,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(Collections.singletonList(value.build()), myTestInstance
-                .mapReduceAsync(request).get());
+                .mapReduceAsync(builder).get());
 
         verify();
     }
@@ -4505,8 +4518,7 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        myTestInstance.streamingFind(mockCallback,
-                new Find.Builder(doc).build());
+        myTestInstance.streamingFind(mockCallback, new Find.Builder(doc));
 
         verify();
     }
