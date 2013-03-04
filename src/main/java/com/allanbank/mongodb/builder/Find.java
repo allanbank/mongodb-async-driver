@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -12,6 +12,7 @@ import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.IntegerElement;
@@ -23,9 +24,12 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class Find {
+
+    /** An (empty) query document to find all documents. */
+    public static final Document ALL = MongoCollection.ALL;
 
     /**
      * If set to true requests for data will block, waiting for data. Useful
@@ -51,6 +55,24 @@ public class Find {
     /** The total number of documents to be returned. */
     private final int myLimit;
 
+    /**
+     * If set then controls the maximum number of documents that will be scanned
+     * for results.
+     */
+    private final long myMaximumDocumentsToScan;
+
+    /**
+     * If set then controls the maximum value for the range within the used
+     * index.
+     */
+    private final Document myMaximumRange;
+
+    /**
+     * If set then controls the minimum value for the range within the used
+     * index.
+     */
+    private final Document myMinimumRange;
+
     /** The number of documents to skip before returning the first document. */
     private final int myNumberToSkip;
 
@@ -65,6 +87,15 @@ public class Find {
 
     /** The fields to be returned from the matching documents. */
     private final Document myReturnFields;
+
+    /** If set to true then only the index keys will be returned. */
+    private final boolean myReturnIndexKeysOnly;
+
+    /**
+     * If set to true then a "$diskLoc" entry will be added to every returned
+     * document with the disk location information.
+     */
+    private final boolean myShowDiskLocation;
 
     /**
      * If set to true then use snapshot mode to ensure document are only
@@ -99,6 +130,21 @@ public class Find {
         myTailable = builder.myTailable;
         myAwaitData = builder.myAwaitData;
         myImmortalCursor = builder.myImmortalCursor;
+        myMaximumRange = builder.myMaximumRange;
+        myMinimumRange = builder.myMinimumRange;
+        myMaximumDocumentsToScan = builder.myMaximumDocumentsToScan;
+        myReturnIndexKeysOnly = builder.myReturnIndexKeysOnly;
+        myShowDiskLocation = builder.myShowDiskLocation;
+
+    }
+
+    /**
+     * Creates a new builder for a Find.
+     * 
+     * @return The builder to copy the query fields from.
+     */
+    public static Builder builder() {
+        return new Builder();
     }
 
     /**
@@ -135,6 +181,51 @@ public class Find {
      */
     public int getLimit() {
         return myLimit;
+    }
+
+    /**
+     * Returns a value greater than zero to controls the maximum number of
+     * documents that will be scanned for results.
+     * 
+     * @return A value greater than zero to controls the maximum number of
+     *         documents that will be scanned for results.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/operator/maxScan/">$maxScan
+     *      Documentation</a>
+     */
+    public long getMaximumDocumentsToScan() {
+        return myMaximumDocumentsToScan;
+    }
+
+    /**
+     * Returns a non-null value to controls the maximum value for the range
+     * within the used index.
+     * 
+     * @return A non-null value to controls the maximum value for the range
+     *         within the used index.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/operator/max/">$max
+     *      Documentation</a>
+     */
+    public Document getMaximumRange() {
+        return myMaximumRange;
+    }
+
+    /**
+     * Returns a non-null value to controls the minimum value for the range
+     * within the used index.
+     * 
+     * @return A non-null value to controls the minimum value for the range
+     *         within the used index.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/operator/min/">$min
+     *      Documentation</a>
+     */
+    public Document getMinimumRange() {
+        return myMinimumRange;
     }
 
     /**
@@ -223,6 +314,34 @@ public class Find {
     }
 
     /**
+     * Returns true if only the index keys will be returned.
+     * 
+     * @return True if only the index keys will be returned.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/operator/returnKey/">$returnKey
+     *      Documentation</a>
+     */
+    public boolean isReturnIndexKeysOnly() {
+        return myReturnIndexKeysOnly;
+    }
+
+    /**
+     * Returns true if a "$diskLoc" entry will be added to every returned
+     * document with the disk location information.
+     * 
+     * @return True if a "$diskLoc" entry will be added to every returned
+     *         document with the disk location information.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/operator/returnKey/">$showDiskLoc
+     *      Documentation</a>
+     */
+    public boolean isShowDiskLocation() {
+        return myShowDiskLocation;
+    }
+
+    /**
      * If returns true then use snapshot mode to ensure document are only
      * returned once.
      * 
@@ -285,14 +404,17 @@ public class Find {
     public Document toQueryRequest(final boolean explain,
             final ReadPreference readPreference) {
 
-        if (explain || mySnapshot || (mySort != null) || (myHint != null)
-                || (myHintName != null) || (readPreference != null)) {
+        if (explain || mySnapshot || myReturnIndexKeysOnly
+                || myShowDiskLocation || (mySort != null)
+                || (myMaximumDocumentsToScan > 0) || (myHint != null)
+                || (myHintName != null) || (readPreference != null)
+                || (myMaximumRange != null) || (myMinimumRange != null)) {
             final DocumentBuilder builder = BuilderFactory.start();
 
-            builder.add("query", myQuery);
+            builder.add("$query", myQuery);
 
-            if (mySort != null) {
-                builder.add("orderby", mySort);
+            if (explain) {
+                builder.add("$explain", true);
             }
 
             if (myHint != null) {
@@ -302,8 +424,28 @@ public class Find {
                 builder.add("$hint", myHintName);
             }
 
-            if (explain) {
-                builder.add("$explain", true);
+            if (myMaximumRange != null) {
+                builder.add("$max", myMaximumRange);
+            }
+
+            if (myMaximumDocumentsToScan > 0) {
+                builder.add("$maxScan", myMaximumDocumentsToScan);
+            }
+
+            if (myMinimumRange != null) {
+                builder.add("$min", myMinimumRange);
+            }
+
+            if (mySort != null) {
+                builder.add("$orderby", mySort);
+            }
+
+            if (myReturnIndexKeysOnly) {
+                builder.add("$returnKey", true);
+            }
+
+            if (myShowDiskLocation) {
+                builder.add("$showDiskLoc", true);
             }
 
             if (mySnapshot) {
@@ -330,6 +472,7 @@ public class Find {
      * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {
+
         /**
          * If set to true requests for data will block, waiting for data. Useful
          * with {@link #tailable()} cursors.
@@ -354,6 +497,24 @@ public class Find {
         /** The total number of documents to be returned. */
         protected int myLimit;
 
+        /**
+         * If set then controls the maximum number of documents that will be
+         * scanned for results.
+         */
+        protected long myMaximumDocumentsToScan;
+
+        /**
+         * If set then controls the maximum value for the range within the used
+         * index.
+         */
+        protected Document myMaximumRange;
+
+        /**
+         * If set then controls the minimum value for the range within the used
+         * index.
+         */
+        protected Document myMinimumRange;
+
         /** The number of documents to skip before returning the first document. */
         protected int myNumberToSkip;
 
@@ -370,6 +531,15 @@ public class Find {
 
         /** The fields to be returned from the matching documents. */
         protected Document myReturnFields;
+
+        /** If set to true then only the index keys will be returned. */
+        protected boolean myReturnIndexKeysOnly;
+
+        /**
+         * If set to true then a "$diskLoc" entry will be added to every
+         * returned document with the disk location information.
+         */
+        protected boolean myShowDiskLocation;
 
         /**
          * If set to true then use snapshot mode to ensure document are only
@@ -402,6 +572,22 @@ public class Find {
         }
 
         /**
+         * Sets the value of the number of documents to be returned in each
+         * batch.
+         * <p>
+         * This method delegates to {@link #setBatchSize(int)}.
+         * </p>
+         * 
+         * @param batchSize
+         *            The new value for the number of documents to be returned
+         *            in each batch.
+         * @return This builder for chaining method calls.
+         */
+        public Builder batchSize(final int batchSize) {
+            return setBatchSize(batchSize);
+        }
+
+        /**
          * Constructs a new {@link Find} object from the state of the builder.
          * 
          * @return The new {@link Find} object.
@@ -411,13 +597,220 @@ public class Find {
         }
 
         /**
+         * Sets the value of hint as to which index should be used to execute
+         * the query.
+         * <p>
+         * This method delegates to {@link #setHint(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param indexFields
+         *            The new value for the fields of the index to use to
+         *            execute the query.
+         * @return This builder for chaining method calls.
+         */
+        public Builder hint(final DocumentAssignable indexFields) {
+            return setHint(indexFields);
+        }
+
+        /**
+         * Sets the value of hint as to which index should be used to execute
+         * the query.
+         * <p>
+         * This method delegates to {@link #setHint(Element...)}.
+         * </p>
+         * <p>
+         * This method is intended to be used with the {@link Index} class's
+         * static methods: <blockquote>
+         * 
+         * <pre>
+         * <code>
+         * import static {@link Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
+         * import static {@link Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
+         * 
+         * Find.Builder builder = new Find.Builder();
+         * 
+         * builder.setHint( asc("f"), desc("g") );
+         * ...
+         * </code>
+         * </pre>
+         * 
+         * </blockquote>
+         * 
+         * @param indexFields
+         *            The new value for the fields of the index to use to
+         *            execute the query.
+         * @return This builder for chaining method calls.
+         */
+        public Builder hint(final Element... indexFields) {
+            return setHint(indexFields);
+        }
+
+        /**
+         * Sets the value of hint as to which index should be used to execute
+         * the query.
+         * <p>
+         * This method delegates to the {@link #setHint(String)} method.
+         * </p>
+         * 
+         * @param indexName
+         *            The new value for the name of the index to use to execute
+         *            the query.
+         * @return This builder for chaining method calls.
+         */
+        public Builder hint(final String indexName) {
+            return setHint(indexName);
+        }
+
+        /**
+         * Sets the cursor returned from the query to never timeout or die
+         * automatically, e.g., immortal.
+         * <p>
+         * This method delegates to {@link #setImmortalCursor(boolean)
+         * setImmortalCursor(true)}. See its JavaDoc for <b>important usage</b>
+         * guidelines.
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder immortalCursor() {
+            return setImmortalCursor(true);
+        }
+
+        /**
+         * If set to true the cursor returned from the query will not timeout or
+         * die automatically, e.g., immortal.
+         * <p>
+         * This method delegates to {@link #setImmortalCursor(boolean)}. See its
+         * JavaDoc <b>important usage</b> guidelines.
+         * </p>
+         * 
+         * @param immortal
+         *            True if the cursor returned from the query should be
+         *            immortal.
+         * @return This builder for chaining method calls.
+         */
+        public Builder immortalCursor(final boolean immortal) {
+            return setImmortalCursor(immortal);
+        }
+
+        /**
+         * Sets the value of the total number of documents to be returned.
+         * <p>
+         * This method delegates to {@link #setLimit(int)}.
+         * </p>
+         * 
+         * @param limit
+         *            The new value for the total number of documents to be
+         *            returned.
+         * @return This builder for chaining method calls.
+         */
+        public Builder limit(final int limit) {
+            return setLimit(limit);
+        }
+
+        /**
+         * Sets the value of maximum range for the index used to the new value.
+         * <p>
+         * This method delegates to {@link #setMaximumRange(DocumentAssignable)}
+         * .
+         * </p>
+         * 
+         * @param maximumRange
+         *            The new value for the maximum range for the index used.
+         * @return This builder for chaining method calls.
+         */
+        public Builder max(final DocumentAssignable maximumRange) {
+            return setMaximumRange(maximumRange);
+        }
+
+        /**
+         * Sets the value of maximum number of documents that will be scanned
+         * for results to the new value.
+         * <p>
+         * This method Delegates to {@link #setMaximumDocumentsToScan(long)}.
+         * </p>
+         * 
+         * @param maximumDocumentsToScan
+         *            The new value for the maximum number of documents that
+         *            will be scanned for results.
+         * @return This builder for chaining method calls.
+         */
+        public Builder maxScan(final long maximumDocumentsToScan) {
+            return setMaximumDocumentsToScan(maximumDocumentsToScan);
+        }
+
+        /**
+         * Sets the value of minimum range for the index used to the new value.
+         * <p>
+         * This method delegates to {@link #setMinimumRange(DocumentAssignable)}
+         * .
+         * </p>
+         * 
+         * @param minimumRange
+         *            The new value for the minimum range for the index used.
+         * @return This builder for chaining method calls.
+         */
+        public Builder min(final DocumentAssignable minimumRange) {
+            return setMinimumRange(minimumRange);
+        }
+
+        /**
          * Sets that if there is an error then the query should return any
          * partial results.
+         * <p>
+         * This method delegates to {@link #setPartialOk(boolean)
+         * setPartialOk(true)}.
+         * </p>
          * 
          * @return This builder for chaining method calls.
          */
         public Builder partialOk() {
             return setPartialOk(true);
+        }
+
+        /**
+         * Sets the value of partial okay to the new value. If true then an
+         * error in the query should return any partial results.
+         * <p>
+         * This method delegates to {@link #setPartialOk(boolean)}.
+         * </p>
+         * 
+         * @param partialOk
+         *            The new value for the partial okay.
+         * @return This builder for chaining method calls.
+         */
+        public Builder partialOk(final boolean partialOk) {
+            return setPartialOk(partialOk);
+        }
+
+        /**
+         * Sets the value of the query document to the new value.
+         * <p>
+         * This method delegates to {@link #setQuery(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param query
+         *            The new value for the query document.
+         * @return This builder for chaining method calls.
+         */
+        public Builder query(final DocumentAssignable query) {
+            return setQuery(query);
+        }
+
+        /**
+         * Sets the preference for the set of servers to retrieve the results
+         * from.
+         * <p>
+         * This method delegates to {@link #setReadPreference(ReadPreference)}.
+         * </p>
+         * 
+         * @param readPreference
+         *            The new value for the preference of which server to return
+         *            the results from.
+         * @return This builder for chaining method calls.
+         */
+        public Builder readPreference(final ReadPreference readPreference) {
+            return setReadPreference(readPreference);
         }
 
         /**
@@ -432,7 +825,7 @@ public class Find {
             myLimit = 0;
             myNumberToSkip = 0;
             myPartialOk = false;
-            myQuery = null;
+            myQuery = ALL;
             myReadPreference = null;
             myReturnFields = null;
             mySnapshot = false;
@@ -440,8 +833,62 @@ public class Find {
             myTailable = false;
             myAwaitData = false;
             myImmortalCursor = false;
+            myMaximumRange = null;
+            myMinimumRange = null;
+            myMaximumDocumentsToScan = -1;
+            myReturnIndexKeysOnly = false;
+            myShowDiskLocation = false;
 
             return this;
+        }
+
+        /**
+         * Sets the value of the fields to be returned from the matching
+         * documents to the new value.
+         * <p>
+         * This method delegates to {@link #setReturnFields(DocumentAssignable)}
+         * .
+         * </p>
+         * 
+         * @param returnFields
+         *            The new value for the fields to be returned from the
+         *            matching documents.
+         * @return This builder for chaining method calls.
+         */
+        public Builder returnFields(final DocumentAssignable returnFields) {
+            return setReturnFields(returnFields);
+        }
+
+        /**
+         * Sets that only index keys should be returned.
+         * <p>
+         * This method delegates to {@link #setReturnIndexKeysOnly(boolean)
+         * setReturnIndexKeysOnly(true)}
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder returnKey() {
+            return setReturnIndexKeysOnly(true);
+        }
+
+        /**
+         * Sets the value for if only index keys should be returned to the new
+         * value.
+         * <p>
+         * This method delegates to {@link #setReturnIndexKeysOnly(boolean)}
+         * </p>
+         * 
+         * @param returnIndexKeysOnly
+         *            The new value for if only index keys should be returned.
+         * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/returnKey/">$returnKey
+         *      Documentation</a>
+         */
+        public Builder returnKey(final boolean returnIndexKeysOnly) {
+            return setReturnIndexKeysOnly(returnIndexKeysOnly);
         }
 
         /**
@@ -480,6 +927,10 @@ public class Find {
          *            The new value for the fields of the index to use to
          *            execute the query.
          * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/hint/">$hint
+         *      Documentation</a>
          */
         public Builder setHint(final DocumentAssignable indexFields) {
             myHintName = null;
@@ -491,13 +942,13 @@ public class Find {
          * Sets the value of hint as to which index should be used to execute
          * the query.
          * <p>
-         * This method is intended to be used with the {@link Sort} class's
+         * This method is intended to be used with the {@link Index} class's
          * static methods: <blockquote>
          * 
          * <pre>
          * <code>
-         * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
-         * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+         * import static {@link Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
+         * import static {@link Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
          * 
          * Find.Builder builder = new Find.Builder();
          * 
@@ -512,10 +963,14 @@ public class Find {
          *            The new value for the fields of the index to use to
          *            execute the query.
          * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/hint/">$hint
+         *      Documentation</a>
          */
-        public Builder setHint(final IntegerElement... indexFields) {
+        public Builder setHint(final Element... indexFields) {
             final DocumentBuilder builder = BuilderFactory.start();
-            for (final IntegerElement sortField : indexFields) {
+            for (final Element sortField : indexFields) {
                 builder.add(sortField);
             }
             myHintName = null;
@@ -531,6 +986,10 @@ public class Find {
          *            The new value for the name of the index to use to execute
          *            the query.
          * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/hint/">$hint
+         *      Documentation</a>
          */
         public Builder setHint(final String indexName) {
             myHintName = indexName;
@@ -540,7 +999,7 @@ public class Find {
 
         /**
          * If set to true the cursor returned from the query will not timeout or
-         * die automatically, e.g., immortal. The user most either exhaust the
+         * die automatically, e.g., immortal. The user must either exhaust the
          * results of the query or explicitly close the {@link MongoIterator} or
          * {@link MongoCursorControl} returned.
          * <p>
@@ -571,6 +1030,79 @@ public class Find {
          */
         public Builder setLimit(final int limit) {
             myLimit = limit;
+            return this;
+        }
+
+        /**
+         * Sets the value of maximum number of documents that will be scanned
+         * for results to the new value.
+         * <p>
+         * If set to a value greater than zero then controls the maximum number
+         * of documents that will be scanned for results.
+         * </p>
+         * 
+         * @param maximumDocumentsToScan
+         *            The new value for the maximum number of documents that
+         *            will be scanned for results.
+         * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/maxScan/">$maxScan
+         *      Documentation</a>
+         */
+        public Builder setMaximumDocumentsToScan(
+                final long maximumDocumentsToScan) {
+            myMaximumDocumentsToScan = maximumDocumentsToScan;
+            return this;
+        }
+
+        /**
+         * Sets the value of maximum range for the index used to the new value.
+         * <p>
+         * If set then controls the maximum value for the range within the used
+         * index.
+         * </p>
+         * 
+         * @param maximumRange
+         *            The new value for the maximum range for the index used.
+         * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/max/">$max
+         *      Documentation</a>
+         */
+        public Builder setMaximumRange(final DocumentAssignable maximumRange) {
+            if (maximumRange != null) {
+                myMaximumRange = maximumRange.asDocument();
+            }
+            else {
+                myMaximumRange = null;
+            }
+            return this;
+        }
+
+        /**
+         * Sets the value of minimum range for the index used to the new value.
+         * <p>
+         * If set then controls the minimum value for the range within the used
+         * index.
+         * </p>
+         * 
+         * @param minimumRange
+         *            The new value for the minimum range for the index used.
+         * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/min/">$min
+         *      Documentation</a>
+         */
+        public Builder setMinimumRange(final DocumentAssignable minimumRange) {
+            if (minimumRange != null) {
+                myMinimumRange = minimumRange.asDocument();
+            }
+            else {
+                myMinimumRange = null;
+            }
             return this;
         }
 
@@ -642,12 +1174,58 @@ public class Find {
         }
 
         /**
+         * Sets the value for if only index keys should be returned to the new
+         * value.
+         * <p>
+         * If set to true then only the index keys will be returned.
+         * </p>
+         * 
+         * @param returnIndexKeysOnly
+         *            The new value for if only index keys should be returned.
+         * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/returnKey/">$returnKey
+         *      Documentation</a>
+         */
+        public Builder setReturnIndexKeysOnly(final boolean returnIndexKeysOnly) {
+            myReturnIndexKeysOnly = returnIndexKeysOnly;
+            return this;
+        }
+
+        /**
+         * Sets the value if the disk location for each document should be
+         * returned to the new value.
+         * <p>
+         * If set to true then a "$diskLoc" entry will be added to every
+         * returned document with the disk location information.
+         * </p>
+         * 
+         * @param showDiskLocation
+         *            The new value for the if the disk location for each
+         *            document should be returned.
+         * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/returnKey/">$showDiskLoc
+         *      Documentation</a>
+         */
+        public Builder setShowDiskLocation(final boolean showDiskLocation) {
+            myShowDiskLocation = showDiskLocation;
+            return this;
+        }
+
+        /**
          * Sets the value of snapshot to the new value. If set to true then use
          * snapshot mode to ensure document are only returned once.
          * 
          * @param snapshot
          *            The new value for the partial okay.
          * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/snapshot/">$snapshot
+         *      Documentation</a>
          */
         public Builder setSnapshot(final boolean snapshot) {
             mySnapshot = snapshot;
@@ -661,6 +1239,10 @@ public class Find {
          *            The new value for the fields to sort matching documents
          *            by.
          * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/orderby/">$orderby
+         *      Documentation</a>
          */
         public Builder setSort(final DocumentAssignable sortFields) {
             mySort = sortFields.asDocument();
@@ -691,6 +1273,10 @@ public class Find {
          *            The new value for the fields to sort matching documents
          *            by.
          * @return This builder for chaining method calls.
+         * 
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/operator/orderby/">$orderby
+         *      Documentation</a>
          */
         public Builder setSort(final IntegerElement... sortFields) {
             final DocumentBuilder builder = BuilderFactory.start();
@@ -734,13 +1320,125 @@ public class Find {
         }
 
         /**
+         * Sets that the disk location for each document should be returned.
+         * <p>
+         * This method delegates to {@link #setShowDiskLocation(boolean)
+         * setShowDiskLocation(true)}.
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder showDiskLoc() {
+            return setShowDiskLocation(true);
+        }
+
+        /**
+         * Sets the value if the disk location for each document should be
+         * returned to the new value.
+         * <p>
+         * This method delegates to {@link #setShowDiskLocation(boolean)}.
+         * </p>
+         * 
+         * @param showDiskLocation
+         *            The new value for the if the disk location for each
+         *            document should be returned.
+         * @return This builder for chaining method calls.
+         */
+        public Builder showDiskLoc(final boolean showDiskLocation) {
+            return setShowDiskLocation(showDiskLocation);
+        }
+
+        /**
+         * Sets the value of the number of documents to skip before returning
+         * the first document to the new value.
+         * <p>
+         * This method delegates to {@link #setNumberToSkip(int)}.
+         * </p>
+         * 
+         * @param numberToSkip
+         *            The new value for the number of documents to skip before
+         *            returning the first document.
+         * @return This builder for chaining method calls.
+         */
+        public Builder skip(final int numberToSkip) {
+            return setNumberToSkip(numberToSkip);
+        }
+
+        /**
          * Sets that the query should ensure that documents are only returned
          * once.
+         * <p>
+         * This method delegates to {@link #setSnapshot(boolean)
+         * setSnapshot(true)}.
+         * </p>
          * 
          * @return This builder for chaining method calls.
          */
         public Builder snapshot() {
             return setSnapshot(true);
+        }
+
+        /**
+         * Sets the value of snapshot to the new value. If set to true then use
+         * snapshot mode to ensure document are only returned once.
+         * <p>
+         * This method delegates to {@link #setSnapshot(boolean)}.
+         * </p>
+         * 
+         * 
+         * @param snapshot
+         *            The new value for the partial okay.
+         * @return This builder for chaining method calls.
+         */
+        public Builder snapshot(final boolean snapshot) {
+            return setSnapshot(snapshot);
+        }
+
+        /**
+         * Sets the value of the fields to to sort matching documents by.
+         * <p>
+         * This method delegates to {@link #setSort(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param sortFields
+         *            The new value for the fields to sort matching documents
+         *            by.
+         * @return This builder for chaining method calls.
+         */
+        public Builder sort(final DocumentAssignable sortFields) {
+            return setSort(sortFields);
+        }
+
+        /**
+         * Sets the value of the fields to to sort matching documents by.
+         * <p>
+         * This method delegates to {@link #setSort(IntegerElement...)}.
+         * </p>
+         * <p>
+         * This method is intended to be used with the {@link Sort} class's
+         * static methods: <blockquote>
+         * 
+         * <pre>
+         * <code>
+         * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+         * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+         * 
+         * Find.Builder builder = new Find.Builder();
+         * 
+         * builder.sort( asc("f"), desc("g") );
+         * ...
+         * </code>
+         * </pre>
+         * 
+         * </blockquote>
+         * 
+         * @param sortFields
+         *            The new value for the fields to sort matching documents
+         *            by.
+         * @return This builder for chaining method calls.
+         */
+        public Builder sort(final IntegerElement... sortFields) {
+            return setSort(sortFields);
         }
 
         /**

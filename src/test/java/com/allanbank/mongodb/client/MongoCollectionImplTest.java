@@ -1738,7 +1738,7 @@ public class MongoCollectionImplTest {
 
         final Document query = BuilderFactory.start().build();
 
-        final Document doc = BuilderFactory.start().add("query", query)
+        final Document doc = BuilderFactory.start().add("$query", query)
                 .add("$explain", true).build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
@@ -1770,7 +1770,7 @@ public class MongoCollectionImplTest {
 
         final Document query = BuilderFactory.start().build();
 
-        final Document doc = BuilderFactory.start().add("query", query)
+        final Document doc = BuilderFactory.start().add("$query", query)
                 .add("$explain", true).build();
 
         final Query message = new Query("test", "test", doc, null, 0, 0, 0,
@@ -1818,7 +1818,7 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.add("$query", qBuilder);
         qRequestBuilder.add("$explain", true);
         qRequestBuilder.addDocument("$readPreference",
                 ReadPreference.PREFER_SECONDARY.asDocument());
@@ -1871,7 +1871,7 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
+        qRequestBuilder.add("$query", qBuilder);
         qRequestBuilder.add("$explain", true);
 
         final Query message = new Query("test", "test",
@@ -2581,7 +2581,7 @@ public class MongoCollectionImplTest {
         final Callback<Document> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory
                 .start()
-                .addDocument("query", BuilderFactory.start())
+                .addDocument("$query", BuilderFactory.start())
                 .addDocument(ReadPreference.FIELD_NAME,
                         ReadPreference.PREFER_SECONDARY.asDocument()).build();
         final Document replyDoc = BuilderFactory.start().addInteger("foo", 2)
@@ -2666,8 +2666,8 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.add("$query", qBuilder);
+        qRequestBuilder.addDocument("$orderby", sort.asDocument());
         qRequestBuilder.addDocument("$readPreference",
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
@@ -2718,8 +2718,8 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.add("$query", qBuilder);
+        qRequestBuilder.addDocument("$orderby", sort.asDocument());
 
         final Query message = new Query("test", "test",
                 qRequestBuilder.build(), request.getReturnFields(), 1, 1,
@@ -2813,8 +2813,8 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.add("$query", qBuilder);
+        qRequestBuilder.addDocument("$orderby", sort.asDocument());
         qRequestBuilder.addDocument("$readPreference",
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
@@ -2875,8 +2875,8 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.add("$query", qBuilder);
+        qRequestBuilder.addDocument("$orderby", sort.asDocument());
 
         final Query message = new Query("test", "test",
                 qRequestBuilder.build(), request.getReturnFields(),
@@ -4543,8 +4543,8 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.add("$query", qBuilder);
+        qRequestBuilder.addDocument("$orderby", sort.asDocument());
 
         final Query message = new Query("test", "test",
                 qRequestBuilder.build(), request.getReturnFields(),
@@ -4607,8 +4607,8 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.add("$query", qBuilder);
+        qRequestBuilder.addDocument("$orderby", sort.asDocument());
         qRequestBuilder.addDocument("$readPreference",
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
@@ -4672,8 +4672,8 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.add("$query", qBuilder);
+        qRequestBuilder.addDocument("$orderby", sort.asDocument());
 
         final Query message = new Query("test", "test",
                 qRequestBuilder.build(), request.getReturnFields(),
@@ -4791,8 +4791,8 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("query", qBuilder);
-        qRequestBuilder.addDocument("orderby", sort.asDocument());
+        qRequestBuilder.add("$query", qBuilder);
+        qRequestBuilder.addDocument("$orderby", sort.asDocument());
         qRequestBuilder.addDocument("$readPreference",
                 ReadPreference.PREFER_SECONDARY.asDocument());
 

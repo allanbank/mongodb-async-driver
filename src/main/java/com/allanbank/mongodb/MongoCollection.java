@@ -11,6 +11,7 @@ import java.util.concurrent.Future;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.builder.Aggregate;
@@ -30,6 +31,9 @@ import com.allanbank.mongodb.builder.MapReduce;
  * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface MongoCollection {
+    /** An (empty) query document to find all documents. */
+    public static final Document ALL = BuilderFactory.start().build();
+
     /**
      * Invokes a aggregate command on the server.
      * 

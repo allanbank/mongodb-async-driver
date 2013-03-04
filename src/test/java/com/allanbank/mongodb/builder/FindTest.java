@@ -10,7 +10,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -38,13 +37,13 @@ public class FindTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(query);
-        builder.setReturnFields(fields);
+        builder.returnFields(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
         builder.setPartialOk(true);
         builder.setReadPreference(ReadPreference.CLOSEST);
-        builder.setSort(sort);
+        builder.sort(sort);
         builder.tailable();
 
         Find request = builder.build();
@@ -66,6 +65,7 @@ public class FindTest {
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
         builder.setTailable(false);
         builder.setImmortalCursor(true);
+        builder.snapshot(true);
 
         request = builder.build();
         assertSame(query, request.getQuery());
@@ -77,7 +77,7 @@ public class FindTest {
         assertSame(ReadPreference.PREFER_SECONDARY, request.getReadPreference());
         assertNull(request.getHint());
         assertNull(request.getHintName());
-        assertFalse(request.isSnapshot());
+        assertTrue(request.isSnapshot());
         assertFalse(request.isTailable());
         assertTrue(request.isAwaitData());
         assertTrue(request.isImmortalCursor());
@@ -88,12 +88,11 @@ public class FindTest {
      */
     @Test
     public void testFindMinimal() {
-        final Document query = BuilderFactory.start().build();
-
-        final Find.Builder builder = new Find.Builder(query);
+        final Find.Builder builder = new Find.Builder();
 
         final Find request = builder.build();
-        assertSame(query, request.getQuery());
+
+        assertSame(Find.ALL, request.getQuery());
         assertNull(request.getReturnFields());
         assertEquals(0, request.getBatchSize());
         assertEquals(0, request.getLimit());
@@ -106,31 +105,21 @@ public class FindTest {
         assertFalse(request.isTailable());
         assertFalse(request.isAwaitData());
         assertFalse(request.isImmortalCursor());
+        assertFalse(request.isShowDiskLocation());
+        assertFalse(request.isReturnIndexKeysOnly());
+        assertEquals(-1L, request.getMaximumDocumentsToScan());
+        assertNull(request.getMaximumRange());
+        assertNull(request.getMinimumRange());
 
         assertEquals(request.getQuery(), request.toQueryRequest(false));
         assertEquals(
                 BuilderFactory
                         .start()
-                        .add("query", request.getQuery())
+                        .add("$query", request.getQuery())
                         .add(ReadPreference.FIELD_NAME,
                                 ReadPreference.CLOSEST.asDocument()).build(),
                 request.toQueryRequest(false, ReadPreference.CLOSEST));
 
-    }
-
-    /**
-     * Test method for {@link Find#Find}.
-     */
-    @Test
-    public void testFindNoQuery() {
-        final Find.Builder builder = new Find.Builder();
-        try {
-            builder.build();
-            fail("Should have failed to create a Find command without a query.");
-        }
-        catch (final AssertionError expected) {
-            // Good.
-        }
     }
 
     /**
@@ -143,13 +132,13 @@ public class FindTest {
                 .build();
 
         final Find.Builder builder = new Find.Builder();
-        builder.setQuery(query);
+        builder.query(query);
         builder.setReturnFields(fields);
-        builder.setBatchSize(101010);
-        builder.setLimit(202020);
-        builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
-        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.batchSize(101010);
+        builder.limit(202020);
+        builder.skip(123456);
+        builder.partialOk(true);
+        builder.readPreference(ReadPreference.CLOSEST);
         builder.setAwaitData(true);
 
         Find request = builder.build();
@@ -167,7 +156,7 @@ public class FindTest {
         assertFalse(request.isTailable());
         assertTrue(request.isAwaitData());
 
-        assertEquals(BuilderFactory.start().add("query", request.getQuery())
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
                 .add("$explain", true).build(), request.toQueryRequest(true));
 
         builder.reset();
@@ -212,8 +201,8 @@ public class FindTest {
         builder.setNumberToSkip(123456);
         builder.partialOk();
         builder.setReadPreference(ReadPreference.CLOSEST);
-        builder.setHint("_id_1");
-        builder.setHint(Sort.asc("f"));
+        builder.hint("_id_1");
+        builder.hint(Sort.asc("f"));
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
@@ -232,7 +221,7 @@ public class FindTest {
         assertEquals(
                 BuilderFactory
                         .start()
-                        .add("query", request.getQuery())
+                        .add("$query", request.getQuery())
                         .add("$hint",
                                 BuilderFactory.start().addInteger("f", 1)
                                         .build()).build(),
@@ -246,8 +235,7 @@ public class FindTest {
         builder.setNumberToSkip(123456);
         builder.setPartialOk(true);
         builder.setReadPreference(ReadPreference.CLOSEST);
-        builder.setHint("_id_1");
-        builder.setHint(BuilderFactory.start().addInteger("f", 1));
+        builder.hint(BuilderFactory.start().addInteger("f", 1));
 
         request = builder.build();
         assertSame(query, request.getQuery());
@@ -266,7 +254,7 @@ public class FindTest {
         assertEquals(
                 BuilderFactory
                         .start()
-                        .add("query", request.getQuery())
+                        .add("$query", request.getQuery())
                         .add("$hint",
                                 BuilderFactory.start().addInteger("f", 1)
                                         .build()).build(),
@@ -330,7 +318,7 @@ public class FindTest {
         assertEquals("_id_1", request.getHintName());
         assertFalse(request.isSnapshot());
 
-        assertEquals(BuilderFactory.start().add("query", request.getQuery())
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
                 .add("$hint", "_id_1").build(), request.toQueryRequest(false));
 
         builder.reset();
@@ -391,7 +379,7 @@ public class FindTest {
         assertNull(request.getHintName());
         assertTrue(request.isSnapshot());
 
-        assertEquals(BuilderFactory.start().add("query", request.getQuery())
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
                 .add("$snapshot", true).build(), request.toQueryRequest(false));
 
         builder.reset();
@@ -434,9 +422,9 @@ public class FindTest {
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
+        builder.partialOk(true);
         builder.setReadPreference(ReadPreference.CLOSEST);
-        builder.setSort(Sort.desc("f"));
+        builder.sort(Sort.desc("f"));
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
@@ -449,8 +437,8 @@ public class FindTest {
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.CLOSEST, request.getReadPreference());
 
-        assertEquals(BuilderFactory.start().add("query", request.getQuery())
-                .add("orderby", request.getSort()).build(),
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$orderby", request.getSort()).build(),
                 request.toQueryRequest(false));
 
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
@@ -464,8 +452,191 @@ public class FindTest {
         assertTrue(request.isPartialOk());
         assertSame(ReadPreference.PREFER_SECONDARY, request.getReadPreference());
 
-        assertEquals(BuilderFactory.start().add("query", request.getQuery())
-                .add("orderby", request.getSort()).build(),
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$orderby", request.getSort()).build(),
                 request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithMaximumRange() {
+        Document range = BuilderFactory.start().add("a", 1000).add("b", "tag")
+                .build();
+
+        final Find.Builder builder = Find.builder();
+        builder.max(range);
+
+        Find request = builder.build();
+        assertSame(Find.ALL, request.getQuery());
+        assertEquals(range, request.getMaximumRange());
+
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$max", range).build(), request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.setMaximumRange(range);
+        request = builder.build();
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$max", range).build(), request.toQueryRequest(false));
+
+        builder.setMaximumRange(null);
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithImmortalCursor() {
+        final Find.Builder builder = Find.builder();
+        builder.immortalCursor();
+
+        Find request = builder.build();
+        assertTrue(request.isImmortalCursor());
+
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertFalse(request.isImmortalCursor());
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.immortalCursor(true);
+        request = builder.build();
+        assertTrue(request.isImmortalCursor());
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.immortalCursor(false);
+        request = builder.build();
+        assertFalse(request.isImmortalCursor());
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithMinimumRange() {
+        Document range = BuilderFactory.start().add("a", 1000).add("b", "tag")
+                .build();
+
+        final Find.Builder builder = Find.builder();
+        builder.min(range);
+
+        Find request = builder.build();
+        assertSame(Find.ALL, request.getQuery());
+        assertEquals(range, request.getMinimumRange());
+
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$min", range).build(), request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.setMinimumRange(range);
+        request = builder.build();
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$min", range).build(), request.toQueryRequest(false));
+
+        builder.setMinimumRange(null);
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithMaximumDocumentsToScan() {
+        final Find.Builder builder = Find.builder();
+        builder.maxScan(10);
+
+        Find request = builder.build();
+        assertSame(Find.ALL, request.getQuery());
+        assertEquals(10L, request.getMaximumDocumentsToScan());
+
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$maxScan", 10L).build(), request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.setMaximumDocumentsToScan(20L);
+        request = builder.build();
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$maxScan", 20L).build(), request.toQueryRequest(false));
+
+        builder.setMaximumDocumentsToScan(0);
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithReturnIndexKeysOnly() {
+        final Find.Builder builder = Find.builder();
+        builder.returnKey();
+
+        Find request = builder.build();
+        assertSame(Find.ALL, request.getQuery());
+        assertTrue(request.isReturnIndexKeysOnly());
+
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$returnKey", true).build(), request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.returnKey(true);
+        request = builder.build();
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$returnKey", true).build(), request.toQueryRequest(false));
+
+        builder.returnKey(false);
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithShowDiskLocations() {
+
+        final Find.Builder builder = Find.builder();
+        builder.showDiskLoc();
+
+        Find request = builder.build();
+        assertSame(Find.ALL, request.getQuery());
+        assertTrue(request.isShowDiskLocation());
+
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$showDiskLoc", true).build(),
+                request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.showDiskLoc(true);
+        request = builder.build();
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$showDiskLoc", true).build(),
+                request.toQueryRequest(false));
+
+        builder.showDiskLoc(false);
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
     }
 }
