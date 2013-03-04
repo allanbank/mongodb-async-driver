@@ -42,12 +42,12 @@ MongoCollection collection = ...;
 
 Find.Builder findCriteria = new Find.Builder( where("_id").lessThan(42) ).tailable();
 
-MongoIterator<Document> iter = collection.find( findCriteria.build() );
+MongoIterator<Document> iter = collection.find( findCriteria );
 
 // or
 
 StreamCallback<Document> streamCallback = ...;
-MongoCursorControl streamControl = collection.streamingFind( streamCallback, findCriteria.build() );
+MongoCursorControl streamControl = collection.streamingFind( streamCallback, findCriteria );
 +----------------------------------------+
 
   There are a few settings on the 
