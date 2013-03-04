@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -19,9 +19,18 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class Distinct {
+
+    /**
+     * Creates a new builder for a {@link Distinct}.
+     * 
+     * @return The builder to construct a {@link Distinct}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
 
     /** The name of the key to collect distinct values for. */
     private final String myKey;
@@ -42,7 +51,10 @@ public class Distinct {
      *             empty.
      */
     protected Distinct(final Builder builder) {
-        assert ((builder.myKey != null) && !builder.myKey.isEmpty()) : "The distinct's command key cannot be null or empty.";
+        if ((builder.myKey == null) || builder.myKey.isEmpty()) {
+            throw new AssertionError(
+                    "The distinct's command key cannot be null or empty.");
+        }
 
         myKey = builder.myKey;
         myQuery = builder.myQuery;
@@ -90,7 +102,7 @@ public class Distinct {
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {
 
@@ -104,6 +116,13 @@ public class Distinct {
         protected ReadPreference myReadPreference;
 
         /**
+         * Creates a new Builder.
+         */
+        public Builder() {
+            reset();
+        }
+
+        /**
          * Creates a new {@link GroupBy} based on the current state of the
          * builder.
          * 
@@ -115,6 +134,70 @@ public class Distinct {
          */
         public Distinct build() throws AssertionError {
             return new Distinct(this);
+        }
+
+        /**
+         * Sets the name of the key to collect distinct values for.
+         * <p>
+         * This method delegates to {@link #setKey(String)}.
+         * </p>
+         * 
+         * @param key
+         *            The new name of the key to collect distinct values for.
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder key(final String key) {
+            return setKey(key);
+        }
+
+        /**
+         * Sets the value of the query to select the documents to run the
+         * distinct against.
+         * <p>
+         * This method delegates to {@link #setQuery(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param query
+         *            The new value for the query to select the documents to run
+         *            the distinct against.
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder query(final DocumentAssignable query) {
+            return setQuery(query);
+        }
+
+        /**
+         * Sets the {@link ReadPreference} specifying which servers may be used
+         * to execute the {@link Distinct} command.
+         * <p>
+         * If not set or set to <code>null</code> then the
+         * {@link MongoCollection} instance's {@link ReadPreference} will be
+         * used.
+         * </p>
+         * <p>
+         * This method delegates to {@link #setReadPreference(ReadPreference)}.
+         * 
+         * @param readPreference
+         *            The read preferences specifying which servers may be used.
+         * @return This builder for chaining method calls.
+         * 
+         * @see MongoCollection#getReadPreference()
+         */
+        public Builder readPreference(final ReadPreference readPreference) {
+            return setReadPreference(readPreference);
+        }
+
+        /**
+         * Resets the builder back to its initial state.
+         * 
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder reset() {
+            myKey = null;
+            myQuery = null;
+            myReadPreference = null;
+
+            return this;
         }
 
         /**
@@ -162,6 +245,5 @@ public class Distinct {
             myReadPreference = readPreference;
             return this;
         }
-
     }
 }

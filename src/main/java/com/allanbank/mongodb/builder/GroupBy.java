@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -23,9 +23,17 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class GroupBy {
+    /**
+     * Creates a new builder for a {@link GroupBy}.
+     * 
+     * @return The builder to construct a {@link GroupBy}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
 
     /** The finalizer function to run for each group. */
     private final String myFinalizeFunction;
@@ -55,7 +63,7 @@ public class GroupBy {
     private final String myReduceFunction;
 
     /**
-     * Creates a new Group.
+     * Creates a new GroupBy.
      * 
      * @param builder
      *            The builder to copy the state from.
@@ -65,7 +73,10 @@ public class GroupBy {
      */
     protected GroupBy(final Builder builder) throws AssertionError {
 
-        assert (!builder.myKeys.isEmpty() || (builder.myKeyFunction != null)) : "Must specify either a set of keys for the group or a key function.";
+        if (builder.myKeys.isEmpty() && (builder.myKeyFunction == null)) {
+            throw new AssertionError(
+                    "Must specify either a set of keys for the groupBy or a key function.");
+        }
 
         myKeys = Collections
                 .unmodifiableSet(new HashSet<String>(builder.myKeys));
@@ -160,7 +171,7 @@ public class GroupBy {
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {
 
@@ -197,6 +208,8 @@ public class GroupBy {
          */
         public Builder() {
             myKeys = new HashSet<String>();
+
+            reset();
         }
 
         /**
@@ -211,6 +224,140 @@ public class GroupBy {
          */
         public GroupBy build() throws AssertionError {
             return new GroupBy(this);
+        }
+
+        /**
+         * Sets the value of the finalizer function to run for each group.
+         * <p>
+         * This method delegates to {@link #setFinalizeFunction(String)}.
+         * </p>
+         * 
+         * @param finalizeFunction
+         *            The new value for the finalizer function to run for each
+         *            group.
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder finalize(final String finalizeFunction) {
+            return setFinalizeFunction(finalizeFunction);
+        }
+
+        /**
+         * Sets the value of the initial value for the group.
+         * <p>
+         * This method delegates to {@link #setInitialValue(DocumentAssignable)}
+         * .
+         * </p>
+         * 
+         * @param initialValue
+         *            The new value for the initial value for the group.
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder initialValue(final DocumentAssignable initialValue) {
+            return setInitialValue(initialValue);
+        }
+
+        /**
+         * Sets the value of the function to return the key for a document. Used
+         * instead of the {@link #setKeys} to dynamically determine the group
+         * for each document.
+         * <p>
+         * This method delegates to {@link #setKeyFunction(String)}.
+         * </p>
+         * 
+         * @param keyFunction
+         *            The new value for the function to return the key for a
+         *            document. Used instead of the {@link #setKeys} to
+         *            dynamically determine the group for each document.
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder key(final String keyFunction) {
+            return setKeyFunction(keyFunction);
+        }
+
+        /**
+         * Sets the fields to group by
+         * <p>
+         * This method delegates to {@link #setKeys(Set)}.
+         * </p>
+         * 
+         * @param keys
+         *            The new fields to group by
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder keys(final Set<String> keys) {
+            return setKeys(keys);
+        }
+
+        /**
+         * Sets the value of the query to select the documents to run the group
+         * against.
+         * <p>
+         * This method delegates to {@link #setQuery(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param query
+         *            The new value for the query to select the documents to run
+         *            the group against.
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder query(final DocumentAssignable query) {
+            return setQuery(query);
+        }
+
+        /**
+         * Sets the {@link ReadPreference} specifying which servers may be used
+         * to execute the {@link GroupBy} command.
+         * <p>
+         * If not set or set to <code>null</code> then the
+         * {@link MongoCollection} instance's {@link ReadPreference} will be
+         * used.
+         * </p>
+         * <p>
+         * This method delegates to {@link #setReadPreference(ReadPreference)}.
+         * </p>
+         * 
+         * @param readPreference
+         *            The read preferences specifying which servers may be used.
+         * @return This builder for chaining method calls.
+         * 
+         * @see MongoCollection#getReadPreference()
+         */
+        public Builder readPreference(final ReadPreference readPreference) {
+            return setReadPreference(readPreference);
+        }
+
+        /**
+         * Sets the value of the reduce function taking the previous value and
+         * the current value and returning the new reduced value.
+         * <p>
+         * This method delegates to {@link #setReduceFunction(String)}.
+         * </p>
+         * 
+         * @param reduceFunction
+         *            The new value for the reduce function taking the previous
+         *            value and the current value and returning the new reduced
+         *            value.
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder reduce(final String reduceFunction) {
+            return setReduceFunction(reduceFunction);
+        }
+
+        /**
+         * Resets the builder back to its initial state.
+         * 
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder reset() {
+            myFinalizeFunction = null;
+            myInitialValue = null;
+            myKeyFunction = null;
+            myKeys.clear();
+            myQuery = null;
+            myReadPreference = null;
+            myReduceFunction = null;
+
+            return this;
         }
 
         /**

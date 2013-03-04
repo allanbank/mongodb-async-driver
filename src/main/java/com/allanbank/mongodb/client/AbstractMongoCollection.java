@@ -642,6 +642,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #distinct(Distinct)}.
+     * </p>
+     */
+    @Override
+    public ArrayElement distinct(final Distinct.Builder command)
+            throws MongoDbException {
+        return distinct(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * This is the canonical <code>disitnct</code> method that implementations
      * must override.
      * </p>
@@ -657,6 +669,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
+    public void distinctAsync(final Callback<ArrayElement> results,
+            final Distinct.Builder command) throws MongoDbException {
+        distinctAsync(results, command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #distinctAsync(Callback, Distinct)}.
+     * </p>
+     */
+    @Override
     public Future<ArrayElement> distinctAsync(final Distinct command)
             throws MongoDbException {
         final FutureCallback<ArrayElement> future = new FutureCallback<ArrayElement>();
@@ -664,6 +688,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         distinctAsync(future, command);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #distinctAsync(Distinct)}.
+     * </p>
+     */
+    @Override
+    public Future<ArrayElement> distinctAsync(final Distinct.Builder command)
+            throws MongoDbException {
+        return distinctAsync(command.build());
     }
 
     /**

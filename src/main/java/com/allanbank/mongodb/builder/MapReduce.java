@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -21,9 +21,17 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
- * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MapReduce {
+    /**
+     * Creates a new builder for a {@link MapReduce}.
+     * 
+     * @return The builder to construct a {@link MapReduce}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
 
     /**
      * The finalize function to apply to the final results of the reduce
@@ -94,10 +102,18 @@ public class MapReduce {
      *            The builder to copy state from.
      */
     protected MapReduce(final Builder builder) {
-        assert (builder.myMapFunction != null) : "A mapReduce must have a map function.";
-        assert (builder.myReduceFunction != null) : "A mapReduce must have a reduce function.";
-
-        assert ((builder.myOutputType == OutputType.INLINE) || (builder.myOutputName != null)) : "A mapReduce output type must be INLINE or an output collection must be specified.";
+        if (builder.myMapFunction == null) {
+            throw new AssertionError("A mapReduce must have a map function.");
+        }
+        if (builder.myReduceFunction == null) {
+            throw new AssertionError("A mapReduce must have a reduce function.");
+        }
+        if ((builder.myOutputType != OutputType.INLINE)
+                && ((builder.myOutputName == null) || builder.myOutputName
+                        .isEmpty())) {
+            throw new AssertionError(
+                    "A mapReduce output type must be INLINE or an output collection must be specified.");
+        }
 
         myMapFunction = builder.myMapFunction;
         myReduceFunction = builder.myReduceFunction;
@@ -280,7 +296,7 @@ public class MapReduce {
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
-     * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {
         /**
@@ -349,6 +365,13 @@ public class MapReduce {
         protected boolean myVerbose = false;
 
         /**
+         * Creates a new Builder.
+         */
+        public Builder() {
+            reset();
+        }
+
+        /**
          * Constructs a new {@link FindAndModify} object from the state of the
          * builder.
          * 
@@ -356,6 +379,254 @@ public class MapReduce {
          */
         public MapReduce build() {
             return new MapReduce(this);
+        }
+
+        /**
+         * Sets the finalize function to apply to the final results of the
+         * reduce function.
+         * <p>
+         * This method delegates to {@link #setFinalizeFunction(String)}.
+         * </p>
+         * 
+         * @param finalize
+         *            The finalize function to apply to the final results of the
+         *            reduce function.
+         * @return This builder for chaining method calls.
+         */
+        public Builder finalize(final String finalize) {
+            return setFinalizeFunction(finalize);
+        }
+
+        /**
+         * Sets to true to limit the translation of the documents to an from
+         * BSON/JavaScript.
+         * <p>
+         * This method delegates to {@link #setJsMode(boolean) setJsMode(true)}.
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder jsMode() {
+            return setJsMode(true);
+        }
+
+        /**
+         * Sets to true to limit the translation of the documents to an from
+         * BSON/JavaScript.
+         * <p>
+         * This method delegates to {@link #setJsMode(boolean)}.
+         * </p>
+         * 
+         * @param jsMode
+         *            True to limit the translation of the documents to an from
+         *            BSON/JavaScript.
+         * @return This builder for chaining method calls.
+         */
+        public Builder jsMode(final boolean jsMode) {
+            return setJsMode(jsMode);
+        }
+
+        /**
+         * Sets to true to drop the temporary collections created during the
+         * map/reduce.
+         * <p>
+         * This method delegates to {@link #setKeepTemp(boolean)
+         * setKeepTemp(true)}.
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder keepTemp() {
+            return setKeepTemp(true);
+        }
+
+        /**
+         * Sets to true to drop the temporary collections created during the
+         * map/reduce.
+         * <p>
+         * This method delegates to {@link #keepTemp(boolean)}.
+         * </p>
+         * 
+         * @param keepTemp
+         *            True to drop the temporary collections created during the
+         *            map/reduce.
+         * @return This builder for chaining method calls.
+         */
+        public Builder keepTemp(final boolean keepTemp) {
+            return setKeepTemp(keepTemp);
+        }
+
+        /**
+         * Sets the limit for the number of objects to be used as input to the
+         * map/reduce.
+         * <p>
+         * This method delegates to {@link #setLimit(int)}.
+         * </p>
+         * 
+         * @param limit
+         *            The limit for the number of objects to be used as input to
+         *            the map/reduce.
+         * @return This builder for chaining method calls.
+         */
+        public Builder limit(final int limit) {
+            return setLimit(limit);
+        }
+
+        /**
+         * Sets the map functions to apply to each selected document.
+         * <p>
+         * This method delegates to {@link #setMapFunction(String)}.
+         * </p>
+         * 
+         * @param map
+         *            The map functions to apply to each selected document.
+         * @return This builder for chaining method calls.
+         */
+        public Builder map(final String map) {
+            return setMapFunction(map);
+        }
+
+        /**
+         * Sets the name of the output database if the output type is One of
+         * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+         * {@link OutputType#REDUCE}.
+         * <p>
+         * This method delegates to {@link #setOutputDatabase(String)}.
+         * </p>
+         * 
+         * @param outputDatabase
+         *            The name of the output database if the output type is One
+         *            of {@link OutputType#REPLACE}, {@link OutputType#MERGE},
+         *            or {@link OutputType#REDUCE}.
+         * @return This builder for chaining method calls.
+         */
+        public Builder outputDatabase(final String outputDatabase) {
+            return setOutputDatabase(outputDatabase);
+        }
+
+        /**
+         * Sets the name of the output collection if the output type is One of
+         * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+         * {@link OutputType#REDUCE}.
+         * <p>
+         * This method delegates to {@link #setOutputName(String)}.
+         * </p>
+         * 
+         * @param outputName
+         *            The name of the output collection if the output type is
+         *            One of {@link OutputType#REPLACE},
+         *            {@link OutputType#MERGE}, or {@link OutputType#REDUCE}.
+         * @return This builder for chaining method calls.
+         */
+        public Builder outputName(final String outputName) {
+            return setOutputName(outputName);
+        }
+
+        /**
+         * Sets the handling for the output of the map/reduce.
+         * <p>
+         * This method delegates to {@link #setOutputType(OutputType)}.
+         * </p>
+         * 
+         * @param outputType
+         *            The handling for the output of the map/reduce.
+         * @return This builder for chaining method calls.
+         */
+        public Builder outputType(final OutputType outputType) {
+            return setOutputType(outputType);
+        }
+
+        /**
+         * Sets the query to select the documents to run the map/reduce against.
+         * <p>
+         * This method delegates to {@link #setQuery(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param query
+         *            The query to select the documents to run the map/reduce
+         *            against.
+         * @return This builder for chaining method calls.
+         */
+        public Builder query(final DocumentAssignable query) {
+            return setQuery(query);
+        }
+
+        /**
+         * Sets the {@link ReadPreference} specifying which servers may be used
+         * to execute the {@link MapReduce} command.
+         * <p>
+         * If not set or set to <code>null</code> then the
+         * {@link MongoCollection} instance's {@link ReadPreference} will be
+         * used.
+         * </p>
+         * <p>
+         * This method delegates to {@link #setReadPreference(ReadPreference)}.
+         * </p>
+         * 
+         * @param readPreference
+         *            The read preferences specifying which servers may be used.
+         * @return This builder for chaining method calls.
+         * 
+         * @see MongoCollection#getReadPreference()
+         */
+        public Builder readPreference(final ReadPreference readPreference) {
+            return setReadPreference(readPreference);
+        }
+
+        /**
+         * Sets the reduce function to apply to the emitted output of the map
+         * function.
+         * <p>
+         * This method delegates to {@link #setReduceFunction(String)}.
+         * </p>
+         * 
+         * @param reduce
+         *            The reduce function to apply to the emitted output of the
+         *            map function.
+         * @return This builder for chaining method calls.
+         */
+        public Builder reduce(final String reduce) {
+            return setReduceFunction(reduce);
+        }
+
+        /**
+         * Resets the builder back to its initial state.
+         * 
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder reset() {
+            myFinalizeFunction = null;
+            myJsMode = false;
+            myKeepTemp = false;
+            myLimit = 0;
+            myMapFunction = null;
+            myOutputDatabase = null;
+            myOutputName = null;
+            myOutputType = OutputType.INLINE;
+            myQuery = null;
+            myReadPreference = null;
+            myReduceFunction = null;
+            myScope = null;
+            mySort = null;
+            myVerbose = false;
+
+            return this;
+        }
+
+        /**
+         * Sets the scoped values to expose to the map/reduce/finalize
+         * functions.
+         * <p>
+         * This method delegates to {@link #setScope(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param scope
+         *            The scoped values to expose to the map/reduce/finalize
+         *            functions.
+         * @return This builder for chaining method calls.
+         */
+        public Builder scope(final DocumentAssignable scope) {
+            return setScope(scope);
         }
 
         /**
@@ -593,6 +864,84 @@ public class MapReduce {
             myVerbose = verbose;
             return this;
         }
+
+        /**
+         * Sets the sort to apply to the input objects. Useful for optimization,
+         * like sorting by the emit key for fewer reduces.
+         * <p>
+         * This method delegates to {@link #setSort(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param sort
+         *            The sort to apply to the input objects. Useful for
+         *            optimization, like sorting by the emit key for fewer
+         *            reduces.
+         * @return This builder for chaining method calls.
+         */
+        public Builder sort(final DocumentAssignable sort) {
+            return setSort(sort);
+        }
+
+        /**
+         * Sets the sort to apply to the input objects. Useful for optimization,
+         * like sorting by the emit key for fewer reduces.
+         * <p>
+         * This method delegates to {@link #setSort(IntegerElement...)}.
+         * </p>
+         * <p>
+         * This method is intended to be used with the {@link Sort} class's
+         * static methods: <blockquote>
+         * 
+         * <pre>
+         * <code>
+         * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+         * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+         * 
+         * MapReduce.Builder builder = new Find.Builder();
+         * 
+         * builder.setSort( asc("f"), desc("g") );
+         * ...
+         * </code>
+         * </pre>
+         * 
+         * </blockquote>
+         * 
+         * @param sortFields
+         *            The sort to apply to the input objects. Useful for
+         *            optimization, like sorting by the emit key for fewer
+         *            reduces.
+         * @return This builder for chaining method calls.
+         */
+        public Builder sort(final IntegerElement... sortFields) {
+            return setSort(sortFields);
+        }
+
+        /**
+         * Sets to true to emit progress messages in the server logs.
+         * <p>
+         * This method delegates to {@link #setVerbose(boolean)
+         * setVerbose(true)}.
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder verbose() {
+            return setVerbose(true);
+        }
+
+        /**
+         * Sets to true to emit progress messages in the server logs.
+         * <p>
+         * This method delegates to {@link #setVerbose(boolean)}.
+         * </p>
+         * 
+         * @param verbose
+         *            True to emit progress messages in the server logs.
+         * @return This builder for chaining method calls.
+         */
+        public Builder verbose(final boolean verbose) {
+            return setVerbose(verbose);
+        }
     }
 
     /**
@@ -603,7 +952,7 @@ public class MapReduce {
      *          release (version numbers are
      *          &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being removed
      *          or modified.
-     * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public enum OutputType {
         /** Returns the results inline to the reply to the map/reduce command. */

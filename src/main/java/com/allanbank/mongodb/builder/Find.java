@@ -32,6 +32,15 @@ public class Find {
     public static final Document ALL = MongoCollection.ALL;
 
     /**
+     * Creates a new builder for a {@link Find}.
+     * 
+     * @return The builder to construct a {@link Find}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
      * If set to true requests for data will block, waiting for data. Useful
      * with {@link Builder#tailable()} cursors.
      */
@@ -135,16 +144,6 @@ public class Find {
         myMaximumDocumentsToScan = builder.myMaximumDocumentsToScan;
         myReturnIndexKeysOnly = builder.myReturnIndexKeysOnly;
         myShowDiskLocation = builder.myShowDiskLocation;
-
-    }
-
-    /**
-     * Creates a new builder for a Find.
-     * 
-     * @return The builder to copy the query fields from.
-     */
-    public static Builder builder() {
-        return new Builder();
     }
 
     /**
@@ -469,7 +468,7 @@ public class Find {
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {
 

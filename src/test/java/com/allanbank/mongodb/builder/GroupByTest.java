@@ -6,9 +6,9 @@
 package com.allanbank.mongodb.builder;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +36,7 @@ public class GroupByTest {
         keys.add("k2");
 
         final GroupBy.Builder builder = new GroupBy.Builder();
-        builder.setKeys(keys);
+        builder.keys(keys);
 
         final GroupBy g = builder.build();
         assertNull(g.getKeyFunction());
@@ -53,15 +53,19 @@ public class GroupByTest {
     @Test
     public void testGroupByNoKeysNoKeyFunction() {
 
-        final GroupBy.Builder builder = new GroupBy.Builder();
+        final GroupBy.Builder builder = GroupBy.builder();
 
+        boolean built = false;
         try {
             builder.build();
-            fail("Should have failed to create a GroupBy command without a key or key function.");
+            built = true;
         }
         catch (final AssertionError expected) {
             // Good.
         }
+        assertFalse(
+                "Should have failed to create a GroupBy command without a query.",
+                built);
     }
 
     /**
@@ -102,11 +106,8 @@ public class GroupByTest {
         keys.add("k2");
 
         final GroupBy.Builder builder = new GroupBy.Builder();
-        builder.setKeys(keys);
-        builder.setFinalizeFunction("finalize");
-        builder.setInitialValue(initial);
-        builder.setQuery(query);
-        builder.setReduceFunction("reduce");
+        builder.keys(keys).finalize("finalize").initialValue(initial)
+                .query(query).reduce("reduce");
 
         GroupBy g = builder.build();
         assertNull(g.getKeyFunction());
@@ -117,8 +118,7 @@ public class GroupByTest {
         assertEquals("reduce", g.getReduceFunction());
 
         // Zap the keys and switch to a function
-        builder.setKeys(null);
-        builder.setKeyFunction("function f() {}");
+        builder.keys(null).key("function f() {}");
 
         g = builder.build();
         assertEquals("function f() {}", g.getKeyFunction());
@@ -127,6 +127,26 @@ public class GroupByTest {
         assertSame(initial, g.getInitialValue());
         assertSame(query, g.getQuery());
         assertEquals("reduce", g.getReduceFunction());
+
+        // Reset to nothing.
+        boolean built = false;
+        try {
+            builder.reset().build();
+            built = true;
+        }
+        catch (final AssertionError expected) {
+            // Good.
+        }
+        assertFalse(
+                "Should have failed to create a GroupBy command without a query.",
+                built);
+        g = builder.keys(keys).build();
+        assertNull(g.getKeyFunction());
+        assertEquals(keys, g.getKeys());
+        assertNull(g.getFinalizeFunction());
+        assertNull(g.getInitialValue());
+        assertNull(g.getQuery());
+        assertNull(g.getReduceFunction());
     }
 
     /**
@@ -140,7 +160,7 @@ public class GroupByTest {
 
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(keys);
-        builder.setReadPreference(ReadPreference.SECONDARY);
+        builder.readPreference(ReadPreference.SECONDARY);
 
         final GroupBy g = builder.build();
         assertNull(g.getKeyFunction());

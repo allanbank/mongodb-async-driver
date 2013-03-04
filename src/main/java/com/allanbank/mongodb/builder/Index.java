@@ -47,7 +47,7 @@ public final class Index {
      * @return The descending sort specification.
      */
     public static IntegerElement desc(final String field) {
-        return new IntegerElement(field, -1);
+        return Sort.desc(field);
     }
 
     /**

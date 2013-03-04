@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -20,9 +20,17 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
- * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class FindAndModify {
+    /**
+     * Creates a new builder for a {@link FindAndModify}.
+     * 
+     * @return The builder to construct a {@link FindAndModify}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
 
     /** The subset of fields to retrieve from the matched document. */
     private final Document myFields;
@@ -58,8 +66,14 @@ public class FindAndModify {
      *            The builder to copy from.
      */
     protected FindAndModify(final Builder builder) {
-        assert (builder.myQuery != null) : "The findAndModify's query document cannot be null or empty.";
-        assert ((builder.myUpdate != null) || builder.myRemove) : "The findAndModify must have an update document or be a remove.";
+        if (builder.myQuery == null) {
+            throw new AssertionError(
+                    "The findAndModify's query document cannot be null or empty.");
+        }
+        if ((builder.myUpdate == null) && !builder.myRemove) {
+            throw new AssertionError(
+                    "The findAndModify must have an update document or be a remove.");
+        }
 
         myQuery = builder.myQuery;
         myUpdate = builder.myUpdate;
@@ -144,35 +158,42 @@ public class FindAndModify {
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
-     * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class Builder {
         /** Retrieve a subset of fields from the matched document. */
-        protected Document myFields = null;
+        protected Document myFields;
 
         /** A query to locate the document to update. */
-        protected Document myQuery = null;
+        protected Document myQuery;
 
         /** Set to a true to remove the object before returning */
-        protected boolean myRemove = false;
+        protected boolean myRemove;
 
         /**
          * Set to true if you want to return the modified object rather than the
          * original. Ignored for remove.
          */
-        protected boolean myReturnNew = false;
+        protected boolean myReturnNew;
 
         /**
          * If multiple docs match, choose the first one in the specified sort
          * order as the object to manipulate.
          */
-        protected Document mySort = null;
+        protected Document mySort;
 
         /** Updates to be applied to the document. */
-        protected Document myUpdate = null;
+        protected Document myUpdate;
 
         /** Create object if it doesn't exist. */
-        protected boolean myUpsert = false;
+        protected boolean myUpsert;
+
+        /**
+         * Creates a new Builder.
+         */
+        public Builder() {
+            reset();
+        }
 
         /**
          * Constructs a new {@link FindAndModify} object from the state of the
@@ -182,6 +203,108 @@ public class FindAndModify {
          */
         public FindAndModify build() {
             return new FindAndModify(this);
+        }
+
+        /**
+         * Sets the subset of fields to retrieve from the matched document.
+         * <p>
+         * This method delegates to {@link #setFields(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param fields
+         *            The subset of fields to retrieve from the matched
+         *            document.
+         * @return This builder for chaining method calls.
+         */
+        public Builder fields(final DocumentAssignable fields) {
+            return setFields(fields);
+        }
+
+        /**
+         * Sets the query to locate the document to update.
+         * <p>
+         * This method delegates to {@link #setQuery(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param query
+         *            The query to locate the document to update.
+         * @return This builder for chaining method calls.
+         */
+        public Builder query(final DocumentAssignable query) {
+            return setQuery(query);
+        }
+
+        /**
+         * Sets to true if the document should be removed.
+         * <p>
+         * This method delegates to {@link #setRemove(boolean) setRemove(true)}.
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder remove() {
+            return setRemove(true);
+        }
+
+        /**
+         * Sets to true if the document should be removed.
+         * <p>
+         * This method delegates to {@link #setRemove(boolean)}.
+         * </p>
+         * 
+         * @param remove
+         *            True if the document should be removed.
+         * @return This builder for chaining method calls.
+         */
+        public Builder remove(final boolean remove) {
+            return setRemove(remove);
+        }
+
+        /**
+         * Resets the builder back to its initial state.
+         * 
+         * @return This {@link Builder} for method call chaining.
+         */
+        public Builder reset() {
+            myFields = null;
+            myQuery = null;
+            myRemove = false;
+            myReturnNew = false;
+            mySort = null;
+            myUpdate = null;
+            myUpsert = false;
+
+            return this;
+        }
+
+        /**
+         * Sets to true if the updated document should be returned instead of
+         * the document before the update.
+         * <p>
+         * This method delegates to {@link #setReturnNew(boolean)
+         * setReturnNew(true)}.
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder returnNew() {
+            return setReturnNew(true);
+        }
+
+        /**
+         * Sets to true if the updated document should be returned instead of
+         * the document before the update.
+         * <p>
+         * This method delegates to {@link #setReturnNew(boolean)}.
+         * </p>
+         * 
+         * @param returnNew
+         *            True if the updated document should be returned instead of
+         *            the document before the update.
+         * @return This builder for chaining method calls.
+         */
+        public Builder returnNew(final boolean returnNew) {
+            return setReturnNew(returnNew);
         }
 
         /**
@@ -306,6 +429,95 @@ public class FindAndModify {
         public Builder setUpsert(final boolean upsert) {
             myUpsert = upsert;
             return this;
+        }
+
+        /**
+         * Sets the sort to apply if multiple docs match, choose the first one
+         * as the object to manipulate.
+         * <p>
+         * This method delegates to {@link #setSort(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param sort
+         *            The sort to apply if multiple docs match, choose the first
+         *            one as the object to manipulate.
+         * @return This builder for chaining method calls.
+         */
+        public Builder sort(final DocumentAssignable sort) {
+            return setSort(sort);
+        }
+
+        /**
+         * Sets the sort to apply if multiple docs match, choose the first one
+         * as the object to manipulate.
+         * <p>
+         * This method delegates to {@link #setSort(IntegerElement...)}.
+         * </p>
+         * <p>
+         * This method is intended to be used with the {@link Sort} class's
+         * static methods: <blockquote>
+         * 
+         * <pre>
+         * <code>
+         * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
+         * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
+         * 
+         * FindAndModify.Builder builder = new Find.Builder();
+         * 
+         * builder.sort( asc("f"), desc("g") );
+         * ...
+         * </code>
+         * </pre>
+         * 
+         * </blockquote>
+         * 
+         * @param sortFields
+         *            The sort to apply if multiple docs match, choose the first
+         *            one as the object to manipulate.
+         * @return This builder for chaining method calls.
+         */
+        public Builder sort(final IntegerElement... sortFields) {
+            return setSort(sortFields);
+        }
+
+        /**
+         * Sets the updates to be applied to the document.
+         * <p>
+         * This method delegates to {@link #setUpdate(DocumentAssignable)}.
+         * </p>
+         * 
+         * @param update
+         *            The updates to be applied to the document.
+         * @return This builder for chaining method calls.
+         */
+        public Builder update(final DocumentAssignable update) {
+            return setUpdate(update);
+        }
+
+        /**
+         * Sets to true to create the document if it doesn't exist.
+         * <p>
+         * This method delegates to {@link #setUpsert(boolean) setUpsert(true)}.
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder upsert() {
+            return setUpsert(true);
+        }
+
+        /**
+         * Sets to true to create the document if it doesn't exist.
+         * <p>
+         * This method delegates to {@link #setUpsert(boolean)}.
+         * </p>
+         * 
+         * @param upsert
+         *            True to create the document if it doesn't exist.
+         * @return This builder for chaining method calls.
+         */
+        public Builder upsert(final boolean upsert) {
+            return setUpsert(upsert);
         }
     }
 }

@@ -351,6 +351,189 @@ public class FindTest {
      * Test method for {@link Find#Find}.
      */
     @Test
+    public void testFindWithImmortalCursor() {
+        final Find.Builder builder = Find.builder();
+        builder.immortalCursor();
+
+        Find request = builder.build();
+        assertTrue(request.isImmortalCursor());
+
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertFalse(request.isImmortalCursor());
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.immortalCursor(true);
+        request = builder.build();
+        assertTrue(request.isImmortalCursor());
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.immortalCursor(false);
+        request = builder.build();
+        assertFalse(request.isImmortalCursor());
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithMaximumDocumentsToScan() {
+        final Find.Builder builder = Find.builder();
+        builder.maxScan(10);
+
+        Find request = builder.build();
+        assertSame(Find.ALL, request.getQuery());
+        assertEquals(10L, request.getMaximumDocumentsToScan());
+
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$maxScan", 10L).build(), request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.setMaximumDocumentsToScan(20L);
+        request = builder.build();
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$maxScan", 20L).build(), request.toQueryRequest(false));
+
+        builder.setMaximumDocumentsToScan(0);
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithMaximumRange() {
+        final Document range = BuilderFactory.start().add("a", 1000)
+                .add("b", "tag").build();
+
+        final Find.Builder builder = Find.builder();
+        builder.max(range);
+
+        Find request = builder.build();
+        assertSame(Find.ALL, request.getQuery());
+        assertEquals(range, request.getMaximumRange());
+
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$max", range).build(), request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.setMaximumRange(range);
+        request = builder.build();
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$max", range).build(), request.toQueryRequest(false));
+
+        builder.setMaximumRange(null);
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithMinimumRange() {
+        final Document range = BuilderFactory.start().add("a", 1000)
+                .add("b", "tag").build();
+
+        final Find.Builder builder = Find.builder();
+        builder.min(range);
+
+        Find request = builder.build();
+        assertSame(Find.ALL, request.getQuery());
+        assertEquals(range, request.getMinimumRange());
+
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$min", range).build(), request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.setMinimumRange(range);
+        request = builder.build();
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$min", range).build(), request.toQueryRequest(false));
+
+        builder.setMinimumRange(null);
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithReturnIndexKeysOnly() {
+        final Find.Builder builder = Find.builder();
+        builder.returnKey();
+
+        Find request = builder.build();
+        assertSame(Find.ALL, request.getQuery());
+        assertTrue(request.isReturnIndexKeysOnly());
+
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$returnKey", true).build(), request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.returnKey(true);
+        request = builder.build();
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$returnKey", true).build(), request.toQueryRequest(false));
+
+        builder.returnKey(false);
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithShowDiskLocations() {
+
+        final Find.Builder builder = Find.builder();
+        builder.showDiskLoc();
+
+        Find request = builder.build();
+        assertSame(Find.ALL, request.getQuery());
+        assertTrue(request.isShowDiskLocation());
+
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$showDiskLoc", true).build(),
+                request.toQueryRequest(false));
+
+        builder.reset();
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+
+        builder.showDiskLoc(true);
+        request = builder.build();
+        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
+                .add("$showDiskLoc", true).build(),
+                request.toQueryRequest(false));
+
+        builder.showDiskLoc(false);
+        request = builder.build();
+        assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
     public void testFindWithSnapshot() {
         final Document query = BuilderFactory.start().build();
         final Document fields = BuilderFactory.start().addInteger("foo", 3)
@@ -455,188 +638,5 @@ public class FindTest {
         assertEquals(BuilderFactory.start().add("$query", request.getQuery())
                 .add("$orderby", request.getSort()).build(),
                 request.toQueryRequest(false));
-    }
-
-    /**
-     * Test method for {@link Find#Find}.
-     */
-    @Test
-    public void testFindWithMaximumRange() {
-        Document range = BuilderFactory.start().add("a", 1000).add("b", "tag")
-                .build();
-
-        final Find.Builder builder = Find.builder();
-        builder.max(range);
-
-        Find request = builder.build();
-        assertSame(Find.ALL, request.getQuery());
-        assertEquals(range, request.getMaximumRange());
-
-        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
-                .add("$max", range).build(), request.toQueryRequest(false));
-
-        builder.reset();
-        request = builder.build();
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-
-        builder.setMaximumRange(range);
-        request = builder.build();
-        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
-                .add("$max", range).build(), request.toQueryRequest(false));
-
-        builder.setMaximumRange(null);
-        request = builder.build();
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-    }
-
-    /**
-     * Test method for {@link Find#Find}.
-     */
-    @Test
-    public void testFindWithImmortalCursor() {
-        final Find.Builder builder = Find.builder();
-        builder.immortalCursor();
-
-        Find request = builder.build();
-        assertTrue(request.isImmortalCursor());
-
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-
-        builder.reset();
-        request = builder.build();
-        assertFalse(request.isImmortalCursor());
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-
-        builder.immortalCursor(true);
-        request = builder.build();
-        assertTrue(request.isImmortalCursor());
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-
-        builder.immortalCursor(false);
-        request = builder.build();
-        assertFalse(request.isImmortalCursor());
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-    }
-
-    /**
-     * Test method for {@link Find#Find}.
-     */
-    @Test
-    public void testFindWithMinimumRange() {
-        Document range = BuilderFactory.start().add("a", 1000).add("b", "tag")
-                .build();
-
-        final Find.Builder builder = Find.builder();
-        builder.min(range);
-
-        Find request = builder.build();
-        assertSame(Find.ALL, request.getQuery());
-        assertEquals(range, request.getMinimumRange());
-
-        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
-                .add("$min", range).build(), request.toQueryRequest(false));
-
-        builder.reset();
-        request = builder.build();
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-
-        builder.setMinimumRange(range);
-        request = builder.build();
-        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
-                .add("$min", range).build(), request.toQueryRequest(false));
-
-        builder.setMinimumRange(null);
-        request = builder.build();
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-    }
-
-    /**
-     * Test method for {@link Find#Find}.
-     */
-    @Test
-    public void testFindWithMaximumDocumentsToScan() {
-        final Find.Builder builder = Find.builder();
-        builder.maxScan(10);
-
-        Find request = builder.build();
-        assertSame(Find.ALL, request.getQuery());
-        assertEquals(10L, request.getMaximumDocumentsToScan());
-
-        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
-                .add("$maxScan", 10L).build(), request.toQueryRequest(false));
-
-        builder.reset();
-        request = builder.build();
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-
-        builder.setMaximumDocumentsToScan(20L);
-        request = builder.build();
-        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
-                .add("$maxScan", 20L).build(), request.toQueryRequest(false));
-
-        builder.setMaximumDocumentsToScan(0);
-        request = builder.build();
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-    }
-
-    /**
-     * Test method for {@link Find#Find}.
-     */
-    @Test
-    public void testFindWithReturnIndexKeysOnly() {
-        final Find.Builder builder = Find.builder();
-        builder.returnKey();
-
-        Find request = builder.build();
-        assertSame(Find.ALL, request.getQuery());
-        assertTrue(request.isReturnIndexKeysOnly());
-
-        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
-                .add("$returnKey", true).build(), request.toQueryRequest(false));
-
-        builder.reset();
-        request = builder.build();
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-
-        builder.returnKey(true);
-        request = builder.build();
-        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
-                .add("$returnKey", true).build(), request.toQueryRequest(false));
-
-        builder.returnKey(false);
-        request = builder.build();
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-    }
-
-    /**
-     * Test method for {@link Find#Find}.
-     */
-    @Test
-    public void testFindWithShowDiskLocations() {
-
-        final Find.Builder builder = Find.builder();
-        builder.showDiskLoc();
-
-        Find request = builder.build();
-        assertSame(Find.ALL, request.getQuery());
-        assertTrue(request.isShowDiskLocation());
-
-        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
-                .add("$showDiskLoc", true).build(),
-                request.toQueryRequest(false));
-
-        builder.reset();
-        request = builder.build();
-        assertEquals(Find.ALL, request.toQueryRequest(false));
-
-        builder.showDiskLoc(true);
-        request = builder.build();
-        assertEquals(BuilderFactory.start().add("$query", request.getQuery())
-                .add("$showDiskLoc", true).build(),
-                request.toQueryRequest(false));
-
-        builder.showDiskLoc(false);
-        request = builder.build();
-        assertEquals(Find.ALL, request.toQueryRequest(false));
     }
 }
