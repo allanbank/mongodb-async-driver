@@ -11,7 +11,6 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,7 +53,7 @@ public class ReplyDocumentCallbackTest {
         final ReplyDocumentCallback callback = new ReplyDocumentCallback(
                 mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply);
-        assertEquals(-1, error.getOkValue());
+        assertNull(error);
 
         verify(mockCallback);
     }
@@ -102,7 +101,7 @@ public class ReplyDocumentCallbackTest {
         final ReplyDocumentCallback callback = new ReplyDocumentCallback(
                 mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply);
-        assertTrue(error.getMessage().contains("document in the reply"));
+        assertNull(error);
 
         verify(mockCallback);
     }
