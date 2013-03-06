@@ -53,7 +53,7 @@ public class ReplyDocumentCallbackTest {
         final ReplyDocumentCallback callback = new ReplyDocumentCallback(
                 mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply);
-        assertNull(error);
+        assertNotNull(error);
 
         verify(mockCallback);
     }
@@ -87,9 +87,10 @@ public class ReplyDocumentCallbackTest {
      */
     @SuppressWarnings("unchecked")
     @Test
-    public void testAsErrorReplyNoN() {
+    public void testAsErrorReplyNullResults() {
         final DocumentBuilder db = BuilderFactory.start().addInteger("ok", 1);
         db.push("n");
+        db.addNull("value");
 
         final List<Document> docs = Collections.singletonList(db.build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
