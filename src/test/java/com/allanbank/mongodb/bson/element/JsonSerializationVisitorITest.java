@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.ClusterTestSupport;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.ManagedProcess;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
@@ -84,9 +85,11 @@ public class JsonSerializationVisitorITest {
         assertEquals("{ '_id' : Timestamp(" + seconds + ", " + offset + ") }",
                 doc.toString());
 
-        ourTestSupport.run(null, "mongo", "localhost:27017/test", "-eval",
+        final ManagedProcess mp = ourTestSupport.run(null, "mongo",
+                "localhost:27017/test", "-eval",
                 "db.test.insert( { '_id' : Timestamp(" + seconds + ", "
                         + offset + ") } );");
+        mp.waitFor();
 
         // Now pull the document back and make sure it matches what we expect.
         final Document result = collection.findOne(BuilderFactory.start());
@@ -123,9 +126,10 @@ public class JsonSerializationVisitorITest {
         assertEquals("{ '_id' : ObjectId('112233445566778899001122') }",
                 doc.toString());
 
-        ourTestSupport
+        final ManagedProcess mp = ourTestSupport
                 .run(null, "mongo", "localhost:27017/test", "-eval",
                         "db.test.insert( { '_id' : ObjectId('112233445566778899001122') } );");
+        mp.waitFor();
 
         // Now pull the document back and make sure it matches what we expect.
         final Document result = collection.findOne(BuilderFactory.start());

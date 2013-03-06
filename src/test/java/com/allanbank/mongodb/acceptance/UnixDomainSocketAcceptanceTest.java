@@ -144,8 +144,8 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
         ourJUnixSocketLibClassLoader = null;
         System.clearProperty("org.newsclub.net.unix.library.path");
 
-        ourClusterTestSupport.run(TAR_FILE.getParentFile(), "rm", "-rf",
-                LAST_JUNIXSOCKET_RELEASE);
+        ourClusterTestSupport.delete(new File(TAR_FILE.getParentFile(),
+                LAST_JUNIXSOCKET_RELEASE));
 
         stopStandAlone();
 

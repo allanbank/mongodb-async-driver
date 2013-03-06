@@ -9,8 +9,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +30,24 @@ public class ClusterTestSupport {
     /** The default MongoDB port. */
     public static final int DEFAULT_PORT = 27017;
 
+    /** The suffix for the test directories. */
+    public static final String DIR_SUFFIX = "-test-dir";
+
+    /** The prefix for replica set test directories. */
+    public static final String REPLICA_SET_ROOT = "replica-set-";
+
+    /** The prefix for sharded test directories. */
+    public static final String SHARDED_ROOT = "sharded-";
+
+    /** The prefix for standalone test directories. */
+    public static final String STANDALONE_ROOT = "standalone-";
+
+    /** The processes we have started. */
+    private static Boolean ourSupportsText;
+
+    /** The processes we have started. */
+    private final List<ManagedProcess> myProcesses;
+
     /** The working directory for the cluster. */
     private File myWorkingDirectory;
 
@@ -37,6 +55,24 @@ public class ClusterTestSupport {
      * Creates a new ClusterTestSupport.
      */
     public ClusterTestSupport() {
+        myProcesses = new ArrayList<ManagedProcess>();
+    }
+
+    /**
+     * Deletes the files.
+     * 
+     * @param file
+     *            The file to delete. Will delete all sub directories and files
+     *            if a directory.
+     */
+    public void delete(final File file) {
+        if (file.isDirectory()) {
+            for (final File child : file.listFiles()) {
+                delete(child);
+            }
+        }
+
+        file.delete();
     }
 
     /**
@@ -48,12 +84,26 @@ public class ClusterTestSupport {
      *            The program to run.
      * @param args
      *            The arguments to the executable.
-     * @return The merged stdout and stderr.
+     * @return The managed process.
      * @throws AssertionError
      *             On a failure to launch the executable.
      */
-    public String run(final File workingDirectory, final String executable,
-            final String... args) throws AssertionError {
+    public ManagedProcess run(final File workingDirectory,
+            final String executable, final String... args)
+            throws AssertionError {
+
+        // Need a parameter to turn on text search in 2.4.
+        final List<String> origArgs = Arrays.asList(args);
+        List<String> augmentedArgs = origArgs;
+
+        final Boolean supports = ourSupportsText;
+        if (((supports == null) || supports.booleanValue())
+                && ("mongod".equals(executable) || "mongos".equals(executable))) {
+            augmentedArgs = new ArrayList<String>(origArgs);
+            augmentedArgs.add("--setParameter");
+            augmentedArgs.add("textSearchEnabled=1");
+        }
+
         String app = executable;
         final String mongodbHome = System.getenv("MONGODB_HOME");
         if (mongodbHome != null) {
@@ -72,9 +122,10 @@ public class ClusterTestSupport {
             }
         }
 
-        final List<String> command = new ArrayList<String>(args.length + 1);
+        final List<String> command = new ArrayList<String>(
+                augmentedArgs.size() + 1);
         command.add(app);
-        command.addAll(Arrays.asList(args));
+        command.addAll(augmentedArgs);
 
         final ProcessBuilder b = new ProcessBuilder();
         if (workingDirectory == null) {
@@ -86,17 +137,34 @@ public class ClusterTestSupport {
         b.redirectErrorStream(true);
         b.command(command);
 
-        BufferedReader r = null;
-        final StringBuilder output = new StringBuilder();
+        final BufferedReader r = null;
         try {
-            final Process p = b.start();
+            ManagedProcess mp = new ManagedProcess(executable, b.start());
 
-            r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            // If we tried to turn on text search in 2.3 it will fail...
+            if (origArgs != augmentedArgs) {
+                if (supports == null) {
+                    sleep(100);
+                    if (mp.getOutput().contains("error command line")) {
+                        ourSupportsText = Boolean.FALSE;
 
-            String line;
-            while ((line = r.readLine()) != null) {
-                output.append(line).append("\n");
+                        // Shut down the old...
+                        mp.close();
+
+                        // Just use the original args.
+                        command.clear();
+                        command.add(app);
+                        command.addAll(origArgs);
+                        b.command(command);
+
+                        mp = new ManagedProcess(executable, b.start());
+                    }
+                    else {
+                        ourSupportsText = Boolean.TRUE;
+                    }
+                }
             }
+            return mp;
         }
         catch (final IOException ioe) {
             final AssertionError error = new AssertionError(
@@ -108,8 +176,6 @@ public class ClusterTestSupport {
         finally {
             IOUtils.close(r);
         }
-
-        return output.toString();
     }
 
     /**
@@ -128,7 +194,8 @@ public class ClusterTestSupport {
         }
 
         try {
-            myWorkingDirectory = File.createTempFile("replica-set-", ".dir");
+            myWorkingDirectory = File.createTempFile(REPLICA_SET_ROOT,
+                    DIR_SUFFIX);
             myWorkingDirectory.delete();
             myWorkingDirectory.mkdir();
 
@@ -157,7 +224,7 @@ public class ClusterTestSupport {
         }
 
         try {
-            myWorkingDirectory = File.createTempFile("sharded-", ".dir");
+            myWorkingDirectory = File.createTempFile(SHARDED_ROOT, DIR_SUFFIX);
             myWorkingDirectory.delete();
             myWorkingDirectory.mkdir();
 
@@ -189,7 +256,7 @@ public class ClusterTestSupport {
         }
 
         try {
-            myWorkingDirectory = File.createTempFile("sharded-", ".dir");
+            myWorkingDirectory = File.createTempFile(SHARDED_ROOT, DIR_SUFFIX);
             myWorkingDirectory.delete();
             myWorkingDirectory.mkdir();
 
@@ -213,7 +280,8 @@ public class ClusterTestSupport {
         }
 
         try {
-            myWorkingDirectory = File.createTempFile("standalone-", ".dir");
+            myWorkingDirectory = File.createTempFile(STANDALONE_ROOT,
+                    DIR_SUFFIX);
             myWorkingDirectory.delete();
             myWorkingDirectory.mkdir();
 
@@ -229,14 +297,19 @@ public class ClusterTestSupport {
      */
     public void stopAll() {
 
-        run(null, "pkill", "mongod");
-        run(null, "pkill", "mongos");
+        for (final ManagedProcess process : myProcesses) {
+            process.close();
+        }
 
         if (myWorkingDirectory != null) {
-            run(myWorkingDirectory, "pkill", "-f",
-                    myWorkingDirectory.getAbsolutePath() + ".*");
-            run(myWorkingDirectory.getParentFile(), "rm", "-rf",
-                    myWorkingDirectory.getAbsolutePath());
+            delete(myWorkingDirectory);
+
+            // Delete any strangler directories.
+            final File parent = myWorkingDirectory.getParentFile();
+            for (final File child : parent
+                    .listFiles(new TestDirectoryFilenameFilter())) {
+                delete(child);
+            }
         }
 
         myWorkingDirectory = null;
@@ -304,7 +377,9 @@ public class ClusterTestSupport {
 
         final File rsConfig = new File(workingDirectory, "config-" + startPort
                 + ".js");
+
         FileWriter writer = null;
+        ManagedProcess arbiter = null;
         try {
             writer = new FileWriter(rsConfig);
             writer.write("rs.initiate({ _id: \"rs-" + startPort
@@ -312,35 +387,53 @@ public class ClusterTestSupport {
 
             // Arbiter.
             int port = startPort;
-            File log = new File(workingDirectory, "mongod-" + port + ".log");
             File db = new File(workingDirectory, "mongod-" + port);
             db.mkdir();
-            run(workingDirectory, "mongod", "--port", String.valueOf(port),
-                    "--fork", "--dbpath", db.getAbsolutePath(), "--smallfiles",
-                    "--logpath", log.getAbsolutePath(), "--replSet", "rs-"
-                            + startPort, "--noprealloc", "--nojournal",
-                    "--oplogSize", "2");
-            waitFor(log, port, TimeUnit.SECONDS.toMillis(30));
+            arbiter = run(workingDirectory, "mongod", "--port",
+                    String.valueOf(port), "--dbpath", db.getAbsolutePath(),
+                    "--smallfiles", "--replSet", "rs-" + startPort,
+                    "--noprealloc", "--nojournal", "--oplogSize", "2");
+            myProcesses.add(arbiter);
+
+            arbiter.waitFor(port, TimeUnit.SECONDS.toMillis(30));
             writer.write("{ _id: 0, host: \"localhost:" + port
                     + "\", arbiterOnly:true }");
 
             for (int i = 0; i < replicas; ++i) {
                 port = startPort + i + 1;
-                log = new File(workingDirectory, "mongod-" + port + ".log");
                 db = new File(workingDirectory, "mongod-" + port);
                 db.mkdir();
 
-                run(workingDirectory, "mongod", "--port", String.valueOf(port),
-                        "--fork", "--dbpath", db.getAbsolutePath(),
-                        "--smallfiles", "--logpath", log.getAbsolutePath(),
-                        "--replSet", "rs-" + startPort, "--noprealloc",
-                        "--nojournal", "--oplogSize", "512");
-                waitFor(log, port, TimeUnit.SECONDS.toMillis(30));
+                final ManagedProcess member = run(workingDirectory, "mongod",
+                        "--port", String.valueOf(port), "--dbpath",
+                        db.getAbsolutePath(), "--smallfiles", "--replSet",
+                        "rs-" + startPort, "--noprealloc", "--nojournal",
+                        "--oplogSize", "512");
+                myProcesses.add(member);
+
+                member.waitFor(port, TimeUnit.SECONDS.toMillis(30));
                 writer.write(",\n  { _id: " + (i + 1) + ", host: \"localhost:"
                         + port + "\" }");
 
             }
+
             writer.write("\n] })");
+            IOUtils.close(writer);
+
+            final ManagedProcess config = run(workingDirectory, "mongo",
+                    "localhost:" + String.valueOf(startPort + 1) + "/admin",
+                    rsConfig.getAbsolutePath());
+            config.waitFor();
+
+            arbiter.waitFor("is now in state PRIMARY",
+                    TimeUnit.MINUTES.toMillis(3));
+
+            // Each replica will be a secondary at some point.
+            arbiter.waitFor("is now in state SECONDARY", replicas,
+                    TimeUnit.MINUTES.toMillis(3));
+
+            // Wait for everything to be calm.
+            sleep(TimeUnit.SECONDS.toMillis(2));
         }
         catch (final IOException ioe) {
             fail("Could not write the replica set config.", ioe);
@@ -348,21 +441,6 @@ public class ClusterTestSupport {
         finally {
             IOUtils.close(writer);
         }
-
-        run(workingDirectory, "mongo",
-                "localhost:" + String.valueOf(startPort + 1) + "/admin",
-                rsConfig.getAbsolutePath());
-
-        final File log = new File(workingDirectory, "mongod-" + startPort
-                + ".log");
-        waitFor(log, "is now in state PRIMARY", TimeUnit.MINUTES.toMillis(3));
-
-        // Each replica will be a secondary at some point.
-        waitFor(log, "is now in state SECONDARY", replicas,
-                TimeUnit.MINUTES.toMillis(3));
-
-        // Wait for everything to be calm.
-        sleep(TimeUnit.SECONDS.toMillis(2));
     }
 
     /**
@@ -390,45 +468,51 @@ public class ClusterTestSupport {
             writer = new FileWriter(shardsConfig);
 
             final int configPort = startPort + mongos;
-            final File configLog = new File(workingDirectory, "config-"
-                    + configPort + ".log");
             final File configDb = new File(workingDirectory, "config-"
                     + configPort);
             configDb.mkdir();
 
-            run(workingDirectory, "mongod", "--configsvr", "--port",
-                    String.valueOf(configPort), "--fork", "--dbpath",
-                    configDb.getAbsolutePath(), "--logpath",
-                    configLog.getAbsolutePath(), "--nojournal");
-            waitFor(configLog, configPort, TimeUnit.SECONDS.toMillis(30));
+            final ManagedProcess config = run(workingDirectory, "mongod",
+                    "--configsvr", "--port", String.valueOf(configPort),
+                    "--dbpath", configDb.getAbsolutePath(), "--nojournal");
+            myProcesses.add(config);
+            config.waitFor(configPort, TimeUnit.SECONDS.toMillis(30));
 
             for (int i = 0; i < mongos; ++i) {
                 final int port = startPort + i;
-                final File log = new File(workingDirectory, "mongos-" + port
-                        + ".log");
 
-                run(workingDirectory, "mongos", "--port", String.valueOf(port),
-                        "--fork", "--logpath", log.getAbsolutePath(),
-                        "--configdb", "localhost:" + configPort);
-                waitFor(log, port, TimeUnit.SECONDS.toMillis(30));
+                final ManagedProcess mongosProcesss = run(workingDirectory,
+                        "mongos", "--port", String.valueOf(port), "--configdb",
+                        "localhost:" + configPort);
+                myProcesses.add(mongosProcesss);
+                mongosProcesss.waitFor(port, TimeUnit.SECONDS.toMillis(30));
             }
 
             for (int i = 0; i < shards; ++i) {
                 final int port = startPort + i + mongos + 1;
-                final File log = new File(workingDirectory, "mongod-" + port
-                        + ".log");
                 final File db = new File(workingDirectory, "mongod-" + port);
                 db.mkdir();
 
-                run(workingDirectory, "mongod", "--shardsvr", "--port",
-                        String.valueOf(port), "--fork", "--dbpath",
-                        db.getAbsolutePath(), "--smallfiles", "--logpath",
-                        log.getAbsolutePath(), "--noprealloc", "--nojournal");
-                waitFor(log, port, TimeUnit.SECONDS.toMillis(30));
+                final ManagedProcess shard = run(workingDirectory, "mongod",
+                        "--shardsvr", "--port", String.valueOf(port),
+                        "--dbpath", db.getAbsolutePath(), "--smallfiles",
+                        "--noprealloc", "--nojournal");
+                myProcesses.add(shard);
+                shard.waitFor(port, TimeUnit.SECONDS.toMillis(30));
                 writer.write("db.runCommand( { addshard : \"localhost:" + port
                         + "\" } );\n");
-
             }
+
+            IOUtils.close(writer);
+
+            // Add all of the shards.
+            final ManagedProcess init = run(workingDirectory, "mongo",
+                    "localhost:" + String.valueOf(startPort) + "/admin",
+                    shardsConfig.getAbsolutePath());
+            init.waitFor();
+
+            // Wait for everything to be calm.
+            sleep(TimeUnit.SECONDS.toMillis(2));
         }
         catch (final IOException ioe) {
             fail("Could not write the replica set config.", ioe);
@@ -437,12 +521,6 @@ public class ClusterTestSupport {
             IOUtils.close(writer);
         }
 
-        // Add all of the shards.
-        run(workingDirectory, "mongo", "localhost:" + String.valueOf(startPort)
-                + "/admin", shardsConfig.getAbsolutePath());
-
-        // Wait for everything to be calm.
-        sleep(TimeUnit.SECONDS.toMillis(2));
     }
 
     /**
@@ -470,27 +548,26 @@ public class ClusterTestSupport {
             writer = new FileWriter(shardsConfig);
 
             final int configPort = startPort + mongos;
-            final File configLog = new File(workingDirectory, "config-"
-                    + configPort + ".log");
             final File configDb = new File(workingDirectory, "config-"
                     + configPort);
             configDb.mkdir();
 
-            run(workingDirectory, "mongod", "--configsvr", "--port",
-                    String.valueOf(configPort), "--fork", "--dbpath",
-                    configDb.getAbsolutePath(), "--logpath",
-                    configLog.getAbsolutePath(), "--nojournal");
-            waitFor(configLog, configPort, TimeUnit.SECONDS.toMillis(30));
+            final ManagedProcess config = run(workingDirectory, "mongod",
+                    "--configsvr", "--port", String.valueOf(configPort),
+                    "--dbpath", configDb.getAbsolutePath(), "--nojournal");
+            myProcesses.add(config);
+
+            config.waitFor(configPort, TimeUnit.SECONDS.toMillis(30));
 
             for (int i = 0; i < mongos; ++i) {
                 final int port = startPort + i;
-                final File log = new File(workingDirectory, "mongos-" + port
-                        + ".log");
 
-                run(workingDirectory, "mongos", "--port", String.valueOf(port),
-                        "--fork", "--logpath", log.getAbsolutePath(),
-                        "--configdb", "localhost:" + configPort);
-                waitFor(log, port, TimeUnit.SECONDS.toMillis(30));
+                final ManagedProcess mongosProcess = run(workingDirectory,
+                        "mongos", "--port", String.valueOf(port), "--configdb",
+                        "localhost:" + configPort);
+                myProcesses.add(mongosProcess);
+
+                mongosProcess.waitFor(port, TimeUnit.SECONDS.toMillis(30));
             }
 
             final int rsStartPort = startPort + mongos + 1;
@@ -502,6 +579,16 @@ public class ClusterTestSupport {
                 writer.write("db.runCommand( { addshard : \"" + "rs-" + port
                         + "/localhost:" + port + "\" } );\n");
             }
+            IOUtils.close(writer);
+
+            // Add all of the shards.
+            final ManagedProcess init = run(workingDirectory, "mongo",
+                    "localhost:" + String.valueOf(startPort) + "/admin",
+                    shardsConfig.getAbsolutePath());
+            init.waitFor();
+
+            // Wait for everything to be calm.
+            sleep(TimeUnit.SECONDS.toMillis(2));
         }
         catch (final IOException ioe) {
             fail("Could not write the replica set config.", ioe);
@@ -509,13 +596,6 @@ public class ClusterTestSupport {
         finally {
             IOUtils.close(writer);
         }
-
-        // Add all of the shards.
-        run(workingDirectory, "mongo", "localhost:" + String.valueOf(startPort)
-                + "/admin", shardsConfig.getAbsolutePath());
-
-        // Wait for everything to be calm.
-        sleep(TimeUnit.SECONDS.toMillis(2));
     }
 
     /**
@@ -531,15 +611,16 @@ public class ClusterTestSupport {
     protected void startStandAlone(final File workingDirectory, final int port)
             throws AssertionError {
 
-        final File log = new File(workingDirectory, "mongod-" + port + ".log");
         final File db = new File(workingDirectory, "mongod-" + port);
         db.mkdir();
 
-        run(workingDirectory, "mongod", "--port", String.valueOf(port),
-                "--fork", "--dbpath", db.getAbsolutePath(), "--smallfiles",
-                "--logpath", log.getAbsolutePath(), "--noprealloc",
+        final ManagedProcess standalone = run(workingDirectory, "mongod",
+                "--port", String.valueOf(port), "--dbpath",
+                db.getAbsolutePath(), "--smallfiles", "--noprealloc",
                 "--nojournal");
-        waitFor(log, port, TimeUnit.SECONDS.toMillis(30));
+        myProcesses.add(standalone);
+
+        standalone.waitFor(port, TimeUnit.SECONDS.toMillis(30));
 
         // Wait for everything to be calm.
         sleep(TimeUnit.SECONDS.toMillis(1));
@@ -625,5 +706,22 @@ public class ClusterTestSupport {
      */
     protected void waitFor(final File log, final String token, final long waitMs) {
         waitFor(log, token, 1, waitMs);
+    }
+
+    /**
+     * TestDirectoryFilenameFilter provides a file name filter to locate test
+     * directories left behind.
+     * 
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected final static class TestDirectoryFilenameFilter implements
+            FilenameFilter {
+        @Override
+        public boolean accept(final File dir, final String name) {
+            return name.endsWith(DIR_SUFFIX)
+                    && (name.startsWith(STANDALONE_ROOT)
+                            || name.startsWith(REPLICA_SET_ROOT) || name
+                                .startsWith(SHARDED_ROOT));
+        }
     }
 }

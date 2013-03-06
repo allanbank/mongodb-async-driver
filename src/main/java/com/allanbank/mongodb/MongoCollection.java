@@ -20,6 +20,8 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.Text;
+import com.allanbank.mongodb.builder.TextResult;
 
 /**
  * Interface for interacting with a MongoDB collection.
@@ -2073,6 +2075,99 @@ public interface MongoCollection {
      */
     public MongoCursorControl streamingFind(StreamCallback<Document> results,
             Find.Builder query) throws MongoDbException;
+
+    /**
+     * Invokes a {@code text} command on the server.
+     * 
+     * @param command
+     *            The details of the {@code text} request.
+     * @return The {@code text} results returned.
+     * @throws MongoDbException
+     *             On an error executing the {@code text} command.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
+     *      MongoDB Text Queries</a>
+     * @since MongoDB 2.4
+     */
+    public List<TextResult> textSearch(Text command) throws MongoDbException;
+
+    /**
+     * Invokes a {@code text} command on the server.
+     * 
+     * @param command
+     *            The details of the {@code text} request.
+     * @return The {@code text} results returned.
+     * @throws MongoDbException
+     *             On an error executing the {@code text} command.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
+     *      MongoDB Text Queries</a>
+     * @since MongoDB 2.4
+     */
+    public List<TextResult> textSearch(Text.Builder command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a {@code text} command on the server.
+     * 
+     * @param results
+     *            Callback for the {@code text} results returned.
+     * @param command
+     *            The details of the {@code text} request.
+     * @throws MongoDbException
+     *             On an error executing the {@code text} command.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
+     *      MongoDB Text Queries</a>
+     * @since MongoDB 2.4
+     */
+    public void textSearchAsync(Callback<List<TextResult>> results, Text command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a {@code text} command on the server.
+     * 
+     * @param results
+     *            Callback for the {@code text} results returned.
+     * @param command
+     *            The details of the {@code text} request.
+     * @throws MongoDbException
+     *             On an error executing the {@code text} command.
+     */
+    public void textSearchAsync(Callback<List<TextResult>> results,
+            Text.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a {@code text} command on the server.
+     * 
+     * @param command
+     *            The details of the {@code text} request.
+     * @return Future for the {@code text} results returned.
+     * @throws MongoDbException
+     *             On an error executing the {@code text} command.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
+     *      MongoDB Text Queries</a>
+     * @since MongoDB 2.4
+     */
+    public Future<List<TextResult>> textSearchAsync(Text command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a {@code text} command on the server.
+     * 
+     * @param command
+     *            The details of the {@code text} request.
+     * @return Future for the {@code text} results returned.
+     * @throws MongoDbException
+     *             On an error executing the {@code text} command.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
+     *      MongoDB Text Queries</a>
+     * @since MongoDB 2.4
+     */
+    public Future<List<TextResult>> textSearchAsync(Text.Builder command)
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The

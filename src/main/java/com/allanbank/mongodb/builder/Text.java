@@ -13,6 +13,50 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 /**
  * Text provides a wrapper for a {@code text} command to query a collection with
  * a {@link Index#text(String) text index}.
+ * <p>
+ * The result of a {@code text} command is a document that looks like the
+ * following:<blockquote>
+ * 
+ * <pre>
+ * <code>
+ * > db.collection.runCommand( { "text": "collection" , search: "coffee magic" } )
+ * {
+ *     "queryDebugString" : "coffe|magic||||||",
+ *     "language" : "english",
+ *     "results" : [
+ *         {
+ *             "score" : 2.25,
+ *             "obj" : {
+ *                 "_id" : ObjectId("51376ab8602c316554cfe248"),
+ *                 "content" : "Coffee is full of magical powers."
+ *             }
+ *         },
+ *         {
+ *             "score" : 0.625,
+ *             "obj" : {
+ *                 "_id" : ObjectId("51376a80602c316554cfe246"),
+ *                 "content" : "Now is the time to drink all of the coffee."
+ *             }
+ *         }
+ *     ],
+ *     "stats" : {
+ *         "nscanned" : 3,
+ *         "nscannedObjects" : 0,
+ *         "n" : 2,
+ *         "nfound" : 2,
+ *         "timeMicros" : 97
+ *     },
+ *     "ok" : 1
+ * }
+ * </code>
+ * </pre>
+ * 
+ * </blockquote>
+ * </p>
+ * <p>
+ * The {@link TextResult} class wraps a single entry from the {@code results}
+ * array.
+ * </p>
  * 
  * @api.no <b>This class is NOT part of the Public API.</b> This class may be
  *         mutated in incompatible ways between any two releases of the driver.

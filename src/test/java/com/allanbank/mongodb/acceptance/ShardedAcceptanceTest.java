@@ -5,10 +5,10 @@
 
 package com.allanbank.mongodb.acceptance;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.junit.Assert.assertThat;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -74,8 +74,8 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        assertEquals(Arrays.asList(TEST_DB_NAME, "config"),
-                myMongo.listDatabaseNames());
+        assertThat(myMongo.listDatabaseNames(),
+                hasItems(TEST_DB_NAME, "config"));
 
         try {
             // Stop the main mongos.

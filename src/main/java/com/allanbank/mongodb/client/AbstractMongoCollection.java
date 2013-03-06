@@ -30,6 +30,8 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.Text;
+import com.allanbank.mongodb.builder.TextResult;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.util.FutureUtils;
@@ -1787,6 +1789,87 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final StreamCallback<Document> results, final Find.Builder query)
             throws MongoDbException {
         return streamingFind(results, query.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #textSearchAsync(Text)}.
+     * </p>
+     * 
+     * @see #textSearchAsync(Text)
+     */
+    @Override
+    public List<TextResult> textSearch(final Text command)
+            throws MongoDbException {
+        return FutureUtils.unwrap(textSearchAsync(command));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #textSearch(Text)}.
+     * </p>
+     */
+    @Override
+    public List<TextResult> textSearch(final Text.Builder command)
+            throws MongoDbException {
+        return textSearch(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>textSearch</code> method that implementations
+     * must override.
+     * </p>
+     * 
+     * @see MongoCollection#textSearchAsync(Callback, Text)
+     */
+    @Override
+    public abstract void textSearchAsync(Callback<List<TextResult>> results,
+            Text command) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #textSearchAsync(Callback, Text)}.
+     * </p>
+     */
+    @Override
+    public void textSearchAsync(final Callback<List<TextResult>> results,
+            final Text.Builder command) throws MongoDbException {
+        textSearchAsync(results, command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #textSearchAsync(Callback, Text)}.
+     * </p>
+     * 
+     * @see #textSearchAsync(Callback, Text)
+     */
+    @Override
+    public Future<List<TextResult>> textSearchAsync(final Text command)
+            throws MongoDbException {
+        final FutureCallback<List<TextResult>> future = new FutureCallback<List<TextResult>>();
+
+        textSearchAsync(future, command);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #textSearchAsync(Text)}.
+     * </p>
+     */
+    @Override
+    public Future<List<TextResult>> textSearchAsync(final Text.Builder command)
+            throws MongoDbException {
+        return textSearchAsync(command.build());
     }
 
     /**

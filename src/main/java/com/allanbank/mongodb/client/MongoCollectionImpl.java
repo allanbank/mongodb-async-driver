@@ -33,6 +33,8 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.Text;
+import com.allanbank.mongodb.builder.TextResult;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Delete;
@@ -95,7 +97,6 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference);
         myClient.send(commandMsg, new ReplyResultCallback("result", results));
-
     }
 
     /**
@@ -610,6 +611,44 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         callback.setAddress(address);
 
         return callback;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to construct a text command and send it to the server.
+     * </p>
+     * 
+     * @see MongoCollection#textSearchAsync(Callback, Text)
+     */
+    @Override
+    public void textSearchAsync(final Callback<List<TextResult>> results,
+            final Text command) throws MongoDbException {
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        builder.addString("text", getName());
+        builder.addString("search", command.getSearchTerm());
+        if (command.getQuery() != null) {
+            builder.add("filter", command.getQuery());
+        }
+        if (command.getLimit() > 0) {
+            builder.add("limit", command.getLimit());
+        }
+        if (command.getReturnFields() != null) {
+            builder.add("project", command.getReturnFields());
+        }
+        if (command.getLanguage() != null) {
+            builder.add("language", command.getLanguage());
+        }
+
+        // Should be last since might wrap command in a $query element.
+        final ReadPreference readPreference = updateReadPreference(builder,
+                command.getReadPreference(), true);
+
+        final Command commandMsg = new Command(getDatabaseName(),
+                builder.build(), readPreference);
+        myClient.send(commandMsg, new ReplyResultCallback(new TextCallback(
+                results)));
     }
 
     /**

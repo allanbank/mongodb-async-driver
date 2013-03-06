@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.client;
 
 import static com.allanbank.mongodb.AnswerCallback.callback;
+import static com.allanbank.mongodb.builder.QueryBuilder.where;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
@@ -55,6 +56,8 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Sort;
+import com.allanbank.mongodb.builder.Text;
+import com.allanbank.mongodb.builder.TextResult;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Delete;
@@ -4834,6 +4837,80 @@ public class MongoCollectionImplTest {
         myTestInstance.streamingFind(mockCallback, request);
 
         verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#textSearch(Text)} .
+     */
+    @Test
+    public void testTextSearchFull() {
+        final Text command = Text.builder().searchTerm("bar").language("l")
+                .limit(10).query(where("f").equals(false))
+                .readPreference(ReadPreference.PREFER_SECONDARY)
+                .returnFields(BuilderFactory.start().add("f", 1).add("_id", 0))
+                .build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("results").push();
+        value.addInteger("score", 1);
+        value.push("obj").add("a", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("text", "test");
+        expectedCommand.addString("search", "bar");
+        expectedCommand.add("filter", where("f").equals(false).build());
+        expectedCommand.addInteger("limit", 10);
+        expectedCommand.add("project",
+                BuilderFactory.start().add("f", 1).add("_id", 0).build());
+        expectedCommand.addString("language", "l");
+
+        final Command message = new Command("test", expectedCommand.build(),
+                ReadPreference.PREFER_SECONDARY);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Collections.singletonList(new TextResult(value)),
+                myTestInstance.textSearch(command));
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#textSearch(Text)} .
+     */
+    @Test
+    public void testTextSearchMinimal() {
+        final Text command = Text.builder().searchTerm("foo").build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("results").push();
+        value.addInteger("score", 1);
+        value.push("obj").add("a", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("text", "test");
+        expectedCommand.addString("search", "foo");
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Collections.singletonList(new TextResult(value)),
+                myTestInstance.textSearch(command));
+
+        verify();
     }
 
     /**

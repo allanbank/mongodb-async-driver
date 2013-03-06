@@ -24,6 +24,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.error.CannotConnectException;
+import com.allanbank.mongodb.error.ConnectionLostException;
 
 /**
  * StandAloneAcceptanceTest performs acceptance tests for the driver against a
@@ -103,6 +104,9 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
             fail("Should have thrown an exception.");
         }
         catch (final CannotConnectException good) {
+            // Good.
+        }
+        catch (final ConnectionLostException good) {
             // Good.
         }
         finally {

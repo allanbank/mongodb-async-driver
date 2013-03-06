@@ -15,8 +15,10 @@ import static com.allanbank.mongodb.builder.Sort.desc;
 import static com.allanbank.mongodb.builder.expression.Expressions.constant;
 import static com.allanbank.mongodb.builder.expression.Expressions.field;
 import static com.allanbank.mongodb.builder.expression.Expressions.set;
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -82,6 +84,8 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
+import com.allanbank.mongodb.builder.Text;
+import com.allanbank.mongodb.builder.TextResult;
 import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -754,7 +758,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         // Pause for the config server to update.
         if (isShardedConfiguration()) {
-            Thread.sleep(250);
+            long now = System.currentTimeMillis();
+            final long deadline = now + TimeUnit.SECONDS.toMillis(30);
+            while ((now < deadline)
+                    && myMongo.listDatabaseNames().contains(TEST_DB_NAME)) {
+                Thread.sleep(50);
+                now = System.currentTimeMillis();
+            }
         }
 
         names = myMongo.listDatabaseNames();
@@ -6426,6 +6436,81 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies the function of the {@link Text text} command.
+     * 
+     * <pre>
+     * <code>
+     * > db.collection.find()
+     * { "_id" : ObjectId("51376a80602c316554cfe246"), "content" : "Now is the time to drink all of the coffee." }
+     * { "_id" : ObjectId("51376a89602c316554cfe247"), "content" : "Now is the time to drink all of the tea!" }
+     * { "_id" : ObjectId("51376ab8602c316554cfe248"), "content" : "Coffee is full of magical powers." }
+     * > db.collection.runCommand( { "text": "collection" , search: "coffee magic" } )
+     * {
+     *     "queryDebugString" : "coffe|magic||||||",
+     *     "language" : "english",
+     *     "results" : [
+     *         {
+     *             "score" : 2.25,
+     *             "obj" : {
+     *                 "_id" : ObjectId("51376ab8602c316554cfe248"),
+     *                 "content" : "Coffee is full of magical powers."
+     *             }
+     *         },
+     *         {
+     *             "score" : 0.625,
+     *             "obj" : {
+     *                 "_id" : ObjectId("51376a80602c316554cfe246"),
+     *                 "content" : "Now is the time to drink all of the coffee."
+     *             }
+     *         }
+     *     ],
+     *     "stats" : {
+     *         "nscanned" : 3,
+     *         "nscannedObjects" : 0,
+     *         "n" : 2,
+     *         "nfound" : 2,
+     *         "timeMicros" : 97
+     *     },
+     *     "ok" : 1
+     * }
+     * </code>
+     * </pre>
+     */
+    public void testTextSearch() {
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        // Need the text index.
+        myCollection.createIndex(Index.text("content"));
+
+        // ... and some content.
+        myCollection.insert(
+                Durability.ACK,
+                builder.reset().add("content",
+                        "Now is the time to drink all of the coffee."));
+        myCollection.insert(
+                Durability.ACK,
+                builder.reset().add("content",
+                        "Now is the time to drink all of the tea!"));
+        myCollection.insert(
+                Durability.ACK,
+                builder.reset().add("content",
+                        "Coffee is full of magical powers."));
+
+        final List<TextResult> results = myCollection.textSearch(Text.builder()
+                .searchTerm("coffee magic"));
+        assertThat(results.size(), is(2));
+
+        final TextResult first = results.get(0);
+        assertThat(first.getDocument().get(StringElement.class, "content"),
+                is(new StringElement("content",
+                        "Coffee is full of magical powers.")));
+        final TextResult second = results.get(0);
+        assertThat(second.getDocument().get(StringElement.class, "content"),
+                is(new StringElement("content",
+                        "Now is the time to drink all of the coffee.")));
+    }
+
+    /**
      * Verifies performing updates on documents.
      */
     @Test
@@ -6518,8 +6603,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
             result = myCollection.updateOptions(BuilderFactory.start().add(
                     "usePowerOf2Sizes", true));
-            assertEquals(new BooleanElement("usePowerOf2Sizes_old", true),
-                    result.get("usePowerOf2Sizes_old"));
+
+            // 2.4 returns null.
+            assertThat(
+                    result.get("usePowerOf2Sizes_old"),
+                    anyOf(is((Element) new BooleanElement(
+                            "usePowerOf2Sizes_old", true)),
+                            nullValue(Element.class)));
 
             result = myCollection.updateOptions(BuilderFactory.start().add(
                     "usePowerOf2Sizes", false));
