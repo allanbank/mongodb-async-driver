@@ -832,6 +832,50 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies submitting a findAndModify command.
+     */
+    @Test
+    public void testFindAndModifyWithNonExistantDocumentAndNoUpsert() {
+
+        final DocumentBuilder query = BuilderFactory.start();
+        query.addInteger("_id", 5);
+
+        final DocumentBuilder update = BuilderFactory.start();
+        update.push("$inc").addInteger("i", 1);
+
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(query.build());
+        builder.setUpdate(update.build());
+        builder.setReturnNew(true);
+
+        final Document newDoc = myCollection.findAndModify(builder.build());
+        assertNull(newDoc);
+    }
+
+    /**
+     * Verifies submitting a findAndModify command.
+     */
+    @Test
+    public void testFindAndModifyWithUpsert() {
+
+        final DocumentBuilder query = BuilderFactory.start();
+        query.addInteger("_id", 0);
+
+        final DocumentBuilder update = BuilderFactory.start();
+        update.push("$inc").addInteger("i", 1);
+
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(query.build());
+        builder.setUpdate(update.build());
+        builder.upsert();
+        builder.setReturnNew(true);
+
+        final Document newDoc = myCollection.findAndModify(builder.build());
+        assertNotNull(newDoc);
+        assertEquals(new IntegerElement("i", 1), newDoc.get("i"));
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#and}.
      */
     @Test

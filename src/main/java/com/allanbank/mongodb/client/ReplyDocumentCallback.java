@@ -76,6 +76,10 @@ import com.allanbank.mongodb.error.ReplyException;
                 error = new ReplyException(reply,
                         "Should only be a single document in the reply.");
             }
+            else if (reply.getResults().get(0).get(myName) == null) {
+                error = new ReplyException(reply, "No '" + myName
+                        + "' document in the reply.");
+            }
         }
         return error;
     }
@@ -92,12 +96,12 @@ import com.allanbank.mongodb.error.ReplyException;
     protected Document convert(final Reply reply) throws MongoDbException {
         final List<Document> results = reply.getResults();
         if (results.size() == 1) {
-            List<DocumentElement> elements = results.get(0).find(
+            final DocumentElement element = results.get(0).get(
                     DocumentElement.class, myName);
-            if (elements.isEmpty()) {
+            if (element == null) {
                 return null;
             }
-            return elements.get(0).getDocument();
+            return element.getDocument();
         }
 
         return null;
