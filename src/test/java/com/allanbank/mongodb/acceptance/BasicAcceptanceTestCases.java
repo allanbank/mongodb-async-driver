@@ -6476,6 +6476,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * </code>
      * </pre>
      */
+    @Test
     public void testTextSearch() {
         final DocumentBuilder builder = BuilderFactory.start();
 
@@ -6496,8 +6497,21 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 builder.reset().add("content",
                         "Coffee is full of magical powers."));
 
-        final List<TextResult> results = myCollection.textSearch(Text.builder()
-                .searchTerm("coffee magic"));
+        List<TextResult> results = Collections.emptyList();
+        try {
+            results = myCollection.textSearch(Text.builder().searchTerm(
+                    "coffee magic"));
+        }
+        catch (ReplyException error) {
+            // Check if we are talking to a recent MongoDB instance.
+            final String message = error.getMessage();
+
+            assumeTrue(!message.contains("no such cmd: text")
+                    && !message.contains("unrecognized command: text"));
+
+            throw error;
+        }
+
         assertThat(results.size(), is(2));
 
         final TextResult first = results.get(0);
