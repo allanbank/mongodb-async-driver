@@ -1259,6 +1259,47 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Geospatial query for documents whose field intersects the specified
+     * {@link GeoJson GeoJSON} specified geometry.
+     * <p>
+     * This method is designed to be use with a GeoJSON document constructed
+     * with the {@link GeoJson} class<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {@link QueryBuilder#where where}("geo").intersects({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $geoIntersects} operator requires a
+     * {@link Index#geo2dSphere(String) 2dsphere} index.
+     * </p>
+     * <p>
+     * Only a single {@link #intersects} comparison can be used. Calling
+     * multiple <tt>intersects(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param geoJsonDoc
+     *            The GeoJSON document describing the geometry.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder intersects(final DocumentAssignable geoJsonDoc) {
+        myEqualsComparison = null;
+
+        myOtherComparisons.put(GeospatialOperator.INTERSECT,
+                new DocumentElement(GeospatialOperator.INTERSECT.getToken(),
+                        new DocumentElement(GeospatialOperator.GEOMETRY,
+                                geoJsonDoc.asDocument())));
+
+        return this;
+    }
+
+    /**
      * Checks if the value is less than the specified <tt>value</tt>.
      * <p>
      * Only a single {@link #lessThan(int) lessThan(...)} comparison can be
@@ -1785,6 +1826,102 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Geospatial query for documents whose field is near the specified
+     * {@link GeoJson GeoJSON} specified geometry.
+     * <p>
+     * This method is designed to be use with a GeoJSON document constructed
+     * with the {@link GeoJson} class<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {@link QueryBuilder#where where}("geo").near({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator with a GeoJSON document requires
+     * a {@link Index#geo2dSphere(String) 2dsphere} index.
+     * </p>
+     * <p>
+     * Only a single {@link #near} comparison can be used. Calling multiple
+     * <tt>near(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param geoJsonDoc
+     *            The GeoJSON document describing the geometry.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder near(final DocumentAssignable geoJsonDoc) {
+        myEqualsComparison = null;
+        myOtherComparisons.put(GeospatialOperator.NEAR, new DocumentElement(
+                GeospatialOperator.NEAR.getToken(), new DocumentElement(
+                        GeospatialOperator.GEOMETRY, geoJsonDoc.asDocument())));
+        System.out.println(myOtherComparisons);
+        myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
+
+        return this;
+    }
+
+    /**
+     * Geospatial query for documents whose field is near the specified
+     * {@link GeoJson GeoJSON} specified geometry.
+     * <p>
+     * This method is designed to be use with a GeoJSON document constructed
+     * with the {@link GeoJson} class<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {@link QueryBuilder#where where}("geo").near({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ), 42 );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator with a GeoJSON document requires
+     * a {@link Index#geo2dSphere(String) 2dsphere} index.
+     * </p>
+     * <p>
+     * Only a single {@link #near} comparison can be used. Calling multiple
+     * <tt>near(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param geoJsonDoc
+     *            The GeoJSON document describing the geometry.
+     * @param maxDistance
+     *            Limits to documents returned to those within the specified
+     *            maximum distance.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder near(final DocumentAssignable geoJsonDoc,
+            final double maxDistance) {
+        myEqualsComparison = null;
+        myOtherComparisons.put(GeospatialOperator.NEAR, new DocumentElement(
+                GeospatialOperator.NEAR.getToken(), new DocumentElement(
+                        GeospatialOperator.GEOMETRY, geoJsonDoc.asDocument())));
+        myOtherComparisons.put(
+                GeospatialOperator.MAX_DISTANCE_MODIFIER,
+                new DoubleElement(GeospatialOperator.MAX_DISTANCE_MODIFIER
+                        .getToken(), maxDistance));
+
+        return this;
+    }
+
+    /**
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates.
      * <p>
@@ -1796,10 +1933,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * clusters.
      * </p>
      * <p>
-     * Only a single {@link #near(int, int)} comparison can be used. Calling
-     * multiple <tt>near(...)</tt> methods overwrites previous values. In
-     * addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #near} comparison can be used. Calling multiple
+     * <tt>near(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -1830,10 +1967,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * clusters.
      * </p>
      * <p>
-     * Only a single {@link #near(int, int)} comparison can be used. Calling
-     * multiple <tt>near(...)</tt> methods overwrites previous values. In
-     * addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #near} comparison can be used. Calling multiple
+     * <tt>near(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -1871,10 +2008,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * clusters.
      * </p>
      * <p>
-     * Only a single {@link #near(int, int)} comparison can be used. Calling
-     * multiple <tt>near(...)</tt> methods overwrites previous values. In
-     * addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #near} comparison can be used. Calling multiple
+     * <tt>near(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -1905,10 +2042,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * clusters.
      * </p>
      * <p>
-     * Only a single {@link #near(int, int)} comparison can be used. Calling
-     * multiple <tt>near(...)</tt> methods overwrites previous values. In
-     * addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #near} comparison can be used. Calling multiple
+     * <tt>near(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -1945,10 +2082,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * clusters.
      * </p>
      * <p>
-     * Only a single {@link #near(int, int)} comparison can be used. Calling
-     * multiple <tt>near(...)</tt> methods overwrites previous values. In
-     * addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #near} comparison can be used. Calling multiple
+     * <tt>near(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -1979,10 +2116,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * clusters.
      * </p>
      * <p>
-     * Only a single {@link #near(int, int)} comparison can be used. Calling
-     * multiple <tt>near(...)</tt> methods overwrites previous values. In
-     * addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #near} comparison can be used. Calling multiple
+     * <tt>near(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -2009,6 +2146,103 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Geospatial query for documents whose field is near the specified
+     * {@link GeoJson GeoJSON} specified geometry on a sphere.
+     * <p>
+     * This method is designed to be use with a GeoJSON document constructed
+     * with the {@link GeoJson} class<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {@link QueryBuilder#where where}("geo").nearSphere({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $nearSphere} operator is not supported with
+     * sharded clusters.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $nearSphere} operator with a GeoJSON document
+     * requires a {@link Index#geo2dSphere(String) 2dsphere} index.
+     * </p>
+     * <p>
+     * Only a single {@link #nearSphere} comparison can be used. Calling
+     * multiple <tt>near(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param geoJsonDoc
+     *            The GeoJSON document describing the geometry.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder nearSphere(final DocumentAssignable geoJsonDoc) {
+        myEqualsComparison = null;
+        myOtherComparisons.put(GeospatialOperator.NEAR_SPHERE,
+                new DocumentElement(GeospatialOperator.NEAR_SPHERE.getToken(),
+                        new DocumentElement(GeospatialOperator.GEOMETRY,
+                                geoJsonDoc.asDocument())));
+        myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
+
+        return this;
+    }
+
+    /**
+     * Geospatial query for documents whose field is near the specified
+     * {@link GeoJson GeoJSON} specified geometry on a sphere.
+     * <p>
+     * This method is designed to be use with a GeoJSON document constructed
+     * with the {@link GeoJson} class<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {@link QueryBuilder#where where}("geo").nearSphere({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ), 42 );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $nearSphere} operator is not supported with
+     * sharded clusters.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $nearSphere} operator with a GeoJSON document
+     * requires a {@link Index#geo2dSphere(String) 2dsphere} index.
+     * </p>
+     * <p>
+     * Only a single {@link #nearSphere} comparison can be used. Calling
+     * multiple <tt>near(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param geoJsonDoc
+     *            The GeoJSON document describing the geometry.
+     * @param maxDistance
+     *            Limits to documents returned to those within the specified
+     *            maximum distance.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder nearSphere(final DocumentAssignable geoJsonDoc,
+            final double maxDistance) {
+        myEqualsComparison = null;
+        myOtherComparisons.put(GeospatialOperator.NEAR_SPHERE,
+                new DocumentElement(GeospatialOperator.NEAR_SPHERE.getToken(),
+                        new DocumentElement(GeospatialOperator.GEOMETRY,
+                                geoJsonDoc.asDocument())));
+        myOtherComparisons.put(
+                GeospatialOperator.MAX_DISTANCE_MODIFIER,
+                new DoubleElement(GeospatialOperator.MAX_DISTANCE_MODIFIER
+                        .getToken(), maxDistance));
+
+        return this;
+    }
+
+    /**
      * Geospatial query for documents whose field is near the specified [
      * <tt>x</tt>, <tt>y</tt>] coordinates on a sphere.
      * <p>
@@ -2017,14 +2251,14 @@ public class ConditionBuilder implements DocumentAssignable {
      * a {@link QueryFailedException}.
      * </p>
      * <p>
-     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
-     * clusters.
+     * <b>NOTE: </b> The {@code $nearSphere} operator is not supported with
+     * sharded clusters.
      * </p>
      * <p>
-     * Only a single {@link #nearSphere(int, int)} comparison can be used.
-     * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #nearSphere} comparison can be used. Calling
+     * multiple <tt>nearSphere(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -2052,14 +2286,14 @@ public class ConditionBuilder implements DocumentAssignable {
      * a {@link QueryFailedException}.
      * </p>
      * <p>
-     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
-     * clusters.
+     * <b>NOTE: </b> The {@code $nearSphere} operator is not supported with
+     * sharded clusters.
      * </p>
      * <p>
-     * Only a single {@link #nearSphere(int, int)} comparison can be used.
-     * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #nearSphere} comparison can be used. Calling
+     * multiple <tt>nearSphere(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -2094,14 +2328,14 @@ public class ConditionBuilder implements DocumentAssignable {
      * a {@link QueryFailedException}.
      * </p>
      * <p>
-     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
-     * clusters.
+     * <b>NOTE: </b> The {@code $nearSphere} operator is not supported with
+     * sharded clusters.
      * </p>
      * <p>
-     * Only a single {@link #nearSphere(int, int)} comparison can be used.
-     * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #nearSphere} comparison can be used. Calling
+     * multiple <tt>nearSphere(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -2130,14 +2364,14 @@ public class ConditionBuilder implements DocumentAssignable {
      * a {@link QueryFailedException}.
      * </p>
      * <p>
-     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
-     * clusters.
+     * <b>NOTE: </b> The {@code $nearSphere} operator is not supported with
+     * sharded clusters.
      * </p>
      * <p>
-     * Only a single {@link #nearSphere(int, int)} comparison can be used.
-     * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #nearSphere} comparison can be used. Calling
+     * multiple <tt>nearSphere(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -2173,14 +2407,14 @@ public class ConditionBuilder implements DocumentAssignable {
      * a {@link QueryFailedException}.
      * </p>
      * <p>
-     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
-     * clusters.
+     * <b>NOTE: </b> The {@code $nearSphere} operator is not supported with
+     * sharded clusters.
      * </p>
      * <p>
-     * Only a single {@link #nearSphere(int, int)} comparison can be used.
-     * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #nearSphere} comparison can be used. Calling
+     * multiple <tt>nearSphere(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -2208,14 +2442,14 @@ public class ConditionBuilder implements DocumentAssignable {
      * a {@link QueryFailedException}.
      * </p>
      * <p>
-     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
-     * clusters.
+     * <b>NOTE: </b> The {@code $nearSphere} operator is not supported with
+     * sharded clusters.
      * </p>
      * <p>
-     * Only a single {@link #nearSphere(int, int)} comparison can be used.
-     * Calling multiple <tt>nearSphere(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #nearSphere} comparison can be used. Calling
+     * multiple <tt>nearSphere(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -2808,10 +3042,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param uniqueDocs
@@ -2850,6 +3084,127 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Geospatial query for documents whose field is near the specified
+     * {@link GeoJson GeoJSON} specified geometry.
+     * <p>
+     * This method is designed to be use with a GeoJSON document constructed
+     * with the {@link GeoJson} class<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {@link QueryBuilder#where where}("geo").near({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator is not supported with sharded
+     * clusters.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $near} operator with a GeoJSON document requires
+     * a {@link Index#geo2dSphere(String) 2dsphere} index.
+     * </p>
+     * <p>
+     * Only a single {@link #near} comparison can be used. Calling multiple
+     * <tt>near(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param geoJsonDoc
+     *            The GeoJSON document describing the geometry.
+     * @return The condition builder for chaining method calls.
+     */
+
+    /**
+     * Geospatial query for documents whose field is within the specified
+     * {@link GeoJson GeoJSON} specified geometry.
+     * <p>
+     * This method is designed to be use with a GeoJSON document constructed
+     * with the {@link GeoJson} class<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {@link QueryBuilder#where where}("geo").within({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $within} operator with a GeoJSON document
+     * requires a {@link Index#geo2dSphere(String) 2dsphere} index.
+     * </p>
+     * <p>
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param geoJsonDoc
+     *            The GeoJSON document describing the geometry.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder within(final DocumentAssignable geoJsonDoc) {
+        myEqualsComparison = null;
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), new DocumentElement(
+                        GeospatialOperator.GEOMETRY, geoJsonDoc.asDocument())));
+
+        return this;
+    }
+
+    /**
+     * Geospatial query for documents whose field is within the specified
+     * {@link GeoJson GeoJSON} specified geometry.
+     * <p>
+     * This method is designed to be use with a GeoJSON document constructed
+     * with the {@link GeoJson} class<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {@link QueryBuilder#where where}("geo").within({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ), true );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $within} operator with a GeoJSON document
+     * requires a {@link Index#geo2dSphere(String) 2dsphere} index.
+     * </p>
+     * <p>
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param geoJsonDoc
+     *            The GeoJSON document describing the geometry.
+     * @param uniqueDocs
+     *            Controls if documents are returned multiple times for multiple
+     *            matching conditions.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder within(final DocumentAssignable geoJsonDoc,
+            final boolean uniqueDocs) {
+        myEqualsComparison = null;
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), new DocumentElement(
+                        GeospatialOperator.GEOMETRY, geoJsonDoc.asDocument()),
+                new BooleanElement(GeospatialOperator.UNIQUE_DOCS_MODIFIER,
+                        uniqueDocs)));
+
+        return this;
+    }
+
+    /**
      * Geospatial query for documents whose field is within the specified
      * bounding circular region.
      * <p>
@@ -2857,10 +3212,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -2884,10 +3239,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -2925,10 +3280,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x1
@@ -2954,10 +3309,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x1
@@ -2997,10 +3352,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -3023,10 +3378,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -3064,10 +3419,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x1
@@ -3093,10 +3448,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x1
@@ -3138,10 +3493,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -3164,10 +3519,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -3205,10 +3560,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x1
@@ -3234,10 +3589,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x1
@@ -3277,10 +3632,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * [-180, 180) or the query will throw a {@link QueryFailedException}.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>within(...)</tt> methods overwrites previous values.
-     * In addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>within(...)</tt> methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param p1
@@ -3311,10 +3666,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * wrap since that has not been implemented yet within MongoDB.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>withinXXX(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -3343,10 +3698,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * wrap since that has not been implemented yet within MongoDB.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>withinXXX(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -3390,10 +3745,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * wrap since that has not been implemented yet within MongoDB.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>withinXXX(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -3422,10 +3777,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * wrap since that has not been implemented yet within MongoDB.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>withinXXX(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -3469,10 +3824,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * wrap since that has not been implemented yet within MongoDB.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>withinXXX(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x
@@ -3501,10 +3856,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * wrap since that has not been implemented yet within MongoDB.
      * </p>
      * <p>
-     * Only a single {@link #within(int, int, int, int)} comparison can be used.
-     * Calling multiple <tt>withinXXX(...)</tt> methods overwrites previous
-     * values. In addition any {@link #equals(boolean) equals(...)} condition is
-     * removed since no equality operator is supported by MongoDB.
+     * Only a single {@link #within} comparison can be used. Calling multiple
+     * <tt>withinXXX(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param x

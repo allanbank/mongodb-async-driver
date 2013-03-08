@@ -16,6 +16,9 @@ package com.allanbank.mongodb.builder;
  */
 public enum GeospatialOperator implements Operator {
 
+    /** Operator to return documents that intersect the GeoJSON shape. */
+    INTERSECT("$geoIntersects"),
+
     /**
      * The modifier for the {@link #NEAR} operator to limit the documents
      * returned based on their distance from the the center point.
@@ -36,6 +39,9 @@ public enum GeospatialOperator implements Operator {
 
     /** The name for the circular region with a {@link #WITHIN} query. */
     public static final String CIRCLE = "$center";
+
+    /** The name for the GeoJSON region with a {@link #INTERSECT} query. */
+    public static final String GEOMETRY = "$geometry";
 
     /** The name for the polygon region with a {@link #WITHIN} query. */
     public static final String POLYGON = "$polygon";

@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
+import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.NullElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
@@ -98,6 +99,24 @@ public interface ArrayBuilder extends Builder {
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder add(DocumentAssignable document);
+
+    /**
+     * Adds a pre-constructed {@link DocumentElement} to the array.
+     * <p>
+     * This is a equivalent to {@link #addDocument(DocumentAssignable)} but will
+     * insert a {@link NullElement} if the {@code document} is <code>null</code>
+     * instead of throwing an {@link IllegalArgumentException}.
+     * </p>
+     * <p>
+     * Added to resolve ambiguity between the {@link DocumentElement} being both
+     * a {@link DocumentAssignable} and an {@link ElementAssignable}.
+     * </p>
+     * 
+     * @param document
+     *            The document to add to the array.
+     * @return This {@link ArrayBuilder} for method chaining.
+     */
+    public ArrayBuilder add(DocumentElement document);
 
     /**
      * Adds a double element.

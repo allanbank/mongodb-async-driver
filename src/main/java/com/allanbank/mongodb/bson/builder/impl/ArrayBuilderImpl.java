@@ -115,6 +115,17 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * {@inheritDoc}
      */
     @Override
+    public ArrayBuilder add(final DocumentElement document) {
+        if (document == null) {
+            return addNull();
+        }
+        return addDocument(document);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public ArrayBuilder add(final double value) {
         return addDouble(value);
     }

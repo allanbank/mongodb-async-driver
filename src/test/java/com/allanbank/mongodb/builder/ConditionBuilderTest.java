@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import java.awt.geom.Point2D;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -1279,6 +1280,37 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#intersects(DocumentAssignable)}.
+     */
+    @Test
+    public void testIntersects() {
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final double x1 = myRandom.nextInt(1024);
+        final double y1 = myRandom.nextInt(1024);
+        final double x2 = x1 + myRandom.nextInt(1024);
+        final double y2 = y1 + myRandom.nextInt(1024);
+
+        b.equals(false); // Make sure equals is removed.
+        b.intersects(GeoJson.polygon(Arrays.asList(GeoJson.p(x1, y1),
+                GeoJson.p(x1, y2), GeoJson.p(x2, y2), GeoJson.p(x2, y1),
+                GeoJson.p(x1, y1))));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        final DocumentBuilder ib = db.push(GeospatialOperator.INTERSECT
+                .getToken());
+        ib.add(GeospatialOperator.GEOMETRY, GeoJson.polygon(Arrays.asList(
+                GeoJson.p(x1, y1), GeoJson.p(x1, y2), GeoJson.p(x2, y2),
+                GeoJson.p(x2, y1), GeoJson.p(x1, y1))));
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#lessThan(byte[])}.
      */
     @Test
@@ -1821,6 +1853,57 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#near(DocumentAssignable)}.
+     */
+    @Test
+    public void testNearDocumentAssignable() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final double v1 = myRandom.nextDouble();
+        final double v2 = myRandom.nextDouble();
+
+        b.equals(false); // Make sure equals is removed.
+        b.near(GeoJson.point(GeoJson.p(v1, v2)));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.push(GeospatialOperator.NEAR.getToken()).add(
+                GeospatialOperator.GEOMETRY, GeoJson.point(GeoJson.p(v1, v2)));
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#near(DocumentAssignable,double)}.
+     */
+    @Test
+    public void testNearDocumentAssignableDouble() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final double v1 = myRandom.nextDouble();
+        final double v2 = myRandom.nextDouble();
+
+        b.equals(false); // Make sure equals is removed.
+        b.near(GeoJson.point(GeoJson.p(v1, v2)), 42.1);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.push(GeospatialOperator.NEAR.getToken()).add(
+                GeospatialOperator.GEOMETRY, GeoJson.point(GeoJson.p(v1, v2)));
+        db.add(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), 42.1);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#near(double, double)}.
      */
     @Test
@@ -1868,6 +1951,7 @@ public class ConditionBuilderTest {
         db.pushArray(GeospatialOperator.NEAR.getToken()).addDouble(v1)
                 .addDouble(v2);
         db.addDouble(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
+        assertEquals(new DocumentElement("foo", db.build()), e);
     }
 
     /**
@@ -1918,6 +2002,8 @@ public class ConditionBuilderTest {
         db.pushArray(GeospatialOperator.NEAR.getToken()).addInteger(v1)
                 .addInteger(v2);
         db.addInteger(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
     }
 
     /**
@@ -1968,6 +2054,60 @@ public class ConditionBuilderTest {
         db.pushArray(GeospatialOperator.NEAR.getToken()).addLong(v1)
                 .addLong(v2);
         db.addLong(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#nearSphere(DocumentAssignable)}.
+     */
+    @Test
+    public void testNearSphereDocumentAssignable() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final double v1 = myRandom.nextDouble();
+        final double v2 = myRandom.nextDouble();
+
+        b.equals(false); // Make sure equals is removed.
+        b.nearSphere(GeoJson.point(GeoJson.p(v1, v2)));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.push(GeospatialOperator.NEAR_SPHERE.getToken()).add(
+                GeospatialOperator.GEOMETRY, GeoJson.point(GeoJson.p(v1, v2)));
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#nearSphere(DocumentAssignable,double)}.
+     */
+    @Test
+    public void testNearSphereDocumentAssignableDouble() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final double v1 = myRandom.nextDouble();
+        final double v2 = myRandom.nextDouble();
+
+        b.equals(false); // Make sure equals is removed.
+        b.nearSphere(GeoJson.point(GeoJson.p(v1, v2)), 42.1);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.push(GeospatialOperator.NEAR_SPHERE.getToken()).add(
+                GeospatialOperator.GEOMETRY, GeoJson.point(GeoJson.p(v1, v2)));
+        db.add(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), 42.1);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
     }
 
     /**
@@ -2019,6 +2159,8 @@ public class ConditionBuilderTest {
         db.pushArray(GeospatialOperator.NEAR_SPHERE.getToken()).addDouble(v1)
                 .addDouble(v2);
         db.addDouble(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
     }
 
     /**
@@ -2069,6 +2211,8 @@ public class ConditionBuilderTest {
         db.pushArray(GeospatialOperator.NEAR_SPHERE.getToken()).addInteger(v1)
                 .addInteger(v2);
         db.addInteger(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
     }
 
     /**
@@ -2119,6 +2263,8 @@ public class ConditionBuilderTest {
         db.pushArray(GeospatialOperator.NEAR_SPHERE.getToken()).addLong(v1)
                 .addLong(v2);
         db.addLong(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
     }
 
     /**
@@ -2623,7 +2769,7 @@ public class ConditionBuilderTest {
      * {@link ConditionBuilder#notIn(com.allanbank.mongodb.bson.Element[])}.
      */
     @Test
-    public void testNotInCOnstantArray() {
+    public void testNotInConstantArray() {
 
         final ConditionBuilder b = QueryBuilder.where("foo");
 
@@ -2774,6 +2920,71 @@ public class ConditionBuilderTest {
         wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, unique);
 
         assertEquals(new DocumentElement("f", db.build()), e);
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#within(DocumentAssignable)}.
+     */
+    @Test
+    public void testWithinDocumentAssignable() {
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final double x1 = myRandom.nextInt(1024);
+        final double y1 = myRandom.nextInt(1024);
+        final double x2 = x1 + myRandom.nextInt(1024);
+        final double y2 = y1 + myRandom.nextInt(1024);
+
+        b.equals(false); // Make sure equals is removed.
+        b.within(GeoJson.polygon(Arrays.asList(GeoJson.p(x1, y1),
+                GeoJson.p(x1, y2), GeoJson.p(x2, y2), GeoJson.p(x2, y1),
+                GeoJson.p(x1, y1))));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        final DocumentBuilder wb = db
+                .push(GeospatialOperator.WITHIN.getToken());
+        wb.add(GeospatialOperator.GEOMETRY, GeoJson.polygon(Arrays.asList(
+                GeoJson.p(x1, y1), GeoJson.p(x1, y2), GeoJson.p(x2, y2),
+                GeoJson.p(x2, y1), GeoJson.p(x1, y1))));
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#within(DocumentAssignable, boolean)}.
+     */
+    @Test
+    public void testWithinDocumentAssignableBoolean() {
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final double x1 = myRandom.nextInt(1024);
+        final double y1 = myRandom.nextInt(1024);
+        final double x2 = x1 + myRandom.nextInt(1024);
+        final double y2 = y1 + myRandom.nextInt(1024);
+        final boolean unique = myRandom.nextBoolean();
+
+        b.equals(false); // Make sure equals is removed.
+        b.within(GeoJson.polygon(Arrays.asList(GeoJson.p(x1, y1),
+                GeoJson.p(x1, y2), GeoJson.p(x2, y2), GeoJson.p(x2, y1),
+                GeoJson.p(x1, y1))), unique);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        final DocumentBuilder wb = db
+                .push(GeospatialOperator.WITHIN.getToken());
+        wb.add(GeospatialOperator.GEOMETRY, GeoJson.polygon(Arrays.asList(
+                GeoJson.p(x1, y1), GeoJson.p(x1, y2), GeoJson.p(x2, y2),
+                GeoJson.p(x2, y1), GeoJson.p(x1, y1))));
+        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, unique);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
     }
 
     /**

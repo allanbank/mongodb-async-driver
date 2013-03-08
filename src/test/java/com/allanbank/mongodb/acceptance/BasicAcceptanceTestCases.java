@@ -6502,7 +6502,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             results = myCollection.textSearch(Text.builder().searchTerm(
                     "coffee magic"));
         }
-        catch (ReplyException error) {
+        catch (final ReplyException error) {
             // Check if we are talking to a recent MongoDB instance.
             final String message = error.getMessage();
 

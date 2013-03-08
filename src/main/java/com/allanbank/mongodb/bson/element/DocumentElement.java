@@ -101,6 +101,26 @@ public class DocumentElement extends AbstractElement implements Document {
     }
 
     /**
+     * Constructs a new {@link DocumentElement} with a single sub-document
+     * element.
+     * 
+     * @param name
+     *            The name for the BSON document.
+     * @param value
+     *            The document to copy elements from.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code value} is <code>null</code>.
+     */
+    public DocumentElement(final String name, final DocumentElement value) {
+        super(name);
+
+        assertNotNull(value, "Document element's sub-document cannot be null.");
+
+        myElements = Collections.unmodifiableList(Collections
+                .singletonList((Element) value));
+    }
+
+    /**
      * Constructs a new {@link DocumentElement}.
      * 
      * @param name

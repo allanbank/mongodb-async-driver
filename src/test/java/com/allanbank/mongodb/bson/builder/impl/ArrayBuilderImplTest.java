@@ -96,6 +96,22 @@ public class ArrayBuilderImplTest {
     }
 
     /**
+     * Test method for the {@link ArrayBuilderImpl#add(DocumentElement)}.
+     */
+    @Test
+    public void testAddDocumentElement() {
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        final DocumentElement d = new DocumentElement("g");
+        builder.add(d);
+        assertEquals(new DocumentElement("0", d), builder.build()[0]);
+
+        builder.reset();
+        builder.add((DocumentElement) null);
+        assertEquals(new NullElement("0"), builder.build()[0]);
+    }
+
+    /**
      * Test method for the {@link ArrayBuilderImpl#add(ElementAssignable)}.
      */
     @Test
