@@ -6,14 +6,34 @@
 
 Upgrading
 
-  This version is TBD compatible with the 1.0.2 version of the driver.  
+  This version is TBD compatible with the 1.1.0 version of the driver.  
   
 Updates and Improvements:
+
+* MongoDB 2.4 Support
+
+  * Pluggable authentication support and the addition of 
+{{{../apidocs/index.html?com/allanbank/mongodb/Credential.html}Kerberos}} authentication. See the user's 
+guide on {{{../userguide/kerberos.html}Kerberos}} for more information.
+
+  * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Index.html}text}} indexes 
+and creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Text.html}Text}} commands/queries.
+  
+  * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Index.html}2dshere}} indexes.
+  
+  * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/GeoJson.html}GeoJSON}} 
+documents and using GeoJSOn documents with {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$near}, 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$within}}, and 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$geoIntersects}} query operators.
+
+* Cursor Restarts
 
   * Added the ability to persist and restart fetching the results of a query from either a 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} or 
 stream.  See the user's guide on {{{../userguide/cursor_restart.html}cursor restarts}} for more information.
    
+* Miscellaneous
+
   * The {{{../apidocs/index.html?com/allanbank/mongodb/bson/json/Json.html}Json}} class to parse strict
 formated extended JSON as specified in the 
 {{{http://docs.mongodb.org/manual/reference/mongodb-extended-json/}MongoDB Extended JSON}} documentation.
@@ -22,6 +42,19 @@ formated extended JSON as specified in the
 {{{../apidocs/index.html?com/allanbank/mongodb/bson/Element.html}Element}} interface to make type accessing
 the value of an <<<Element>>> in a type agnostic way possible.
   
+  * Updated the {{{../apidocs/index.html?com/allanbank/mongodbMongoCollection.html}MongoCollection}} methods 
+to support passing a various command <<<Builders>>> instead of the commands themselves.
+  
+  * Updated the ObjectId to enable construction from a HEX string.
+
+* Documentation
+
+  * Added a user's guide on using the driver with {{{../userguide/maven.html}Maven}}
+  
+  * Added a user's guide on using the driver with {{{../userguide/kerberos.html}Kerberos}}.
+  
+  * Added a user's guide on using {{{../userguide/cursor_restart.html}restarting cursors}}.
+
 Deprecations
 
   The following classes have been deprecated:
