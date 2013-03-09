@@ -8,6 +8,7 @@ package com.allanbank.mongodb.acceptance;
 import static com.allanbank.mongodb.builder.AggregationGroupField.set;
 import static com.allanbank.mongodb.builder.AggregationGroupId.id;
 import static com.allanbank.mongodb.builder.AggregationProjectFields.includeWithoutId;
+import static com.allanbank.mongodb.builder.GeoJson.p;
 import static com.allanbank.mongodb.builder.QueryBuilder.and;
 import static com.allanbank.mongodb.builder.QueryBuilder.where;
 import static com.allanbank.mongodb.builder.Sort.asc;
@@ -19,6 +20,7 @@ import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -75,11 +77,13 @@ import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.bson.json.Json;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
+import com.allanbank.mongodb.builder.GeoJson;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
@@ -135,8 +139,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /** The default database to use for the test. */
     protected MongoDatabase myDb = null;
 
-    /** The Geospatial collection for the test. */
+    /** The Geospatial collection using a {@code 2d} index for the test. */
     protected MongoCollection myGeoCollection = null;
+
+    /** The Geospatial collection using a {@code 2dsphere} index for the test. */
+    protected MongoCollection myGeoSphereCollection = null;
 
     /** The connection to MongoDB for the test. */
     protected MongoClient myMongo = null;
@@ -174,6 +181,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             if (myGeoCollection != null) {
                 myGeoCollection.drop();
             }
+            if (myGeoSphereCollection != null) {
+                myGeoSphereCollection.drop();
+            }
             if (myDb != null) {
                 myDb.drop();
             }
@@ -192,6 +202,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             myDb = null;
             myCollection = null;
             myGeoCollection = null;
+            myGeoSphereCollection = null;
             myConfig = null;
             myRandom = null;
 
@@ -3272,6 +3283,73 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#intersects(DocumentAssignable)}.
+     */
+    @Test
+    public void testQueryWithIntersectsDocumentAssignable() {
+        final Document doc1 = Json
+                .parse("{_id: 'P1', p: {type: 'Point', coordinates: [2,2] } } )");
+        final Document doc2 = Json
+                .parse("{_id: 'P2', p: {type: 'Point', coordinates: [3,6] } } )");
+        final Document doc3 = Json
+                .parse("{_id: 'Poly1', p: {type: 'Polygon', coordinates: ["
+                        + "[ [3,1], [1,2], [5,6], [9,2], [4,3], [3,1] ]] } } )");
+        final Document doc4 = Json
+                .parse("{_id: 'LS1', p: {type: 'LineString', "
+                        + "coordinates: [ [5,2], [7,3], [7,5], [9,4] ] } } )");
+
+        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3, doc4);
+
+        MongoIterator<Document> iter = null;
+        try {
+            iter = getGeoSphereCollection().find(
+                    where("p").intersects(
+                            GeoJson.polygon(Arrays.asList(p(0, 0), p(3, 0),
+                                    p(3, 3), p(0, 3), p(0, 0)))));
+
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1);
+            expected.add(doc3);
+
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
+            iter.close();
+
+            iter = getGeoSphereCollection()
+                    .find(where("p").intersects(
+                            GeoJson.lineString(p(1, 4), p(8, 4))));
+
+            expected.clear();
+            expected.add(doc3);
+            expected.add(doc4);
+
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
+            iter.close();
+
+        }
+        catch (final QueryFailedException qfe) {
+            // See if a version prior to 2.4
+            assumeThat(qfe.getMessage(),
+                    is(not(containsString("invalid operator: $geoIntersects"))));
+            fatal(qfe);
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#lessThan(byte[])}.
      */
     @Test
@@ -4036,6 +4114,103 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#near(DocumentAssignable)}.
+     */
+    @Test
+    public void testQueryWithNearDocumentAssignable() {
+        final double x = myRandom.nextDouble() * 10.0;
+        final double y = myRandom.nextDouble() * 10.0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addDouble(x + 1).addDouble(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 2).addDouble(y + 2);
+
+        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        MongoIterator<Document> iter = null;
+        try {
+            iter = getGeoSphereCollection().find(
+                    where("p").near(GeoJson.point(p(x, y))));
+
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc3.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        catch (final QueryFailedException qfe) {
+            // See if a version prior to 2.4
+            assumeThat(qfe.getMessage(),
+                    is(not(containsString("can't find special index: 2d"))));
+            fatal(qfe);
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#near(DocumentAssignable, double)}
+     * .
+     */
+    @Test
+    public void testQueryWithNearDocumentAssignableDouble() {
+
+        final double x = myRandom.nextDouble() * 10.0;
+        final double y = myRandom.nextDouble() * 10.0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.add("p", GeoJson.point(p(x, y)));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.add("p", GeoJson.point(p(x - 1, y - 1)));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.add("p", GeoJson.point(p(x + 20, y + 20)));
+
+        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        MongoIterator<Document> iter = null;
+        try {
+            iter = getGeoSphereCollection().find(
+                    where("p").near(GeoJson.point(p(x, y)),
+                            distance(x, y, x + 5, y + 5) + 1));
+
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        catch (final QueryFailedException qfe) {
+            // See if a version prior to 2.4
+            assumeThat(qfe.getMessage(),
+                    is(not(containsString("can't find special index: 2d"))));
+            fatal(qfe);
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#near(double, double)}.
      */
     @Test
@@ -4258,6 +4433,102 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#nearSphere(DocumentAssignable)}.
+     */
+    @Test
+    public void testQueryWithNearSphereDocumentAssignable() {
+        final double x = myRandom.nextDouble() * 170.0;
+        final double y = myRandom.nextDouble() * 80.0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addDouble(x + 1).addDouble(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 2).addDouble(y + 2);
+
+        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        MongoIterator<Document> iter = null;
+        try {
+            iter = getGeoSphereCollection().find(
+                    where("p").nearSphere(GeoJson.point(p(x, y))));
+
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc3.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        catch (final QueryFailedException qfe) {
+            // See if a version prior to 2.4
+            assumeThat(qfe.getMessage(),
+                    is(not(containsString("can't find special index: 2d"))));
+            fatal(qfe);
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#nearSphere(DocumentAssignable, double)}.
+     */
+    @Test
+    public void testQueryWithNearSphereDocumentAssignableDouble() {
+        final double x = myRandom.nextDouble() * 160.0;
+        final double y = myRandom.nextDouble() * 70.0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.add("p", GeoJson.point(p(x + 1, y + 1)));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.add("p", GeoJson.point(p(x + 2, y + 1)));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.add("p", GeoJson.point(p(x + 20.0, y + 20)));
+
+        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        MongoIterator<Document> iter = null;
+        try {
+            iter = getGeoSphereCollection().find(
+                    where("p").nearSphere(GeoJson.point(p(x, y)),
+                            distance(x, y, x + 2, y + 2) + 1));
+
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertTrue(iter.hasNext());
+            assertEquals(doc2.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        catch (final QueryFailedException qfe) {
+            // See if a version prior to 2.4
+            assumeThat(qfe.getMessage(),
+                    is(not(containsString("can't find special index: 2d"))));
+            fatal(qfe);
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#nearSphere(double, double)}.
      */
     @Test
@@ -4280,7 +4551,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
         final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").near(x, y));
+                where("p").nearSphere(x, y));
         try {
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
@@ -5228,6 +5499,146 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
         finally {
             iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#within(DocumentAssignable)}.
+     */
+    @Test
+    public void testQueryWithWithinDocumentAssignable() {
+        final double x1 = myRandom.nextDouble() * 170.0;
+        final double y1 = myRandom.nextDouble() * 70.0;
+
+        final double deltax = myRandom.nextDouble() * 10.0;
+        final double x2 = x1 + deltax;
+        final double minx = Math.min(x1, x2);
+        final double maxx = Math.max(x1, x2);
+
+        final double deltay = myRandom.nextDouble() * 10.0;
+        final double y2 = y1 + deltay;
+        final double miny = Math.min(y1, y2);
+        final double maxy = Math.max(y1, y2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.add("p", GeoJson.point(p(minx, miny)));
+        // doc1.pushArray("p")
+        // .add(GeoJson.point(p(minx, miny)))
+        // .add(GeoJson.point(p(minx + (deltax / 2), miny + (deltay / 2))));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.add("p",
+                GeoJson.point(p(minx + (deltax / 2.0), miny + (deltay / 2.0))));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.add("p", GeoJson.point(p(minx - 1, miny - 1)));
+
+        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        MongoIterator<Document> iter = null;
+        try {
+            iter = getGeoSphereCollection().find(
+                    where("p").within(
+                            GeoJson.polygon(Arrays.asList(p(minx, miny),
+                                    p(minx, maxy), p(maxx, maxy),
+                                    p(maxx, miny), p(minx, miny)))));
+
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
+        }
+        catch (final QueryFailedException qfe) {
+            // See if a version prior to 2.4
+            assumeThat(qfe.getMessage(),
+                    is(not(containsString("can't find special index: 2d"))));
+            fatal(qfe);
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link ConditionBuilder#within(double, double, double, double, boolean)}.
+     */
+    @Test
+    public void testQueryWithWithinDocumentAssignableBoolean() {
+        final double x1 = myRandom.nextDouble() * 170.0;
+        final double y1 = myRandom.nextDouble() * 70.0;
+
+        final double deltax = myRandom.nextDouble() * 10.0;
+        final double x2 = x1 + deltax;
+        final double minx = Math.min(x1, x2);
+        final double maxx = Math.max(x1, x2);
+
+        final double deltay = myRandom.nextDouble() * 10.0;
+        final double y2 = y1 + deltay;
+        final double miny = Math.min(y1, y2);
+        final double maxy = Math.max(y1, y2);
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.add("p", GeoJson.point(p(minx, miny)));
+        // doc1.pushArray("p")
+        // .add(GeoJson.point(p(minx, miny)))
+        // .add(GeoJson.point(p(minx + (deltax / 2), miny + (deltay / 2))));
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.add("p",
+                GeoJson.point(p(minx + (deltax / 2.0), miny + (deltay / 2.0))));
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.add("p", GeoJson.point(p(minx - 1, miny - 1)));
+
+        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        MongoIterator<Document> iter = null;
+        try {
+            iter = getGeoSphereCollection().find(
+                    where("p").within(
+                            GeoJson.polygon(Arrays.asList(p(minx, miny),
+                                    p(minx, maxy), p(maxx, maxy),
+                                    p(maxx, miny), p(minx, miny))), false));
+
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            // expected.add(doc1.build());
+            expected.add(doc2.build());
+
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            // assertTrue(iter.hasNext());
+            // assertTrue(expected.remove(iter.next()));
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
+        }
+        catch (final QueryFailedException qfe) {
+            // See if a version prior to 2.4
+            assumeThat(qfe.getMessage(),
+                    is(not(containsString("can't find special index: 2d"))));
+            fatal(qfe);
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
         }
     }
 
@@ -6518,7 +6929,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         assertThat(first.getDocument().get(StringElement.class, "content"),
                 is(new StringElement("content",
                         "Coffee is full of magical powers.")));
-        final TextResult second = results.get(0);
+        final TextResult second = results.get(1);
         assertThat(second.getDocument().get(StringElement.class, "content"),
                 is(new StringElement("content",
                         "Now is the time to drink all of the coffee.")));
@@ -6734,6 +7145,51 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Calculates the distance between the two point in km.
+     * 
+     * @param x1
+     *            The first x coordinate.
+     * @param y1
+     *            The first y coordinate.
+     * @param x2
+     *            The second x coordinate.
+     * @param y2
+     *            The second y coordinate.
+     * @return The distance in meters.
+     */
+    protected double distance(final double x1, final double y1,
+            final double x2, final double y2) {
+        final double R = 6378.137 * 1000; // m - Distance is in meters w/out a
+                                          // datum
+        final double dLat = Math.toRadians(x2 - x1);
+        final double dLon = Math.toRadians(y2 - y1);
+        final double lat1 = Math.toRadians(x1);
+        final double lat2 = Math.toRadians(x2);
+
+        final double a = (Math.sin(dLat / 2) * Math.sin(dLat / 2))
+                + (Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math
+                        .cos(lat2));
+        final double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        final double d = R * c;
+
+        return d;
+    }
+
+    /**
+     * Fails the test.
+     * 
+     * @param t
+     *            The cause of the failure.
+     */
+    protected void fatal(final Throwable t) {
+        final AssertionError error = new AssertionError(t.getMessage());
+        error.initCause(t);
+
+        throw error;
+    }
+
+    /**
      * Returns a collection with a geospatial 2D index on the 'p' field.
      * 
      * @return The collection with a geospatial 2D index on the 'p' field.
@@ -6745,6 +7201,20 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             myGeoCollection.createIndex(Index.geo2d("p"));
         }
         return myGeoCollection;
+    }
+
+    /**
+     * Returns a collection with a geospatial 2Dshpere index on the 'p' field.
+     * 
+     * @return The collection with a geospatial 2Dshpere index on the 'p' field.
+     */
+    protected MongoCollection getGeoSphereCollection() {
+        if (myGeoSphereCollection == null) {
+            myGeoSphereCollection = myDb.getCollection(GEO_TEST_COLLECTION_NAME
+                    + "_" + (++ourUniqueId));
+            myGeoSphereCollection.createIndex(Index.geo2dSphere("p"));
+        }
+        return myGeoSphereCollection;
     }
 
     /**

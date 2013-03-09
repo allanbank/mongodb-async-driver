@@ -1864,7 +1864,6 @@ public class ConditionBuilder implements DocumentAssignable {
         myOtherComparisons.put(GeospatialOperator.NEAR, new DocumentElement(
                 GeospatialOperator.NEAR.getToken(), new DocumentElement(
                         GeospatialOperator.GEOMETRY, geoJsonDoc.asDocument())));
-        System.out.println(myOtherComparisons);
         myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
 
         return this;
@@ -1910,13 +1909,14 @@ public class ConditionBuilder implements DocumentAssignable {
     public ConditionBuilder near(final DocumentAssignable geoJsonDoc,
             final double maxDistance) {
         myEqualsComparison = null;
-        myOtherComparisons.put(GeospatialOperator.NEAR, new DocumentElement(
-                GeospatialOperator.NEAR.getToken(), new DocumentElement(
-                        GeospatialOperator.GEOMETRY, geoJsonDoc.asDocument())));
         myOtherComparisons.put(
-                GeospatialOperator.MAX_DISTANCE_MODIFIER,
-                new DoubleElement(GeospatialOperator.MAX_DISTANCE_MODIFIER
-                        .getToken(), maxDistance));
+                GeospatialOperator.NEAR,
+                new DocumentElement(GeospatialOperator.NEAR.getToken(),
+                        new DocumentElement(GeospatialOperator.GEOMETRY,
+                                geoJsonDoc.asDocument()), new DoubleElement(
+                                GeospatialOperator.MAX_DISTANCE_MODIFIER
+                                        .getToken(), maxDistance)));
+        myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
 
         return this;
     }
@@ -2230,14 +2230,14 @@ public class ConditionBuilder implements DocumentAssignable {
     public ConditionBuilder nearSphere(final DocumentAssignable geoJsonDoc,
             final double maxDistance) {
         myEqualsComparison = null;
-        myOtherComparisons.put(GeospatialOperator.NEAR_SPHERE,
+        myOtherComparisons.put(
+                GeospatialOperator.NEAR_SPHERE,
                 new DocumentElement(GeospatialOperator.NEAR_SPHERE.getToken(),
                         new DocumentElement(GeospatialOperator.GEOMETRY,
-                                geoJsonDoc.asDocument())));
-        myOtherComparisons.put(
-                GeospatialOperator.MAX_DISTANCE_MODIFIER,
-                new DoubleElement(GeospatialOperator.MAX_DISTANCE_MODIFIER
-                        .getToken(), maxDistance));
+                                geoJsonDoc.asDocument()), new DoubleElement(
+                                GeospatialOperator.MAX_DISTANCE_MODIFIER
+                                        .getToken(), maxDistance)));
+        myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
 
         return this;
     }

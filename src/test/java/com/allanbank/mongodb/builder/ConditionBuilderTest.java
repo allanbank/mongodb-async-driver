@@ -1896,9 +1896,10 @@ public class ConditionBuilderTest {
         assertThat(e, instanceOf(DocumentElement.class));
 
         final DocumentBuilder db = BuilderFactory.start();
-        db.push(GeospatialOperator.NEAR.getToken()).add(
-                GeospatialOperator.GEOMETRY, GeoJson.point(GeoJson.p(v1, v2)));
-        db.add(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), 42.1);
+        db.push(GeospatialOperator.NEAR.getToken())
+                .add(GeospatialOperator.GEOMETRY,
+                        GeoJson.point(GeoJson.p(v1, v2)))
+                .add(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), 42.1);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -2103,9 +2104,10 @@ public class ConditionBuilderTest {
         assertThat(e, instanceOf(DocumentElement.class));
 
         final DocumentBuilder db = BuilderFactory.start();
-        db.push(GeospatialOperator.NEAR_SPHERE.getToken()).add(
-                GeospatialOperator.GEOMETRY, GeoJson.point(GeoJson.p(v1, v2)));
-        db.add(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), 42.1);
+        db.push(GeospatialOperator.NEAR_SPHERE.getToken())
+                .add(GeospatialOperator.GEOMETRY,
+                        GeoJson.point(GeoJson.p(v1, v2)))
+                .add(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), 42.1);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
