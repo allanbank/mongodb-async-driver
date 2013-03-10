@@ -17,6 +17,35 @@ import org.junit.Test;
 public class AssertionsTest {
 
     /**
+     * Test method for {@link Assertions#assertNotEmpty(String, String)}.
+     */
+    @Test
+    public void testAssertNotEmptyNotThrowsOnNotNull() {
+        try {
+            Assertions.assertNotEmpty("f", "Not Expected!");
+        }
+        catch (final IllegalArgumentException e) {
+            fail("Should not have thrown an IllegalArguementException");
+        }
+    }
+
+    /**
+     * Test method for {@link Assertions#assertNotEmpty(String, String)}.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testAssertNotEmptyThrowsOnNull() {
+        Assertions.assertNotEmpty(null, "Expected!");
+    }
+
+    /**
+     * Test method for {@link Assertions#assertNotEmpty(String, String)}.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testAssertNotEmptyThrowsOnBlank() {
+        Assertions.assertNotEmpty(" ", "Expected!");
+    }
+
+    /**
      * Test method for {@link Assertions#assertNotNull(Object, String)}.
      */
     @Test
