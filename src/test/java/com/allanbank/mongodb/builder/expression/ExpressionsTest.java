@@ -95,6 +95,25 @@ public class ExpressionsTest {
     }
 
     /**
+     * Test method for {@link Expressions#concatenate(Expression[])}.
+     */
+    @Test
+    public void testConcatenate() {
+        final Constant e1 = new Constant(new StringElement("", "a"));
+        final Constant e2 = new Constant(new StringElement("", "B"));
+        final Constant e3 = new Constant(new StringElement("", "c"));
+
+        final NaryExpression e = Expressions.concatenate(e1, e2, e3);
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.push("f").pushArray("$concat").add("a").add("B").add("c");
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+        assertEquals(b.build().find("f", "\\$concat").get(0), e.asElement());
+    }
+
+    /**
      * Test method for
      * {@link Expressions#cond(Expression, Expression, Expression)}.
      */

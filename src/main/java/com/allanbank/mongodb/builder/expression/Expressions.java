@@ -45,6 +45,9 @@ public final class Expressions {
     public static final String COMPARE = "$cmp";
 
     /** The {@value} operator token */
+    public static final String CONCATENATE = "$concat";
+
+    /** The {@value} operator token */
     public static final String CONDITION = "$cond";
 
     /** The {@value} operator token */
@@ -158,6 +161,17 @@ public final class Expressions {
      */
     public static NaryExpression cmp(final Expression lhs, final Expression rhs) {
         return new NaryExpression(COMPARE, lhs, rhs);
+    }
+
+    /**
+     * Returns a {@link NaryExpression} {@value #CONCATENATE} expression.
+     * 
+     * @param expression
+     *            The string expressions for the operator.
+     * @return The {@link NaryExpression} {@value #CONCATENATE} expression.
+     */
+    public static NaryExpression concatenate(final Expression... expression) {
+        return new NaryExpression(CONCATENATE, expression);
     }
 
     /**
