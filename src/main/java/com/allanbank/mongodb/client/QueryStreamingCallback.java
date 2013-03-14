@@ -93,8 +93,8 @@ import com.allanbank.mongodb.error.ReplyException;
             final Document cursorDocument,
             final StreamCallback<Document> results) {
 
-        final String ns = cursorDocument.get(StringElement.class, "ns")
-                .getValue();
+        final String ns = cursorDocument.get(StringElement.class,
+                NAME_SPACE_FIELD).getValue();
         String db = ns;
         String collection = ns;
         final int index = ns.indexOf('.');
@@ -108,13 +108,13 @@ import com.allanbank.mongodb.error.ReplyException;
         myDatabaseName = db;
         myCollectionName = collection;
         myForwardCallback = results;
-        myCursorId = cursorDocument.get(NumericElement.class, "$cursor_id")
+        myCursorId = cursorDocument.get(NumericElement.class, CURSOR_ID_FIELD)
                 .getLongValue();
-        myLimit = cursorDocument.get(NumericElement.class, "$limit")
+        myLimit = cursorDocument.get(NumericElement.class, LIMIT_FIELD)
                 .getIntValue();
-        myBatchSize = cursorDocument.get(NumericElement.class, "$batch_size")
-                .getIntValue();
-        myAddress = cursorDocument.get(StringElement.class, "$server")
+        myBatchSize = cursorDocument
+                .get(NumericElement.class, BATCH_SIZE_FIELD).getIntValue();
+        myAddress = cursorDocument.get(StringElement.class, SERVER_FIELD)
                 .getValue();
     }
 
@@ -152,11 +152,11 @@ import com.allanbank.mongodb.error.ReplyException;
 
         if (cursorId != 0) {
             final DocumentBuilder b = BuilderFactory.start();
-            b.add("ns", myDatabaseName + "." + myCollectionName);
-            b.add("$cursor_id", cursorId);
-            b.add("$server", myAddress);
-            b.add("$limit", myLimit);
-            b.add("$batch_size", myBatchSize);
+            b.add(NAME_SPACE_FIELD, myDatabaseName + "." + myCollectionName);
+            b.add(CURSOR_ID_FIELD, cursorId);
+            b.add(SERVER_FIELD, myAddress);
+            b.add(LIMIT_FIELD, myLimit);
+            b.add(BATCH_SIZE_FIELD, myBatchSize);
 
             return b.build();
         }

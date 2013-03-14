@@ -221,11 +221,16 @@ public class ClientImpl extends AbstractClient {
      */
     public boolean isCursorDocument(final Document doc) {
         return (doc.getElements().size() == 5)
-                && (doc.get(StringElement.class, "ns") != null)
-                && (doc.get(NumericElement.class, "$cursor_id") != null)
-                && (doc.get(StringElement.class, "$server") != null)
-                && (doc.get(NumericElement.class, "$batch_size") != null)
-                && (doc.get(NumericElement.class, "$limit") != null);
+                && (doc.get(StringElement.class,
+                        MongoCursorControl.NAME_SPACE_FIELD) != null)
+                && (doc.get(NumericElement.class,
+                        MongoCursorControl.CURSOR_ID_FIELD) != null)
+                && (doc.get(StringElement.class,
+                        MongoCursorControl.SERVER_FIELD) != null)
+                && (doc.get(NumericElement.class,
+                        MongoCursorControl.BATCH_SIZE_FIELD) != null)
+                && (doc.get(NumericElement.class,
+                        MongoCursorControl.LIMIT_FIELD) != null);
     }
 
     /**

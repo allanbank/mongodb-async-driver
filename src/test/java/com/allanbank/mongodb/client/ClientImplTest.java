@@ -841,11 +841,11 @@ public class ClientImplTest {
     public void testRestartDocumentAssignable() throws IOException {
 
         final DocumentBuilder b = BuilderFactory.start();
-        b.add("ns", "a.b");
-        b.add("$cursor_id", 123456);
-        b.add("$server", "server");
-        b.add("$limit", 4321);
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 123456);
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
+        b.add(MongoCursorControl.LIMIT_FIELD, 4321);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
         final GetMore message = new GetMore("a", "b", 123456, 23,
                 ReadPreference.server("server"));
@@ -889,16 +889,16 @@ public class ClientImplTest {
     public void testRestartDocumentAssignableNonCursorDoc() throws IOException {
 
         final DocumentBuilder b = BuilderFactory.start();
-        b.add("ns", "a.b");
-        b.add("$cursor_id", 123456);
-        b.add("$server", "server");
-        b.add("$limit", 4321);
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 123456);
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
+        b.add(MongoCursorControl.LIMIT_FIELD, 4321);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
         replay();
 
         // Missing fields.
-        b.remove("$batch_size");
+        b.remove(MongoCursorControl.BATCH_SIZE_FIELD);
         b.add("c", 1);
         try {
             myTestInstance.restart(b);
@@ -906,9 +906,9 @@ public class ClientImplTest {
         catch (final IllegalArgumentException good) { // Good.
         }
         b.remove("c");
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
-        b.remove("$limit");
+        b.remove(MongoCursorControl.LIMIT_FIELD);
         b.add("c", 1);
         try {
             myTestInstance.restart(b);
@@ -916,9 +916,9 @@ public class ClientImplTest {
         catch (final IllegalArgumentException good) { // Good.
         }
         b.remove("c");
-        b.add("$limit", 23);
+        b.add(MongoCursorControl.LIMIT_FIELD, 23);
 
-        b.remove("$server");
+        b.remove(MongoCursorControl.SERVER_FIELD);
         b.add("c", 1);
         try {
             myTestInstance.restart(b);
@@ -926,9 +926,9 @@ public class ClientImplTest {
         catch (final IllegalArgumentException good) { // Good.
         }
         b.remove("c");
-        b.add("$server", "server");
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
 
-        b.remove("$cursor_id");
+        b.remove(MongoCursorControl.CURSOR_ID_FIELD);
         b.add("c", 1);
         try {
             myTestInstance.restart(b);
@@ -936,9 +936,9 @@ public class ClientImplTest {
         catch (final IllegalArgumentException good) { // Good.
         }
         b.remove("c");
-        b.add("$cursor_id", 23);
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 23);
 
-        b.remove("ns");
+        b.remove(MongoCursorControl.NAME_SPACE_FIELD);
         b.add("c", 1);
         try {
             myTestInstance.restart(b);
@@ -946,67 +946,67 @@ public class ClientImplTest {
         catch (final IllegalArgumentException good) { // Good.
         }
         b.remove("c");
-        b.add("ns", "a.b");
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
 
         // Too few fields.
-        b.remove("$batch_size");
+        b.remove(MongoCursorControl.BATCH_SIZE_FIELD);
         try {
             myTestInstance.restart(b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
         // Wrong Field type.
-        b.remove("$batch_size");
-        b.add("$batch_size", "s");
+        b.remove(MongoCursorControl.BATCH_SIZE_FIELD);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, "s");
         try {
             myTestInstance.restart(b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.remove("$batch_size");
-        b.add("$batch_size", 23);
+        b.remove(MongoCursorControl.BATCH_SIZE_FIELD);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
-        b.remove("$limit");
-        b.add("$limit", "s");
+        b.remove(MongoCursorControl.LIMIT_FIELD);
+        b.add(MongoCursorControl.LIMIT_FIELD, "s");
         try {
             myTestInstance.restart(b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.remove("$limit");
-        b.add("$limit", 23);
+        b.remove(MongoCursorControl.LIMIT_FIELD);
+        b.add(MongoCursorControl.LIMIT_FIELD, 23);
 
-        b.remove("$server");
-        b.add("$server", 1);
+        b.remove(MongoCursorControl.SERVER_FIELD);
+        b.add(MongoCursorControl.SERVER_FIELD, 1);
         try {
             myTestInstance.restart(b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.remove("$server");
-        b.add("$server", "server");
+        b.remove(MongoCursorControl.SERVER_FIELD);
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
 
-        b.remove("$cursor_id");
-        b.add("$cursor_id", "s");
+        b.remove(MongoCursorControl.CURSOR_ID_FIELD);
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, "s");
         try {
             myTestInstance.restart(b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.remove("$cursor_id");
-        b.add("$cursor_id", 23);
+        b.remove(MongoCursorControl.CURSOR_ID_FIELD);
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 23);
 
-        b.remove("ns");
-        b.add("ns", 1);
+        b.remove(MongoCursorControl.NAME_SPACE_FIELD);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, 1);
         try {
             myTestInstance.restart(b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.remove("ns");
-        b.add("ns", "a.b");
+        b.remove(MongoCursorControl.NAME_SPACE_FIELD);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
 
         verify();
 
@@ -1025,11 +1025,11 @@ public class ClientImplTest {
             throws IOException {
 
         final DocumentBuilder b = BuilderFactory.start();
-        b.add("ns", "a.b");
-        b.add("$cursor_id", 123456);
-        b.add("$server", "server");
-        b.add("$limit", 4321);
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 123456);
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
+        b.add(MongoCursorControl.LIMIT_FIELD, 4321);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
         final GetMore message = new GetMore("a", "b", 123456, 23,
                 ReadPreference.server("server"));
@@ -1075,18 +1075,18 @@ public class ClientImplTest {
             throws IOException {
 
         final DocumentBuilder b = BuilderFactory.start();
-        b.add("ns", "a.b");
-        b.add("$cursor_id", 123456);
-        b.add("$server", "server");
-        b.add("$limit", 4321);
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 123456);
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
+        b.add(MongoCursorControl.LIMIT_FIELD, 4321);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
         final StreamCallback<Document> mockStreamCallback = createMock(StreamCallback.class);
 
         replay(mockStreamCallback);
 
         // Missing fields.
-        b.remove("$batch_size");
+        b.remove(MongoCursorControl.BATCH_SIZE_FIELD);
         b.add("c", 1);
         try {
             myTestInstance.restart(mockStreamCallback, b);
@@ -1094,9 +1094,9 @@ public class ClientImplTest {
         catch (final IllegalArgumentException good) { // Good.
         }
         b.remove("c");
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
-        b.remove("$limit");
+        b.remove(MongoCursorControl.LIMIT_FIELD);
         b.add("c", 1);
         try {
             myTestInstance.restart(mockStreamCallback, b);
@@ -1104,9 +1104,9 @@ public class ClientImplTest {
         catch (final IllegalArgumentException good) { // Good.
         }
         b.remove("c");
-        b.add("$limit", 23);
+        b.add(MongoCursorControl.LIMIT_FIELD, 23);
 
-        b.remove("$server");
+        b.remove(MongoCursorControl.SERVER_FIELD);
         b.add("c", 1);
         try {
             myTestInstance.restart(mockStreamCallback, b);
@@ -1114,9 +1114,9 @@ public class ClientImplTest {
         catch (final IllegalArgumentException good) { // Good.
         }
         b.remove("c");
-        b.add("$server", "server");
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
 
-        b.remove("$cursor_id");
+        b.remove(MongoCursorControl.CURSOR_ID_FIELD);
         b.add("c", 1);
         try {
             myTestInstance.restart(mockStreamCallback, b);
@@ -1124,9 +1124,9 @@ public class ClientImplTest {
         catch (final IllegalArgumentException good) { // Good.
         }
         b.remove("c");
-        b.add("$cursor_id", 23);
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 23);
 
-        b.remove("ns");
+        b.remove(MongoCursorControl.NAME_SPACE_FIELD);
         b.add("c", 1);
         try {
             myTestInstance.restart(mockStreamCallback, b);
@@ -1134,67 +1134,67 @@ public class ClientImplTest {
         catch (final IllegalArgumentException good) { // Good.
         }
         b.remove("c");
-        b.add("ns", "a.b");
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
 
         // Too few fields.
-        b.remove("$batch_size");
+        b.remove(MongoCursorControl.BATCH_SIZE_FIELD);
         try {
             myTestInstance.restart(mockStreamCallback, b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
         // Wrong Field type.
-        b.remove("$batch_size");
-        b.add("$batch_size", "s");
+        b.remove(MongoCursorControl.BATCH_SIZE_FIELD);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, "s");
         try {
             myTestInstance.restart(mockStreamCallback, b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.remove("$batch_size");
-        b.add("$batch_size", 23);
+        b.remove(MongoCursorControl.BATCH_SIZE_FIELD);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
-        b.remove("$limit");
-        b.add("$limit", "s");
+        b.remove(MongoCursorControl.LIMIT_FIELD);
+        b.add(MongoCursorControl.LIMIT_FIELD, "s");
         try {
             myTestInstance.restart(mockStreamCallback, b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.remove("$limit");
-        b.add("$limit", 23);
+        b.remove(MongoCursorControl.LIMIT_FIELD);
+        b.add(MongoCursorControl.LIMIT_FIELD, 23);
 
-        b.remove("$server");
-        b.add("$server", 1);
+        b.remove(MongoCursorControl.SERVER_FIELD);
+        b.add(MongoCursorControl.SERVER_FIELD, 1);
         try {
             myTestInstance.restart(mockStreamCallback, b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.remove("$server");
-        b.add("$server", "server");
+        b.remove(MongoCursorControl.SERVER_FIELD);
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
 
-        b.remove("$cursor_id");
-        b.add("$cursor_id", "s");
+        b.remove(MongoCursorControl.CURSOR_ID_FIELD);
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, "s");
         try {
             myTestInstance.restart(mockStreamCallback, b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.remove("$cursor_id");
-        b.add("$cursor_id", 23);
+        b.remove(MongoCursorControl.CURSOR_ID_FIELD);
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 23);
 
-        b.remove("ns");
-        b.add("ns", 1);
+        b.remove(MongoCursorControl.NAME_SPACE_FIELD);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, 1);
         try {
             myTestInstance.restart(mockStreamCallback, b);
         }
         catch (final IllegalArgumentException good) { // Good.
         }
-        b.remove("ns");
-        b.add("ns", "a.b");
+        b.remove(MongoCursorControl.NAME_SPACE_FIELD);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
 
         verify(mockStreamCallback);
 

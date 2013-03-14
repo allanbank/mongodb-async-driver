@@ -57,6 +57,7 @@ import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoFactory;
@@ -6753,8 +6754,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         final Document goodDoc = iter.asDocument();
         final DocumentBuilder builder = BuilderFactory.start(goodDoc);
-        builder.remove("$cursor_id");
-        builder.add("$cursor_id", 12345678L);
+        builder.remove(MongoCursorControl.CURSOR_ID_FIELD);
+        builder.add(MongoCursorControl.CURSOR_ID_FIELD, 12345678L);
 
         // Restart the bad iterator.
         iter = myMongo.restart(builder.asDocument());

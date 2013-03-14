@@ -22,6 +22,20 @@ import com.allanbank.mongodb.builder.Find;
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface MongoCursorControl extends Closeable {
+    /** The batch size field in the cursor document. */
+    public static final String BATCH_SIZE_FIELD = "batch_size";
+
+    /** The cursor id field in the cursor document. */
+    public static final String CURSOR_ID_FIELD = "cursor_id";
+
+    /** The remaining limit field in the cursor document. */
+    public static final String LIMIT_FIELD = "limit";
+
+    /** The name space field in the cursor document. */
+    public static final String NAME_SPACE_FIELD = "ns";
+
+    /** The server name field in the cursor document. */
+    public static final String SERVER_FIELD = "server";
 
     /**
      * Returns a {@link Document} that can be used to restart the
@@ -41,11 +55,11 @@ public interface MongoCursorControl extends Closeable {
      * <pre>
      * <code>
      * {
-     *     ns         : '&lt;database_name&gt;.$lt;collection_name&gt;',
-     *     $cursor_id : &lt;cursor_id&gt;,
-     *     $server    : '&lt;server&gt;',
-     *     $limit     : &lt;remaining_limit&gt;
-     *     $batch_size: &lt;batch_size&gt;
+     *     {@value #NAME_SPACE_FIELD} : '&lt;database_name&gt;.$lt;collection_name&gt;',
+     *     {@value #CURSOR_ID_FIELD} : &lt;cursor_id&gt;,
+     *     {@value #SERVER_FIELD} : '&lt;server&gt;',
+     *     {@value #LIMIT_FIELD} : &lt;remaining_limit&gt;
+     *     {@value #BATCH_SIZE_FIELD} : &lt;batch_size&gt;
      * }</code>
      * </pre>
      * 

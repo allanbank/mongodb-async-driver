@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
@@ -194,11 +195,11 @@ public class MongoClientImplTest {
     public void testRestartDocumentAssignable() throws IOException {
 
         final DocumentBuilder b = BuilderFactory.start();
-        b.add("ns", "a.b");
-        b.add("$cursor_id", 123456);
-        b.add("$server", "server");
-        b.add("$limit", 4321);
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 123456);
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
+        b.add(MongoCursorControl.LIMIT_FIELD, 4321);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
         expect(myMockClient.restart(b)).andReturn(null);
 
@@ -222,11 +223,11 @@ public class MongoClientImplTest {
             throws IOException {
 
         final DocumentBuilder b = BuilderFactory.start();
-        b.add("ns", "a.b");
-        b.add("$cursor_id", 123456);
-        b.add("$server", "server");
-        b.add("$limit", 4321);
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 123456);
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
+        b.add(MongoCursorControl.LIMIT_FIELD, 4321);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
 
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 

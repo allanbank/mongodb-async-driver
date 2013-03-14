@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
@@ -127,12 +128,12 @@ public class QueryStreamingCallbackTest {
     public void testAsDocument() {
 
         final DocumentBuilder b = BuilderFactory.start();
-        b.add("ns",
-                myQuery.getDatabaseName() + "." + myQuery.getCollectionName());
-        b.add("$cursor_id", 123456L);
-        b.add("$server", myAddress);
-        b.add("$limit", 0);
-        b.add("$batch_size", myQuery.getBatchSize());
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, myQuery.getDatabaseName()
+                + "." + myQuery.getCollectionName());
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 123456L);
+        b.add(MongoCursorControl.SERVER_FIELD, myAddress);
+        b.add(MongoCursorControl.LIMIT_FIELD, 0);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, myQuery.getBatchSize());
 
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
@@ -594,12 +595,12 @@ public class QueryStreamingCallbackTest {
     @Test
     public void testStop() {
         final DocumentBuilder b = BuilderFactory.start();
-        b.add("ns",
-                myQuery.getDatabaseName() + "." + myQuery.getCollectionName());
-        b.add("$cursor_id", 10L);
-        b.add("$server", myAddress);
-        b.add("$limit", 0);
-        b.add("$batch_size", myQuery.getBatchSize());
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, myQuery.getDatabaseName()
+                + "." + myQuery.getCollectionName());
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 10L);
+        b.add(MongoCursorControl.SERVER_FIELD, myAddress);
+        b.add(MongoCursorControl.LIMIT_FIELD, 0);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, myQuery.getBatchSize());
 
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
@@ -714,11 +715,11 @@ public class QueryStreamingCallbackTest {
     public void testWithCursorDocButNoDotInName() {
 
         final DocumentBuilder b = BuilderFactory.start();
-        b.add("ns", "ab");
-        b.add("$cursor_id", 123456);
-        b.add("$server", "server");
-        b.add("$limit", 4321);
-        b.add("$batch_size", 23);
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "ab");
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 123456);
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
+        b.add(MongoCursorControl.LIMIT_FIELD, 4321);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 

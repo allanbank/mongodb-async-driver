@@ -68,7 +68,7 @@ public class AggregateTest {
      */
     @Test
     public void testGeoNear() {
-        Point2D location = new Point(1, 2);
+        final Point2D location = new Point(1, 2);
 
         final AggregationGeoNear.Builder geoNear = AggregationGeoNear.builder()
                 .location(location).distanceField("dist")
@@ -76,10 +76,11 @@ public class AggregateTest {
                 .maxDistance(12345.6).query(BuilderFactory.start().add("a", 2))
                 .spherical().uniqueDocs(false);
 
-        Aggregate aggregate = Aggregate.builder().geoNear(geoNear).build();
+        final Aggregate aggregate = Aggregate.builder().geoNear(geoNear)
+                .build();
 
         final DocumentBuilder expected = BuilderFactory.start();
-        DocumentBuilder geoNearOp = expected.push("$geoNear");
+        final DocumentBuilder geoNearOp = expected.push("$geoNear");
         geoNearOp.pushArray("near").add(1).add(2);
         geoNearOp.add("distanceField", "dist");
         geoNearOp.add("spherical", true);

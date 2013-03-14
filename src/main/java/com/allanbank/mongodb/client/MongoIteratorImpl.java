@@ -89,8 +89,8 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
      * @see MongoIteratorImpl#asDocument()
      */
     public MongoIteratorImpl(final Document cursorDocument, final Client client) {
-        final String ns = cursorDocument.get(StringElement.class, "ns")
-                .getValue();
+        final String ns = cursorDocument.get(StringElement.class,
+                NAME_SPACE_FIELD).getValue();
         String db = ns;
         String collection = ns;
         final int index = ns.indexOf('.');
@@ -102,14 +102,14 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
         myClient = client;
         myDatabaseName = db;
         myCollectionName = collection;
-        myCursorId = cursorDocument.get(NumericElement.class, "$cursor_id")
+        myCursorId = cursorDocument.get(NumericElement.class, CURSOR_ID_FIELD)
                 .getLongValue();
-        myLimit = cursorDocument.get(NumericElement.class, "$limit")
+        myLimit = cursorDocument.get(NumericElement.class, LIMIT_FIELD)
                 .getIntValue();
-        myBatchSize = cursorDocument.get(NumericElement.class, "$batch_size")
-                .getIntValue();
+        myBatchSize = cursorDocument
+                .get(NumericElement.class, BATCH_SIZE_FIELD).getIntValue();
         myReadPerference = ReadPreference.server(cursorDocument.get(
-                StringElement.class, "$server").getValue());
+                StringElement.class, SERVER_FIELD).getValue());
     }
 
     /**
@@ -157,11 +157,11 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
         if (cursorId != 0) {
             final DocumentBuilder b = BuilderFactory.start();
-            b.add("ns", myDatabaseName + "." + myCollectionName);
-            b.add("$cursor_id", cursorId);
-            b.add("$server", myReadPerference.getServer());
-            b.add("$limit", myLimit);
-            b.add("$batch_size", myBatchSize);
+            b.add(NAME_SPACE_FIELD, myDatabaseName + "." + myCollectionName);
+            b.add(CURSOR_ID_FIELD, cursorId);
+            b.add(SERVER_FIELD, myReadPerference.getServer());
+            b.add(LIMIT_FIELD, myLimit);
+            b.add(BATCH_SIZE_FIELD, myBatchSize);
 
             return b.build();
         }
