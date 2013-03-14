@@ -33,16 +33,16 @@ public class AssertionsTest {
      * Test method for {@link Assertions#assertNotEmpty(String, String)}.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testAssertNotEmptyThrowsOnNull() {
-        Assertions.assertNotEmpty(null, "Expected!");
+    public void testAssertNotEmptyThrowsOnBlank() {
+        Assertions.assertNotEmpty(" ", "Expected!");
     }
 
     /**
      * Test method for {@link Assertions#assertNotEmpty(String, String)}.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testAssertNotEmptyThrowsOnBlank() {
-        Assertions.assertNotEmpty(" ", "Expected!");
+    public void testAssertNotEmptyThrowsOnNull() {
+        Assertions.assertNotEmpty(null, "Expected!");
     }
 
     /**

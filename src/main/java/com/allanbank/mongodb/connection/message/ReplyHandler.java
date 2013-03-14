@@ -9,6 +9,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.connection.FutureCallback;
 
 /**
  * ReplyHandler provides the capability to properly handle the replies to a
@@ -60,7 +61,10 @@ public class ReplyHandler implements Runnable {
     public static void reply(final Reply reply,
             final Callback<Reply> replyCallback, final Executor executor) {
         if (replyCallback != null) {
-            if (executor != null) {
+            // We know the FutureCallback will not block or take long to process
+            // so just use this thread in that case.
+            if ((FutureCallback.CLASS != replyCallback.getClass())
+                    && (executor != null)) {
                 try {
                     executor.execute(new ReplyHandler(replyCallback, reply));
                 }
@@ -76,10 +80,10 @@ public class ReplyHandler implements Runnable {
     }
 
     /** The exception raised from processing the message. */
-    private Throwable myError;
+    private final Throwable myError;
 
     /** The reply to the message. */
-    private Reply myReply;
+    private final Reply myReply;
 
     /** The callback for the reply to the message. */
     private final Callback<Reply> myReplyCallback;
@@ -96,6 +100,7 @@ public class ReplyHandler implements Runnable {
         super();
         myReplyCallback = replyCallback;
         myReply = reply;
+        myError = null;
     }
 
     /**
@@ -111,6 +116,7 @@ public class ReplyHandler implements Runnable {
         super();
         myReplyCallback = replyCallback;
         myError = exception;
+        myReply = null;
     }
 
     /**

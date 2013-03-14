@@ -9,9 +9,11 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertSame;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -19,6 +21,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
 
 /**
@@ -158,6 +161,34 @@ public class ReplyHandlerTest {
         ReplyHandler.reply(reply, mockCallback, executor);
 
         verify(mockMessage, mockCallback);
+    }
+
+    /**
+     * Test method for {@link ReplyHandler#reply(Reply, Callback, Executor)}.
+     * 
+     * @throws ExecutionException
+     *             On a test failure.
+     * @throws InterruptedException
+     *             On a test failure.
+     */
+    @Test
+    public void testReplyWithFutureCallback() throws InterruptedException,
+            ExecutionException {
+        final Executor mockEexecutor = createMock(Executor.class);
+
+        final List<Document> docs = Collections.emptyList();
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, false, false);
+
+        final Message mockMessage = createMock(Message.class);
+        final FutureCallback<Reply> callback = new FutureCallback<Reply>();
+
+        replay(mockMessage, mockEexecutor);
+
+        ReplyHandler.reply(reply, callback, mockEexecutor);
+
+        assertSame(reply, callback.get());
+
+        verify(mockMessage, mockEexecutor);
     }
 
     /**

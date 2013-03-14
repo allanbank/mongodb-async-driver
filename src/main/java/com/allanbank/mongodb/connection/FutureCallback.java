@@ -28,6 +28,9 @@ import com.allanbank.mongodb.Callback;
  */
 public class FutureCallback<V> implements Future<V>, Callback<V> {
 
+    /** The class for the {@link FutureCallback}. */
+    public static final Class<?> CLASS = FutureCallback.class;
+
     /**
      * Flag tracking if the user has cancelled the future. This does not stop
      * the MongoDB call.

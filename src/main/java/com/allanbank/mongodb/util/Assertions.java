@@ -16,24 +16,6 @@ public class Assertions {
 
     /**
      * Throws an {@link IllegalArgumentException} if the {@code value} is
-     * <code>null</code>.
-     * 
-     * @param value
-     *            The value to test.
-     * @param message
-     *            The message for the exception to throw.
-     * @throws IllegalArgumentException
-     *             In the case that the {@code value} is <code>null</code>.
-     */
-    public static void assertNotNull(final Object value, final String message)
-            throws IllegalArgumentException {
-        if (value == null) {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
-    /**
-     * Throws an {@link IllegalArgumentException} if the {@code value} is
      * <code>null</code> or an empty string.
      * 
      * @param value
@@ -46,6 +28,24 @@ public class Assertions {
     public static void assertNotEmpty(final String value, final String message)
             throws IllegalArgumentException {
         if ((value == null) || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    /**
+     * Throws an {@link IllegalArgumentException} if the {@code value} is
+     * <code>null</code>.
+     * 
+     * @param value
+     *            The value to test.
+     * @param message
+     *            The message for the exception to throw.
+     * @throws IllegalArgumentException
+     *             In the case that the {@code value} is <code>null</code>.
+     */
+    public static void assertNotNull(final Object value, final String message)
+            throws IllegalArgumentException {
+        if (value == null) {
             throw new IllegalArgumentException(message);
         }
     }
