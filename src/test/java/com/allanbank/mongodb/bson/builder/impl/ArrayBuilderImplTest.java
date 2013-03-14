@@ -88,7 +88,7 @@ public class ArrayBuilderImplTest {
 
         final DocumentElement d = new DocumentElement("g");
         builder.add((DocumentAssignable) d);
-        assertEquals(new DocumentElement("0", d), builder.build()[0]);
+        assertEquals(d.withName("0"), builder.build()[0]);
 
         builder.reset();
         builder.add((DocumentAssignable) null);
@@ -104,7 +104,7 @@ public class ArrayBuilderImplTest {
 
         final DocumentElement d = new DocumentElement("g");
         builder.add(d);
-        assertEquals(new DocumentElement("0", d), builder.build()[0]);
+        assertEquals(d.withName("0"), builder.build()[0]);
 
         builder.reset();
         builder.add((DocumentElement) null);

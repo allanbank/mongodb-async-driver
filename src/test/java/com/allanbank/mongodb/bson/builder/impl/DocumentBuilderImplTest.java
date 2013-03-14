@@ -144,8 +144,7 @@ public class DocumentBuilderImplTest {
 
         final DocumentElement d = new DocumentElement("g");
         builder.add("f", d);
-        assertEquals(new RootDocument(new DocumentElement("f", d)),
-                builder.build());
+        assertEquals(new RootDocument(d.withName("f")), builder.build());
 
         builder.reset();
         builder.add("f", (DocumentAssignable) null);

@@ -466,6 +466,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies using the $geoNear with the Aggregation Framework.
      */
+    @SuppressWarnings("boxing")
     @Test
     public void testAggregateWithGeoNear() {
         final double x = myRandom.nextDouble() * 170.0;
@@ -6944,6 +6945,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * </code>
      * </pre>
      */
+    @SuppressWarnings("boxing")
     @Test
     public void testTextSearch() {
         final DocumentBuilder builder = BuilderFactory.start();
