@@ -16,6 +16,7 @@ import static com.allanbank.mongodb.builder.Sort.desc;
 import static com.allanbank.mongodb.builder.expression.Expressions.constant;
 import static com.allanbank.mongodb.builder.expression.Expressions.field;
 import static com.allanbank.mongodb.builder.expression.Expressions.set;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -79,6 +80,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.json.Json;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.AggregationGeoNear;
 import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -457,6 +459,55 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     && !message.contains("unrecognized command: aggregate"));
 
             throw re;
+        }
+    }
+
+    /**
+     * Verifies using the $geoNear with the Aggregation Framework.
+     */
+    @Test
+    public void testAggregateWithGeoNear() {
+        final double x = myRandom.nextDouble() * 170.0;
+        final double y = myRandom.nextDouble() * 170.0;
+
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", new ObjectId());
+        doc1.pushArray("p").addDouble(x + 1).addDouble(y + 1);
+
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", new ObjectId());
+        doc2.pushArray("p").addDouble(x + 2).addDouble(y + 1);
+
+        final DocumentBuilder doc3 = BuilderFactory.start();
+        doc3.addObjectId("_id", new ObjectId());
+        doc3.pushArray("p").addDouble(x + 2).addDouble(y + 2);
+
+        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
+        try {
+            final List<Document> docs = getGeoCollection().aggregate(
+                    Aggregate.builder().geoNear(
+                            AggregationGeoNear.builder().location(p(x, y))
+                                    .distanceField("d")));
+
+            assertThat(docs.size(), is(3));
+            // Don't really care about the distance. Copy from the received
+            // document.
+            assumeThat(docs.get(0), is(doc1.add(docs.get(0).get("d")).build()));
+            assumeThat(docs.get(1), is(doc2.add(docs.get(1).get("d")).build()));
+            assumeThat(docs.get(2), is(doc3.add(docs.get(2).get("d")).build()));
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(
+                    re.getMessage(),
+                    // Before 2.2
+                    allOf(not(containsString("no such cmd: aggregate")),
+                            not(containsString("unrecognized command: aggregate")),
+                            // before 2.4
+                            not(containsString("unrecognized pipeline op \"$geoNear"))));
+
+            fatal(re);
         }
     }
 
@@ -5559,8 +5610,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
         catch (final QueryFailedException qfe) {
             // See if a version prior to 2.4
-            assumeThat(qfe.getMessage(),
-                    is(not(containsString("can't find special index: 2d"))));
+            assumeThat(
+                    qfe.getMessage(),
+                    allOf(not(containsString("can't find special index: 2d")),
+                            not(containsString("Couldn't pull any geometry out of $within query"))));
             fatal(qfe);
         }
         finally {
@@ -5631,8 +5684,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
         catch (final QueryFailedException qfe) {
             // See if a version prior to 2.4
-            assumeThat(qfe.getMessage(),
-                    is(not(containsString("can't find special index: 2d"))));
+            assumeThat(
+                    qfe.getMessage(),
+                    allOf(not(containsString("can't find special index: 2d")),
+                            not(containsString("Couldn't pull any geometry out of $within query"))));
+
             fatal(qfe);
         }
         finally {
