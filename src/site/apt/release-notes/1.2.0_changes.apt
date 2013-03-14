@@ -26,6 +26,12 @@ documents and using GeoJSOn documents with {{{../apidocs/index.html?com/allanban
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$within}}, and 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$geoIntersects}} query operators.
 
+  * Support for the Aggregation's {{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGeoNear.html}$geoNear}} 
+operator.
+  
+  * Support for the Aggregation's {{{../apidocs/index.html?com/allanbank/mongodb/builder/expression/Expressions.html}$concat}} 
+expression.
+  
 * Cursor Restarts
 
   * Added the ability to persist and restart fetching the results of a query from either a 
@@ -53,7 +59,7 @@ to support passing a various command <<<Builders>>> instead of the commands them
   
   * Added a user's guide on using the driver with {{{../userguide/kerberos.html}Kerberos}}.
   
-  * Added a user's guide on using {{{../userguide/cursor_restart.html}restarting cursors}}.
+  * Added a user's guide on {{{../userguide/cursor_restart.html}cursor restarts}}.
 
 Deprecations
 

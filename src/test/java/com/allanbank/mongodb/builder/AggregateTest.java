@@ -21,6 +21,8 @@ import static com.allanbank.mongodb.builder.expression.Expressions.subtract;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
+import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -29,6 +31,7 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.DocumentElement;
 
 /**
  * AggregateTest provides tests for the example usage of the {@link Aggregate}
@@ -58,6 +61,39 @@ public class AggregateTest {
 
         assertSame(ReadPreference.PREFER_SECONDARY, builder.build()
                 .getReadPreference());
+    }
+
+    /**
+     * Test the #geoNear pipeline operator.
+     */
+    @Test
+    public void testGeoNear() {
+        Point2D location = new Point(1, 2);
+
+        final AggregationGeoNear.Builder geoNear = AggregationGeoNear.builder()
+                .location(location).distanceField("dist")
+                .distanceMultiplier(1.2).limit(123).locationField("loc")
+                .maxDistance(12345.6).query(BuilderFactory.start().add("a", 2))
+                .spherical().uniqueDocs(false);
+
+        Aggregate aggregate = Aggregate.builder().geoNear(geoNear).build();
+
+        final DocumentBuilder expected = BuilderFactory.start();
+        DocumentBuilder geoNearOp = expected.push("$geoNear");
+        geoNearOp.pushArray("near").add(1).add(2);
+        geoNearOp.add("distanceField", "dist");
+        geoNearOp.add("spherical", true);
+        geoNearOp.add("uniqueDocs", false);
+
+        geoNearOp.add("limit", 123L);
+        geoNearOp.add("maxDistance", 12345.6);
+        geoNearOp.add("query", BuilderFactory.start().add("a", 2));
+        geoNearOp.add("distanceMultiplier", 1.2);
+        geoNearOp.add("includeLocs", "loc");
+
+        assertEquals(Arrays.asList(new DocumentElement("0", expected.build())),
+                aggregate.getPipeline());
+
     }
 
     /**

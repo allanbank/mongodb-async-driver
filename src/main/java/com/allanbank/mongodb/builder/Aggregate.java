@@ -221,6 +221,66 @@ public class Aggregate {
         }
 
         /**
+         * Adds a <tt>$geoNear</tt> operation to the pipeline to select
+         * documents for the aggregation pipeline based on their relative
+         * location to a set point. The <tt>$geoNear</tt> must be the first
+         * option in the aggregation pipeline. <blockquote>
+         * 
+         * <pre>
+         * <code>
+         * import {@link AggregationGeoNear com.allanbank.mongodb.builder.AggregationGeoNear};
+         * 
+         * {@link Aggregate.Builder} builder = new Aggregate.Builder();
+         * builder.geoNear( AggregationGeoNear.builder()
+         *           .location( new Point( 1, 2 ) )
+         *           .distanceLocationField( "stats.distance" )
+         *           .limit( 5 ).build() );
+         * </code>
+         * </pre>
+         * 
+         * </blockquote>
+         * 
+         * @param geoNear
+         *            The options for the GeoNear operation.
+         * @return This builder for chaining method calls.
+         * 
+         * @since MongoDB 2.4
+         */
+        public Builder geoNear(final AggregationGeoNear geoNear) {
+            return step("$geoNear", geoNear.asDocument());
+        }
+
+        /**
+         * Adds a <tt>$geoNear</tt> operation to the pipeline to select
+         * documents for the aggregation pipeline based on their relative
+         * location to a set point. The <tt>$geoNear</tt> must be the first
+         * option in the aggregation pipeline. <blockquote>
+         * 
+         * <pre>
+         * <code>
+         * import {@link AggregationGeoNear com.allanbank.mongodb.builder.AggregationGeoNear};
+         * 
+         * {@link Aggregate.Builder} builder = new Aggregate.Builder();
+         * builder.geoNear( AggregationGeoNear.builder()
+         *           .location( new Point( 1, 2 ) )
+         *           .distanceLocationField( "stats.distance" )
+         *           .limit( 5 ) );
+         * </code>
+         * </pre>
+         * 
+         * </blockquote>
+         * 
+         * @param geoNear
+         *            The options for the GeoNear operation.
+         * @return This builder for chaining method calls.
+         * 
+         * @since MongoDB 2.4
+         */
+        public Builder geoNear(final AggregationGeoNear.Builder geoNear) {
+            return geoNear(geoNear.build());
+        }
+
+        /**
          * Adds a <tt>$group</tt> operation to the pipeline to aggregate
          * documents passing this point in the pipeline into a group of
          * documents.
@@ -503,6 +563,7 @@ public class Aggregate {
          */
         public Builder reset() {
             myPipeline.reset();
+            myReadPreference = null;
             return this;
         }
 

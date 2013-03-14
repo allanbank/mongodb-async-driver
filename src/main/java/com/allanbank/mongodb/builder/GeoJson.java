@@ -244,14 +244,7 @@ public final class GeoJson {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.add("type", "Point");
 
-        if (position.getClass() == POINT_CLASS) {
-            final Point p = (Point) position;
-            builder.pushArray("coordinates").add(p.x).add(p.y);
-        }
-        else {
-            builder.pushArray("coordinates").add(position.getX())
-                    .add(position.getY());
-        }
+        addRaw(builder.pushArray("coordinates"), position);
 
         return builder.build();
     }
@@ -345,12 +338,25 @@ public final class GeoJson {
      */
     protected static void add(final ArrayBuilder coordinates,
             final Point2D position) {
+        addRaw(coordinates.pushArray(), position);
+    }
+
+    /**
+     * Adds the (x,y) coordinates from the point directly to the array provided.
+     * 
+     * @param arrayBuilder
+     *            The builder to append the (x,y) coordinates to.
+     * @param position
+     *            The (x,y) coordinates.
+     */
+    protected static void addRaw(final ArrayBuilder arrayBuilder,
+            final Point2D position) {
         if (position.getClass() == POINT_CLASS) {
             final Point p = (Point) position;
-            coordinates.pushArray().add(p.x).add(p.y);
+            arrayBuilder.add(p.x).add(p.y);
         }
         else {
-            coordinates.pushArray().add(position.getX()).add(position.getY());
+            arrayBuilder.add(position.getX()).add(position.getY());
         }
     }
 

@@ -88,7 +88,7 @@ public class FindAndModifyTest {
             builder.reset().build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
@@ -157,7 +157,7 @@ public class FindAndModifyTest {
             builder.build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
@@ -180,7 +180,7 @@ public class FindAndModifyTest {
             builder.build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
@@ -201,7 +201,7 @@ public class FindAndModifyTest {
         try {
             builder.build();
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             fail("Should be OK to not have an update with a remove");
         }
     }

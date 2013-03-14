@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import static com.allanbank.mongodb.util.Assertions.assertThat;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -67,16 +69,14 @@ public class GroupBy {
      * 
      * @param builder
      *            The builder to copy the state from.
-     * @throws AssertionError
+     * @throws IllegalArgumentException
      *             If neither the {@link #getKeys() keys} nor
      *             {@link #getKeyFunction() key function} have been set.
      */
-    protected GroupBy(final Builder builder) throws AssertionError {
-
-        if (builder.myKeys.isEmpty() && (builder.myKeyFunction == null)) {
-            throw new AssertionError(
-                    "Must specify either a set of keys for the groupBy or a key function.");
-        }
+    protected GroupBy(final Builder builder) throws IllegalArgumentException {
+        assertThat(
+                !builder.myKeys.isEmpty() || (builder.myKeyFunction != null),
+                "Must specify either a set of keys for the groupBy or a key function.");
 
         myKeys = Collections
                 .unmodifiableSet(new HashSet<String>(builder.myKeys));
@@ -218,11 +218,11 @@ public class GroupBy {
          * 
          * @return A new {@link GroupBy} based on the current state of the
          *         builder.
-         * @throws AssertionError
+         * @throws IllegalArgumentException
          *             If neither the {@link #getKeys() keys} nor
          *             {@link #getKeyFunction() key function} have been set.
          */
-        public GroupBy build() throws AssertionError {
+        public GroupBy build() throws IllegalArgumentException {
             return new GroupBy(this);
         }
 

@@ -51,6 +51,24 @@ public class Assertions {
     }
 
     /**
+     * Throws an {@link IllegalArgumentException} if the {@code value} is
+     * <code>null</code>.
+     * 
+     * @param mustBeTrue
+     *            The value to test.
+     * @param message
+     *            The message for the exception to throw.
+     * @throws IllegalArgumentException
+     *             In the case that the {@code value} is <code>null</code>.
+     */
+    public static void assertThat(final boolean mustBeTrue, final String message)
+            throws IllegalArgumentException {
+        if (!mustBeTrue) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    /**
      * Creates a new Assertions.
      */
     private Assertions() {

@@ -60,7 +60,7 @@ public class GroupByTest {
             builder.build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
@@ -134,7 +134,7 @@ public class GroupByTest {
             builder.reset().build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(

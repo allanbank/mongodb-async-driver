@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotEmpty;
+
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
@@ -46,15 +48,13 @@ public class Distinct {
      * 
      * @param builder
      *            The builder to copy the state from.
-     * @throws AssertionError
+     * @throws IllegalArgumentException
      *             If neither the {@link #getKey() key} is <code>null</code> or
      *             empty.
      */
     protected Distinct(final Builder builder) {
-        if ((builder.myKey == null) || builder.myKey.isEmpty()) {
-            throw new AssertionError(
-                    "The distinct's command key cannot be null or empty.");
-        }
+        assertNotEmpty(builder.myKey,
+                "The distinct's command key cannot be null or empty.");
 
         myKey = builder.myKey;
         myQuery = builder.myQuery;
@@ -128,11 +128,11 @@ public class Distinct {
          * 
          * @return A new {@link GroupBy} based on the current state of the
          *         builder.
-         * @throws AssertionError
+         * @throws IllegalArgumentException
          *             If neither the {@link #setKey key} is <code>null</code>
          *             or empty.
          */
-        public Distinct build() throws AssertionError {
+        public Distinct build() throws IllegalArgumentException {
             return new Distinct(this);
         }
 

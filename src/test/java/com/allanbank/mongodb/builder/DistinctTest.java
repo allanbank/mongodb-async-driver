@@ -54,7 +54,7 @@ public class DistinctTest {
             builder.build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
@@ -77,7 +77,7 @@ public class DistinctTest {
             builder.build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
@@ -121,7 +121,7 @@ public class DistinctTest {
             builder.build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(

@@ -5,6 +5,9 @@
 
 package com.allanbank.mongodb.builder;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+import static com.allanbank.mongodb.util.Assertions.assertThat;
+
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -66,14 +69,12 @@ public class FindAndModify {
      *            The builder to copy from.
      */
     protected FindAndModify(final Builder builder) {
-        if (builder.myQuery == null) {
-            throw new AssertionError(
-                    "The findAndModify's query document cannot be null or empty.");
-        }
-        if ((builder.myUpdate == null) && !builder.myRemove) {
-            throw new AssertionError(
-                    "The findAndModify must have an update document or be a remove.");
-        }
+        assertNotNull(builder.myQuery,
+                "The findAndModify's query document cannot be null or empty.");
+        assertNotNull(builder.myQuery,
+                "The findAndModify's query document cannot be null or empty.");
+        assertThat((builder.myUpdate != null) || builder.myRemove,
+                "The findAndModify must have an update document or be a remove.");
 
         myQuery = builder.myQuery;
         myUpdate = builder.myUpdate;

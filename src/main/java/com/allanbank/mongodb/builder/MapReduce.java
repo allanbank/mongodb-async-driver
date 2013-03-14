@@ -5,6 +5,9 @@
 
 package com.allanbank.mongodb.builder;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotNull;
+import static com.allanbank.mongodb.util.Assertions.assertThat;
+
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
@@ -102,18 +105,15 @@ public class MapReduce {
      *            The builder to copy state from.
      */
     protected MapReduce(final Builder builder) {
-        if (builder.myMapFunction == null) {
-            throw new AssertionError("A mapReduce must have a map function.");
-        }
-        if (builder.myReduceFunction == null) {
-            throw new AssertionError("A mapReduce must have a reduce function.");
-        }
-        if ((builder.myOutputType != OutputType.INLINE)
-                && ((builder.myOutputName == null) || builder.myOutputName
-                        .isEmpty())) {
-            throw new AssertionError(
-                    "A mapReduce output type must be INLINE or an output collection must be specified.");
-        }
+        assertNotNull(builder.myMapFunction,
+                "A mapReduce must have a map function.");
+        assertNotNull(builder.myReduceFunction,
+                "A mapReduce must have a reduce function.");
+        assertThat(
+                (builder.myOutputType == OutputType.INLINE)
+                        || ((builder.myOutputName != null) && !builder.myOutputName
+                                .isEmpty()),
+                "A mapReduce output type must be INLINE or an output collection must be specified.");
 
         myMapFunction = builder.myMapFunction;
         myReduceFunction = builder.myReduceFunction;

@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import static com.allanbank.mongodb.util.Assertions.assertNotEmpty;
+
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
@@ -102,14 +104,13 @@ public class Text {
      * 
      * @param builder
      *            The builder containing the state of the text command.
-     * @throws AssertionError
+     * @throws IllegalArgumentException
      *             On the search term not being set.
      */
     protected Text(final Builder builder) {
-        if ((builder.mySearchTerm == null) || builder.mySearchTerm.isEmpty()) {
-            throw new AssertionError(
-                    "The search term for a 'text' command must be a non-empty string.");
-        }
+        assertNotEmpty(builder.mySearchTerm,
+                "The search term for a 'text' command must be a non-empty string.");
+
         myLanguage = builder.myLanguage;
         myLimit = builder.myLimit;
         myQuery = builder.myQuery;
@@ -220,7 +221,7 @@ public class Text {
          * Creates a new {@link Text} based on the current state of the builder.
          * 
          * @return A new {@link Text} based on the current state of the builder.
-         * @throws AssertionError
+         * @throws IllegalArgumentException
          *             On the search term not being set.
          */
         public Text build() {

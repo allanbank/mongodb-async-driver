@@ -104,7 +104,7 @@ public class MapReduceTest {
             builder.reset().build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
@@ -172,7 +172,7 @@ public class MapReduceTest {
             builder.build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
@@ -195,7 +195,7 @@ public class MapReduceTest {
             builder.build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
@@ -276,7 +276,7 @@ public class MapReduceTest {
             builder.build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
@@ -314,7 +314,7 @@ public class MapReduceTest {
             builder.build();
             built = true;
         }
-        catch (final AssertionError expected) {
+        catch (final IllegalArgumentException expected) {
             // Good.
         }
         assertFalse(
