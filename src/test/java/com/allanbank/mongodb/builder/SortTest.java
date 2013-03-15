@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -15,7 +15,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 /**
  * SortTest provides tests for the Sort helper class.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SortTest {
 

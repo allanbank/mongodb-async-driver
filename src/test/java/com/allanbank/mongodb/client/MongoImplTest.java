@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -38,7 +38,7 @@ import com.allanbank.mongodb.connection.message.Reply;
  * 
  * @deprecated Use the {@link MongoClient} interface instead. This interface
  *             will be removed on or after the 1.3.0 release.
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
 public class MongoImplTest {

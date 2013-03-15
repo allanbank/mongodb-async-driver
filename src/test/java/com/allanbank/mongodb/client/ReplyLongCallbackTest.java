@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -27,7 +27,7 @@ import com.allanbank.mongodb.error.ReplyException;
 /**
  * ReplyLongCallbackTest provides tests for the {@link ReplyLongCallback}.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyLongCallbackTest {
 

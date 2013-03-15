@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -13,7 +13,7 @@ import org.easymock.IArgumentMatcher;
  * 
  * @param <R>
  *            The type for the reply callback.
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AnswerCallback<R> implements IArgumentMatcher {
     /**

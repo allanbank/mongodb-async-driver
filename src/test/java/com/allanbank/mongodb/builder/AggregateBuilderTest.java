@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -39,7 +39,7 @@ import com.allanbank.mongodb.builder.Aggregate.Builder;
 /**
  * AggregateBuilderTest provides tests of the {@link Aggregate.Builder} class.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AggregateBuilderTest extends Builder {
 

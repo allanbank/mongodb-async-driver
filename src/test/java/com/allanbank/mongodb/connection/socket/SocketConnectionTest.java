@@ -2310,7 +2310,7 @@ public class SocketConnectionTest {
      * PoisonMessage provides a message that throws an exception when you try to
      * write it.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class PoisonMessage implements Message {
 

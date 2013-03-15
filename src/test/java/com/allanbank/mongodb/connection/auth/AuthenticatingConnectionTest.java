@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -44,7 +44,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * AuthenticatingConnectionTest provides test for the
  * {@link AuthenticatingConnection}.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticatingConnectionTest {
 

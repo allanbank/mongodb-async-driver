@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -34,7 +34,7 @@ import com.allanbank.mongodb.error.ConnectionLostException;
  * to demonstrate that interactions with the MongoDB processes work.
  * </p>
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
 
@@ -233,7 +233,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
      * BackgroundTailableCursorReader provides a background runnable for reading
      * documents.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class BackgroundTailableCursorReader implements Runnable {
 

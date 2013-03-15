@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -35,7 +35,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * to demonstrate that interactions with the MongoDB processes work.
  * </p>
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
 
@@ -172,7 +172,7 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
      * UnixDomainSocketFactory provides a {@link SocketFactory} implementation
      * based on reflection into the junixsocket library.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class UnixDomainSocketFactory extends SocketFactory {
 

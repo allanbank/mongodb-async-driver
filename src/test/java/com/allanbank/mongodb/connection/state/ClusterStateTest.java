@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, InmyState. 
+ * Copyright 2012-2013, Allanbank Consulting, InmyState. 
  *           All Rights Reserved
  */
 
@@ -39,7 +39,7 @@ import com.allanbank.mongodb.connection.Connection;
 /**
  * ClusterStateTest provides tests for the {@link ClusterState}.
  * 
- * @copyright 2012, Allanbank Consulting, InmyState., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, InmyState., All Rights Reserved
  */
 public class ClusterStateTest {
     /** The pinger being tested. */

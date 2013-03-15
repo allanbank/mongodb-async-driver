@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -18,7 +18,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
  * AggregationGroupIdTest provides tests for the {@link AggregationGroupId} and
  * {@link AggregationGroupId.Builder} classes.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AggregationGroupIdTest {
 

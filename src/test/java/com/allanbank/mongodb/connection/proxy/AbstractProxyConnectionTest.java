@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -45,7 +45,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * AbstractProxyConnectionTest provides tests for the
  * {@link AbstractProxyConnection} class.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AbstractProxyConnectionTest {
     /** An empty document for use in constructing messages. */
@@ -937,7 +937,7 @@ public class AbstractProxyConnectionTest {
     /**
      * TestProxiedConnection provides a connection for testing.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static final class TestProxiedConnection extends
             AbstractProxyConnection {

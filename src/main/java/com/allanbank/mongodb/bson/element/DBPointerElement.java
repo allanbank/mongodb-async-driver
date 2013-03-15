@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.element;
@@ -19,7 +19,7 @@ import com.allanbank.mongodb.bson.Visitor;
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @deprecated See BSON Specification.
- * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
 public class DBPointerElement extends AbstractElement {

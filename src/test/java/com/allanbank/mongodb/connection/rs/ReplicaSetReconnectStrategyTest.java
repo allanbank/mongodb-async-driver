@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -31,7 +31,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * ReplicaSetReconnectStrategyTest provides tests for the
  * {@link ReplicaSetReconnectStrategy}.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetReconnectStrategyTest {
 

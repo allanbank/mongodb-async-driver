@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -41,7 +41,7 @@ import com.mongodb.WriteConcern;
 /**
  * Performance Test harness.
  * 
- * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class PerformanceITest extends ServerTestDriverSupport {
     /** The URI to use to connect to the server. */

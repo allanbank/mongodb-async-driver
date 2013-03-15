@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson;
@@ -11,7 +11,7 @@ package com.allanbank.mongodb.bson;
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
- * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public enum ElementType {
 

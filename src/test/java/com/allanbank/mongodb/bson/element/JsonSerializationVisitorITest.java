@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -29,7 +29,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * JsonSerializationVisitorTest provides tests that the parsing of various JSON
  * extensions matches those done by the MongoDB shell.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JsonSerializationVisitorITest {
 

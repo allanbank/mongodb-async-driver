@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -32,7 +32,7 @@ import com.allanbank.mongodb.connection.state.ServerState;
  * AuthenticationConnectionFactoryTest provides test for the
  * {@link AuthenticationConnectionFactory}.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticationConnectionFactoryTest {
 

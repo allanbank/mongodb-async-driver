@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -10,6 +10,6 @@
  * parsers may also accept invalid documents.
  * 
  * @see <a href="http://java.net/projects/javacc">JavaCC</a>
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 package com.allanbank.mongodb.bson.json;

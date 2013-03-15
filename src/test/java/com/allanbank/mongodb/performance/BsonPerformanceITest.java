@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -35,7 +35,7 @@ import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 /**
  * BsonPerformanceITest provides performance tests for BSON reads and writes.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BsonPerformanceITest {
 
@@ -995,7 +995,7 @@ public class BsonPerformanceITest {
      * DevNullOutputStream provides an {@link OutputStream} implementation to
      * nowhere.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class DevNullOutputStream extends java.io.OutputStream {
 

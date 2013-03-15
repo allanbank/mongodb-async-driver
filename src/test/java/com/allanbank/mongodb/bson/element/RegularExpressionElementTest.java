@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -31,7 +31,7 @@ import com.allanbank.mongodb.bson.Visitor;
  * RegularExpressionElementTest provides tests for the
  * {@link RegularExpressionElement} class.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class RegularExpressionElementTest {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -27,7 +27,7 @@ import com.allanbank.mongodb.connection.Message;
 /**
  * ReplyHandlerTest provides tests for the {@link ReplyHandler} class.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyHandlerTest {
 
@@ -210,7 +210,7 @@ public class ReplyHandlerTest {
     /**
      * CallerExecutor provides a simple executor.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public class CallerExecutor implements Executor {
 
@@ -229,7 +229,7 @@ public class ReplyHandlerTest {
     /**
      * RejectionExecutor provides a simple executor.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public class RejectionExecutor implements Executor {
 

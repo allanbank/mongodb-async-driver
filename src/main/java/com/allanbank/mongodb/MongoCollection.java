@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -30,7 +30,7 @@ import com.allanbank.mongodb.builder.TextResult;
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
- * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface MongoCollection {
     /** An (empty) query document to find all documents. */
@@ -2486,7 +2486,7 @@ public interface MongoCollection {
     /**
      * ValidateMode provides an enumeration of the validation modes.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static enum ValidateMode {
 

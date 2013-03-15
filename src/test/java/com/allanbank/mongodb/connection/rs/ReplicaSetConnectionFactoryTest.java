@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -51,7 +51,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * ReplicaSetConnectionFactoryTest provides tests for the
  * {@link ReplicaSetConnectionFactory}.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetConnectionFactoryTest {
 

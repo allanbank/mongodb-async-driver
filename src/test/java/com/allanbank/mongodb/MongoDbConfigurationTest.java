@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -28,7 +28,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * MongoDbConfigurationTest provides tests for the {@link MongoDbConfiguration}
  * class.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  * @deprecated See {@link MongoDbConfiguration} deprecation.
  */
 @Deprecated

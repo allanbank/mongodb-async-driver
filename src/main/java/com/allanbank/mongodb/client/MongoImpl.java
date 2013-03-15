@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -17,7 +17,7 @@ import com.allanbank.mongodb.MongoDbConfiguration;
  *         mutated in incompatible ways between any two releases of the driver.
  * @deprecated Use the {@link MongoClient} interface instead. This interface
  *             will be removed on or after the 1.3.0 release.
- * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
 public class MongoImpl extends MongoClientImpl implements Mongo {

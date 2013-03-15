@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -34,7 +34,7 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterPinger implements Runnable, Closeable {
 
@@ -344,7 +344,7 @@ public class ClusterPinger implements Runnable, Closeable {
     /**
      * Pinger provides logic to ping servers.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected static final class Pinger {
         /**

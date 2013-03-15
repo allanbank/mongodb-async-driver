@@ -499,7 +499,7 @@ public class MockMongoDBServer extends Thread {
     /**
      * ClientRunnable provides the handling for a single client.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     private final class ClientRunnable implements Runnable {
         /** The client connection. */

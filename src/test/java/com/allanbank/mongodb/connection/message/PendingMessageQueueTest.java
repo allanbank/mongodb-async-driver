@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -24,7 +24,7 @@ import com.allanbank.mongodb.connection.Message;
 /**
  * PendingMessageQueueTest provides tests for the {@link PendingMessageQueue}.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class PendingMessageQueueTest {
 
@@ -1403,7 +1403,7 @@ public class PendingMessageQueueTest {
     /**
      * FastConsumer provides a fast consumer of messages.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public final static class FastConsumer implements Runnable {
 
@@ -1450,7 +1450,7 @@ public class PendingMessageQueueTest {
     /**
      * FastProducer provides a fast producer of messages.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public final static class FastProducer implements Runnable {
 
@@ -1491,7 +1491,7 @@ public class PendingMessageQueueTest {
     /**
      * SlowConsumer provides a slow consumer of messages.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public final static class SlowConsumer implements Runnable {
 
@@ -1541,7 +1541,7 @@ public class PendingMessageQueueTest {
     /**
      * SlowProducer provides a slow producer of messages.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public final static class SlowProducer implements Runnable {
 

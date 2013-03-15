@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -34,7 +34,7 @@ import com.allanbank.mongodb.bson.element.TimestampElement;
  * ExpressionsTest provides tests for the {@link Expressions} class and
  * associated {@link Expression} implementations.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ExpressionsTest {
 

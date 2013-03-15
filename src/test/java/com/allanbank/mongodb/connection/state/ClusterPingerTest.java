@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -50,7 +50,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 /**
  * ClusterPingerTest provides tests for the {@link ClusterPinger} class.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterPingerTest {
     /** The pinger being tested. */
@@ -1261,7 +1261,7 @@ public class ClusterPingerTest {
      * @param <C>
      *            The type for the answer.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public final class CloseAnswer<C> implements IAnswer<C> {
         /** The error to provide to the callback. */
@@ -1312,7 +1312,7 @@ public class ClusterPingerTest {
     /**
      * A specialized callback reply to close the pinger when a value is set.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public class CloseCallbackReply extends CallbackReply {
 

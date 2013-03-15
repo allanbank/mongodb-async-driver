@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -111,7 +111,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * driver generates are acceptable to the MongoDB servers.
  * </p>
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
@@ -7290,7 +7290,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * DocumentCallback provides a simple callback for testing streaming finds.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static final class DocumentCallback implements
             StreamCallback<Document> {

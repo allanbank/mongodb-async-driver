@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -37,7 +37,7 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
  * AggregateTest provides tests for the example usage of the {@link Aggregate}
  * class.
  * 
- * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AggregateTest {
 

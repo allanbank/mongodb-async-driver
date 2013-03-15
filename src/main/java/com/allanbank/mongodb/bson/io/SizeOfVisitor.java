@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.io;
@@ -33,7 +33,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2012, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SizeOfVisitor implements Visitor {
     /** UTF-8 Character set for encoding strings. */
@@ -426,7 +426,7 @@ public class SizeOfVisitor implements Visitor {
      * CachedSizeNode provides a node in a singly linked list that forms the
      * cache for the sizes of lists of elements.
      * 
-     * @copyright 2012, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected static final class CachedSizeNode {
 
