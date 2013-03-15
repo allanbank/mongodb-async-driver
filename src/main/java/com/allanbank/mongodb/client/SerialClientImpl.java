@@ -67,6 +67,8 @@ public class SerialClientImpl extends AbstractClient {
      */
     @Override
     public void close() {
+        super.close();
+
         // Don't close the delegate.
         myConnection = null;
     }

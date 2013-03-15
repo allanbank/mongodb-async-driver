@@ -67,6 +67,7 @@ import com.allanbank.mongodb.connection.state.ServerSelector;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
 import com.allanbank.mongodb.error.CannotConnectException;
+import com.allanbank.mongodb.error.MongoClientClosedException;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
@@ -152,9 +153,6 @@ public class ClientImplTest {
 
         final Connection mockConnection = createMock(Connection.class);
 
-        myMockConnectionFactory.close();
-        expectLastCall();
-
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -177,7 +175,6 @@ public class ClientImplTest {
 
         replay(mockConnection);
 
-        myTestInstance.close();
         myTestInstance.send(message, null);
         myTestInstance.close();
 
@@ -198,9 +195,6 @@ public class ClientImplTest {
                 .build());
 
         final Connection mockConnection = createMock(Connection.class);
-
-        myMockConnectionFactory.close();
-        expectLastCall();
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
@@ -229,7 +223,6 @@ public class ClientImplTest {
 
         replay(mockConnection);
 
-        myTestInstance.close();
         myTestInstance.send(message, null);
         myTestInstance.close();
 
@@ -250,9 +243,6 @@ public class ClientImplTest {
                 .build());
 
         final Connection mockConnection = createMock(Connection.class);
-
-        myMockConnectionFactory.close();
-        expectLastCall();
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
@@ -281,11 +271,34 @@ public class ClientImplTest {
 
         replay(mockConnection);
 
-        myTestInstance.close();
         myTestInstance.send(message, null);
         myTestInstance.close();
 
         verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link ClientImpl#close()} then throws an exception in a
+     * send.
+     * 
+     * @throws IOException
+     *             on a test failure.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testCloseThenThrows() throws IOException {
+
+        final Command message = new Command("testDb", BuilderFactory.start()
+                .build());
+
+        myTestInstance.close();
+        try {
+            myTestInstance.send(message, null);
+            fail("Should have thrown a MongoClientClosedException.");
+        }
+        catch (final MongoClientClosedException mcce) {
+            // Good.
+        }
     }
 
     /**

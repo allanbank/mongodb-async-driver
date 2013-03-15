@@ -48,10 +48,19 @@ formated extended JSON as specified in the
 {{{../apidocs/index.html?com/allanbank/mongodb/bson/Element.html}Element}} interface to make type accessing
 the value of an <<<Element>>> in a type agnostic way possible.
   
-  * Updated the {{{../apidocs/index.html?com/allanbank/mongodbMongoCollection.html}MongoCollection}} methods 
+  * Updated the {{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} methods 
 to support passing a various command <<<Builders>>> instead of the commands themselves.
   
   * Updated the ObjectId to enable construction from a HEX string.
+
+* Semantic Changes
+
+  * Previously a closed MongoClient could be "reopened" simply by continuing to use it.  This could 
+cause race conditions with applications that did not correctly close down.  To avoid these issues
+we have modified the {{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient.close()}} 
+method to permanently close the client and throw the 
+{{{../apidocs/index.html?com/allanbank/mongodb/error/MongoClientClosedException.html}MongoClientClosedException}} 
+on any attempt to send a message after the <<<MongoClient>>> is closed.
 
 * Documentation
 

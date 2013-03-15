@@ -5,6 +5,9 @@
 
 package com.allanbank.mongodb.client;
 
+import java.io.Closeable;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
@@ -13,6 +16,7 @@ import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.error.DocumentToLargeException;
+import com.allanbank.mongodb.error.MongoClientClosedException;
 
 /**
  * AbstractClient provides a base class for {@link Client} implementations.
@@ -23,11 +27,27 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  */
 public abstract class AbstractClient implements Client {
 
+    /** Tracks if the client is closed. */
+    private final AtomicBoolean myClosed = new AtomicBoolean(false);
+
     /**
      * Creates a new AbstractClient.
      */
     public AbstractClient() {
         super();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to close all of the open connections.
+     * </p>
+     * 
+     * @see Closeable#close()
+     */
+    @Override
+    public void close() {
+        myClosed.set(true);
     }
 
     /**
@@ -41,7 +61,7 @@ public abstract class AbstractClient implements Client {
     public String send(final Message message,
             final Callback<Reply> replyCallback) throws MongoDbException {
 
-        validateMessageSize(message, null);
+        validate(message, null);
 
         return findConnection(message, null).send(message, replyCallback);
     }
@@ -57,7 +77,7 @@ public abstract class AbstractClient implements Client {
     public String send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
 
-        validateMessageSize(message1, message2);
+        validate(message1, message2);
 
         return findConnection(message1, message2).send(message1, message2,
                 replyCallback);
@@ -92,9 +112,15 @@ public abstract class AbstractClient implements Client {
      *            The second message to be sent to the server.
      * @throws DocumentToLargeException
      *             On a message being too large.
+     * @throws MongoClientClosedException
+     *             If the client has already been closed.
      */
-    private void validateMessageSize(final Message message1,
-            final Message message2) throws DocumentToLargeException {
+    private void validate(final Message message1, final Message message2)
+            throws DocumentToLargeException, MongoClientClosedException {
+        if (myClosed.get()) {
+            throw new MongoClientClosedException(message1);
+        }
+
         final SizeOfVisitor visitor = new SizeOfVisitor();
         message1.validateSize(visitor, MAX_DOCUMENT_SIZE);
 

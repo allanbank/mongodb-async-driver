@@ -121,6 +121,8 @@ public class ClientImpl extends AbstractClient {
      */
     @Override
     public void close() {
+        // Stop any more messages.
+        super.close();
 
         while (!myConnections.isEmpty()) {
             try {

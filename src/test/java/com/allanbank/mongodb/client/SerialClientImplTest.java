@@ -120,16 +120,10 @@ public class SerialClientImplTest {
 
         expect(mockConnection.send(message, null)).andReturn(myAddress);
 
-        expect(mockConnection.isOpen()).andReturn(true);
-        expect(mockConnection.getPendingCount()).andReturn(0);
-
-        expect(mockConnection.send(message, null)).andReturn(myAddress);
-
         replay(mockConnection);
 
         myTestInstance.send(message, null);
         myTestInstance.close();
-        myTestInstance.send(message, null);
 
         verify(mockConnection);
     }
