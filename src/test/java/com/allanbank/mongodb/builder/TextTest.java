@@ -21,6 +21,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
  * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@SuppressWarnings("boxing")
 public class TextTest {
 
     /**

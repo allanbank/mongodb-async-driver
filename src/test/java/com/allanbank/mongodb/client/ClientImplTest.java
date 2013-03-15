@@ -284,7 +284,6 @@ public class ClientImplTest {
      * @throws IOException
      *             on a test failure.
      */
-    @SuppressWarnings("boxing")
     @Test
     public void testCloseThenThrows() throws IOException {
 
