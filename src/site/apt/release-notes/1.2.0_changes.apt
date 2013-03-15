@@ -53,7 +53,7 @@ to support passing a various command <<<Builders>>> instead of the commands them
   
   * Updated the ObjectId to enable construction from a HEX string.
 
-* Semantic Changes
+* Semantic Change
 
   * Previously a closed MongoClient could be "reopened" simply by continuing to use it.  This could 
 cause race conditions with applications that did not correctly close down.  To avoid these issues

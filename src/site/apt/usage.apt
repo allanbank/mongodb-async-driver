@@ -270,9 +270,4 @@ the MongoDB documentation:
          .sort(desc("biggestCity.pop"));
 +----------------------------------------+
 
-Advanced Topics
-
-  * {{{./userguide/cursor_restart.html}Restarting Iterators and Streams}}
-
-  * {{{./userguide/unix_domain_sockets.html}Connecting to the MongoDB server via UNIX Domain Sockets}}
   

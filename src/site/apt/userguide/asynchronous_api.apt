@@ -1,0 +1,243 @@
+            ------
+            MongoDB Asynchronous Java Driver: Using the Asynchronous API
+            ------
+            ------
+
+Using the Asynchronous API
+
+  Using the asynchronous interfaces driver causes some developers 
+apprehension and doubt on how best to proceed.  This guide is intended to lower
+the barrier for using the asynchronous APIs and provide guidance on best practices.
+
+* Asynchronous Options
+
+  The asynchronous API is broken into two flavors.  One based on <<<Futures>>> and the
+other based on <<<Callbacks>>>.  We will cover futures first and then the callback versions but
+before we get into the details it is important to realize that mixing and matching the asynchronous
+APIs is perfectly acceptable and even encouraged.  It is even possible to mix the asynchronous
+APIs with the traditional methods in high performance applications if done carefully.  More on that later.
+
+  Asynchronous, lock free processing is hard.  There is no doubt that in order to achieve optimal 
+performance the developer needs to think about how to best achieve the desired result.  The good
+news is that when done right the improvements in performance can be extreme.
+
+  There is one feature of the driver that is often over looked but can help immensely with asynchronous
+programming. The {{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient}}
+interface has a method: <<<asSerializedClient()>>>. The method returns what looks like another normal 
+instance of a MongoClient. It has one very special property.  All of the requests to the server that 
+are derived from that MongoClient will be sent via a single logical connection to the cluster and so will
+be serialized and processed in the same order on the server as they are issued on the client. 
+Note that ReadPreferences and sharding can change the server used but all requests to a single 
+server will be processed in the same order as the client issues them. We have intentionally made the 
+<<<asSerializedClient()>>> and <<<MongoDatabase>>> and <<<MongoCollection>>> objects as lightweight as 
+possible to encourage their use.  There are many problems that are extremely difficult to solve without 
+the <<<asSerializedClient()>>> guarantees.
+
+<<<Future>>> Based API
+
+  The <<<Future>>> based API is  the simplest asynchronous API to use.  The method will return an 
+appropriately types <<<Future>>> to the caller.  To retrieve the value simply call <<<get()>>> on the 
+<<<Future>>> returned. Consider the following code.
+
++----------------+
+MongoCollection collection = ....;
+
+// Trivial Future usage.  Not a good use of Futures.
+Future<Long> future = collection.countAsync();
+
+System.out.printf( "There are %,d documents in the collection.%n", future.get() );
++----------------+
+
+  A couple of items to point out:
+
+  * The <<<countAsync()>>> method in all likelihood returned to the caller before the request was even 
+received by the MongoDB servers.
+
+  * The <<<Future.get()>>> method blocks the caller until the response is received from the server.
+
+  Under the hood the driver actually uses the <<<Future>>> interface to implement the synchronous 
+interface.  Given that, using the <<<Future>> like we did above provides little to no benefit over 
+using the synchronous interface.  The question is then when can the <<<Future>>> interface provide 
+benefit.  Generally that can be summarized as:
+
+  * Use the <<<Future>>> API when you can significantly delay the need to retrieve the value from the <<<Future>>>.
+  
+  What does that mean?  As a way of explaining let me give a few of examples.
+  
+* Examples Using the <<<Future>>> API.
+
+** Using a Pending Results Queue
+
+  For the first example lets consider the example of needing to process the contents of a 
+file.  Each line in the file needs to update a different document within MongoDB but we only really
+care that each update is eventually applied and we want to process the file as quickly as possible.  
+Here is what the synchronous version of the logic might look like:
+
++----------------+
+String line;
+MongoCollection collection = null;
+
+BufferedReader reader = new BufferedReader(new StringReader("f"));
+while( (line = reader.readLine()) != null )  {
+    Document query = queryForLine(line);
+    Document update = updateForLine(line);
+    
+    long result = collection.update(query, update);
+    processResult(result);
+}
++----------------+
+
+  There are a number of ways to approach this using futures but probably the easiest is to use a BlockingQueue
+to hold a set number of <<<Futures>>> and when the queue is full we process a single Future before processing 
+the next line (and adding its <<<Future>>>) to the queue.  In this way we can interleave our processing of the
+file with the processing of the replies from the server.  Using the queue of pending results might look like:
+
++----------------+
+String line;
+MongoCollection collection = null;
+BlockingQueue<Future<Long>> pendingResults = new ArrayBlockingQueue<Future<Long>>(1000);
+
+BufferedReader reader = new BufferedReader(new StringReader("f"));
+while ((line = reader.readLine()) != null) {
+    Document query = queryForLine(line);
+    Document update = updateForLine(line);
+
+    Future<Long> result = collection.updateAsync(query, update);
+
+    while (!pendingResults.offer(result)) {
+        Future<Long> delayed = pendingResults.take();
+
+        processResult(delayed);
+    }
+}
+
+Future<Long> delayed;
+while ((delayed = pendingResults.poll()) != null) {
+    processResult(delayed);
+}
++----------------+
+ 
+  We have introduced two more loops.  The first processes results when the queue gets full 
+while we are iterating over the lines in the file.  The second processes all of the remaining 
+results once we have finished processing the file.  Admittedly the code is a little more complex
+but, depending on the complexity of the processing required for the file and for the updates on
+MongoDB, it should run close to optimal.
+
+** Batching Requests / Delayed Evaluation
+
+  The other use for using <<<Futures>>> is when the client has either a number of requests or a request
+can be sent to MongoDB and a client side task (that takes some non-trivial amount of time) is done before
+the response is evaluated.  This approach, and what is a non-trivial amount of time, is application
+specific.  Generally the longer you and defer evaluating the future the better.  We will return to this 
+concept as part of the section on mixing <<<Futures>>> and <<<Callbacks>>>>.  
+
+  A good example of the delayed evaluation is within the driver itself.  The implementation of the 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} sends a request for
+the next batch of documents when a user starts consuming a new batch.  The <<<Future>>> for the reply is
+held in the iterator until the user finishes consuming the previous batch.  Given any non-trivial processing
+of the documents, and a little luck, the reply for a batch will be ready before the previous batch is exhausted
+and the client will not have to pause waiting for more results from the server.
+
+** When You Just Don't Care
+
+  The last use case we will look at for <<<Futures>>> is when the response from the server does not matter.
+It may seem strange to say but once you start fully embracing an asynchronous programming style there will be
+many cases where you don't care what the result of individual requests are. There will be specific points in
+the processing where you will need to know exactly what the state was but there might be a series of updates
+and deletes that are performed by pipelining with a serialized client and then a find query to see the results
+of all of the updates.  Using the <<<Future>>> interface and Durability.NONE will optimize the updates and delete
+processing.
+
+* Error Handling with the <<<Future>>> API.
+
+  Any error encountered while processing the request will be thrown when the <<<get()>>> method 
+of the future is called.  The exception is wrapped in an <<<ExecutionException>>>.  The original
+exception can be retrieved from the <<<ExecutionException>>> via the <<<ExecutionException.getCause()>>>
+method.
+
+<<<Callback>>> Based API
+
+  Using the <<<Callback>>> asynchronous API requires the most work on the developers part but if 
+done carefully can maintain the clarity of the code and also ensure maximum performance.  To use
+the <<<Callback>>> API the developer needs to implement and instantiate a specialized hander for the
+results of each unique use case to the MongoDB server. The class will extend the <<<Callback>>> interface
+which specifies two methods <<<Callback.callback(T)>>> and <<<Callback.exception(Throwable)>>>. 
+Initial implementations of the interface are commonly created as anonymous inner classes.
+
+  When switching to the <<<Callback>>> interface if there are any callbacks that are not lightweight then
+it is highly recommended that an <<<Executor>>> be provided in the  
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}
+so that the <<<Callback>>> handling can be done of a different thread.
+
+  The main benefit of the <<<Callback>>> API is that it can remove all need to wait for data.  All requests
+are sent to the server and when the response is ready, it is processed immediately.
+
+* Example Using the <<<Callback>>> API.
+
+  Lets return to our File processing example.  Using the <<<Callback>>> interface is a fairly minor change
+to the original processing.  Using the anonymous inner class obfuscates the following example but the intent
+is still fairly clear.
+
++----------------+
+String line;
+MongoCollection collection = null;
+ArrayBlockingQueue<Future<Long>> pendingResults = new ArrayBlockingQueue<Future<Long>>(
+        1000);
+
+BufferedReader reader = new BufferedReader(new StringReader("f"));
+while ((line = reader.readLine()) != null) {
+    Document query = queryForLine(line);
+    Document update = updateForLine(line);
+
+    collection.updateAsync(new Callback<Long>() {
+        public void callback(Long result) {
+            processResult(result);
+        }
+        public void exception(Throwable thrown) {
+            // Handle error.
+        }
+    }, query, update);
+}
++----------------+
+
+  The anonymous inner class can be moved to a nester or top level class but then the link
+between the result of one request leading to the next stage of processing is lost.  To recover 
+the codes flow we have successfully used a the following strategy:
+
+  * For each processing flow define the series of stages that must be completed. Each stage 
+ends with an asynchronous request to MongoDB. 
+
+  * Create a series of methods in the class responsible for the processing named something 
+like: <<<\<flow_name\>\<stage_name\>(...)>>>.  The arguments to each stage are the results of
+the previous stage's final request to MongoDB and any other state that needs to be carried forward.
+If your project uses automated code reformatting and sorting name the stages with a sortable 
+prefix, e.g., stage1Prepare, stage2Compose, etc.
+
+  * Create simple nested and/or top level classes to act as the callback and bridge from one stage to
+the next.  An instance of the callback will be used with the asynchronous request at the end of one 
+stage and its <<<callback(...)>>> method will simply invoke the method for the next stage.
+
+  The combination of the method naming and ordering clearly communicates the processing flow to
+future developers.  By keeping all logic out of the <<<Callbacks>>> we ensure they remain clear 
+and concise bridge components.
+
+* Error Handling with the <<<Callback>>> API.
+
+  Any errors encountered while processing the request will be explicitly given to the <<<Callback>>>
+via the <<<exception(Throwable)>>> method. One of the virtues of the Callback method or handling 
+asynchronous requests is that it forces the developer to explicitly deal with failures.  A common 
+mechanism is to retry the request.
+
+* Retries with Callbacks
+
+  TODO: 
+
+Mixing <<<Futures>>> and <<<Callbacks>>>>
+
+  TODO: Batch result processing.
+
+Mixing Synchronous use with Asynchronous Usage.
+
+  TODO: Performance critical vs. batch/periodic processing.
+ 
+    
