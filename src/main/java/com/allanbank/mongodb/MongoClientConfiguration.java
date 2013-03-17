@@ -733,7 +733,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
                     .next().getValue();
             try {
                 final MessageDigest md5 = MessageDigest.getInstance("MD5");
-                final byte[] digest = md5.digest((credentials.getUsername()
+                final byte[] digest = md5.digest((credentials.getUserName()
                         + ":mongo:" + new String(credentials.getPassword()))
                         .getBytes(UTF8));
 
@@ -835,7 +835,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         if (!myCredentials.isEmpty()) {
             final Credential credentials = myCredentials.entrySet().iterator()
                     .next().getValue();
-            return credentials.getUsername();
+            return credentials.getUserName();
         }
         return null;
     }

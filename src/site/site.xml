@@ -2,10 +2,15 @@
 <project name="MongoDB Asynchronous Java Driver">
 
 	<googleAnalyticsAccountId>UA-33634837-1</googleAnalyticsAccountId>
+<!-- 	<skin> -->
+<!-- 		<groupId>org.apache.maven.skins</groupId> -->
+<!-- 		<artifactId>maven-application-skin</artifactId> -->
+<!-- 		<version>1.0</version> -->
+<!-- 	</skin> -->
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
-		<artifactId>maven-application-skin</artifactId>
-		<version>1.0</version>
+		<artifactId>maven-fluido-skin</artifactId>
+		<version>1.2.1</version>
 	</skin>
 	<body>
 		<menu name="Overview">
@@ -13,9 +18,9 @@
 			<item name="Download" href="download.html" />
 			<item name="JavaDocs" href="apidocs/index.html" />
 			<item name="Getting Started" href="usage.html" collapse="true">
-				<item name="Cursor Restarts" href="usersguide/cursor_restart.html" />
-				<item name="Kerberos" href="usersguide/kerberos.html" />
-				<item name="Maven" href="usersguide/maven.html" />
+				<item name="Cursor Restarts" href="userguide/cursor_restart.html" />
+				<item name="Kerberos" href="userguide/kerberos.html" />
+				<item name="Maven" href="userguide/maven.html" />
 				<item name="UNIX Domain Sockets" href="usersguide/unix_domain_sockets.html" />
 			</item>
 			<item name="Performance" href="index.html#Performance">
@@ -29,8 +34,13 @@
 		<menu ref="reports" />
 	</body>
 
-	<!-- <skin> <groupId>org.apache.maven.skins</groupId> <artifactId>maven-fluido-skin</artifactId> 
-		<version>1.2.1</version> </skin> <custom> <fluidoSkin> <topBarEnabled>true</topBarEnabled> 
-		<sideBarEnabled>true</sideBarEnabled> <googleSearch><siteSearch/></googleSearch> 
-		</fluidoSkin> </custom> -->
+	<custom>
+		<fluidoSkin>
+			<topBarEnabled>true</topBarEnabled>
+			<sideBarEnabled>true</sideBarEnabled>
+			<googleSearch>
+				<siteSearch />
+			</googleSearch>
+		</fluidoSkin>
+	</custom>
 </project>

@@ -37,7 +37,7 @@ public class CredentialTest {
         final MongoDbAuthenticator auth = new MongoDbAuthenticator();
         final Credential c = new Credential("user", new char[1], "foo", auth);
 
-        assertEquals("user", c.getUsername());
+        assertEquals("user", c.getUserName());
         assertArrayEquals(new char[1], c.getPassword());
         assertEquals("foo", c.getDatabase());
         assertEquals(MongoDbAuthenticator.class.getName(),
@@ -64,7 +64,7 @@ public class CredentialTest {
     public void testCredentialStringCharArrayString() {
         final Credential c = new Credential("user", new char[1], "foo");
 
-        assertEquals("user", c.getUsername());
+        assertEquals("user", c.getUserName());
         assertArrayEquals(new char[1], c.getPassword());
         assertEquals(Credential.ADMIN_DB, c.getDatabase());
         assertEquals("foo", c.getAuthenticationType());
@@ -80,7 +80,7 @@ public class CredentialTest {
         final MongoDbAuthenticator auth = new MongoDbAuthenticator();
         final Credential c = new Credential("user", new char[1], "foo", auth);
 
-        assertEquals("user", c.getUsername());
+        assertEquals("user", c.getUserName());
         assertArrayEquals(new char[1], c.getPassword());
         assertEquals("foo", c.getDatabase());
         assertEquals(MongoDbAuthenticator.class.getName(),
@@ -96,7 +96,7 @@ public class CredentialTest {
     public void testCredentialStringCharArrayStringString() {
         final Credential c = new Credential("user", new char[1], "foo", "auth");
 
-        assertEquals("user", c.getUsername());
+        assertEquals("user", c.getUserName());
         assertArrayEquals(new char[1], c.getPassword());
         assertEquals("foo", c.getDatabase());
         assertEquals("auth", c.getAuthenticationType());

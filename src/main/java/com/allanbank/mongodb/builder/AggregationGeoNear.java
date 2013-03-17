@@ -258,7 +258,7 @@ public class AggregationGeoNear implements DocumentAssignable {
      *          before being removed or modified.
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static final class Builder {
+    public static class Builder {
         /**
          * The name of the field to place the distance from the source
          * {@link #getLocation() location}.

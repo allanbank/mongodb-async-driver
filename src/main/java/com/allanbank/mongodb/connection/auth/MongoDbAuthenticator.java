@@ -147,7 +147,7 @@ public class MongoDbAuthenticator implements Authenticator {
         final char[] password = credentials.getPassword();
         final ByteBuffer bb = ASCII.encode(CharBuffer.wrap(password));
 
-        md5.update((credentials.getUsername() + ":mongo:").getBytes(ASCII));
+        md5.update((credentials.getUserName() + ":mongo:").getBytes(ASCII));
         md5.update(bb.array(), 0, bb.limit());
 
         Arrays.fill(password, ' ');
@@ -162,13 +162,16 @@ public class MongoDbAuthenticator implements Authenticator {
      * 
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    private class AuthenticateReplyCallback extends
+    private static class AuthenticateReplyCallback extends
             AbstractReplyCallback<Boolean> {
         /**
          * Creates a new AuthenticateReplyCallback.
+         * 
+         * @param results
+         *            The results to update once the reply is received.
          */
-        public AuthenticateReplyCallback() {
-            super(myResults);
+        public AuthenticateReplyCallback(final FutureCallback<Boolean> results) {
+            super(results);
         }
 
         /**
@@ -277,21 +280,21 @@ public class MongoDbAuthenticator implements Authenticator {
                 final String passwordHash = passwordHash(md5, myCredential);
 
                 final String text = nonce.getValue()
-                        + myCredential.getUsername() + passwordHash;
+                        + myCredential.getUserName() + passwordHash;
 
                 md5.reset();
                 md5.update(text.getBytes(ASCII));
                 final byte[] bytes = md5.digest();
 
-                DocumentBuilder builder = BuilderFactory.start();
-                builder = BuilderFactory.start();
+                final DocumentBuilder builder = BuilderFactory.start();
                 builder.addInteger("authenticate", 1);
                 builder.add(nonce.getName(), nonce.getValue());
-                builder.addString("user", myCredential.getUsername());
+                builder.addString("user", myCredential.getUserName());
                 builder.addString("key", IOUtils.toHex(bytes));
 
                 myConnection.send(new Command(myCredential.getDatabase(),
-                        builder.build()), new AuthenticateReplyCallback());
+                        builder.build()), new AuthenticateReplyCallback(
+                        myResults));
             }
             catch (final NoSuchAlgorithmException e) {
                 exception(new MongoDbAuthenticationException(e));

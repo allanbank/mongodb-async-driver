@@ -74,7 +74,7 @@ public final class Credential implements Serializable {
     private final String myAuthenticationType;
 
     /** The template authenticator for the credentials. */
-    private Authenticator myAuthenticator;
+    private transient Authenticator myAuthenticator;
 
     /** The database the credentials are valid for. */
     private final String myDatabase;
@@ -83,7 +83,7 @@ public final class Credential implements Serializable {
     private final char[] myPassword;
 
     /** The username for the credentials set. */
-    private final String myUsername;
+    private final String myUserName;
 
     /**
      * Creates a new Credential.
@@ -122,7 +122,7 @@ public final class Credential implements Serializable {
      */
     public Credential(final String username, final char[] password,
             final String database, final Authenticator authenticator) {
-        myUsername = username;
+        myUserName = username;
         myDatabase = database;
         myAuthenticationType = authenticator.getClass().getName();
         myAuthenticator = authenticator;
@@ -154,7 +154,7 @@ public final class Credential implements Serializable {
      */
     public Credential(final String username, final char[] password,
             final String database, final String authenticationType) {
-        myUsername = username;
+        myUserName = username;
         myDatabase = database;
         myAuthenticationType = authenticationType;
         myAuthenticator = null;
@@ -211,7 +211,7 @@ public final class Credential implements Serializable {
             result = nullSafeEquals(myAuthenticationType,
                     other.myAuthenticationType)
                     && nullSafeEquals(myDatabase, other.myDatabase)
-                    && nullSafeEquals(myUsername, other.myUsername)
+                    && nullSafeEquals(myUserName, other.myUserName)
                     && Arrays.equals(myPassword, other.myPassword);
         }
         return result;
@@ -264,8 +264,8 @@ public final class Credential implements Serializable {
      * 
      * @return The username for the credentials set.
      */
-    public String getUsername() {
-        return myUsername;
+    public String getUserName() {
+        return myUserName;
     }
 
     /**
@@ -285,7 +285,7 @@ public final class Credential implements Serializable {
                 + ((myDatabase == null) ? 0 : myDatabase.hashCode());
         result = (31 * result) + Arrays.hashCode(myPassword);
         result = (31 * result)
-                + ((myUsername == null) ? 0 : myUsername.hashCode());
+                + ((myUserName == null) ? 0 : myUserName.hashCode());
 
         return result;
     }
@@ -300,7 +300,7 @@ public final class Credential implements Serializable {
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append("{ username : '");
-        builder.append(myUsername);
+        builder.append(myUserName);
         builder.append("', database : '");
         builder.append(myDatabase);
         builder.append("', password : '<redacted>', type: '");

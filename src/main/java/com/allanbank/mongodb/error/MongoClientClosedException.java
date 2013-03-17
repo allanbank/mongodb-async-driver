@@ -25,7 +25,7 @@ public class MongoClientClosedException extends MongoDbException {
     private static final long serialVersionUID = 1729264905521755667L;
 
     /** The message that was being sent. */
-    private final Message myMessage;
+    private transient final Message myMessage;
 
     /**
      * Creates a new CannotConnectException.

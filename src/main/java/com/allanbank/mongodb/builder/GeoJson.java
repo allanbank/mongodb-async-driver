@@ -61,7 +61,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  */
 public final class GeoJson {
     /** The class for an integer {@link Point} */
-    protected static final Class<Point> POINT_CLASS = Point.class;
+    private static final Class<Point> POINT_CLASS = Point.class;
 
     /**
      * Constructs a GeoJSON 'LineString' document from the coordinates provided.
@@ -77,7 +77,7 @@ public final class GeoJson {
      *      href="http://www.geojson.org/geojson-spec.html#linestring">GeoJSON
      *      LineString</a>
      */
-    public static final Document lineString(final List<? extends Point2D> points)
+    public static Document lineString(final List<? extends Point2D> points)
             throws IllegalArgumentException {
         if (points.size() < 2) {
             throw new IllegalArgumentException(
@@ -107,7 +107,7 @@ public final class GeoJson {
      *      href="http://www.geojson.org/geojson-spec.html#linestring">GeoJSON
      *      LineString</a>
      */
-    public static final Document lineString(final Point2D p1, final Point2D p2,
+    public static Document lineString(final Point2D p1, final Point2D p2,
             final Point2D... remaining) {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.add("type", "LineString");
@@ -141,7 +141,7 @@ public final class GeoJson {
      * @see <a href="http://www.geojson.org/geojson-spec.html#polygon">GeoJSON
      *      Polygon</a>
      */
-    public static final Document multiLineString(
+    public static Document multiLineString(
             final List<? extends Point2D> firstLineString,
             final List<? extends Point2D>... additionalLineStrings) {
         final DocumentBuilder builder = BuilderFactory.start();
@@ -167,8 +167,7 @@ public final class GeoJson {
      * @see <a href="http://www.geojson.org/geojson-spec.html#point">GeoJSON
      *      Point</a>
      */
-    public static final Document multiPoint(
-            final List<? extends Point2D> positions) {
+    public static Document multiPoint(final List<? extends Point2D> positions) {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.add("type", "MultiPoint");
 
@@ -191,7 +190,7 @@ public final class GeoJson {
      * @see <a href="http://www.geojson.org/geojson-spec.html#point">GeoJSON
      *      Point</a>
      */
-    public static final Document multiPoint(final Point2D firstPosition,
+    public static Document multiPoint(final Point2D firstPosition,
             final Point2D... additionalPositions) {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.add("type", "MultiPoint");
@@ -214,7 +213,7 @@ public final class GeoJson {
      *            The point's y position
      * @return A Point for the coordinates provided.
      */
-    public static final Point2D p(final double x, final double y) {
+    public static Point2D p(final double x, final double y) {
         return new Point2D.Double(x, y);
     }
 
@@ -227,7 +226,7 @@ public final class GeoJson {
      *            The point's y position
      * @return A Point for the coordinates provided.
      */
-    public static final Point p(final int x, final int y) {
+    public static Point p(final int x, final int y) {
         return new Point(x, y);
     }
 
@@ -240,7 +239,7 @@ public final class GeoJson {
      * @see <a href="http://www.geojson.org/geojson-spec.html#point">GeoJSON
      *      Point</a>
      */
-    public static final Document point(final Point2D position) {
+    public static Document point(final Point2D position) {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.add("type", "Point");
 
@@ -262,7 +261,7 @@ public final class GeoJson {
      * @see <a href="http://www.geojson.org/geojson-spec.html#polygon">GeoJSON
      *      Polygon</a>
      */
-    public static final Document polygon(final List<? extends Point2D> boundary)
+    public static Document polygon(final List<? extends Point2D> boundary)
             throws IllegalArgumentException {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.add("type", "Polygon");
@@ -295,8 +294,7 @@ public final class GeoJson {
      * @see <a href="http://www.geojson.org/geojson-spec.html#polygon">GeoJSON
      *      Polygon</a>
      */
-    public static final Document polygon(
-            final List<? extends Point2D> boundary,
+    public static Document polygon(final List<? extends Point2D> boundary,
             final List<? extends Point2D>... holes)
             throws IllegalArgumentException {
         final DocumentBuilder builder = BuilderFactory.start();
