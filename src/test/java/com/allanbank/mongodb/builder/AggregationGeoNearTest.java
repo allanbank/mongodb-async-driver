@@ -24,6 +24,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@SuppressWarnings("boxing")
 public class AggregationGeoNearTest {
 
     /**
