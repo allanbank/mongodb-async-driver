@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -106,6 +107,63 @@ public class MongoDbConfigurationTest {
         assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
                 config.getPasswordHash());
         assertTrue(config.isAdminUser());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#authenticate(String, String)}
+     * .
+     */
+    @Test
+    public void testAuthenticateSetDBFirst() {
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+
+        assertFalse(config.isAuthenticating());
+        assertNull(config.getUserName());
+        assertNull(config.getPasswordHash());
+
+        config.setDefaultDatabase("foo");
+        config.authenticate("allanbank", "super_secret_password");
+
+        assertTrue(config.isAuthenticating());
+        assertEquals("allanbank", config.getUserName());
+        assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
+                config.getPasswordHash());
+        assertFalse(config.isAdminUser());
+        assertEquals(1, config.getCredentials().size());
+        final Credential cred = config.getCredentials().iterator().next();
+        assertEquals("foo", cred.getDatabase());
+        assertEquals("allanbank", cred.getUserName());
+        assertArrayEquals("super_secret_password".toCharArray(),
+                cred.getPassword());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#authenticate(String, String)}
+     * .
+     */
+    @Test
+    public void testAuthenticateSetDBSecond() {
+
+        final MongoDbConfiguration config = new MongoDbConfiguration();
+
+        assertFalse(config.isAuthenticating());
+        assertNull(config.getUserName());
+        assertNull(config.getPasswordHash());
+
+        config.authenticate("allanbank", "super_secret_password");
+        config.setDefaultDatabase("foo");
+
+        assertTrue(config.isAuthenticating());
+        assertEquals("allanbank", config.getUserName());
+        assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
+                config.getPasswordHash());
+        assertFalse(config.isAdminUser());
+        assertEquals(1, config.getCredentials().size());
+        final Credential cred = config.getCredentials().iterator().next();
+        assertEquals("foo", cred.getDatabase());
+        assertEquals("allanbank", cred.getUserName());
+        assertArrayEquals("super_secret_password".toCharArray(),
+                cred.getPassword());
     }
 
     /**

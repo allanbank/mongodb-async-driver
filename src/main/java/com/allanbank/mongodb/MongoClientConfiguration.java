@@ -967,7 +967,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
             myCredentials.remove(myLegacyCredential.getDatabase());
             myLegacyCredential = new Credential(
                     myLegacyCredential.getUserName(),
-                    myLegacyCredential.getPassword(), getDefaultDatabase(),
+                    myLegacyCredential.getPassword(), defaultDatabase,
                     Credential.MONGODB_CR);
             addCredential(myLegacyCredential);
         }

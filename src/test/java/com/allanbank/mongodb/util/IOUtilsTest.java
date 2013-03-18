@@ -70,6 +70,7 @@ public class IOUtilsTest {
      */
     @Test
     public void testBase64ToBytes() throws UnsupportedEncodingException {
+        assertArrayEquals(new byte[0], IOUtils.base64ToBytes(""));
         assertArrayEquals(
                 "The quick brown fox jumped over the lazy dogs."
                         .getBytes("US-ASCII"),
@@ -90,6 +91,30 @@ public class IOUtilsTest {
                 IOUtils.base64ToBytes("eyAwLCAxLCAyLCAzLCA0LCA1LCA2LCA3LCA4LCA5IH0="));
         assertArrayEquals("xyzzy!".getBytes("US-ASCII"),
                 IOUtils.base64ToBytes("eHl6enkh"));
+    }
+
+    /**
+     * Test method for {@link IOUtils#base64ToBytes(String)}.
+     * 
+     * @throws UnsupportedEncodingException
+     *             On a failure to encode the test vector.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testBase64ToBytesInvalidChar()
+            throws UnsupportedEncodingException {
+        IOUtils.base64ToBytes("VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2d\u6666Lg==");
+    }
+
+    /**
+     * Test method for {@link IOUtils#base64ToBytes(String)}.
+     * 
+     * @throws UnsupportedEncodingException
+     *             On a failure to encode the test vector.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testBase64ToBytesInvalidLength()
+            throws UnsupportedEncodingException {
+        IOUtils.base64ToBytes("VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg=");
     }
 
     /**

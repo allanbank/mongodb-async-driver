@@ -8,6 +8,7 @@ package com.allanbank.mongodb;
 import static org.easymock.EasyMock.createMock;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -117,6 +118,65 @@ public class MongoClientConfigurationTest {
         assertThat(config.getCredentials(), hasItem(new Credential("allanbank",
                 "super_secret_password".toCharArray(), Credential.ADMIN_DB,
                 Credential.MONGODB_CR)));
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#authenticate(String, String)}
+     * .
+     */
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testAuthenticateSetDBFirst() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        assertFalse(config.isAuthenticating());
+        assertNull(config.getUserName());
+        assertNull(config.getPasswordHash());
+
+        config.setDefaultDatabase("foo");
+        config.authenticate("allanbank", "super_secret_password");
+
+        assertTrue(config.isAuthenticating());
+        assertEquals("allanbank", config.getUserName());
+        assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
+                config.getPasswordHash());
+        assertFalse(config.isAdminUser());
+        assertEquals(1, config.getCredentials().size());
+        final Credential cred = config.getCredentials().iterator().next();
+        assertEquals("foo", cred.getDatabase());
+        assertEquals("allanbank", cred.getUserName());
+        assertArrayEquals("super_secret_password".toCharArray(),
+                cred.getPassword());
+    }
+
+    /**
+     * Test method for {@link MongoDbConfiguration#authenticate(String, String)}
+     * .
+     */
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testAuthenticateSetDBSecond() {
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        assertFalse(config.isAuthenticating());
+        assertNull(config.getUserName());
+        assertNull(config.getPasswordHash());
+
+        config.authenticate("allanbank", "super_secret_password");
+        config.setDefaultDatabase("foo");
+
+        assertTrue(config.isAuthenticating());
+        assertEquals("allanbank", config.getUserName());
+        assertEquals("fc3b4ed71943faaefb6c21fdffee3e95",
+                config.getPasswordHash());
+        assertFalse(config.isAdminUser());
+        assertEquals(1, config.getCredentials().size());
+        final Credential cred = config.getCredentials().iterator().next();
+        assertEquals("foo", cred.getDatabase());
+        assertEquals("allanbank", cred.getUserName());
+        assertArrayEquals("super_secret_password".toCharArray(),
+                cred.getPassword());
     }
 
     /**
