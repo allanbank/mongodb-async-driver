@@ -57,8 +57,8 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         startAuthenticated();
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        config.addCredential(new Credential(ADMIN_USER_NAME, PASSWORD,
-                Credential.MONGODB_CR));
+        config.addCredential(Credential.builder().userName(ADMIN_USER_NAME)
+                .password(PASSWORD).mongodbCR().build());
 
         Connection socketConn = null;
         AuthenticatingConnection authConn = null;
@@ -104,8 +104,8 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         startAuthenticated();
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        config.addCredential(new Credential(USER_NAME, PASSWORD, USER_DB,
-                Credential.MONGODB_CR));
+        config.addCredential(Credential.builder().userName(USER_NAME)
+                .password(PASSWORD).database(USER_DB).mongodbCR().build());
 
         Connection socketConn = null;
         AuthenticatingConnection authConn = null;

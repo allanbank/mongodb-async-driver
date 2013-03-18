@@ -317,14 +317,16 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
         if (mongoDbUri.getUserName() != null) {
             if (database.isEmpty()) {
-                setCredentials(Arrays.asList(new Credential(mongoDbUri
-                        .getUserName(), mongoDbUri.getPassword().toCharArray(),
-                        Credential.MONGODB_CR)));
+                setCredentials(Arrays.asList(Credential.builder()
+                        .userName(mongoDbUri.getUserName())
+                        .password(mongoDbUri.getPassword().toCharArray())
+                        .mongodbCR().build()));
             }
             else {
-                setCredentials(Arrays.asList(new Credential(mongoDbUri
-                        .getUserName(), mongoDbUri.getPassword().toCharArray(),
-                        database, Credential.MONGODB_CR)));
+                setCredentials(Arrays.asList(Credential.builder()
+                        .userName(mongoDbUri.getUserName())
+                        .password(mongoDbUri.getPassword().toCharArray())
+                        .database(database).mongodbCR().build()));
             }
         }
 
@@ -486,6 +488,21 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Adds the specified credentials to the configuration.
+     * 
+     * @param credentials
+     *            The credentials to use when accessing the MongoDB server.
+     * @throws IllegalArgumentException
+     *             If the credentials refer to an unknown authentication type or
+     *             the configuration already has a set of credentials for the
+     *             credentials specified database.
+     */
+    public void addCredential(final Credential.Builder credentials)
+            throws IllegalArgumentException {
+        addCredential(credentials.build());
+    }
+
+    /**
      * Adds a server to initially attempt to connect to.
      * 
      * @param server
@@ -525,8 +542,10 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         if (myLegacyCredential != null) {
             myCredentials.remove(myLegacyCredential.getDatabase());
         }
-        myLegacyCredential = new Credential(userName, password.toCharArray(),
-                getDefaultDatabase(), Credential.MONGODB_CR);
+        myLegacyCredential = Credential.builder().userName(userName)
+                .password(password.toCharArray())
+                .database(getDefaultDatabase()).mongodbCR().build();
+
         addCredential(myLegacyCredential);
     }
 
@@ -547,8 +566,10 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     @Deprecated
     public void authenticateAsAdmin(final String userName, final String password)
             throws MongoDbAuthenticationException {
-        addCredential(new Credential(userName, password.toCharArray(),
-                ADMIN_DB_NAME, Credential.MONGODB_CR));
+
+        addCredential(Credential.builder().userName(userName)
+                .password(password.toCharArray()).database(ADMIN_DB_NAME)
+                .mongodbCR().build());
     }
 
     /**
@@ -965,10 +986,10 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
         if (myLegacyCredential != null) {
             myCredentials.remove(myLegacyCredential.getDatabase());
-            myLegacyCredential = new Credential(
-                    myLegacyCredential.getUserName(),
-                    myLegacyCredential.getPassword(), defaultDatabase,
-                    Credential.MONGODB_CR);
+            myLegacyCredential = Credential.builder()
+                    .userName(myLegacyCredential.getUserName())
+                    .password(myLegacyCredential.getPassword())
+                    .database(defaultDatabase).mongodbCR().build();
             addCredential(myLegacyCredential);
         }
     }

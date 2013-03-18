@@ -86,8 +86,10 @@ public class ServerTestDriverSupport {
             // Use the authenticator to compute the hash.
             final MongoDbAuthenticator authenticator = new MongoDbAuthenticator();
 
-            final Credential adminCredentials = new Credential(ADMIN_USER_NAME,
-                    PASSWORD, Credential.ADMIN_DB, Credential.MONGODB_CR);
+            final Credential adminCredentials = Credential.builder()
+                    .userName(ADMIN_USER_NAME).password(PASSWORD)
+                    .database(Credential.ADMIN_DB)
+                    .authenticationType(Credential.MONGODB_CR).build();
             final String adminHash = authenticator
                     .passwordHash(adminCredentials);
 
@@ -128,8 +130,9 @@ public class ServerTestDriverSupport {
             collection = db.getCollection("system.users");
 
             // Again - Authenticator does the hash for us.
-            final Credential userCredentials = new Credential(USER_NAME,
-                    PASSWORD, "any", Credential.MONGODB_CR);
+            final Credential userCredentials = Credential.builder()
+                    .userName(USER_NAME).password(PASSWORD).database("any")
+                    .authenticationType(Credential.MONGODB_CR).build();
 
             docBuilder = BuilderFactory.start();
             docBuilder.addString("user", USER_NAME);

@@ -34,7 +34,7 @@ simple as providing the appropriate credentials with the
 MongoClientConfiguration config = new MongoClientConfiguration("mongodb://locahost:27017/");
 
 char[] password = new char[] { 's', 'u', 'p', 'e', 'r', 's', 'e', 'c', 'r', 'e', 't' };
-config.addCredential(new Credential("<user>@<REALM>", password, Credentials.KERBEROS);
+config.addCredential(Credential.builder().userName("<user>@<REALM>").password(password).kerberos());
 Arrays.fill( password, ' ' );
 +----------------------------------------+
 

@@ -231,8 +231,9 @@ public class BootstrapConnectionFactoryTest {
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
-        config.addCredential(new Credential(USER_NAME, PASSWORD, "foo",
-                Credential.MONGODB_CR));
+        config.addCredential(Credential.builder().userName(USER_NAME)
+                .password(PASSWORD).database("foo")
+                .authenticationType(Credential.MONGODB_CR).build());
 
         myTestFactory = new BootstrapConnectionFactory(config);
 

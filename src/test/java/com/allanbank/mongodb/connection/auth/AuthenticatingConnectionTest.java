@@ -78,9 +78,10 @@ public class AuthenticatingConnectionTest {
     @Before
     public void setUp() {
         myConfig = new MongoClientConfiguration();
-        myConfig.addCredential(new Credential("allanbank",
-                "super_secret_password".toCharArray(), TEST_DB,
-                Credential.MONGODB_CR));
+        myConfig.addCredential(Credential.builder().userName("allanbank")
+                .password("super_secret_password".toCharArray())
+                .database(TEST_DB).authenticationType(Credential.MONGODB_CR)
+                .build());
 
         myNonceRequest = BuilderFactory.start();
         myNonceRequest.addInteger("getnonce", 1);
@@ -567,9 +568,11 @@ public class AuthenticatingConnectionTest {
         final MongoClientConfiguration config = new MongoClientConfiguration();
         config.authenticate("allanbank", "super_secret_password");
 
-        final Credential credential = new Credential("allanbank",
-                "super_secret_password".toCharArray(), TEST_DB,
-                Credential.MONGODB_CR);
+        final Credential credential = Credential.builder()
+                .userName("allanbank")
+                .password("super_secret_password".toCharArray())
+                .database(TEST_DB).authenticationType(Credential.MONGODB_CR)
+                .build();
 
         assertEquals(config.getPasswordHash(),
                 new MongoDbAuthenticator().passwordHash(credential));
@@ -584,9 +587,11 @@ public class AuthenticatingConnectionTest {
     @Test
     public void testSendAdminMessageArrayAsNonAdmin() throws IOException {
 
-        myConfig.setCredentials(Arrays.asList(new Credential("allanbank",
-                "super_secret_password".toCharArray(), "foo",
-                Credential.MONGODB_CR)));
+        myConfig.setCredentials(Arrays.asList(Credential.builder()
+                .userName("allanbank")
+                .password("super_secret_password".toCharArray())
+                .database("foo").authenticationType(Credential.MONGODB_CR)
+                .build()));
 
         final Delete msg = new Delete(MongoClientConfiguration.ADMIN_DB_NAME,
                 "collection", EMPTY_DOC, true);
@@ -720,8 +725,10 @@ public class AuthenticatingConnectionTest {
     @Test
     public void testSendMessageArrayAsAdmin() throws IOException {
 
-        myConfig.setCredentials(Arrays.asList(new Credential("allanbank",
-                "super_secret_password".toCharArray(), Credential.MONGODB_CR)));
+        myConfig.setCredentials(Arrays.asList(Credential.builder()
+                .userName("allanbank")
+                .password("super_secret_password".toCharArray())
+                .authenticationType(Credential.MONGODB_CR).build()));
 
         final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 

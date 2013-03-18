@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -11,18 +12,18 @@ import com.allanbank.mongodb.connection.auth.Authenticator;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**
- * Credential provides an immutable set of credentials for accessing MongoDB.
+ * Credential provides an immutable set of credential for accessing MongoDB.
  * <p>
- * A given client can support a different set of credentials for each database
+ * A given client can support a different set of credential for each database
  * the client is accessing. The client can also authenticate against the
  * {@value #ADMIN_DB} database which will apply across all databases.
  * </p>
  * <p>
- * <em>Note:</em> While we use the term username/password within this class the
+ * <em>Note:</em> While we use the term user name/password within this class the
  * values may not actually be a user name or a password. In addition not all
  * authentication mechanisms may use all of the fields in this class. See the
  * documentation for the authenticator being used for details on what values are
- * expected for each off the fields in this class.
+ * expected for each of the fields in this class.
  * </p>
  * 
  * @api.yes This class is part of the driver's API. Public and protected members
@@ -69,110 +70,55 @@ public final class Credential implements Serializable {
     }
 
     /**
-     * The authentication type or mode that the credentials should be used with.
+     * Creates a {@link Builder} for creating a {@link Credential}.
+     * 
+     * @return The {@link Builder} for creating a {@link Credential}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * The authentication type or mode that the credential should be used with.
      */
     private final String myAuthenticationType;
 
-    /** The template authenticator for the credentials. */
+    /** The template authenticator for the credential. */
     private transient Authenticator myAuthenticator;
 
-    /** The database the credentials are valid for. */
+    /** The database the credential are valid for. */
     private final String myDatabase;
 
-    /** The password for the credentials set. */
+    /** The file containing the full credentials. */
+    private final File myFile;
+
+    /** The password for the credential set. */
     private final char[] myPassword;
 
-    /** The username for the credentials set. */
+    /** The user name for the credential set. */
     private final String myUserName;
 
     /**
      * Creates a new Credential.
      * 
-     * @param username
-     *            The username for the credentials set.
-     * @param password
-     *            The password for the credentials set. A clone of this array is
-     *            made so the original can be cleared via something like
-     *            {@link java.util.Arrays#fill(char[], char)
-     *            Arrays.fill(password, 0)}.
-     * @param authenticationType
-     *            The authentication type or mode that the credentials should be
-     *            used with.
+     * @param builder
+     *            The builder for the credentials.
      */
-    public Credential(final String username, final char[] password,
-            final String authenticationType) {
-        this(username, password, ADMIN_DB, authenticationType);
+    public Credential(final Builder builder) {
+        myUserName = builder.myUserName;
+        myDatabase = builder.myDatabase;
+        myFile = builder.myFile;
+        myAuthenticationType = builder.myAuthenticationType;
+        myAuthenticator = builder.myAuthenticator;
+        myPassword = builder.myPassword.clone();
     }
 
     /**
-     * Creates a new Credential.
+     * Returns an authenticator for the credential.
      * 
-     * @param username
-     *            The username for the credentials set.
-     * @param password
-     *            The password for the credentials set. A clone of this array is
-     *            made so the original can be cleared via something like
-     *            {@link java.util.Arrays#fill(char[], char)
-     *            Arrays.fill(password, 0)}.
-     * @param database
-     *            The database the credentials are valid for. Use
-     *            {@link #ADMIN_DB} to authenticate as an administrator.
-     * @param authenticator
-     *            A custom authenticator to use with the credentials.
-     */
-    public Credential(final String username, final char[] password,
-            final String database, final Authenticator authenticator) {
-        myUserName = username;
-        myDatabase = database;
-        myAuthenticationType = authenticator.getClass().getName();
-        myAuthenticator = authenticator;
-
-        if (password == null) {
-            myPassword = NO_PASSWORD;
-        }
-        else {
-            myPassword = password.clone();
-        }
-    }
-
-    /**
-     * Creates a new Credential.
-     * 
-     * @param username
-     *            The username for the credentials set.
-     * @param password
-     *            The password for the credentials set. A clone of this array is
-     *            made so the original can be cleared via something like
-     *            {@link java.util.Arrays#fill(char[], char)
-     *            Arrays.fill(password, 0)}.
-     * @param database
-     *            The database the credentials are valid for. Use
-     *            {@link #ADMIN_DB} to authenticate as an administrator.
-     * @param authenticationType
-     *            The authentication type or mode that the credentials should be
-     *            used with.
-     */
-    public Credential(final String username, final char[] password,
-            final String database, final String authenticationType) {
-        myUserName = username;
-        myDatabase = database;
-        myAuthenticationType = authenticationType;
-        myAuthenticator = null;
-
-        if (password == null) {
-            myPassword = NO_PASSWORD;
-        }
-        else {
-            myPassword = password.clone();
-        }
-    }
-
-    /**
-     * Returns an authenticator for the credentials.
-     * 
-     * @return The authenticator for the credentials.
+     * @return The authenticator for the credential.
      * @throws MongoDbAuthenticationException
-     *             On a failure to load the authenticator for the credentials.
+     *             On a failure to load the authenticator for the credential.
      */
     public Authenticator authenticator() throws MongoDbAuthenticationException {
         if (myAuthenticator == null) {
@@ -212,16 +158,17 @@ public final class Credential implements Serializable {
                     other.myAuthenticationType)
                     && nullSafeEquals(myDatabase, other.myDatabase)
                     && nullSafeEquals(myUserName, other.myUserName)
+                    && nullSafeEquals(myFile, other.myFile)
                     && Arrays.equals(myPassword, other.myPassword);
         }
         return result;
     }
 
     /**
-     * Returns the authentication type or mode that the credentials should be
+     * Returns the authentication type or mode that the credential should be
      * used with.
      * 
-     * @return The authentication type or mode that the credentials should be
+     * @return The authentication type or mode that the credential should be
      *         used with.
      */
     public String getAuthenticationType() {
@@ -238,31 +185,41 @@ public final class Credential implements Serializable {
     }
 
     /**
-     * Returns the database the credentials are valid for. Use {@link #ADMIN_DB}
+     * Returns the database the credential are valid for. Use {@link #ADMIN_DB}
      * to authenticate as an administrator.
      * 
-     * @return The database the credentials are valid for.
+     * @return The database the credential are valid for.
      */
     public String getDatabase() {
         return myDatabase;
     }
 
     /**
-     * Returns the password for the credentials set. A clone of the internal
+     * Returns the file containing the full credentials.
+     * 
+     * @return The file containing the full credentials. May be
+     *         <code>null</code>.
+     */
+    public File getFile() {
+        return myFile;
+    }
+
+    /**
+     * Returns the password for the credential set. A clone of the internal
      * array is returns that should be cleared when it is done being used via
      * something like {@link java.util.Arrays#fill(char[], char)
      * Arrays.fill(password, 0)}
      * 
-     * @return The password for the credentials set.
+     * @return The password for the credential set.
      */
     public char[] getPassword() {
         return myPassword.clone();
     }
 
     /**
-     * Returns the username for the credentials set.
+     * Returns the user name for the credential set.
      * 
-     * @return The username for the credentials set.
+     * @return The user name for the credential set.
      */
     public String getUserName() {
         return myUserName;
@@ -271,7 +228,7 @@ public final class Credential implements Serializable {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to hash the credentials.
+     * Overridden to hash the credential.
      * </p>
      */
     @Override
@@ -286,6 +243,7 @@ public final class Credential implements Serializable {
         result = (31 * result) + Arrays.hashCode(myPassword);
         result = (31 * result)
                 + ((myUserName == null) ? 0 : myUserName.hashCode());
+        result = (31 * result) + ((myFile == null) ? 0 : myFile.hashCode());
 
         return result;
     }
@@ -293,7 +251,7 @@ public final class Credential implements Serializable {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to returns the credentials in a human readable form.
+     * Overridden to returns the credential in a human readable form.
      * </p>
      */
     @Override
@@ -303,6 +261,10 @@ public final class Credential implements Serializable {
         builder.append(myUserName);
         builder.append("', database : '");
         builder.append(myDatabase);
+        if (myFile != null) {
+            builder.append("', file : '");
+            builder.append(myFile.getName());
+        }
         builder.append("', password : '<redacted>', type: '");
         if (KERBEROS.equals(myAuthenticationType)) {
             builder.append("KERBEROS");
@@ -320,7 +282,7 @@ public final class Credential implements Serializable {
     }
 
     /**
-     * Loads the authenticator for the credentials.
+     * Loads the authenticator for the credential.
      * 
      * @throws ClassNotFoundException
      *             If the authenticators Class cannot be found.
@@ -349,5 +311,286 @@ public final class Credential implements Serializable {
      */
     private boolean nullSafeEquals(final Object rhs, final Object lhs) {
         return (rhs == lhs) || ((rhs != null) && rhs.equals(lhs));
+    }
+
+    /**
+     * Builder provides a helper for creating a {@link Credential}.
+     * 
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static class Builder {
+        /**
+         * The authentication type or mode that the credential should be used
+         * with.
+         */
+        protected String myAuthenticationType;
+
+        /** The template authenticator for the credential. */
+        protected Authenticator myAuthenticator;
+
+        /** The database the credential are valid for. */
+        protected String myDatabase;
+
+        /** The file containing the full credentials. */
+        protected File myFile;
+
+        /** The password for the credential set. */
+        protected char[] myPassword;
+
+        /** The user name for the credential set. */
+        protected String myUserName;
+
+        /**
+         * Creates a new Builder.
+         */
+        public Builder() {
+            reset();
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
+         * should be used with.
+         * <p>
+         * This method delegates to {@link #setAuthenticationType(String)}.
+         * </p>
+         * 
+         * @param authenticationType
+         *            The new value for the authentication type or mode that the
+         *            credential should be used with.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder authenticationType(final String authenticationType) {
+            return setAuthenticationType(authenticationType);
+        }
+
+        /**
+         * Sets the value of the template authenticator for the credential.
+         * <p>
+         * This method delegates to {@link #setAuthenticator(Authenticator)}.
+         * </p>
+         * 
+         * @param authenticator
+         *            The new value for the template authenticator for the
+         *            credential.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder authenticator(final Authenticator authenticator) {
+            return setAuthenticator(authenticator);
+        }
+
+        /**
+         * Creates the credential from this builder.
+         * 
+         * @return The {@link Credential} populated with the state of this
+         *         builder.
+         */
+        public Credential build() {
+            return new Credential(this);
+        }
+
+        /**
+         * Sets the value of the database the credential are valid for.
+         * <p>
+         * This method delegates to {@link #setDatabase(String)}.
+         * </p>
+         * 
+         * @param database
+         *            The new value for the database the credential are valid
+         *            for.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder database(final String database) {
+            return setDatabase(database);
+        }
+
+        /**
+         * Sets the value of the file containing the full credentials.
+         * <p>
+         * This method delegates to {@link #setFile(File)}.
+         * </p>
+         * 
+         * @param file
+         *            The new value for the file containing the full
+         *            credentials.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder file(final File file) {
+            return setFile(file);
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
+         * should be used with to Kerberos.
+         * <p>
+         * This method delegates to {@link #setAuthenticationType(String)
+         * setAuthenticationType(KERBEROS)}.
+         * </p>
+         * <p>
+         * <em>Note:</em> Use of the Kerberos for authentication requires the
+         * driver's extensions. See the <a href=
+         * "http://www.allanbank.com/mongodb-async-driver/userguide/kerberos.html"
+         * >Kerberos Usage Guide</a> for details.
+         * </p>
+         * 
+         * @see <a
+         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/kerberos.html">Kerberos
+         *      Usage Guide</a>
+         * 
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder kerberos() {
+            return setAuthenticationType(KERBEROS);
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
+         * should be used with to MongoDB Challenge/Response.
+         * <p>
+         * This method delegates to {@link #setAuthenticationType(String)
+         * setAuthenticationType(MONGODB_CR)}.
+         * </p>
+         * 
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder mongodbCR() {
+            return setAuthenticationType(MONGODB_CR);
+        }
+
+        /**
+         * Sets the value of the password for the credential set.
+         * <p>
+         * This method delegates to {@link #setPassword(char[])}.
+         * </p>
+         * 
+         * @param password
+         *            The new value for the password for the credential set.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder password(final char[] password) {
+            return setPassword(password);
+        }
+
+        /**
+         * Resets the builder to a known state.
+         * 
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder reset() {
+            if (myPassword != null) {
+                Arrays.fill(myPassword, '\u0000');
+            }
+
+            myAuthenticationType = MONGODB_CR;
+            myAuthenticator = null;
+            myDatabase = ADMIN_DB;
+            myFile = null;
+            myPassword = NO_PASSWORD;
+            myUserName = null;
+
+            return this;
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
+         * should be used with.
+         * 
+         * @param authenticationType
+         *            The new value for the authentication type or mode that the
+         *            credential should be used with.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder setAuthenticationType(final String authenticationType) {
+            myAuthenticationType = authenticationType;
+            return this;
+        }
+
+        /**
+         * Sets the value of the template authenticator for the credential.
+         * 
+         * @param authenticator
+         *            The new value for the template authenticator for the
+         *            credential.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder setAuthenticator(final Authenticator authenticator) {
+            myAuthenticator = authenticator;
+            return this;
+        }
+
+        /**
+         * Sets the value of the database the credential are valid for.
+         * 
+         * @param database
+         *            The new value for the database the credential are valid
+         *            for.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder setDatabase(final String database) {
+            if (database == null) {
+                myDatabase = ADMIN_DB;
+            }
+            else {
+                myDatabase = database;
+            }
+            return this;
+        }
+
+        /**
+         * Sets the value of the file containing the full credentials.
+         * 
+         * @param file
+         *            The new value for the file containing the full
+         *            credentials.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder setFile(final File file) {
+            myFile = file;
+            return this;
+        }
+
+        /**
+         * Sets the value of the password for the credential set.
+         * 
+         * @param password
+         *            The new value for the password for the credential set.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder setPassword(final char[] password) {
+            Arrays.fill(myPassword, '\u0000');
+
+            if (password == null) {
+                myPassword = NO_PASSWORD;
+            }
+            else {
+                myPassword = password.clone();
+            }
+            return this;
+        }
+
+        /**
+         * Sets the value of the user name for the credential set.
+         * 
+         * @param userName
+         *            The new value for the user name for the credential set.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder setUserName(final String userName) {
+            myUserName = userName;
+            return this;
+        }
+
+        /**
+         * Sets the value of the user name for the credential set.
+         * <p>
+         * This method delegates to {@link #setUserName(String)}.
+         * </p>
+         * 
+         * @param userName
+         *            The new value for the user name for the credential set.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder userName(final String userName) {
+            return setUserName(userName);
+        }
     }
 }

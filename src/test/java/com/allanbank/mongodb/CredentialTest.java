@@ -14,6 +14,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +36,10 @@ public class CredentialTest {
     @Test
     public void testAuthenticator() {
         final MongoDbAuthenticator auth = new MongoDbAuthenticator();
-        final Credential c = new Credential("user", new char[1], "foo", auth);
+
+        final Credential c = Credential.builder().userName("user")
+                .password(new char[1]).database("foo").authenticator(auth)
+                .build();
 
         assertEquals("user", c.getUserName());
         assertArrayEquals(new char[1], c.getPassword());
@@ -52,54 +56,23 @@ public class CredentialTest {
      */
     @Test(expected = MongoDbException.class)
     public void testAuthenticatorFails() {
-        final Credential c = new Credential("user", new char[1], "foo", "fail");
+        final Credential c = Credential.builder().userName("user")
+                .password(new char[1]).database("foo")
+                .authenticationType("fail").build();
 
         c.authenticator();
     }
 
     /**
-     * Test method for {@link Credential#Credential(String, char[], String)} .
+     * Test method for {@link Credential#authenticator()}.
      */
     @Test
-    public void testCredentialStringCharArrayString() {
-        final Credential c = new Credential("user", new char[1], "foo");
+    public void testDefaultDB() {
+        final Credential c = Credential.builder().userName("user")
+                .password(new char[1]).database(null)
+                .authenticationType("fail").build();
 
-        assertEquals("user", c.getUserName());
-        assertArrayEquals(new char[1], c.getPassword());
         assertEquals(Credential.ADMIN_DB, c.getDatabase());
-        assertEquals("foo", c.getAuthenticationType());
-    }
-
-    /**
-     * Test method for
-     * {@link Credential#Credential(String, char[], String, com.allanbank.mongodb.connection.auth.Authenticator)}
-     * .
-     */
-    @Test
-    public void testCredentialStringCharArrayStringAuthenticator() {
-        final MongoDbAuthenticator auth = new MongoDbAuthenticator();
-        final Credential c = new Credential("user", new char[1], "foo", auth);
-
-        assertEquals("user", c.getUserName());
-        assertArrayEquals(new char[1], c.getPassword());
-        assertEquals("foo", c.getDatabase());
-        assertEquals(MongoDbAuthenticator.class.getName(),
-                c.getAuthenticationType());
-        assertSame(auth, c.getAuthenticator());
-    }
-
-    /**
-     * Test method for
-     * {@link Credential#Credential(String, char[], String, String)} .
-     */
-    @Test
-    public void testCredentialStringCharArrayStringString() {
-        final Credential c = new Credential("user", new char[1], "foo", "auth");
-
-        assertEquals("user", c.getUserName());
-        assertArrayEquals(new char[1], c.getPassword());
-        assertEquals("foo", c.getDatabase());
-        assertEquals("auth", c.getAuthenticationType());
     }
 
     /**
@@ -111,20 +84,34 @@ public class CredentialTest {
         final List<Credential> objs1 = new ArrayList<Credential>();
         final List<Credential> objs2 = new ArrayList<Credential>();
 
+        final File file1 = new File("a");
+        final File file2 = new File("b");
+
         for (final String user : Arrays.asList("a", "b", "c", null)) {
             for (final String passwd : Arrays.asList("a", "b", "c", null)) {
                 for (final String db : Arrays.asList("a", "b", "c", null)) {
-                    for (final String type : Arrays.asList("a", "b", "c", null)) {
-                        if (passwd == null) {
-                            objs1.add(new Credential(user, null, db, type));
-                            objs2.add(new Credential(user, null, db, type));
+                    for (final File file : Arrays.asList(file1, file2, null)) {
+                        for (final String type : Arrays.asList("a", "b", "c",
+                                null)) {
+                            if (passwd == null) {
+                                objs1.add(Credential.builder().userName(user)
+                                        .password(null).database(db).file(file)
+                                        .authenticationType(type).build());
+                                objs2.add(Credential.builder().userName(user)
+                                        .password(null).database(db).file(file)
+                                        .authenticationType(type).build());
 
-                        }
-                        else {
-                            objs1.add(new Credential(user,
-                                    passwd.toCharArray(), db, type));
-                            objs2.add(new Credential(user,
-                                    passwd.toCharArray(), db, type));
+                            }
+                            else {
+                                objs1.add(Credential.builder().userName(user)
+                                        .password(passwd.toCharArray())
+                                        .database(db).file(file)
+                                        .authenticationType(type).build());
+                                objs2.add(Credential.builder().userName(user)
+                                        .password(passwd.toCharArray())
+                                        .database(db).file(file)
+                                        .authenticationType(type).build());
+                            }
                         }
                     }
                 }
@@ -161,15 +148,36 @@ public class CredentialTest {
     @Test
     public void testToString() {
         final MongoDbAuthenticator auth = new MongoDbAuthenticator();
-        Credential c = new Credential("user", new char[1], "foo", auth);
+        Credential c = Credential.builder().userName("user")
+                .password(new char[1]).database("foo").authenticator(auth)
+                .build();
 
         assertThat(
                 c.toString(),
                 is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'MONGODB-CR' }"));
 
-        c = new Credential("user", new char[1], "foo", Credential.KERBEROS);
+        c = Credential.builder().userName("user").password(new char[1])
+                .database("foo").kerberos().build();
         assertThat(
                 c.toString(),
                 is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'KERBEROS' }"));
+
+        c = Credential.builder().userName("user").password(new char[1])
+                .database("foo").mongodbCR().build();
+        assertThat(
+                c.toString(),
+                is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'MONGODB-CR' }"));
+
+        c = Credential.builder().userName("user").password(new char[1])
+                .database("foo").authenticationType("bar").build();
+        assertThat(
+                c.toString(),
+                is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'bar' }"));
+
+        c = Credential.builder().userName("user").password(new char[1])
+                .file(new File("a")).database("foo").kerberos().build();
+        assertThat(
+                c.toString(),
+                is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'KERBEROS' }"));
     }
 }

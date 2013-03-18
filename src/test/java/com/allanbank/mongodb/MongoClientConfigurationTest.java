@@ -42,6 +42,27 @@ public class MongoClientConfigurationTest {
 
     /**
      * Test method for
+     * {@link MongoClientConfiguration#addCredential(Credential)} .
+     */
+    @Test
+    public void testAddCredentials() {
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        final Credential.Builder builder = Credential.builder()
+                .userName("allanbank")
+                .password("super_secret_password".toCharArray());
+
+        assertFalse(config.isAuthenticating());
+
+        config.addCredential(builder);
+
+        assertTrue(config.isAuthenticating());
+        assertThat(config.getCredentials(), hasItem(builder.build()));
+    }
+
+    /**
+     * Test method for
      * {@link MongoClientConfiguration#addServer(java.net.InetSocketAddress)}.
      */
     @Test
@@ -90,9 +111,11 @@ public class MongoClientConfigurationTest {
                 config.getPasswordHash());
         assertFalse(config.isAdminUser());
 
-        assertThat(config.getCredentials(), hasItem(new Credential("allanbank",
-                "super_secret_password".toCharArray(), "local",
-                Credential.MONGODB_CR)));
+        assertThat(
+                config.getCredentials(),
+                hasItem(Credential.builder().userName("allanbank")
+                        .password("super_secret_password".toCharArray())
+                        .database("local").mongodbCR().build()));
     }
 
     /**
@@ -115,9 +138,11 @@ public class MongoClientConfigurationTest {
                 config.getPasswordHash());
         assertTrue(config.isAdminUser());
 
-        assertThat(config.getCredentials(), hasItem(new Credential("allanbank",
-                "super_secret_password".toCharArray(), Credential.ADMIN_DB,
-                Credential.MONGODB_CR)));
+        assertThat(
+                config.getCredentials(),
+                hasItem(Credential.builder().userName("allanbank")
+                        .password("super_secret_password".toCharArray())
+                        .database(Credential.ADMIN_DB).mongodbCR().build()));
     }
 
     /**
@@ -481,8 +506,9 @@ public class MongoClientConfigurationTest {
                 config.getPasswordHash());
         assertTrue(config.isAdminUser());
 
-        assertThat(config.getCredentials(), hasItem(new Credential("user",
-                "pass:ord".toCharArray(), Credential.MONGODB_CR)));
+        assertThat(config.getCredentials(), hasItem(Credential.builder()
+                .userName("user").password("pass:ord".toCharArray())
+                .mongodbCR().build()));
     }
 
     /**
@@ -550,8 +576,11 @@ public class MongoClientConfigurationTest {
                 config.getPasswordHash());
         assertTrue(config.isAdminUser());
 
-        assertThat(config.getCredentials(), hasItem(new Credential("user",
-                "pass:ord".toCharArray(), "admin", Credential.MONGODB_CR)));
+        assertThat(
+                config.getCredentials(),
+                hasItem(Credential.builder().userName("user")
+                        .password("pass:ord".toCharArray()).database("admin")
+                        .authenticationType(Credential.MONGODB_CR).build()));
 
     }
 
@@ -705,8 +734,11 @@ public class MongoClientConfigurationTest {
                 config.getPasswordHash());
         assertFalse(config.isAdminUser());
 
-        assertThat(config.getCredentials(), hasItem(new Credential("user",
-                "pass:ord".toCharArray(), "db", Credential.MONGODB_CR)));
+        assertThat(
+                config.getCredentials(),
+                hasItem(Credential.builder().userName("user")
+                        .password("pass:ord".toCharArray()).database("db")
+                        .authenticationType(Credential.MONGODB_CR).build()));
     }
 
     /**
