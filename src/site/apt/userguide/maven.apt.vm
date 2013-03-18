@@ -3,7 +3,7 @@
             ------
             ------
 
-Maven Repository
+Maven
 
   To automate the download of the driver's jar from your Maven project you need to add the 
 driver as a dependency and also add the driver's repository.

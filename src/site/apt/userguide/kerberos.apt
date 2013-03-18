@@ -71,7 +71,7 @@ kadmin -q "ktadd -k /opt/mongodb/mongodb.keytab mongodb/<fqdn>"
 * Starting MongoDB Server with Kerberos Support
 
 +----------------------------------------+
-NOTE: Kerberos Support is only available in the 2.3/2.4 and later Subscriber additions or a locally built version with --use-sasl-client.
+NOTE: Kerberos Support is only available in the 2.3/2.4 and later Subscriber additions.
 +----------------------------------------+
 
   To start a MongoDB server with Kerberos support multiple command line options and environment variables

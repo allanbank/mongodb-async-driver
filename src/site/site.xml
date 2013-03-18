@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="MongoDB Asynchronous Java Driver">
+	<!-- <bannerLeft> -->
+	<!-- <name>MongoDB Asynchronous Java Driver</name> -->
+	<!-- <src>/images/allanbank-logo.png</src> -->
+	<!-- <href>/index.html</href> -->
+	<!-- <width>40</width> -->
+	<!-- <height>40</height> -->
+	<!-- </bannerLeft> -->
+	<!-- <bannerRight> -->
+	<!-- <name>MongoDB Asynchronous Java Driver</name> -->
+	<!-- <src>/images/allanbank-logo.png</src> -->
+	<!-- <href>/index.html</href> -->
+	<!-- <width>40</width> -->
+	<!-- <height>40</height> -->
+	<!-- </bannerRight> -->
 
 	<googleAnalyticsAccountId>UA-33634837-1</googleAnalyticsAccountId>
-<!-- 	<skin> -->
-<!-- 		<groupId>org.apache.maven.skins</groupId> -->
-<!-- 		<artifactId>maven-application-skin</artifactId> -->
-<!-- 		<version>1.0</version> -->
-<!-- 	</skin> -->
+
+	<!-- <skin> -->
+	<!-- <groupId>org.apache.maven.skins</groupId> -->
+	<!-- <artifactId>maven-application-skin</artifactId> -->
+	<!-- <version>1.0</version> -->
+	<!-- </skin> -->
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
 		<artifactId>maven-fluido-skin</artifactId>
@@ -18,10 +33,11 @@
 			<item name="Download" href="download.html" />
 			<item name="JavaDocs" href="apidocs/index.html" />
 			<item name="Getting Started" href="usage.html" collapse="true">
+				<item name="Asynchronous API" href="userguide/asynchronous_api.html" />
 				<item name="Cursor Restarts" href="userguide/cursor_restart.html" />
 				<item name="Kerberos" href="userguide/kerberos.html" />
 				<item name="Maven" href="userguide/maven.html" />
-				<item name="UNIX Domain Sockets" href="usersguide/unix_domain_sockets.html" />
+				<item name="UNIX Domain Sockets" href="userguide/unix_domain_sockets.html" />
 			</item>
 			<item name="Performance" href="index.html#Performance">
 				<item name="YCSB Results" href="performance/ycsb.html" />
@@ -36,11 +52,21 @@
 
 	<custom>
 		<fluidoSkin>
-			<topBarEnabled>true</topBarEnabled>
+			<topBarIcon>
+				<name>MongoDB Asynchronous Java Driver</name>
+				<alt>MongoDB Asynchronous Java Driver</alt>
+				<src>/images/allanbank-logo.png</src>
+				<href>/index.html</href>
+			</topBarIcon>
+			<leftColumnClass>span2</leftColumnClass>
+			<bodyColumnClass>span10</bodyColumnClass>
+			<topBarEnabled>false</topBarEnabled>
 			<sideBarEnabled>true</sideBarEnabled>
 			<googleSearch>
 				<siteSearch />
 			</googleSearch>
+			<facebookLike />
+			<googlePlusOne />
 		</fluidoSkin>
 	</custom>
 </project>

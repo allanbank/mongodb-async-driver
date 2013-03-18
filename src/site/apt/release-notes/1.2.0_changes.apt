@@ -6,7 +6,11 @@
 
 Upgrading
 
-  This version is TBD compatible with the 1.1.0 version of the driver.  
+  This version is source compatible with the 1.1.0 version of the driver.  
+  
+   It is recommended that users recompile against the new driver as methods have moved support
+pluggable authentication and the {{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}}/{{{../apidocs/index.html?com/allanbank/mongodb/MongoCursorControl.html}MongoCursorControl}}
+additions.
   
 Updates and Improvements:
 
@@ -18,11 +22,16 @@ guide on {{{../userguide/kerberos.html}Kerberos}} for more information.
 
   * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Index.html}text}} indexes 
 and creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Text.html}Text}} commands/queries.
+
+    * <<Note:>> 10gen has stated that the Full Text Search capability is experimental.  Further more use of 
+the feature is not advised for production deployments.  For this reason we have not added the <<<Text>>> helper and 
+<<<Text.Builder>>> to the drivers API, e.g., they may change. We feel it is important to still include the helper
+classes in the driver to maximize testing, experimentation, and feedback. 
   
   * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Index.html}2dshere}} indexes.
   
   * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/GeoJson.html}GeoJSON}} 
-documents and using GeoJSOn documents with {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$near}, 
+documents and using GeoJSON documents with {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$near}}, 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$within}}, and 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$geoIntersects}} query operators.
 
@@ -37,10 +46,26 @@ expression.
   * Added the ability to persist and restart fetching the results of a query from either a 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} or 
 stream.  See the user's guide on {{{../userguide/cursor_restart.html}cursor restarts}} for more information.
-   
+
+* Builder Usability
+
+  * All of the various command <<<Builders>>> have been updated to support a fluent usage style and be 
+creatable from a static <<<builder()>>> method of the command's class.  As an example of the new syntax consider:
+
++---------------+
+Date hourAgo = new Date(System.currentTimeMillis() - TimeUnit.HOURS.toMillis(1));
+
+Find find = Find.builder()
+                .query(where("timeStamp").lessThan(hourAgo))
+                .sort(Sort.asc("timeStamp"))
+                .limit(100)
+                .batchSize(10)
+                .build();
++---------------+
+
 * Miscellaneous
 
-  * The {{{../apidocs/index.html?com/allanbank/mongodb/bson/json/Json.html}Json}} class to parse strict
+  * Extend the {{{../apidocs/index.html?com/allanbank/mongodb/bson/json/Json.html}Json}} class to parse strict
 formated extended JSON as specified in the 
 {{{http://docs.mongodb.org/manual/reference/mongodb-extended-json/}MongoDB Extended JSON}} documentation.
   
@@ -49,7 +74,7 @@ formated extended JSON as specified in the
 the value of an <<<Element>>> in a type agnostic way possible.
   
   * Updated the {{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} methods 
-to support passing a various command <<<Builders>>> instead of the commands themselves.
+to support passing the various command <<<Builders>>> instead of the commands themselves.
   
   * Updated the ObjectId to enable construction from a HEX string.
 
@@ -64,6 +89,8 @@ on any attempt to send a message after the <<<MongoClient>>> is closed.
 
 * Documentation
 
+  * Added a user's guide on using the driver's {{{../userguide/asynchronous_api.html}Asynchronous API}}
+  
   * Added a user's guide on using the driver with {{{../userguide/maven.html}Maven}}
   
   * Added a user's guide on using the driver with {{{../userguide/kerberos.html}Kerberos}}.
@@ -77,4 +104,21 @@ Deprecations
   * {{{../apidocs/index.html?com/allanbank/mongodb/ClosableIterator.html}ClosableIterator}} is replaced by 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} and 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoCursorControl.html}MongoCursorControl}} interfaces.
+
+  The following methods have been deprecated:
+  
+  * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Sort.html}Sort.geo2d(String)}} has been replaced by 
+the {{{../apidocs/index.html?com/allanbank/mongodb/builder/Index.html}Index.geo2d(String)}} method.
+  
+  * {{{../apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration.authenticate(String, String)}}, 
+<<<MongoClientConfiguration.authenticateAsAdmin(String, String)>>>, <<<MongoClientConfiguration.getDefaultDatabase()>>>, 
+<<<MongoClientConfiguration.getUserName()>>>, <<<MongoClientConfiguration.getPasswordHash()>>>, 
+<<<MongoClientConfiguration.isAdminUser()>>>, and <<<MongoClientConfiguration.setDefaultDatabase(String)>>>
+have all been deprecated.  Use the {{{../apidocs/index.html?com/allanbank/mongodb/Credential.html}Credential}}
+class and <<<MongoClientConfiguration.addCredential(Credential)>>> instead.
+  
+  * {{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection.streamingFind(Callback, DocumentAssignable)}}, 
+and <<<MongoCollection.streamingFind(Callback, Find)>>> have been replaced with versions that accept the new
+{{{../apidocs/index.html?com/allanbank/mongodb/StreamCallback.html}StreamCallback}} interface.
+
   

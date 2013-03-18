@@ -61,7 +61,7 @@ File socketFile = new File( "/tmp/mongodb-27017.sock");
 config.addServer( new org.newsclub.net.unix.AFUNIXSocketAddress( socketFile ) );
 +----------------------------------------+
 
-Acceptance Tested
+Acceptance Testing
 
   The above class is not included in the driver's jar since it would cause the driver to depend (even optionally)
 on the <<<junixsocket>>> jar.  The driver does include an 

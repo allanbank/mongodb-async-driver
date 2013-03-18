@@ -9,6 +9,20 @@ Using the Asynchronous API
 apprehension and doubt on how best to proceed.  This guide is intended to lower
 the barrier for using the asynchronous APIs and provide guidance on best practices.
 
+* Getting Started with the Asynchronous API
+
+  The best way to get started with the asynchronous API is to not use the API at all. Simply porting 
+your application to the driver may provide enough of a performance boost without having to move to
+using the API.  Once you have ported your application you will also have a better understanding 
+of what parts of your application will benefit the most.
+
+  Assuming you have already ported the application and still need more performance choose a single 
+processing flow that is not meeting its performance objectives or is causing the application to 
+stall waiting for responses from MongoDB. Try and choose the most common or worst performing flow. 
+Re-write that flow using the suggestions below and then reevaluate the applications performance.  
+If its performance is still not satisfactory, update another flow, reevaluate, and repeat until the
+application is perfroming as needed. 
+
 * Asynchronous Options
 
   The asynchronous API is broken into two flavors.  One based on <<<Futures>>> and the
@@ -33,7 +47,7 @@ server will be processed in the same order as the client issues them. We have in
 possible to encourage their use.  There are many problems that are extremely difficult to solve without 
 the <<<asSerializedClient()>>> guarantees.
 
-<<<Future>>> Based API
+Future Based API
 
   The <<<Future>>> based API is  the simplest asynchronous API to use.  The method will return an 
 appropriately types <<<Future>>> to the caller.  To retrieve the value simply call <<<get()>>> on the 
@@ -55,6 +69,8 @@ received by the MongoDB servers.
 
   * The <<<Future.get()>>> method blocks the caller until the response is received from the server.
 
+  []
+
   Under the hood the driver actually uses the <<<Future>>> interface to implement the synchronous 
 interface.  Given that, using the <<<Future>> like we did above provides little to no benefit over 
 using the synchronous interface.  The question is then when can the <<<Future>>> interface provide 
@@ -62,9 +78,11 @@ benefit.  Generally that can be summarized as:
 
   * Use the <<<Future>>> API when you can significantly delay the need to retrieve the value from the <<<Future>>>.
   
+  []
+  
   What does that mean?  As a way of explaining let me give a few of examples.
   
-* Examples Using the <<<Future>>> API.
+* Examples Using the Future API.
 
 ** Using a Pending Results Queue
 
@@ -148,14 +166,14 @@ and deletes that are performed by pipelining with a serialized client and then a
 of all of the updates.  Using the <<<Future>>> interface and Durability.NONE will optimize the updates and delete
 processing.
 
-* Error Handling with the <<<Future>>> API.
+* Error Handling with the Future API.
 
   Any error encountered while processing the request will be thrown when the <<<get()>>> method 
 of the future is called.  The exception is wrapped in an <<<ExecutionException>>>.  The original
 exception can be retrieved from the <<<ExecutionException>>> via the <<<ExecutionException.getCause()>>>
 method.
 
-<<<Callback>>> Based API
+Callback Based API
 
   Using the <<<Callback>>> asynchronous API requires the most work on the developers part but if 
 done carefully can maintain the clarity of the code and also ensure maximum performance.  To use
@@ -172,7 +190,7 @@ so that the <<<Callback>>> handling can be done of a different thread.
   The main benefit of the <<<Callback>>> API is that it can remove all need to wait for data.  All requests
 are sent to the server and when the response is ready, it is processed immediately.
 
-* Example Using the <<<Callback>>> API.
+* Example Using the Callback API.
 
   Lets return to our File processing example.  Using the <<<Callback>>> interface is a fairly minor change
 to the original processing.  Using the anonymous inner class obfuscates the following example but the intent
@@ -181,8 +199,6 @@ is still fairly clear.
 +----------------+
 String line;
 MongoCollection collection = null;
-ArrayBlockingQueue<Future<Long>> pendingResults = new ArrayBlockingQueue<Future<Long>>(
-        1000);
 
 BufferedReader reader = new BufferedReader(new StringReader("f"));
 while ((line = reader.readLine()) != null) {
@@ -200,7 +216,7 @@ while ((line = reader.readLine()) != null) {
 }
 +----------------+
 
-  The anonymous inner class can be moved to a nester or top level class but then the link
+  The anonymous inner class can be moved to a nested or top level class but then the link
 between the result of one request leading to the next stage of processing is lost.  To recover 
 the codes flow we have successfully used a the following strategy:
 
@@ -209,35 +225,153 @@ ends with an asynchronous request to MongoDB.
 
   * Create a series of methods in the class responsible for the processing named something 
 like: <<<\<flow_name\>\<stage_name\>(...)>>>.  The arguments to each stage are the results of
-the previous stage's final request to MongoDB and any other state that needs to be carried forward.
+the previous stage's asynchronous request to MongoDB and any other state that needs to be carried forward.
 If your project uses automated code reformatting and sorting name the stages with a sortable 
-prefix, e.g., stage1Prepare, stage2Compose, etc.
+prefix, e.g., flowName1Prepare, flowName2Compose, etc.
 
   * Create simple nested and/or top level classes to act as the callback and bridge from one stage to
 the next.  An instance of the callback will be used with the asynchronous request at the end of one 
 stage and its <<<callback(...)>>> method will simply invoke the method for the next stage.
 
+  []
+  
   The combination of the method naming and ordering clearly communicates the processing flow to
 future developers.  By keeping all logic out of the <<<Callbacks>>> we ensure they remain clear 
 and concise bridge components.
 
-* Error Handling with the <<<Callback>>> API.
+* Error Handling with the Callback API.
 
   Any errors encountered while processing the request will be explicitly given to the <<<Callback>>>
 via the <<<exception(Throwable)>>> method. One of the virtues of the Callback method or handling 
-asynchronous requests is that it forces the developer to explicitly deal with failures.  A common 
+asynchronous requests is that it forces the developer to explicitly deal with failures. A common 
 mechanism is to retry the request.
 
 * Retries with Callbacks
 
-  TODO: 
+  The following base class can be used to intelligently retry requests to the MongoDB server.  The logic
+for actually retrying the request is left to the derived class via a <<<retry(Throwable)>>>
 
-Mixing <<<Futures>>> and <<<Callbacks>>>>
++----------------+
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-  TODO: Batch result processing.
+import com.allanbank.mongodb.Callback;
+
+/**
+ * AbstractRetryCallbackHandler provides a base class for {@link Callback}
+ * instances that will retry the operation.
+ * 
+ * @param <V>
+ *            The type of the callback's result.
+ */
+public abstract class AbstractRetryCallbackHandler<V> implements Callback<V> {
+
+    /** The maximum amount of time to pause between retries. */
+    public static final long MAX_PAUSE_MS = TimeUnit.MINUTES.toMillis(1);
+
+    /** The executor for retries. */
+    private final ScheduledExecutorService myExecutor;
+
+    /** The maximum number of times to retry. */
+    private final int myMaximumRetries;
+
+    /** The number of milliseconds to wait before attempting another retry. */
+    private long myNextPauseMS;
+
+    /** The number of times we have attemtped to retry. */
+    private int myRetries;
+
+    /**
+     * Creates a new AbstractRetryCallbackHandler.
+     * 
+     * @param retries
+     *            The number of times we have attemtped to retry.
+     * @param executor
+     *            he executor for retries.
+     */
+    public AbstractRetryCallbackHandler(final int retries,
+            final ScheduledExecutorService executor) {
+        myMaximumRetries = retries;
+        myExecutor = executor;
+        myRetries = 0;
+        myNextPauseMS = 1;
+    }
+
+    /**
+     * Called when all of the retry attempts have been exhausted.
+     * 
+     * @param thrown
+     *            The error causing the retry.
+     */
+    public abstract void dead(final Throwable thrown);
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to retry the request after a suitable delay.
+     * </p>
+     */
+    @Override
+    public void exception(final Throwable thrown) {
+        myRetries += 1;
+        if (myRetries < myMaximumRetries) {
+
+            myExecutor.schedule(new Runnable() {
+
+                @Override
+                public void run() {
+                    retry(thrown);  
+                    
+                }
+            }, myNextPauseMS, TimeUnit.MILLISECONDS);
+
+            myNextPauseMS = Math.min(myNextPauseMS * 2, MAX_PAUSE_MS);
+        }
+        else {
+            dead(thrown);
+        }
+    }
+
+    /**
+     * Called to attempt a retry.
+     * 
+     * @param thrown
+     *            The error causing the retry.
+     */
+    public abstract void retry(final Throwable thrown);
+}
++----------------+
+
+  ''Note:'' It is not always possible to simply repeat requests to the MongoDB server but under some circumstances it
+is possible to use a findAndModify command (or two) to look for the case that a write was successful (and potentially, 
+also the case it was not successful) and return the appropriate results. 
+
+Mixing Futures and Callbacks
+
+  Mixing <<<Futures>>> and <<<Callbacks>>> is most advantages in situations where there is a need
+to collect the results of multiple MongoDB requests.  By using the <<<Future>>> interface for all but the
+final request and passing all of the <<<Futures>>> to the <<<Callback>>> for the last request we can be 
+reasonably certain that the futures will not block when the callback invoked.  This can sometimes greatly reduce
+the complexity of using asynchronous problems.  By using the serialied client discussed above we can ensure that the
+<<<Futures>>> do not block.
 
 Mixing Synchronous use with Asynchronous Usage.
 
-  TODO: Performance critical vs. batch/periodic processing.
+  In general you do not want to mix the asynchronous and synchronous programming models.  There are a couple 
+caveats to that statement.
+
+  * Using synchronous requests to start asynchronous processing flows - In this case there is, for example, 
+a long running query that is started and each document that is returned is then used to start an 
+asynchronous processing flow.  The  initial query in this case is not gating the performance of the system as
+an asynchronous or synchronous process will take similar amounts of time to fetch all of the documents.
+
+  * Using synchronous processing for periodic housekeeping - The canonical example is doing batch updates
+or deletes of documents from a collection.  Again, the batch update is not on the performance critical 
+aspect of the application.
  
-    
+  []
+  
+  The above should not be viewed to infer that using the asynchronous interface is an all or nothing proposition
+for a given application. As stated above migration of individual flows until the application performance is to the
+desired level should be driving the conversion. Within a flow mixing asynchronous and synchronous requests is 
+discouraged.

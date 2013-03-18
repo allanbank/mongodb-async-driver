@@ -70,7 +70,7 @@ public final class Sort {
      * @return The 2D index specification.
      * @deprecated Moved to the {@link Index} class as {@link Index#geo2d} to
      *             live with the other other index types. This method will be
-     *             removed after the 1.4.0 release.
+     *             removed after the 1.3.0 release.
      */
     @Deprecated
     public static StringElement geo2d(final String field) {

@@ -106,6 +106,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     private transient Executor myExecutor = null;
 
     /**
+     * The legacy credentials created via {@link #authenticate(String, String)}
+     * and {@link #setDefaultDatabase(String)}.
+     */
+    private Credential myLegacyCredential;
+
+    /**
      * Determines the type of hand off lock to use between threads in the core
      * of the driver.
      * <p>
@@ -516,8 +522,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     @Deprecated
     public void authenticate(final String userName, final String password)
             throws MongoDbAuthenticationException {
-        addCredential(new Credential(userName, password.toCharArray(),
-                getDefaultDatabase(), Credential.MONGODB_CR));
+        if (myLegacyCredential != null) {
+            myCredentials.remove(myLegacyCredential.getDatabase());
+        }
+        myLegacyCredential = new Credential(userName, password.toCharArray(),
+                getDefaultDatabase(), Credential.MONGODB_CR);
+        addCredential(myLegacyCredential);
     }
 
     /**
@@ -952,6 +962,15 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     @Deprecated
     public void setDefaultDatabase(final String defaultDatabase) {
         myDefaultDatabase = defaultDatabase;
+
+        if (myLegacyCredential != null) {
+            myCredentials.remove(myLegacyCredential.getDatabase());
+            myLegacyCredential = new Credential(
+                    myLegacyCredential.getUserName(),
+                    myLegacyCredential.getPassword(), getDefaultDatabase(),
+                    Credential.MONGODB_CR);
+            addCredential(myLegacyCredential);
+        }
     }
 
     /**
