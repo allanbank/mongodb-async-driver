@@ -16,7 +16,7 @@ Kerberos Java environment.
 
   []
 
-  In particular one of the following must be completed to support locating the Kerberos domain controller:
+  In particular, one of the following must be completed to support locating the Kerberos domain controller:
 
   [[1]] Set the system properties <<<java.security.krb5.realm>>> and <<<java.security.krb5.kdc>>> with the values for the Kerberos Realm and domain controller respectively.
 
@@ -26,7 +26,7 @@ Kerberos Java environment.
   
   []
   
-  With a working Kerberos infrastructure configuring the driver to use Kerberos for authentication is as
+  With a working Kerberos infrastructure configuring the driver to use Kerberos for authentication it is as
 simple as providing the appropriate credentials with the 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}.
 
@@ -38,7 +38,7 @@ config.addCredential(Credential.builder().userName("<user>@<REALM>").password(pa
 Arrays.fill( password, ' ' );
 +----------------------------------------+
 
-  The user does not need to have to have pre-authenticated with the server (via kinit) or within the Kerberos domain. 
+  The user does not need to have pre-authenticated with the server (via kinit) or within the Kerberos domain. 
 The driver will authenticate the user and obtain required tickets automatically from the Kerberos domain controller.
 The host running the application need not be explicitly part of the Kerberos domain but should, obviously, be 
 able to communicate with the Kerberos domain controller.
@@ -60,8 +60,8 @@ kadmin -q "addprinc -randkey mongodb/<fqdn>"
 
   With the principle created we now export the key for the principle to a keytab file for 
 the MongoDB process to use.  The permissions on the keytab file should be checked to ensure that
-the file is readonly and only the runtime MongoDB user can read the file. For the command below we 
-have placed the keytab file in /opt/mongdb but can be any location on the file system.
+the file is read-only and only the runtime MongoDB user can read the file. For the command below we 
+have placed the keytab file in /opt/mongdb but can be in any location on the file system.
 
 +----------------------------------------+
 mkdir -p /opt/mongodb/
@@ -79,16 +79,18 @@ must be used.
 
   [--auth option] Enables authentication on the server.
 
-  [--setParameter option] Enabled the authentication modes.  Initially it is recommened to use the option
+  [--setParameter option] Enables the authentication modes.  Initially it is recommended to use the option
 with the authenticationMechanisms=GSSAPI,MONGODB-CR argument to enable support for Kerberos and traditional 
 challenge response.  Once the Kerberos authentication is working the user can switch to just GSSAPI.
 
-  [--keyFile option] If running a cluster of servers then provides the mechanism for the servers to authenticate
-to each other. All servers must have access to a copy of identical key files.
+  [--keyFile option] If running a cluster of servers this option provides the mechanism for the servers 
+to authenticate to each other. All servers must have access to a copy of identical key files.
 
-  [KRB5_KTNAME Environment Variable] Points to the keytab file created above, e.g., /opt/mongodb/mongod.keytab
+  [KRB5_KTNAME Environment Variable] Points to the keytab file created above, e.g., /opt/mongodb/mongod.keytab.
 
-  For a single stand-alone server the command would look like.
+  []
+  
+  For a single stand-alone server the command would look like:
 
 +----------------------------------------+
 KRB5_KTNAME=/opt/mongodb/mongodb.keytab                          \
@@ -106,7 +108,7 @@ For more information on running and debugging MongoDB with Kerberos Support see 
 Notes
 
   Due to the difficulty in getting a working Kerberos environment we are asking users to contact us 
-before trying to use Kerberos with the driver so that we can provide assistant and utilities for 
+before trying to use Kerberos with the driver so that we can provide assistance and utilities for 
 trouble shooting Kerberos infrastructure problems. For this reason we have placed the Kerberos support
 within an extensions jar. Without the extensions jar on the classpath any attempt to add a credential 
 to a configuration will throw an IllegalArguementException.

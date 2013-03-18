@@ -8,8 +8,9 @@ Upgrading
 
   This version is source compatible with the 1.1.0 version of the driver.  
   
-   It is recommended that users recompile against the new driver as methods have moved support
-pluggable authentication and the {{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}}/{{{../apidocs/index.html?com/allanbank/mongodb/MongoCursorControl.html}MongoCursorControl}}
+   It is recommended that users recompile against the new driver as methods have moved supporting
+pluggable authentication and the 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}}/{{{../apidocs/index.html?com/allanbank/mongodb/MongoCursorControl.html}MongoCursorControl}}
 additions.
   
 Updates and Improvements:
@@ -23,7 +24,7 @@ guide on {{{../userguide/kerberos.html}Kerberos}} for more information.
   * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Index.html}text}} indexes 
 and creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Text.html}Text}} commands/queries.
 
-    * <<Note:>> 10gen has stated that the Full Text Search capability is experimental.  Further more use of 
+    * <<Note:>> 10gen has stated that the Full Text Search capability is experimental.  Further more, use of 
 the feature is not advised for production deployments.  For this reason we have not added the <<<Text>>> helper and 
 <<<Text.Builder>>> to the drivers API, e.g., they may change. We feel it is important to still include the helper
 classes in the driver to maximize testing, experimentation, and feedback. 
@@ -73,14 +74,14 @@ formated extended JSON as specified in the
 {{{../apidocs/index.html?com/allanbank/mongodb/bson/Element.html}Element}} interface to make type accessing
 the value of an <<<Element>>> in a type agnostic way possible.
   
-  * Updated the {{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} methods 
+  * Update the {{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} methods 
 to support passing the various command <<<Builders>>> instead of the commands themselves.
   
-  * Updated the ObjectId to enable construction from a HEX string.
+  * Update the ObjectId to enable construction from a HEX string.
 
 * Semantic Change
 
-  * Previously a closed MongoClient could be "reopened" simply by continuing to use it.  This could 
+  * Previously, a closed MongoClient could be "reopened" simply by continuing to use it.  This could 
 cause race conditions with applications that did not correctly close down.  To avoid these issues
 we have modified the {{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient.close()}} 
 method to permanently close the client and throw the 
@@ -89,9 +90,9 @@ on any attempt to send a message after the <<<MongoClient>>> is closed.
 
 * Documentation
 
-  * Added a user's guide on using the driver's {{{../userguide/asynchronous_api.html}Asynchronous API}}
+  * Added a user's guide on using the driver's {{{../userguide/asynchronous_api.html}Asynchronous API}}.
   
-  * Added a user's guide on using the driver with {{{../userguide/maven.html}Maven}}
+  * Added a user's guide on using the driver with {{{../userguide/maven.html}Maven}}.
   
   * Added a user's guide on using the driver with {{{../userguide/kerberos.html}Kerberos}}.
   
@@ -105,6 +106,8 @@ Deprecations
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} and 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoCursorControl.html}MongoCursorControl}} interfaces.
 
+  []
+  
   The following methods have been deprecated:
   
   * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Sort.html}Sort.geo2d(String)}} has been replaced by 

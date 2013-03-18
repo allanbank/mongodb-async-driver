@@ -9,7 +9,7 @@ Using UNIX Domain Sockets via the Pluggable Socket Factory
 <<<SocketFactory>>> mechanism.   The 
 {{{./../apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}
 supports setting the <<<SocketFactory>>> that creates the appropriate <<<Socket>>> implementation used 
-to connect to the MongoDB server.  By extending <<<SocketFactory>>> class and leveraging the 
+to connect to the MongoDB server.  By extending the <<<SocketFactory>>> class and leveraging the 
 {{{http://code.google.com/p/junixsocket}junixsocket}} library the driver can use UNIX domain sockets 
 to connect to the MongoDB server.
 
@@ -20,7 +20,7 @@ and ensure that your installation is working before proceeding.
 
 AFUNIX Socket Factory
 
-  With a working <<<junixsocket>>> we need to one additional piece to getting the driver to communicate over
+  With a working <<<junixsocket>>> we need one additional piece to get the driver to communicate over
 Unix domain sockets: A custom SocketFactory.  Below is a very simple implementation that will work with the 
 MongoDB Asynchronous Java driver.
 
@@ -52,7 +52,7 @@ public class AFUNIXSocketFactory extends javax.net.SocketFactory {
 
 AFUNIXSocketAddress
 
-  The last peice of the puzzle is to tell the driver to connect to the server via the UNIX domain socket via a 
+  The last piece of the puzzle is to tell the driver to connect to the server over the UNIX domain socket via a 
 <<<AFUNIXSocketAddress>>> instead of a <<<InetSocketAddress>>>.
 
 +----------------------------------------+

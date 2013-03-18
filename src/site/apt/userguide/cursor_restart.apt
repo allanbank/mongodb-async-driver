@@ -5,15 +5,15 @@
 
 Restarting Iterators and Streams
 
-  Normally users will create an iterator or start a stream of document based on a 
+  Normally users will create an iterator or start a stream of documents based on a 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.html}Find}} executed on
 a {{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} and 
 consume the complete results of the <<<Find>>> within the lifetime of a single application.
 In some cases it is useful to either be able to migrate the processing of the results to a new application
 instance or to stop processing the results and restart processing those results later.  In support of 
-these use cases the driver supports the concept of restarting a iterator or stream.
+these use cases the driver supports the concept of restarting an iterator or stream.
 
-  To restart a iterator or stream the user has to perform the following steps:
+  To restart an iterator or stream the user has to perform the following steps:
   
   [[1]] Execute a query on a collection to create a 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} or 
@@ -29,7 +29,7 @@ already requested from the server.
  
 * Executing the query
 
-  No special calls are needed to create a restart-able 
+  No special calls are needed to create a restartable 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} or stream.  The 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoCursorControl.html}MongoCursorControl}}
 interface defines all of the methods required to suspend the current iteration or stream and capture the state.
@@ -52,8 +52,7 @@ MongoCursorControl streamControl = collection.streamingFind( streamCallback, fin
 
   There are a few settings on the 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.html}Find}} object that are of particular use 
-when using planning to restart a
-stream or iterator.
+when planning to restart a stream or iterator.
 
   * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.Builder.html}Find.Builder.tailable()}}
 
@@ -64,22 +63,22 @@ documents that are inserted.  A tailable cursor can continue to return document 
 
   The tailable() method will automatically set the cursor 
 created to await data before returning.  This causes the connection being used to not be able to process other requests
-until data is available or the request times out (typically 2 seconds).  The advantage is that in the case there
-is no additional data available the await data avoid the iterator or stream entering a busy spin loop constantly 
+until data is available or the request times out (typically 2 seconds).  The advantage is that in case there
+is no additional data available the await data avoids the iterator or stream entering a busy spin loop constantly 
 requesting more data.
 
   * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.Builder.html}Find.Builder.setImmortalCursor(boolean)}} 
 
-  Of particular use with iterator and stream restarts is a setting the MongoDB server side cursor to not timeout.  
-Normally the server will delete any inactive cursors after a period of time.  By setting the cursor to not timeout 
-this feature can be disabled at the expense of potentially server side memory being wasted in the case the cursor 
-does become an orphan or forgotten.  
+  Of particular use with iterator and stream restarts is setting the MongoDB server side cursor to not timeout.  
+Normally the server will delete any inactive cursors after a period of time.  By setting the cursor to be immortal
+or not timeout, the auto-delete feature can be disabled at the expense of potentially server side memory being 
+wasted in the case the cursor is forgotten.
 
   * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.Builder.html}Find.Builder.setBatchSize(int)}}
   
   The batch size controls how many documents are retrieved from the server
 at a time.  Once a client is sent a group of documents they will not be returned from the server again for the
-same cursor.  Setting a small batch size limits the number of potentially missed documents in the case of a failure
+same cursor.  Setting a small batch size limits the number of potentially missed documents in case of a failure
 at the expense of some performance.  This is mostly mitigated by the driver's asynchronous nature that allows it to 
 be processing one batch while the request for the next batch is being processed by the server.  
 
@@ -110,8 +109,8 @@ streamControl.stop();
 * Obtaining the State of the Cursor
 
   The {{{../apidocs/index.html?com/allanbank/mongodb/MongoCursorControl.html}MongoCursorControl}} interface 
-defines the asDocument() method to return the complete state of the stream or iterator.  The document can be 
-persisted as JSON using the <<<Json>>> class or simple saved within MongoDB.  The document contains several 
+defines the <<<asDocument()>>> method to return the complete state of the stream or iterator.  The document can be 
+persisted as JSON using the <<<Json>>> class or simply saved within MongoDB.  The document contains several 
 fields that must all be present for the restart to be successful.  The order of the fields is not important.
 
 +----------------------------------------+
@@ -126,12 +125,14 @@ Document streamState = streamControl.asDocument();
 
 * Restarting the Iterator or Stream
 
-  With the cursor's state document the {{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient.restart(...)}}
-methods can be used to reestablish the iterator or stream.  As seen in the code block below, there is no 
-requirement to reestablish an iterator from an iterators state of vice versa.  An iterator's state can be 
-used to establish a new stream and vice-versa.  There is also no requirement that the cursor's state be 
-used from the same MongoClient instance, JVM or even machine.  The new client will, of course, need to 
-be able to connect to the MongoDB server maintaining the server side cursor state.
+  With the cursor's state document the 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient.restart(...)}} methods can 
+be used to reestablish the iterator or stream.  As seen in the code block below, there is no requirement 
+to reestablish an iterator from an iterators state or a stream only from a stream's state.  
+An iterator's state can also be used to establish a new stream or a stream's state used for a iterator.  
+There is also no requirement that the cursor's state be used from the same MongoClient instance, 
+JVM or even machine.  The new client will, of course, need to be able to connect to the MongoDB server 
+maintaining the server side cursor state.
 
 +----------------------------------------+
 MongoClient mongoClient = ...
