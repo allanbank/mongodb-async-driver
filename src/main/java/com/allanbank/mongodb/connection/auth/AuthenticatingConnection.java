@@ -62,7 +62,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
 
         // With the advent of delegated credentials we must now authenticate
         // with all available credentials immediately.
-        Collection<Credential> credentials = config.getCredentials();
+        final Collection<Credential> credentials = config.getCredentials();
         for (final Credential credential : credentials) {
             final Authenticator authenticator = credential.authenticator();
 

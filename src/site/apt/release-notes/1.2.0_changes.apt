@@ -31,10 +31,13 @@ classes in the driver to maximize testing, experimentation, and feedback.
   
   * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Index.html}2dshere}} indexes.
   
+  * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Index.html}geoHaystack}} indexes.
+  
   * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/GeoJson.html}GeoJSON}} 
 documents and using GeoJSON documents with {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$near}}, 
-{{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$within}}, and 
-{{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$geoIntersects}} query operators.
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$within}},  
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$geoIntersects}}, and
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$geoWithin}} query operators.
 
   * Support for the Aggregation's {{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGeoNear.html}$geoNear}} 
 operator.
