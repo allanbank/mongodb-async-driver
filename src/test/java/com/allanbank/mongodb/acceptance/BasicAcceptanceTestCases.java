@@ -2627,6 +2627,53 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#geoWithin(DocumentAssignable)}.
+     */
+    @Test
+    public void testQueryWithGeoWithinDocumentAssignable() {
+        final Document doc1 = Json
+                .parse("{_id: 'P1', p: {type: 'Point', coordinates: [2,2] } } )");
+        final Document doc2 = Json
+                .parse("{_id: 'P2', p: {type: 'Point', coordinates: [3,6] } } )");
+        final Document doc3 = Json
+                .parse("{_id: 'Poly1', p: {type: 'Polygon', coordinates: ["
+                        + "[ [3,1], [1,2], [5,6], [9,2], [4,3], [3,1] ]] } } )");
+        final Document doc4 = Json
+                .parse("{_id: 'LS1', p: {type: 'LineString', "
+                        + "coordinates: [ [5,2], [7,3], [7,5], [9,4] ] } } )");
+
+        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3, doc4);
+
+        MongoIterator<Document> iter = null;
+        try {
+            iter = getGeoSphereCollection().find(
+                    where("p").geoWithin(
+                            GeoJson.polygon(Arrays.asList(p(0, 0), p(3, 0),
+                                    p(3, 3), p(0, 3), p(0, 0)))));
+
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1);
+
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
+            iter.close();
+        }
+        catch (final QueryFailedException qfe) {
+            // See if a version prior to 2.4
+            assumeThat(qfe.getMessage(),
+                    is(not(containsString("invalid operator: $geoWithin"))));
+            fatal(qfe);
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#greaterThan(byte[])}.
      */
     @Test

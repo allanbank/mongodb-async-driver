@@ -698,6 +698,37 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#geoWithin(DocumentAssignable)}.
+     */
+    @Test
+    public void testGeoWithin() {
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final double x1 = myRandom.nextInt(1024);
+        final double y1 = myRandom.nextInt(1024);
+        final double x2 = x1 + myRandom.nextInt(1024);
+        final double y2 = y1 + myRandom.nextInt(1024);
+
+        b.equals(false); // Make sure equals is removed.
+        b.geoWithin(GeoJson.polygon(Arrays.asList(GeoJson.p(x1, y1),
+                GeoJson.p(x1, y2), GeoJson.p(x2, y2), GeoJson.p(x2, y1),
+                GeoJson.p(x1, y1))));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        final DocumentBuilder ib = db.push(GeospatialOperator.GEO_WITHIN
+                .getToken());
+        ib.add(GeospatialOperator.GEOMETRY, GeoJson.polygon(Arrays.asList(
+                GeoJson.p(x1, y1), GeoJson.p(x1, y2), GeoJson.p(x2, y2),
+                GeoJson.p(x2, y1), GeoJson.p(x1, y1))));
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#getFieldName()}.
      */
     @Test

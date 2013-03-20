@@ -52,20 +52,20 @@ public class IndexTest {
     }
 
     /**
-     * Test method for {@link Index#hashed(String)}.
-     */
-    @Test
-    public void testHashed() {
-        assertEquals(new StringElement("h", "hashed"), Index.hashed("h"));
-    }
-
-    /**
      * Test method for {@link Index#geoHaystack(String)}.
      */
     @Test
     public void testGeoHaystack() {
         assertEquals(new StringElement("h", "geoHaystack"),
                 Index.geoHaystack("h"));
+    }
+
+    /**
+     * Test method for {@link Index#hashed(String)}.
+     */
+    @Test
+    public void testHashed() {
+        assertEquals(new StringElement("h", "hashed"), Index.hashed("h"));
     }
 
     /**

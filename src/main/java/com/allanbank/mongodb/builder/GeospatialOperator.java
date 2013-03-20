@@ -16,7 +16,18 @@ package com.allanbank.mongodb.builder;
  */
 public enum GeospatialOperator implements Operator {
 
-    /** Operator to return documents that intersect the GeoJSON shape. */
+    /**
+     * Operator to return documents that are within a GeoJSON shape.
+     * 
+     * @since MongoDB 2.4
+     */
+    GEO_WITHIN("$geoWithin"),
+
+    /**
+     * Operator to return documents that intersect the GeoJSON shape.
+     * 
+     * @since MongoDB 2.4
+     */
     INTERSECT("$geoIntersects"),
 
     /**

@@ -716,6 +716,49 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Geospatial query for documents whose field intersects the specified
+     * {@link GeoJson GeoJSON} specified geometry.
+     * <p>
+     * This method is designed to be use with a GeoJSON document constructed
+     * with the {@link GeoJson} class<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {@link QueryBuilder#where where}("geo").intersects({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $geoIntersects} operator requires a
+     * {@link Index#geo2dSphere(String) 2dsphere} index.
+     * </p>
+     * <p>
+     * Only a single {@link #intersects} comparison can be used. Calling
+     * multiple <tt>intersects(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param geoJsonDoc
+     *            The GeoJSON document describing the geometry.
+     * @return The condition builder for chaining method calls.
+     * 
+     * @since MongoDB 2.4
+     */
+    public ConditionBuilder geoWithin(final DocumentAssignable geoJsonDoc) {
+        myEqualsComparison = null;
+
+        myOtherComparisons.put(GeospatialOperator.GEO_WITHIN,
+                new DocumentElement(GeospatialOperator.GEO_WITHIN.getToken(),
+                        new DocumentElement(GeospatialOperator.GEOMETRY,
+                                geoJsonDoc.asDocument())));
+
+        return this;
+    }
+
+    /**
      * Returns the fieldName value.
      * 
      * @return The fieldName value.
@@ -1287,6 +1330,8 @@ public class ConditionBuilder implements DocumentAssignable {
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @return The condition builder for chaining method calls.
+     * 
+     * @since MongoDB 2.4
      */
     public ConditionBuilder intersects(final DocumentAssignable geoJsonDoc) {
         myEqualsComparison = null;
