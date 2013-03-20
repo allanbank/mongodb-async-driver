@@ -150,6 +150,21 @@ public class CredentialTest {
     }
 
     /**
+     * Test method for {@link Credential#hasPassword()}.
+     */
+    @Test
+    public void testHasPassword() {
+        Credential c = Credential.builder().userName("user")
+                .password(new char[1]).database(null)
+                .authenticationType("fail").build();
+        assertTrue(c.hasPassword());
+
+        c = Credential.builder().userName("user").password(new char[0])
+                .database(null).authenticationType("fail").build();
+        assertFalse(c.hasPassword());
+    }
+
+    /**
      * Test method for {@link Credential#authenticator()}.
      * 
      * @throws IOException

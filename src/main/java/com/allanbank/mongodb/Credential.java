@@ -251,6 +251,16 @@ public final class Credential implements Serializable {
     }
 
     /**
+     * Returns true if the password has atleast a single character.
+     * 
+     * @return True if the password has atleast a single character, false
+     *         otherwise.
+     */
+    public boolean hasPassword() {
+        return (myPassword.length > 0);
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to returns the credential in a human readable form.
