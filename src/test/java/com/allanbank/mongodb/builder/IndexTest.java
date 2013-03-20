@@ -60,6 +60,15 @@ public class IndexTest {
     }
 
     /**
+     * Test method for {@link Index#geoHaystack(String)}.
+     */
+    @Test
+    public void testGeoHaystack() {
+        assertEquals(new StringElement("h", "geoHaystack"),
+                Index.geoHaystack("h"));
+    }
+
+    /**
      * Test method for {@link Index#text(String)}.
      */
     @Test

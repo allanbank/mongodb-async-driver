@@ -76,6 +76,21 @@ public final class Index {
     }
 
     /**
+     * Creates a haystack index specification, e.g.,
+     * <tt>{ &lt;field&gt; : "geoHaystack" }</tt>.
+     * 
+     * @param field
+     *            The field to create the
+     * @return The 2D Sphere index specification.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/applications/geohaystack/">Haystack
+     *      Index Documentation</a>
+     */
+    public static StringElement geoHaystack(final String field) {
+        return new StringElement(field, "geoHaystack");
+    }
+
+    /**
      * Creates an 'hashed' index specification, e.g.,
      * <tt>{ &lt;field&gt; : "hashed" }</tt>.
      * 
