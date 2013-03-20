@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.connection.auth;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,28 +62,31 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
 
         // With the advent of delegated credentials we must now authenticate
         // with all available credentials immediately.
-        for (final Credential credential : config.getCredentials()) {
+        Collection<Credential> credentials = config.getCredentials();
+        for (final Credential credential : credentials) {
             final Authenticator authenticator = credential.authenticator();
 
             authenticator.startAuthentication(credential, connection);
 
             // Boo! MongoDB does not support concurrent authentication attempts.
-            // Block here for the results. Boo!
-            try {
-                if (!authenticator.result()) {
-                    myFailures.put(credential.getDatabase(),
-                            new MongoDbAuthenticationException(
-                                    "Authentication failed for the "
-                                            + credential.getDatabase()
-                                            + " database."));
+            // Block here for the results if more than 1 credential. Boo!
+            if (credentials.size() > 1) {
+                try {
+                    if (!authenticator.result()) {
+                        myFailures.put(credential.getDatabase(),
+                                new MongoDbAuthenticationException(
+                                        "Authentication failed for the "
+                                                + credential.getDatabase()
+                                                + " database."));
+                    }
+                }
+                catch (final MongoDbException error) {
+                    myFailures.put(credential.getDatabase(), error);
                 }
             }
-            catch (final MongoDbException error) {
-                myFailures.put(credential.getDatabase(), error);
+            else {
+                myAuthenticators.put(credential.getDatabase(), authenticator);
             }
-
-            // No need tp hold on the authenticators until above is fixed.
-            // myAuthenticators.put(credential.getDatabase(), authenticator);
         }
     }
 

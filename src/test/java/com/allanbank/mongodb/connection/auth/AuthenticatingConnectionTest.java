@@ -434,6 +434,65 @@ public class AuthenticatingConnectionTest {
      *             On a failure setting up the mocks for the test.
      */
     @Test
+    public void testAuthWithMultipleCredentials() throws IOException {
+        myConfig.addCredential(Credential.builder().userName("allanbank")
+                .password("super_secret_password".toCharArray())
+                .database(TEST_DB + '1')
+                .authenticationType(Credential.MONGODB_CR).build());
+
+        final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
+
+        final Connection mockConnetion = createMock(Connection.class);
+
+        // Nonce.
+        expect(
+                mockConnetion.send(
+                        eq(new Command(TEST_DB, myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
+
+        // Auth.
+        expect(
+                mockConnetion.send(
+                        eq(new Command(TEST_DB, myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
+
+        // Nonce.
+        expect(
+                mockConnetion.send(
+                        eq(new Command(TEST_DB + '1', myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
+
+        // Auth.
+        expect(
+                mockConnetion.send(
+                        eq(new Command(TEST_DB + '1', myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
+
+        // Message.
+        expect(mockConnetion.send(msg, null)).andReturn(myAddress);
+
+        mockConnetion.close();
+        expectLastCall();
+
+        replay(mockConnetion);
+
+        final AuthenticatingConnection conn = new AuthenticatingConnection(
+                mockConnetion, myConfig);
+
+        conn.send(msg, null);
+
+        IOUtils.close(conn);
+
+        verify(mockConnetion);
+    }
+
+    /**
+     * Test method for {@link AuthenticatingConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @Test
     public void testNoAuthenticateDoc() throws IOException {
 
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
