@@ -5,16 +5,23 @@
 
 package com.allanbank.mongodb;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -140,6 +147,56 @@ public class CredentialTest {
             assertFalse(obj1.equals("foo"));
             assertFalse(obj1.equals(null));
         }
+    }
+
+    /**
+     * Test method for {@link Credential#authenticator()}.
+     * 
+     * @throws IOException
+     *             On a test failure.
+     * @throws ClassNotFoundException
+     *             On a test failure.
+     */
+    @Test
+    public void testSerialization() throws IOException, ClassNotFoundException {
+        final MongoDbAuthenticator auth = new MongoDbAuthenticator();
+
+        final Credential c = Credential.builder().userName("user")
+                .password(new char[1]).database("foo").authenticator(auth)
+                .build();
+
+        assertEquals("user", c.getUserName());
+        assertArrayEquals(new char[1], c.getPassword());
+        assertEquals("foo", c.getDatabase());
+        assertEquals(MongoDbAuthenticator.class.getName(),
+                c.getAuthenticationType());
+        assertSame(auth, c.getAuthenticator());
+        assertNotSame(auth, c.authenticator());
+        assertTrue(c.authenticator() instanceof MongoDbAuthenticator);
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ObjectOutputStream oout = new ObjectOutputStream(out);
+
+        oout.writeObject(c);
+        oout.flush();
+
+        final ObjectInputStream oin = new ObjectInputStream(
+                new ByteArrayInputStream(out.toByteArray()));
+
+        final Object obj = oin.readObject();
+        assertThat(obj, instanceOf(Credential.class));
+
+        final Credential other = (Credential) obj;
+        assertThat(other, is(c));
+
+        assertEquals("user", other.getUserName());
+        assertArrayEquals(new char[1], other.getPassword());
+        assertEquals("foo", other.getDatabase());
+        assertEquals(MongoDbAuthenticator.class.getName(),
+                other.getAuthenticationType());
+        assertNull(other.getAuthenticator());
+        assertNotSame(auth, other.authenticator());
+        assertTrue(c.authenticator() instanceof MongoDbAuthenticator);
     }
 
     /**

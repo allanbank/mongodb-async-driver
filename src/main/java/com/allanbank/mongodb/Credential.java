@@ -5,6 +5,8 @@
 package com.allanbank.mongodb;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -311,6 +313,22 @@ public final class Credential implements Serializable {
      */
     private boolean nullSafeEquals(final Object rhs, final Object lhs) {
         return (rhs == lhs) || ((rhs != null) && rhs.equals(lhs));
+    }
+
+    /**
+     * Sets the transient state of this {@link Credential}.
+     * 
+     * @param in
+     *            The input stream.
+     * @throws ClassNotFoundException
+     *             On a failure loading a class in this classed reachable tree.
+     * @throws IOException
+     *             On a failure reading from the stream.
+     */
+    private void readObject(final ObjectInputStream in)
+            throws ClassNotFoundException, IOException {
+        in.defaultReadObject();
+        myAuthenticator = null;
     }
 
     /**
