@@ -440,6 +440,22 @@ public class ExpressionsTest {
     }
 
     /**
+     * Test method for {@link Expressions#millisecond(Expression)}.
+     */
+    @Test
+    public void testMillisecond() {
+        final Constant e1 = new Constant(new TimestampElement("", 1));
+
+        final UnaryExpression e = Expressions.millisecond(e1);
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.push("f").addTimestamp("$millisecond", 1);
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+    }
+
+    /**
      * Test method for {@link Expressions#minute(Expression)}.
      */
     @Test

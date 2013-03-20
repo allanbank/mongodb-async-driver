@@ -84,6 +84,9 @@ public final class Expressions {
     public static final String LESS_THAN_OR_EQUAL = "$lte";
 
     /** The {@value} operator token */
+    public static final String MILLISECOND = "$millisecond";
+
+    /** The {@value} operator token */
     public static final String MINUTE = "$minute";
 
     /** The {@value} operator token */
@@ -453,6 +456,17 @@ public final class Expressions {
      */
     public static NaryExpression lte(final Expression lhs, final Expression rhs) {
         return new NaryExpression(LESS_THAN_OR_EQUAL, lhs, rhs);
+    }
+
+    /**
+     * Returns a {@link UnaryExpression} {@value #MILLISECOND} expression.
+     * 
+     * @param expression
+     *            The date for the operator.
+     * @return The {@link UnaryExpression} {@value #MILLISECOND} expression.
+     */
+    public static UnaryExpression millisecond(final Expression expression) {
+        return new UnaryExpression(MILLISECOND, expression);
     }
 
     /**
