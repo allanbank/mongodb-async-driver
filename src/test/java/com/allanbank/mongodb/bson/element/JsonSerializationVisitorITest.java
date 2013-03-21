@@ -61,7 +61,7 @@ public class JsonSerializationVisitorITest {
      */
     @Test
     public void testMongoTimeStampParsingMatches() {
-        final int seconds = 0x12345 * 1000; // Times are truncated.
+        int seconds = 0x12345 * 1000; // Times are truncated.
         final int offset = 0xAB;
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
@@ -85,15 +85,26 @@ public class JsonSerializationVisitorITest {
         assertEquals("{ '_id' : Timestamp(" + seconds + ", " + offset + ") }",
                 doc.toString());
 
-        final ManagedProcess mp = ourTestSupport.run(null, "mongo",
+        ManagedProcess mp = ourTestSupport.run(null, "mongo",
                 "localhost:27017/test", "-eval",
                 "db.test.insert( { '_id' : Timestamp(" + seconds + ", "
                         + offset + ") } );");
         mp.waitFor();
 
         // Now pull the document back and make sure it matches what we expect.
-        final Document result = collection.findOne(BuilderFactory.start());
+        Document result = collection.findOne(BuilderFactory.start());
 
+        // For 2.4 the shell parsing changes to be seconds.
+        if (!doc.equals(result)) {
+            seconds = 0x12345;
+            collection.delete(BuilderFactory.start(), Durability.ACK);
+            mp = ourTestSupport.run(null, "mongo", "localhost:27017/test",
+                    "-eval", "db.test.insert( { '_id' : Timestamp(" + seconds
+                            + ", " + offset + ") } );");
+            mp.waitFor();
+
+            result = collection.findOne(BuilderFactory.start());
+        }
         assertEquals(doc, result);
 
         IOUtils.close(mongo);

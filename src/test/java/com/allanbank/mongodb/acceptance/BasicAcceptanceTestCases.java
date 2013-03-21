@@ -469,8 +469,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @SuppressWarnings("boxing")
     @Test
     public void testAggregateWithGeoNear() {
-        final double x = myRandom.nextDouble() * 170.0;
-        final double y = myRandom.nextDouble() * 170.0;
+        final double x = 5.1;
+        final double y = 5.1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -818,17 +818,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         assertTrue("Database should be in the list: '" + TEST_DB_NAME + "' in "
                 + names, names.contains(TEST_DB_NAME));
 
-        myDb.drop();
+        assertTrue(myDb.drop());
 
         // Pause for the config server to update.
         if (isShardedConfiguration()) {
-            long now = System.currentTimeMillis();
-            final long deadline = now + TimeUnit.SECONDS.toMillis(30);
-            while ((now < deadline)
-                    && myMongo.listDatabaseNames().contains(TEST_DB_NAME)) {
-                Thread.sleep(50);
-                now = System.currentTimeMillis();
-            }
+            // long now = System.currentTimeMillis();
+            // final long deadline = now + TimeUnit.SECONDS.toMillis(30);
+            // while ((now < deadline)
+            // && myMongo.listDatabaseNames().contains(TEST_DB_NAME)) {
+            // Thread.sleep(50);
+            // now = System.currentTimeMillis();
+            // }
+
+            return;
         }
 
         names = myMongo.listDatabaseNames();
@@ -4218,8 +4220,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearDocumentAssignable() {
-        final double x = myRandom.nextDouble() * 10.0;
-        final double y = myRandom.nextDouble() * 10.0;
+        final double x = 2.456;
+        final double y = 5.234;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4268,8 +4270,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testQueryWithNearDocumentAssignableDouble() {
 
-        final double x = myRandom.nextDouble() * 10.0;
-        final double y = myRandom.nextDouble() * 10.0;
+        final double x = 5.33;
+        final double y = 6.14;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4315,8 +4317,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearDoubleDouble() {
-        final double x = myRandom.nextDouble() * 170.0;
-        final double y = myRandom.nextDouble() * 170.0;
+        final double x = 5.1;
+        final double y = 5.1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4353,8 +4355,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearDoubleDoubleDouble() {
-        final double x = myRandom.nextDouble() * 170.0;
-        final double y = myRandom.nextDouble() * 170.0;
+        final double x = 5.1;
+        final double y = 5.1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4389,8 +4391,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearIntInt() {
-        final int x = (int) (myRandom.nextDouble() * 170);
-        final int y = (int) (myRandom.nextDouble() * 170);
+        final int x = 45;
+        final int y = 32;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4427,8 +4429,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearIntIntInt() {
-        final int x = (int) (myRandom.nextDouble() * 170);
-        final int y = (int) (myRandom.nextDouble() * 170);
+        final int x = 23;
+        final int y = 23;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4463,8 +4465,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearLongLong() {
-        final long x = (long) (myRandom.nextDouble() * 170);
-        final long y = (long) (myRandom.nextDouble() * 170);
+        final long x = 38;
+        final long y = 42;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4501,8 +4503,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearLongLongLong() {
-        final long x = (long) (myRandom.nextDouble() * 170);
-        final long y = (long) (myRandom.nextDouble() * 170);
+        final long x = 17;
+        final long y = 23;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4537,8 +4539,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearSphereDocumentAssignable() {
-        final double x = myRandom.nextDouble() * 170.0;
-        final double y = myRandom.nextDouble() * 80.0;
+        final double x = 5.1;
+        final double y = 32.56;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4586,8 +4588,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearSphereDocumentAssignableDouble() {
-        final double x = myRandom.nextDouble() * 160.0;
-        final double y = myRandom.nextDouble() * 70.0;
+        final double x = 34.768;
+        final double y = 3.456;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4633,8 +4635,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearSphereDoubleDouble() {
-        final double x = myRandom.nextDouble() * 170.0;
-        final double y = myRandom.nextDouble() * 80.0;
+        final double x = 5.1;
+        final double y = 23.42;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4672,8 +4674,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearSphereDoubleDoubleDouble() {
-        final double x = myRandom.nextDouble() * 160.0;
-        final double y = myRandom.nextDouble() * 70.0;
+        final double x = 23.546;
+        final double y = 1.89;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4708,8 +4710,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearSphereIntInt() {
-        final int x = (int) (myRandom.nextDouble() * 170);
-        final int y = (int) (myRandom.nextDouble() * 80);
+        final int x = 23;
+        final int y = 33;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4746,8 +4748,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearSphereIntIntInt() {
-        final int x = (int) (myRandom.nextDouble() * 20);
-        final int y = (int) (myRandom.nextDouble() * 20);
+        final int x = 13;
+        final int y = 2;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4782,8 +4784,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearSphereLongLong() {
-        final long x = (long) (myRandom.nextDouble() * 170);
-        final long y = (long) (myRandom.nextDouble() * 80);
+        final long x = 32;
+        final long y = 51;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -4820,8 +4822,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithNearSphereLongLongLong() {
-        final long x = (long) (myRandom.nextDouble() * 20);
-        final long y = (long) (myRandom.nextDouble() * 20);
+        final long x = 15;
+        final long y = 1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
@@ -5546,10 +5548,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinBooleanPoint2DPoint2DPoint2DPoint2DArray() {
-        final double x1 = myRandom.nextDouble() * 170.0;
-        final double y1 = myRandom.nextDouble() * 170.0;
-        final double x2 = myRandom.nextDouble() * 170.0;
-        final double y2 = myRandom.nextDouble() * 170.0;
+        final double x1 = 5.1;
+        final double y1 = 5.1;
+        final double x2 = 4.2;
+        final double y2 = 8.2;
 
         final double minx = Math.min(x1, x2);
         final double maxx = Math.max(x1, x2);
@@ -5607,15 +5609,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinDocumentAssignable() {
-        final double x1 = myRandom.nextDouble() * 170.0;
-        final double y1 = myRandom.nextDouble() * 70.0;
+        final double x1 = 5.4;
+        final double y1 = 3.2;
 
-        final double deltax = myRandom.nextDouble() * 10.0;
+        final double deltax = 5.234;
         final double x2 = x1 + deltax;
         final double minx = Math.min(x1, x2);
         final double maxx = Math.max(x1, x2);
 
-        final double deltay = myRandom.nextDouble() * 10.0;
+        final double deltay = 6.238;
         final double y2 = y1 + deltay;
         final double miny = Math.min(y1, y2);
         final double maxy = Math.max(y1, y2);
@@ -5678,15 +5680,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinDocumentAssignableBoolean() {
-        final double x1 = myRandom.nextDouble() * 170.0;
-        final double y1 = myRandom.nextDouble() * 70.0;
+        final double x1 = 16.8;
+        final double y1 = 44.1;
 
-        final double deltax = myRandom.nextDouble() * 10.0;
+        final double deltax = 4.4656;
         final double x2 = x1 + deltax;
         final double minx = Math.min(x1, x2);
         final double maxx = Math.max(x1, x2);
 
-        final double deltay = myRandom.nextDouble() * 10.0;
+        final double deltay = 7.2343;
         final double y2 = y1 + deltay;
         final double miny = Math.min(y1, y2);
         final double maxy = Math.max(y1, y2);
@@ -5752,8 +5754,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinDoubleDoubleDouble() {
-        final double x = myRandom.nextDouble() * 170.0;
-        final double y = myRandom.nextDouble() * 170.0;
+        final double x = 12.3;
+        final double y = 22.1;
         final double radius = Math.sqrt(4.0 + 4.0);
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -5797,8 +5799,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinDoubleDoubleDoubleBoolean() {
-        final double x = myRandom.nextDouble() * 170.0;
-        final double y = myRandom.nextDouble() * 170.0;
+        final double x = 5.1;
+        final double y = 5.1;
         final double radius = Math.sqrt(4.0 + 4.0) + .1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -5845,10 +5847,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinDoubleDoubleDoubleDouble() {
-        final double x1 = myRandom.nextDouble() * 170.0;
-        final double y1 = myRandom.nextDouble() * 170.0;
-        final double x2 = myRandom.nextDouble() * 170.0;
-        final double y2 = myRandom.nextDouble() * 170.0;
+        final double x1 = 5.1;
+        final double y1 = 5.1;
+        final double x2 = 3.4;
+        final double y2 = 12.9;
 
         final double minx = Math.min(x1, x2);
         final double deltax = Math.abs(x1 - x2);
@@ -5898,10 +5900,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinDoubleDoubleDoubleDoubleBoolean() {
-        final double x1 = myRandom.nextDouble() * 170.0;
-        final double y1 = myRandom.nextDouble() * 170.0;
-        final double x2 = myRandom.nextDouble() * 170.0;
-        final double y2 = myRandom.nextDouble() * 170.0;
+        final double x1 = 5.1;
+        final double y1 = 5.1;
+        final double x2 = 16.2;
+        final double y2 = 1.4;
 
         final double minx = Math.min(x1, x2);
         final double deltax = Math.abs(x1 - x2);
@@ -5953,8 +5955,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinIntIntInt() {
-        final int x = (int) (myRandom.nextDouble() * 170.0);
-        final int y = (int) (myRandom.nextDouble() * 170.0);
+        final int x = 3;
+        final int y = 3;
         final int radius = (int) Math.ceil(Math.sqrt(4.0 + 4.0));
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -5997,8 +5999,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinIntIntIntBoolean() {
-        final int x = (int) (myRandom.nextDouble() * 170.0);
-        final int y = (int) (myRandom.nextDouble() * 170.0);
+        final int x = 3;
+        final int y = 3;
         final int radius = (int) Math.ceil(Math.sqrt(4.0 + 4.0));
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -6044,17 +6046,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinIntIntIntInt() {
-        int x1 = (int) (myRandom.nextDouble() * 170.0);
-        int y1 = (int) (myRandom.nextDouble() * 170.0);
-        final int x2 = (int) (myRandom.nextDouble() * 170.0);
-        final int y2 = (int) (myRandom.nextDouble() * 170.0);
-
-        if (x1 == x2) {
-            x1 -= 1;
-        }
-        if (y1 == y2) {
-            y1 -= 1;
-        }
+        final int x1 = 3;
+        final int y1 = 3;
+        final int x2 = 17;
+        final int y2 = 32;
 
         final int minx = Math.min(x1, x2);
         final int deltax = Math.abs(x1 - x2);
@@ -6104,17 +6099,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinIntIntIntIntBoolean() {
-        int x1 = (int) (myRandom.nextDouble() * 170.0);
-        int y1 = (int) (myRandom.nextDouble() * 170.0);
-        final int x2 = (int) (myRandom.nextDouble() * 170.0);
-        final int y2 = (int) (myRandom.nextDouble() * 170.0);
-
-        if (x1 == x2) {
-            x1 -= 1;
-        }
-        if (y1 == y2) {
-            y1 -= 1;
-        }
+        final int x1 = 3;
+        final int y1 = 3;
+        final int x2 = 12;
+        final int y2 = 11;
 
         final int minx = Math.min(x1, x2);
         final int deltax = Math.abs(x1 - x2);
@@ -6166,8 +6154,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinLongLongLong() {
-        final long x = (long) (myRandom.nextDouble() * 170.0);
-        final long y = (long) (myRandom.nextDouble() * 170.0);
+        final long x = 5;
+        final long y = 5;
         final long radius = (long) Math.ceil(Math.sqrt(4.0 + 4.0));
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -6211,8 +6199,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinLongLongLongBoolean() {
-        final long x = (long) (myRandom.nextDouble() * 170.0);
-        final long y = (long) (myRandom.nextDouble() * 170.0);
+        final long x = 5;
+        final long y = 5;
         final long radius = (long) Math.ceil(Math.sqrt(4.0 + 4.0));
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -6258,17 +6246,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinLongLongLongLong() {
-        long x1 = (long) (myRandom.nextDouble() * 170.0);
-        long y1 = (long) (myRandom.nextDouble() * 170.0);
-        final long x2 = (long) (myRandom.nextDouble() * 170.0);
-        final long y2 = (long) (myRandom.nextDouble() * 170.0);
-
-        if (x1 == x2) {
-            x1 -= 1;
-        }
-        if (y1 == y2) {
-            y1 -= 1;
-        }
+        final long x1 = 5;
+        final long y1 = 5;
+        final long x2 = 12;
+        final long y2 = 13;
 
         final long minx = Math.min(x1, x2);
         final long deltax = Math.abs(x1 - x2);
@@ -6318,17 +6299,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinLongLongLongLongBoolean() {
-        long x1 = (long) (myRandom.nextDouble() * 170.0);
-        long y1 = (long) (myRandom.nextDouble() * 170.0);
-        final long x2 = (long) (myRandom.nextDouble() * 170.0);
-        final long y2 = (long) (myRandom.nextDouble() * 170.0);
-
-        if (x1 == x2) {
-            x1 -= 1;
-        }
-        if (y1 == y2) {
-            y1 -= 1;
-        }
+        final long x1 = 5;
+        final long y1 = 5;
+        final long x2 = 17;
+        final long y2 = 23;
 
         final long minx = Math.min(x1, x2);
         final long deltax = Math.abs(x1 - x2);
@@ -6381,8 +6355,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereDoubleDoubleDouble() {
-        final double x = myRandom.nextDouble() * 10.0;
-        final double y = myRandom.nextDouble() * 10.0;
+        final double x = 3.546;
+        final double y = 3.141;
         final double radius = 1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -6426,8 +6400,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereDoubleDoubleDoubleBoolean() {
-        final double x = myRandom.nextDouble() * 10.0;
-        final double y = myRandom.nextDouble() * 10.0;
+        final double x = 0.34;
+        final double y = 9.98;
         final double radius = 1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -6473,8 +6447,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereIntIntInt() {
-        final int x = (int) (myRandom.nextDouble() * 10.0);
-        final int y = (int) (myRandom.nextDouble() * 10.0);
+        final int x = 3;
+        final int y = 7;
         final int radius = 1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -6518,8 +6492,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereIntIntIntBoolean() {
-        final int x = (int) (myRandom.nextDouble() * 10.0);
-        final int y = (int) (myRandom.nextDouble() * 10.0);
+        final int x = 1;
+        final int y = 7;
         final int radius = 1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -6566,8 +6540,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereLongLongLong() {
-        final long x = (long) (myRandom.nextDouble() * 10.0);
-        final long y = (long) (myRandom.nextDouble() * 10.0);
+        final long x = 8;
+        final long y = 3;
         final long radius = 1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -6611,8 +6585,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinOnSphereLongLongLongBoolean() {
-        final long x = (long) (myRandom.nextDouble() * 10.0);
-        final long y = (long) (myRandom.nextDouble() * 10.0);
+        final long x = 1;
+        final long y = 2;
         final long radius = 1;
 
         final DocumentBuilder doc1 = BuilderFactory.start();
@@ -6702,10 +6676,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testQueryWithWithinPoint2DPoint2DPoint2DPoint2DArray() {
-        final double x1 = myRandom.nextDouble() * 170.0;
-        final double y1 = myRandom.nextDouble() * 170.0;
-        final double x2 = myRandom.nextDouble() * 170.0;
-        final double y2 = myRandom.nextDouble() * 170.0;
+        final double x1 = 15.6;
+        final double y1 = 5.1;
+        final double x2 = 5.1;
+        final double y2 = 17.6;
 
         final double minx = Math.min(x1, x2);
         final double maxx = Math.max(x1, x2);
