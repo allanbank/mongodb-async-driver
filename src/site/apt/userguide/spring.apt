@@ -1,0 +1,33 @@
+            ------
+            MongoDB Asynchronous Java Driver: Spring Support
+            ------
+            ------
+
+Spring XML Configuration Support
+
+  The driver's extension jar contains name-space support for creating and configuring the 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient}} singleton 
+and bean factories for the 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoDatabase.html}MongoDatabase}} and 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} interfaces.
+
++-------------+
+<mongo-client id="mongo"
+              durability="ACK"
+              read-preference="PREFER_SECONDARY"
+              maximum-connections="3"
+              maximum-pending-operations="2048"
+              connect-timeout="30000"
+              read-timeout="60000"
+              reconnect-timeout="60000"
+              socket-keep-alive="true">
+  <servers auto-discover="true">
+    <server host="localhost" port="27017" />
+  </servers>
+</mongo-client>
++-------------+
+
+  The driver's extensions jar available to license holders. Please contact 
+{{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
+for information on licensing the driver and obtaining the extensions jar.  The schema included with the jar 
+contains the complete documentation on all of the available elements types and attributes. 

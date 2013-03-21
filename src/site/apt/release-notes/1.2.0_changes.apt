@@ -81,6 +81,8 @@ the value of an <<<Element>>> in a type agnostic way possible.
 to support passing the various command <<<Builders>>> instead of the commands themselves.
   
   * Update the ObjectId to enable construction from a HEX string.
+  
+  * Added Spring XML namespace configuration support to the extensions jar.
 
 * Semantic Change
 
@@ -95,11 +97,13 @@ on any attempt to send a message after the <<<MongoClient>>> is closed.
 
   * Added a user's guide on using the driver's {{{../userguide/asynchronous_api.html}Asynchronous API}}.
   
-  * Added a user's guide on using the driver with {{{../userguide/maven.html}Maven}}.
-  
+  * Added a user's guide on {{{../userguide/cursor_restart.html}cursor restarts}}.
+
   * Added a user's guide on using the driver with {{{../userguide/kerberos.html}Kerberos}}.
   
-  * Added a user's guide on {{{../userguide/cursor_restart.html}cursor restarts}}.
+  * Added a user's guide on using the driver with {{{../userguide/maven.html}Maven}}.
+  
+  * Added a user's guide on {{{../userguide/spring.html}Spring XML Namespace}} support.
 
 Deprecations
 

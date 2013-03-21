@@ -37,6 +37,7 @@
 				<item name="Cursor Restarts" href="userguide/cursor_restart.html" />
 				<item name="Kerberos" href="userguide/kerberos.html" />
 				<item name="Maven" href="userguide/maven.html" />
+				<item name="Spring Support" href="userguide/spring.html" />
 				<item name="UNIX Domain Sockets" href="userguide/unix_domain_sockets.html" />
 			</item>
 			<item name="Performance" href="index.html#Performance">
