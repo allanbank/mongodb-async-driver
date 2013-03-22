@@ -28,6 +28,7 @@ import com.allanbank.mongodb.connection.rs.ReplicaSetConnectionFactory;
 import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -203,7 +204,9 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
             bootstrap();
             if (myDelegate == null) {
                 LOG.log(Level.WARNING,
-                        "Could not bootstrap connection factory.");
+                        "Could not bootstrap a connection to the MongoDB servers.");
+                throw new CannotConnectException(
+                        "Could not bootstrap a connection to the MongoDB servers.");
             }
         }
         return myDelegate;

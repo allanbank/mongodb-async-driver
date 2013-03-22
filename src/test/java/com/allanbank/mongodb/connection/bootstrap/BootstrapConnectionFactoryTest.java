@@ -14,9 +14,9 @@ import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -41,6 +41,7 @@ import com.allanbank.mongodb.connection.rs.ReplicaSetReconnectStrategy;
 import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
+import com.allanbank.mongodb.error.CannotConnectException;
 
 /**
  * Integration test for the {@link BootstrapConnectionFactory}.
@@ -115,7 +116,13 @@ public class BootstrapConnectionFactoryTest {
 
         myTestFactory = new BootstrapConnectionFactory(config);
 
-        assertNull("Wrong type of myTestFactory.", myTestFactory.getDelegate());
+        try {
+            myTestFactory.getDelegate();
+            fail("Should have thrown a CannotConnectException.");
+        }
+        catch (CannotConnectException good) {
+            // Good.
+        }
     }
 
     /**
