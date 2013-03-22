@@ -11,7 +11,7 @@ Download
 
   [Jar] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}.jar}${projectArtifactId}-${projectVersion}.jar}}
   
-  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}-javadoc.jar}${projectArtifactId}-${projectVersion}-javadoc.jar}}
+  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}-javadoc.jar}${projectArtifactId}-${projectVersion}-javadoc.jar}} and {{{./apidocs/index.html}online}}.
 
 Past Releases
 

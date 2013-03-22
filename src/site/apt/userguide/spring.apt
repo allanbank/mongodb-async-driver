@@ -2,6 +2,7 @@
             MongoDB Asynchronous Java Driver: Spring Support
             ------
             ------
+            2013-03-22
 
 Spring XML Configuration Support
 
@@ -27,7 +28,7 @@ and bean factories for the
 </mongo-client>
 +-------------+
 
-  The driver's extensions jar available to license holders. Please contact 
+  The driver's extensions jar is available to license holders. Please contact 
 {{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
 for information on licensing the driver and obtaining the extensions jar.  The schema included with the jar 
 contains the complete documentation on all of the available elements types and attributes. 

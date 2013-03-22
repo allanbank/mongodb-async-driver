@@ -2,6 +2,7 @@
             MongoDB Asynchronous Java Driver: Kerberos Authentication
             ------
             ------
+            2013-03-22
 
 Kerberos Authentication
 
@@ -34,14 +35,21 @@ Kerberos Java environment.
   
   []
 
-  With a working kerberos environment the driver support three modes for Kerberos authentication, 
-user name and password, keytab file, or via cached credentials (commonly by <<<kinit>>>). 
+  With a working kerberos environment the driver supports three modes for Kerberos authentication:
+  
+  [[1]] User name and password
+  
+  [[2]] Keytab File
+  
+  [[3]] Cached credentials (commonly by <<<kinit>>>)
+  
+  []
 
 * Authenticating via a Kerberos User Name and Password 
  
   With a working Kerberos infrastructure configuring the driver to use Kerberos for authentication can be as
-simple as providing the user name and password credentials. For the appropriate user or service Kerberos principal 
-to the create a  {{{../apidocs/index.html?com/allanbank/mongodb/Credential.html}Credential}} object with
+simple as providing the user name and password credentials. For the appropriate user or service Kerberos principal, 
+create a  {{{../apidocs/index.html?com/allanbank/mongodb/Credential.html}Credential}} object with
 the user name and password and add it to the 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}.
 
@@ -57,7 +65,7 @@ Arrays.fill( password, ' ' );
 
   []
   
-  The user does not need to have pre-authenticated with the server (via kinit) or even be resident on a machine 
+  The user does not need to be pre-authenticated with the server (via kinit) or even be resident on a machine 
 within the Kerberos domain. The driver will authenticate the user and obtain required tickets automatically 
 from the Kerberos domain controller. The host running the application need not be explicitly part of the 
 Kerberos domain but should, obviously, be able to communicate with the Kerberos domain controller. This is 
@@ -66,10 +74,10 @@ to the driver.
 
 ** Authenticating via a Kerberos Keytab File
 
-  For systems lacking an effective mechanism for obfuscating passwords within the application's configuration
-a more secure option may be to place the application's Kerberos credentials within a keytab file that is then
+  For systems lacking an effective mechanism for obfuscating passwords within the application's configuration,
+a more secure option might be to place the application's Kerberos credentials within a keytab file that is then
 secured via DAC (Discretionary Access Controls, e.g., file permissions) and/or MAC (Mandatory Access Controls, 
-e.g., SELinux).
+e.g., SELinux labels).
 
   To create the keytab file use the <<<kadmin>>> application or the <<<ktutil>>> application.  Usage of
 the <<<ktutil>>> is beyond the scope of this guide but the <<<kadmin>>> command would look like:
@@ -106,8 +114,8 @@ prompt> kinit -l 1d -r 1d
 Password for user@EXAMPLE.COM: 
 +----------------------------------------+
 
-  The cached credentials are then viewable via the <<<klist>>> application.  Of particular interest when debugging
-is the -e option to provide the encryption type for the ticket.
+  The cached credentials are then viewable via the <<<klist>>> application. The <<<-e>>> option
+provides the encryption type for a ticket which can be particularly helpful when debugging.
 
   * <<Note:>> You must have the JCE unlimited strength policy files installed to use some Kerberos tickets 
     cached via <<<kinit>>>.
@@ -115,7 +123,7 @@ is the -e option to provide the encryption type for the ticket.
   [] 
   
   With the tickets cached, start the application as the same user (does not need to be the same session) and 
-create a Credential without a password similar to the following.
+create a Credential without a password similar to the following:
 
 +----------------------------------------+
 MongoClientConfiguration config = new MongoClientConfiguration("mongodb://locahost:27017/");
@@ -123,10 +131,10 @@ MongoClientConfiguration config = new MongoClientConfiguration("mongodb://locaho
 config.addCredential(Credential.builder().userName("<user>@<REALM>").kerberos());
 +----------------------------------------+
 
-  The driver with then automatically switch to using the cached credentials. 
+  The driver will then automatically switch to using the cached credentials. 
   
   We <<do not>> recommend this approach as it requires the credentials to be stored in a location
-not explicitly controlled by the application and its security plan. Further the application can 
+not explicitly controlled by the application and its security plan. Further, the application can 
 only be launched after successfully caching credentials requiring coordination and still requires
 some mechanism to securely store the user password for the <<<kinit>>> invocation.
 
@@ -138,8 +146,8 @@ Getting a MongoDB Server Running with Kerberos Support
   
 * Creating a Principle for the MongoDB server
 
-  Before starting a MongoDB server with Kerberos support we first need to provision or identify 
-the MongDB server within the Kerberos domain.  The first step is to create a principle for the MongoDB 
+  Before starting a MongoDB server with Kerberos support, we need to provision or identify 
+the MongDB server within the Kerberos domain. The first step is to create a principle for the MongoDB 
 service running on each host.  The following command will create the principle within the domain using a random key.  
 Replace <<\<fqdn\>>> with the fully qualified domain name of the machine on which MongoDB will be running. 
 
@@ -151,8 +159,8 @@ kadmin -q "addprinc -randkey mongodb/<fqdn>"
 
   With the principle created we now export the key for the principle to a keytab file for 
 the MongoDB process to use.  The permissions on the keytab file should be checked to ensure that
-the file is read-only and only the runtime MongoDB user can read the file. For the command below we 
-have placed the keytab file in /opt/mongdb but can be in any location on the file system.
+the file is read-only and only the runtime MongoDB user can read the file. For the command below, we 
+have placed the keytab file in <<</opt/mongdb>>>, but can be in any secured location on the file system.
 
 +----------------------------------------+
 mkdir -p /opt/mongodb/
@@ -166,14 +174,14 @@ must be used.
 
   [--auth option] Enables authentication on the server.
 
-  [--setParameter option] Enables the authentication modes.  Initially it is recommended to use the option
-with the authenticationMechanisms=GSSAPI,MONGODB-CR argument to enable support for Kerberos and traditional 
+  [--setParameter option] Enables the authentication modes.  Initially, it is recommended to use the option
+with the <<<authenticationMechanisms=GSSAPI,MONGODB-CR>>> argument to enable support for Kerberos and traditional 
 challenge response.  Once the Kerberos authentication is working the user can switch to just GSSAPI.
 
-  [--keyFile option] If running a cluster of servers this option provides the mechanism for the servers 
+  [--keyFile option] If running a cluster of servers, this option provides the mechanism for the servers 
 to authenticate to each other. All servers must have access to a copy of identical key files.
 
-  [KRB5_KTNAME Environment Variable] Points to the keytab file created above, e.g., /opt/mongodb/mongod.keytab.
+  [KRB5_KTNAME Environment Variable] Points to the keytab file created above, e.g., <<</opt/mongodb/mongod.keytab>>>.
 
   []
   

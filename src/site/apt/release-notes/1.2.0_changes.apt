@@ -2,7 +2,7 @@
             Changes in MongoDB Asynchronous Java Driver 1.2.0
             ------
             ------
-            TBD
+            2013-03-22
 
 Upgrading
 
@@ -24,7 +24,7 @@ guide on {{{../userguide/kerberos.html}Kerberos}} for more information.
   * Add support for creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Index.html}text}} indexes 
 and creating {{{../apidocs/index.html?com/allanbank/mongodb/builder/Text.html}Text}} commands/queries.
 
-    * <<Note:>> 10gen has stated that the Full Text Search capability is experimental.  Further more, use of 
+    * <<Note:>> 10gen has stated that the Full Text Search capability is experimental.  Furthermore, use of 
 the feature is not advised for production deployments.  For this reason we have not added the <<<Text>>> helper and 
 <<<Text.Builder>>> to the drivers API, e.g., they may change. We feel it is important to still include the helper
 classes in the driver to maximize testing, experimentation, and feedback. 

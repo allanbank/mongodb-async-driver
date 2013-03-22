@@ -2,14 +2,15 @@
             MongoDB Asynchronous Java Driver: Restarting Iterators and Streams
             ------
             ------
+            2013-03-22
 
 Restarting Iterators and Streams
 
-  Normally users will create an iterator or start a stream of documents based on a 
+  Normally, users will create an iterator or start a stream of documents based on a 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.html}Find}} executed on
 a {{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}} and 
 consume the complete results of the <<<Find>>> within the lifetime of a single application.
-In some cases it is useful to either be able to migrate the processing of the results to a new application
+In some cases, it is useful to either be able to migrate the processing of the results to a new application
 instance or to stop processing the results and restart processing those results later.  In support of 
 these use cases the driver supports the concept of restarting an iterator or stream.
 
@@ -57,7 +58,7 @@ when planning to restart a stream or iterator.
   * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.Builder.html}Find.Builder.tailable()}}
 
   A tailable cursor can be used with a capped collection to capture new 
-documents that are inserted.  A tailable cursor can continue to return document indefinitely. 
+documents that are inserted.  A tailable cursor can continue to return documents indefinitely. 
 
   * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.Builder.html}Find.Builder.setAwaitData(boolean)}}
 
@@ -70,9 +71,9 @@ requesting more data.
   * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.Builder.html}Find.Builder.setImmortalCursor(boolean)}} 
 
   Of particular use with iterator and stream restarts is setting the MongoDB server side cursor to not timeout.  
-Normally the server will delete any inactive cursors after a period of time.  By setting the cursor to be immortal
-or not timeout, the auto-delete feature can be disabled at the expense of potentially server side memory being 
-wasted in the case the cursor is forgotten.
+Normally, the server will delete any inactive cursors after a period of time.  By setting the cursor to be immortal
+or not timeout, the auto-delete feature can be disabled at the expense of wasted memory on the server if the 
+cursor is forgotten.
 
   * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Find.Builder.html}Find.Builder.setBatchSize(int)}}
   
@@ -86,7 +87,7 @@ be processing one batch while the request for the next batch is being processed 
 
   Once an iterator or stream has been started it is important to gracefully stop the flow of documents to the
 client to ensure that all documents in the results are processed.  The <<<MongoCursorControl.stop()>>> method
-will halt any further requests for documents but allow the document already requested from the server to continue 
+will halt any further requests for documents, but allow the document already requested from the server to continue 
 to be processed.  At the end of the iteration or stream the cursor's state on the server (including any limit) will
 be in a well defined state.
 
