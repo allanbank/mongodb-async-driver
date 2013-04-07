@@ -11,9 +11,9 @@ import java.util.concurrent.Future;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -34,7 +34,7 @@ import com.allanbank.mongodb.builder.TextResult;
  */
 public interface MongoCollection {
     /** An (empty) query document to find all documents. */
-    public static final Document ALL = BuilderFactory.start().build();
+    public static final Document ALL = EmptyDocument.INSTANCE;
 
     /**
      * Invokes a aggregate command on the server.

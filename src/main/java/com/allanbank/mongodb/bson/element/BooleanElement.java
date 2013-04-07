@@ -133,6 +133,9 @@ public class BooleanElement extends AbstractElement {
      */
     @Override
     public BooleanElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new BooleanElement(name, myValue);
     }
 }

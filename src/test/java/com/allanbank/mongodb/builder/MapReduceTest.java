@@ -29,7 +29,7 @@ public class MapReduceTest {
      */
     @Test
     public void testMapReduce() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document scope = BuilderFactory.start().addBoolean("foo", true)
                 .build();
         final Document sort = BuilderFactory.start().addBoolean("foo", false)
@@ -67,7 +67,7 @@ public class MapReduceTest {
      */
     @Test
     public void testMapReduceFluent() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document scope = BuilderFactory.start().addBoolean("foo", true)
                 .build();
         final Document sort = BuilderFactory.start().addBoolean("foo", false)
@@ -208,7 +208,7 @@ public class MapReduceTest {
      */
     @Test
     public void testMapReduceOutputDb() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document scope = BuilderFactory.start().addBoolean("foo", true)
                 .build();
         final Document sort = BuilderFactory.start().addBoolean("foo", false)
@@ -250,7 +250,7 @@ public class MapReduceTest {
      */
     @Test
     public void testMapReduceOutputDbEmptyCollection() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document scope = BuilderFactory.start().addBoolean("foo", true)
                 .build();
         final Document sort = BuilderFactory.start().addBoolean("foo", false)
@@ -289,7 +289,7 @@ public class MapReduceTest {
      */
     @Test
     public void testMapReduceOutputDbNoCollection() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document scope = BuilderFactory.start().addBoolean("foo", true)
                 .build();
         final Document sort = BuilderFactory.start().addBoolean("foo", false)
@@ -356,7 +356,7 @@ public class MapReduceTest {
      */
     @Test
     public void testMapReduceWithSort() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document scope = BuilderFactory.start().addBoolean("foo", true)
                 .build();
         final Document sort = BuilderFactory.start().addInteger("foo", 1)

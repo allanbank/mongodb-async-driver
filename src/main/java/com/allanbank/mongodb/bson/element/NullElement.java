@@ -86,6 +86,9 @@ public class NullElement extends AbstractElement {
      */
     @Override
     public NullElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new NullElement(name);
     }
 }

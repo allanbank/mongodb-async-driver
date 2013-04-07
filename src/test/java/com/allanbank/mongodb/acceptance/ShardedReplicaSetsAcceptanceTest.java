@@ -280,8 +280,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         final int count = 1000;
         final int before = countSecondaryCommands();
         for (int i = 0; i < count; ++i) {
-            myCollection.count(BuilderFactory.start().build(),
-                    ReadPreference.SECONDARY);
+            myCollection.count(MongoCollection.ALL, ReadPreference.SECONDARY);
         }
         final int after = countSecondaryCommands();
         assertTrue("Should have more than " + count + " commands: "

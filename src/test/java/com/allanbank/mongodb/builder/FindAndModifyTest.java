@@ -30,7 +30,7 @@ public class FindAndModifyTest {
      */
     @Test
     public void testFindAndModify() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document update = BuilderFactory.start().addInteger("foo", 3)
                 .build();
         final Document sort = BuilderFactory.start().addInteger("foo", 3)
@@ -62,7 +62,7 @@ public class FindAndModifyTest {
      */
     @Test
     public void testFindAndModifyFluent() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document update = BuilderFactory.start().addInteger("foo", 3)
                 .build();
         final Document sort = BuilderFactory.start().addInteger("foo", 3)
@@ -111,7 +111,7 @@ public class FindAndModifyTest {
      */
     @Test
     public void testFindAndModifyMinimal() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document update = BuilderFactory.start().addInteger("foo", 3)
                 .build();
 
@@ -170,7 +170,7 @@ public class FindAndModifyTest {
      */
     @Test
     public void testFindAndModifyNoUpdate() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
 
         final FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.setQuery(query);
@@ -193,7 +193,7 @@ public class FindAndModifyTest {
      */
     @Test
     public void testFindAndModifyNoUpdateIsRemove() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
 
         final FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.query(query).remove();
@@ -211,7 +211,7 @@ public class FindAndModifyTest {
      */
     @Test
     public void testFindAndModifyWithSort() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document update = BuilderFactory.start().addInteger("foo", 3)
                 .build();
         final Document sort = BuilderFactory.start().addInteger("foo", 1)

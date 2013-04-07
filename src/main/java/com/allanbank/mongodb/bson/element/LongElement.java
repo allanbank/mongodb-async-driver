@@ -172,6 +172,9 @@ public class LongElement extends AbstractElement implements NumericElement {
      */
     @Override
     public LongElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new LongElement(name, myValue);
     }
 }

@@ -154,10 +154,16 @@ public class RootDocument implements Document {
         if (this == object) {
             result = true;
         }
-        else if ((object != null) && (getClass() == object.getClass())) {
-            final RootDocument other = (RootDocument) object;
+        else if (object != null) {
+            if (getClass() == object.getClass()) {
+                final RootDocument other = (RootDocument) object;
 
-            result = myElements.get().equals(other.myElements.get());
+                result = myElements.get().equals(other.myElements.get());
+            }
+            else {
+                result = myElements.get().isEmpty()
+                        && (object instanceof EmptyDocument);
+            }
         }
         return result;
     }

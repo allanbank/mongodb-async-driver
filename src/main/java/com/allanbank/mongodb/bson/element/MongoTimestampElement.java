@@ -136,6 +136,9 @@ public class MongoTimestampElement extends AbstractElement {
      */
     @Override
     public MongoTimestampElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new MongoTimestampElement(name, myTimestamp);
     }
 }

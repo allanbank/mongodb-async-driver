@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -171,4 +172,13 @@ public class BooleanElementTest {
         assertEquals(ElementType.BOOLEAN, element.getType());
     }
 
+    /**
+     * Test method for {@link BooleanElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final BooleanElement element = new BooleanElement("foo", false);
+
+        assertSame(element, element.withName("foo"));
+    }
 }

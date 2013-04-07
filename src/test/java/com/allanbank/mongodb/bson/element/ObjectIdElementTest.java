@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -191,5 +192,16 @@ public class ObjectIdElementTest {
         assertEquals("bar", element.getName());
         assertEquals(id, element.getId());
         assertEquals(ElementType.OBJECT_ID, element.getType());
+    }
+
+    /**
+     * Test method for {@link ObjectIdElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final ObjectId id = new ObjectId();
+        final ObjectIdElement element = new ObjectIdElement("foo", id);
+
+        assertSame(element, element.withName("foo"));
     }
 }

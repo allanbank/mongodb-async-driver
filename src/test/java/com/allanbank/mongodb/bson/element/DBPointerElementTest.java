@@ -225,4 +225,15 @@ public class DBPointerElementTest {
         assertEquals(ElementType.DB_POINTER, element.getType());
     }
 
+    /**
+     * Test method for {@link DBPointerElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final ObjectId id = new ObjectId();
+        final DBPointerElement element = new DBPointerElement("foo", "bar",
+                "baz", id);
+
+        assertSame(element, element.withName("foo"));
+    }
 }

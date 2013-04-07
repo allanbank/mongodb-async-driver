@@ -578,6 +578,9 @@ public class DocumentElement extends AbstractElement implements Document {
      */
     @Override
     public DocumentElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new DocumentElement(name, myElements);
     }
 

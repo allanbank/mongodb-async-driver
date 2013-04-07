@@ -29,7 +29,7 @@ public class FindTest {
      */
     @Test
     public void testFind() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document fields = BuilderFactory.start().addInteger("foo", 3)
                 .build();
         final Document sort = BuilderFactory.start().addInteger("foo", 1)
@@ -127,7 +127,7 @@ public class FindTest {
      */
     @Test
     public void testFindWithExplain() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document fields = BuilderFactory.start().addInteger("foo", 3)
                 .build();
 
@@ -189,7 +189,7 @@ public class FindTest {
      */
     @Test
     public void testFindWithHint() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document fields = BuilderFactory.start().addInteger("foo", 3)
                 .build();
 
@@ -290,7 +290,7 @@ public class FindTest {
      */
     @Test
     public void testFindWithHintName() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document fields = BuilderFactory.start().addInteger("foo", 3)
                 .build();
 
@@ -535,7 +535,7 @@ public class FindTest {
      */
     @Test
     public void testFindWithSnapshot() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document fields = BuilderFactory.start().addInteger("foo", 3)
                 .build();
 
@@ -595,7 +595,7 @@ public class FindTest {
      */
     @Test
     public void testFindWithSort() {
-        final Document query = BuilderFactory.start().build();
+        final Document query = Find.ALL;
         final Document fields = BuilderFactory.start().addInteger("foo", 3)
                 .build();
 

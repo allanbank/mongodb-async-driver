@@ -177,6 +177,9 @@ public class BinaryElement extends AbstractElement {
      */
     @Override
     public BinaryElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new BinaryElement(name, mySubType, myValue);
     }
 }

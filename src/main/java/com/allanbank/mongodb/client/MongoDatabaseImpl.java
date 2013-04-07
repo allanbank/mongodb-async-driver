@@ -40,7 +40,7 @@ import com.allanbank.mongodb.util.FutureUtils;
 public class MongoDatabaseImpl implements MongoDatabase {
 
     /** An empty query document. */
-    public static final Document EMPTY_QUERY = BuilderFactory.start().build();
+    public static final Document EMPTY_QUERY = MongoCollection.ALL;
 
     /** The client for interacting with MongoDB. */
     protected final Client myClient;

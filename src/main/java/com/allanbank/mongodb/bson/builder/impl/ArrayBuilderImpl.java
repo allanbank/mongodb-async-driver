@@ -496,6 +496,6 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      * @return The next index value for an element.
      */
     private String nextIndex() {
-        return String.valueOf(myElements.size());
+        return ArrayElement.nameFor(myElements.size());
     }
 }

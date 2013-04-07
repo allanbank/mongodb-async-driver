@@ -378,4 +378,16 @@ public class BinaryElementTest {
         assertArrayEquals(new byte[] { 0x01, 0x02, 0x03 }, element.getValue());
         assertEquals(ElementType.BINARY, element.getType());
     }
+
+    /**
+     * Test method for {@link BinaryElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        assertSame(element, element.withName("foo"));
+    }
+
 }

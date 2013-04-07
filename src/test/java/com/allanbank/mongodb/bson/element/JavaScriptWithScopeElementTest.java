@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -238,5 +239,16 @@ public class JavaScriptWithScopeElementTest {
         assertEquals("func code() {}", element.getJavaScript());
         assertEquals(SCOPE_1, element.getScope());
         assertEquals(ElementType.JAVA_SCRIPT_WITH_SCOPE, element.getType());
+    }
+
+    /**
+     * Test method for {@link JavaScriptWithScopeElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final JavaScriptWithScopeElement element = new JavaScriptWithScopeElement(
+                "foo", "func code() {}", SCOPE_1);
+
+        assertSame(element, element.withName("foo"));
     }
 }

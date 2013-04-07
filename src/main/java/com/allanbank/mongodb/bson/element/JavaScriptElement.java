@@ -141,6 +141,9 @@ public class JavaScriptElement extends AbstractElement {
      */
     @Override
     public JavaScriptElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new JavaScriptElement(name, myJavaScript);
     }
 }

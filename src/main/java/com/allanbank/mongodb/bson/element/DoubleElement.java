@@ -174,6 +174,9 @@ public class DoubleElement extends AbstractElement implements NumericElement {
      */
     @Override
     public DoubleElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new DoubleElement(name, myValue);
     }
 }

@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -201,5 +202,15 @@ public class IntegerElementTest {
         assertEquals("bar", element.getName());
         assertEquals(1010101, element.getValue(), 0.0001);
         assertEquals(ElementType.INTEGER, element.getType());
+    }
+
+    /**
+     * Test method for {@link IntegerElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final IntegerElement element = new IntegerElement("foo", 1010101);
+
+        assertSame(element, element.withName("foo"));
     }
 }

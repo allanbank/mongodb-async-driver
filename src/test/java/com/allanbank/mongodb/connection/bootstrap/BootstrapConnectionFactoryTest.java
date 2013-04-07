@@ -120,7 +120,7 @@ public class BootstrapConnectionFactoryTest {
             myTestFactory.getDelegate();
             fail("Should have thrown a CannotConnectException.");
         }
-        catch (CannotConnectException good) {
+        catch (final CannotConnectException good) {
             // Good.
         }
     }

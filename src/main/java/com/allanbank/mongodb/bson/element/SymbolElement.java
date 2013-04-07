@@ -142,6 +142,9 @@ public class SymbolElement extends AbstractElement {
      */
     @Override
     public SymbolElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new SymbolElement(name, mySymbol);
     }
 }

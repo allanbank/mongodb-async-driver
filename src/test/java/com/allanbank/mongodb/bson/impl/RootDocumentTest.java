@@ -9,12 +9,15 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -38,6 +41,7 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.ObjectIdElement;
+import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
  * RootDocumentTest provides tests for the {@link RootDocument}.
@@ -120,6 +124,24 @@ public class RootDocumentTest {
 
         assertTrue(element.contains("1"));
         assertFalse(element.contains("2"));
+    }
+
+    /**
+     * Test method for {@link RootDocument#equals(Object)}.
+     */
+    @Test
+    public void testEqualsEmptyDocument() {
+        final Document root = new RootDocument();
+        final Document rootWithElement = new RootDocument(new StringElement(
+                "a", "b"));
+        final Document empty = new EmptyDocument();
+
+        assertThat(empty.hashCode(), is(root.hashCode()));
+        assertThat(empty, is(root));
+        assertThat(root, is(empty));
+
+        assertThat(rootWithElement, not(is(empty)));
+        assertThat(empty, not(is(rootWithElement)));
     }
 
     /**

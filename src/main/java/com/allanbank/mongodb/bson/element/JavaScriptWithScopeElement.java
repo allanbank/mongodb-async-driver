@@ -149,6 +149,9 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
      */
     @Override
     public JavaScriptWithScopeElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new JavaScriptWithScopeElement(name, getJavaScript(), myScope);
     }
 }

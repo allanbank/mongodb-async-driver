@@ -547,8 +547,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
             myCollection.insert(builder.build());
 
-            assertEquals(i + 1,
-                    myCollection.count(BuilderFactory.start().build()));
+            assertEquals(i + 1, myCollection.count(MongoCollection.ALL));
         }
     }
 
@@ -703,13 +702,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
 
         assertEquals(SMALL_COLLECTION_COUNT,
-                myCollection.count(BuilderFactory.start().build()));
+                myCollection.count(MongoCollection.ALL));
 
         myConfig.setDefaultDurability(Durability.ACK);
         assertEquals(SMALL_COLLECTION_COUNT,
-                myCollection.delete(BuilderFactory.start().build()));
+                myCollection.delete(MongoCollection.ALL));
 
-        assertEquals(0, myCollection.count(BuilderFactory.start().build()));
+        assertEquals(0, myCollection.count(MongoCollection.ALL));
 
     }
 
@@ -1366,7 +1365,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         final Set<Document> actual = new HashSet<Document>();
         final MongoCollection out = myDb.getCollection("myoutput");
-        for (final Document doc : out.find(BuilderFactory.start().build())) {
+        for (final Document doc : out.find(MongoCollection.ALL)) {
             actual.add(doc);
         }
 

@@ -129,6 +129,9 @@ public class TimestampElement extends AbstractElement {
      */
     @Override
     public TimestampElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new TimestampElement(name, myTimestamp);
     }
 }

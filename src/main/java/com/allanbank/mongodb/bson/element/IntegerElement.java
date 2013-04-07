@@ -171,6 +171,9 @@ public class IntegerElement extends AbstractElement implements NumericElement {
      */
     @Override
     public IntegerElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new IntegerElement(name, myValue);
     }
 }

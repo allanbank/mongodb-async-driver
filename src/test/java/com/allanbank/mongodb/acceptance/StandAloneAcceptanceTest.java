@@ -5,8 +5,10 @@
 
 package com.allanbank.mongodb.acceptance;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -22,6 +24,9 @@ import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.error.ConnectionLostException;
@@ -52,6 +57,39 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
     @AfterClass
     public static void stopServer() {
         stopStandAlone();
+    }
+
+    /**
+     * Test saving a manually created ArrayElement.
+     */
+    @Test
+    public void testManuallyCreatedArrayElement() {
+        final Document query = BuilderFactory.start()
+                .add("_id", new ObjectId()).build();
+
+        final Document doc2 = BuilderFactory
+                .start(query)
+                .add("value", 5)
+                .add("keys", BuilderFactory.start().add("k1", "v1"))
+                .addNull("op")
+                .add("list",
+                        BuilderFactory.startArray().add("fabian").add("rockt")
+                                .build())
+                .add(new ArrayElement("listObj",
+                        new StringElement("", "fabse"), new StringElement("",
+                                "fabse2"))).build();
+
+        BuilderFactory
+                .start(query)
+                .add(new ArrayElement("listObj",
+                        new StringElement("", "fabse"), new StringElement("",
+                                "fabse2"))).build();
+
+        myCollection.insert(Durability.ACK, doc2);
+        final Document found = myCollection.findOne(query);
+
+        System.out.println(found);
+        assertThat(found, is(doc2));
     }
 
     /**

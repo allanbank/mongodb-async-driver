@@ -142,6 +142,9 @@ public class StringElement extends AbstractElement {
      */
     @Override
     public StringElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new StringElement(name, myValue);
     }
 }

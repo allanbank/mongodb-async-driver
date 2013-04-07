@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -181,5 +182,16 @@ public class MongoTimestampElementTest {
         assertEquals("bar", element.getName());
         assertEquals(1010101, element.getTime(), 0.0001);
         assertEquals(ElementType.MONGO_TIMESTAMP, element.getType());
+    }
+
+    /**
+     * Test method for {@link MongoTimestampElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final MongoTimestampElement element = new MongoTimestampElement("foo",
+                1010101);
+
+        assertSame(element, element.withName("foo"));
     }
 }

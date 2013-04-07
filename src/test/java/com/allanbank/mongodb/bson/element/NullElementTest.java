@@ -14,6 +14,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -154,5 +155,15 @@ public class NullElementTest {
         element = element.withName("bar");
         assertEquals("bar", element.getName());
         assertEquals(ElementType.NULL, element.getType());
+    }
+
+    /**
+     * Test method for {@link NullElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final NullElement element = new NullElement("foo");
+
+        assertSame(element, element.withName("foo"));
     }
 }

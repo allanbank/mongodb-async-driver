@@ -17,6 +17,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.EmptyDocument;
 
 /**
  * QueryBuilder provides support for constructing queries. Most users are
@@ -64,7 +65,7 @@ public class QueryBuilder implements DocumentAssignable {
      */
     public static Document and(final DocumentAssignable... criteria) {
         if (criteria.length <= 0) {
-            return BuilderFactory.start().build();
+            return EmptyDocument.INSTANCE;
         }
         else if (criteria.length == 1) {
             return criteria[0].asDocument();
@@ -163,7 +164,7 @@ public class QueryBuilder implements DocumentAssignable {
      */
     public static Document or(final DocumentAssignable... criteria) {
         if (criteria.length <= 0) {
-            return BuilderFactory.start().build();
+            return EmptyDocument.INSTANCE;
         }
         else if (criteria.length == 1) {
             return criteria[0].asDocument();

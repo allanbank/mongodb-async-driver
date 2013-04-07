@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -360,5 +361,16 @@ public class RegularExpressionElementTest {
         assertEquals("func code() {}", element.getPattern());
         assertEquals(RegularExpressionElement.OPTION_I, element.getOptions());
         assertEquals(ElementType.REGEX, element.getType());
+    }
+
+    /**
+     * Test method for {@link RegularExpressionElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final RegularExpressionElement element = new RegularExpressionElement(
+                "foo", "func code() {}", OPTIONS_1);
+
+        assertSame(element, element.withName("foo"));
     }
 }

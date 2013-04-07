@@ -227,6 +227,9 @@ public class UuidElement extends BinaryElement {
      */
     @Override
     public UuidElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new UuidElement(name, getSubType(), myUuid);
     }
 

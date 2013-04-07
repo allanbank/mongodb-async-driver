@@ -386,6 +386,9 @@ public class RegularExpressionElement extends AbstractElement {
      */
     @Override
     public RegularExpressionElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new RegularExpressionElement(name, myPattern, myOptions);
     }
 }

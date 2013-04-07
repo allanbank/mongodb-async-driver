@@ -32,8 +32,33 @@ public class ArrayElement extends AbstractElement {
     /** The BSON type for an array. */
     public static final ElementType TYPE = ElementType.ARRAY;
 
+    /** A cache of the names for the elements at an index to be used. */
+    private static final String[] ourIndexes;
+
     /** Serialization version for the class. */
     private static final long serialVersionUID = -7363294574214059703L;
+    static {
+        ourIndexes = new String[256];
+
+        for (int i = 0; i < ourIndexes.length; ++i) {
+            ourIndexes[i] = Integer.toString(i).intern();
+        }
+    }
+
+    /**
+     * Similar to the caching of Integer object values for a range we cache the
+     * index names for an array's first 256 positions.
+     * 
+     * @param index
+     *            The index for the array element.
+     * @return The name of the value at that index.
+     */
+    public static final String nameFor(final int index) {
+        if ((0 <= index) && (index < ourIndexes.length)) {
+            return ourIndexes[index];
+        }
+        return Integer.toString(index);
+    }
 
     /**
      * The entries in the array. The name attribute will be ignored when
@@ -55,8 +80,14 @@ public class ArrayElement extends AbstractElement {
             throws IllegalArgumentException {
         super(name);
 
-        myEntries = Collections.unmodifiableList(new ArrayList<Element>(Arrays
-                .asList(entries)));
+        // The names of the elements have to be a specific value.
+        final int length = entries.length;
+        final List<Element> elements = new ArrayList<Element>(length);
+        for (int i = 0; i < length; ++i) {
+            elements.add(entries[i].withName(nameFor(i)));
+        }
+
+        myEntries = Collections.unmodifiableList(elements);
     }
 
     /**
@@ -74,8 +105,16 @@ public class ArrayElement extends AbstractElement {
         super(name);
 
         if ((entries != null) && !entries.isEmpty()) {
-            myEntries = Collections.unmodifiableList(new ArrayList<Element>(
-                    entries));
+            // The names of the elements have to be a specific value.
+            final int length = entries.size();
+            final List<Element> elements = new ArrayList<Element>(length);
+            int index = 0;
+            for (final Element element : entries) {
+                elements.add(element.withName(nameFor(index)));
+                index += 1;
+            }
+
+            myEntries = Collections.unmodifiableList(elements);
         }
         else {
             myEntries = Collections.emptyList();
@@ -259,6 +298,9 @@ public class ArrayElement extends AbstractElement {
      */
     @Override
     public ArrayElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new ArrayElement(name, myEntries);
     }
 

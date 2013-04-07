@@ -987,4 +987,13 @@ public class DocumentElementTest {
         assertTrue(element.getElements().isEmpty());
     }
 
+    /**
+     * Test method for {@link DocumentElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final DocumentElement element = new DocumentElement("foo");
+
+        assertSame(element, element.withName("foo"));
+    }
 }

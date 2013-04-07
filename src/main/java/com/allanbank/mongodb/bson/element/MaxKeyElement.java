@@ -79,6 +79,9 @@ public class MaxKeyElement extends AbstractElement {
      */
     @Override
     public MaxKeyElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new MaxKeyElement(name);
     }
 }

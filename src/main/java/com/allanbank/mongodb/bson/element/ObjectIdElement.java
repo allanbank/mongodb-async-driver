@@ -133,6 +133,9 @@ public class ObjectIdElement extends AbstractElement {
      */
     @Override
     public ObjectIdElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new ObjectIdElement(name, myId);
     }
 }

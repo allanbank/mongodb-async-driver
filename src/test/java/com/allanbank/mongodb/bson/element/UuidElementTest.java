@@ -9,6 +9,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -182,5 +183,16 @@ public class UuidElementTest {
         assertEquals(element.getUuid(), newElement.getUuid());
         assertArrayEquals(element.getValue(), newElement.getValue());
         assertEquals(ElementType.BINARY, element.getType());
+    }
+
+    /**
+     * Test method for {@link UuidElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final UuidElement element = new UuidElement("foo",
+                UuidElement.LEGACY_UUID_SUBTTYPE, UUID.randomUUID());
+
+        assertSame(element, element.withName("foo"));
     }
 }

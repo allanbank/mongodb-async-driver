@@ -9,6 +9,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -16,6 +17,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -45,7 +47,7 @@ public class ArrayElementTest {
      */
     @Test
     public void testAccept() {
-        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
         final ArrayElement element = new ArrayElement("foo", subElement);
 
         final Visitor mockVisitor = createMock(Visitor.class);
@@ -62,12 +64,41 @@ public class ArrayElementTest {
     }
 
     /**
+     * Test method for {@link ArrayElement#ArrayElement(String, Element...)}.
+     */
+    @Test
+    public void testConstructManuallyWithArray() {
+        final ArrayElement ae = new ArrayElement("listObj", new StringElement(
+                "", "fabse"), new StringElement("", "fabse2"));
+
+        assertThat((StringElement) ae.getEntries().get(0),
+                is(new StringElement("0", "fabse")));
+        assertThat((StringElement) ae.getEntries().get(1),
+                is(new StringElement("1", "fabse2")));
+    }
+
+    /**
+     * Test method for {@link ArrayElement#ArrayElement(String, Element...)}.
+     */
+    @Test
+    public void testConstructManuallyWithList() {
+        final ArrayElement ae = new ArrayElement("listObj", Arrays.asList(
+                (Element) new StringElement("", "fabse"), new StringElement("",
+                        "fabse2")));
+
+        assertThat((StringElement) ae.getEntries().get(0),
+                is(new StringElement("0", "fabse")));
+        assertThat((StringElement) ae.getEntries().get(1),
+                is(new StringElement("1", "fabse2")));
+    }
+
+    /**
      * Test method for {@link ArrayElement#ArrayElement(String, List)}.
      */
     @Test
     public void testConstructors() {
         List<Element> list = Collections.emptyList();
-        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
 
         ArrayElement element = new ArrayElement("foo", list);
 
@@ -207,12 +238,11 @@ public class ArrayElementTest {
      */
     @Test
     public void testFindFirstWithBadPatternPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("(", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
         final ArrayElement element = new ArrayElement("foo", subElement);
 
         final Element found = element.findFirst(Element.class, "(");
-        assertNotNull(found);
-        assertSame(subElement, found);
+        assertNull(found);
     }
 
     /**
@@ -220,7 +250,7 @@ public class ArrayElementTest {
      */
     @Test
     public void testFindFirstWithBadPatternPathNotMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
         final ArrayElement element = new ArrayElement("foo", subElement);
 
         final Element found = element.findFirst(Element.class, "(");
@@ -262,14 +292,14 @@ public class ArrayElementTest {
      */
     @Test
     public void testFindFirstWithPathMatchingNonFirstSubelement() {
-        final BooleanElement subElement = new BooleanElement("123", false);
+        final BooleanElement subElement = new BooleanElement("1", false);
         final ArrayElement element = new ArrayElement("f", new BooleanElement(
-                "2", false), subElement);
+                "0", false), subElement);
 
-        Element found = element.findFirst(Element.class, "123");
+        Element found = element.findFirst(Element.class, "1");
         assertSame(subElement, found);
 
-        found = element.findFirst(Element.class, "12.");
+        found = element.findFirst(Element.class, "1|2");
         assertSame(subElement, found);
     }
 
@@ -278,14 +308,14 @@ public class ArrayElementTest {
      */
     @Test
     public void testFindFirstWithPathMatchingNonLastSubelement() {
-        final BooleanElement subElement = new BooleanElement("123", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
         final ArrayElement element = new ArrayElement("f", subElement,
-                new BooleanElement("2", false));
+                new BooleanElement("1", false));
 
-        Element found = element.findFirst(Element.class, "123");
+        Element found = element.findFirst(Element.class, "0");
         assertSame(subElement, found);
 
-        found = element.findFirst(Element.class, "12.");
+        found = element.findFirst(Element.class, "0|3");
         assertSame(subElement, found);
     }
 
@@ -294,15 +324,15 @@ public class ArrayElementTest {
      */
     @Test
     public void testFindFirstWithPathMatchingNonLastSubelementBadRegex() {
-        final BooleanElement subElement = new BooleanElement("(", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
         final ArrayElement element = new ArrayElement("f", subElement,
-                new BooleanElement("2", false));
+                new BooleanElement("1", false));
 
         Element found = element.findFirst(Element.class, "(");
-        assertSame(subElement, found);
+        assertNull(found);
 
         found = element.findFirst(Element.class, "(");
-        assertSame(subElement, found);
+        assertNull(found);
     }
 
     /**
@@ -310,10 +340,10 @@ public class ArrayElementTest {
      */
     @Test
     public void testFindFirstWithPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
         final ArrayElement element = new ArrayElement("foo", subElement);
 
-        Element found = element.findFirst(Element.class, "1");
+        Element found = element.findFirst(Element.class, "0");
         assertNotNull(found);
         assertSame(subElement, found);
 
@@ -339,12 +369,11 @@ public class ArrayElementTest {
      */
     @Test
     public void testFindWithBadPatternPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("(", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
         final ArrayElement element = new ArrayElement("foo", subElement);
 
         final List<Element> elements = element.find(Element.class, "(");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
+        assertEquals(0, elements.size());
     }
 
     /**
@@ -352,7 +381,7 @@ public class ArrayElementTest {
      */
     @Test
     public void testFindWithBadPatternPathNotMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
         final ArrayElement element = new ArrayElement("foo", subElement);
 
         final List<Element> elements = element.find(Element.class, "(");
@@ -366,7 +395,7 @@ public class ArrayElementTest {
     public void testFindWithEmptyPathMatchingType() {
 
         final ArrayElement element = new ArrayElement("foo",
-                new BooleanElement("1", false));
+                new BooleanElement("0", false));
 
         final List<Element> elements = element.find(Element.class);
         assertEquals(1, elements.size());
@@ -396,10 +425,10 @@ public class ArrayElementTest {
      */
     @Test
     public void testFindWithPathMatchingSubelement() {
-        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
         final ArrayElement element = new ArrayElement("foo", subElement);
 
-        List<Element> elements = element.find(Element.class, "1");
+        List<Element> elements = element.find(Element.class, "0");
         assertEquals(1, elements.size());
         assertSame(subElement, elements.get(0));
 
@@ -425,7 +454,7 @@ public class ArrayElementTest {
      */
     @Test
     public void testGetEntries() {
-        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
         final ArrayElement element = new ArrayElement("foo", subElement);
 
         assertEquals("foo", element.getName());
@@ -469,10 +498,11 @@ public class ArrayElementTest {
      */
     @Test
     public void testValueAsObject() {
-        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
 
         ArrayElement element = new ArrayElement("foo", subElement, subElement);
-        assertArrayEquals(new Element[] { subElement, subElement },
+        assertArrayEquals(
+                new Element[] { subElement, subElement.withName("1") },
                 element.getValueAsObject());
 
         element = new ArrayElement("foo", subElement);
@@ -493,7 +523,7 @@ public class ArrayElementTest {
      */
     @Test
     public void testValueAsString() {
-        final BooleanElement subElement = new BooleanElement("1", false);
+        final BooleanElement subElement = new BooleanElement("0", false);
 
         ArrayElement element = new ArrayElement("foo", subElement, subElement);
         assertEquals("[\n  false, \n  false\n]", element.getValueAsString());
@@ -520,5 +550,17 @@ public class ArrayElementTest {
         assertEquals("bar", element.getName());
         assertEquals(ElementType.ARRAY, element.getType());
         assertEquals(list, element.getEntries());
+    }
+
+    /**
+     * Test method for {@link ArrayElement#withName(String)}.
+     */
+    @Test
+    public void testWithNameWhenSameName() {
+        final List<Element> list = Collections.emptyList();
+
+        final ArrayElement element = new ArrayElement("bar", list);
+
+        assertSame(element, element.withName("bar"));
     }
 }

@@ -79,6 +79,9 @@ public class MinKeyElement extends AbstractElement {
      */
     @Override
     public MinKeyElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new MinKeyElement(name);
     }
 }

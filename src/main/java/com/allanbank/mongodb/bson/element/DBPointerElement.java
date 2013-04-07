@@ -182,6 +182,9 @@ public class DBPointerElement extends AbstractElement {
      */
     @Override
     public DBPointerElement withName(final String name) {
+        if (getName().equals(name)) {
+            return this;
+        }
         return new DBPointerElement(name, myDatabaseName, myCollectionName,
                 myId);
     }

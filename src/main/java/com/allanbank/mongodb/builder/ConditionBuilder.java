@@ -128,7 +128,7 @@ public class ConditionBuilder implements DocumentAssignable {
 
         final List<Element> elements = new ArrayList<Element>(values.length);
         for (int i = 0; i < values.length; ++i) {
-            elements.add(values[i].toElement(String.valueOf(i)));
+            elements.add(values[i].toElement(ArrayElement.nameFor(i)));
         }
         myOtherComparisons.put(MiscellaneousOperator.ALL, new ArrayElement(
                 MiscellaneousOperator.ALL.getToken(), elements));
@@ -1251,7 +1251,7 @@ public class ConditionBuilder implements DocumentAssignable {
 
         final List<Element> elements = new ArrayList<Element>(values.length);
         for (int i = 0; i < values.length; ++i) {
-            elements.add(values[i].toElement(String.valueOf(i)));
+            elements.add(values[i].toElement(ArrayElement.nameFor(i)));
         }
         myOtherComparisons.put(MiscellaneousOperator.IN, new ArrayElement(
                 MiscellaneousOperator.IN.getToken(), elements));
@@ -3004,7 +3004,7 @@ public class ConditionBuilder implements DocumentAssignable {
 
         final List<Element> elements = new ArrayList<Element>(values.length);
         for (int i = 0; i < values.length; ++i) {
-            elements.add(values[i].toElement(String.valueOf(i)));
+            elements.add(values[i].toElement(ArrayElement.nameFor(i)));
         }
         myOtherComparisons.put(MiscellaneousOperator.NIN, new ArrayElement(
                 MiscellaneousOperator.NIN.getToken(), elements));
