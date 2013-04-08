@@ -525,7 +525,7 @@ public class MapReduce {
         /**
          * Sets the handling for the output of the map/reduce.
          * <p>
-         * This method delegates to {@link #setOutputType(OutputType)}.
+         * This method delegates to {@link #setOutputType}.
          * </p>
          * 
          * @param outputType

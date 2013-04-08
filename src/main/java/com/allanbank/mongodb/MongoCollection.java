@@ -1371,8 +1371,10 @@ public interface MongoCollection {
      *            an error.
      * @param documents
      *            The documents to add to the collection.
-     * @return The number of documents inserted. If the durability is NONE then
-     *         this value will be <code>-1</code>.
+     * @return Currently, returns zero. Once <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
+     *         is fixed then expected to return the number of documents
+     *         inserted. If the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
@@ -1394,8 +1396,10 @@ public interface MongoCollection {
      *            The durability for the insert.
      * @param documents
      *            The documents to add to the collection.
-     * @return The number of documents inserted. If the durability is NONE then
-     *         this value will be <code>-1</code>.
+     * @return Currently, returns zero. Once <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
+     *         is fixed then expected to return the number of documents
+     *         inserted. If the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
@@ -1413,8 +1417,10 @@ public interface MongoCollection {
      * 
      * @param documents
      *            The documents to add to the collection.
-     * @return The number of documents inserted. If the durability is NONE then
-     *         this value will be <code>-1</code>.
+     * @return Currently, returns zero. Once <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
+     *         is fixed then expected to return the number of documents
+     *         inserted. If the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
@@ -1432,8 +1438,10 @@ public interface MongoCollection {
      *            The durability for the insert.
      * @param documents
      *            The documents to add to the collection.
-     * @return The number of documents inserted. If the durability is NONE then
-     *         this value will be <code>-1</code>.
+     * @return Currently, returns zero. Once <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
+     *         is fixed then expected to return the number of documents
+     *         inserted. If the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
@@ -1448,8 +1456,11 @@ public interface MongoCollection {
      *            an error.
      * @param documents
      *            The documents to add to the collection.
-     * @return Future that will be updated with the results of the insert. If
-     *         the durability of the operation is NONE then this will be -1.
+     * @return Future that will be updated with the results of the insert.
+     *         Currently, the value is always zero. Once <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
+     *         is fixed then expected to be the number of documents inserted. If
+     *         the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
@@ -1466,8 +1477,11 @@ public interface MongoCollection {
      *            The durability for the insert.
      * @param documents
      *            The documents to add to the collection.
-     * @return Future that will be updated with the results of the insert. If
-     *         the durability of the operation is NONE then this will be -1.
+     * @return Future that will be updated with the results of the insert.
+     *         Currently, the value is always zero. Once <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
+     *         is fixed then expected to be the number of documents inserted. If
+     *         the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
@@ -1480,8 +1494,11 @@ public interface MongoCollection {
      * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
-     *            insert. If the durability of the operation is NONE then this
-     *            will be -1.
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
      * @param continueOnError
      *            If the insert should continue if one of the documents causes
      *            an error.
@@ -1498,8 +1515,11 @@ public interface MongoCollection {
      * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
-     *            insert. If the durability of the operation is NONE then this
-     *            will be -1.
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
      * @param continueOnError
      *            If the insert should continue if one of the documents causes
      *            an error.
@@ -1519,8 +1539,11 @@ public interface MongoCollection {
      * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
-     *            insert. If the durability of the operation is NONE then this
-     *            will be -1.
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
      * @param documents
      *            The documents to add to the collection.
      * @throws MongoDbException
@@ -1534,8 +1557,11 @@ public interface MongoCollection {
      * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
-     *            insert. If the durability of the operation is NONE then this
-     *            will be -1.
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
      * @param durability
      *            The durability for the insert.
      * @param documents
@@ -1551,8 +1577,11 @@ public interface MongoCollection {
      * 
      * @param documents
      *            The documents to add to the collection.
-     * @return Future that will be updated with the results of the insert. If
-     *         the durability of the operation is NONE then this will be -1.
+     * @return Future that will be updated with the results of the insert.
+     *         Currently, the value is always zero. Once <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
+     *         is fixed then expected to be the number of documents inserted. If
+     *         the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
@@ -1566,8 +1595,11 @@ public interface MongoCollection {
      *            The durability for the insert.
      * @param documents
      *            The documents to add to the collection.
-     * @return Future that will be updated with the results of the insert. If
-     *         the durability of the operation is NONE then this will be -1.
+     * @return Future that will be updated with the results of the insert.
+     *         Currently, the value is always zero. Once <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
+     *         is fixed then expected to be the number of documents inserted. If
+     *         the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
