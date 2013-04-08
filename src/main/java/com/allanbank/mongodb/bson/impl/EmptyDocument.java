@@ -90,8 +90,10 @@ public class EmptyDocument implements Document {
             if (getClass() == object.getClass()) {
                 result = true;
             }
-            else if (object instanceof RootDocument) {
-                result = ((RootDocument) object).getElements().isEmpty();
+            else if (object instanceof Document) {
+                final Document other = (Document) object;
+
+                result = other.getElements().isEmpty();
             }
         }
         return result;

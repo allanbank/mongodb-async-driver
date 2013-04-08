@@ -160,9 +160,10 @@ public class RootDocument implements Document {
 
                 result = myElements.get().equals(other.myElements.get());
             }
-            else {
-                result = myElements.get().isEmpty()
-                        && (object instanceof EmptyDocument);
+            else if (object instanceof Document) {
+                final Document other = (Document) object;
+
+                result = myElements.get().equals(other.getElements());
             }
         }
         return result;
