@@ -15,13 +15,21 @@ Download
 
 Past Releases
 
+* 1.2.0 - March 21, 2013
+
+  [Release Notes] {{{./release-notes/1.2.0_changes.html}1.2.0 Changes}}
+
+  [Jar] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/1.2.0/mongodb-async-driver-1.2.0.jar}mongodb-async-driver-1.2.0.jar}}
+  
+  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/1.2.0/mongodb-async-driver-1.2.0-javadoc.jar}mongodb-async-driver-1.2.0-javadoc.jar}} and {{{http://www.allanbank.com/mongodb-async-driver/apidocs-1.2.0/index.html}online}}.
+
 * 1.1.0 - January 3, 2013
 
   [Release Notes] {{{./release-notes/1.1.0_changes.html}1.1.0 Changes}}
 
   [Jar] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/1.1.0/mongodb-async-driver-1.1.0.jar}mongodb-async-driver-1.1.0.jar}}
   
-  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/1.0.2/mongodb-async-driver-1.1.0-javadoc.jar}mongodb-async-driver-1.1.0-javadoc.jar}} and {{{http://www.allanbank.com/mongodb-async-driver/apidocs-1.1.0/index.html}online}}.
+  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/1.1.0/mongodb-async-driver-1.1.0-javadoc.jar}mongodb-async-driver-1.1.0-javadoc.jar}} and {{{http://www.allanbank.com/mongodb-async-driver/apidocs-1.1.0/index.html}online}}.
 
 * 1.0.2 - November 5, 2012
 

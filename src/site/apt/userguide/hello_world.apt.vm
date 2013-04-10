@@ -1,0 +1,353 @@
+            ------
+            MongoDB Asynchronous Java Driver: Hello World
+            ------
+            ------
+            2013-04-07
+            
+MongoDB Hello World Tutorial
+
+  In this tutorial we walk through the steps to get a simple application
+up and running talking to a MongoDB server.
+  
+  For this demo we will be using Maven to manage dependencies, build, and run the 
+application.  Maven is not required but simplifies some of the steps.  Converting the
+application to a different environment is left as a exercise for the user.
+
+* Environment
+
+  To successfully complete this guide you will need the following tools:
+  
+  * MongoDB, 1.8 or later.
+
+  * MongoDB Asynchronous Java Driver, ${projectVersion}
+
+  * JDK, 1.6 or later
+
+  * Maven, 2.2.1 or later.
+
+* Create a skeleton project
+
++-------------+
+mvn archetype:generate -DgroupId=com.example -DartifactId=async-hello-world -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
++-------------+
+
+* Update the pom.xml
+
+  Add the asynchronous driver as a dependency and add the repository location.
+
++-------------+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId>
+  <artifactId>async-hello-world</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>async-hello-world</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <dependency>
+      <groupId>com.allanbank</groupId>
+      <artifactId>${projectArtifactId}</artifactId>
+      <version>${projectVersion}</version>
+    </dependency>
+  </dependencies>
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <id>allanbank</id>
+      <name>Allanbank Releases</name>
+      <url>http://www.allanbank.com/repo/</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
+</project>
++-------------+
+
+* The Complete Program
+
+  Copy the following into the <<<src/main/java/com/example/App.java>>> file replacing 
+the previous contents. We will step through various parts below adding some details as we go.
+
++-------------+
+package com.example;
+
+import static com.allanbank.mongodb.builder.QueryBuilder.where;
+
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
+import com.allanbank.mongodb.MongoClient;
+import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoDatabase;
+import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoFactory;
+import com.allanbank.mongodb.MongoIterator;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+
+/**
+ * Hello world using the MongoDB Asynchronous Java Driver!
+ */
+public class App {
+    public static void main(String[] args) throws InterruptedException {
+        MongoIterator<Document> iter;
+        try {
+            // * Connect to MongoDB
+            MongoClientConfiguration config = new MongoClientConfiguration();
+            config.addServer("localhost:27017");
+            MongoClient mongoClient = MongoFactory.createClient(config);
+
+            // * Get a reference to a database.
+            MongoDatabase database = mongoClient.getDatabase("test");
+
+            // * Get collection from the 'test' database.
+            MongoCollection collection = database.getCollection("messages");
+
+            // * Insert - create a document to store.
+            // Documents are created using a DocumentBuilder.
+            // We then add some keys and values.
+            DocumentBuilder document = BuilderFactory.start();
+            document.add("message", "Hello World!");
+            document.add("created", new Date());
+            document.add("updated", new Date());
+            collection.insert(document);
+
+            // * Find and display
+            // The QueryBuilder.where() method provides easy query construction.
+            // The query document created looks like:
+            // { 'message' : 'Hello World!' }
+            iter = collection.find(where("message").equals("Hello World!"));
+            while (iter.hasNext()) {
+                System.out.println(iter.next());
+            }
+
+            // So we can see a difference in times.
+            TimeUnit.SECONDS.sleep(10);
+
+            // * Update - Set the name to a new value.
+            // The update document looks like:
+            // { '$set' : { 'message' : 'Joe User-updated',
+            //              'updated' : ISODate(<current time>) } }
+            DocumentBuilder update = BuilderFactory.start();
+            update.push("$set").add("message", "Hello MongoDB!")
+                               .add("updated", new Date());
+
+            collection.update(where("message").equals("Hello World!"), update);
+
+            // * Find and display
+            iter = collection.find(where("message").equals("Hello MongoDB!"));
+            while (iter.hasNext()) {
+                System.out.println(iter.next());
+            }
+
+            // * Fini
+            System.out.println("Fini!");
+        }
+        catch (MongoDbException e) {
+            e.printStackTrace();
+        }
+    }
+}
++-------------+
+
+** MongoDB Connection
+
+  Create the {{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient}} 
+from a configuration with the servers to connect to.
+  
++-------------+
+MongoClientConfiguration config = new MongoClientConfiguration();
+config.addServer("localhost:27017");
+MongoClient mongoClient = MongoFactory.createClient(config);
++-------------+
+
+  * If you need to authenticate with MongoDB simply add the 
+  {{{../apidocs/index.html?com/allanbank/mongodb/Credential.html}Credential}} 
+  to the configuration.
+
++-------------+
+MongoClientConfiguration config = new MongoClientConfiguration();
+config.addServer("localhost:27017");
+config.addCredential(
+    com.allanbank.mongodb.Credential.builder()
+        .userName("user").password("password".toCharArray()));
+MongoClient mongoClient = MongoFactory.createClient(config);
++-------------+
+
+** MongoDB Database
+
+  Create a reference to the MongoDB database 
+({{{../apidocs/index.html?com/allanbank/mongodb/MongoDatabase.html}MongoDatabase}}) using the <<<MongoClient>>>.
+
++-------------+
+MongoDatabase database = mongoClient.getDatabase("test");
++-------------+
+
+  * You can get a list of the database names from the <<<MongoClient>>>.  
+
++-------------+
+List<String> databaseNames =  mongoClient.listDatabaseNames();
+for(String databaseName : databaseNames){
+    System.out.println(databaseNames);
+}
++-------------+
+
+** MongoDB Collection
+
+  Create the reference to the MongoDB collection 
+({{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}}) from the <<<MongoDatabase>>>.
+
++-------------+
+MongoCollection collection = database.getCollection("messages");
++-------------+
+
+  * Similar to listing databases from the <<<MongoClient>>>, you list the 
+    collection names from the <<<MongoDatabase>>>.
+
++-------------+
+List<String> collectionNames =  database.listCollectionNames();
+for(String collectionName : collectionNames){
+    System.out.println(collectionName);
+}
++-------------+
+
+  * Note: A relational table is most closely related to the MongoDB collection.
+
+** Create Example
+
+  Save a document into the collection named “messages”.  We use the 
+{{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/DocumentBuilder.html}DocumentBuilder}}  
+class to construct documents.
+
++-------------+
+MongoCollection collection = database.getCollection("messages");
+
+DocumentBuilder document = BuilderFactory.start();
+document.add("message", "Hello World!");
+document.add("created", new Date());
+document.add("updated", new Date());
+collection.insert(document);
++-------------+
+
+** Read/Find Example
+
+  Queries in MongoDB are documents themselves.  Below we find all documents where <<<message>>> 
+equals <<<Hello World!>>> and display the results.  The driver includes a 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/QueryBuilder.html}QueryBuilder}} class to make 
+query document construction much easier and more intuitive.
+
++-------------+
+MongoCollection collection = database.getCollection("messages");
+
+MongoIterator<Document> iter = collection.find(where("message").equals("Hello World!"));
+while (iter.hasNext()) {
+    System.out.println(iter.next());
+}
++-------------+
+
+** Update Example
+
+  An update requires, at least, two parts.  
+  
+  * A query document to select the set of documents to update. (See above.)
+  
+  * An update document describing the operation to apply. 
+  
+  []
+  
+  The Update document syntax is described in the 
+{{{http://docs.mongodb.org/manual/core/update/}MongoDB Documentation}}.  Below we create a simple
+update to <<<$set>>> the <<<name>>> of the matched documents to <<<Hello MongoDB!>>> and also
+update the <<<updated>>> time to the current time. 
+
++-------------+
+MongoCollection collection = database.getCollection("messages");
+
+DocumentBuilder update = BuilderFactory.start();
+update.push("$set").add("message", "Hello MongoDB!")
+                   .add("updated", new Date());
+
+collection.update(where("message").equals("Hello World!"), update);
++-------------+
+
+** Delete Example
+
+  The last CRUD operator is to delete a document.  Similar to update, a delete uses the a query 
+document to select the documents to remove.
+
++-------------+
+MongoCollection collection = database.getCollection("user");
+
+collection.delete(where("message").equals("Hello MongoDB!"));
++-------------+
+
+* Run the Application
+
+  If not already running, start a local MongoDB server on a Unix platform with:
+
++-------------+
+mkdir -p /tmp/mongodb
+mongod --dbpath /tmp/mongodb --smallfiles --nojournal
++-------------+
+
+  On a Windows platform the commands look like:
+
++-------------+
+mkdir -p C:\mongodb
+mongod.exe --dbpath C:\mongodb --smallfiles --nojournal
++-------------+
+
+  Run the application from the projects root directory with:
+
++-------------+
+mvn exec:java -Dexec.mainClass="com.example.App"
++-------------+
+
+  The output looks like:
+
++-------------+
+{
+  '_id' : ObjectId('5162040a117e8d45519ee4e1'),
+  message : 'Hello World!',
+  created : ISODate('2013-04-07T23:40:58.437+0000'),
+  updated : ISODate('2013-04-07T23:40:58.437+0000')
+}
+{
+  '_id' : ObjectId('5162040a117e8d45519ee4e1'),
+  created : ISODate('2013-04-07T23:40:58.437+0000'),
+  message : 'Hello MongoDB!',
+  updated : ISODate('2013-04-07T23:41:08.469+0000')
+}
+Fini!
++-------------+
+
+* Verify the Results
+
+  We can verify the documents were saved using the <<<mongo>>> shell.
+
++-------------+
+$ mongo
+MongoDB shell version: 2.2.3
+connecting to: test
+
+> show dbs
+local	(empty)
+test	0.0625GB
+
+> use test
+switched to db test
+
+> show collections
+messages
+system.indexes
+
+> db.messages.find()
+{ "_id" : ObjectId("5162040a117e8d45519ee4e1"), "created" : ISODate("2013-04-07T23:40:58.437Z"), "message" : "Hello MongoDB!", "updated" : ISODate("2013-04-07T23:41:08.469Z") }
++-------------+

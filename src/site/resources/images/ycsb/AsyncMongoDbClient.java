@@ -310,7 +310,7 @@ public class AsyncMongoDbClient extends DB {
             final ClosableIterator<Document> cursor = collection.find(fb
                     .build());
             while (cursor.hasNext()) {
-                // toMap() returns a Map, but result.add() expects a
+                // toMap() returns a Map but result.add() expects a
                 // Map<String,String>. Hence, the suppress warnings.
                 final Document doc = cursor.next();
                 final HashMap<String, ByteIterator> docAsMap = new HashMap<String, ByteIterator>();

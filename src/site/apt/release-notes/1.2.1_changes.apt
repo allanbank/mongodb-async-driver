@@ -1,0 +1,39 @@
+            ------
+            Changes in MongoDB Asynchronous Java Driver 1.2.1
+            ------
+            ------
+            2013-04-07
+
+Upgrading
+
+  This version is binary compatible with the 1.2.0 version of the driver.  
+    
+Updates and Improvements:
+
+* Bug Fixes
+
+  * Updated the ArrayElement to enforce the naming of elements. 
+  
+    If you are using the ArrayBuilder implementation then the created ArrayElement's sub elements 
+    will have the correct names. This change is only required for manually created ArrayElements 
+    not following the BSON naming convention. Prior to this change the arrays with incorrect names    
+    would still be persisted in MongoDB but would not be visible in the MongoDB shell (and potentially 
+    cause problems with other drivers).  
+    
+    To reduce the overhead of the checks we have implemented two other changes: 
+    
+    * Enhanced the Element.withName(String) implementations to efficiently handle when not 
+      changing the element's name.
+    
+    * Added a static method to cache the first 256 array element names.
+
+* Improvements
+
+  * Added a new Document implementation representing an empty document.
+
+* Documentation
+
+  * Added a guide to build a simple {{{../userguide/hello_world.html}Hello World}} application.
+  
+  * Added a user's guide on {{{../userguide/aggregation.html}Aggregation support classes}}.
+  

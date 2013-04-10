@@ -1,0 +1,268 @@
+            ------
+            MongoDB Asynchronous Java Driver: Aggregation Support
+            ------
+            ------
+            2013-03-22
+            
+
+Using the Aggregation Support Classes
+
+  The driver provides a complete set of support classes for constructing arbitrary Aggregation pipelines.  
+In this guide we will step through each of the current pipeline operators and discuss the support classes 
+provided for each. 
+
+  The purpose of this documentation is not to provide the complete details for each operators but instead
+to give pointers to the classes provided and examples of their use.  See the Javadoc for each class for 
+full details.
+
+* Aggregate Command / Builder
+
+  The first support class is the {{{../apidocs/index.html?com/allanbank/mongodb/builder/Aggregate.html}Aggregate}} 
+class and its associated {{{../apidocs/index.html?com/allanbank/mongodb/builder/Aggregate.Builder.html}Aggregate.Builder}}.
+The builder provides support for each of the pipeline operators as well as a generic <<<step(...)>>> method so future
+operators can be supported before the builder is updated.  You can create a builder from the static <<<builder()>>>
+method of the <<<Aggregate>>> class: 
+
++----------------------------------------+
+Aggregate.Builder builder = Aggregate.builder();
++----------------------------------------+
+ 
+* $geoNear
+
+  The <<<$geoNear>>> operator construction is done via the 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGeoNear.html}AggregationGeoNear}} and associated 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGeoNear.Builder.html}AggregationGeoNear.Builder}}.
+The builder requires the <<<location>>> and <<<distanceField>>> be specified.  User may find the 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/GeoJson.html}GeoJson.p(...)}} static method useful for quickly 
+creating <<<Point2D>>> objects for the <<<location>>> field.
+
++----------------------------------------+
+Aggregate.Builder builder = Aggregate.builder();
+
+builder.geoNear( AggregationGeoNear.builder().location( GeoJson.p( 12.0, 14.5 ) ).distanceField( "distanceField" ) );
++----------------------------------------+
+
+  For complete details of the <<<$geoNear>>> operator and the fields supported by the operator see the 
+{{{http://docs.mongodb.org/manual/reference/aggregation/geoNear/}$geoNear (aggregation)}} documentation.
+ 
+* $group
+
+  The <<<$group>>> operator has two parts.  The first specified the fields to be used to construct the 
+key for each group.  The second specifies the group operations that are to be applied for each member of
+the group.
+
+  To help construct the group id portion of the operator the 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGroupId.html}AggregationGroupId}} class
+contains 3 static methods:  
+
+  [[1]] <<<AggregationGroupId.constantId(String)>>> should be used when all documents should be combined 
+        into a single group.
+
+  [[2]] <<<AggregationGroupId.id(String)>>> is used when a single field value from each input document is
+        used to determine the appropriate group.
+      
+  [[3]] <<<AggregationGroupId.id()>>> is used when a combination of fields from the input document is used to
+        determine the appropriate group.  An example of using this method is provided below.
+  
+  []
+  
+  For the group operations portion of the operator the driver provides the 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGroupField.html}AggregationGroupField}} 
+support class.  To use the class simply invoke the static <<<set(String)>>> method with the field to create
+in the group's results.  The <<<set(String)>>> method returns a 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGroupField.Builder.html}AggregationGroupField.Builder}}
+which can then be used to which aggregation to apply and which field to obtain the value of the aggregation.
+
++----------------------------------------+
+Aggregate.Builder builder = Aggregate.builder();
+
+builder.group(
+   // Group documents on the city and state.
+   AggregationGroupId.id().addField("city").addField("state"),
+   
+   // Then compute the average, min, and max size for each neighborhood in the city.
+   AggregationGroupField.set("average_size").last("size"),
+   AggregationGroupField.set("max_size").maximum("size"),
+   AggregationGroupField.set("min_size").minimum("size") )
++----------------------------------------+
+    
+  For complete details of the <<<$group>>> operator and the fields supported by the operator see the 
+{{{http://docs.mongodb.org/manual/reference/aggregation/group/}$group (aggregation)}} documentation.
+ 
+* $limit
+
+  The <<<$limit>>> operator accepts a single integer or long field specifying the maximum number 
+of documents to pass to the next stage of the pipeline.
+
++----------------------------------------+
+Aggregate.Builder builder = Aggregate.builder();
+
+builder.limit( 25 );
++----------------------------------------+
+
+  For complete details of the <<<$limit>>> operator see the 
+{{{http://docs.mongodb.org/manual/reference/aggregation/limit/}$limit (aggregation)}} documentation.
+
+* $match
+
+  The <<<$match>>> operator expects a single query document to match or exclude documents in the pipeline.  
+The driver's {{{../apidocs/index.html?com/allanbank/mongodb/builder/QueryBuilder.html}QueryBuilder}} class 
+provides extensive support for creating arbitrarily complex queries.
+
++----------------------------------------+
+Aggregate.Builder builder = Aggregate.builder();
+
+builder.match( QueryBuilder.where( "f" ).lessThan( 25.6 ) );
++----------------------------------------+
+
+  For complete details of the <<<$match>>> operator see the 
+{{{http://docs.mongodb.org/manual/reference/aggregation/match/}$match (aggregation)}} documentation.
+
+* $project
+
+  The <<<$project>>> operator provides the ability to reshape the documents in the aggregation pipeline.
+Similar to the <<<$group>>> operator, <<<$project>>> contains two parts.  The first specifies the fields
+to include in their current form in the output document and, optionally, to exclude the <<<_id>>> field.  
+The second part provides a template for the rest of the output document and supports computing the value 
+of fields from expressions.
+
+  For the first portion, fields to copy into the output document, the driver provides the 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationProjectFields.html}AggregationProjectFields}} class
+with 2 static methods.  The first, <<<include(String...)>>>, specifies the fields to copy and will include
+the <<<_id>>> field by default.  The second, <<<includeWithoutId(String...)>>>, does the same thing but explicitly
+excludes the <<<_id>>> field.
+
+  Construction of the template for the remaining fields relies on the driver's 
+{{{../apidocs/index.html?com/allanbank/mongodb/bson/builder/DocumentBuilder.html}DocumentBuilder}} to create the
+basic document scaffolding.  Expressions support is layered on top with the 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/expression/Expressions.html}Expressions}} class. 
+
+  To get started with <<<Expressions>>> use the static <<<set(String, Expression)>>> method.  The first 
+field specifies the name of the field to be set.  The second field specifies the expression to use to compute
+the field. As one would expect the expressions can be composed in to increasing complex expressions.
+
++----------------------------------------+
+long interval = TimeUnit.MINUTES.toMillis( 5 );
+
+Aggregate.Builder builder = Aggregate.builder();
+
+builder.project(
+        AggregationProjectFields.include("label", "begin", "end"),
+        Expressions.set("window",
+            Expressions.multiply(
+                Expressions.divide(
+                    Expressions.subtract(
+                        Expressions.field("begin"), 
+                        Expressions.mod(Expressions.field("begin"), Expressions.constant(interval))),
+                    Expressions.constant(interval)), 
+                Expressions.constant(interval))));
++----------------------------------------+
+
+  Expressions can also be used within the structure of a document created via a DocumentBuilder.
+  
++----------------------------------------+
+long interval = TimeUnit.MINUTES.toMillis( 5 );
+
+DocumentBuilder skeleton = BuilderFactory.start();
+
+skeleton.push( "subDoc" )
+        .add( Expressions.set( "end", 
+                   Expressions.add( Expressions.field("start"), Expressions.field("duration") ) ) );
+
+builder.project(
+        AggregationProjectFields.include("label", "begin", "end"),
+        skeleton);
++----------------------------------------+
+  
+  For complete details of the <<<$project>>> operator and the fields supported by the operator see the 
+{{{http://docs.mongodb.org/manual/reference/aggregation/project/}$project (aggregation)}} documentation.
+
+* $skip
+
+  The <<<$skip>>> operator accepts a single integer or long field specifying the number 
+of documents to skip in the pipeline before passing any documents to the next step in the pipeline.
+
++----------------------------------------+
+Aggregate.Builder builder = Aggregate.builder();
+
+builder.skip( 100 );
++----------------------------------------+
+
+  For complete details of the <<<$skip>>> operator see the 
+{{{http://docs.mongodb.org/manual/reference/aggregation/skip/}$skip (aggregation)}} documentation.
+
+* $sort
+
+  The <<<$sort>>> operator accepts an array of field names and sort order values to specify 
+the order that documents should be forwarded from this point in the pipeline.  The 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/Sort.html}Sort}} class provides helper methods
+for quickly constructing the appropriate sort specification.
+
++----------------------------------------+
+Aggregate.Builder builder = Aggregate.builder();
+
+builder.sort( Sort.asc( "day_of_week" ),  Sort.desc( "count" ) );
++----------------------------------------+
+
+  For complete details of the <<<$sort>>> operator and the fields supported by the operator see the 
+{{{http://docs.mongodb.org/manual/reference/aggregation/sort/}$sort (aggregation)}} documentation.
+
+* $unwind
+
+  The <<<$unwind>>> operator accepts a single field name for an array that will cause a new document 
+to be generated for each value in the array.  For each value a new document will be created by replacing 
+the array field in the original document. 
+
++----------------------------------------+
+Aggregate.Builder builder = Aggregate.builder();
+
+builder.unwind( "tags" );
++----------------------------------------+
+
+  For complete details of the <<<$unwind>>> operator and the fields supported by the operator see the 
+{{{http://docs.mongodb.org/manual/reference/aggregation/unwind/}$unwind (aggregation)}} documentation.
+
+Putting It All Together
+
+  The aggregation command is intended to allow the construction of arbitrarily complex pipelines to be 
+efficiently processed by MongoDB.  The driver's support classes for the Aggregation command have also been 
+constructed to work together.  As a small example of the power of the support classes to enhance the readability
+of the constructed pipelines consider the following pipeline inspired by an 
+{{{http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state}example}} in 
+the MongoDB documentation:
+
++----------------------------------------+
+ import static com.allanbank.mongodb.builder.AggregationGroupField.set;
+ import static com.allanbank.mongodb.builder.AggregationGroupId.id;
+ import static com.allanbank.mongodb.builder.AggregationProjectFields.includeWithoutId;
+ import static com.allanbank.mongodb.builder.QueryBuilder.where;
+ import static com.allanbank.mongodb.builder.Sort.asc;
+ import static com.allanbank.mongodb.builder.Sort.desc;
+ import static com.allanbank.mongodb.builder.expression.Expressions.field;
+ import static com.allanbank.mongodb.builder.expression.Expressions.set;
+ 
+ DocumentBuilder b1 = BuilderFactory.start();
+ DocumentBuilder b2 = BuilderFactory.start();
+ Aggregate.Builder builder = Aggregate.builder();
+ 
+ builder.match(where("state").notEqualTo("NZ"))
+         .group(id().addField("state")
+                    .addField("city"),
+                set("pop").sum("pop"))
+         .sort(asc("pop"))
+         .group(id("_id.state"), 
+                set("biggestcity").last("_id.city"),
+                set("biggestpop").last("pop"),
+                set("smallestcity").first("_id.city"),
+                set("smallestpop").first("pop"))
+         .project(
+                 includeWithoutId(),
+                 set("state", field("_id")),
+                 set("biggestCity",
+                         b1.add(set("name", field("biggestcity"))).add(
+                                 set("pop", field("biggestpop")))),
+                 set("smallestCity",
+                         b2.add(set("name", field("smallestcity"))).add(
+                                 set("pop", field("smallestpop")))))
+         .sort(desc("biggestCity.pop"));
++----------------------------------------+

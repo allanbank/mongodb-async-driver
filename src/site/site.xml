@@ -33,6 +33,8 @@
 			<item name="Download" href="download.html" />
 			<item name="JavaDocs" href="apidocs/index.html" />
 			<item name="Getting Started" href="usage.html" collapse="true">
+				<item name="Hello World" href="userguide/hello_world.html" />
+				<item name="Aggregation Support" href="userguide/aggregation.html" />
 				<item name="Asynchronous API" href="userguide/asynchronous_api.html" />
 				<item name="Cursor Restarts" href="userguide/cursor_restart.html" />
 				<item name="Kerberos" href="userguide/kerberos.html" />

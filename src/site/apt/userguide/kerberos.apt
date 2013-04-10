@@ -160,7 +160,7 @@ kadmin -q "addprinc -randkey mongodb/<fqdn>"
   With the principle created we now export the key for the principle to a keytab file for 
 the MongoDB process to use.  The permissions on the keytab file should be checked to ensure that
 the file is read-only and only the runtime MongoDB user can read the file. For the command below, we 
-have placed the keytab file in <<</opt/mongdb>>>, but can be in any secured location on the file system.
+have placed the keytab file in <<</opt/mongdb>>> but can be in any secured location on the file system.
 
 +----------------------------------------+
 mkdir -p /opt/mongodb/

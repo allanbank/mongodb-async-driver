@@ -87,7 +87,7 @@ be processing one batch while the request for the next batch is being processed 
 
   Once an iterator or stream has been started it is important to gracefully stop the flow of documents to the
 client to ensure that all documents in the results are processed.  The <<<MongoCursorControl.stop()>>> method
-will halt any further requests for documents, but allow the document already requested from the server to continue 
+will halt any further requests for documents but allow the document already requested from the server to continue 
 to be processed.  At the end of the iteration or stream the cursor's state on the server (including any limit) will
 be in a well defined state.
 

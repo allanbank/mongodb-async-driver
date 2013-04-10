@@ -10,7 +10,7 @@ resources on the client, in the network, on the server, and in the developer's I
 Usability
 
   The main motivation for the driver is performance.  Part of the performance consideration
-is not just it's {{{Performance}raw performance}}, but also the driver's ease of use 
+is not just it's {{{Performance}raw performance}} but also the driver's ease of use 
 and expressive power. These usability factors provide benefits in developer productivity and 
 the resulting codes readability. Considerable effort has been put into making the library easy 
 to use and clearly express the developer's intent.
