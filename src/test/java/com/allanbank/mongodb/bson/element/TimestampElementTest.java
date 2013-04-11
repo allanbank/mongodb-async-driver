@@ -56,6 +56,34 @@ public class TimestampElementTest {
     }
 
     /**
+     * Test method for {@link TimestampElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final TimestampElement a1 = new TimestampElement("a", 1);
+        final TimestampElement a11 = new TimestampElement("a", 11);
+        final TimestampElement b1 = new TimestampElement("b", 1);
+
+        final MongoTimestampElement i = new MongoTimestampElement("a", 2);
+
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(i) < 0);
+        assertTrue(i.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for {@link TimestampElement#equals(java.lang.Object)} .
      */
     @Test

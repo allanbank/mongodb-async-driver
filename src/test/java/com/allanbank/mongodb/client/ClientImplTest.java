@@ -532,12 +532,9 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#getClusterType()}.
-     * 
-     * @throws IOException
-     *             on a test failure.
      */
     @Test
-    public void testGetClusterType() throws IOException {
+    public void testGetClusterType() {
 
         expect(myMockConnectionFactory.getClusterType()).andReturn(
                 ClusterType.STAND_ALONE);

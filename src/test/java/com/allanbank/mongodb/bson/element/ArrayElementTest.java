@@ -64,12 +64,29 @@ public class ArrayElementTest {
     }
 
     /**
-     * Test method for {@link ArrayElement#nameFor(int)} .
+     * Test method for {@link ArrayElement#compareTo(Element)}.
      */
     @Test
-    public void testNameFor() {
-        assertEquals("-1", ArrayElement.nameFor(-1));
-        assertEquals("10000", ArrayElement.nameFor(10000));
+    public void testCompareTo() {
+        final ArrayElement a1 = new ArrayElement("a", new StringElement("a",
+                "1"));
+        final ArrayElement a11 = new ArrayElement("a", new StringElement("a",
+                "1"), new StringElement("a", "1"));
+        final ArrayElement a2 = new ArrayElement("a", new StringElement("a",
+                "2"));
+        final ArrayElement b1 = new ArrayElement("b", new StringElement("a",
+                "1"));
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+        assertTrue(a1.compareTo(a2) < 0);
+        assertTrue(a2.compareTo(a1) > 0);
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
     }
 
     /**
@@ -470,6 +487,15 @@ public class ArrayElementTest {
         assertEquals(ElementType.ARRAY, element.getType());
         assertEquals(Collections.singletonList(subElement),
                 element.getEntries());
+    }
+
+    /**
+     * Test method for {@link ArrayElement#nameFor(int)} .
+     */
+    @Test
+    public void testNameFor() {
+        assertEquals("-1", ArrayElement.nameFor(-1));
+        assertEquals("10000", ArrayElement.nameFor(10000));
     }
 
     /**

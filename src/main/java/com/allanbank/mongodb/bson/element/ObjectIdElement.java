@@ -62,6 +62,25 @@ public class ObjectIdElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the values if the base class comparison is equals.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            final ObjectIdElement other = (ObjectIdElement) otherElement;
+
+            result = myId.compareTo(other.myId);
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

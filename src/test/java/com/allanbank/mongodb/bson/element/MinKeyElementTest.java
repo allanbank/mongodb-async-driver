@@ -54,6 +54,24 @@ public class MinKeyElementTest {
     }
 
     /**
+     * Test method for {@link MinKeyElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final MinKeyElement a = new MinKeyElement("a");
+        final MinKeyElement b = new MinKeyElement("b");
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a.compareTo(a));
+
+        assertTrue(a.compareTo(b) < 0);
+        assertTrue(b.compareTo(a) > 0);
+
+        assertTrue(a.compareTo(other) < 0);
+        assertTrue(other.compareTo(a) > 0);
+    }
+
+    /**
      * Test method for {@link MinKeyElement#equals(java.lang.Object)} .
      */
     @Test

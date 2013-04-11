@@ -298,8 +298,40 @@ public class DocumentElement extends AbstractElement implements Document {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the elements of the document if the base class
+     * comparison is equals.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            final DocumentElement other = (DocumentElement) otherElement;
+            final int length = Math.min(myElements.size(),
+                    other.myElements.size());
+            for (int i = 0; i < length; ++i) {
+                result = myElements.get(i).compareTo(other.myElements.get(i));
+                if (result != 0) {
+                    return result;
+                }
+            }
+
+            result = myElements.size() - other.myElements.size();
+        }
+
+        return result;
+    }
+
+    /**
      * Returns true if the document contains an element with the specified name.
      * 
+     * @param name
+     *            The name of the element to locate.
+     * @return True if the document contains an element with the given name,
+     *         false otherwise.
      * @see Document#contains(String)
      */
     @Override
@@ -429,7 +461,15 @@ public class DocumentElement extends AbstractElement implements Document {
      * Returns the element with the specified name and type or null if no
      * element with that name and type exists.
      * 
-     * @see Document#get(String)
+     * @param <E>
+     *            The type of element to get.
+     * @param clazz
+     *            The class of element to get.
+     * @param name
+     *            The name of the element to locate.
+     * @return The sub-element in the document with the given name or null if
+     *         element exists with the given name.
+     * @see Document#get(Class, String)
      */
     @Override
     public <E extends Element> E get(final Class<E> clazz, final String name) {
@@ -444,6 +484,10 @@ public class DocumentElement extends AbstractElement implements Document {
      * Returns the element with the specified name or null if no element with
      * that name exists.
      * 
+     * @param name
+     *            The name of the element to locate.
+     * @return The sub-element in the document with the given name or null if
+     *         element exists with the given name.
      * @see Document#get(String)
      */
     @Override

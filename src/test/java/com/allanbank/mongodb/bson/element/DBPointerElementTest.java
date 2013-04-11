@@ -58,6 +58,38 @@ public class DBPointerElementTest {
     }
 
     /**
+     * Test method for {@link DBPointerElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final ObjectId oid1 = new ObjectId();
+        final ObjectId oid2 = new ObjectId();
+
+        final DBPointerElement a1 = new DBPointerElement("a", "a", "a", oid1);
+        final DBPointerElement a11 = new DBPointerElement("a", "b", "a", oid1);
+        final DBPointerElement a2 = new DBPointerElement("a", "a", "b", oid1);
+        final DBPointerElement a3 = new DBPointerElement("a", "a", "a", oid2);
+        final DBPointerElement b1 = new DBPointerElement("b", "a", "a", oid1);
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(a2) < 0);
+        assertTrue(a2.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(a3) < 0);
+        assertTrue(a3.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for
      * {@link DBPointerElement#DBPointerElement(java.lang.String, java.lang.String, java.lang.String, com.allanbank.mongodb.bson.element.ObjectId)}
      * .

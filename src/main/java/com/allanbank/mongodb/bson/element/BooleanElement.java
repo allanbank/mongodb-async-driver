@@ -54,6 +54,29 @@ public class BooleanElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the values if the base class comparison is equals.
+     * False is less than true.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            final BooleanElement other = (BooleanElement) otherElement;
+
+            final int value = myValue ? 1 : 0;
+            final int otherValue = other.myValue ? 1 : 0;
+
+            result = value - otherValue;
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

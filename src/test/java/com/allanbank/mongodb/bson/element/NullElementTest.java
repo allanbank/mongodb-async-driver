@@ -55,6 +55,24 @@ public class NullElementTest {
     }
 
     /**
+     * Test method for {@link NullElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final NullElement a = new NullElement("a");
+        final NullElement b = new NullElement("b");
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a.compareTo(a));
+
+        assertTrue(a.compareTo(b) < 0);
+        assertTrue(b.compareTo(a) > 0);
+
+        assertTrue(a.compareTo(other) < 0);
+        assertTrue(other.compareTo(a) > 0);
+    }
+
+    /**
      * Test method for {@link NullElement#equals(java.lang.Object)} .
      */
     @Test

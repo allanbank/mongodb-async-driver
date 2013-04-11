@@ -27,7 +27,7 @@ import com.allanbank.mongodb.util.IOUtils;
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ObjectId implements Serializable {
+public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /** The current process's machine id. */
     public static final long MACHINE_ID;
@@ -197,6 +197,23 @@ public class ObjectId implements Serializable {
 
         myTimestamp = EndianUtils.swap(timestamp);
         myMachineId = EndianUtils.swap(machineId);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the object ids based on the tuple (timestamp,
+     * machineId).
+     * </p>
+     */
+    @Override
+    public int compareTo(final ObjectId other) {
+        int result = myTimestamp - other.myTimestamp;
+        if (result == 0) {
+            result = (myMachineId < other.myMachineId) ? -1
+                    : ((myMachineId == other.myMachineId) ? 0 : 1);
+        }
+        return result;
     }
 
     /**

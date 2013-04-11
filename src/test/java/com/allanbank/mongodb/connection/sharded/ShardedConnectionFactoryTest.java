@@ -89,12 +89,9 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Cleans up the test connection.
-     * 
-     * @throws IOException
-     *             On a failure to shutdown the test connection.
      */
     @After
-    public void tearDown() throws IOException {
+    public void tearDown() {
         IOUtils.close(myTestFactory);
         myTestFactory = null;
         ourServer.clear();
@@ -150,7 +147,7 @@ public class ShardedConnectionFactoryTest {
                 .getServers();
         assertEquals(1, servers.size());
 
-        assertEquals(1, ourServer.getRequests().size()); // For ping.
+        assertEquals(2, ourServer.getRequests().size()); // For request + ping.
     }
 
     /**
@@ -404,12 +401,9 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#getClusterType()}.
-     * 
-     * @throws IOException
-     *             on a test failure.
      */
     @Test
-    public void testGetClusterType() throws IOException {
+    public void testGetClusterType() {
         final String serverName = "localhost:"
                 + ourServer.getInetSocketAddress().getPort();
 

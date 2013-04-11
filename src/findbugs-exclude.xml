@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
+    <!-- Not sure the logic of this bug report.  Maybe in Java 1.4? -->
+    <Match>
+    	<Class name="com.allanbank.mongodb.bson.Element" />
+    	<Bug pattern="CO_ABSTRACT_SELF" />
+    </Match>
+
 	<!-- Exclude the JavaCC generated classes / methods. -->
 	<Match>
 		<Or>

@@ -69,6 +69,65 @@ public class JavaScriptWithScopeElementTest {
     }
 
     /**
+     * Test method for {@link JavaScriptWithScopeElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final Document d1 = BuilderFactory.start().build();
+        final Document d2 = BuilderFactory.start().add("a", 1).build();
+        final Document d3 = BuilderFactory.start().add("a", 2).build();
+        final Document d4 = BuilderFactory.start().add("a", 2).add("b", 3)
+                .build();
+        final Document d5 = BuilderFactory.start().add("a", 2).add("b", 4)
+                .build();
+
+        final JavaScriptWithScopeElement a1 = new JavaScriptWithScopeElement(
+                "a", "1", d1);
+        final JavaScriptWithScopeElement a11 = new JavaScriptWithScopeElement(
+                "a", "11", d1);
+        final JavaScriptWithScopeElement a12 = new JavaScriptWithScopeElement(
+                "a", "1", d2);
+        final JavaScriptWithScopeElement a13 = new JavaScriptWithScopeElement(
+                "a", "1", d3);
+        final JavaScriptWithScopeElement a14 = new JavaScriptWithScopeElement(
+                "a", "1", d4);
+        final JavaScriptWithScopeElement a15 = new JavaScriptWithScopeElement(
+                "a", "1", d5);
+        final JavaScriptWithScopeElement b1 = new JavaScriptWithScopeElement(
+                "b", "1", d1);
+
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(a12) < 0);
+        assertTrue(a12.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(a13) < 0);
+        assertTrue(a13.compareTo(a1) > 0);
+
+        assertEquals(0, a13.compareTo(a13));
+        assertTrue(a13.compareTo(a14) < 0);
+        assertTrue(a14.compareTo(a13) > 0);
+
+        assertEquals(0, a14.compareTo(a14));
+        assertTrue(a14.compareTo(a15) < 0);
+        assertTrue(a15.compareTo(a14) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for
      * {@link JavaScriptWithScopeElement#equals(java.lang.Object)} .
      */

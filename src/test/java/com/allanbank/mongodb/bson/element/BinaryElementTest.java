@@ -124,6 +124,37 @@ public class BinaryElementTest {
     }
 
     /**
+     * Test method for {@link BinaryElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final BinaryElement a1 = new BinaryElement("a", (byte) 0, new byte[1]);
+        final BinaryElement a12 = new BinaryElement("a", (byte) 0,
+                new byte[] { 1 });
+        final BinaryElement a11 = new BinaryElement("a", (byte) 0, new byte[2]);
+        final BinaryElement a2 = new BinaryElement("a", (byte) 1, new byte[1]);
+        final BinaryElement b1 = new BinaryElement("b", (byte) 0, new byte[1]);
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(a12) < 0);
+        assertTrue(a12.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(a2) < 0);
+        assertTrue(a2.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for {@link BinaryElement#equals} and
      * {@link BinaryElement#hashCode()}.
      */

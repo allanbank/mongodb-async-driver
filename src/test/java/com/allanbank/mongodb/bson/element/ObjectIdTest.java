@@ -16,12 +16,32 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.bson.Element;
+
 /**
  * ObjectIdTest provides tests for the {@link ObjectId} class.
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ObjectIdTest {
+
+    /**
+     * Test method for {@link ObjectIdElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final ObjectId a1 = new ObjectId(1234, 5678);
+        final ObjectId a2 = new ObjectId(1234, 5679);
+        final ObjectId a3 = new ObjectId(1235, 5678);
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a2) < 0);
+        assertTrue(a2.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(a3) < 0);
+        assertTrue(a3.compareTo(a1) > 0);
+    }
 
     /**
      * Test method for {@link ObjectId#equals(java.lang.Object)} .

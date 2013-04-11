@@ -58,6 +58,34 @@ public class MongoTimestampElementTest {
     }
 
     /**
+     * Test method for {@link MongoTimestampElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final MongoTimestampElement a1 = new MongoTimestampElement("a", 1);
+        final MongoTimestampElement a11 = new MongoTimestampElement("a", 11);
+        final MongoTimestampElement b1 = new MongoTimestampElement("b", 1);
+
+        final TimestampElement i = new TimestampElement("a", 2);
+
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(i) < 0);
+        assertTrue(i.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for {@link MongoTimestampElement#equals(java.lang.Object)} .
      */
     @Test

@@ -133,6 +133,34 @@ public class ArrayElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the elements of the array if the base class
+     * comparison is equals.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            final ArrayElement other = (ArrayElement) otherElement;
+            final int length = Math.min(myEntries.size(),
+                    other.myEntries.size());
+            for (int i = 0; i < length; ++i) {
+                result = myEntries.get(i).compareTo(other.myEntries.get(i));
+                if (result != 0) {
+                    return result;
+                }
+            }
+
+            result = myEntries.size() - other.myEntries.size();
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

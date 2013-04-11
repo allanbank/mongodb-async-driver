@@ -46,12 +46,9 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#flush()}.
-     * 
-     * @throws IOException
-     *             On a failure writing the test results.
      */
     @Test
-    public void testFlush() throws IOException {
+    public void testFlush() {
         myTestStream.flush();
     }
 
@@ -196,12 +193,9 @@ public class RandomAccessOutputStreamTest {
     /**
      * Test method for
      * {@link RandomAccessOutputStream#writeAt(long, byte[], int, int)}.
-     * 
-     * @throws IOException
-     *             On a failure writing the test results.
      */
     @Test
-    public void testWriteAtLongByteArrayIntIntErrors() throws IOException {
+    public void testWriteAtLongByteArrayIntIntErrors() {
         // First fill the test stream with zero data.
         for (int i = 0; i < 100; ++i) {
             myTestStream.write(0);
@@ -409,12 +403,9 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#write(byte[], int, int)}.
-     * 
-     * @throws IOException
-     *             On a failure writing the test results.
      */
     @Test
-    public void testWriteByteArrayIntIntErrors() throws IOException {
+    public void testWriteByteArrayIntIntErrors() {
         try {
             myTestStream.write(null, 0, 0);
             fail("Should have thrown.");

@@ -64,6 +64,26 @@ public class JavaScriptElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the Java Script (as text) if the base class
+     * comparison is equals.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            final JavaScriptElement other = (JavaScriptElement) otherElement;
+
+            result = myJavaScript.compareTo(other.myJavaScript);
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 

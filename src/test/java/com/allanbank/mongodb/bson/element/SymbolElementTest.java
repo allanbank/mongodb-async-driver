@@ -55,6 +55,34 @@ public class SymbolElementTest {
     }
 
     /**
+     * Test method for {@link SymbolElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final SymbolElement a1 = new SymbolElement("a", "1");
+        final SymbolElement a11 = new SymbolElement("a", "11");
+        final SymbolElement b1 = new SymbolElement("b", "1");
+
+        final StringElement i = new StringElement("a", "2");
+
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(i) < 0);
+        assertTrue(i.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for {@link SymbolElement#equals(java.lang.Object)} .
      */
     @Test

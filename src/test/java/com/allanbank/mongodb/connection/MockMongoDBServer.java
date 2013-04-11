@@ -515,6 +515,9 @@ public class MockMongoDBServer extends Thread {
             myConn = conn;
         }
 
+        /**
+         * Process client messages.
+         */
         @Override
         public void run() {
             try {

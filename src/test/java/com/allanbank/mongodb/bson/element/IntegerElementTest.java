@@ -55,6 +55,29 @@ public class IntegerElementTest {
     }
 
     /**
+     * Test method for {@link IntegerElement#compareTo(Element)}.
+     */
+    @Test
+    public void testCompareTo() {
+        final IntegerElement a1 = new IntegerElement("a", 1);
+        final IntegerElement a11 = new IntegerElement("a", 11);
+        final IntegerElement b1 = new IntegerElement("b", 1);
+
+        final Element other = new MaxKeyElement("a");
+
+        assertEquals(0, a1.compareTo(a1));
+
+        assertTrue(a1.compareTo(a11) < 0);
+        assertTrue(a11.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(b1) < 0);
+        assertTrue(b1.compareTo(a1) > 0);
+
+        assertTrue(a1.compareTo(other) < 0);
+        assertTrue(other.compareTo(a1) > 0);
+    }
+
+    /**
      * Test method for {@link IntegerElement#equals(java.lang.Object)} .
      */
     @Test

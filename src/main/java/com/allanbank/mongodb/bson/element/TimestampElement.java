@@ -57,6 +57,39 @@ public class TimestampElement extends AbstractElement {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to compare the times if the base class comparison is equals.
+     * </p>
+     * <p>
+     * Note that for MongoDB {@link MongoTimestampElement} and
+     * {@link TimestampElement} will return equal based on the type. Care is
+     * taken here to make sure that the values return the same value regardless
+     * of comparison order.
+     * </p>
+     */
+    @Override
+    public int compareTo(final Element otherElement) {
+        int result = super.compareTo(otherElement);
+
+        if (result == 0) {
+            // Might be a MongoTimestampElement or TimestampElement.
+            final ElementType otherType = otherElement.getType();
+
+            if (otherType == ElementType.UTC_TIMESTAMP) {
+                result = compare(getTime(),
+                        ((TimestampElement) otherElement).getTime());
+            }
+            else {
+                result = compare(getTime(),
+                        ((MongoTimestampElement) otherElement).getTime());
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      * 
