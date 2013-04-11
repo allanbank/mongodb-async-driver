@@ -127,33 +127,4 @@ public interface Document extends Iterable<Element>, DocumentAssignable,
      * @return The array of elements that create this document.
      */
     public List<Element> getElements();
-
-    /**
-     * Returns the elements matching the path of regular expressions.
-     * 
-     * @param <E>
-     *            The type of element to match.
-     * @param clazz
-     *            The class of elements to match.
-     * @param nameRegexs
-     *            The path of regular expressions.
-     * @return The elements matching the path of regular expressions.
-     * @deprecated Use the {@link #find(Class,String...)} method instead. Will
-     *             be removed after the 1.1.0 release.
-     */
-    @Deprecated
-    public <E extends Element> List<E> queryPath(Class<E> clazz,
-            String... nameRegexs);
-
-    /**
-     * Returns the elements matching the path of regular expressions.
-     * 
-     * @param nameRegexs
-     *            The path of regular expressions.
-     * @return The elements matching the path of regular expressions.
-     * @deprecated Use the {@link #find(String...)} method instead. Will be
-     *             removed after the 1.1.0 release.
-     */
-    @Deprecated
-    public List<Element> queryPath(String... nameRegexs);
 }

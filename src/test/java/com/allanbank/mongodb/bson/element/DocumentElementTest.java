@@ -942,24 +942,6 @@ public class DocumentElementTest {
     }
 
     /**
-     * Test method for {@link DocumentElement#queryPath}.
-     */
-    @Test
-    @Deprecated
-    public void testQueryPath() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final DocumentElement element = new DocumentElement("foo", subElement);
-
-        List<Element> elements = element.queryPath(Element.class, "1");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
-
-        elements = element.queryPath(Element.class, ".");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
-    }
-
-    /**
      * Test method for {@link DocumentElement#toString()}.
      */
     @Test

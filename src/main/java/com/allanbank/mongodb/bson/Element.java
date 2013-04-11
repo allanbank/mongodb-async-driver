@@ -139,35 +139,6 @@ public interface Element extends Serializable, ElementAssignable,
     public String getValueAsString();
 
     /**
-     * Returns the elements matching the path of regular expressions.
-     * 
-     * @param <E>
-     *            The type of element to match.
-     * @param clazz
-     *            The class of elements to match.
-     * @param nameRegexs
-     *            The path of regular expressions.
-     * @return The elements matching the path of regular expressions.
-     * @deprecated Use the {@link #find(Class,String...)} method instead. Will
-     *             be removed after the 1.1.0 release.
-     */
-    @Deprecated
-    public <E extends Element> List<E> queryPath(Class<E> clazz,
-            String... nameRegexs);
-
-    /**
-     * Returns the elements matching the path of regular expressions.
-     * 
-     * @param nameRegexs
-     *            The path of regular expressions.
-     * @return The elements matching the path of regular expressions.
-     * @deprecated Use the {@link #find(String...)} method instead. Will be
-     *             removed after the 1.1.0 release.
-     */
-    @Deprecated
-    public List<Element> queryPath(String... nameRegexs);
-
-    /**
      * Creates a new element with the same type and value as this element but
      * with the specified name. This is useful when creating a query across a
      * set of collections where the filed name changes in the collections but

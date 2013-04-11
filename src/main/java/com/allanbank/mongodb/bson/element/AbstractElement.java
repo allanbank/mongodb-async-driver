@@ -10,7 +10,6 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 
-import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 
 /**
@@ -109,7 +108,7 @@ public abstract class AbstractElement implements Element {
      * type is assignable to E. An empty list otherwise.
      * </p>
      * 
-     * @see Element#queryPath
+     * @see Element#find
      */
     @Override
     public <E extends Element> List<E> find(final Class<E> clazz,
@@ -129,7 +128,7 @@ public abstract class AbstractElement implements Element {
      * otherwise.
      * </p>
      * 
-     * @see Element#queryPath
+     * @see Element#find
      */
     @Override
     public List<Element> find(final String... nameRegexs) {
@@ -163,7 +162,7 @@ public abstract class AbstractElement implements Element {
      * the right type.
      * </p>
      * 
-     * @see Document#queryPath
+     * @see Element#findFirst
      */
     @Override
     public Element findFirst(final String... nameRegexs) {
@@ -212,39 +211,6 @@ public abstract class AbstractElement implements Element {
         int result = 1;
         result = (31 * result) + ((myName == null) ? 0 : myName.hashCode());
         return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * To call the replacement method, {@link #find(Class, String...)}.
-     * </p>
-     * 
-     * @see Document#queryPath
-     * @deprecated Use the replacement method, {@link #find(Class, String...)}.
-     *             Will be removed after the 1.1.0 release.
-     */
-    @Override
-    @Deprecated
-    public <E extends Element> List<E> queryPath(final Class<E> clazz,
-            final String... nameRegexs) {
-        return find(clazz, nameRegexs);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * To call the replacement method, {@link #find(String...)}.
-     * </p>
-     * 
-     * @see Document#queryPath
-     * @deprecated Use the replacement method, {@link #find(String...)}. Will be
-     *             removed after the 1.1.0 release.
-     */
-    @Override
-    @Deprecated
-    public List<Element> queryPath(final String... nameRegexs) {
-        return find(nameRegexs);
     }
 
     /**

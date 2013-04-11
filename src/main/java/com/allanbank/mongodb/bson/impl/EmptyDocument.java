@@ -105,7 +105,7 @@ public class EmptyDocument implements Document {
      * Returns an empty list of elements.
      * </p>
      * 
-     * @see Document#queryPath
+     * @see Document#find
      */
     @Override
     public <E extends Element> List<E> find(final Class<E> clazz,
@@ -119,7 +119,7 @@ public class EmptyDocument implements Document {
      * Returns an empty list of elements.
      * </p>
      * 
-     * @see Document#queryPath
+     * @see Document#find
      */
     @Override
     public List<Element> find(final String... nameRegexs) {
@@ -132,7 +132,7 @@ public class EmptyDocument implements Document {
      * Return <code>null</code>.
      * </p>
      * 
-     * @see Document#queryPath
+     * @see Document#findFirst
      */
     @Override
     public <E extends Element> E findFirst(final Class<E> clazz,
@@ -146,7 +146,7 @@ public class EmptyDocument implements Document {
      * Returns <code>null</code>.
      * </p>
      * 
-     * @see Document#queryPath
+     * @see Document#findFirst
      */
     @Override
     public Element findFirst(final String... nameRegexs) {
@@ -202,39 +202,6 @@ public class EmptyDocument implements Document {
     @Override
     public Iterator<Element> iterator() {
         return EMPTY_ELEMENTS.iterator();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Returns an empty list of elements.
-     * </p>
-     * 
-     * @see Document#queryPath
-     * @deprecated Use the {@link #find(Class,String...)} method instead. Will
-     *             be removed after the 1.1.0 release.
-     */
-    @Override
-    @Deprecated
-    public <E extends Element> List<E> queryPath(final Class<E> clazz,
-            final String... nameRegexs) {
-        return Collections.emptyList();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Returns an empty list of elements.
-     * </p>
-     * 
-     * @see Document#queryPath
-     * @deprecated Use the {@link #find(Class,String...)} method instead. Will
-     *             be removed after the 1.1.0 release.
-     */
-    @Override
-    @Deprecated
-    public List<Element> queryPath(final String... nameRegexs) {
-        return Collections.emptyList();
     }
 
     /**

@@ -532,28 +532,6 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#queryPath}.
-     */
-    @Test
-    @Deprecated
-    public void testQueryPath() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
-
-        List<Element> elements = element.queryPath(Element.class, "1");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
-
-        elements = element.queryPath(Element.class, ".");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
-
-        elements = element.queryPath(".");
-        assertEquals(1, elements.size());
-        assertSame(subElement, elements.get(0));
-    }
-
-    /**
      * Test method for {@link RootDocument#toString()}.
      */
     @Test

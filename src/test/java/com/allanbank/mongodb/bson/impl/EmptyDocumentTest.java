@@ -194,26 +194,6 @@ public class EmptyDocumentTest {
     }
 
     /**
-     * Test method for {@link EmptyDocument#queryPath(Class, String[])} .
-     */
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testQueryPathClassOfEStringArray() {
-        assertThat(new EmptyDocument().queryPath(Element.class, "a"),
-                is(EmptyDocument.EMPTY_ELEMENTS));
-    }
-
-    /**
-     * Test method for {@link EmptyDocument#queryPath(String[])} .
-     */
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testQueryPathStringArray() {
-        assertThat(new EmptyDocument().queryPath("a"),
-                is(EmptyDocument.EMPTY_ELEMENTS));
-    }
-
-    /**
      * Test method for {@link EmptyDocument#toString()}.
      */
     @Test

@@ -329,24 +329,6 @@ public class BinaryElementTest {
     }
 
     /**
-     * Test method for {@link BinaryElement#queryPath}.
-     */
-    @Test
-    @Deprecated
-    public void testQueryPath() {
-        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
-                new byte[] { 0x01, 0x02, 0x03 });
-
-        List<Element> elements = element.queryPath();
-        assertEquals(1, elements.size());
-        assertSame(element, elements.get(0));
-
-        elements = element.queryPath(Element.class);
-        assertEquals(1, elements.size());
-        assertSame(element, elements.get(0));
-    }
-
-    /**
      * Test method for {@link BinaryElement#toString()}.
      */
     @Test

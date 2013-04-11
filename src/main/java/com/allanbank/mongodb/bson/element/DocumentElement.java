@@ -370,7 +370,7 @@ public class DocumentElement extends AbstractElement implements Document {
      * the right type.
      * </p>
      * 
-     * @see Element#queryPath
+     * @see Element#find
      */
     @Override
     public <E extends Element> List<E> find(final Class<E> clazz,
@@ -416,7 +416,7 @@ public class DocumentElement extends AbstractElement implements Document {
      * the right type.
      * </p>
      * 
-     * @see Document#queryPath
+     * @see Element#findFirst
      */
     @Override
     public <E extends Element> E findFirst(final Class<E> clazz,
