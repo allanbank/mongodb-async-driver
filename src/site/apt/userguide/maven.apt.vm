@@ -2,12 +2,14 @@
             MongoDB Asynchronous Java Driver: Maven
             ------
             ------
-            2013-03-22
+            2013-04-15
 
 Maven
 
   To automate the download of the driver's jar from your Maven project you need to add the 
-driver as a dependency and also add the driver's repository.
+driver as a dependency. In addition you will need to specify the URL for the Allanbank repository.
+
+* POM Coordinates 
 
   The current driver's pom coordinates are:
 
@@ -19,7 +21,15 @@ driver as a dependency and also add the driver's repository.
 </dependency>
 +-----------------+
 
-  To add the driver's repository to your pom include the following in the \<repositories /\> section.
+* Repository URL
+
+  There are two methods for referencing the repository's URL.  The first updates the project's POM.  
+The second assumes your team is using a private Nexus repository.
+
+** POM Repositories
+ 
+  To add the driver's repository to your POM simply add the following in the 
+\<repositories /\> section. 
 
 +-----------------+
 <repository>
@@ -34,4 +44,15 @@ driver as a dependency and also add the driver's repository.
 	<layout>default</layout>
 </repository>
 +-----------------+
+
+  This method is ideal for stand lone projects or those that can not assume
+availability of a centralized repository.
   
+** Nexus Proxy 
+
+  Teams using a private Nexus instances may also add the <<<http://www.allanbank.com/repo/>>> 
+URL as a proxy repository. Users should ensure that downloading of remote indexes is enabled.
+
+  Please note that the server hosting the repository is not a Nexus instance and also does not
+support directory listings.  The above methods have been tested and will successfully resolve the
+artifacts from the repository.

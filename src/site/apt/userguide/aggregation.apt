@@ -2,7 +2,7 @@
             MongoDB Asynchronous Java Driver: Aggregation Support
             ------
             ------
-            2013-03-22
+            2013-04-15
             
 
 Using the Aggregation Support Classes
@@ -11,7 +11,7 @@ Using the Aggregation Support Classes
 In this guide we will step through each of the current pipeline operators and discuss the support classes 
 provided for each. 
 
-  The purpose of this documentation is not to provide the complete details for each operators but instead
+  The purpose of this documentation is not to provide the complete details for each operator but instead
 to give pointers to the classes provided and examples of their use.  See the Javadoc for each class for 
 full details.
 
@@ -32,7 +32,7 @@ Aggregate.Builder builder = Aggregate.builder();
   The <<<$geoNear>>> operator construction is done via the 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGeoNear.html}AggregationGeoNear}} and associated 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGeoNear.Builder.html}AggregationGeoNear.Builder}}.
-The builder requires the <<<location>>> and <<<distanceField>>> be specified.  User may find the 
+The builder requires the <<<location>>> and <<<distanceField>>> to be specified.  You may find the 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/GeoJson.html}GeoJson.p(...)}} static method useful for quickly 
 creating <<<Point2D>>> objects for the <<<location>>> field.
 
@@ -47,7 +47,7 @@ builder.geoNear( AggregationGeoNear.builder().location( GeoJson.p( 12.0, 14.5 ) 
  
 * $group
 
-  The <<<$group>>> operator has two parts.  The first specified the fields to be used to construct the 
+  The <<<$group>>> operator has two parts.  The first specifies the fields to be used to construct the 
 key for each group.  The second specifies the group operations that are to be applied for each member of
 the group.
 
@@ -55,13 +55,13 @@ the group.
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGroupId.html}AggregationGroupId}} class
 contains 3 static methods:  
 
-  [[1]] <<<AggregationGroupId.constantId(String)>>> should be used when all documents should be combined 
+  [[1]] Use <<<AggregationGroupId.constantId(String)>>> when all documents are to be combined 
         into a single group.
 
-  [[2]] <<<AggregationGroupId.id(String)>>> is used when a single field value from each input document is
+  [[2]] Use <<<AggregationGroupId.id(String)>>> when a single field value from each input document is
         used to determine the appropriate group.
       
-  [[3]] <<<AggregationGroupId.id()>>> is used when a combination of fields from the input document is used to
+  [[3]] Use <<<AggregationGroupId.id()>>> when a combination of fields from the input document is used to
         determine the appropriate group.  An example of using this method is provided below.
   
   []
@@ -69,9 +69,9 @@ contains 3 static methods:
   For the group operations portion of the operator the driver provides the 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGroupField.html}AggregationGroupField}} 
 support class.  To use the class simply invoke the static <<<set(String)>>> method with the field to create
-in the group's results.  The <<<set(String)>>> method returns a 
-{{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGroupField.Builder.html}AggregationGroupField.Builder}}
-which can then be used to which aggregation to apply and which field to obtain the value of the aggregation.
+in the group's results.  The <<<set(String)>>> method returns an 
+{{{../apidocs/index.html?com/allanbank/mongodb/builder/AggregationGroupField.Builder.html}AggregationGroupField.Builder}}.
+This builder provides a helper methods for all of the possible <<<group>>> aggregations functions.
 
 +----------------------------------------+
 Aggregate.Builder builder = Aggregate.builder();
@@ -83,7 +83,7 @@ builder.group(
    // Then compute the average, min, and max size for each neighborhood in the city.
    AggregationGroupField.set("average_size").last("size"),
    AggregationGroupField.set("max_size").maximum("size"),
-   AggregationGroupField.set("min_size").minimum("size") )
+   AggregationGroupField.set("min_size").minimum("size") );
 +----------------------------------------+
     
   For complete details of the <<<$group>>> operator and the fields supported by the operator see the 
@@ -139,7 +139,7 @@ basic document scaffolding.  Expressions support is layered on top with the
 
   To get started with <<<Expressions>>> use the static <<<set(String, Expression)>>> method.  The first 
 field specifies the name of the field to be set.  The second field specifies the expression to use to compute
-the field. As one would expect the expressions can be composed in to increasing complex expressions.
+the field. As one would expect the expressions can be composed into increasing complex expressions.
 
 +----------------------------------------+
 long interval = TimeUnit.MINUTES.toMillis( 5 );

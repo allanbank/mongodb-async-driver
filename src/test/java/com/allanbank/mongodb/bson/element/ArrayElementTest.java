@@ -64,15 +64,6 @@ public class ArrayElementTest {
     }
 
     /**
-     * Test method for {@link ArrayElement#nameFor(int)} .
-     */
-    @Test
-    public void testNameFor() {
-        assertEquals("-1", ArrayElement.nameFor(-1));
-        assertEquals("10000", ArrayElement.nameFor(10000));
-    }
-
-    /**
      * Test method for {@link ArrayElement#ArrayElement(String, Element...)}.
      */
     @Test
@@ -470,6 +461,15 @@ public class ArrayElementTest {
         assertEquals(ElementType.ARRAY, element.getType());
         assertEquals(Collections.singletonList(subElement),
                 element.getEntries());
+    }
+
+    /**
+     * Test method for {@link ArrayElement#nameFor(int)} .
+     */
+    @Test
+    public void testNameFor() {
+        assertEquals("-1", ArrayElement.nameFor(-1));
+        assertEquals("10000", ArrayElement.nameFor(10000));
     }
 
     /**
