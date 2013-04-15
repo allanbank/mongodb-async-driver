@@ -2,16 +2,16 @@
             MongoDB Asynchronous Java Driver: Hello World
             ------
             ------
-            2013-04-07
+            2013-04-15
             
 MongoDB Hello World Tutorial
 
-  In this tutorial we walk through the steps to get a simple application
-up and running talking to a MongoDB server.
+  In this tutorial we walk through a simple application that performs basic CRUD 
+(create, read, update, delete) operations on a sample document in a MongoDB collection.
   
   For this demo we will be using Maven to manage dependencies, build, and run the 
 application.  Maven is not required but simplifies some of the steps.  Converting the
-application to a different environment is left as a exercise for the user.
+application to a different environment is left as an exercise for the user.
 
 * Environment
 
@@ -19,9 +19,9 @@ application to a different environment is left as a exercise for the user.
   
   * MongoDB, 1.8 or later.
 
-  * MongoDB Asynchronous Java Driver, ${projectVersion}
+  * MongoDB Asynchronous Java Driver, ${projectVersion}.
 
-  * JDK, 1.6 or later
+  * JDK, 1.6 or later.
 
   * Maven, 2.2.1 or later.
 
@@ -159,9 +159,10 @@ public class App {
 
 ** MongoDB Connection
 
-  Create the {{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient}} 
-from a configuration with the servers to connect to.
-  
+  Before create the {{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient}} 
+we must create a {{{../apidocs/index.html?com/allanbank/mongodb/MongoClientConfiguration.html}MongoClientConfiguration}}.  
+For this tutorial the setting required is to add the address and port for one of the MongoDB servers.
+
 +-------------+
 MongoClientConfiguration config = new MongoClientConfiguration();
 config.addServer("localhost:27017");
@@ -254,7 +255,7 @@ while (iter.hasNext()) {
 
 ** Update Example
 
-  An update requires, at least, two parts.  
+  An update requires at least two parts. 
   
   * A query document to select the set of documents to update. (See above.)
   
@@ -279,7 +280,7 @@ collection.update(where("message").equals("Hello World!"), update);
 
 ** Delete Example
 
-  The last CRUD operator is to delete a document.  Similar to update, a delete uses the a query 
+  The last CRUD operator is to delete a document.  Similar to update, a delete uses a query 
 document to select the documents to remove.
 
 +-------------+
