@@ -14,11 +14,12 @@ Updates and Improvements:
 
   * Updated the ArrayElement to enforce the naming of elements. 
   
-    If you are using the ArrayBuilder implementation then the created ArrayElement's sub elements 
-    will have the correct names. This change is only required for manually created ArrayElements 
-    not following the BSON naming convention. Prior to this change the arrays with incorrect names    
-    would still be persisted in MongoDB but would not be visible in the MongoDB shell (and potentially 
-    cause problems with other drivers).  
+    If you are using the ArrayBuilder implementation then the created ArrayElement's sub-elements 
+    then this does not effect you. This change is only required for manually created sub-elements 
+    of an ArrayElement that are not following the proper BSON naming convention. 
+    
+    Prior to this change the arrays with incorrect names would still be persisted in MongoDB but would 
+    not be visible in the MongoDB shell (and potentially cause problems with other drivers).  
     
     To reduce the overhead of the checks we have implemented two other changes: 
     
