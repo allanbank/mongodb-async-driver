@@ -12,7 +12,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.bson.json.Json;
-import com.allanbank.mongodb.error.JsonParseException;
+import com.allanbank.mongodb.error.JsonException;
 
 /**
  * {@link java.beans.PropertyEditor} for the {@link ReadPreference} class.
@@ -127,7 +127,7 @@ public class ReadPreferenceEditor extends PropertyEditorSupport {
                     }
                 }
             }
-            catch (final JsonParseException parseError) {
+            catch (final JsonException parseError) {
                 // Fall through.
                 prefs = null;
             }
