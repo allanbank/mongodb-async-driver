@@ -6,12 +6,14 @@
 package com.allanbank.mongodb;
 
 import java.io.Serializable;
+import java.io.StringWriter;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.json.Json;
@@ -583,6 +585,23 @@ public class Durability implements Serializable {
      */
     public boolean isWaitForReply() {
         return myWaitForReply;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overriden to return the durability as JSON text.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        // Render as a JSON Document on a single line.
+        final StringWriter sink = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                sink, true);
+        asDocument().accept(visitor);
+
+        return sink.toString();
     }
 
     /**

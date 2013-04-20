@@ -338,6 +338,9 @@ public class DurabilityTest {
         assertEquals(wait, durability.getWaitTimeoutMillis());
         assertEquals(0, durability.getWaitForReplicas());
         assertEquals(tag, durability.getWaitForReplicasByMode());
+
+        assertEquals("{ getlasterror : 1, wtimeout : " + wait + ", w : '" + tag
+                + "' }", durability.toString());
     }
 
     /**
