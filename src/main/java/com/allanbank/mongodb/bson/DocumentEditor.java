@@ -40,7 +40,7 @@ public class DocumentEditor extends PropertyEditorSupport {
         try {
             setValue(Json.parse(documentString));
         }
-        catch (JsonException je) {
+        catch (final JsonException je) {
             throw new IllegalArgumentException("Could not parse '"
                     + documentString + "' into a document.", je);
         }

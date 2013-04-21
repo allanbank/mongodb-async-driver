@@ -25,7 +25,7 @@ public class DocumentEditorTest {
     @Test
     public void testSetAsText() {
 
-        DocumentEditor editor = new DocumentEditor();
+        final DocumentEditor editor = new DocumentEditor();
 
         editor.setAsText("{ a : 1 } ");
 
@@ -39,7 +39,7 @@ public class DocumentEditorTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSetAsTextNonJson() {
 
-        DocumentEditor editor = new DocumentEditor();
+        final DocumentEditor editor = new DocumentEditor();
 
         editor.setAsText("{ a : 1  ");
     }
