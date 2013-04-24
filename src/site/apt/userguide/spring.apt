@@ -21,14 +21,11 @@ and bean factories for the
               connect-timeout="30000"
               read-timeout="60000"
               reconnect-timeout="60000"
-              socket-keep-alive="true">
-  <servers auto-discover="true">
-    <server host="localhost" port="27017" />
-  </servers>
-</mongo-client>
+              socket-keep-alive="true" 
+              servers="localhost:27017,localhost:27018" />
 +-------------+
 
   The driver's extensions jar is available to license holders. Please contact 
-{{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
+{{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Spring%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
 for information on licensing the driver and obtaining the extensions jar.  The schema included with the jar 
 contains the complete documentation on all of the available elements types and attributes. 
