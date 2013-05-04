@@ -91,10 +91,7 @@ public class QueryCallbackTest {
 
         replay(mockCallback);
 
-        QueryCallback callback = new QueryCallback(null, q, mockCallback);
-        assertNull(callback.convert(reply));
-
-        callback = new QueryCallback(null, q, mockCallback);
+        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
         callback.setAddress("server");
         final MongoIteratorImpl mIter = (MongoIteratorImpl) callback
                 .convert(reply);
@@ -128,19 +125,11 @@ public class QueryCallbackTest {
 
         reset(mockCallback);
 
-        final Capture<MongoIterator<Document>> capture1 = new Capture<MongoIterator<Document>>();
-
-        mockCallback.callback(capture(capture1));
-        EasyMock.expectLastCall();
-
         replay(mockCallback);
 
         callback = new QueryCallback(null, q, mockCallback);
         callback.callback(reply);
         verify(mockCallback);
-
-        MongoIterator<Document> iter = capture1.getValue();
-        assertNull(iter);
 
         reset(mockCallback);
 
@@ -154,7 +143,7 @@ public class QueryCallbackTest {
         callback.setAddress("server");
         assertEquals("server", callback.getAddress());
 
-        iter = capture2.getValue();
+        final MongoIterator<Document> iter = capture2.getValue();
         assertThat(iter, instanceOf(MongoIteratorImpl.class));
         final MongoIteratorImpl mIter = (MongoIteratorImpl) iter;
         assertEquals("server", mIter.getReadPerference().getServer());

@@ -1,0 +1,26 @@
+            ------
+            Changes in MongoDB Asynchronous Java Driver 1.2.2
+            ------
+            ------
+            2013-05-04
+
+Upgrading
+
+  This version is binary compatible with the 1.2.1 version of the driver.  
+    
+Updates and Improvements:
+
+* Bug Fix
+
+  * Fixed a race condition in the MongoCollection.findAsync(Callback, ...) methods.
+  
+    * When the response to a request is returned from the MongoDB server before the 
+      find(Callback<MongoIterator>,...) completed would have the callback(...) invoked 
+      twice.  The first time with a <<<null>>> iterator and the second time with the iterator.
+
+    * The race condition only effects users of the MongoCollection.findAsync(Callback, ...) methods 
+      on a collection. Users of the MongoCollection.find(...) and MongoCollection.findAsync(...) returning 
+      a future are not impacted.
+    
+      
+    

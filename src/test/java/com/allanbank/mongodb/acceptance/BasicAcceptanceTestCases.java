@@ -45,6 +45,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -817,10 +821,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         assertTrue("Database should be in the list: '" + TEST_DB_NAME + "' in "
                 + names, names.contains(TEST_DB_NAME));
 
-        assertTrue(myDb.drop());
-
         // Pause for the config server to update.
-        if (isShardedConfiguration()) {
+        if (!myDb.drop() || isShardedConfiguration()) {
             // long now = System.currentTimeMillis();
             // final long deadline = now + TimeUnit.SECONDS.toMillis(30);
             // while ((now < deadline)
@@ -1222,6 +1224,63 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
             assertEquals(builder.build(), dtle.getDocument());
         }
+    }
+
+    /**
+     * Verifies that the MongoDB iteration over a large collection works as
+     * expected.
+     * 
+     * @throws InterruptedException
+     *             On a failure of the test to wait.
+     * @throws ExecutionException
+     *             On a test failure.
+     */
+    @Test
+    public void testIteratorAsync() throws InterruptedException,
+            ExecutionException {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        // Use the Future delayed strategy.
+        final BlockingQueue<Future<Integer>> sent = new ArrayBlockingQueue<Future<Integer>>(
+                5000);
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            builder.addInteger("_id", i);
+
+            final Future<Integer> result = myCollection.insertAsync(builder
+                    .build());
+            while (!sent.offer(result)) {
+                sent.take().get();
+            }
+        }
+        for (final Future<Integer> result : sent) {
+            result.get();
+        }
+
+        // Now go find all of them.
+        final Find.Builder findBuilder = new Find.Builder(BuilderFactory
+                .start().build());
+        findBuilder.setReturnFields(BuilderFactory.start()
+                .addBoolean("_id", true).build());
+
+        final TestIteratorAsyncCallback cb = new TestIteratorAsyncCallback();
+        myCollection.findAsync(cb, findBuilder.build());
+
+        cb.check(); // Blocks.
+
+        int count = 0;
+        for (final Document found : cb.iter()) {
+
+            assertNotNull(found);
+
+            count += 1;
+        }
+
+        assertEquals(LARGE_COLLECTION_COUNT, count);
+        cb.check();
     }
 
     /**
@@ -7435,6 +7494,83 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     now = System.currentTimeMillis();
                 }
             }
+        }
+    }
+
+    /**
+     * TestIteratorAsyncCallback provides a test callback.
+     * 
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    static class TestIteratorAsyncCallback implements
+            Callback<MongoIterator<Document>> {
+
+        /** The number of times the callback methods have been invoked. */
+        private int myCalls = 0;
+
+        /** The iterator provided to the callback. */
+        private MongoIterator<Document> myIter;
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to save the iterator and increment the call count.
+         * </p>
+         */
+        @Override
+        public void callback(final MongoIterator<Document> result) {
+            myIter = result;
+            synchronized (this) {
+                myCalls += 1;
+                this.notifyAll();
+            }
+
+        }
+
+        /**
+         * Checks the number of times the callback is invoked. Will wait for the
+         * first call.
+         * 
+         * @throws InterruptedException
+         *             On a failure to wait.
+         */
+        public void check() throws InterruptedException {
+            synchronized (this) {
+                while (myCalls <= 0) {
+                    this.wait();
+                }
+            }
+
+            Thread.sleep(500);
+
+            if (myCalls > 1) {
+                throw new IllegalArgumentException("Called more than once: "
+                        + myCalls);
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to increment the called count.
+         * </p>
+         */
+        @Override
+        public void exception(final Throwable thrown) {
+            synchronized (this) {
+                myCalls += 1;
+                this.notifyAll();
+            }
+
+        }
+
+        /**
+         * Returns the iterator returned.
+         * 
+         * @return The iterator provided to the callback.
+         */
+        public MongoIterator<Document> iter() {
+            return myIter;
         }
     }
 }

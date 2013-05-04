@@ -72,7 +72,7 @@ Kerberos domain but should, obviously, be able to communicate with the Kerberos 
 the most flexible mechanism for authenticating with Kerberos but requires the user's password be provided 
 to the driver.
 
-** Authenticating via a Kerberos Keytab File
+* Authenticating via a Kerberos Keytab File
 
   For systems lacking an effective mechanism for obfuscating passwords within the application's configuration,
 a more secure option might be to place the application's Kerberos credentials within a keytab file that is then
@@ -104,7 +104,7 @@ config.addCredential(Credential.builder().userName("<user>@<REALM>").file(keytab
   The driver will then load the appropriate credentials from the key tab file when authenticating 
 with MongoDB.
 
-** Authenticating via a Cached Credentials (kinit)
+* Authenticating via a Cached Credentials (kinit)
 
   Lastly, the driver can leverage previously acquired Kerberos credentials that have been cached locally. 
 The credentials are normally cached via the <<<kinit>>> application similar to the following:

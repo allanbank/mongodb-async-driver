@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.client;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
@@ -33,8 +35,14 @@ import com.allanbank.mongodb.error.ReplyException;
     /** The original query. */
     private final Query myQueryMessage;
 
-    /** The server the original request was sent to. */
+    /** The reply to the query. */
     private volatile Reply myReply;
+
+    /**
+     * Initially set to false. Set to true for the first of address or reply
+     * being set. The second fails and {@link #trigger() triggers} the callback.
+     */
+    private final AtomicBoolean mySetOther;
 
     /**
      * Create a new QueryCallback.
@@ -54,6 +62,8 @@ import com.allanbank.mongodb.error.ReplyException;
 
         myClient = client;
         myQueryMessage = queryMessage;
+
+        mySetOther = new AtomicBoolean(false);
     }
 
     /**
@@ -73,10 +83,7 @@ import com.allanbank.mongodb.error.ReplyException;
      */
     public void setAddress(final String address) {
         myAddress = address;
-        // For races make sure that the iterator has the server name.
-        if (myReply != null) {
-            getForwardCallback().callback(convert(myReply));
-        }
+        trigger();
     }
 
     /**
@@ -105,11 +112,29 @@ import com.allanbank.mongodb.error.ReplyException;
     @Override
     protected MongoIterator<Document> convert(final Reply reply)
             throws MongoDbException {
+        return new MongoIteratorImpl(myQueryMessage, myClient, myAddress, reply);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to check if the server address has been set and if so then
+     * pass the converted reply to the {@link #getForwardCallback() forward
+     * callback}. Otherwise the call is dropped.
+     * </p>
+     */
+    @Override
+    protected void handle(final Reply reply) {
         myReply = reply;
-        if (myAddress != null) {
-            return new MongoIteratorImpl(myQueryMessage, myClient, myAddress,
-                    reply);
+        trigger();
+    }
+
+    /**
+     * Triggers the callback when the address and reply are set.
+     */
+    private void trigger() {
+        if (!mySetOther.compareAndSet(false, true)) {
+            super.handle(myReply);
         }
-        return null;
     }
 }
