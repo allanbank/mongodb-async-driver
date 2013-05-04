@@ -21,11 +21,9 @@ and bean factories for the
               connect-timeout="30000"
               read-timeout="60000"
               reconnect-timeout="60000"
-              socket-keep-alive="true">
-  <servers auto-discover="true">
-    <server host="localhost" port="27017" />
-  </servers>
-</mongo-client>
+              socket-keep-alive="true" 
+              auto-discover-servers="false"
+              seeds="a,b:27018 c:27019" >
 +-------------+
 
   The driver's extensions jar is available to license holders. Please contact 
