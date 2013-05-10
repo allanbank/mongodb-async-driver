@@ -158,6 +158,8 @@ public class SocketConnection extends AbstractSocketConnection {
             raiseError(ie, pendingMessage.getReplyCallback());
         }
         catch (final IOException ioe) {
+            // Have to assume all of the requests have failed that are
+            // pending... but let the reconnect logic deal with that.
             myLog.log(Level.WARNING, "I/O Error sending a message.", ioe);
             raiseError(ioe, pendingMessage.getReplyCallback());
             sawError = true;
