@@ -90,11 +90,14 @@ public class MongoDbAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      * <p>
-     * Overriden to returns the results of the authentication, once complete.
+     * Overridden to returns the results of the authentication, once complete.
      * </p>
      */
     @Override
     public boolean result() throws MongoDbAuthenticationException {
+
+        // Clear and restore the threads interrupted state for reconnect cases.
+        final boolean interrupted = Thread.interrupted();
         try {
             return myResults.get().booleanValue();
         }
@@ -103,6 +106,11 @@ public class MongoDbAuthenticator implements Authenticator {
         }
         catch (final ExecutionException e) {
             throw new MongoDbAuthenticationException(e);
+        }
+        finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
