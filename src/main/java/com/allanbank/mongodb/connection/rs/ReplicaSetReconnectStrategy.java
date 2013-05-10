@@ -65,7 +65,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * The Maximum amount of time to pause waiting for a server to take over as
      * the primary.
      */
-    public static final int MAX_RECONNECT_PAUSE_TIME_MS = 5000;
+    public static final int MAX_RECONNECT_PAUSE_TIME_MS = 1000;
 
     /** The logger for the {@link ReplicaSetReconnectStrategy}. */
     protected static final Logger LOG = Logger
