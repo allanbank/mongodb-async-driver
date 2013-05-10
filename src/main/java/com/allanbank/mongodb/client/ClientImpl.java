@@ -371,6 +371,10 @@ public class ClientImpl extends AbstractClient {
                 myActiveReconnects += 1;
             }
 
+            // Stop using the connection.
+            myConnections.remove(connection);
+            connection.removePropertyChangeListener(myConnectionListener);
+
             // Raise errors for all of the pending messages - there is no way to
             // know their state of flight between here and the server.
             MongoDbException exception = new ConnectionLostException(
@@ -379,21 +383,9 @@ public class ClientImpl extends AbstractClient {
 
             final Connection newConnection = strategy.reconnect(connection);
             if (newConnection != null) {
-
                 // Get the new connection in the rotation.
-                myConnections.remove(connection);
                 myConnections.add(newConnection);
-                connection.removePropertyChangeListener(myConnectionListener);
                 newConnection.addPropertyChangeListener(myConnectionListener);
-            }
-            else {
-                // Reconnect failed.
-                // Raise errors for all of the to be sent and pending messages.
-                exception = new CannotConnectException(
-                        "Could not reconnect to MongoDB.");
-                connection.raiseErrors(exception);
-                connection.removePropertyChangeListener(myConnectionListener);
-                myConnections.remove(connection);
             }
         }
         finally {
@@ -401,6 +393,7 @@ public class ClientImpl extends AbstractClient {
                 myActiveReconnects -= 1;
                 notifyAll();
             }
+
         }
     }
 
