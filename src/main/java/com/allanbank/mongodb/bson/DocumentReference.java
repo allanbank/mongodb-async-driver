@@ -7,6 +7,8 @@ package com.allanbank.mongodb.bson;
 
 import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 
+import java.io.Serializable;
+
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
@@ -32,7 +34,10 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class DocumentReference implements DocumentAssignable {
+public class DocumentReference implements DocumentAssignable, Serializable {
+
+    /** The serialization version for the class. */
+    private static final long serialVersionUID = 7597767390422754639L;
 
     /** The name for the collection name field. */
     public static final String COLLECTION_FIELD_NAME = "$ref";
@@ -100,7 +105,7 @@ public class DocumentReference implements DocumentAssignable {
     /**
      * {@inheritDoc}
      * <p>
-     * Overriden to return a DBRef style document. This is the reference as a
+     * Overridden to return a DBRef style document. This is the reference as a
      * document <em>not</em> the referenced document.
      * </p>
      */
@@ -120,8 +125,8 @@ public class DocumentReference implements DocumentAssignable {
     /**
      * {@inheritDoc}
      * <p>
-     * Overriden to compare the {@code object} to this {@link DocumentReference}
-     * .
+     * Overridden to compare the {@code object} to this
+     * {@link DocumentReference} .
      * </p>
      */
     @Override
@@ -172,8 +177,8 @@ public class DocumentReference implements DocumentAssignable {
     /**
      * {@inheritDoc}
      * <p>
-     * Overriden to compute a reasonable hash for this {@link DocumentReference}
-     * .
+     * Overridden to compute a reasonable hash for this
+     * {@link DocumentReference}.
      * </p>
      */
     @Override
@@ -189,7 +194,7 @@ public class DocumentReference implements DocumentAssignable {
     /**
      * {@inheritDoc}
      * <p>
-     * Overriden to return a JSON like representation of the
+     * Overridden to return a JSON like representation of the
      * {@link DocumentReference}.
      * </p>
      */
