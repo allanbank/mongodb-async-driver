@@ -26,6 +26,12 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class FindAndModify {
+    /** An (empty) query document to find all documents. */
+    public static final Document ALL = MongoCollection.ALL;
+
+    /** An (empty) update document to perform no actual modifications. */
+    public static final Document NONE = MongoCollection.NONE;
+
     /**
      * Creates a new builder for a {@link FindAndModify}.
      * 

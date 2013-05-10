@@ -36,6 +36,9 @@ public interface MongoCollection {
     /** An (empty) query document to find all documents. */
     public static final Document ALL = EmptyDocument.INSTANCE;
 
+    /** An (empty) update document to perform no actual modifications. */
+    public static final Document NONE = MongoCollection.ALL;
+
     /**
      * Invokes a aggregate command on the server.
      * 
