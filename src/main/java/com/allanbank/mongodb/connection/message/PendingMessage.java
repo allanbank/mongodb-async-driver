@@ -28,6 +28,9 @@ public class PendingMessage {
     /** The callback for the reply to the message. */
     private Callback<Reply> myReplyCallback;
 
+    /** The timestamp of the message. */
+    private long myTimestamp;
+
     /**
      * Create a new PendingMessage.
      */
@@ -70,6 +73,7 @@ public class PendingMessage {
      * garbage collected.
      */
     public void clear() {
+        myTimestamp = 0;
         myMessageId = 0;
         myMessage = null;
         myReplyCallback = null;
@@ -103,6 +107,22 @@ public class PendingMessage {
     }
 
     /**
+     * Determines the latency of the message. If the message does not have a
+     * time stamp then zero is returned.
+     * 
+     * @return The current latency for the message.
+     */
+    public long latency() {
+        final long timestamp = myTimestamp;
+
+        if (timestamp == 0) {
+            return 0;
+        }
+
+        return System.nanoTime() - timestamp;
+    }
+
+    /**
      * Sets the state of the pending message.
      * 
      * @param messageId
@@ -117,6 +137,7 @@ public class PendingMessage {
         myMessageId = messageId;
         myMessage = message;
         myReplyCallback = replyCallback;
+        myTimestamp = 0;
     }
 
     /**
@@ -129,5 +150,13 @@ public class PendingMessage {
         myMessageId = other.getMessageId();
         myMessage = other.getMessage();
         myReplyCallback = other.getReplyCallback();
+        myTimestamp = other.myTimestamp;
+    }
+
+    /**
+     * Sets the time stamp of the message to now.
+     */
+    public void timestampNow() {
+        myTimestamp = System.nanoTime();
     }
 }

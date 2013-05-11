@@ -11,8 +11,10 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -70,5 +72,27 @@ public class PendingMessageTest {
         assertSame(mockCallback, pm.getReplyCallback());
 
         verify(mockMessage, mockCallback);
+    }
+
+    /**
+     * Test method for {@link PendingMessage#timestampNow()} and
+     * {@link PendingMessage#latency()}.
+     * 
+     * @throws InterruptedException
+     *             If the test fails to sleep.
+     */
+    @Test
+    public void testTimestampNow() throws InterruptedException {
+        final PendingMessage pm = new PendingMessage();
+
+        assertEquals(0L, pm.latency());
+
+        pm.timestampNow();
+
+        TimeUnit.NANOSECONDS.sleep(100);
+
+        final long delta = pm.latency();
+        assertTrue(0 < delta);
+        assertTrue(delta < TimeUnit.MILLISECONDS.toNanos(2));
     }
 }
