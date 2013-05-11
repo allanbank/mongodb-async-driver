@@ -205,6 +205,36 @@ public class JsonParserTest {
     }
 
     /**
+     * Test parsing a integer value too big for an IntegerElement.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseBigLong() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        final Object doc = parser.parse("{ a : 12345678901 }");
+        assertEquals(BuilderFactory.start().add("a", 12345678901L).build(), doc);
+    }
+
+    /**
+     * Test parsing a integer value too big for an IntegerElement in an array.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseBigLongInArray() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        final Object doc = parser.parse("{ a : [ 12345678901 ]}");
+        final DocumentBuilder b = BuilderFactory.start();
+        b.pushArray("a").add(12345678901L);
+        assertEquals(b.build(), doc);
+    }
+
+    /**
      * Test Parsing a BinData(..) element.
      * 
      * @throws ParseException
@@ -745,6 +775,37 @@ public class JsonParserTest {
 
         final Object doc = parser.parse("{ a : { $minKey:1} }");
         assertEquals(BuilderFactory.start().addMinKey("a").build(), doc);
+    }
+
+    /**
+     * Test parsing a integer value too small for an IntegerElement.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseNegativeLong() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        final Object doc = parser.parse("{ a : -12345678901 }");
+        assertEquals(BuilderFactory.start().add("a", -12345678901L).build(),
+                doc);
+    }
+
+    /**
+     * Test parsing a integer value too small for an IntegerElement in an array.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseNegativeLongInArray() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        final Object doc = parser.parse("{ a : [ -12345678901 ]}");
+        final DocumentBuilder b = BuilderFactory.start();
+        b.pushArray("a").add(-12345678901L);
+        assertEquals(b.build(), doc);
     }
 
     /**
