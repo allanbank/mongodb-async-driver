@@ -797,7 +797,16 @@ private void arrayValue(ArrayBuilder builder) : {
         | t1 = <IDENTIFIER_NAME> { builder.addSymbol(t1.image); }
         | t1 = <STRING_LITERAL> { builder.addString(trimQuotes(t1.image)); }
         | t1 = <DOUBLE> { builder.addDouble(Double.parseDouble(t1.image)); }
-        | t1 = <INTEGER> { builder.addInteger(Integer.parseInt(t1.image)); }
+        | t1 = <INTEGER> 
+          {
+             // Experimentally determine the size of the integer.
+             long value = Long.parseLong(t1.image);
+             if( (Integer.MIN_VALUE <= value) && (value <= Integer.MAX_VALUE) ) {
+                builder.addInteger((int) value);              
+             } else {
+                builder.addLong(value); 
+             }
+          }
         | <TOKEN_TRUE> { builder.addBoolean(true); }
         | <TOKEN_FALSE> { builder.addBoolean(false); }
         | <TOKEN_NULL> { builder.addNull(); }
@@ -909,7 +918,16 @@ private void documentValue(String name, DocumentBuilder builder) : {
         | t1 = <IDENTIFIER_NAME> { builder.addSymbol(name, t1.image); }
         | t1 = <STRING_LITERAL> { builder.addString(name, trimQuotes(t1.image)); }
         | t1 = <DOUBLE> { builder.addDouble(name, Double.parseDouble(t1.image)); }
-        | t1 = <INTEGER> { builder.addInteger(name, Integer.parseInt(t1.image)); }
+        | t1 = <INTEGER> 
+          {
+             // Experimentally determine the size of the integer.
+             long value = Long.parseLong(t1.image);
+             if( (Integer.MIN_VALUE <= value) && (value <= Integer.MAX_VALUE) ) {
+                builder.addInteger(name, (int) value);              
+             } else {
+                builder.addLong(name, value); 
+             }
+          }
         | <TOKEN_TRUE> { builder.addBoolean(name, true); }
         | <TOKEN_FALSE> { builder.addBoolean(name, false); }
         | <TOKEN_NULL> { builder.addNull(name); }

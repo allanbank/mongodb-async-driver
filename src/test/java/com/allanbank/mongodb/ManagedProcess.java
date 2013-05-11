@@ -138,7 +138,7 @@ public class ManagedProcess {
         }
 
         throw new AssertionError("Did not find '" + token + "' in the output '"
-                + count + "' times.  Only '" + seen + "' times.");
+                + count + "' times.  Only '" + seen + "' times: " + getOutput());
     }
 
     /**
