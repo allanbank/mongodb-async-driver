@@ -32,6 +32,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.BinaryElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.builder.Find;
+import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -52,8 +53,26 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class GridFs {
 
+    /**
+     * The field in the {@link #CHUNKS_SUFFIX chunks} collection containing the
+     * chunk's number.
+     */
+    public static final String CHUNK_NUMBER_FIELD = "n";
+
+    /**
+     * The field in the {@link #FILES_SUFFIX files} collection containing the
+     * file's chunk size.
+     */
+    public static final String CHUNK_SIZE_FIELD = "chunkSize";
+
     /** The suffix for the chunks collection. */
     public static final String CHUNKS_SUFFIX = ".chunks";
+
+    /**
+     * The field in the {@link #CHUNKS_SUFFIX chunks} collection containing the
+     * chunk's data.
+     */
+    public static final String DATA_FIELD = "data";
 
     /** The default chunk size. */
     public static final int DEFAULT_CHUNK_SIZE = 256 * 1024;
@@ -61,8 +80,41 @@ public class GridFs {
     /** The suffix for the files collection. */
     public static final String DEFAULT_ROOT = "fs";
 
+    /**
+     * The field in the {@link #FILES_SUFFIX files} collection containing the
+     * file's name.
+     */
+    public static final String FILENAME_FIELD = "filename";
+
+    /**
+     * The field in the {@link #CHUNKS_SUFFIX chunks} collection containing the
+     * chunk's related file id.
+     */
+    public static final String FILES_ID_FIELD = "files_id";
+
     /** The suffix for the files collection. */
     public static final String FILES_SUFFIX = ".files";
+
+    /** The {@code _id} field name. */
+    public static final String ID_FIELD = "_id";
+
+    /**
+     * The field in the {@link #FILES_SUFFIX files} collection containing the
+     * file's length.
+     */
+    public static final String LENGTH_FIELD = "length";
+
+    /**
+     * The field in the {@link #FILES_SUFFIX files} collection containing the
+     * file's MD5.
+     */
+    public static final String MD5_FIELD = "md5";
+
+    /**
+     * The field in the {@link #FILES_SUFFIX files} collection containing the
+     * file's upload date.
+     */
+    public static final String UPLOAD_DATE_FIELD = "uploadDate";
 
     /** The GridFS chunks collection. */
     private final MongoCollection myChunksCollection;
@@ -72,6 +124,9 @@ public class GridFs {
 
     /** The GridFS files collection. */
     private final MongoCollection myFilesCollection;
+
+    /** Tracks if we have tried to create the indexes so it is only done once. */
+    private boolean myIndexesCreated;
 
     /**
      * Creates a new GridFs.
@@ -100,6 +155,7 @@ public class GridFs {
     public GridFs(final MongoDatabase database, final String rootName) {
         myFilesCollection = database.getCollection(rootName + FILES_SUFFIX);
         myChunksCollection = database.getCollection(rootName + CHUNKS_SUFFIX);
+        myIndexesCreated = false;
     }
 
     /**
@@ -117,7 +173,6 @@ public class GridFs {
      */
     public GridFs(final String mongoDbUri) {
         this(mongoDbUri, DEFAULT_ROOT);
-
     }
 
     /**
@@ -142,8 +197,10 @@ public class GridFs {
 
         final MongoDatabase database = MongoFactory.createClient(uri)
                 .getDatabase(uri.getDatabase());
+
         myFilesCollection = database.getCollection(rootName + FILES_SUFFIX);
         myChunksCollection = database.getCollection(rootName + CHUNKS_SUFFIX);
+        myIndexesCreated = false;
     }
 
     /**
@@ -169,20 +226,22 @@ public class GridFs {
      */
     public void read(final String name, final OutputStream sink)
             throws IOException {
+        ensureIndexes();
+
         // Find the document with the specified name.
-        final Document fileDoc = myFilesCollection.findOne(where("filename")
-                .equals(name));
+        final Document fileDoc = myFilesCollection
+                .findOne(where(FILENAME_FIELD).equals(name));
         if (fileDoc == null) {
             throw new FileNotFoundException(name);
         }
 
-        final Element id = fileDoc.get("_id");
-        final Element queryElement = id.withName("files_id");
+        final Element id = fileDoc.get(ID_FIELD);
+        final Element queryElement = id.withName(FILES_ID_FIELD);
         final DocumentBuilder queryDoc = BuilderFactory.start();
         queryDoc.add(queryElement);
 
         final Find.Builder findBuilder = new Find.Builder(queryDoc.build());
-        findBuilder.setSort(asc("n"));
+        findBuilder.setSort(asc(CHUNK_NUMBER_FIELD));
 
         // Small batch size since the docs are big and we can do parallel I/O.
         findBuilder.setBatchSize(2);
@@ -191,7 +250,7 @@ public class GridFs {
                 .find(findBuilder.build());
         for (final Document chunk : iter) {
             for (final BinaryElement bytes : chunk.find(BinaryElement.class,
-                    "data")) {
+                    DATA_FIELD)) {
                 sink.write(bytes.getValue());
             }
         }
@@ -217,17 +276,19 @@ public class GridFs {
      *             On a failure to delete the file.
      */
     public boolean unlink(final String name) throws IOException {
+        ensureIndexes();
+
         // Find the document with the specified name.
-        final Document fileDoc = myFilesCollection.findOne(where("filename")
-                .equals(name));
+        final Document fileDoc = myFilesCollection
+                .findOne(where(FILENAME_FIELD).equals(name));
         if (fileDoc == null) {
             return false;
         }
 
-        final Element id = fileDoc.get("_id");
+        final Element id = fileDoc.get(ID_FIELD);
 
         final DocumentBuilder queryDoc = BuilderFactory.start();
-        queryDoc.add(id.withName("files_id"));
+        queryDoc.add(id.withName(FILES_ID_FIELD));
         final Future<Long> cFuture = myChunksCollection.deleteAsync(queryDoc);
 
         queryDoc.reset();
@@ -262,6 +323,8 @@ public class GridFs {
      */
     public void write(final String name, final InputStream source)
             throws IOException {
+        ensureIndexes();
+
         final ObjectId id = new ObjectId();
         boolean failed = false;
         try {
@@ -274,31 +337,32 @@ public class GridFs {
             long length = 0;
             int read = readFully(source, buffer);
             while (read > 0) {
-                doc.reset();
 
                 final ObjectId chunkId = new ObjectId();
-                doc.addObjectId("_id", chunkId);
-                doc.addObjectId("files_id", id);
-                doc.addInteger("n", n);
+
+                doc.reset();
+                doc.addObjectId(ID_FIELD, chunkId);
+                doc.addObjectId(FILES_ID_FIELD, id);
+                doc.addInteger(CHUNK_NUMBER_FIELD, n);
 
                 final byte[] data = Arrays.copyOf(buffer, read);
                 md5Digest.update(data);
-                doc.addBinary("data", data);
+                doc.addBinary(DATA_FIELD, data);
 
                 results.add(myChunksCollection.insertAsync(doc.build()));
 
                 length += data.length;
                 read = readFully(source, buffer);
-                n += 0;
+                n += 1;
             }
 
             doc.reset();
-            doc.addObjectId("_id", id);
-            doc.addString("filename", name);
-            doc.addTimestamp("uploadDate", System.currentTimeMillis());
-            doc.addInteger("chunkSize", buffer.length);
-            doc.addLong("length", length);
-            doc.addString("md5", IOUtils.toHex(md5Digest.digest()));
+            doc.addObjectId(ID_FIELD, id);
+            doc.addString(FILENAME_FIELD, name);
+            doc.addTimestamp(UPLOAD_DATE_FIELD, System.currentTimeMillis());
+            doc.addInteger(CHUNK_SIZE_FIELD, buffer.length);
+            doc.addLong(LENGTH_FIELD, length);
+            doc.addString(MD5_FIELD, IOUtils.toHex(md5Digest.digest()));
 
             results.add(myFilesCollection.insertAsync(doc.build()));
 
@@ -321,9 +385,23 @@ public class GridFs {
         }
         finally {
             if (failed) {
-                myFilesCollection.delete(where("_id").equals(id));
-                myChunksCollection.delete(where("files_id").equals(id));
+                myFilesCollection.delete(where(ID_FIELD).equals(id));
+                myChunksCollection.delete(where(FILES_ID_FIELD).equals(id));
             }
+        }
+    }
+
+    /**
+     * Ensures that the appropriate indexes have been created on the
+     * collections.
+     */
+    protected void ensureIndexes() {
+        // Only try once.
+        if (!myIndexesCreated) {
+            myIndexesCreated = true;
+            myFilesCollection.createIndex(true, Index.asc(FILENAME_FIELD));
+            myChunksCollection.createIndex(true, Index.asc(FILES_ID_FIELD),
+                    Index.asc(CHUNK_NUMBER_FIELD));
         }
     }
 

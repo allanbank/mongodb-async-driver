@@ -8,6 +8,7 @@ package com.allanbank.mongodb.gridfs;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertArrayEquals;
@@ -33,6 +34,7 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.builder.Find;
+import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.connection.FutureCallback;
 
 /**
@@ -111,6 +113,11 @@ public class GridFsTest {
                 mockFiles);
         expect(mockDb.getCollection("fs" + GridFs.CHUNKS_SUFFIX)).andReturn(
                 mockChunks);
+        mockFiles.createIndex(true, Index.asc(GridFs.FILENAME_FIELD));
+        expectLastCall();
+        mockChunks.createIndex(true, Index.asc(GridFs.FILES_ID_FIELD),
+                Index.asc(GridFs.CHUNK_NUMBER_FIELD));
+        expectLastCall();
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
                 .andReturn(fileResult.build());
@@ -153,6 +160,11 @@ public class GridFsTest {
                 mockFiles);
         expect(mockDb.getCollection("fs" + GridFs.CHUNKS_SUFFIX)).andReturn(
                 mockChunks);
+        mockFiles.createIndex(true, Index.asc(GridFs.FILENAME_FIELD));
+        expectLastCall();
+        mockChunks.createIndex(true, Index.asc(GridFs.FILES_ID_FIELD),
+                Index.asc(GridFs.CHUNK_NUMBER_FIELD));
+        expectLastCall();
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
                 .andReturn(null);
@@ -195,6 +207,11 @@ public class GridFsTest {
                 mockFiles);
         expect(mockDb.getCollection("fs" + GridFs.CHUNKS_SUFFIX)).andReturn(
                 mockChunks);
+        mockFiles.createIndex(true, Index.asc(GridFs.FILENAME_FIELD));
+        expectLastCall();
+        mockChunks.createIndex(true, Index.asc(GridFs.FILES_ID_FIELD),
+                Index.asc(GridFs.CHUNK_NUMBER_FIELD));
+        expectLastCall();
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
                 .andReturn(fileResult.build());
@@ -239,6 +256,11 @@ public class GridFsTest {
                 mockFiles);
         expect(mockDb.getCollection("fs" + GridFs.CHUNKS_SUFFIX)).andReturn(
                 mockChunks);
+        mockFiles.createIndex(true, Index.asc(GridFs.FILENAME_FIELD));
+        expectLastCall();
+        mockChunks.createIndex(true, Index.asc(GridFs.FILES_ID_FIELD),
+                Index.asc(GridFs.CHUNK_NUMBER_FIELD));
+        expectLastCall();
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
                 .andReturn(fileResult.build());
@@ -281,6 +303,11 @@ public class GridFsTest {
                 mockFiles);
         expect(mockDb.getCollection("fs" + GridFs.CHUNKS_SUFFIX)).andReturn(
                 mockChunks);
+        mockFiles.createIndex(true, Index.asc(GridFs.FILENAME_FIELD));
+        expectLastCall();
+        mockChunks.createIndex(true, Index.asc(GridFs.FILES_ID_FIELD),
+                Index.asc(GridFs.CHUNK_NUMBER_FIELD));
+        expectLastCall();
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
                 .andReturn(null);
@@ -317,6 +344,11 @@ public class GridFsTest {
                 mockFiles);
         expect(mockDb.getCollection("fs" + GridFs.CHUNKS_SUFFIX)).andReturn(
                 mockChunks);
+        mockFiles.createIndex(true, Index.asc(GridFs.FILENAME_FIELD));
+        expectLastCall();
+        mockChunks.createIndex(true, Index.asc(GridFs.FILES_ID_FIELD),
+                Index.asc(GridFs.CHUNK_NUMBER_FIELD));
+        expectLastCall();
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
                 .andReturn(fileResult.build());
@@ -361,6 +393,11 @@ public class GridFsTest {
                 mockFiles);
         expect(mockDb.getCollection("fs" + GridFs.CHUNKS_SUFFIX)).andReturn(
                 mockChunks);
+        mockFiles.createIndex(true, Index.asc(GridFs.FILENAME_FIELD));
+        expectLastCall();
+        mockChunks.createIndex(true, Index.asc(GridFs.FILES_ID_FIELD),
+                Index.asc(GridFs.CHUNK_NUMBER_FIELD));
+        expectLastCall();
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
                 .andReturn(fileResult.build());
@@ -405,6 +442,11 @@ public class GridFsTest {
                 mockFiles);
         expect(mockDb.getCollection("fs" + GridFs.CHUNKS_SUFFIX)).andReturn(
                 mockChunks);
+        mockFiles.createIndex(true, Index.asc(GridFs.FILENAME_FIELD));
+        expectLastCall();
+        mockChunks.createIndex(true, Index.asc(GridFs.FILES_ID_FIELD),
+                Index.asc(GridFs.CHUNK_NUMBER_FIELD));
+        expectLastCall();
 
         expect(mockChunks.insertAsync(anyObject(DocumentAssignable.class)))
                 .andReturn(futureChunks);
@@ -448,6 +490,11 @@ public class GridFsTest {
                 mockFiles);
         expect(mockDb.getCollection("fs" + GridFs.CHUNKS_SUFFIX)).andReturn(
                 mockChunks);
+        mockFiles.createIndex(true, Index.asc(GridFs.FILENAME_FIELD));
+        expectLastCall();
+        mockChunks.createIndex(true, Index.asc(GridFs.FILES_ID_FIELD),
+                Index.asc(GridFs.CHUNK_NUMBER_FIELD));
+        expectLastCall();
 
         expect(mockChunks.insertAsync(anyObject(DocumentAssignable.class)))
                 .andReturn(futureChunks);
@@ -497,6 +544,11 @@ public class GridFsTest {
                 mockFiles);
         expect(mockDb.getCollection("fs" + GridFs.CHUNKS_SUFFIX)).andReturn(
                 mockChunks);
+        mockFiles.createIndex(true, Index.asc(GridFs.FILENAME_FIELD));
+        expectLastCall();
+        mockChunks.createIndex(true, Index.asc(GridFs.FILES_ID_FIELD),
+                Index.asc(GridFs.CHUNK_NUMBER_FIELD));
+        expectLastCall();
 
         expect(mockChunks.insertAsync(anyObject(DocumentAssignable.class)))
                 .andReturn(futureChunks);

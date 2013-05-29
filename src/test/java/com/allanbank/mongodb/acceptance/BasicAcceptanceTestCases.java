@@ -35,7 +35,13 @@ import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
 import java.awt.geom.Point2D;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,6 +109,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
+import com.allanbank.mongodb.gridfs.GridFs;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -1063,6 +1070,81 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
         finally {
             iter.close();
+        }
+    }
+
+    /**
+     * Verifies the ability to get the collection statistics.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testGridFS() {
+
+        final long seed = System.currentTimeMillis();
+        final byte[] buffer = new byte[313];
+        final int blocks = 10000;
+
+        File inFile = null;
+        File outFile = null;
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            inFile = File.createTempFile("infile", ".dat");
+            outFile = File.createTempFile("outfile", ".dat");
+
+            // Create the file.
+            Random random = new Random(seed);
+            out = new FileOutputStream(inFile);
+            for (int i = 0; i < blocks; ++i) {
+                random.nextBytes(buffer);
+                out.write(buffer);
+            }
+            IOUtils.close(out);
+            out = null;
+
+            final GridFs gridfs = new GridFs(myDb, "gridfs");
+
+            in = new FileInputStream(inFile);
+            gridfs.unlink("foo");
+            gridfs.write("foo", in);
+            IOUtils.close(in);
+            in = null;
+
+            out = new FileOutputStream(outFile);
+            gridfs.read("foo", out);
+            IOUtils.close(out);
+            out = null;
+
+            // Now compare the results.
+            assertThat(outFile.length(), is(inFile.length()));
+
+            random = new Random(seed); // Reset random to get the sam stream of
+                                       // values.
+            final byte[] buffer2 = new byte[buffer.length];
+            in = new FileInputStream(outFile);
+            final DataInputStream din = new DataInputStream(in);
+            for (int i = 0; i < blocks; ++i) {
+                random.nextBytes(buffer2);
+                din.readFully(buffer);
+
+                assertThat(buffer2, is(buffer));
+            }
+            IOUtils.close(din);
+            IOUtils.close(in);
+            in = null;
+        }
+        catch (final IOException ioe) {
+            fatal(ioe);
+        }
+        finally {
+            IOUtils.close(in);
+            IOUtils.close(out);
+            if (inFile != null) {
+                inFile.delete();
+            }
+            if (outFile != null) {
+                outFile.delete();
+            }
         }
     }
 
