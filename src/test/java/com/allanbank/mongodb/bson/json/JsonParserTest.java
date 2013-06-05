@@ -327,9 +327,63 @@ public class JsonParserTest {
      *             On a test failure.
      */
     @Test
+    public void testParseBinDataStrictHexType() throws ParseException,
+            IllegalArgumentException, UnsupportedEncodingException {
+        final String docText = "{ a : { $binary : 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==', $type : '0x05' } }";
+
+        final JsonParser parser = new JsonParser();
+        final Object doc = parser.parse(docText);
+
+        assertEquals(
+                BuilderFactory
+                        .start()
+                        .addBinary(
+                                "a",
+                                (byte) 5,
+                                "The quick brown fox jumped over the lazy dogs."
+                                        .getBytes("US-ASCII")).build(), doc);
+    }
+
+    /**
+     * Test Parsing a BinData(..) element.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     * @throws UnsupportedEncodingException
+     *             On a test failure.
+     * @throws IllegalArgumentException
+     *             On a test failure.
+     */
+    @Test
     public void testParseBinDataStrictInArray() throws ParseException,
             IllegalArgumentException, UnsupportedEncodingException {
         final String docText = "{ a : [ { $binary : 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==', $type : 5 }] }";
+
+        final JsonParser parser = new JsonParser();
+        final Object doc = parser.parse(docText);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.pushArray("a").addBinary(
+                (byte) 5,
+                "The quick brown fox jumped over the lazy dogs."
+                        .getBytes("US-ASCII"));
+        assertEquals(b.build(), doc);
+    }
+
+    /**
+     * Test Parsing a BinData(..) element.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     * @throws UnsupportedEncodingException
+     *             On a test failure.
+     * @throws IllegalArgumentException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseBinDataStrictInArrayHexType() throws ParseException,
+            IllegalArgumentException, UnsupportedEncodingException {
+        final String docText = "{ a : [ { $binary : 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==', $type : '05' }] }";
 
         final JsonParser parser = new JsonParser();
         final Object doc = parser.parse(docText);
