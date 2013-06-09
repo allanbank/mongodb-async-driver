@@ -49,6 +49,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -129,6 +130,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /** The name of the test collection to use. */
     public static final String GEO_TEST_COLLECTION_NAME = "geo";
 
+    /** The name of the test Grid FS chunks collection to use. */
+    public static final String GRIDFS_CHUNKS_COLLECTION_NAME = "gridfs.chunks";
+
+    /** The name of the test Grid FS files collection to use. */
+    public static final String GRIDFS_FILES_COLLECTION_NAME = "gridfs.files";
+
     /** One million - used when we want a large collection of document. */
     public static final int LARGE_COLLECTION_COUNT = 1000000;
 
@@ -198,6 +205,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             if (myGeoSphereCollection != null) {
                 myGeoSphereCollection.drop();
             }
+
+            // Other collections.
+            for (final String name : Arrays
+                    .asList(GRIDFS_FILES_COLLECTION_NAME,
+                            GRIDFS_CHUNKS_COLLECTION_NAME)) {
+                myDb.getCollection(name).drop();
+            }
+
             if (myDb != null) {
                 myDb.drop();
             }
@@ -1074,11 +1089,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies the ability to get the collection statistics.
+     * Verifies the ability to save and read files from GridFS.
      */
     @SuppressWarnings("boxing")
     @Test
-    public void testGridFS() {
+    public void testGridFs() {
+
+        shardCollection(GRIDFS_FILES_COLLECTION_NAME);
+        shardCollection(GRIDFS_CHUNKS_COLLECTION_NAME,
+                Index.hashed(GridFs.FILES_ID_FIELD));
 
         final long seed = System.currentTimeMillis();
         final byte[] buffer = new byte[313];
@@ -1103,6 +1122,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             out = null;
 
             final GridFs gridfs = new GridFs(myDb, "gridfs");
+            gridfs.createIndexes();
 
             in = new FileInputStream(inFile);
             gridfs.unlink("foo");
@@ -1118,7 +1138,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Now compare the results.
             assertThat(outFile.length(), is(inFile.length()));
 
-            random = new Random(seed); // Reset random to get the sam stream of
+            random = new Random(seed); // Reset random to get the same stream of
                                        // values.
             final byte[] buffer2 = new byte[buffer.length];
             in = new FileInputStream(outFile);
@@ -1144,6 +1164,155 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             }
             if (outFile != null) {
                 outFile.delete();
+            }
+        }
+    }
+
+    /**
+     * Verifies the ability to get the collection statistics.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testGridFsFsck() {
+
+        shardCollection(GRIDFS_FILES_COLLECTION_NAME);
+        shardCollection(GRIDFS_CHUNKS_COLLECTION_NAME,
+                Index.hashed(GridFs.FILES_ID_FIELD));
+
+        final long seed = 4567891234L; // Fixed seed so we get the same MD5.
+        final byte[] buffer = new byte[313];
+        final int blocks = 10000;
+
+        File inFile = null;
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            inFile = File.createTempFile("infile", ".dat");
+
+            // Create the file.
+            final Random random = new Random(seed);
+            out = new FileOutputStream(inFile);
+            for (int i = 0; i < blocks; ++i) {
+                random.nextBytes(buffer);
+                out.write(buffer);
+            }
+            IOUtils.close(out);
+            out = null;
+
+            final GridFs gridfs = new GridFs(myDb, "gridfs");
+
+            gridfs.createIndexes();
+
+            in = new FileInputStream(inFile);
+            gridfs.unlink("foo");
+            final ObjectId id = gridfs.write("foo", in);
+            IOUtils.close(in);
+            in = null;
+
+            // Now damage all of the 'n' values.
+            final MongoCollection chunks = myDb
+                    .getCollection(GRIDFS_CHUNKS_COLLECTION_NAME);
+            final DocumentBuilder update = BuilderFactory.start();
+            final DocumentBuilder query = BuilderFactory.start();
+            for (int i = 0; i < 10; ++i) {
+                query.reset().add(GridFs.CHUNK_NUMBER_FIELD, i);
+                update.reset().push("$set")
+                        .add(GridFs.CHUNK_NUMBER_FIELD, myRandom.nextInt());
+                chunks.update(query, update, true, false);
+            }
+
+            // Now Verify the results.
+            assertThat(gridfs.validate(id), is(false));
+
+            // And fsck finds the problem?
+            Map<Object, List<String>> results = gridfs.fsck(false);
+            assertThat(
+                    results,
+                    is(Collections.singletonMap(
+                            (Object) id,
+                            Arrays.asList("MD5 sums do not match. File document contains "
+                                    + "'md5 : '36789b692294a0a9c43b989f664b688f'' and the "
+                                    + "filemd5 command produced 'null'."))));
+
+            // And see if the fsck repair works.
+            results = gridfs.fsck(true);
+            assertThat(
+                    results,
+                    is(Collections.singletonMap(
+                            (Object) id,
+                            Arrays.asList(
+                                    "MD5 sums do not match. File document contains "
+                                            + "'md5 : '36789b692294a0a9c43b989f664b688f'' and the "
+                                            + "filemd5 command produced 'null'.",
+                                    "File repaired."))));
+
+            // Now Verify the results.
+            assertThat(gridfs.validate(id), is(true));
+        }
+        catch (final IOException ioe) {
+            fatal(ioe);
+        }
+        finally {
+            IOUtils.close(in);
+            IOUtils.close(out);
+            if (inFile != null) {
+                inFile.delete();
+            }
+        }
+    }
+
+    /**
+     * Verifies the ability to get the collection statistics.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testGridFsVerify() {
+
+        shardCollection(GRIDFS_FILES_COLLECTION_NAME);
+        shardCollection(GRIDFS_CHUNKS_COLLECTION_NAME,
+                Index.hashed(GridFs.FILES_ID_FIELD));
+
+        final long seed = System.currentTimeMillis();
+        final byte[] buffer = new byte[313];
+        final int blocks = 10000;
+
+        File inFile = null;
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            inFile = File.createTempFile("infile", ".dat");
+
+            // Create the file.
+            final Random random = new Random(seed);
+            out = new FileOutputStream(inFile);
+            for (int i = 0; i < blocks; ++i) {
+                random.nextBytes(buffer);
+                out.write(buffer);
+            }
+            IOUtils.close(out);
+            out = null;
+
+            final GridFs gridfs = new GridFs(myDb, "gridfs");
+
+            gridfs.createIndexes();
+
+            in = new FileInputStream(inFile);
+            gridfs.unlink("foo");
+            final ObjectId id = gridfs.write("foo", in);
+            IOUtils.close(in);
+            in = null;
+
+            // Now Verify the results.
+            assertThat(gridfs.validate(id), is(true));
+        }
+        catch (final IOException ioe) {
+            fatal(ioe);
+        }
+        finally {
+            IOUtils.close(in);
+            IOUtils.close(out);
+            if (inFile != null) {
+                inFile.delete();
             }
         }
     }
@@ -7446,6 +7615,63 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     protected boolean isShardedConfiguration() {
         return false;
+    }
+
+    /**
+     * Shards the collection with the specified name.
+     * 
+     * @param collectionName
+     *            The name of the collection to shard.
+     */
+    protected void shardCollection(final String collectionName) {
+
+        shardCollection(collectionName, Index.asc("_id"));
+    }
+
+    /**
+     * Shards the collection with the specified name.
+     * 
+     * @param collectionName
+     *            The name of the collection to shard.
+     * @param shardKey
+     *            The shard key to use.
+     */
+    protected void shardCollection(final String collectionName,
+            final Element shardKey) {
+
+        if (isShardedConfiguration()) {
+            myDb.createCollection(collectionName, null);
+            myDb.runAdminCommand("enableSharding", myDb.getName(), null);
+            final DocumentBuilder options = BuilderFactory.start();
+
+            final String fullName = myDb.getName() + "." + collectionName;
+            options.push("key").add(shardKey);
+            myDb.runAdminCommand("shardCollection", fullName, options);
+
+            if (!Index.hashed(shardKey.getName()).equals(shardKey)) {
+                // Add some splits/chunks.
+                options.reset().push("middle")
+                        .add(shardKey.getName(), new ObjectId());
+                myDb.runAdminCommand("split", fullName, options);
+                options.reset().push("middle").add(shardKey.getName(), "a");
+                myDb.runAdminCommand("split", fullName, options);
+
+                // Add some more chunks and move around the shards.
+                final int index = 0;
+                final MongoCollection shards = myMongo.getDatabase("config")
+                        .getCollection("shards");
+                for (final Document shard : shards.find(BuilderFactory.start())) {
+                    options.reset().push("middle")
+                            .add(shardKey.getName(), index);
+                    myDb.runAdminCommand("split", fullName, options);
+
+                    options.reset();
+                    options.push("find").add(shardKey.getName(), index);
+                    options.add(shard.get("_id").withName("to"));
+                    myDb.runAdminCommand("moveChunk", fullName, options);
+                }
+            }
+        }
     }
 
     /**
