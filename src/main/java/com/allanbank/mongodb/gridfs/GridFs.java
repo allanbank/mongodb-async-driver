@@ -220,13 +220,13 @@ public class GridFs {
      * <li>
      * Files Collection:
      * <ul>
-     * <li><code>{ 'filename' : 1, 'uploadDate' : 1 }</li>
+     * <li><code>{ 'filename' : 1, 'uploadDate' : 1 }</code></li>
      * </ul>
      * </li>
      * <li>
      * Chunks Collection:
      * <ul>
-     * <li><code>{ 'files_id' : 1, 'n' : 1 }</li>
+     * <li><code>{ 'files_id' : 1, 'n' : 1 }</code></li>
      * </ul>
      * </li>
      * </ul>
@@ -263,13 +263,13 @@ public class GridFs {
      * <li>
      * Files Collection:
      * <ul>
-     * <li><code>{ 'filename' : 1, 'uploadDate' : 1 }</li>
+     * <li><code>{ 'filename' : 1, 'uploadDate' : 1 }</code></li>
      * </ul>
      * </li>
      * <li>
      * Chunks Collection:
      * <ul>
-     * <li><code>{ 'files_id' : 1, 'n' : 1 }</li>
+     * <li><code>{ 'files_id' : 1, 'n' : 1 }</code></li>
      * </ul>
      * </li>
      * </ul>
