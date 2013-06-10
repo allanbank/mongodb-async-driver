@@ -207,13 +207,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             }
 
             // Other collections.
-            for (final String name : Arrays
-                    .asList(GRIDFS_FILES_COLLECTION_NAME,
-                            GRIDFS_CHUNKS_COLLECTION_NAME)) {
-                myDb.getCollection(name).drop();
-            }
-
             if (myDb != null) {
+                for (final String name : Arrays.asList(
+                        GRIDFS_FILES_COLLECTION_NAME,
+                        GRIDFS_CHUNKS_COLLECTION_NAME)) {
+                    myDb.getCollection(name).drop();
+                }
+
                 myDb.drop();
             }
             if (myMongo != null) {
