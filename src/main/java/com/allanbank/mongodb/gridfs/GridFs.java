@@ -747,13 +747,17 @@ public class GridFs {
                 // order.
                 int n = 0;
                 for (final Element idElement : chunkIds) {
-                    final DocumentBuilder query = BuilderFactory.start().add(
-                            idElement);
+                    final DocumentBuilder query = BuilderFactory.start();
+                    query.add(idElement);
+                    query.add(queryElement); // Direct to the right shard.
+                    
                     final DocumentBuilder update = BuilderFactory.start();
                     update.push("$set").add(CHUNK_NUMBER_FIELD, n);
 
+                    // Use a multi-update to ensure the write happens when a 
+                    // files chunks are across shards.
                     myChunksCollection.update(query.build(), update.build(),
-                            false, false, Durability.ACK);
+                            true /*=multi*/, false, Durability.ACK);
 
                     n += 1;
                 }
