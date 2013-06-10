@@ -670,7 +670,8 @@ public class GridFsTest {
         update.push("$set").add(GridFs.CHUNK_NUMBER_FIELD, 0);
         expect(
                 mockChunks.update(eq(BuilderFactory.start().add("_id", chunkId)
-                        .build()), eq(update.build()), eq(false), eq(false),
+                        .add(GridFs.FILES_ID_FIELD, "id").build()),
+                        eq(update.build()), eq(true), eq(false),
                         eq(Durability.ACK))).andReturn(1L);
 
         expect(mockDb.runCommand(commandDoc.build())).andReturn(
@@ -764,7 +765,8 @@ public class GridFsTest {
         update.push("$set").add(GridFs.CHUNK_NUMBER_FIELD, 0);
         expect(
                 mockChunks.update(eq(BuilderFactory.start().add("_id", chunkId)
-                        .build()), eq(update.build()), eq(false), eq(false),
+                        .add(GridFs.FILES_ID_FIELD, "id").build()),
+                        eq(update.build()), eq(true), eq(false),
                         eq(Durability.ACK))).andReturn(1L);
 
         expect(mockDb.runCommand(commandDoc.build())).andReturn(
