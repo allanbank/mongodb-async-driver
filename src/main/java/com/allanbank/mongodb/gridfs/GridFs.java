@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
@@ -752,7 +753,7 @@ public class GridFs {
                     update.push("$set").add(CHUNK_NUMBER_FIELD, n);
 
                     myChunksCollection.update(query.build(), update.build(),
-                            false, false);
+                            false, false, Durability.ACK);
 
                     n += 1;
                 }

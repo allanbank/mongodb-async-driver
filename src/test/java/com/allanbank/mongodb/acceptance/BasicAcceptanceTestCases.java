@@ -1097,7 +1097,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         shardCollection(GRIDFS_FILES_COLLECTION_NAME);
         shardCollection(GRIDFS_CHUNKS_COLLECTION_NAME,
-                Index.hashed(GridFs.FILES_ID_FIELD));
+                Index.asc(GridFs.FILES_ID_FIELD));
+
+        myDb.setDurability(Durability.ACK);
 
         final long seed = System.currentTimeMillis();
         final byte[] buffer = new byte[313];
@@ -1169,7 +1171,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies the ability to get the collection statistics.
+     * Verifies the ability to check the integrity of the Grid FS volume.
      */
     @SuppressWarnings("boxing")
     @Test
@@ -1177,7 +1179,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         shardCollection(GRIDFS_FILES_COLLECTION_NAME);
         shardCollection(GRIDFS_CHUNKS_COLLECTION_NAME,
-                Index.hashed(GridFs.FILES_ID_FIELD));
+                Index.asc(GridFs.FILES_ID_FIELD));
+
+        myDb.setDurability(Durability.ACK);
 
         final long seed = 4567891234L; // Fixed seed so we get the same MD5.
         final byte[] buffer = new byte[313];
@@ -1262,7 +1266,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies the ability to get the collection statistics.
+     * Verifies the ability to verify a Grid FS file.
      */
     @SuppressWarnings("boxing")
     @Test
@@ -1270,7 +1274,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         shardCollection(GRIDFS_FILES_COLLECTION_NAME);
         shardCollection(GRIDFS_CHUNKS_COLLECTION_NAME,
-                Index.hashed(GridFs.FILES_ID_FIELD));
+                Index.asc(GridFs.FILES_ID_FIELD));
+
+        myDb.setDurability(Durability.ACK);
 
         final long seed = System.currentTimeMillis();
         final byte[] buffer = new byte[313];
@@ -7643,6 +7649,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             myDb.createCollection(collectionName, null);
             myDb.runAdminCommand("enableSharding", myDb.getName(), null);
             final DocumentBuilder options = BuilderFactory.start();
+
+            myDb.getCollection(collectionName).createIndex(shardKey);
 
             final String fullName = myDb.getName() + "." + collectionName;
             options.push("key").add(shardKey);

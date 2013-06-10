@@ -36,6 +36,7 @@ import java.util.Map;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
@@ -669,8 +670,8 @@ public class GridFsTest {
         update.push("$set").add(GridFs.CHUNK_NUMBER_FIELD, 0);
         expect(
                 mockChunks.update(eq(BuilderFactory.start().add("_id", chunkId)
-                        .build()), eq(update.build()), eq(false), eq(false)))
-                .andReturn(1L);
+                        .build()), eq(update.build()), eq(false), eq(false),
+                        eq(Durability.ACK))).andReturn(1L);
 
         expect(mockDb.runCommand(commandDoc.build())).andReturn(
                 fixedCmdResult.build());
@@ -763,8 +764,8 @@ public class GridFsTest {
         update.push("$set").add(GridFs.CHUNK_NUMBER_FIELD, 0);
         expect(
                 mockChunks.update(eq(BuilderFactory.start().add("_id", chunkId)
-                        .build()), eq(update.build()), eq(false), eq(false)))
-                .andReturn(1L);
+                        .build()), eq(update.build()), eq(false), eq(false),
+                        eq(Durability.ACK))).andReturn(1L);
 
         expect(mockDb.runCommand(commandDoc.build())).andReturn(
                 fixedCmdResult.build());
