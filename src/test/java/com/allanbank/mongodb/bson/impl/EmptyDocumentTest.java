@@ -33,6 +33,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
  * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@SuppressWarnings("boxing")
 public class EmptyDocumentTest {
 
     /**
