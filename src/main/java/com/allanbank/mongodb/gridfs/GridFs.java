@@ -289,6 +289,13 @@ public class GridFs {
      * collection and can take a considerable amount of time and resources on
      * the client and the server.
      * </p>
+     * <p>
+     * <b>Note:</b> Due to a limitation in the MongoDB server this method will
+     * return false positives when used with a sharded cluster when the shard
+     * key for the chunks collection is not one of <code>{files_id:1}</code> or
+     * <code>{files_id:1, n:1}</code>. See <a
+     * href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>.
+     * </p>
      * 
      * @param repair
      *            If set to <code>true</code> then the fsck will attempt to
@@ -297,6 +304,9 @@ public class GridFs {
      *         repair status. If no errors are found an empty map is returned.
      * @throws IOException
      *             On a failure to execute the fsck.
+     * 
+     * @see <a
+     *      href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>
      */
     public Map<Object, List<String>> fsck(final boolean repair)
             throws IOException {
@@ -443,12 +453,22 @@ public class GridFs {
     /**
      * Validates the file from the GridFS collections using the {@code filemd5}
      * command.
+     * <p>
+     * <b>Note:</b> Due to a limitation in the MongoDB server this method will
+     * always return <code>false</code> when used with a sharded cluster when
+     * the shard key for the chunks collection is not one of
+     * <code>{files_id:1}</code> or <code>{files_id:1, n:1}</code>. See <a
+     * href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>.
+     * </p>
      * 
      * @param id
      *            The id of the file to be validate.
      * @return True if a file was validated (md5 hash matches), false otherwise.
      * @throws IOException
      *             On a failure to validate the file.
+     * 
+     * @see <a
+     *      href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>
      */
     public boolean validate(final ObjectId id) throws IOException {
 
@@ -465,12 +485,22 @@ public class GridFs {
     /**
      * Validates the file from the GridFS collections using the {@code filemd5}
      * command.
+     * <p>
+     * <b>Note:</b> Due to a limitation in the MongoDB server this method will
+     * always return <code>false</code> when used with a sharded cluster when
+     * the shard key for the chunks collection is not one of
+     * <code>{files_id:1}</code> or <code>{files_id:1, n:1}</code>. See <a
+     * href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>.
+     * </p>
      * 
      * @param name
      *            The name of the file to be validate.
      * @return True if a file was validated (md5 hash matches), false otherwise.
      * @throws IOException
      *             On a failure to validate the file.
+     * 
+     * @see <a
+     *      href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>
      */
     public boolean validate(final String name) throws IOException {
 
@@ -750,14 +780,14 @@ public class GridFs {
                     final DocumentBuilder query = BuilderFactory.start();
                     query.add(idElement);
                     query.add(queryElement); // Direct to the right shard.
-                    
+
                     final DocumentBuilder update = BuilderFactory.start();
                     update.push("$set").add(CHUNK_NUMBER_FIELD, n);
 
-                    // Use a multi-update to ensure the write happens when a 
+                    // Use a multi-update to ensure the write happens when a
                     // files chunks are across shards.
                     myChunksCollection.update(query.build(), update.build(),
-                            true /*=multi*/, false, Durability.ACK);
+                            true /* =multi */, false, Durability.ACK);
 
                     n += 1;
                 }
@@ -825,10 +855,20 @@ public class GridFs {
     /**
      * Validates the file from the GridFS collections using the {@code filemd5}
      * command.
+     * <p>
+     * <b>Note:</b> Due to a limitation in the MongoDB server this method will
+     * always return <code>false</code> when used with a sharded cluster when
+     * the shard key for the chunks collection is not one of
+     * <code>{files_id:1}</code> or <code>{files_id:1, n:1}</code>. See <a
+     * href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>.
+     * </p>
      * 
      * @param fileDoc
      *            The document for the file to delete.
      * @return True if a file was deleted, false otherwise.
+     * 
+     * @see <a
+     *      href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>
      */
     protected boolean doValidate(final Document fileDoc) {
         final Element id = fileDoc.get(ID_FIELD);
