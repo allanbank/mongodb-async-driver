@@ -306,6 +306,21 @@ public class MongoDatabaseImpl implements MongoDatabase {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #runCommandAsync(DocumentAssignable)}
+     * method.
+     * </p>
+     * 
+     * @see #runCommandAsync(DocumentAssignable)
+     */
+    @Override
+    public Document runCommand(final DocumentAssignable command)
+            throws MongoDbException {
+        return FutureUtils.unwrap(runCommandAsync(command));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the
      * {@link #runCommandAsync(String, DocumentAssignable)} method with
      * <code>null</code> options.
@@ -370,6 +385,20 @@ public class MongoDatabaseImpl implements MongoDatabase {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to build a {@link Command} message and send it to the server.
+     * </p>
+     */
+    @Override
+    public void runCommandAsync(final Callback<Document> reply,
+            final DocumentAssignable command) throws MongoDbException {
+        final Command commandMessage = new Command(myName, command.asDocument());
+
+        myClient.send(commandMessage, new ReplyCommandCallback(reply));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the
      * {@link #runCommandAsync(Callback, String, DocumentAssignable)} method
      * with <code>null</code> for the options.
@@ -386,7 +415,8 @@ public class MongoDatabaseImpl implements MongoDatabase {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to build a {@link Command} message and send it to the server.
+     * Overridden to build the command document and call
+     * {@link #runCommandAsync(Callback, DocumentAssignable)}.
      * </p>
      */
     @Override
@@ -397,15 +427,14 @@ public class MongoDatabaseImpl implements MongoDatabase {
         builder.addInteger(command, 1);
         addOptions(command, options, builder);
 
-        final Command commandMessage = new Command(myName, builder.build());
-
-        myClient.send(commandMessage, new ReplyCommandCallback(reply));
+        runCommandAsync(reply, builder);
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to build a {@link Command} message and send it to the server.
+     * Overridden to build the command document and call
+     * {@link #runCommandAsync(Callback, DocumentAssignable)}.
      * </p>
      */
     @Override
@@ -416,15 +445,14 @@ public class MongoDatabaseImpl implements MongoDatabase {
         builder.add(commandName, commandValue);
         addOptions(commandName, options, builder);
 
-        final Command commandMessage = new Command(myName, builder.build());
-
-        myClient.send(commandMessage, new ReplyCommandCallback(reply));
+        runCommandAsync(reply, builder);
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to build a {@link Command} message and send it to the server.
+     * Overridden to build the command document and call
+     * {@link #runCommandAsync(Callback, DocumentAssignable)}.
      * </p>
      */
     @Override
@@ -435,9 +463,26 @@ public class MongoDatabaseImpl implements MongoDatabase {
         builder.add(commandName, commandValue);
         addOptions(commandName, options, builder);
 
-        final Command commandMessage = new Command(myName, builder.build());
+        runCommandAsync(reply, builder);
+    }
 
-        myClient.send(commandMessage, new ReplyCommandCallback(reply));
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #runCommandAsync(Callback, DocumentAssignable)} method.
+     * </p>
+     * 
+     * @see #runCommandAsync(Callback, DocumentAssignable)
+     */
+    @Override
+    public Future<Document> runCommandAsync(final DocumentAssignable command)
+            throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>();
+
+        runCommandAsync(future, command);
+
+        return future;
     }
 
     /**

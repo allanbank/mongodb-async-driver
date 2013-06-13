@@ -197,6 +197,18 @@ public interface MongoDatabase {
      * Runs a command against the database.
      * 
      * @param command
+     *            The command document to run.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Document runCommand(DocumentAssignable command)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param command
      *            The name of the command to run.
      * @return The result of the command.
      * @throws MongoDbException
@@ -249,6 +261,19 @@ public interface MongoDatabase {
      */
     public Document runCommand(String commandName, String commandValue,
             DocumentAssignable options) throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link Callback} that will be notified of the command results.
+     * @param command
+     *            The command document to run.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(Callback<Document> reply,
+            DocumentAssignable command) throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -312,6 +337,18 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(Callback<Document> reply, String commandName,
             String commandValue, DocumentAssignable options)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param command
+     *            The command document to run.
+     * @return The result of the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public Future<Document> runCommandAsync(DocumentAssignable command)
             throws MongoDbException;
 
     /**

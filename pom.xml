@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.allanbank</groupId>
 	<artifactId>mongodb-async-driver</artifactId>
-	<version>1.2.3-SNAPSHOT</version>
+	<version>1.2.3</version>
 
 	<name>mongodb-async-driver</name>
 	<description>Asynchronous driver for connecting to MongoDB from Java.</description>
@@ -44,7 +44,7 @@
 	<scm>
 		<url>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</url>
 		<connection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</connection>
-		<tag>master</tag>
+		<tag>rel_1.2.3</tag>
 		<developerConnection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</developerConnection>
 	</scm>
 	<distributionManagement>

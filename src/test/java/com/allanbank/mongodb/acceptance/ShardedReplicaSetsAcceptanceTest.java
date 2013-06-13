@@ -46,7 +46,6 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
-import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.ConditionBuilder;
@@ -55,7 +54,6 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
-import com.allanbank.mongodb.builder.Sort;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.ServerStatus;
@@ -1014,42 +1012,4 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
     protected boolean isShardedConfiguration() {
         return true;
     }
-
-    /**
-     * Shards the collection with the specified name.
-     * 
-     * @param collectionName
-     *            The name of the collection to shard.
-     */
-    protected void shardCollection(final String collectionName) {
-
-        myDb.createCollection(collectionName, null);
-        myDb.runAdminCommand("enableSharding", myDb.getName(), null);
-        final DocumentBuilder options = BuilderFactory.start();
-
-        final String fullName = myDb.getName() + "." + collectionName;
-        options.push("key").add(Sort.asc("_id"));
-        myDb.runAdminCommand("shardCollection", fullName, options);
-
-        // Add some splits/chunks.
-        options.reset().push("middle").add("_id", new ObjectId());
-        myDb.runAdminCommand("split", fullName, options);
-        options.reset().push("middle").add("_id", "a");
-        myDb.runAdminCommand("split", fullName, options);
-
-        // Add some more chunks and move around the shards.
-        final int index = 0;
-        final MongoCollection shards = myMongo.getDatabase("config")
-                .getCollection("shards");
-        for (final Document shard : shards.find(BuilderFactory.start())) {
-            options.reset().push("middle").add("_id", index);
-            myDb.runAdminCommand("split", fullName, options);
-
-            options.reset();
-            options.push("find").add("_id", index);
-            options.add(shard.get("_id").withName("to"));
-            myDb.runAdminCommand("moveChunk", fullName, options);
-        }
-    }
-
 }

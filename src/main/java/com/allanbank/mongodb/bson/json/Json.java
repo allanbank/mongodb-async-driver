@@ -70,6 +70,8 @@ import com.allanbank.mongodb.error.JsonParseException;
  * normally zero. The second field is the base64 encoded binary value: <br/>
  * <code>{ a : BinData(0, "VVU=") }</code> or
  * <code>{ a : { $binary:"VVU=", $type:0 } }</code></dd>
+ * <code>{ a : { $binary:"VVU=", $type: '0x00' } }</code></dd>
+ * <code>{ a : { $binary:"VVU=", $type: '00' } }</code></dd>
  * <dt>HexData</dt>
  * <dd>Creates a {@link BinaryElement}. The first field is the sub-type,
  * normally zero. The second field is the hex encoded binary value: <br/>
