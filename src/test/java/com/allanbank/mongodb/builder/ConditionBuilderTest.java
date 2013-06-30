@@ -132,6 +132,52 @@ public class ConditionBuilderTest {
      * Test method for {@link ConditionBuilder#all}.
      */
     @Test
+    public void testAllBooleanArray() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(false, true);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(false).add(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllByteArrayArray() {
+
+        final byte[] value1 = new byte[2];
+        final byte[] value2 = new byte[1];
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
     public void testAllConstantArray() {
 
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -146,6 +192,81 @@ public class ConditionBuilderTest {
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).addBoolean(false)
                 .addBoolean(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllDateArray() {
+
+        final Date value1 = new Date();
+        final Date value2 = new Date(myRandom.nextLong());
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllDocumentAssignableArray() {
+
+        final DocumentAssignable value1 = BuilderFactory.start().add("1", 1);
+        final DocumentAssignable value2 = BuilderFactory.start().add("2", 2);
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllDoubleArray() {
+
+        final double value1 = myRandom.nextDouble();
+        final double value2 = myRandom.nextDouble();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
+                .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -169,6 +290,156 @@ public class ConditionBuilderTest {
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).addBoolean(false)
                 .addBoolean(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllIntArray() {
+
+        final int value1 = myRandom.nextInt();
+        final int value2 = myRandom.nextInt();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllLongArray() {
+
+        final long value1 = myRandom.nextLong();
+        final long value2 = myRandom.nextLong();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllObjectIdArray() {
+
+        final ObjectId value1 = new ObjectId();
+        final ObjectId value2 = new ObjectId();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllPatternArray() {
+
+        final Pattern value1 = Pattern.compile("b.*");
+        final Pattern value2 = Pattern.compile("a.*");
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllStringArray() {
+
+        final String value1 = "a";
+        final String value2 = "b";
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#all}.
+     */
+    @Test
+    public void testAllUuidArray() {
+
+        final UUID value1 = UUID.randomUUID();
+        final UUID value2 = UUID.randomUUID();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.all(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
+                .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1355,6 +1626,52 @@ public class ConditionBuilderTest {
      * Test method for {@link ConditionBuilder#in}.
      */
     @Test
+    public void testInBooleanArray() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(false, true);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(false).add(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInByteArrayArray() {
+
+        final byte[] value1 = new byte[2];
+        final byte[] value2 = new byte[1];
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
     public void testInConstantArray() {
 
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -1369,6 +1686,81 @@ public class ConditionBuilderTest {
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).addBoolean(false)
                 .addBoolean(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInDateArray() {
+
+        final Date value1 = new Date();
+        final Date value2 = new Date(myRandom.nextLong());
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInDocumentAssignableArray() {
+
+        final DocumentAssignable value1 = BuilderFactory.start().add("1", 1);
+        final DocumentAssignable value2 = BuilderFactory.start().add("2", 2);
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInDoubleArray() {
+
+        final double value1 = myRandom.nextDouble();
+        final double value2 = myRandom.nextDouble();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
+                .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1392,6 +1784,106 @@ public class ConditionBuilderTest {
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).addBoolean(false)
                 .addBoolean(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInIntArray() {
+
+        final int value1 = myRandom.nextInt();
+        final int value2 = myRandom.nextInt();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInLongArray() {
+
+        final long value1 = myRandom.nextLong();
+        final long value2 = myRandom.nextLong();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInObjectIdArray() {
+
+        final ObjectId value1 = new ObjectId();
+        final ObjectId value2 = new ObjectId();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInPatternArray() {
+
+        final Pattern value1 = Pattern.compile("b.*");
+        final Pattern value2 = Pattern.compile("a.*");
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
+                .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1423,6 +1915,31 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInStringArray() {
+
+        final String value1 = "a";
+        final String value2 = "b";
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#intersects(DocumentAssignable)}.
      */
     @Test
@@ -1451,6 +1968,31 @@ public class ConditionBuilderTest {
                 GeoJson.p(x2, y1), GeoJson.p(x1, y1))));
 
         assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#in}.
+     */
+    @Test
+    public void testInUuidArray() {
+
+        final UUID value1 = UUID.randomUUID();
+        final UUID value2 = UUID.randomUUID();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.in(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
     }
 
     /**
@@ -2979,6 +3521,52 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInBooleanArray() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(false, true);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(false).add(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInByteArrayArray() {
+
+        final byte[] value1 = new byte[2];
+        final byte[] value2 = new byte[1];
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
      * Test method for
      * {@link ConditionBuilder#notIn(com.allanbank.mongodb.bson.Element[])}.
      */
@@ -3002,6 +3590,81 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInDateArray() {
+
+        final Date value1 = new Date();
+        final Date value2 = new Date(myRandom.nextLong());
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInDocumentAssignableArray() {
+
+        final DocumentAssignable value1 = BuilderFactory.start().add("1", 1);
+        final DocumentAssignable value2 = BuilderFactory.start().add("2", 2);
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInDoubleArray() {
+
+        final double value1 = myRandom.nextDouble();
+        final double value2 = myRandom.nextDouble();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
      * Test method for
      * {@link ConditionBuilder#notIn(com.allanbank.mongodb.bson.Element[])}.
      */
@@ -3020,6 +3683,156 @@ public class ConditionBuilderTest {
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).addBoolean(false)
                 .addBoolean(true);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInIntArray() {
+
+        final int value1 = myRandom.nextInt();
+        final int value2 = myRandom.nextInt();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInLongArray() {
+
+        final long value1 = myRandom.nextLong();
+        final long value2 = myRandom.nextLong();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInObjectIdArray() {
+
+        final ObjectId value1 = new ObjectId();
+        final ObjectId value2 = new ObjectId();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInPatternArray() {
+
+        final Pattern value1 = Pattern.compile("b.*");
+        final Pattern value2 = Pattern.compile("a.*");
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInStringArray() {
+
+        final String value1 = "a";
+        final String value2 = "b";
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
+                .add(value2);
+
+        assertEquals(e, new DocumentElement("foo", db.build()));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notIn}.
+     */
+    @Test
+    public void testNotInUuidArray() {
+
+        final UUID value1 = UUID.randomUUID();
+        final UUID value2 = UUID.randomUUID();
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.equals(false); // Make sure equals is removed.
+        b.notIn(value1, value2);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
+                .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }

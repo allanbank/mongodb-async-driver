@@ -42,6 +42,7 @@ import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
 import com.allanbank.mongodb.bson.element.UuidElement;
 import com.allanbank.mongodb.builder.expression.Constant;
+import com.allanbank.mongodb.builder.expression.Expressions;
 import com.allanbank.mongodb.error.QueryFailedException;
 
 /**
@@ -137,6 +138,86 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Specify the values that must <em>all</em> be in the fields array.
      * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final boolean... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final boolean value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final byte[]... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final byte[] value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * This method is designed to be used with the {@link Expressions#constant
+     * Expressions.constant(...)} helper methods.<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
+     * 
+     * DocumentAssignable query = QueryBuilder.where("f").all(constant(1), constant(2), constant(3));
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
      * Only a single {@link #all(Element[])} comparison can be used. Calling
      * multiple <tt>all(...)</tt> methods overwrites previous values. In
      * addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -163,6 +244,105 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Specify the values that must <em>all</em> be in the fields array.
      * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final Date... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final Date value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final DocumentAssignable... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final DocumentAssignable value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final double... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final double value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
      * Only a single {@link #all(Element[])} comparison can be used. Calling
      * multiple <tt>all(...)</tt> methods overwrites previous values. In
      * addition any {@link #equals(boolean) equals(...)} condition is removed
@@ -179,6 +359,204 @@ public class ConditionBuilder implements DocumentAssignable {
                 MiscellaneousOperator.ALL.getToken(), elements));
 
         return this;
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final int... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final int value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final long... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final long value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final ObjectId... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final ObjectId value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final Pattern... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final Pattern value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final String... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final String value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>all</em> be in the fields array.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #all(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #all(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #all(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #all(ArrayBuilder)} comparison can be used. Calling
+     * multiple <tt>all(...)</tt> methods overwrites previous values. In
+     * addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder all(final UUID... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final UUID value : values) {
+            arrayBuilder.add(value);
+        }
+        return all(arrayBuilder);
     }
 
     /**
@@ -1333,7 +1711,7 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
-     * Specify the values that one must match the fields value.
+     * Specify the possible values to match against the field's value.
      * <p>
      * Only a single {@link #in(ArrayBuilder)} comparison can be used. Calling
      * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
@@ -1352,7 +1730,89 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
-     * Specify the values that one must match the fields value.
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final boolean... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final boolean value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
+    }
+
+    /**
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final byte[]... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final byte[] value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
+    }
+
+    /**
+     * Specify the possible values to match against the field's value.
+     * <p>
+     * This method is designed to be used with the {@link Expressions#constant
+     * Expressions.constant(...)} helper methods.<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
+     * 
+     * DocumentAssignable query = QueryBuilder.where("f").in(constant(1), constant(2), constant(3));
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
      * <p>
      * Only a single {@link #in(Element[])} comparison can be used. Calling
      * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
@@ -1378,7 +1838,109 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
-     * Specify the values that one must match the fields value.
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final Date... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final Date value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
+    }
+
+    /**
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final DocumentAssignable... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final DocumentAssignable value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
+    }
+
+    /**
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final double... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final double value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
+    }
+
+    /**
+     * Specify the possible values to match against the field's value.
      * <p>
      * Only a single {@link #in(Element[])} comparison can be used. Calling
      * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
@@ -1396,6 +1958,210 @@ public class ConditionBuilder implements DocumentAssignable {
                 MiscellaneousOperator.IN.getToken(), elements));
 
         return this;
+    }
+
+    /**
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final int... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final int value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
+    }
+
+    /**
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final long... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final long value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
+    }
+
+    /**
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final ObjectId... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final ObjectId value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
+    }
+
+    /**
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final Pattern... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final Pattern value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
+    }
+
+    /**
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final String... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final String value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
+    }
+
+    /**
+     * Specify the possible values to match against the field's value. Atleast
+     * one of the
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #in(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #in(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #in(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #in(Element[])} comparison can be used. Calling
+     * multiple <tt>in(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder in(final UUID... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final UUID value : values) {
+            arrayBuilder.add(value);
+        }
+        return in(arrayBuilder);
     }
 
     /**
@@ -3155,8 +3921,7 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
-     * Specify the values that must <em>not</em> must not match the fields
-     * value.
+     * Specify the values that must <em>not</em> match the field's value.
      * <p>
      * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
      * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
@@ -3175,8 +3940,87 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
-     * Specify the values that must <em>not</em> must not match the fields
-     * value.
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final boolean... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final boolean value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final byte[]... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final byte[] value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method is designed to be used with the {@link Expressions#constant
+     * Expressions.constant(...)} helper methods.<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
+     * 
+     * DocumentAssignable query = QueryBuilder.where("f").notIn(constant(1), constant(2), constant(3));
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
      * <p>
      * Only a single {@link #notIn(Element[])} comparison can be used. Calling
      * multiple <tt>notIn(...)</tt> methods overwrites previous values. In
@@ -3202,8 +4046,106 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
-     * Specify the values that must <em>not</em> must not match the fields
-     * value.
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final Date... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final Date value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final DocumentAssignable... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final DocumentAssignable value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final double... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final double value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
      * <p>
      * Only a single {@link #notIn(Element[])} comparison can be used. Calling
      * multiple <tt>notIn(...)</tt> methods overwrites previous values. In
@@ -3221,6 +4163,204 @@ public class ConditionBuilder implements DocumentAssignable {
                 MiscellaneousOperator.NIN.getToken(), elements));
 
         return this;
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final int... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final int value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final long... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final long value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final ObjectId... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final ObjectId value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final Pattern... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final Pattern value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final String... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final String value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
+    }
+
+    /**
+     * Specify the values that must <em>not</em> match the field's value.
+     * <p>
+     * This method can only be used with values of the same BSON type. If mixed
+     * types need to be used there are several options:
+     * <ul>
+     * <li>Use the {@link Expressions#constant Expressions#constant(...)}
+     * helpers with the {@link #notIn(Constant...)} method.</li>
+     * <li>Use the {@link ArrayBuilder} with the {@link #notIn(ArrayBuilder)}
+     * method.</li>
+     * <li>Manually construct the {@link Element elements} and use the
+     * {@link #notIn(Element...)} method.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Only a single {@link #notIn(ArrayBuilder)} comparison can be used.
+     * Calling multiple <tt>notIn(...)</tt> methods overwrites previous values.
+     * In addition any {@link #equals(boolean) equals(...)} condition is removed
+     * since no equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param values
+     *            The values for the comparison.
+     * @return The condition builder for chaining method calls.
+     */
+    public ConditionBuilder notIn(final UUID... values) {
+        final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
+        for (final UUID value : values) {
+            arrayBuilder.add(value);
+        }
+        return notIn(arrayBuilder);
     }
 
     /**
