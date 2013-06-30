@@ -12,6 +12,7 @@ import static org.junit.Assert.assertThat;
 
 import java.awt.geom.Point2D;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -72,6 +73,29 @@ public class ConditionBuilderTest {
     @After
     public void tearDown() {
         myRandom = null;
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#after(Date)}.
+     */
+    @Test
+    public void testAfterDate() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final long value = myRandom.nextLong();
+
+        b.equals(false); // Make sure equals is removed.
+        b.after(new Date(value));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.addTimestamp(ComparisonOperator.GT.getToken(), value);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
     }
 
     /**
@@ -211,6 +235,29 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#before(Date)}.
+     */
+    @Test
+    public void testBeforeDate() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final long value = myRandom.nextLong();
+
+        b.equals(false); // Make sure equals is removed.
+        b.before(new Date(value));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.addTimestamp(ComparisonOperator.LT.getToken(), value);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
      * Test method for
      * {@link ConditionBuilder#elementMatches(DocumentAssignable)} .
      */
@@ -323,6 +370,25 @@ public class ConditionBuilderTest {
 
         assertThat(e, instanceOf(BinaryElement.class));
         assertEquals(e, new BinaryElement("foo", type, value));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#equals(Date)}.
+     */
+    @Test
+    public void testEqualsDate() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final long value = myRandom.nextLong();
+
+        b.greaterThan(23); // Make sure non-equals is removed.
+        b.equals(new Date(value));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(TimestampElement.class));
+        assertEquals(e, new TimestampElement("foo", value));
     }
 
     /**
@@ -789,6 +855,29 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#greaterThan(Date)}.
+     */
+    @Test
+    public void testGreaterThanDate() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final long value = myRandom.nextLong();
+
+        b.equals(false); // Make sure equals is removed.
+        b.greaterThan(new Date(value));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.addTimestamp(ComparisonOperator.GT.getToken(), value);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#greaterThan(double)}.
      */
     @Test
@@ -1141,6 +1230,29 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#greaterThanOrEqualTo(Date)}.
+     */
+    @Test
+    public void testGreaterThanOrEqualToDate() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final long value = myRandom.nextLong();
+
+        b.equals(false); // Make sure equals is removed.
+        b.greaterThanOrEqualTo(new Date(value));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.addTimestamp(ComparisonOperator.GTE.getToken(), value);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
      * Test method for {@link ConditionBuilder#greaterThan(String)}.
      */
     @Test
@@ -1386,6 +1498,29 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.addBinary(ComparisonOperator.LT.getToken(), type, value);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThan(Date)}.
+     */
+    @Test
+    public void testLessThanDate() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final long value = myRandom.nextLong();
+
+        b.equals(false); // Make sure equals is removed.
+        b.lessThan(new Date(value));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.addTimestamp(ComparisonOperator.LT.getToken(), value);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -1729,6 +1864,29 @@ public class ConditionBuilderTest {
 
         b.equals(false); // Make sure equals is removed.
         b.lessThanOrEqualToTimestamp(value);
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.addTimestamp(ComparisonOperator.LTE.getToken(), value);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#lessThanOrEqualTo(Date)}.
+     */
+    @Test
+    public void testLessThanOrEqualToDate() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final long value = myRandom.nextLong();
+
+        b.equals(false); // Make sure equals is removed.
+        b.lessThanOrEqualTo(new Date(value));
 
         final Element e = b.buildFieldCondition();
 
@@ -2368,6 +2526,29 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.addBinary(ComparisonOperator.NE.getToken(), type, value);
+
+        assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#notEqualTo(Date)}.
+     */
+    @Test
+    public void testNotEqualToDate() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        final long value = myRandom.nextLong();
+
+        b.equals(false); // Make sure equals is removed.
+        b.notEqualTo(new Date(value));
+
+        final Element e = b.buildFieldCondition();
+
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentBuilder db = BuilderFactory.start();
+        db.addTimestamp(ComparisonOperator.NE.getToken(), value);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }

@@ -7,6 +7,7 @@ package com.allanbank.mongodb.builder;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,29 @@ public class ConditionBuilder implements DocumentAssignable {
         myParent = parent;
 
         myOtherComparisons = new LinkedHashMap<Operator, Element>();
+    }
+
+    /**
+     * Checks if the value is greater than the specified <tt>dateTime</tt>.
+     * <p>
+     * This is equivalent to {@link #greaterThanTimestamp(long)
+     * greaterThanTimestamp(dateTime.getTime())}.
+     * </p>
+     * <p>
+     * Only a single {@link #greaterThan(int) greaterThan(...)} comparison can
+     * be used. Calling multiple {@link #greaterThan(byte[]) greaterThan(...)}
+     * methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param dateTime
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     * @see #greaterThanTimestamp(long)
+     */
+    public ConditionBuilder after(final Date dateTime) {
+        return greaterThanTimestamp(dateTime.getTime());
     }
 
     /**
@@ -182,6 +206,29 @@ public class ConditionBuilder implements DocumentAssignable {
     @Override
     public Document asDocument() {
         return build();
+    }
+
+    /**
+     * Checks if the value is less than the specified <tt>dateTime</tt>.
+     * <p>
+     * This is equivalent to {@link #lessThanTimestamp(long)
+     * lessThanTimestamp(dateTime.getTime())}.
+     * </p>
+     * <p>
+     * Only a single {@link #lessThan(int) lessThan(...)} comparison can be
+     * used. Calling multiple {@link #lessThan(byte[]) lessThan(...)} methods
+     * overwrites previous values. In addition any {@link #equals(boolean)
+     * equals(...)} condition is removed since no equality operator is supported
+     * by MongoDB.
+     * </p>
+     * 
+     * @param dateTime
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     * @see #lessThanTimestamp(long)
+     */
+    public ConditionBuilder before(final Date dateTime) {
+        return lessThanTimestamp(dateTime.getTime());
     }
 
     /**
@@ -280,6 +327,29 @@ public class ConditionBuilder implements DocumentAssignable {
         myOtherComparisons.clear();
         myEqualsComparison = new BinaryElement(getFieldName(), value);
         return this;
+    }
+
+    /**
+     * Checks if the value equals the specified <tt>dateTime</tt>.
+     * <p>
+     * This is equivalent to {@link #equalsTimestamp(long)
+     * equalsTimestamp(dateTime.getTime())}.
+     * </p>
+     * <p>
+     * Only a single {@link #equals(boolean) equals(...)} comparison can be
+     * used. Calling multiple {@link #equals(byte[]) equals(...)} methods
+     * overwrites previous values. In addition <tt>equals(...)</tt> removes all
+     * other conditions from the builder since there is no equal operator
+     * supported by MongoDB.
+     * </p>
+     * 
+     * @param dateTime
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     * @see #equalsTimestamp(long)
+     */
+    public ConditionBuilder equals(final Date dateTime) {
+        return equalsTimestamp(dateTime.getTime());
     }
 
     /**
@@ -812,6 +882,29 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Checks if the value is greater than the specified <tt>dateTime</tt>.
+     * <p>
+     * This is equivalent to {@link #greaterThanTimestamp(long)
+     * greaterThanTimestamp(dateTime.getTime())}.
+     * </p>
+     * <p>
+     * Only a single {@link #greaterThan(int) greaterThan(...)} comparison can
+     * be used. Calling multiple {@link #greaterThan(byte[]) greaterThan(...)}
+     * methods overwrites previous values. In addition any
+     * {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param dateTime
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     * @see #greaterThanTimestamp(long)
+     */
+    public ConditionBuilder greaterThan(final Date dateTime) {
+        return greaterThanTimestamp(dateTime.getTime());
+    }
+
+    /**
      * Checks if the value is greater than the specified <tt>value</tt>.
      * <p>
      * Only a single {@link #greaterThan(int) greaterThan(...)} comparison can
@@ -985,6 +1078,31 @@ public class ConditionBuilder implements DocumentAssignable {
         myOtherComparisons.put(ComparisonOperator.GTE, new BinaryElement(
                 ComparisonOperator.GTE.getToken(), value));
         return this;
+    }
+
+    /**
+     * Checks if the value is greater than or equals the specified
+     * <tt>dateTime</tt>.
+     * <p>
+     * This is equivalent to {@link #greaterThanOrEqualToTimestamp(long)
+     * greaterThanOrEqualToTimestamp(dateTime.getTime())}.
+     * </p>
+     * <p>
+     * Only a single {@link #greaterThanOrEqualTo(int)
+     * greaterThanOrEqualTo(...)} comparison can be used. Calling multiple
+     * {@link #greaterThanOrEqualTo(byte[]) greaterThanOrEqualTo(...)} methods
+     * overwrites previous values. In addition any {@link #equals(boolean)
+     * equals(...)} condition is removed since no equality operator is supported
+     * by MongoDB.
+     * </p>
+     * 
+     * @param dateTime
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     * @see #greaterThanOrEqualToTimestamp(long)
+     */
+    public ConditionBuilder greaterThanOrEqualTo(final Date dateTime) {
+        return greaterThanOrEqualToTimestamp(dateTime.getTime());
     }
 
     /**
@@ -1389,6 +1507,29 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Checks if the value is less than the specified <tt>dateTime</tt>.
+     * <p>
+     * This is equivalent to {@link #lessThanTimestamp(long)
+     * lessThanTimestamp(dateTime.getTime())}.
+     * </p>
+     * <p>
+     * Only a single {@link #lessThan(int) lessThan(...)} comparison can be
+     * used. Calling multiple {@link #lessThan(byte[]) lessThan(...)} methods
+     * overwrites previous values. In addition any {@link #equals(boolean)
+     * equals(...)} condition is removed since no equality operator is supported
+     * by MongoDB.
+     * </p>
+     * 
+     * @param dateTime
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     * @see #lessThanTimestamp(long)
+     */
+    public ConditionBuilder lessThan(final Date dateTime) {
+        return lessThanTimestamp(dateTime.getTime());
+    }
+
+    /**
      * Checks if the value is less than the specified <tt>value</tt>.
      * <p>
      * Only a single {@link #lessThan(int) lessThan(...)} comparison can be
@@ -1560,6 +1701,31 @@ public class ConditionBuilder implements DocumentAssignable {
         myOtherComparisons.put(ComparisonOperator.LTE, new BinaryElement(
                 ComparisonOperator.LTE.getToken(), value));
         return this;
+    }
+
+    /**
+     * Checks if the value is less than or equals the specified
+     * <tt>dateTime</tt>.
+     * <p>
+     * This is equivalent to {@link #lessThanOrEqualToTimestamp(long)
+     * lessThanOrEqualToTimestamp(dateTime.getTime())}.
+     * </p>
+     * <p>
+     * Only a single {@link #lessThanOrEqualTo(int) lessThanOrEqualTo(...)}
+     * comparison can be used. Calling multiple
+     * {@link #lessThanOrEqualTo(byte[]) lessThanOrEqualTo(...)} methods
+     * overwrites previous values. In addition any {@link #equals(boolean)
+     * equals(...)} condition is removed since no equality operator is supported
+     * by MongoDB.
+     * </p>
+     * 
+     * @param dateTime
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     * @see #lessThanOrEqualToTimestamp(long)
+     */
+    public ConditionBuilder lessThanOrEqualTo(final Date dateTime) {
+        return lessThanOrEqualToTimestamp(dateTime.getTime());
     }
 
     /**
@@ -2583,6 +2749,29 @@ public class ConditionBuilder implements DocumentAssignable {
         myOtherComparisons.put(ComparisonOperator.NE, new BinaryElement(
                 ComparisonOperator.NE.getToken(), value));
         return this;
+    }
+
+    /**
+     * Checks if the value is not equal to the specified <tt>dateTime</tt>.
+     * <p>
+     * This is equivalent to {@link #notEqualToTimestamp(long)
+     * notEqualToTimestamp(dateTime.getTime())}.
+     * </p>
+     * <p>
+     * Only a single {@link #notEqualTo(boolean) notEqualTo(...)} comparison can
+     * be used. Calling multiple {@link #notEqualTo(byte[]) equals(...)} methods
+     * overwrites previous values. In addition any {@link #equals(boolean)
+     * equals(...)} condition is removed since no equality operator is supported
+     * by MongoDB.
+     * </p>
+     * 
+     * @param dateTime
+     *            The value to compare the field against.
+     * @return The condition builder for chaining method calls.
+     * @see #notEqualToTimestamp(long)
+     */
+    public ConditionBuilder notEqualTo(final Date dateTime) {
+        return notEqualToTimestamp(dateTime.getTime());
     }
 
     /**
