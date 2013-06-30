@@ -11,6 +11,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1436,9 +1437,11 @@ public class SocketConnectionTest {
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
-     * @throws ExecutionException
+     * @throws TimeoutException
      *             On a failure waiting for a reply.
      * @throws InterruptedException
+     *             On a failure waiting for a reply.
+     * @throws ExecutionException
      *             On a failure waiting for a reply.
      * @throws TimeoutException
      *             On a failure waiting for a reply.
@@ -1556,10 +1559,13 @@ public class SocketConnectionTest {
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
      *             On a failure to sleep.
+     * @throws TimeoutException
+     *             On a failure to sleep.
      */
     @SuppressWarnings("null")
     @Test
-    public void testReadGarbage() throws IOException, InterruptedException {
+    public void testReadGarbage() throws IOException, InterruptedException,
+            TimeoutException {
 
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -1594,14 +1600,26 @@ public class SocketConnectionTest {
         }
         assertNotNull("Did not find the receive thread", receive);
 
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
-        myTestConnection.send(error, null);
+        myTestConnection.send(error, future);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
         ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10));
         myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
+
+        try {
+            future.get(1, TimeUnit.MINUTES);
+            fail("Should have received a failure.");
+        }
+        catch (final ExecutionException ee) {
+            // Good.
+            assertThat(ee.getCause(), instanceOf(MongoDbException.class));
+            assertThat(ee.getCause().getCause(),
+                    instanceOf(StreamCorruptedException.class));
+        }
 
         // Pause for everything to cleanup.
         Thread.sleep(100);
@@ -1617,9 +1635,9 @@ public class SocketConnectionTest {
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
-     * @throws TimeoutException
-     *             On a failure waiting for a reply.
      * @throws InterruptedException
+     *             On a failure waiting for a reply.
+     * @throws TimeoutException
      *             On a failure waiting for a reply.
      */
     @Test
@@ -1777,10 +1795,12 @@ public class SocketConnectionTest {
      *             On a failure waiting for a reply.
      * @throws InterruptedException
      *             On a failure waiting for a reply.
+     * @throws ExecutionException
+     *             On a failure waiting for a reply.
      */
     @Test
     public void testReadQuery() throws IOException, InterruptedException,
-            TimeoutException {
+            TimeoutException, ExecutionException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1812,11 +1832,9 @@ public class SocketConnectionTest {
             future.get(1, TimeUnit.SECONDS);
             fail("Should have timedout waiting for a reply.");
         }
-        catch (final ExecutionException te) {
+        catch (final TimeoutException te) {
             // Good.
-            assertThat(te.getCause(), instanceOf(MongoDbException.class));
-            assertThat(te.getCause().getCause(),
-                    instanceOf(StreamCorruptedException.class));
+            assertThat(te.getCause(), nullValue());
         }
     }
 

@@ -147,7 +147,8 @@ public class ShardedConnectionFactoryTest {
                 .getServers();
         assertEquals(1, servers.size());
 
-        assertEquals(1, ourServer.getRequests().size());
+        assertEquals(3, ourServer.getRequests().size()); // For sweep + request
+                                                         // + ping.
     }
 
     /**
@@ -322,6 +323,9 @@ public class ShardedConnectionFactoryTest {
         expectLastCall().andThrow(new MongoDbException("This is a test"))
                 .times(2);
 
+        mockConnection.shutdown();
+        expectLastCall();
+
         mockConnection.close();
         expectLastCall();
 
@@ -384,6 +388,9 @@ public class ShardedConnectionFactoryTest {
         mockConnection.send(anyObject(IsMaster.class), cb());
         expectLastCall().andThrow(new MongoDbException("This is a test"))
                 .times(2);
+
+        mockConnection.shutdown();
+        expectLastCall();
 
         mockConnection.close();
         expectLastCall();

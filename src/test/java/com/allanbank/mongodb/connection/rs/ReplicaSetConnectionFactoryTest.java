@@ -411,6 +411,9 @@ public class ReplicaSetConnectionFactoryTest {
         expectLastCall().andThrow(new MongoDbException("This is a test"))
                 .times(2);
 
+        mockConnection.shutdown();
+        expectLastCall();
+
         mockConnection.close();
         expectLastCall();
 
@@ -473,6 +476,9 @@ public class ReplicaSetConnectionFactoryTest {
         mockConnection.send(anyObject(IsMaster.class), cb());
         expectLastCall().andThrow(new MongoDbException("This is a test"))
                 .times(2);
+
+        mockConnection.shutdown();
+        expectLastCall();
 
         mockConnection.close();
         expectLastCall();

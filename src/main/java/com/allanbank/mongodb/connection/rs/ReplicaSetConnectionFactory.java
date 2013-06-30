@@ -86,65 +86,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      * Finds the primary member of the replica set.
      */
     public void bootstrap() {
-        for (final InetSocketAddress addr : myConfig.getServerAddresses()) {
-            Connection conn = null;
-            final FutureCallback<Reply> future = new FutureCallback<Reply>();
-            try {
-                conn = myConnectionFactory.connect(new ServerState(addr),
-                        myConfig);
-                conn.send(new IsMaster(), future);
-                final Reply reply = future.get();
-                final List<Document> results = reply.getResults();
-                if (!results.isEmpty()) {
-                    final Document doc = results.get(0);
-
-                    // Replica Sets MUST connect to the primary server.
-                    // See if we can add the other servers also.
-                    if (myConfig.isAutoDiscoverServers()) {
-                        // Pull them all in.
-                        final List<StringElement> hosts = doc.find(
-                                StringElement.class, "hosts", ".*");
-                        for (final StringElement host : hosts) {
-                            myClusterState.add(host.getValue());
-                        }
-                    }
-
-                    // Add and mark the primary as writable.
-                    for (final StringElement primary : doc.find(
-                            StringElement.class, "primary")) {
-
-                        myClusterState.markWritable(myClusterState.get(primary
-                                .getValue()));
-
-                        break;
-                    }
-                }
-            }
-            catch (final IOException ioe) {
-                LOG.log(Level.WARNING,
-                        "I/O error during replica-set bootstrap to " + addr
-                                + ".", ioe);
-            }
-            catch (final MongoDbException me) {
-                LOG.log(Level.WARNING,
-                        "MongoDB error during replica-set bootstrap to " + addr
-                                + ".", me);
-            }
-            catch (final InterruptedException e) {
-                LOG.log(Level.WARNING,
-                        "Interrupted during replica-set bootstrap to " + addr
-                                + ".", e);
-            }
-            catch (final ExecutionException e) {
-                LOG.log(Level.WARNING, "Error during replica-set bootstrap to "
-                        + addr + ".", e);
-            }
-            finally {
-                IOUtils.close(conn, Level.WARNING,
-                        "I/O error shutting down replica-set bootstrap connection to "
-                                + addr + ".");
-            }
-        }
+        locatePrimary();
 
         // Last thing is to start the ping of servers. This will get the tags
         // and latencies updated.
@@ -173,18 +115,38 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      */
     @Override
     public Connection connect() throws IOException {
-
         IOException lastError = null;
-        for (final ServerState primary : myClusterState.getWritableServers()) {
-            try {
-                final Connection primaryConn = myConnectionFactory.connect(
-                        primary, myConfig);
 
-                return new ReplicaSetConnection(primaryConn, primary,
-                        myClusterState, myConnectionFactory, myConfig);
-            }
-            catch (final IOException e) {
-                lastError = e;
+        for (int i = 0; i < 10; ++i) {
+            servers: for (final ServerState primary : myClusterState
+                    .getWritableServers()) {
+                Connection primaryConn = null;
+                try {
+                    primaryConn = myConnectionFactory
+                            .connect(primary, myConfig);
+
+                    if (isWritable(primaryConn)) {
+
+                        final ReplicaSetConnection rsConnection = new ReplicaSetConnection(
+                                primaryConn, primary, myClusterState,
+                                myConnectionFactory, myConfig);
+
+                        primaryConn = null;
+
+                        return rsConnection;
+                    }
+
+                    // Update the stale state.
+                    locatePrimary();
+
+                    break servers;
+                }
+                catch (final IOException e) {
+                    lastError = e;
+                }
+                finally {
+                    IOUtils.close(primaryConn);
+                }
             }
         }
 
@@ -233,5 +195,116 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      */
     protected ClusterState getClusterState() {
         return myClusterState;
+    }
+
+    /**
+     * Determines if the connection is to the primary member of the cluster.
+     * 
+     * @param connection
+     *            The connection to test.
+     * @return True if the connection is to the primary member of the
+     *         cluster/replica set.
+     */
+    protected boolean isWritable(final Connection connection) {
+
+        try {
+            final FutureCallback<Reply> replyCallback = new FutureCallback<Reply>();
+            connection.send(new IsMaster(), replyCallback);
+
+            final Reply reply = replyCallback.get();
+            final List<Document> results = reply.getResults();
+            if (!results.isEmpty()) {
+                final Document doc = results.get(0);
+
+                // Get the name of the primary server.
+                final StringElement primary = doc.get(StringElement.class,
+                        "primary");
+                if (primary != null) {
+                    System.out.println("primary: " + primary.getValue()
+                            + ", conn: " + connection.getServerName());
+                    return (primary.getValue().equals(connection
+                            .getServerName()));
+                }
+            }
+        }
+        catch (final InterruptedException e) {
+            // Just ignore the reply.
+        }
+        catch (final ExecutionException e) {
+            // Just ignore the reply.
+        }
+        return false;
+    }
+
+    /**
+     * Locates the primary server in the cluster.
+     */
+    protected void locatePrimary() {
+        for (final InetSocketAddress addr : myConfig.getServerAddresses()) {
+            Connection conn = null;
+            final FutureCallback<Reply> future = new FutureCallback<Reply>();
+            try {
+                conn = myConnectionFactory.connect(new ServerState(addr),
+                        myConfig);
+
+                conn.send(new IsMaster(), future);
+
+                final Reply reply = future.get();
+                final List<Document> results = reply.getResults();
+                if (!results.isEmpty()) {
+                    final Document doc = results.get(0);
+
+                    // Replica Sets MUST connect to the primary server.
+                    // See if we can add the other servers also.
+                    if (myConfig.isAutoDiscoverServers()) {
+                        // Pull them all in.
+                        final List<StringElement> hosts = doc.find(
+                                StringElement.class, "hosts", ".*");
+                        for (final StringElement host : hosts) {
+                            myClusterState.add(host.getValue());
+                        }
+                    }
+
+                    // Add and mark the primary as writable.
+                    for (final StringElement primary : doc.find(
+                            StringElement.class, "primary")) {
+
+                        // There can only be 1 writable server.
+                        for (final ServerState other : myClusterState
+                                .getWritableServers()) {
+                            myClusterState.markNotWritable(other);
+                        }
+                        myClusterState.markWritable(myClusterState.get(primary
+                                .getValue()));
+
+                        break;
+                    }
+                }
+            }
+            catch (final IOException ioe) {
+                LOG.log(Level.WARNING,
+                        "I/O error during replica-set bootstrap to " + addr
+                                + ".", ioe);
+            }
+            catch (final MongoDbException me) {
+                LOG.log(Level.WARNING,
+                        "MongoDB error during replica-set bootstrap to " + addr
+                                + ".", me);
+            }
+            catch (final InterruptedException e) {
+                LOG.log(Level.WARNING,
+                        "Interrupted during replica-set bootstrap to " + addr
+                                + ".", e);
+            }
+            catch (final ExecutionException e) {
+                LOG.log(Level.WARNING, "Error during replica-set bootstrap to "
+                        + addr + ".", e);
+            }
+            finally {
+                IOUtils.close(conn, Level.WARNING,
+                        "I/O error shutting down replica-set bootstrap connection to "
+                                + addr + ".");
+            }
+        }
     }
 }

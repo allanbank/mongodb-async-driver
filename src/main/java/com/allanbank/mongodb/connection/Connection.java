@@ -41,6 +41,13 @@ public interface Connection extends Closeable, Flushable {
     public void addPropertyChangeListener(PropertyChangeListener listener);
 
     /**
+     * Returns the number of messages sent by the connection.
+     * 
+     * @return The number of messages sent by the connection.
+     */
+    public long getMessagesSent();
+
+    /**
      * Returns the number of messages that are pending responses from the
      * server.
      * 
@@ -49,11 +56,28 @@ public interface Connection extends Closeable, Flushable {
     public int getPendingCount();
 
     /**
+     * Returns the number of messages received by the connection.
+     * 
+     * @return The number of messages received by the connection.
+     */
+    public long getRepliesReceived();
+
+    /**
      * Returns the name of a server the connection is currently connected to.
      * 
      * @return The name of a server the connection is currently connected to.
      */
     public String getServerName();
+
+    /**
+     * Returns the total amount of time messages waited for a reply from the
+     * server in nanoseconds. The average latency is approximately
+     * {@link #getTotalLatencyNanoSeconds()}/{@link #getRepliesReceived()}.
+     * 
+     * @return The total amount of time messages waited for a reply from the
+     *         server in nanoseconds.
+     */
+    public long getTotalLatencyNanoSeconds();
 
     /**
      * Determines if the connection is idle.
@@ -71,8 +95,17 @@ public interface Connection extends Closeable, Flushable {
     public boolean isOpen();
 
     /**
-     * Notifies the call backs for the pending messages that there has been an
-     * external, unrecoverable error.
+     * Returns true if the connection is being gracefully closed, false
+     * otherwise.
+     * 
+     * @return True if the connection is being gracefully closed, false
+     *         otherwise.
+     */
+    public boolean isShuttingDown();
+
+    /**
+     * Notifies the call backs for the pending and optionally the to be sent
+     * messages that there has been an external, unrecoverable error.
      * 
      * @param exception
      *            The error condition.

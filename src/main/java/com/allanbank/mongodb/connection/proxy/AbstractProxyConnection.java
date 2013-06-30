@@ -105,6 +105,17 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
+    public long getMessagesSent() {
+        return myProxiedConnection.getMessagesSent();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the proxied {@link Connection}.
+     * </p>
+     */
+    @Override
     public int getPendingCount() {
         try {
             return myProxiedConnection.getPendingCount();
@@ -118,12 +129,34 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
+     * Forwards the call to the proxied {@link Connection}.
+     * </p>
+     */
+    @Override
+    public long getRepliesReceived() {
+        return myProxiedConnection.getRepliesReceived();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to forward the call to the proxied connection.
      * </p>
      */
     @Override
     public String getServerName() {
         return getProxiedConnection().getServerName();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the proxied {@link Connection}.
+     * </p>
+     */
+    @Override
+    public long getTotalLatencyNanoSeconds() {
+        return myProxiedConnection.getTotalLatencyNanoSeconds();
     }
 
     /**
@@ -158,6 +191,17 @@ public abstract class AbstractProxyConnection implements Connection {
             onExceptin(error);
             throw error;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the proxied {@link Connection}.
+     * </p>
+     */
+    @Override
+    public boolean isShuttingDown() {
+        return myProxiedConnection.isShuttingDown();
     }
 
     /**

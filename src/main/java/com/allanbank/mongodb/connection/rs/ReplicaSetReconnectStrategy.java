@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -112,7 +113,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
 
                     // Anyone replied yet?
                     final ReplicaSetConnection newConn = checkForReply(
-                            oldConnection, answers, connections);
+                            oldConnection, answers, connections, deadline);
                     if (newConn != null) {
                         return newConn;
                     }
@@ -128,7 +129,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
 
                 // Check again for replies before trying to reconnect.
                 final ReplicaSetConnection newConn = checkForReply(
-                        oldConnection, answers, connections);
+                        oldConnection, answers, connections, deadline);
                 if (newConn != null) {
                     return newConn;
                 }
@@ -156,13 +157,16 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      *            The pending ({@link Future}) answers from each server.
      * @param connections
      *            The connection to each server.
+     * @param deadline
+     *            The deadline for the reconnect attempt.
      * @return The new connection if there was a reply and that server confirmed
      *         it was the primary.
      */
     protected ReplicaSetConnection checkForReply(
             final Connection oldConnection,
             final Map<InetSocketAddress, Future<Reply>> answers,
-            final Map<InetSocketAddress, Connection> connections) {
+            final Map<InetSocketAddress, Connection> connections,
+            final long deadline) {
         final Map<InetSocketAddress, Future<Reply>> copy = new HashMap<InetSocketAddress, Future<Reply>>(
                 answers);
         for (final Map.Entry<InetSocketAddress, Future<Reply>> entry : copy
@@ -177,11 +181,12 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
 
                 // Check the result.
                 final String putativePrimary = checkReply(reply, connections,
-                        addr);
+                        addr, deadline);
 
                 // Phase2 - Verify the putative server.
                 if ((putativePrimary != null)
-                        && verifyPutative(answers, connections, putativePrimary)) {
+                        && verifyPutative(answers, connections,
+                                putativePrimary, deadline)) {
 
                     // Phase 3 - Setup a new replica set connection to the
                     // primary and seed it with a secondary if there is a
@@ -223,15 +228,20 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      *            error.
      * @param addr
      *            The address of the server.
+     * @param deadline
+     *            The deadline for the reconnect attempt.
      * @return The name of the server the reply indicates is the primary, null
      *         if there is no primary or any error.
      */
     protected String checkReply(final Future<Reply> replyFuture,
             final Map<InetSocketAddress, Connection> connections,
-            final InetSocketAddress addr) {
+            final InetSocketAddress addr, final long deadline) {
         if (replyFuture != null) {
             try {
-                final Reply reply = replyFuture.get();
+                final Reply reply = replyFuture.get(
+                        Math.max(0, deadline - System.currentTimeMillis()),
+                        TimeUnit.MILLISECONDS);
+
                 final List<Document> results = reply.getResults();
                 if (!results.isEmpty()) {
                     final Document doc = results.get(0);
@@ -245,6 +255,11 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
             }
             catch (final InterruptedException e) {
                 // Just ignore the reply.
+            }
+            catch (final TimeoutException e) {
+                // Kill the associated connection.
+                final Connection conn = connections.remove(addr);
+                IOUtils.close(conn);
             }
             catch (final ExecutionException e) {
                 // Kill the associated connection.
@@ -334,12 +349,14 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      *            The connection to each server.
      * @param putativePrimary
      *            The server we think is the primary.
+     * @param deadline
+     *            The deadline for the reconnect attempt.
      * @return True if the server concurs that it is the primary.
      */
     protected boolean verifyPutative(
             final Map<InetSocketAddress, Future<Reply>> answers,
             final Map<InetSocketAddress, Connection> connections,
-            final String putativePrimary) {
+            final String putativePrimary, final long deadline) {
 
         LOG.fine("Verify putative server (" + putativePrimary
                 + ") on reconnect(rs).");
@@ -355,7 +372,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
         final Future<Reply> reply = sendIsPrimary(answers, connections, server,
                 true);
         final String primary = checkReply(reply, connections,
-                server.getServer());
+                server.getServer(), deadline);
         if (putativePrimary.equals(primary)) {
             LOG.info("New primary for replica set: " + putativePrimary);
             return true;

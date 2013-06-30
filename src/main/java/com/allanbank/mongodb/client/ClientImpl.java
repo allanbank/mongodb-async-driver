@@ -341,10 +341,19 @@ public class ClientImpl extends AbstractClient {
     protected void handleConnectionClosed(final Connection connection) {
         // Look for the connection in the "active" set first.
         if (myConnections.contains(connection)) {
-            // Attempt a reconnect.
-            LOG.info("Unexpected MongoDB Connection closed: " + connection
-                    + ". Will try to reconnect.");
-            reconnect(connection);
+            // Is it a graceful shutdown?
+            if (connection.isShuttingDown()) {
+                LOG.info("MongoDB Connection closed: " + connection);
+                connection.removePropertyChangeListener(myConnectionListener);
+                connection.raiseErrors(new ConnectionLostException(
+                        "Connection shutdown."));
+            }
+            else {
+                // Attempt a reconnect.
+                LOG.info("Unexpected MongoDB Connection closed: " + connection
+                        + ". Will try to reconnect.");
+                reconnect(connection);
+            }
         }
         else if (myConnectionsToClose.remove(connection)) {
             LOG.fine("MongoDB Connection closed: " + connection);
@@ -483,10 +492,13 @@ public class ClientImpl extends AbstractClient {
             final int toScan = Math.min(myConnections.size(),
                     MAX_CONNECTION_SCAN);
             for (int loop = 0; loop < toScan; ++loop) {
+
+                // * Cast to a long to make sure the Math.abs() works for
+                // Integer.MIN_VALUE
+                // * Only get() here to try and reuse idle connections.
+                final long connSequence = myNextConnectionSequence.get();
+                final long sequence = Math.abs(connSequence);
                 final int size = myConnections.size();
-                final long sequence = Math.abs((long) myNextConnectionSequence
-                        .getAndIncrement()); // Cast up to long to make sure abs
-                                             // works.
                 final int index = (int) (sequence % size);
 
                 try {
@@ -500,6 +512,10 @@ public class ClientImpl extends AbstractClient {
                     // Next loop should fix.
                     aiob.getCause(); // Shhh - PMD.
                 }
+
+                // Increment for the next loop since the last connection was not
+                // idle.
+                myNextConnectionSequence.incrementAndGet();
             }
         }
 

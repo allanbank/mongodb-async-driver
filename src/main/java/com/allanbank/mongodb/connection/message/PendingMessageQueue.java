@@ -225,8 +225,36 @@ public final class PendingMessageQueue {
     }
 
     /**
-     * Puts a message onto the queue. This method will block waiting for a space
-     * to add the message.
+     * Puts a message onto the queue. This method will not block waiting for a
+     * space to add the message.
+     * 
+     * @param message
+     *            The message to add.
+     * @param replyCallback
+     *            The callback for the message to add.
+     * @return True if the message was added, false otherwise.
+     */
+    public boolean offer(final Message message,
+            final Callback<Reply> replyCallback) {
+
+        final int loop = myLooped.get();
+        final int reserve = offer();
+        if (reserve < 0) {
+            return false;
+        }
+
+        final int messageid = toMessageId(loop, reserve);
+
+        myQueue[reserve].set(messageid, message, replyCallback);
+
+        markReady(reserve);
+
+        return true;
+    }
+
+    /**
+     * Puts a message onto the queue. This method will not block waiting for a
+     * space to add the message.
      * 
      * @param pendingMessage
      *            The message to add.

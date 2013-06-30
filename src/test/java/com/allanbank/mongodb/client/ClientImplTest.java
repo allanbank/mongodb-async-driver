@@ -67,6 +67,7 @@ import com.allanbank.mongodb.connection.state.ServerSelector;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
 import com.allanbank.mongodb.error.CannotConnectException;
+import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.error.MongoClientClosedException;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
@@ -750,12 +751,11 @@ public class ClientImplTest {
         });
         strategy.setConnectionFactory(myMockConnectionFactory);
 
+        expect(mockConnection.isShuttingDown()).andReturn(false);
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 strategy);
 
         // Create a new connection for the reconnect.
-        mockConnection.raiseErrors(anyObject(MongoDbException.class));
-        expectLastCall();
         expect(
                 myMockConnectionFactory.connect(anyObject(ServerState.class),
                         eq(myConfig))).andReturn(mockConnection2);
@@ -800,6 +800,48 @@ public class ClientImplTest {
      *             On a failure to pause in the test.
      */
     @Test
+    public void testReconnectOnShutdownConnection() throws IOException,
+            InterruptedException {
+        final Message message = new Command("db", BuilderFactory.start()
+                .build());
+
+        myConfig.setMaxConnectionCount(1);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ReconnectStrategy mockStrategy = createMock(ReconnectStrategy.class);
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        expect(mockConnection.send(message, null)).andReturn(
+                ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
+
+        // Reconnect.
+        expect(mockConnection.isShuttingDown()).andReturn(true);
+        mockConnection
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
+        mockConnection.raiseErrors(anyObject(MongoDbException.class));
+        expectLastCall();
+
+        replay(mockConnection, mockStrategy);
+
+        myTestInstance.send(message, null);
+        myTestInstance.handleConnectionClosed(mockConnection);
+
+        verify(mockConnection, mockStrategy);
+    }
+
+    /**
+     * Test method for {@link ClientImpl#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the test.
+     * @throws InterruptedException
+     *             On a failure to pause in the test.
+     */
+    @Test
     public void testReconnectThatFails() throws IOException,
             InterruptedException {
         final Message message = new Command("db", BuilderFactory.start()
@@ -818,8 +860,7 @@ public class ClientImplTest {
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
         // Reconnect.
-        mockConnection.raiseErrors(anyObject(MongoDbException.class));
-        expectLastCall();
+        expect(mockConnection.isShuttingDown()).andReturn(false);
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 mockStrategy);
         expect(mockStrategy.reconnect(mockConnection)).andReturn(null);
@@ -1682,8 +1723,7 @@ public class ClientImplTest {
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
         // Reconnect.
-        mockConnection.raiseErrors(anyObject(MongoDbException.class));
-        expectLastCall();
+        expect(mockConnection.isShuttingDown()).andReturn(false);
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 pauseStrategy);
         mockConnection
@@ -1692,6 +1732,10 @@ public class ClientImplTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
+        mockConnection.raiseErrors(anyObject(ConnectionLostException.class));
+        expectLastCall();
+
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
 
         // Second message.
         expect(mockConnection.isOpen()).andReturn(false).times(2);
@@ -1767,11 +1811,14 @@ public class ClientImplTest {
         // Reconnect.
         mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
+        expect(mockConnection.isShuttingDown()).andReturn(false);
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 pauseStrategy);
+        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
 
         // Second message.
         expect(mockConnection.isOpen()).andReturn(false).times(2);
+
         // Wait for the reconnect.
 
         // After reconnect.

@@ -244,6 +244,7 @@ public class ReplicaSetReconnectStrategyTest {
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer1.getInetSocketAddress());
+        config.setReconnectTimeout(1000);
         config.setAutoDiscoverServers(true);
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
@@ -255,9 +256,10 @@ public class ReplicaSetReconnectStrategyTest {
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
                 .getServer());
+        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
 
         // Bootstrapped! Yay.
-        // Setup for server2 to take over.
+        // Setup for no one to be the new primary.
 
         ourServer1.clear();
         ourServer2.clear();
@@ -281,16 +283,17 @@ public class ReplicaSetReconnectStrategyTest {
                 .addString(serverName3);
 
         // Note sure who will get asked first... server2 should be asked twice.
-        ourServer1.setReplies(reply(replStatusBuilder), reply(replyUnknown),
-                reply(replyUnknown), reply(replyUnknown));
+        ourServer1.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder));
         ourServer2.setReplies(reply(replyUnknown), reply(replyUnknown),
                 reply(replyUnknown), reply(replyUnknown), reply(replyUnknown),
                 reply(replyUnknown));
-        ourServer3.setReplies(reply(replStatusBuilder), reply(replyUnknown),
-                reply(reply2), reply(reply2), reply(reply2), reply(reply2),
-                reply(reply2));
+        ourServer3.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder));
 
-        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
         final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
                 .getReconnectStrategy();
 

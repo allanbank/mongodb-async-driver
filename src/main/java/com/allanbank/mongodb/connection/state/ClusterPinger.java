@@ -164,8 +164,10 @@ public class ClusterPinger implements Runnable, Closeable {
             Connection conn = null;
             try {
                 // Does the server state have a connection we can use?
+                boolean borrowed = true;
                 conn = server.takeConnection();
                 if (conn == null) {
+                    borrowed = false;
                     conn = myConnectionFactory.connect(server, myConfig);
                 }
 
@@ -175,8 +177,8 @@ public class ClusterPinger implements Runnable, Closeable {
                         server.getServer(), conn, server);
                 replies.add(reply);
 
-                // Give the connection to the server state for reuse.
-                if (server.addConnection(conn)) {
+                // Give the connection back to the server state for reuse.
+                if (borrowed && server.addConnection(conn)) {
                     conn = null;
                 }
             }
@@ -263,12 +265,11 @@ public class ClusterPinger implements Runnable, Closeable {
                                 conn, server);
 
                         // Give the connection to the server state for reuse.
-                        long lastGeneration = 0;
-                        ServerState lastServer = null;
-                        if (server.addConnection(conn)) {
+                        final long lastSentCount = conn.getMessagesSent();
+                        if (!server.addConnection(conn)) {
+                            // Could not give back. Shut it down.
+                            conn.shutdown();
                             conn = null;
-                            lastGeneration = server.getConnectionGeneration();
-                            lastServer = server;
                         }
 
                         // Sleep a little between the servers.
@@ -278,13 +279,12 @@ public class ClusterPinger implements Runnable, Closeable {
                         // If the last connection has not been used by the state
                         // then it is likely idle and we should cleanup.
                         // Note we just slept for a while.
-                        if ((lastServer != null)
-                                && (lastGeneration == lastServer
-                                        .getConnectionGeneration())) {
-                            final Connection lastConn = lastServer
-                                    .takeConnection();
-                            if (lastConn != null) {
-                                lastConn.shutdown();
+                        if (conn != null) {
+                            if (lastSentCount == conn.getMessagesSent()) {
+                                server.removeConnection(conn);
+                            }
+                            else {
+                                conn = null;
                             }
                         }
                     }

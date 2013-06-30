@@ -58,14 +58,6 @@ public class ServerState {
      */
     private final AtomicReference<Connection> myConnection;
 
-    /**
-     * A generation value for the connection currently being held. This is
-     * incremented whenever a connection is set. This allows the
-     * {@link ClusterPinger} to test if the connections it is creating are
-     * getting used.
-     */
-    private final AtomicLong myConnectionGeneration;
-
     /** The normalized name of the server being tracked. */
     private final String myName;
 
@@ -101,7 +93,6 @@ public class ServerState {
                 Double.doubleToLongBits(Double.MAX_VALUE));
         myTags = new AtomicReference<Document>(null);
         myConnection = new AtomicReference<Connection>(null);
-        myConnectionGeneration = new AtomicLong(0);
     }
 
     /**
@@ -118,11 +109,7 @@ public class ServerState {
      *         otherwise.
      */
     public boolean addConnection(final Connection connection) {
-        final boolean result = myConnection.compareAndSet(null, connection);
-        if (result) {
-            myConnectionGeneration.incrementAndGet();
-        }
-        return result;
+        return myConnection.compareAndSet(null, connection);
     }
 
     /**
@@ -135,18 +122,6 @@ public class ServerState {
      */
     public double getAverageLatency() {
         return Double.longBitsToDouble(myAverageLatency.get());
-    }
-
-    /**
-     * Returns a generation value for the connection currently being held. This
-     * is incremented whenever a connection is set. This allows the
-     * {@link ClusterPinger} to test if the connections it is creating are
-     * getting used.
-     * 
-     * @return The generation value for the connection currently being held.
-     */
-    public long getConnectionGeneration() {
-        return myConnectionGeneration.get();
     }
 
     /**
@@ -203,6 +178,16 @@ public class ServerState {
      */
     public boolean isWritable() {
         return myWritable.get();
+    }
+
+    /**
+     * Removes the shared connection.
+     * 
+     * @param conn
+     *            The shared connection to remove.
+     */
+    public void removeConnection(final Connection conn) {
+        myConnection.compareAndSet(conn, null);
     }
 
     /**

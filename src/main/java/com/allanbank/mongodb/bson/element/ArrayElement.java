@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -190,7 +189,7 @@ public class ArrayElement extends AbstractElement {
      * the right type.
      * </p>
      * 
-     * @see Element#queryPath
+     * @see Element#find
      */
     @Override
     public <E extends Element> List<E> find(final Class<E> clazz,
@@ -234,7 +233,7 @@ public class ArrayElement extends AbstractElement {
      * the right type.
      * </p>
      * 
-     * @see Document#queryPath
+     * @see Element#findFirst
      */
     @Override
     public <E extends Element> E findFirst(final Class<E> clazz,
