@@ -205,6 +205,36 @@ public class JsonParserTest {
     }
 
     /**
+     * Test parsing a integer value too big for an IntegerElement.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseBigLong() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        final Object doc = parser.parse("{ a : 12345678901 }");
+        assertEquals(BuilderFactory.start().add("a", 12345678901L).build(), doc);
+    }
+
+    /**
+     * Test parsing a integer value too big for an IntegerElement in an array.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseBigLongInArray() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        final Object doc = parser.parse("{ a : [ 12345678901 ]}");
+        final DocumentBuilder b = BuilderFactory.start();
+        b.pushArray("a").add(12345678901L);
+        assertEquals(b.build(), doc);
+    }
+
+    /**
      * Test Parsing a BinData(..) element.
      * 
      * @throws ParseException
@@ -297,9 +327,63 @@ public class JsonParserTest {
      *             On a test failure.
      */
     @Test
+    public void testParseBinDataStrictHexType() throws ParseException,
+            IllegalArgumentException, UnsupportedEncodingException {
+        final String docText = "{ a : { $binary : 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==', $type : '0x05' } }";
+
+        final JsonParser parser = new JsonParser();
+        final Object doc = parser.parse(docText);
+
+        assertEquals(
+                BuilderFactory
+                        .start()
+                        .addBinary(
+                                "a",
+                                (byte) 5,
+                                "The quick brown fox jumped over the lazy dogs."
+                                        .getBytes("US-ASCII")).build(), doc);
+    }
+
+    /**
+     * Test Parsing a BinData(..) element.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     * @throws UnsupportedEncodingException
+     *             On a test failure.
+     * @throws IllegalArgumentException
+     *             On a test failure.
+     */
+    @Test
     public void testParseBinDataStrictInArray() throws ParseException,
             IllegalArgumentException, UnsupportedEncodingException {
         final String docText = "{ a : [ { $binary : 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==', $type : 5 }] }";
+
+        final JsonParser parser = new JsonParser();
+        final Object doc = parser.parse(docText);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.pushArray("a").addBinary(
+                (byte) 5,
+                "The quick brown fox jumped over the lazy dogs."
+                        .getBytes("US-ASCII"));
+        assertEquals(b.build(), doc);
+    }
+
+    /**
+     * Test Parsing a BinData(..) element.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     * @throws UnsupportedEncodingException
+     *             On a test failure.
+     * @throws IllegalArgumentException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseBinDataStrictInArrayHexType() throws ParseException,
+            IllegalArgumentException, UnsupportedEncodingException {
+        final String docText = "{ a : [ { $binary : 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==', $type : '05' }] }";
 
         final JsonParser parser = new JsonParser();
         final Object doc = parser.parse(docText);
@@ -741,6 +825,37 @@ public class JsonParserTest {
 
         final Object doc = parser.parse("{ a : { $minKey:1} }");
         assertEquals(BuilderFactory.start().addMinKey("a").build(), doc);
+    }
+
+    /**
+     * Test parsing a integer value too small for an IntegerElement.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseNegativeLong() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        final Object doc = parser.parse("{ a : -12345678901 }");
+        assertEquals(BuilderFactory.start().add("a", -12345678901L).build(),
+                doc);
+    }
+
+    /**
+     * Test parsing a integer value too small for an IntegerElement in an array.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseNegativeLongInArray() throws ParseException {
+        final JsonParser parser = new JsonParser();
+
+        final Object doc = parser.parse("{ a : [ -12345678901 ]}");
+        final DocumentBuilder b = BuilderFactory.start();
+        b.pushArray("a").add(-12345678901L);
+        assertEquals(b.build(), doc);
     }
 
     /**

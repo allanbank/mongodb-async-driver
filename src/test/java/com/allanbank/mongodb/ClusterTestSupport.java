@@ -144,7 +144,7 @@ public class ClusterTestSupport {
             // If we tried to turn on text search in 2.3 it will fail...
             if (origArgs != augmentedArgs) {
                 if (supports == null) {
-                    sleep(100);
+                    sleep(1000);
                     if (mp.getOutput().contains("error command line")) {
                         ourSupportsText = Boolean.FALSE;
 

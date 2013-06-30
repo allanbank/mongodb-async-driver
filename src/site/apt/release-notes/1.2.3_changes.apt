@@ -1,0 +1,38 @@
+            ------
+            Changes in MongoDB Asynchronous Java Driver 1.2.2
+            ------
+            ------
+            2013-06-09
+
+Upgrading
+
+  This version is binary compatible with the 1.2.2 version of the driver.  
+    
+Updates and Improvements:
+
+* Bug Fixes
+
+  * Update JSON parsing to detect if a parsed integer value is to big for an int and upcast to a long.
+
+  * Update the JSON parser to support a string for the binary element's type (interpreted as a hexidecimal 
+    representation of a single byte).
+
+* Enhancements
+  
+  * Updates to the {{{../apidocs/index.html?com/allanbank/mongodb/gridfs/GridFs.html}GridFs}} class:
+    
+    * Perform more rigorous validation when reading files.
+    
+    * Added a '''createIndex()''' method that users may use to create the recommended Grid FS indexes.
+    
+      * ''Note:'' If using a sharded environment then the appropriate indexes must be created for the proper 
+        retreival of files.  See MongoDB issue {{{https://jira.mongodb.org/browse/SERVER-7694}SERVER-7694}} for the
+        underlying cause of the iterator not functioning correctly in the absense of an index.    
+  
+    * Added a '''validate(...)''' method to check a file using the 
+      {{{http://docs.mongodb.org/manual/reference/command/filemd5/}filemd5}} command.
+
+    * Added '''fsck(boolean)''' operation to validate all of the files and optionally try and repair files by 
+      reordering chunks with inconsistent numbering.
+    
+    

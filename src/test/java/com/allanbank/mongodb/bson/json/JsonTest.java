@@ -152,6 +152,32 @@ public class JsonTest {
     }
 
     /**
+     * Test parsing a integer value too big for an IntegerElement.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseBigLong() throws ParseException {
+        final Object doc = Json.parse("{ a : 12345678901 }");
+        assertEquals(BuilderFactory.start().add("a", 12345678901L).build(), doc);
+    }
+
+    /**
+     * Test parsing a integer value too big for an IntegerElement in an array.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseBigLongInArray() throws ParseException {
+        final Object doc = Json.parse("{ a : [ 12345678901 ]}");
+        final DocumentBuilder b = BuilderFactory.start();
+        b.pushArray("a").add(12345678901L);
+        assertEquals(b.build(), doc);
+    }
+
+    /**
      * Test Parsing a BinData(..) element.
      * 
      * @throws UnsupportedEncodingException
@@ -430,6 +456,33 @@ public class JsonTest {
         final Object doc = Json.parse("{ a :[ MinKey() ]}");
         final DocumentBuilder b = BuilderFactory.start();
         b.pushArray("a").addMinKey();
+        assertEquals(b.build(), doc);
+    }
+
+    /**
+     * Test parsing a integer value too small for an IntegerElement.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseNegativeLong() throws ParseException {
+        final Object doc = Json.parse("{ a : -12345678901 }");
+        assertEquals(BuilderFactory.start().add("a", -12345678901L).build(),
+                doc);
+    }
+
+    /**
+     * Test parsing a integer value too small for an IntegerElement in an array.
+     * 
+     * @throws ParseException
+     *             On a test failure.
+     */
+    @Test
+    public void testParseNegativeLongInArray() throws ParseException {
+        final Object doc = Json.parse("{ a : [ -12345678901 ]}");
+        final DocumentBuilder b = BuilderFactory.start();
+        b.pushArray("a").add(-12345678901L);
         assertEquals(b.build(), doc);
     }
 

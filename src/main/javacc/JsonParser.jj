@@ -207,6 +207,31 @@ import com.allanbank.mongodb.util.IOUtils;
     }
 
     /**
+     * Converts the HEX string to an integer.
+     * 
+     * @param hexToken
+     *            The HEX encoded bytes.
+     * @return The decoded integer.
+     * @throws JsonParseException
+     *             On a failure to decodee the integer.
+     */
+    private int toIntFromHex(final Token hexToken) throws JsonParseException {
+        String hex = trimQuotes(hexToken.image);
+        if (hex.startsWith("0x") || hex.startsWith("0X")) {
+            hex = hex.substring(2);
+        }
+
+        try {
+            return Integer.parseInt(hex, 16);
+        }
+        catch (final NumberFormatException nfe) {
+            throw new JsonParseException(nfe.getMessage() + " (line "
+                    + hexToken.beginLine + ", column " + hexToken.beginColumn
+                    + ")", nfe, hexToken.beginLine, hexToken.beginColumn);
+        }
+    }
+
+    /**
      * Converts the timestamp and increment into a MongoTimestamp Long value..
      * 
      * @param timestampToken
@@ -743,13 +768,21 @@ private void arrayValue(ArrayBuilder builder) : {
         LOOKAHEAD(2) 
         "{" 
         ( 
-           <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL> <TOKEN_COMMA> <TOKEN_TYPE> <TOKEN_COLON> t1 = <INTEGER>
+           <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL> <TOKEN_COMMA> <TOKEN_TYPE> <TOKEN_COLON> ( t1 = <INTEGER> | t3 = <STRING_LITERAL> )
            {
-              builder.addBinary( (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+              if( t1 != null ) {
+                  builder.addBinary( (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+              } else { 
+                  builder.addBinary( (byte) toIntFromHex(t3), toBinaryFromBase64(t2) );
+              }
            }
-         | <TOKEN_TYPE> <TOKEN_COLON> t1 = <INTEGER> <TOKEN_COMMA> <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL>
+         | <TOKEN_TYPE> <TOKEN_COLON> ( t1 = <INTEGER> | t3 = <STRING_LITERAL> ) <TOKEN_COMMA> <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL>
            {
-              builder.addBinary( (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+              if( t1 != null ) {
+                  builder.addBinary( (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+              } else { 
+                  builder.addBinary( (byte) toIntFromHex(t3), toBinaryFromBase64(t2) );
+              }
            }
          | <TOKEN_DATE> <TOKEN_COLON> ( t1 = <INTEGER> | t2 = <STRING_LITERAL> )
            {
@@ -797,7 +830,16 @@ private void arrayValue(ArrayBuilder builder) : {
         | t1 = <IDENTIFIER_NAME> { builder.addSymbol(t1.image); }
         | t1 = <STRING_LITERAL> { builder.addString(trimQuotes(t1.image)); }
         | t1 = <DOUBLE> { builder.addDouble(Double.parseDouble(t1.image)); }
-        | t1 = <INTEGER> { builder.addInteger(Integer.parseInt(t1.image)); }
+        | t1 = <INTEGER> 
+          {
+             // Experimentally determine the size of the integer.
+             long value = Long.parseLong(t1.image);
+             if( (Integer.MIN_VALUE <= value) && (value <= Integer.MAX_VALUE) ) {
+                builder.addInteger((int) value);              
+             } else {
+                builder.addLong(value); 
+             }
+          }
         | <TOKEN_TRUE> { builder.addBoolean(true); }
         | <TOKEN_FALSE> { builder.addBoolean(false); }
         | <TOKEN_NULL> { builder.addNull(); }
@@ -850,18 +892,25 @@ private void documentValue(String name, DocumentBuilder builder) : {
     Token t4 = null;
 }
 {
-    
     (
         LOOKAHEAD(2) 
         "{" 
         ( 
-           <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL> <TOKEN_COMMA> <TOKEN_TYPE> <TOKEN_COLON> t1 = <INTEGER>
+            <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL> <TOKEN_COMMA> <TOKEN_TYPE> <TOKEN_COLON> ( t1 = <INTEGER> | t3 = <STRING_LITERAL> )
            {
-              builder.addBinary( name, (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+              if( t1 != null ) {
+                  builder.addBinary( name, (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+              } else { 
+                  builder.addBinary( name, (byte) toIntFromHex(t3), toBinaryFromBase64(t2) );
+              }
            }
-         | <TOKEN_TYPE> <TOKEN_COLON> t1 = <INTEGER> <TOKEN_COMMA> <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL>
+         | <TOKEN_TYPE> <TOKEN_COLON> ( t1 = <INTEGER> | t3 = <STRING_LITERAL> ) <TOKEN_COMMA> <TOKEN_BINARY> <TOKEN_COLON> t2 = <STRING_LITERAL>
            {
-              builder.addBinary( name, (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+              if( t1 != null ) {
+                  builder.addBinary( name, (byte) Integer.parseInt(t1.image), toBinaryFromBase64(t2) );
+              } else { 
+                  builder.addBinary( name, (byte) toIntFromHex(t3), toBinaryFromBase64(t2) );
+              }
            }
          | <TOKEN_DATE> <TOKEN_COLON> ( t1 = <INTEGER> | t2 = <STRING_LITERAL> )
            {
@@ -909,7 +958,16 @@ private void documentValue(String name, DocumentBuilder builder) : {
         | t1 = <IDENTIFIER_NAME> { builder.addSymbol(name, t1.image); }
         | t1 = <STRING_LITERAL> { builder.addString(name, trimQuotes(t1.image)); }
         | t1 = <DOUBLE> { builder.addDouble(name, Double.parseDouble(t1.image)); }
-        | t1 = <INTEGER> { builder.addInteger(name, Integer.parseInt(t1.image)); }
+        | t1 = <INTEGER> 
+          {
+             // Experimentally determine the size of the integer.
+             long value = Long.parseLong(t1.image);
+             if( (Integer.MIN_VALUE <= value) && (value <= Integer.MAX_VALUE) ) {
+                builder.addInteger(name, (int) value);              
+             } else {
+                builder.addLong(name, value); 
+             }
+          }
         | <TOKEN_TRUE> { builder.addBoolean(name, true); }
         | <TOKEN_FALSE> { builder.addBoolean(name, false); }
         | <TOKEN_NULL> { builder.addNull(name); }

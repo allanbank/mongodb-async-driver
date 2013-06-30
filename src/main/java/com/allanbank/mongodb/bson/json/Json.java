@@ -15,13 +15,19 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.DocumentReference;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.BinaryElement;
+import com.allanbank.mongodb.bson.element.BooleanElement;
+import com.allanbank.mongodb.bson.element.DoubleElement;
+import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.element.LongElement;
 import com.allanbank.mongodb.bson.element.MaxKeyElement;
 import com.allanbank.mongodb.bson.element.MinKeyElement;
 import com.allanbank.mongodb.bson.element.MongoTimestampElement;
+import com.allanbank.mongodb.bson.element.NullElement;
 import com.allanbank.mongodb.bson.element.ObjectIdElement;
 import com.allanbank.mongodb.bson.element.RegularExpressionElement;
+import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
 import com.allanbank.mongodb.error.JsonException;
 import com.allanbank.mongodb.error.JsonParseException;
@@ -29,6 +35,31 @@ import com.allanbank.mongodb.error.JsonParseException;
 /**
  * Json provides a simplified interface for parsing JSON documents into BSON
  * {@link Document}s and also serializing BSON {@link Document}s into JSON text.
+ * <p>
+ * Basic JSON types are parsed as follows:
+ * <dl>
+ * <dt>{@code true} or {@code false} token</dt>
+ * <dd>Creates an {@link BooleanElement}. <br/>
+ * <code>{ a : true }</code> or <code>{ a : false }</code></dd>
+ * <dt>{@code null} token</dt>
+ * <dd>Creates an {@link NullElement}. <br/>
+ * <code>{ a : null }</code></dd>
+ * <dt>Other Non-Quoted Strings</dt>
+ * <dd>Creates a {@link SymbolElement}:<br/>
+ * <code>{ a : b }</code></dd>
+ * <dt>Quoted Strings (either single or double quotes)</dt>
+ * <dd>Creates a {@link StringElement}:<br/>
+ * <code>{ a : 'b' }</code> or <code>{ a : "b" }</code></dd>
+ * <dt>Integers (Numbers without a {@code . } or exponent)</dt>
+ * <dd>Creates an {@link IntegerElement} if within the range [
+ * {@link Integer#MIN_VALUE}, {@link Integer#MAX_VALUE}], otherwise a
+ * {@link LongElement}. Value is parsed by {@link Long#parseLong(String)}.<br/>
+ * <code>{ a : 1234 }</code> or <code>{ a : 123456789012 }</code></dd>
+ * <dt>Doubles (Numbers with a {@code . } or exponent)</dt>
+ * <dd>Creates an {@link DoubleElement}. Value is parsed by
+ * {@link Double#parseDouble(String)}.<br/>
+ * <code>{ a : 1.2 }</code> or <code>{ a : 1e12 }</code></dd>
+ * </p>
  * <p>
  * In addition to the basic JSON types the parser also supports the following
  * standard MongoDB/BSON extensions:
@@ -39,6 +70,8 @@ import com.allanbank.mongodb.error.JsonParseException;
  * normally zero. The second field is the base64 encoded binary value: <br/>
  * <code>{ a : BinData(0, "VVU=") }</code> or
  * <code>{ a : { $binary:"VVU=", $type:0 } }</code></dd>
+ * <code>{ a : { $binary:"VVU=", $type: '0x00' } }</code></dd>
+ * <code>{ a : { $binary:"VVU=", $type: '00' } }</code></dd>
  * <dt>HexData</dt>
  * <dd>Creates a {@link BinaryElement}. The first field is the sub-type,
  * normally zero. The second field is the hex encoded binary value: <br/>

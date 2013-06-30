@@ -530,6 +530,33 @@ public class MongoDatabaseImplTest {
     }
 
     /**
+     * Test method for
+     * {@link MongoDatabaseImpl#runCommandAsync(DocumentAssignable)}.
+     * 
+     * @throws Exception
+     *             On a failure.
+     */
+    @Test
+    public void testRunCommandAsyncDocumentAssignable() throws Exception {
+
+        final Document reply = BuilderFactory.start().build();
+
+        final DocumentBuilder commandDoc = BuilderFactory.start();
+        commandDoc.addInteger("command", 1);
+
+        final Command message = new Command("test", commandDoc.build());
+
+        expect(myMockClient.send(eq(message), callback(reply(reply))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertSame(reply, myTestInstance.runCommandAsync(commandDoc).get());
+
+        verify();
+    }
+
+    /**
      * Test method for {@link MongoDatabaseImpl#runCommandAsync(String)}.
      * 
      * @throws Exception
@@ -617,6 +644,28 @@ public class MongoDatabaseImplTest {
                 reply,
                 myTestInstance.runCommandAsync("command", "name",
                         options.build()).get());
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link MongoDatabaseImpl#runCommand(DocumentAssignable)}.
+     */
+    @Test
+    public void testRunCommandDocumentAssignable() {
+        final Document reply = BuilderFactory.start().build();
+
+        final DocumentBuilder commandDoc = BuilderFactory.start();
+        commandDoc.addInteger("command", 1);
+
+        final Command message = new Command("test", commandDoc.build());
+
+        expect(myMockClient.send(eq(message), callback(reply(reply))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertSame(reply, myTestInstance.runCommand(commandDoc));
 
         verify();
     }
