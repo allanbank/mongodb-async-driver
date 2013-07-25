@@ -262,7 +262,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * The upper 3 bytes in the machine id.
      * 
-     * @return The upper 3 bytes of the object id.
+     * @return The upper 3 bytes of the machine id.
      */
     public int getMachineIdentifier() {
         return (int) ((myMachineId >> 40) & 0xFFFFFFL);
@@ -271,7 +271,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * Middle 2 byte process id field from the machine id.
      * 
-     * @return The lower 8 bytes of the object id.
+     * @return The middle 2 byte process id field from the machine id.
      */
     public int getPidField() {
         return (int) ((myMachineId >> 24) & 0xFFFFL);
