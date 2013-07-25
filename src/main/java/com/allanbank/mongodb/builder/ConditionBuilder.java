@@ -332,10 +332,10 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder all(final double... values) {
+    public ConditionBuilder all(final Double... values) {
         final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
-        for (final double value : values) {
-            arrayBuilder.add(value);
+        for (final Double value : values) {
+            arrayBuilder.add(value.doubleValue());
         }
         return all(arrayBuilder);
     }
@@ -386,10 +386,10 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder all(final int... values) {
+    public ConditionBuilder all(final Integer... values) {
         final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
-        for (final int value : values) {
-            arrayBuilder.add(value);
+        for (final Integer value : values) {
+            arrayBuilder.add(value.intValue());
         }
         return all(arrayBuilder);
     }
@@ -419,10 +419,10 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder all(final long... values) {
+    public ConditionBuilder all(final Long... values) {
         final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
-        for (final long value : values) {
-            arrayBuilder.add(value);
+        for (final Long value : values) {
+            arrayBuilder.add(value.longValue());
         }
         return all(arrayBuilder);
     }
@@ -1931,10 +1931,10 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder in(final double... values) {
+    public ConditionBuilder in(final Double... values) {
         final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
-        for (final double value : values) {
-            arrayBuilder.add(value);
+        for (final Double value : values) {
+            arrayBuilder.add(value.doubleValue());
         }
         return in(arrayBuilder);
     }
@@ -1986,10 +1986,10 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder in(final int... values) {
+    public ConditionBuilder in(final Integer... values) {
         final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
-        for (final int value : values) {
-            arrayBuilder.add(value);
+        for (final Integer value : values) {
+            arrayBuilder.add(value.intValue());
         }
         return in(arrayBuilder);
     }
@@ -2020,10 +2020,10 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder in(final long... values) {
+    public ConditionBuilder in(final Long... values) {
         final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
-        for (final long value : values) {
-            arrayBuilder.add(value);
+        for (final Long value : values) {
+            arrayBuilder.add(value.longValue());
         }
         return in(arrayBuilder);
     }
@@ -4136,10 +4136,10 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder notIn(final double... values) {
+    public ConditionBuilder notIn(final Double... values) {
         final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
-        for (final double value : values) {
-            arrayBuilder.add(value);
+        for (final Double value : values) {
+            arrayBuilder.add(value.doubleValue());
         }
         return notIn(arrayBuilder);
     }
@@ -4190,10 +4190,10 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder notIn(final int... values) {
+    public ConditionBuilder notIn(final Integer... values) {
         final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
-        for (final int value : values) {
-            arrayBuilder.add(value);
+        for (final Integer value : values) {
+            arrayBuilder.add(value.intValue());
         }
         return notIn(arrayBuilder);
     }
@@ -4223,10 +4223,10 @@ public class ConditionBuilder implements DocumentAssignable {
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
      */
-    public ConditionBuilder notIn(final long... values) {
+    public ConditionBuilder notIn(final Long... values) {
         final ArrayBuilder arrayBuilder = BuilderFactory.startArray();
-        for (final long value : values) {
-            arrayBuilder.add(value);
+        for (final Long value : values) {
+            arrayBuilder.add(value.longValue());
         }
         return notIn(arrayBuilder);
     }
