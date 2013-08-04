@@ -16,6 +16,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.bson.json.Json;
 import com.allanbank.mongodb.error.JsonParseException;
 
@@ -311,6 +312,9 @@ public class Durability implements Serializable {
         return result;
     }
 
+    /** The durability in document form. */
+    private Document myAsDocument;
+
     /**
      * True if the durability requires that the response wait for an fsync() of
      * the data to complete, false otherwise.
@@ -444,26 +448,29 @@ public class Durability implements Serializable {
      * @return The getlasterror command's document.
      */
     public Document asDocument() {
-        final DocumentBuilder builder = BuilderFactory.start();
-        builder.addInteger("getlasterror", 1);
-        if (isWaitForJournal()) {
-            builder.addBoolean("j", true);
-        }
-        if (isWaitForFsync()) {
-            builder.addBoolean("fsync", true);
-        }
-        if (getWaitTimeoutMillis() > 0) {
-            builder.addInteger("wtimeout", getWaitTimeoutMillis());
-        }
+        if (myAsDocument == null) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            builder.addInteger("getlasterror", 1);
+            if (isWaitForJournal()) {
+                builder.addBoolean("j", true);
+            }
+            if (isWaitForFsync()) {
+                builder.addBoolean("fsync", true);
+            }
+            if (getWaitTimeoutMillis() > 0) {
+                builder.addInteger("wtimeout", getWaitTimeoutMillis());
+            }
 
-        if (getWaitForReplicas() >= 1) {
-            builder.addInteger("w", getWaitForReplicas());
-        }
-        else if (getWaitForReplicasByMode() != null) {
-            builder.addString("w", getWaitForReplicasByMode());
-        }
+            if (getWaitForReplicas() >= 1) {
+                builder.addInteger("w", getWaitForReplicas());
+            }
+            else if (getWaitForReplicasByMode() != null) {
+                builder.addString("w", getWaitForReplicasByMode());
+            }
 
-        return builder.build();
+            myAsDocument = new ImmutableDocument(builder);
+        }
+        return myAsDocument;
     }
 
     /**

@@ -45,7 +45,7 @@ public class EmptyDocumentTest {
         final Document doc = new EmptyDocument();
         final Visitor mockVisitor = createMock(Visitor.class);
 
-        mockVisitor.visit(EmptyDocument.EMPTY_ELEMENTS);
+        mockVisitor.visit(AbstractDocument.EMPTY_ELEMENTS);
         expectLastCall();
 
         replay(mockVisitor);
@@ -133,7 +133,7 @@ public class EmptyDocumentTest {
     @Test
     public void testFindClassOfEStringArray() {
         assertThat(new EmptyDocument().find(Element.class, "a"),
-                is(EmptyDocument.EMPTY_ELEMENTS));
+                is(AbstractDocument.EMPTY_ELEMENTS));
     }
 
     /**
@@ -158,7 +158,7 @@ public class EmptyDocumentTest {
     @Test
     public void testFindStringArray() {
         assertThat(new EmptyDocument().find("a"),
-                is(EmptyDocument.EMPTY_ELEMENTS));
+                is(AbstractDocument.EMPTY_ELEMENTS));
     }
 
     /**
@@ -175,7 +175,7 @@ public class EmptyDocumentTest {
     @Test
     public void testGetElements() {
         assertThat(new EmptyDocument().getElements(),
-                is(EmptyDocument.EMPTY_ELEMENTS));
+                is(AbstractDocument.EMPTY_ELEMENTS));
     }
 
     /**

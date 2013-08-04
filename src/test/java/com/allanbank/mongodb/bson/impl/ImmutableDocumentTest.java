@@ -40,25 +40,25 @@ import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
-import com.allanbank.mongodb.bson.element.ObjectIdElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
- * RootDocumentTest provides tests for the {@link RootDocument}.
+ * ImmutableDocumentTest provides tests for the {@link ImmutableDocument}.
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("boxing")
-public class RootDocumentTest {
+public class ImmutableDocumentTest {
 
     /**
      * Test method for
-     * {@link RootDocument#accept(com.allanbank.mongodb.bson.Visitor)}.
+     * {@link ImmutableDocument#accept(com.allanbank.mongodb.bson.Visitor)}.
      */
     @Test
     public void testAccept() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         final Visitor mockVisitor = createMock(Visitor.class);
 
@@ -73,68 +73,50 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#RootDocument(java.util.List)} .
+     * Test method for {@link ImmutableDocument#ImmutableDocument} .
      */
     @Test
     public void testConstructEmptyDocument() {
-        final RootDocument element = new RootDocument();
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument());
 
         assertTrue(element.getElements().isEmpty());
     }
 
     /**
-     * Test method for {@link RootDocument#RootDocument(java.util.List)} .
-     */
-    @Test
-    public void testConstructEmptyDocumentList() {
-        final RootDocument element = new RootDocument((List<Element>) null);
-
-        assertTrue(element.getElements().isEmpty());
-    }
-
-    /**
-     * Test method for {@link RootDocument#RootDocument(java.util.List)} .
-     */
-    @Test
-    public void testConstructEmptyDocumentListEmpty() {
-        final List<Element> elements = Collections.emptyList();
-        final RootDocument element = new RootDocument(elements);
-
-        assertTrue(element.getElements().isEmpty());
-    }
-
-    /**
-     * Test method for {@link RootDocument#RootDocument(java.util.List)} .
+     * Test method for {@link ImmutableDocument#ImmutableDocument} .
      */
     @Test
     public void testConstructor() {
         final List<Element> elements = Collections
                 .singletonList((Element) new BooleanElement("1", false));
-        final RootDocument element = new RootDocument(elements);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(elements));
 
         assertEquals(elements, element.getElements());
     }
 
     /**
-     * Test method for {@link RootDocument#contains(String)}.
+     * Test method for {@link ImmutableDocument#contains(String)}.
      */
     @Test
     public void testContains() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         assertTrue(element.contains("1"));
         assertFalse(element.contains("2"));
     }
 
     /**
-     * Test method for {@link RootDocument#equals(Object)}.
+     * Test method for {@link ImmutableDocument#equals(Object)}.
      */
     @Test
     public void testEqualsEmptyDocument() {
-        final Document root = new RootDocument();
-        final Document rootWithElement = new RootDocument(new StringElement(
-                "a", "b"));
+        final Document root = new ImmutableDocument(new RootDocument());
+        final Document rootWithElement = new ImmutableDocument(
+                new RootDocument(new StringElement("a", "b")));
         final Document empty = new EmptyDocument();
 
         assertThat(empty.hashCode(), is(root.hashCode()));
@@ -146,7 +128,7 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#equals(Object)}.
+     * Test method for {@link ImmutableDocument#equals(Object)}.
      */
     @SuppressWarnings("deprecation")
     @Test
@@ -228,8 +210,8 @@ public class RootDocumentTest {
                 }
             }
 
-            objs1.add(builder.build());
-            objs2.add(builder.build());
+            objs1.add(new ImmutableDocument(builder));
+            objs2.add(new ImmutableDocument(builder));
         }
 
         // Sanity check.
@@ -258,49 +240,73 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#findFirst}.
+     * Test method for {@link ImmutableDocument#equals(Object)}.
+     */
+    @Test
+    public void testEqualsRootDocument() {
+        final Document root = new RootDocument();
+        final Document rootWithElement = new RootDocument(new StringElement(
+                "a", "b"));
+        final Document immutable = new ImmutableDocument(root);
+        final Document immutableWithElement = new ImmutableDocument(
+                rootWithElement);
+
+        assertThat(root.hashCode(), is(immutable.hashCode()));
+        assertThat(root, is(immutable));
+        assertThat(immutable, is(root));
+
+        assertThat(rootWithElement.hashCode(),
+                is(immutableWithElement.hashCode()));
+        assertThat(rootWithElement, is(immutableWithElement));
+        assertThat(immutableWithElement, is(rootWithElement));
+    }
+
+    /**
+     * Test method for {@link ImmutableDocument#findFirst}.
      */
     @Test
     public void testFindFirstWithBadPatternPathMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("(", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         final Element found = element.findFirst("(");
         assertSame(subElement, found);
     }
 
     /**
-     * Test method for {@link RootDocument#findFirst}.
+     * Test method for {@link ImmutableDocument#findFirst}.
      */
     @Test
     public void testFindFirstWithBadPatternPathNotMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         final Element found = element.findFirst(Element.class, "(");
         assertNull(found);
     }
 
     /**
-     * Test method for {@link RootDocument#findFirst}.
+     * Test method for {@link ImmutableDocument#findFirst}.
      */
     @Test
     public void testFindFirstWithEmptyPathNonMatchingType() {
-        final RootDocument element = new RootDocument(new BooleanElement("1",
-                false));
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(new BooleanElement("1", false)));
 
         final BooleanElement found = element.findFirst(BooleanElement.class);
         assertNull(found);
     }
 
     /**
-     * Test method for {@link RootDocument#findFirst}.
+     * Test method for {@link ImmutableDocument#findFirst}.
      */
     @Test
     public void testFindFirstWithPathMatchingNonFirstSubelement() {
         final BooleanElement subElement = new BooleanElement("123", false);
-        final RootDocument element = new RootDocument(new BooleanElement("2",
-                false), subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(new BooleanElement("2", false), subElement));
 
         Element found = element.findFirst(Element.class, "123");
         assertSame(subElement, found);
@@ -310,13 +316,13 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#findFirst}.
+     * Test method for {@link ImmutableDocument#findFirst}.
      */
     @Test
     public void testFindFirstWithPathMatchingNonLastSubelement() {
         final BooleanElement subElement = new BooleanElement("123", false);
-        final RootDocument element = new RootDocument(subElement,
-                new BooleanElement("2", false));
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement, new BooleanElement("2", false)));
 
         Element found = element.findFirst(Element.class, "123");
         assertSame(subElement, found);
@@ -326,13 +332,13 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#findFirst}.
+     * Test method for {@link ImmutableDocument#findFirst}.
      */
     @Test
     public void testFindFirstWithPathMatchingNonLastSubelementBadRegex() {
         final BooleanElement subElement = new BooleanElement("(", false);
-        final RootDocument element = new RootDocument(subElement,
-                new BooleanElement("2", false));
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement, new BooleanElement("2", false)));
 
         Element found = element.findFirst(Element.class, "(");
         assertSame(subElement, found);
@@ -342,12 +348,13 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#findFirst}.
+     * Test method for {@link ImmutableDocument#findFirst}.
      */
     @Test
     public void testFindFirstWithPathMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         Element found = element.findFirst(Element.class, "1");
         assertSame(subElement, found);
@@ -357,24 +364,26 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#findFirst}.
+     * Test method for {@link ImmutableDocument#findFirst}.
      */
     @Test
     public void testFindFirstWithPathNotMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         final Element found = element.findFirst(Element.class, "n.*");
         assertNull(found);
     }
 
     /**
-     * Test method for {@link RootDocument#find}.
+     * Test method for {@link ImmutableDocument#find}.
      */
     @Test
     public void testFindWithBadPatternPathMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("(", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         final List<Element> elements = element.find("(");
         assertEquals(1, elements.size());
@@ -382,24 +391,25 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#find}.
+     * Test method for {@link ImmutableDocument#find}.
      */
     @Test
     public void testFindWithBadPatternPathNotMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         final List<Element> elements = element.find(Element.class, "(");
         assertEquals(0, elements.size());
     }
 
     /**
-     * Test method for {@link RootDocument#find}.
+     * Test method for {@link ImmutableDocument#find}.
      */
     @Test
     public void testFindWithEmptyPathNonMatchingType() {
-        final RootDocument element = new RootDocument(new BooleanElement("1",
-                false));
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(new BooleanElement("1", false)));
 
         final List<BooleanElement> elements = element
                 .find(BooleanElement.class);
@@ -407,12 +417,13 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#find}.
+     * Test method for {@link ImmutableDocument#find}.
      */
     @Test
     public void testFindWithPathMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         List<Element> elements = element.find(Element.class, "1");
         assertEquals(1, elements.size());
@@ -424,48 +435,52 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#find}.
+     * Test method for {@link ImmutableDocument#find}.
      */
     @Test
     public void testFindWithPathNotMatchingSubelement() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         final List<Element> elements = element.find(Element.class, "n.*");
         assertEquals(0, elements.size());
     }
 
     /**
-     * Test method for {@link RootDocument#get(String)}.
+     * Test method for {@link ImmutableDocument#get(String)}.
      */
     @Test
     public void testGet() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         assertSame(subElement, element.get("1"));
         assertNull(element.get("2"));
     }
 
     /**
-     * Test method for {@link RootDocument#getElements()}.
+     * Test method for {@link ImmutableDocument#getElements()}.
      */
     @Test
     public void testGetElements() {
         final Element subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         assertEquals(Collections.singletonList(subElement),
                 element.getElements());
     }
 
     /**
-     * Test method for {@link RootDocument#get(Class,String)}.
+     * Test method for {@link ImmutableDocument#get(Class,String)}.
      */
     @Test
     public void testGetWithType() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         assertSame(subElement, element.get(BooleanElement.class, "1"));
         assertNull(element.get(IntegerElement.class, "1"));
@@ -473,57 +488,13 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#injectId()}.
-     */
-    @Test
-    public void testInjectId() {
-        final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
-
-        assertFalse(element.contains("_id"));
-
-        element.injectId();
-
-        assertTrue(element.contains("_id"));
-        assertTrue(element.get("_id") instanceof ObjectIdElement);
-
-        element.injectId();
-
-        assertTrue(element.contains("_id"));
-        assertTrue(element.get("_id") instanceof ObjectIdElement);
-    }
-
-    /**
-     * Test method for {@link RootDocument#injectId()}.
-     */
-    @Test
-    public void testInjectIdWhenLiedTo() {
-        final Element subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(
-                Collections.singletonList(subElement), true);
-
-        assertTrue(element.contains("_id"));
-        assertTrue(element.contains("1"));
-        assertFalse(element.contains("2"));
-
-        element.injectId();
-
-        assertTrue(element.contains("_id"));
-        assertNull(element.get("_id"));
-
-        element.injectId();
-
-        assertTrue(element.contains("_id"));
-        assertNull(element.get("_id"));
-    }
-
-    /**
-     * Test method for {@link RootDocument#iterator()}.
+     * Test method for {@link ImmutableDocument#iterator()}.
      */
     @Test
     public void testIterator() {
         final BooleanElement subElement = new BooleanElement("1", false);
-        final RootDocument element = new RootDocument(subElement);
+        final ImmutableDocument element = new ImmutableDocument(
+                new RootDocument(subElement));
 
         final Iterator<Element> iter = element.iterator();
         assertNotNull(iter);
@@ -533,31 +504,33 @@ public class RootDocumentTest {
     }
 
     /**
-     * Test method for {@link RootDocument#toString()}.
+     * Test method for {@link ImmutableDocument#toString()}.
      */
     @Test
     public void testToString() {
         final Element subElement = new BooleanElement("1", false);
         final Element subElement2 = new BooleanElement("2", false);
 
-        AbstractDocument element = new RootDocument(Arrays.asList(subElement,
-                subElement2));
+        ImmutableDocument element = new ImmutableDocument(new RootDocument(
+                Arrays.asList(subElement, subElement2)));
         assertEquals("{\n  '1' : false,\n  '2' : false\n}", element.toString());
 
-        element = new RootDocument(Arrays.asList(subElement));
+        element = new ImmutableDocument(new RootDocument(
+                Arrays.asList(subElement)));
         assertEquals("{ '1' : false }", element.toString());
 
-        element = new RootDocument();
+        element = new ImmutableDocument(new RootDocument());
         assertEquals("{}", element.toString());
 
-        element = new RootDocument(new DocumentElement("f"));
+        element = new ImmutableDocument(new RootDocument(new DocumentElement(
+                "f")));
         assertEquals("{\n  f : {}\n}", element.toString());
 
-        element = new RootDocument(new ArrayElement("f"));
+        element = new ImmutableDocument(new RootDocument(new ArrayElement("f")));
         assertEquals("{\n  f : []\n}", element.toString());
 
-        element = new RootDocument(new ArrayElement("f", new BooleanElement(
-                "0", true)));
+        element = new ImmutableDocument(new RootDocument(new ArrayElement("f",
+                new BooleanElement("0", true))));
         assertEquals("{\n  f : [ true ]\n}", element.toString());
     }
 }

@@ -5,10 +5,13 @@
 
 package com.allanbank.mongodb;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -25,6 +28,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 
 /**
  * DurabilityTest provides tests for the {@link Durability} class.
@@ -97,6 +101,12 @@ public class DurabilityTest {
         builder.add("w", 4);
         assertEquals(builder.asDocument(),
                 Durability.replicaDurable(true, 4, 129).asDocument());
+
+        // Second call should return the same document.
+        final Durability durability = Durability.replicaDurable(true, 4, 129);
+        assertThat(durability.asDocument(),
+                sameInstance(durability.asDocument()));
+        assertThat(durability.asDocument(), instanceOf(ImmutableDocument.class));
     }
 
     /**
