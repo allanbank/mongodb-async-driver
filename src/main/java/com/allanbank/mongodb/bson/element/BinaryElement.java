@@ -6,11 +6,13 @@ package com.allanbank.mongodb.bson.element;
 
 import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.BsonInputStream;
 
 /**
  * A wrapper for a BSON binary.
@@ -37,6 +39,32 @@ public class BinaryElement extends AbstractElement {
 
     /** The BSON binary value. */
     private final byte[] myValue;
+
+    /**
+     * Constructs a new {@link BinaryElement}.
+     * 
+     * @param name
+     *            The name for the BSON binary.
+     * @param subType
+     *            The sub-type of the binary data.
+     * @param input
+     *            The stream to read the data from.
+     * @param length
+     *            The number of bytes of data to read.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     * @throws IOException
+     *             If there is an error reading from {@code input} stream.
+     */
+    public BinaryElement(final String name, final byte subType,
+            final BsonInputStream input, final int length) throws IOException {
+        super(name);
+
+        mySubType = subType;
+        myValue = new byte[length];
+
+        input.readFully(myValue);
+    }
 
     /**
      * Constructs a new {@link BinaryElement}.
@@ -143,6 +171,19 @@ public class BinaryElement extends AbstractElement {
     }
 
     /**
+     * Returns the byte value at the specified offset.
+     * 
+     * @param offset
+     *            The offset of the desired value.
+     * @return The byte value at the offset.
+     * @throws ArrayIndexOutOfBoundsException
+     *             If the offset is not in the range [0, {@link #length()}).
+     */
+    public final byte get(final int offset) {
+        return myValue[offset];
+    }
+
+    /**
      * Return the binary sub-type.
      * 
      * @return The binary sub-type.
@@ -160,7 +201,10 @@ public class BinaryElement extends AbstractElement {
     }
 
     /**
-     * Returns the BSON binary value.
+     * Returns the BSON binary value. For safety reasons this method clones the
+     * internal byte array. To avoid the copying of the bytes use the
+     * {@link #length()} and {@link #get(int)} methods to access each byte
+     * value.
      * 
      * @return The BSON binary value.
      */
@@ -199,6 +243,15 @@ public class BinaryElement extends AbstractElement {
         result = (31 * result) + mySubType;
         result = (31 * result) + Arrays.hashCode(myValue);
         return result;
+    }
+
+    /**
+     * Returns the length of the contained byte array.
+     * 
+     * @return The length of the contained byte array.
+     */
+    public final int length() {
+        return myValue.length;
     }
 
     /**

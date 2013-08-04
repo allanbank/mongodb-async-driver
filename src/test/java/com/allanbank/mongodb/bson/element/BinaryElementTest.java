@@ -18,7 +18,10 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +32,7 @@ import org.junit.Test;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.BsonInputStream;
 
 /**
  * BinaryElementTest provides tests for the {@link BinaryElement} class.
@@ -98,6 +102,29 @@ public class BinaryElementTest {
         assertEquals("foo", element.getName());
         assertEquals(BinaryElement.DEFAULT_SUB_TYPE, element.getSubType());
         assertArrayEquals(new byte[0], element.getValue());
+        assertEquals(ElementType.BINARY, element.getType());
+    }
+
+    /**
+     * Test method for
+     * {@link BinaryElement#BinaryElement(String, byte, BsonInputStream, int) )}
+     * .
+     * 
+     * @throws IOException
+     *             On a failure.
+     */
+    @Test
+    public void testBinaryElementStreamConstructor() throws IOException {
+        final ByteArrayInputStream in = new ByteArrayInputStream(new byte[] {
+                0x01, 0x02, 0x03 });
+        final BsonInputStream bin = new BsonInputStream(in);
+
+        final BinaryElement element = new BinaryElement("foo",
+                BinaryElement.DEFAULT_SUB_TYPE, bin, 3);
+
+        assertEquals("foo", element.getName());
+        assertEquals(BinaryElement.DEFAULT_SUB_TYPE, element.getSubType());
+        assertArrayEquals(new byte[] { 0x01, 0x02, 0x03 }, element.getValue());
         assertEquals(ElementType.BINARY, element.getType());
     }
 
@@ -316,6 +343,34 @@ public class BinaryElementTest {
     }
 
     /**
+     * Test method for {@link BinaryElement#get(int)}.
+     */
+    @Test
+    public void testGet() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        assertEquals(0x01, element.get(0));
+        assertEquals(0x02, element.get(1));
+        assertEquals(0x03, element.get(2));
+
+        try {
+            element.get(3);
+            fail("Should have thrown an IndexOutOfBoundsException");
+        }
+        catch (final IndexOutOfBoundsException ioobe) {
+            // Good.
+        }
+        try {
+            element.get(-1);
+            fail("Should have thrown an IndexOutOfBoundsException");
+        }
+        catch (final IndexOutOfBoundsException ioobe) {
+            // Good.
+        }
+    }
+
+    /**
      * Test method for {@link BinaryElement#getSubType()} and
      * {@link BinaryElement#getValue()}.
      */
@@ -326,6 +381,17 @@ public class BinaryElementTest {
 
         assertEquals((byte) 0x01, element.getSubType());
         assertArrayEquals(new byte[] { 0x01, 0x02, 0x03 }, element.getValue());
+    }
+
+    /**
+     * Test method for {@link BinaryElement#length()}.
+     */
+    @Test
+    public void testLength() {
+        final BinaryElement element = new BinaryElement("foo", (byte) 0x01,
+                new byte[] { 0x01, 0x02, 0x03 });
+
+        assertEquals(3, element.length());
     }
 
     /**
