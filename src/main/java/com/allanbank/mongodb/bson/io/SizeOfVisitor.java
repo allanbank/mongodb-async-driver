@@ -9,7 +9,9 @@ import java.util.List;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.element.BinaryElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
@@ -203,7 +205,14 @@ public class SizeOfVisitor implements Visitor {
             final int beforeSize = mySize;
             mySize += 4;
             for (final Element element : elements) {
-                element.accept(this);
+                // Optimization to avoid the array copy.
+                if (element.getType() == ElementType.BINARY) {
+                    BinaryElement be = (BinaryElement) element;
+                    doVisitBinary(be.getName(), be.getSubType(), be.length());
+                }
+                else {
+                    element.accept(this);
+                }
             }
             mySize += 1;
 
@@ -229,18 +238,36 @@ public class SizeOfVisitor implements Visitor {
     public void visitBinary(final String name, final byte subType,
             final byte[] data) {
 
+        final int dataLength = data.length;
+
+        doVisitBinary(name, subType, dataLength);
+    }
+
+    /**
+     * Computes the size of the binary based on the name, type and length of the
+     * data.
+     * 
+     * @param name
+     *            The name of the element.
+     * @param subType
+     *            The sub-type of the binary element.
+     * @param dataLength
+     *            The length of data contained in the element.
+     */
+    private void doVisitBinary(final String name, final byte subType,
+            final int dataLength) {
         mySize += 1;
         mySize += computeCStringSize(name);
 
         switch (subType) {
         case 2: {
-            mySize += (4 + 1 + 4 + data.length);
+            mySize += (4 + 1 + 4 + dataLength);
             break;
 
         }
         case 0:
         default:
-            mySize += (4 + 1 + data.length);
+            mySize += (4 + 1 + dataLength);
             break;
         }
     }
