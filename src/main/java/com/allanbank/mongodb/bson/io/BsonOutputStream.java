@@ -33,6 +33,9 @@ public class BsonOutputStream {
     /** The visitor for writing BSON documents. */
     protected final WriteVisitor myWriteVisitor;
 
+    /** A private buffer for encoding strings. */
+    private final byte[] myBuffer = new byte[1024];
+
     /**
      * Creates a new {@link BsonOutputStream}.
      * 
@@ -223,6 +226,26 @@ public class BsonOutputStream {
     }
 
     /**
+     * Writes a sequence of bytes to the under lying stream.
+     * 
+     * @param data
+     *            The bytes to write.
+     * @param offset
+     *            The offset into the buffer to start writing data from.
+     * @param length
+     *            The number of bytes to write.
+     */
+    protected void writeBytes(final byte[] data, final int offset,
+            final int length) {
+        try {
+            myOutput.write(data, offset, length);
+        }
+        catch (final IOException ioe) {
+            myError = ioe;
+        }
+    }
+
+    /**
      * Writes the string as a UTF-8 string. This method handles the
      * "normal/easy" cases and delegates to the full character set if things get
      * complicated.
@@ -232,25 +255,37 @@ public class BsonOutputStream {
      */
     protected void writeUtf8(final String string) {
         final int strLength = string.length();
+        int bufferOffset = 0;
         for (int i = 0; i < strLength; ++i) {
+
+            if (myBuffer.length < (bufferOffset + 2)) {
+                writeBytes(myBuffer, 0, bufferOffset);
+                bufferOffset = 0;
+            }
+
             final int c = string.charAt(i);
             if (c < 0x80) {
                 // 1 byte encoded / ASCII!
-                writeByte((byte) c);
+                myBuffer[bufferOffset] = (byte) c;
+                bufferOffset += 1;
             }
             else if (c < 0x800) {
                 // 2 byte encoded.
-                writeByte((byte) (0xc0 | (c >> 06)));
-                writeByte((byte) (0x80 | (c & 0x3f)));
+                myBuffer[bufferOffset] = (byte) (0xc0 | (c >> 6));
+                myBuffer[bufferOffset + 1] = (byte) (0x80 | (c & 0x3f));
+                bufferOffset += 2;
             }
             else {
+                writeBytes(myBuffer, 0, bufferOffset);
+                bufferOffset = 0;
+
                 // Complicated beyond here. Surrogates and what not. Let the
                 // full charset handle it.
                 writeBytes(string.substring(i).getBytes(UTF8));
                 return;
             }
-
         }
+        writeBytes(myBuffer, 0, bufferOffset);
     }
 
 }
