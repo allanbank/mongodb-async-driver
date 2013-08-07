@@ -357,6 +357,33 @@ public class BsonInputStreamTest {
     }
 
     /**
+     * Test method for {@link BsonInputStream#available()}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
+    @Test
+    public void testAvailable() throws IOException {
+
+        final Document seed = BuilderFactory.start()
+                .addBinary("juuid", (byte) 3, LEGACY_UUID_BYTES)
+                .addBinary("uuid", (byte) 4, STANDARD_UUID_BYTES).build();
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final BsonOutputStream bout = new BsonOutputStream(out);
+
+        bout.writeDocument(seed);
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(
+                out.toByteArray());
+        final BsonInputStream reader = new BsonInputStream(in);
+
+        assertEquals(out.toByteArray().length, reader.available());
+
+        reader.close();
+    }
+
+    /**
      * Test method for {@link BsonInputStream#readDocument()}.
      * 
      * @throws IOException
@@ -426,6 +453,44 @@ public class BsonInputStreamTest {
         aBuilder.addTimestamp(System.currentTimeMillis());
         aBuilder.add(new Date());
         aBuilder.push().addBoolean("true", true).pop();
+
+        final Document doc = builder.build();
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final BsonOutputStream writer = new BsonOutputStream(out);
+
+        writer.writeDocument(doc);
+
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        BsonInputStream reader = new BsonInputStream(in);
+        Document read = reader.readDocument();
+        reader.close();
+
+        assertTrue("Should be a RootDocument.", read instanceof RootDocument);
+        assertEquals("Should equal the orginal document.", doc, read);
+
+        out.reset();
+        writer.writeDocument(doc);
+
+        in = new ByteArrayInputStream(out.toByteArray());
+        reader = new BsonInputStream(in);
+        read = reader.readDocument();
+        reader.close();
+
+        assertTrue("Should be a RootDocument.", read instanceof RootDocument);
+        assertEquals("Should equal the orginal document.", doc, read);
+    }
+
+    /**
+     * /** Test method for {@link BsonInputStream#readDocument()}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
+    @Test
+    public void testReadWriteLong() throws IOException {
+        DocumentBuilder builder = BuilderFactory.start();
+        builder.add("_id", 0x0102030405060708L);
 
         final Document doc = builder.build();
 

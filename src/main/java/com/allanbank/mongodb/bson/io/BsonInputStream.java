@@ -4,15 +4,12 @@
  */
 package com.allanbank.mongodb.bson.io;
 
+import java.io.DataInput;
 import java.io.EOFException;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StreamCorruptedException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,16 +48,31 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BsonInputStream extends FilterInputStream {
+public class BsonInputStream extends InputStream {
 
     /** UTF-8 Character set for encoding strings. */
     public final static Charset UTF8 = Charset.forName("UTF-8");
 
-    /** Tracks the number of bytes that have been read by the stream. */
-    private long myBytesRead = 0;
+    /** The byte value limit for a ASCII character. */
+    private static final int ASCII_LIMIT = 0x80;
 
-    /** The builder for strings in the stream. */
-    private final StringBuilder myStringBuilder;
+    /** The buffered data. */
+    private byte[] myBuffer;
+
+    /** The offset into the current buffer. */
+    private int myBufferLimit;
+
+    /** The offset into the current buffer. */
+    private int myBufferOffset;
+
+    /** A builder for the ASCII strings. */
+    private final StringBuilder myBuilder = new StringBuilder(64);
+
+    /** Tracks the number of bytes that have been read by the stream. */
+    private long myBytesRead;
+
+    /** The underlying input stream. */
+    private final InputStream myInput;
 
     /**
      * Creates a BSON document reader.
@@ -69,8 +81,49 @@ public class BsonInputStream extends FilterInputStream {
      *            the underlying stream to read from.
      */
     public BsonInputStream(final InputStream input) {
-        super(input);
-        myStringBuilder = new StringBuilder(64);
+        this(input, 8 * 1024); // 8K to start.
+    }
+
+    /**
+     * Creates a BSON document reader.
+     * 
+     * @param input
+     *            the underlying stream to read from.
+     * @param expectedMaxDocumentSize
+     *            The expected maximum size for a document. If this guess is
+     *            wrong then there may be incremental allocations of the read
+     *            buffer.
+     */
+    public BsonInputStream(final InputStream input,
+            final int expectedMaxDocumentSize) {
+        myInput = input;
+        myBuffer = new byte[expectedMaxDocumentSize];
+        myBufferOffset = 0;
+        myBufferLimit = 0;
+        myBytesRead = 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the number of bytes in the buffer and from the
+     * source stream.
+     * </p>
+     */
+    @Override
+    public int available() throws IOException {
+        return availableInBuffer() + myInput.available();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to close the wrapped {@link InputStream}.
+     * </p>
+     */
+    @Override
+    public void close() throws IOException {
+        myInput.close();
     }
 
     /**
@@ -79,7 +132,29 @@ public class BsonInputStream extends FilterInputStream {
      * @return The number of bytes that have been read from the stream.
      */
     public long getBytesRead() {
-        return myBytesRead;
+        return myBytesRead + myBufferOffset;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to throw an {@link UnsupportedOperationException}.
+     * </p>
+     */
+    @Override
+    public synchronized void mark(final int readlimit) {
+        throw new UnsupportedOperationException("Mark not supported.");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return false.
+     * </p>
+     */
+    @Override
+    public boolean markSupported() {
+        return false;
     }
 
     /**
@@ -90,8 +165,14 @@ public class BsonInputStream extends FilterInputStream {
      */
     @Override
     public int read() throws IOException {
-        final int read = in.read();
-        myBytesRead += 1;
+        if (ensureFetched(1) != 1) {
+            return -1; // EOF.
+        }
+
+        final int read = (myBuffer[myBufferOffset] & 0xFF);
+
+        myBufferOffset += 1;
+
         return read;
     }
 
@@ -103,9 +184,7 @@ public class BsonInputStream extends FilterInputStream {
      */
     @Override
     public int read(final byte b[]) throws IOException {
-        final int read = in.read(b, 0, b.length);
-        myBytesRead += read;
-        return read;
+        return read(b, 0, b.length);
     }
 
     /**
@@ -117,8 +196,12 @@ public class BsonInputStream extends FilterInputStream {
     @Override
     public int read(final byte b[], final int off, final int len)
             throws IOException {
-        final int read = in.read(b, off, len);
-        myBytesRead += read;
+        final int read = ensureFetched(len - off);
+
+        System.arraycopy(myBuffer, myBufferOffset, b, off, read);
+
+        myBufferOffset += read;
+
         return read;
     }
 
@@ -140,69 +223,42 @@ public class BsonInputStream extends FilterInputStream {
      * @throws IOException
      *             On a failure reading the integer.
      */
-    @SuppressWarnings("null")
     public String readCString() throws EOFException, IOException {
 
-        myStringBuilder.setLength(0);
+        while (true) {
 
-        // Don't know how big the cstring is so have to
-        // read a little, decode a little, read a little, ...
-        CharsetDecoder decoder = null;
-        ByteBuffer bytesIn = null;
-        CharBuffer charBuffer = null;
+            myBuilder.setLength(0);
+            boolean isAscii = true;
 
-        int read = read();
-        while (read > 0) {
-            if (bytesIn == null) {
-                if (read < 0x80) {
-                    // 1 byte encoded / ASCII!
-                    myStringBuilder.append((char) read);
+            for (int i = myBufferOffset; i < myBufferLimit; ++i) {
+                final int b = (myBuffer[i] & 0xFF);
+                if (b == 0) {
+                    // Done.
+                    String result;
+                    if (!isAscii) {
+                        result = new String(myBuffer, myBufferOffset, i
+                                - myBufferOffset, UTF8);
+                    }
+                    else {
+                        result = myBuilder.toString();
+                    }
+
+                    myBuilder.setLength(0);
+                    myBufferOffset = (i + 1);
+
+                    return result;
                 }
-                // else if (read < 0x800) {
-                // // 2 byte encoded.
-                // writeByte((byte) (0xc0 | (c >> 06)));
-                // writeByte((byte) (0x80 | (c & 0x3f)));
-                // }
+                else if ((b < ASCII_LIMIT) && isAscii) {
+                    myBuilder.append((char) b);
+                }
                 else {
-                    // Complicated beyond here. Surrogates and what not. Let the
-                    // full charset handle it.
-                    decoder = UTF8.newDecoder();
-                    charBuffer = CharBuffer.allocate(64);
-                    bytesIn = ByteBuffer.allocate(64);
-                    bytesIn.put((byte) read);
-                }
-            }
-            else {
-                bytesIn.put((byte) read);
-
-                if (!bytesIn.hasRemaining()) {
-
-                    bytesIn.flip();
-                    decoder.decode(bytesIn, charBuffer, false);
-                    charBuffer.flip();
-                    myStringBuilder.append(charBuffer);
-
-                    charBuffer.clear();
-                    bytesIn.compact();
+                    isAscii = false;
                 }
             }
 
-            read = read();
+            // Need more data.
+            ensureFetched(availableInBuffer() + 1);
         }
-
-        if (read < 0) {
-            throw new EOFException();
-        }
-
-        // Last decode.
-        if (bytesIn != null) {
-            bytesIn.flip();
-            decoder.decode(bytesIn, charBuffer, true);
-            charBuffer.flip();
-            myStringBuilder.append(charBuffer);
-        }
-
-        return myStringBuilder.toString();
     }
 
     /**
@@ -220,9 +276,28 @@ public class BsonInputStream extends FilterInputStream {
      */
     public Document readDocument() throws EOFException, IOException {
 
-        // The total length of the document. Not used.
-        readInt();
+        // The total length of the document.
+        final int fetch = readInt();
+
+        prefetch(fetch - 4);
+
         return new RootDocument(readElements());
+    }
+
+    /**
+     * Reads the complete set of bytes from the stream or throws an
+     * {@link EOFException}.
+     * 
+     * @param buffer
+     *            The buffer into which the data is read.
+     * @exception EOFException
+     *                If the input stream reaches the end before reading all the
+     *                bytes.
+     * @exception IOException
+     *                On an error reading from the underlying stream.
+     */
+    public void readFully(final byte[] buffer) throws EOFException, IOException {
+        readFully(buffer, 0, buffer.length);
     }
 
     /**
@@ -235,19 +310,18 @@ public class BsonInputStream extends FilterInputStream {
      *             On a failure reading the integer.
      */
     public int readInt() throws EOFException, IOException {
-        int read = 0;
-        int eofCheck = 0;
-        int result = 0;
-
-        for (int i = 0; i < Integer.SIZE; i += Byte.SIZE) {
-            read = read();
-            eofCheck |= read;
-            result += (read << i);
-        }
-
-        if (eofCheck < 0) {
+        if (ensureFetched(4) != 4) {
             throw new EOFException();
         }
+
+        // Little endian.
+        int result = (myBuffer[myBufferOffset] & 0xFF);
+        result += (myBuffer[myBufferOffset + 1] & 0xFF) << 8;
+        result += (myBuffer[myBufferOffset + 2] & 0xFF) << 16;
+        result += (myBuffer[myBufferOffset + 3] & 0xFF) << 24;
+
+        myBufferOffset += 4;
+
         return result;
     }
 
@@ -261,21 +335,34 @@ public class BsonInputStream extends FilterInputStream {
      *             On a failure reading the long.
      */
     public long readLong() throws EOFException, IOException {
-        int read = 0;
-        int eofCheck = 0;
-        long result = 0;
-
-        for (int i = 0; i < Long.SIZE; i += Byte.SIZE) {
-            read = read();
-            eofCheck |= read;
-            result += (((long) read) << i);
-        }
-
-        if (eofCheck < 0) {
+        if (ensureFetched(8) != 8) {
             throw new EOFException();
         }
 
+        // Little endian.
+        long result = (myBuffer[myBufferOffset] & 0xFFL);
+        result += (myBuffer[myBufferOffset + 1] & 0xFFL) << 8;
+        result += (myBuffer[myBufferOffset + 2] & 0xFFL) << 16;
+        result += (myBuffer[myBufferOffset + 3] & 0xFFL) << 24;
+        result += (myBuffer[myBufferOffset + 4] & 0xFFL) << 32;
+        result += (myBuffer[myBufferOffset + 5] & 0xFFL) << 40;
+        result += (myBuffer[myBufferOffset + 6] & 0xFFL) << 48;
+        result += (myBuffer[myBufferOffset + 7] & 0xFFL) << 56;
+
+        myBufferOffset += 8;
+
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to throw an {@link UnsupportedOperationException}.
+     * </p>
+     */
+    @Override
+    public synchronized void reset() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Mark not supported.");
     }
 
     /**
@@ -286,9 +373,27 @@ public class BsonInputStream extends FilterInputStream {
      */
     @Override
     public long skip(final long n) throws IOException {
-        final long skipped = in.skip(n);
-        myBytesRead += skipped;
+
+        long skipped = Math.min(n, availableInBuffer());
+        myBufferOffset += skipped;
+
+        if (skipped < n) {
+            // Exhausted the buffer - skip in the source.
+            final long streamSkipped = myInput.skip(n - skipped);
+            myBytesRead += streamSkipped;
+            skipped += streamSkipped;
+        }
+
         return skipped;
+    }
+
+    /**
+     * Returns the number of bytes available in the buffer.
+     * 
+     * @return The number of bytes available in the buffer.
+     */
+    protected final int availableInBuffer() {
+        return myBufferLimit - myBufferOffset;
     }
 
     /**
@@ -309,7 +414,8 @@ public class BsonInputStream extends FilterInputStream {
         final String name = readCString();
 
         // The total length of the document. Not used.
-        readInt();
+        final int fetch = readInt();
+        prefetch(fetch - 4);
 
         return new ArrayElement(name, readElements());
     }
@@ -352,22 +458,21 @@ public class BsonInputStream extends FilterInputStream {
 
             length -= 4;
         }
-
-        final byte[] binary = new byte[length];
-        readFully(binary);
-
-        if ((subType == UuidElement.LEGACY_UUID_SUBTTYPE)
+        else if ((subType == UuidElement.LEGACY_UUID_SUBTTYPE)
                 || (subType == UuidElement.UUID_SUBTTYPE)) {
+
+            final byte[] binary = new byte[length];
             try {
+                readFully(binary);
                 return new UuidElement(name, (byte) subType, binary);
             }
             catch (final IllegalArgumentException iae) {
                 // Just use the vanilla BinaryElement.
-                iae.getCause(); // Shhh - PMD.
+                return new BinaryElement(name, (byte) subType, binary);
             }
         }
 
-        return new BinaryElement(name, (byte) subType, binary);
+        return new BinaryElement(name, (byte) subType, this, length);
     }
 
     /**
@@ -550,32 +655,6 @@ public class BsonInputStream extends FilterInputStream {
     }
 
     /**
-     * Reads the complete set of bytes from the stream or throws an
-     * {@link EOFException}.
-     * 
-     * @param buffer
-     *            The buffer into which the data is read.
-     * @exception EOFException
-     *                If the input stream reaches the end before reading all the
-     *                bytes.
-     * @exception IOException
-     *                On an error reading from the underlying stream.
-     */
-    protected void readFully(final byte[] buffer) throws EOFException,
-            IOException {
-
-        final int length = buffer.length;
-        int index = 0;
-        while (index < length) {
-            final int count = read(buffer, index, length - index);
-            if (count < 0) {
-                throw new EOFException();
-            }
-            index += count;
-        }
-    }
-
-    /**
      * Reads a "string" value from the stream:<code>
      * <pre>
      * string 	::= 	int32 (byte*) "\x00"
@@ -596,11 +675,166 @@ public class BsonInputStream extends FilterInputStream {
     protected String readString() throws EOFException, IOException {
         final int length = readInt();
 
-        final byte[] bytes = new byte[length];
-        readFully(bytes);
+        if (ensureFetched(length) != length) {
+            throw new EOFException();
+        }
 
+        // Try to decode as ASCII.
         // Remember to remove the null byte at the end of the string.
-        return new String(bytes, 0, bytes.length - 1, UTF8);
+        boolean isAscii = true;
+        for (int i = 0; i < (length - 1); ++i) {
+            final int b = (myBuffer[myBufferOffset + i] & 0xFF);
+            if (b < ASCII_LIMIT) {
+                myBuilder.append((char) b);
+            }
+            else {
+                isAscii = false;
+                break;
+            }
+        }
+
+        String result;
+        if (!isAscii) {
+            result = new String(myBuffer, myBufferOffset, length - 1, UTF8);
+        }
+        else {
+            result = myBuilder.toString();
+        }
+
+        // Advance the buffer.
+        myBufferOffset += length;
+
+        // Clear the String builder.
+        myBuilder.setLength(0);
+
+        return result;
     }
 
+    /**
+     * Fetch the requested number of bytes from the underlying stream. Returns
+     * the number of bytes available in the buffer or the number of requested
+     * bytes, which ever is smaller.
+     * 
+     * @param size
+     *            The number of bytes to be read.
+     * @return The smaller of the number of bytes requested or the number of
+     *         bytes available in the buffer.
+     * @throws IOException
+     *             On a failure to read from the underlying stream.
+     */
+    private final int ensureFetched(final int size) throws IOException {
+        return fetch(size, true);
+    }
+
+    /**
+     * Fetch the requested number of bytes from the underlying stream. Returns
+     * the number of bytes available in the buffer or the number of requested
+     * bytes, which ever is smaller.
+     * 
+     * @param size
+     *            The number of bytes to be read.
+     * @param forceRead
+     *            Determines if a read is forced to ensure the buffer contains
+     *            the number of bytes.
+     * @return The smaller of the number of bytes requested or the number of
+     *         bytes available in the buffer.
+     * @throws IOException
+     *             On a failure to read from the underlying stream.
+     */
+    private final int fetch(final int size, final boolean forceRead)
+            throws IOException {
+        // See if we need to read more data.
+        int available = availableInBuffer();
+        if (available < size) {
+            // Yes - we do.
+
+            // Will the size fit in the existing buffer?
+            if (myBuffer.length < size) {
+                // Nope - grow the buffer to the needed size.
+                final byte[] newBuffer = new byte[size];
+
+                // Copy the existing content into the new buffer.
+                System.arraycopy(myBuffer, myBufferOffset, newBuffer, 0,
+                        available);
+                myBuffer = newBuffer;
+            }
+            else if (0 < available) {
+                // Compact the buffer.
+                System.arraycopy(myBuffer, myBufferOffset, myBuffer, 0,
+                        available);
+            }
+
+            // Reset the limit and offset...
+            myBytesRead += myBufferOffset;
+            myBufferOffset = 0;
+            myBufferLimit = available;
+
+            // Now read as much as possible to fill the buffer.
+            int read;
+            do {
+                read = myInput.read(myBuffer, myBufferLimit, myBuffer.length
+                        - myBufferLimit);
+                if (0 < read) {
+                    available += read;
+                    myBufferLimit += read;
+                }
+            }
+            while (forceRead && (0 <= read) && (available < size));
+
+            return Math.min(size, available);
+        }
+
+        return size;
+    }
+
+    /**
+     * Tries to prefetch the requested number of bytes from the underlying
+     * stream.
+     * 
+     * @param size
+     *            The number of bytes to try and read.
+     * @throws IOException
+     *             On a failure to read from the underlying stream.
+     */
+    private final void prefetch(final int size) throws IOException {
+        fetch(size, false);
+    }
+
+    /**
+     * Reads the complete set of bytes from the stream or throws an
+     * {@link EOFException}.
+     * 
+     * @param buffer
+     *            The buffer into which the data is read.
+     * @param offset
+     *            The offset to start writing into the buffer.
+     * @param length
+     *            The number of bytes to write into the buffer.
+     * @exception EOFException
+     *                If the input stream reaches the end before reading all the
+     *                bytes.
+     * @exception IOException
+     *                On an error reading from the underlying stream.
+     * @see DataInput#readFully(byte[], int, int)
+     */
+    private void readFully(final byte[] buffer, final int offset,
+            final int length) throws EOFException, IOException {
+
+        int read = Math.min(length, availableInBuffer());
+        System.arraycopy(myBuffer, myBufferOffset, buffer, offset, read);
+        myBufferOffset += read;
+
+        // Read directly from the stream to avoid a copy.
+        while (read < length) {
+            final int count = myInput
+                    .read(buffer, offset + read, length - read);
+            if (count < 0) {
+                throw new EOFException();
+            }
+            read += count;
+
+            // Directly read bytes never hit the buffer.
+            myBytesRead += read;
+        }
+    }
 }
