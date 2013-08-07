@@ -79,7 +79,7 @@ public abstract class AbstractBuilder implements Builder {
     public AbstractBuilder(final AbstractBuilder outerBuilder) {
         super();
         myOuterBuilder = outerBuilder;
-        myElements = new ArrayList<Element>(5);
+        myElements = new ArrayList<Element>(32);
     }
 
     /**
