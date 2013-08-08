@@ -375,7 +375,7 @@ public class ClientImpl extends AbstractClient {
             // know their state of flight between here and the server.
             MongoDbException exception = new ConnectionLostException(
                     "Connection lost to MongoDB: " + connection);
-            connection.raiseErrors(exception, false);
+            connection.raiseErrors(exception);
 
             final Connection newConnection = strategy.reconnect(connection);
             if (newConnection != null) {
@@ -391,7 +391,7 @@ public class ClientImpl extends AbstractClient {
                 // Raise errors for all of the to be sent and pending messages.
                 exception = new CannotConnectException(
                         "Could not reconnect to MongoDB.");
-                connection.raiseErrors(exception, true);
+                connection.raiseErrors(exception);
                 connection.removePropertyChangeListener(myConnectionListener);
                 myConnections.remove(connection);
             }

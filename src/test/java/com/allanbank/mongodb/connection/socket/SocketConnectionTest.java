@@ -29,7 +29,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +62,6 @@ import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.GetMore;
 import com.allanbank.mongodb.connection.message.Insert;
 import com.allanbank.mongodb.connection.message.KillCursors;
-import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
@@ -124,72 +122,6 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for {@link SocketConnection#addPending} .
-     * 
-     * @throws IOException
-     *             On a failure connecting to the Mock MongoDB server.
-     * @throws InterruptedException
-     *             On a failure connecting to the Mock MongoDB server.
-     */
-    @Test
-    public void testAddPending() throws IOException, InterruptedException {
-
-        final InetSocketAddress addr = ourServer.getInetSocketAddress();
-
-        final MongoClientConfiguration config = new MongoClientConfiguration();
-        config.setReadTimeout(100);
-        myTestConnection = new SocketConnection(new ServerState(addr), config);
-        myTestConnection.start();
-
-        assertTrue("Should have connected to the server.",
-                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
-
-        final DocumentBuilder builder = BuilderFactory.start();
-        builder.addInteger("getlasterror", 1);
-
-        final Document doc = builder.build();
-
-        final GetLastError error = new GetLastError("fo", false, false, 0, 0);
-        final List<PendingMessage> messages = new ArrayList<PendingMessage>();
-        messages.add(new PendingMessage(1, error));
-
-        myTestConnection.addPending(messages);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
-        assertTrue("Should receive the request after flush.",
-                ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
-
-        final byte[] request = ourServer.getRequests().get(0);
-
-        final IntBuffer asInts = ByteBuffer.wrap(request).asIntBuffer();
-
-        // Header.
-        assertEquals("Message size is wrong.", request.length,
-                EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
-        assertEquals("Response id should be zero.", 0, asInts.get(2));
-        assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
-                EndianUtils.swap(asInts.get(3)));
-
-        assertEquals("Flags should be zero.", 0, asInts.get(4));
-        assertArrayEquals("Collection name is wrong.", new byte[] { 'f', 'o',
-                '.', '$', 'c', 'm', 'd', 0 },
-                Arrays.copyOfRange(request, 20, 28));
-        assertEquals("Number to skip not expected.", 0,
-                EndianUtils.swap(asInts.get(7)));
-        assertEquals("Number to return not expected.", -1,
-                EndianUtils.swap(asInts.get(8)));
-
-        final BsonInputStream reader = new BsonInputStream(
-                new ByteArrayInputStream(Arrays.copyOfRange(request,
-                        (7 * 4) + 8, request.length)));
-
-        final Document sent = reader.readDocument();
-        reader.close();
-
-        assertEquals("The sent command is not the expected command.", doc, sent);
-    }
-
-    /**
      * Test method for {@link SocketConnection#close()}.
      * 
      * @throws IOException
@@ -210,19 +142,14 @@ public class SocketConnectionTest {
 
         final Thread[] threads = new Thread[Thread.activeCount()];
         Thread.enumerate(threads);
-        Thread send = null;
+
         Thread receive = null;
         for (final Thread t : threads) {
-            if (t.getName().contains("-->")) {
-                assertNull("Found 2 send threads", send);
-                send = t;
-            }
-            else if (t.getName().contains("<--")) {
+            if (t.getName().contains("<--")) {
                 assertNull("Found 2 receive threads", receive);
                 receive = t;
             }
         }
-        assertNotNull("Did not find the send thread", send);
         assertNotNull("Did not find the receive thread", receive);
 
         myTestConnection.close();
@@ -231,14 +158,13 @@ public class SocketConnectionTest {
                 ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10)));
 
         assertFalse("Receive thread should have died.", receive.isAlive());
-        assertFalse("Send thread should have died.", send.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
         myTestConnection = null;
     }
 
     /**
-     * Test method for {@link SocketConnection#addPending} .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -340,7 +266,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", request.length,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -402,7 +328,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", request.length,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -464,7 +390,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", request.length,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -528,7 +454,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", request.length,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -586,7 +512,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", (6 * 4) + 8 + 8,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.GET_MORE.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -651,7 +577,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.INSERT.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -717,7 +643,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.INSERT.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -766,7 +692,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", (6 * 4) + 8,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.KILL_CURSORS.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -828,7 +754,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", (6 * 4) + 8 + helloWorld.length,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.DELETE.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -886,7 +812,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -951,7 +877,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -1017,7 +943,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -1083,7 +1009,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -1149,7 +1075,7 @@ public class SocketConnectionTest {
 
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -1215,7 +1141,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -1281,7 +1207,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -1348,7 +1274,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.QUERY.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -1375,8 +1301,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for
-     * {@link SocketConnection#raiseErrors(MongoDbException, boolean)} .
+     * Test method for {@link SocketConnection#raiseErrors(MongoDbException)} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1424,15 +1349,15 @@ public class SocketConnectionTest {
         assertTrue(myTestConnection.isIdle());
         assertFalse(myTestConnection.isOpen());
 
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
-        myTestConnection.send(error, null);
+        myTestConnection.send(error, future);
         myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertFalse(myTestConnection.isIdle());
         assertFalse(myTestConnection.isOpen());
 
-        myTestConnection.raiseErrors(new MongoDbException(), true);
-        myTestConnection.raiseErrors(new MongoDbException(), false);
+        myTestConnection.raiseErrors(new MongoDbException());
     }
 
     /**
@@ -1503,7 +1428,7 @@ public class SocketConnectionTest {
     }
 
     /**
-     * Test method for {@link SocketConnection#addPending} .
+     * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
@@ -1547,19 +1472,14 @@ public class SocketConnectionTest {
 
         final Thread[] threads = new Thread[Thread.activeCount()];
         Thread.enumerate(threads);
-        Thread send = null;
+
         Thread receive = null;
         for (final Thread t : threads) {
-            if (t.getName().contains("-->")) {
-                assertNull("Found 2 send threads", send);
-                send = t;
-            }
-            else if (t.getName().contains("<--")) {
+            if (t.getName().contains("<--")) {
                 assertNull("Found 2 receive threads", receive);
                 receive = t;
             }
         }
-        assertNotNull("Did not find the send thread", send);
         assertNotNull("Did not find the receive thread", receive);
 
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
@@ -1576,7 +1496,6 @@ public class SocketConnectionTest {
 
         assertTrue(myTestConnection.isIdle());
         assertFalse("Receive thread should have died.", receive.isAlive());
-        assertFalse("Send thread should have died.", send.isAlive());
         assertFalse(myTestConnection.isOpen());
         assertEquals(0, myTestConnection.getPendingCount());
 
@@ -1737,32 +1656,22 @@ public class SocketConnectionTest {
 
         final Thread[] threads = new Thread[Thread.activeCount()];
         Thread.enumerate(threads);
-        Thread send = null;
         Thread receive = null;
         for (final Thread t : threads) {
-            if (t.getName().contains("-->")) {
-                assertNull("Found 2 send threads", send);
-                send = t;
-            }
-            else if (t.getName().contains("<--")) {
+            if (t.getName().contains("<--")) {
                 assertNull("Found 2 receive threads", receive);
                 receive = t;
             }
         }
-        assertNotNull("Did not find the send thread", send);
         assertNotNull("Did not find the receive thread", receive);
 
-        final List<PendingMessage> toAdd = new ArrayList<PendingMessage>();
-        toAdd.add(new PendingMessage(1, new PoisonMessage(new OutOfMemoryError(
-                "injected error"))));
-        myTestConnection.addPending(toAdd);
+        myTestConnection.send(new PoisonMessage(new OutOfMemoryError(
+                "injected error")), null);
 
         // Receive should see the disconnect first.
         receive.join(TimeUnit.SECONDS.toMillis(30));
-        send.join(TimeUnit.SECONDS.toMillis(30));
 
         assertFalse("Receive thread should have died.", receive.isAlive());
-        assertFalse("Send thread should have died.", send.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
         myTestConnection = null;
@@ -1791,32 +1700,22 @@ public class SocketConnectionTest {
 
         final Thread[] threads = new Thread[Thread.activeCount()];
         Thread.enumerate(threads);
-        Thread send = null;
         Thread receive = null;
         for (final Thread t : threads) {
-            if (t.getName().contains("-->")) {
-                assertNull("Found 2 send threads", send);
-                send = t;
-            }
-            else if (t.getName().contains("<--")) {
+            if (t.getName().contains("<--")) {
                 assertNull("Found 2 receive threads", receive);
                 receive = t;
             }
         }
-        assertNotNull("Did not find the send thread", send);
         assertNotNull("Did not find the receive thread", receive);
 
-        final List<PendingMessage> toAdd = new ArrayList<PendingMessage>();
-        toAdd.add(new PendingMessage(1, new PoisonMessage(new IOException(
-                "injected error"))));
-        myTestConnection.addPending(toAdd);
+        myTestConnection.send(new PoisonMessage(new IOException(
+                "injected error")), null);
 
         // Receive should see the disconnect first.
         receive.join(TimeUnit.SECONDS.toMillis(30));
-        send.join(TimeUnit.SECONDS.toMillis(30));
 
         assertFalse("Receive thread should have died.", receive.isAlive());
-        assertFalse("Send thread should have died.", send.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
         myTestConnection = null;
@@ -1846,32 +1745,22 @@ public class SocketConnectionTest {
 
         final Thread[] threads = new Thread[Thread.activeCount()];
         Thread.enumerate(threads);
-        Thread send = null;
         Thread receive = null;
         for (final Thread t : threads) {
-            if (t.getName().contains("-->")) {
-                assertNull("Found 2 send threads", send);
-                send = t;
-            }
-            else if (t.getName().contains("<--")) {
+            if (t.getName().contains("<--")) {
                 assertNull("Found 2 receive threads", receive);
                 receive = t;
             }
         }
-        assertNotNull("Did not find the send thread", send);
         assertNotNull("Did not find the receive thread", receive);
 
-        final List<PendingMessage> toAdd = new ArrayList<PendingMessage>();
-        toAdd.add(new PendingMessage(1, new PoisonMessage(new MongoDbException(
-                "injected error"))));
-        myTestConnection.addPending(toAdd);
+        myTestConnection.send(new PoisonMessage(new MongoDbException(
+                "injected error")), null);
 
         // Receive should see the disconnect first.
         receive.join(TimeUnit.SECONDS.toMillis(30));
-        send.join(TimeUnit.SECONDS.toMillis(30));
 
         assertFalse("Receive thread should have died.", receive.isAlive());
-        assertFalse("Send thread should have died.", send.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
         myTestConnection = null;
@@ -1900,31 +1789,24 @@ public class SocketConnectionTest {
 
         final Thread[] threads = new Thread[Thread.activeCount()];
         Thread.enumerate(threads);
-        Thread send = null;
+
         Thread receive = null;
         for (final Thread t : threads) {
-            if (t.getName().contains("-->")) {
-                assertNull("Found 2 send threads", send);
-                send = t;
-            }
-            else if (t.getName().contains("<--")) {
+            if (t.getName().contains("<--")) {
                 assertNull("Found 2 receive threads", receive);
                 receive = t;
             }
         }
-        assertNotNull("Did not find the send thread", send);
         assertNotNull("Did not find the receive thread", receive);
 
         assertTrue(ourServer.disconnectClient());
 
         // Receive should see the disconnect first.
         receive.join(TimeUnit.SECONDS.toMillis(600));
-        send.join(TimeUnit.SECONDS.toMillis(600));
 
         assertFalse(
                 "Receive thread should have died: " + receive.getStackTrace(),
                 receive.isAlive());
-        assertFalse("Send thread should have died.", send.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
         myTestConnection = null;
@@ -2026,7 +1908,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", (6 * 4) + 8 + helloWorld.length,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.DELETE.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -2126,7 +2008,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.UPDATE.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -2193,7 +2075,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.UPDATE.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -2260,7 +2142,7 @@ public class SocketConnectionTest {
         // Header.
         assertEquals("Message size is wrong.", expectedLength,
                 EndianUtils.swap(asInts.get(0)));
-        assertTrue("Request id should not be zero.", asInts.get(1) != 0);
+        assertTrue("Request id should not be one.", asInts.get(1) != 1);
         assertEquals("Response id should be zero.", 0, asInts.get(2));
         assertEquals("Wrong OP code.", Operation.UPDATE.getCode(),
                 EndianUtils.swap(asInts.get(3)));
@@ -2340,8 +2222,7 @@ public class SocketConnectionTest {
         @Override
         public void validateSize(final SizeOfVisitor visitor,
                 final int maxDocumentSize) throws DocumentToLargeException {
-            // TODO Auto-generated method stub
-
+            // Nothing.
         }
 
         @Override

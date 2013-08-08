@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
@@ -100,6 +101,9 @@ public class MongoCollectionImplTest {
         myTestInstance = new MongoCollectionImpl(myMockClient, myMockDatabase,
                 "test");
         myAddress = "localhost:21017";
+
+        expect(myMockClient.getConfig()).andReturn(
+                new MongoClientConfiguration()).anyTimes();
     }
 
     /**

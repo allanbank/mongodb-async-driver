@@ -21,8 +21,6 @@ import static org.junit.Assert.fail;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.easymock.Capture;
@@ -37,7 +35,6 @@ import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Delete;
-import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -124,84 +121,6 @@ public class AbstractProxyConnectionTest {
         assertSame(event.getPropertyName(), newEvent.getPropertyName());
         assertSame(event.getOldValue(), newEvent.getOldValue());
         assertSame(event.getNewValue(), newEvent.getNewValue());
-    }
-
-    /**
-     * Test method for {@link AbstractProxyConnection#addPending(List)} .
-     * 
-     * @throws IOException
-     *             On a failure setting up the mocks for the test.
-     * @throws InterruptedException
-     *             On a failure setting up the mocks for the test.
-     */
-    @Test
-    public void testAddPending() throws IOException, InterruptedException {
-        final Message msg = new Delete("db", "collection", EMPTY_DOC, true);
-        final List<PendingMessage> pendings = Collections
-                .singletonList(new PendingMessage(1, msg));
-
-        final Connection mockConnetion = createMock(Connection.class);
-
-        // Message.
-        mockConnetion.addPending(pendings);
-        expectLastCall();
-
-        mockConnetion.close();
-        expectLastCall();
-
-        replay(mockConnetion);
-
-        final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
-
-        conn.addPending(pendings);
-
-        IOUtils.close(conn);
-
-        verify(mockConnetion);
-    }
-
-    /**
-     * Test method for {@link AbstractProxyConnection#addPending(List)} .
-     * 
-     * @throws IOException
-     *             On a failure setting up the mocks for the test.
-     * @throws InterruptedException
-     *             On a failure setting up the mocks for the test.
-     */
-    @Test
-    public void testAddPendingOnThrow() throws IOException,
-            InterruptedException {
-        final Message msg = new Delete("db", "collection", EMPTY_DOC, true);
-        final MongoDbException thrown = new MongoDbException();
-        final List<PendingMessage> pendings = Collections
-                .singletonList(new PendingMessage(1, msg));
-
-        final Connection mockConnetion = createMock(Connection.class);
-
-        // Message.
-        mockConnetion.addPending(pendings);
-        expectLastCall().andThrow(thrown);
-
-        mockConnetion.close();
-        expectLastCall().times(2);
-
-        replay(mockConnetion);
-
-        final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
-
-        try {
-            conn.addPending(pendings);
-            fail("Should have thrown the exception.");
-        }
-        catch (final MongoDbException good) {
-            assertSame(thrown, good);
-        }
-
-        IOUtils.close(conn);
-
-        verify(mockConnetion);
     }
 
     /**
@@ -305,77 +224,6 @@ public class AbstractProxyConnectionTest {
         conn.close();
 
         verify(mockConnetion);
-    }
-
-    /**
-     * Test method for {@link AbstractProxyConnection#drainPending(List)} .
-     * 
-     * @throws IOException
-     *             On a failure setting up the mocks for the test.
-     */
-    @Test
-    public void testDrainPending() throws IOException {
-        final List<PendingMessage> pendings = Collections.emptyList();
-
-        final Connection mockConnetion = createMock(Connection.class);
-
-        // Message.
-        mockConnetion.drainPending(pendings);
-        expectLastCall();
-
-        mockConnetion.close();
-        expectLastCall();
-
-        replay(mockConnetion);
-
-        final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
-
-        conn.drainPending(pendings);
-
-        IOUtils.close(conn);
-
-        verify(mockConnetion);
-    }
-
-    /**
-     * Test method for {@link AbstractProxyConnection#drainPending(List)} .
-     * 
-     * @throws IOException
-     *             On a failure setting up the mocks for the test.
-     */
-    @Test
-    public void testDrainPendingOnThrow() throws IOException {
-
-        final MongoDbException thrown = new MongoDbException();
-        final List<PendingMessage> pendings = Collections.emptyList();
-
-        final Connection mockConnetion = createMock(Connection.class);
-
-        // Message.
-        mockConnetion.drainPending(pendings);
-        expectLastCall().andThrow(thrown);
-
-        mockConnetion.close();
-        expectLastCall().times(2);
-
-        replay(mockConnetion);
-
-        final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
-
-        try {
-            conn.drainPending(pendings);
-            fail("Should have thrown the exception.");
-        }
-        catch (final MongoDbException good) {
-            assertSame(thrown, good);
-        }
-
-        IOUtils.close(conn);
-
-        verify(mockConnetion);
-
     }
 
     /**
@@ -668,7 +516,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for
-     * {@link AbstractProxyConnection#raiseErrors(MongoDbException, boolean)} .
+     * {@link AbstractProxyConnection#raiseErrors(MongoDbException)} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -679,7 +527,7 @@ public class AbstractProxyConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        mockConnetion.raiseErrors(thrown, false);
+        mockConnetion.raiseErrors(thrown);
         expectLastCall();
 
         mockConnetion.close();
@@ -690,7 +538,7 @@ public class AbstractProxyConnectionTest {
         final TestProxiedConnection conn = new TestProxiedConnection(
                 mockConnetion, new MongoClientConfiguration());
 
-        conn.raiseErrors(thrown, false);
+        conn.raiseErrors(thrown);
 
         IOUtils.close(conn);
 

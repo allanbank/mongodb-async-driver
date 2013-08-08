@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Mongo;
 import com.allanbank.mongodb.MongoClient;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.bson.Document;
@@ -167,6 +168,8 @@ public class MongoImplTest {
 
         final Command message = new Command("admin", commandDoc.build());
 
+        expect(myMockClient.getConfig()).andReturn(
+                new MongoClientConfiguration());
         expect(myMockClient.send(eq(message), callback(reply(reply.build()))))
                 .andReturn(myAddress);
 

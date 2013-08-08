@@ -8,7 +8,6 @@ package com.allanbank.mongodb.connection.proxy;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
@@ -16,7 +15,6 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -53,24 +51,6 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to forward to the wrapped connection.
-     * </p>
-     */
-    @Override
-    public void addPending(final List<PendingMessage> pending)
-            throws InterruptedException {
-        try {
-            myProxiedConnection.addPending(pending);
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to create a proxy connection if not already created and add
      * the listener to that connection.
      * </p>
@@ -97,23 +77,6 @@ public abstract class AbstractProxyConnection implements Connection {
     @Override
     public void close() throws IOException {
         myProxiedConnection.close();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to forward to the wrapped connection.
-     * </p>
-     */
-    @Override
-    public void drainPending(final List<PendingMessage> pending) {
-        try {
-            myProxiedConnection.drainPending(pending);
-        }
-        catch (final MongoDbException error) {
-            onExceptin(error);
-            throw error;
-        }
     }
 
     /**
@@ -204,9 +167,8 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public void raiseErrors(final MongoDbException exception,
-            final boolean notifyToBeSent) {
-        myProxiedConnection.raiseErrors(exception, notifyToBeSent);
+    public void raiseErrors(final MongoDbException exception) {
+        myProxiedConnection.raiseErrors(exception);
     }
 
     /**

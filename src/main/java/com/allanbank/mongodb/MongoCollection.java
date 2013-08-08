@@ -6,7 +6,6 @@
 package com.allanbank.mongodb;
 
 import java.util.List;
-import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -67,11 +66,11 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the aggregation request.
-     * @return Future for the aggregation results returned.
+     * @return ListenableFuture for the aggregation results returned.
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public Future<List<Document>> aggregateAsync(Aggregate command)
+    public ListenableFuture<List<Document>> aggregateAsync(Aggregate command)
             throws MongoDbException;
 
     /**
@@ -79,12 +78,12 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the aggregation request.
-     * @return Future for the aggregation results returned.
+     * @return ListenableFuture for the aggregation results returned.
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public Future<List<Document>> aggregateAsync(Aggregate.Builder command)
-            throws MongoDbException;
+    public ListenableFuture<List<Document>> aggregateAsync(
+            Aggregate.Builder command) throws MongoDbException;
 
     /**
      * Invokes a aggregate command on the server.
@@ -181,7 +180,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Long> countAsync() throws MongoDbException;
+    public ListenableFuture<Long> countAsync() throws MongoDbException;
 
     /**
      * Counts the set of documents in the collection.
@@ -259,7 +258,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Long> countAsync(DocumentAssignable query)
+    public ListenableFuture<Long> countAsync(DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -276,7 +275,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Long> countAsync(DocumentAssignable query,
+    public ListenableFuture<Long> countAsync(DocumentAssignable query,
             ReadPreference readPreference) throws MongoDbException;
 
     /**
@@ -292,7 +291,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Long> countAsync(ReadPreference readPreference)
+    public ListenableFuture<Long> countAsync(ReadPreference readPreference)
             throws MongoDbException;
 
     /**
@@ -605,12 +604,13 @@ public interface MongoCollection {
      * 
      * @param query
      *            Query to locate the documents to be deleted.
-     * @return Future that will be updated with the results of the delete. If
-     *         the durability of the operation is NONE then this will be -1.
+     * @return ListenableFuture that will be updated with the results of the
+     *         delete. If the durability of the operation is NONE then this will
+     *         be -1.
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Long> deleteAsync(DocumentAssignable query)
+    public ListenableFuture<Long> deleteAsync(DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -622,12 +622,13 @@ public interface MongoCollection {
      *            If true then only a single document will be deleted. If
      *            running in a sharded environment then this field must be false
      *            or the query must contain the shard key.
-     * @return Future that will be updated with the results of the delete. If
-     *         the durability of the operation is NONE then this will be -1.
+     * @return ListenableFuture that will be updated with the results of the
+     *         delete. If the durability of the operation is NONE then this will
+     *         be -1.
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Long> deleteAsync(DocumentAssignable query,
+    public ListenableFuture<Long> deleteAsync(DocumentAssignable query,
             boolean singleDelete) throws MongoDbException;
 
     /**
@@ -641,12 +642,13 @@ public interface MongoCollection {
      *            or the query must contain the shard key.
      * @param durability
      *            The durability for the delete.
-     * @return Future that will be updated with the results of the delete. If
-     *         the durability of the operation is NONE then this will be -1.
+     * @return ListenableFuture that will be updated with the results of the
+     *         delete. If the durability of the operation is NONE then this will
+     *         be -1.
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Long> deleteAsync(DocumentAssignable query,
+    public ListenableFuture<Long> deleteAsync(DocumentAssignable query,
             boolean singleDelete, Durability durability)
             throws MongoDbException;
 
@@ -657,12 +659,13 @@ public interface MongoCollection {
      *            Query to locate the documents to be deleted.
      * @param durability
      *            The durability for the delete.
-     * @return Future that will be updated with the results of the delete. If
-     *         the durability of the operation is NONE then this will be -1.
+     * @return ListenableFuture that will be updated with the results of the
+     *         delete. If the durability of the operation is NONE then this will
+     *         be -1.
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public Future<Long> deleteAsync(DocumentAssignable query,
+    public ListenableFuture<Long> deleteAsync(DocumentAssignable query,
             Durability durability) throws MongoDbException;
 
     /**
@@ -719,11 +722,11 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the distinct request.
-     * @return Future for the distinct results returned.
+     * @return ListenableFuture for the distinct results returned.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<ArrayElement> distinctAsync(Distinct command)
+    public ListenableFuture<ArrayElement> distinctAsync(Distinct command)
             throws MongoDbException;
 
     /**
@@ -731,11 +734,11 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the distinct request.
-     * @return Future for the distinct results returned.
+     * @return ListenableFuture for the distinct results returned.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<ArrayElement> distinctAsync(Distinct.Builder command)
+    public ListenableFuture<ArrayElement> distinctAsync(Distinct.Builder command)
             throws MongoDbException;
 
     /**
@@ -863,7 +866,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Document> explainAsync(Find query) throws MongoDbException;
+    public ListenableFuture<Document> explainAsync(Find query)
+            throws MongoDbException;
 
     /**
      * Explains the way that the document will be performed.
@@ -874,7 +878,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Document> explainAsync(Find.Builder query)
+    public ListenableFuture<Document> explainAsync(Find.Builder query)
             throws MongoDbException;
 
     /**
@@ -984,11 +988,11 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the find and modify request.
-     * @return Future for the found document.
+     * @return ListenableFuture for the found document.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Document> findAndModifyAsync(FindAndModify command)
+    public ListenableFuture<Document> findAndModifyAsync(FindAndModify command)
             throws MongoDbException;
 
     /**
@@ -997,12 +1001,12 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the find and modify request.
-     * @return Future for the found document.
+     * @return ListenableFuture for the found document.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<Document> findAndModifyAsync(FindAndModify.Builder command)
-            throws MongoDbException;
+    public ListenableFuture<Document> findAndModifyAsync(
+            FindAndModify.Builder command) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection.
@@ -1052,7 +1056,19 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<MongoIterator<Document>> findAsync(DocumentAssignable query)
+    public ListenableFuture<MongoIterator<Document>> findAsync(
+            DocumentAssignable query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection.
+     * 
+     * @param query
+     *            The query details.
+     * @return A future for the MongoIterator over the documents.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public ListenableFuture<MongoIterator<Document>> findAsync(Find query)
             throws MongoDbException;
 
     /**
@@ -1064,20 +1080,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<MongoIterator<Document>> findAsync(Find query)
-            throws MongoDbException;
-
-    /**
-     * Finds the set of documents matching the query in the collection.
-     * 
-     * @param query
-     *            The query details.
-     * @return A future for the MongoIterator over the documents.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public Future<MongoIterator<Document>> findAsync(Find.Builder query)
-            throws MongoDbException;
+    public ListenableFuture<MongoIterator<Document>> findAsync(
+            Find.Builder query) throws MongoDbException;
 
     /**
      * Finds a single matching document in the collection.
@@ -1200,7 +1204,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the document.
      */
-    public Future<Document> findOneAsync(DocumentAssignable query)
+    public ListenableFuture<Document> findOneAsync(DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -1222,7 +1226,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the document.
      */
-    public Future<Document> findOneAsync(Find query) throws MongoDbException;
+    public ListenableFuture<Document> findOneAsync(Find query)
+            throws MongoDbException;
 
     /**
      * Finds a single matching document in the collection.
@@ -1243,7 +1248,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the document.
      */
-    public Future<Document> findOneAsync(Find.Builder query)
+    public ListenableFuture<Document> findOneAsync(Find.Builder query)
             throws MongoDbException;
 
     /**
@@ -1342,11 +1347,11 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the group request.
-     * @return Future for the group results returned.
+     * @return ListenableFuture for the group results returned.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<ArrayElement> groupByAsync(GroupBy command)
+    public ListenableFuture<ArrayElement> groupByAsync(GroupBy command)
             throws MongoDbException;
 
     /**
@@ -1354,11 +1359,11 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the group request.
-     * @return Future for the group results returned.
+     * @return ListenableFuture for the group results returned.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<ArrayElement> groupByAsync(GroupBy.Builder command)
+    public ListenableFuture<ArrayElement> groupByAsync(GroupBy.Builder command)
             throws MongoDbException;
 
     /**
@@ -1459,15 +1464,15 @@ public interface MongoCollection {
      *            an error.
      * @param documents
      *            The documents to add to the collection.
-     * @return Future that will be updated with the results of the insert.
-     *         Currently, the value is always zero. Once <a
+     * @return ListenableFuture that will be updated with the results of the
+     *         insert. Currently, the value is always zero. Once <a
      *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
      *         is fixed then expected to be the number of documents inserted. If
      *         the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public Future<Integer> insertAsync(boolean continueOnError,
+    public ListenableFuture<Integer> insertAsync(boolean continueOnError,
             DocumentAssignable... documents) throws MongoDbException;
 
     /**
@@ -1480,15 +1485,15 @@ public interface MongoCollection {
      *            The durability for the insert.
      * @param documents
      *            The documents to add to the collection.
-     * @return Future that will be updated with the results of the insert.
-     *         Currently, the value is always zero. Once <a
+     * @return ListenableFuture that will be updated with the results of the
+     *         insert. Currently, the value is always zero. Once <a
      *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
      *         is fixed then expected to be the number of documents inserted. If
      *         the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public Future<Integer> insertAsync(boolean continueOnError,
+    public ListenableFuture<Integer> insertAsync(boolean continueOnError,
             Durability durability, DocumentAssignable... documents)
             throws MongoDbException;
 
@@ -1580,16 +1585,16 @@ public interface MongoCollection {
      * 
      * @param documents
      *            The documents to add to the collection.
-     * @return Future that will be updated with the results of the insert.
-     *         Currently, the value is always zero. Once <a
+     * @return ListenableFuture that will be updated with the results of the
+     *         insert. Currently, the value is always zero. Once <a
      *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
      *         is fixed then expected to be the number of documents inserted. If
      *         the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public Future<Integer> insertAsync(DocumentAssignable... documents)
-            throws MongoDbException;
+    public ListenableFuture<Integer> insertAsync(
+            DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -1598,15 +1603,15 @@ public interface MongoCollection {
      *            The durability for the insert.
      * @param documents
      *            The documents to add to the collection.
-     * @return Future that will be updated with the results of the insert.
-     *         Currently, the value is always zero. Once <a
+     * @return ListenableFuture that will be updated with the results of the
+     *         insert. Currently, the value is always zero. Once <a
      *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
      *         is fixed then expected to be the number of documents inserted. If
      *         the durability is NONE then returns <code>-1</code>.
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public Future<Integer> insertAsync(Durability durability,
+    public ListenableFuture<Integer> insertAsync(Durability durability,
             DocumentAssignable... documents) throws MongoDbException;
 
     /**
@@ -1678,12 +1683,12 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the map/reduce request.
-     * @return Future for the map/reduce results returned. Note this might be
-     *         empty if the output type is not inline.
+     * @return ListenableFuture for the map/reduce results returned. Note this
+     *         might be empty if the output type is not inline.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<List<Document>> mapReduceAsync(MapReduce command)
+    public ListenableFuture<List<Document>> mapReduceAsync(MapReduce command)
             throws MongoDbException;
 
     /**
@@ -1691,13 +1696,13 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the map/reduce request.
-     * @return Future for the map/reduce results returned. Note this might be
-     *         empty if the output type is not inline.
+     * @return ListenableFuture for the map/reduce results returned. Note this
+     *         might be empty if the output type is not inline.
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public Future<List<Document>> mapReduceAsync(MapReduce.Builder command)
-            throws MongoDbException;
+    public ListenableFuture<List<Document>> mapReduceAsync(
+            MapReduce.Builder command) throws MongoDbException;
 
     /**
      * Saves the {@code document} to the collection.
@@ -1716,8 +1721,9 @@ public interface MongoCollection {
      * 
      * @param document
      *            The document to save to the collection.
-     * @return Future that will be updated with the results of the save. If the
-     *         durability of the operation is NONE then this will be -1.
+     * @return ListenableFuture that will be updated with the results of the
+     *         save. If the durability of the operation is NONE then this will
+     *         be -1.
      * @throws MongoDbException
      *             On an error saving the documents.
      */
@@ -1743,8 +1749,9 @@ public interface MongoCollection {
      *            The document to save to the collection.
      * @param durability
      *            The durability for the save.
-     * @return Future that will be updated with the results of the save. If the
-     *         durability of the operation is NONE then this will be -1.
+     * @return ListenableFuture that will be updated with the results of the
+     *         save. If the durability of the operation is NONE then this will
+     *         be -1.
      * @throws MongoDbException
      *             On an error saving the documents.
      */
@@ -1827,12 +1834,13 @@ public interface MongoCollection {
      * 
      * @param document
      *            The document to save to the collection.
-     * @return Future that will be updated with the results of the save. If the
-     *         durability of the operation is NONE then this will be -1.
+     * @return ListenableFuture that will be updated with the results of the
+     *         save. If the durability of the operation is NONE then this will
+     *         be -1.
      * @throws MongoDbException
      *             On an error saving the documents.
      */
-    public Future<Integer> saveAsync(DocumentAssignable document)
+    public ListenableFuture<Integer> saveAsync(DocumentAssignable document)
             throws MongoDbException;
 
     /**
@@ -1855,12 +1863,13 @@ public interface MongoCollection {
      *            The document to save to the collection.
      * @param durability
      *            The durability for the save.
-     * @return Future that will be updated with the results of the save. If the
-     *         durability of the operation is NONE then this will be -1.
+     * @return ListenableFuture that will be updated with the results of the
+     *         save. If the durability of the operation is NONE then this will
+     *         be -1.
      * @throws MongoDbException
      *             On an error saving the documents.
      */
-    public Future<Integer> saveAsync(DocumentAssignable document,
+    public ListenableFuture<Integer> saveAsync(DocumentAssignable document,
             Durability durability) throws MongoDbException;
 
     /**
@@ -2177,7 +2186,7 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the {@code text} request.
-     * @return Future for the {@code text} results returned.
+     * @return ListenableFuture for the {@code text} results returned.
      * @throws MongoDbException
      *             On an error executing the {@code text} command.
      * @see <a
@@ -2185,7 +2194,7 @@ public interface MongoCollection {
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
      */
-    public Future<List<TextResult>> textSearchAsync(Text command)
+    public ListenableFuture<List<TextResult>> textSearchAsync(Text command)
             throws MongoDbException;
 
     /**
@@ -2193,7 +2202,7 @@ public interface MongoCollection {
      * 
      * @param command
      *            The details of the {@code text} request.
-     * @return Future for the {@code text} results returned.
+     * @return ListenableFuture for the {@code text} results returned.
      * @throws MongoDbException
      *             On an error executing the {@code text} command.
      * @see <a
@@ -2201,8 +2210,8 @@ public interface MongoCollection {
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
      */
-    public Future<List<TextResult>> textSearchAsync(Text.Builder command)
-            throws MongoDbException;
+    public ListenableFuture<List<TextResult>> textSearchAsync(
+            Text.Builder command) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2394,13 +2403,13 @@ public interface MongoCollection {
      *            The query to select the documents to update.
      * @param update
      *            The updates to apply to the selected documents.
-     * @return A {@link Future} that will be updated with the number of
-     *         documents updated. If the durability of the operation is NONE
+     * @return A {@link ListenableFuture} that will be updated with the number
+     *         of documents updated. If the durability of the operation is NONE
      *         then this will be -1.
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public Future<Long> updateAsync(DocumentAssignable query,
+    public ListenableFuture<Long> updateAsync(DocumentAssignable query,
             DocumentAssignable update) throws MongoDbException;
 
     /**
@@ -2418,13 +2427,13 @@ public interface MongoCollection {
      * @param upsert
      *            If true then if no document is found then a new document is
      *            created and updated, otherwise no operation is performed.
-     * @return A {@link Future} that will be updated with the number of
-     *         documents updated. If the durability of the operation is NONE
+     * @return A {@link ListenableFuture} that will be updated with the number
+     *         of documents updated. If the durability of the operation is NONE
      *         then this will be -1.
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public Future<Long> updateAsync(DocumentAssignable query,
+    public ListenableFuture<Long> updateAsync(DocumentAssignable query,
             DocumentAssignable update, boolean multiUpdate, boolean upsert)
             throws MongoDbException;
 
@@ -2445,13 +2454,13 @@ public interface MongoCollection {
      *            created and updated, otherwise no operation is performed.
      * @param durability
      *            The durability for the update.
-     * @return A {@link Future} that will be updated with the number of
-     *         documents updated. If the durability of the operation is NONE
+     * @return A {@link ListenableFuture} that will be updated with the number
+     *         of documents updated. If the durability of the operation is NONE
      *         then this will be -1.
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public Future<Long> updateAsync(DocumentAssignable query,
+    public ListenableFuture<Long> updateAsync(DocumentAssignable query,
             DocumentAssignable update, boolean multiUpdate, boolean upsert,
             Durability durability) throws MongoDbException;
 
@@ -2466,13 +2475,13 @@ public interface MongoCollection {
      *            The updates to apply to the selected documents.
      * @param durability
      *            The durability for the update.
-     * @return A {@link Future} that will be updated with the number of
-     *         documents updated. If the durability of the operation is NONE
+     * @return A {@link ListenableFuture} that will be updated with the number
+     *         of documents updated. If the durability of the operation is NONE
      *         then this will be -1.
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public Future<Long> updateAsync(DocumentAssignable query,
+    public ListenableFuture<Long> updateAsync(DocumentAssignable query,
             DocumentAssignable update, Durability durability)
             throws MongoDbException;
 

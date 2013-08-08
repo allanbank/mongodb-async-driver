@@ -18,6 +18,7 @@ import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
+import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -128,7 +129,7 @@ public class ServerLatencyCallbackTest {
         EasyMock.replay(state);
 
         final ServerLatencyCallback callback = new ServerLatencyCallback(state);
-        callback.exception(null);
+        callback.exception(new MongoDbException());
 
         EasyMock.verify(state);
     }

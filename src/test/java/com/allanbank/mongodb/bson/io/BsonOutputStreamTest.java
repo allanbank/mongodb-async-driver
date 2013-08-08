@@ -33,6 +33,64 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 public class BsonOutputStreamTest {
 
     /**
+     * Test method for {@link BsonInputStream#readDocument()}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
+    @Test
+    public void testWriteBigUtf8StringWorldDocument() throws IOException {
+        final StringBuilder builder = new StringBuilder(128);
+        builder.append('\u1234'); // Have no idea but its not ASCII!
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+        builder.append("Now is the time for all good men to come to the aid...");
+
+        final String value = builder.toString();
+        final Document wrote = BuilderFactory.start().add("text", value)
+                .build();
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final BsonOutputStream writer = new BsonOutputStream(out);
+
+        writer.writeDocument(wrote);
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(
+                out.toByteArray());
+        final BsonInputStream reader = new BsonInputStream(in);
+
+        final Document doc = reader.readDocument();
+        reader.close();
+
+        assertTrue("Should be a RootDocument.", doc instanceof RootDocument);
+        assertTrue("Should contain a 'hello' element.", doc.contains("text"));
+
+        final Iterator<Element> iter = doc.iterator();
+        assertTrue("Should contain a single element.", iter.hasNext());
+        iter.next();
+        assertFalse("Should contain a single element.", iter.hasNext());
+
+        final Element element = doc.get("text");
+        assertNotNull("'text' element should not be null.", element);
+        assertTrue("'text' element should be a StringElement",
+                element instanceof StringElement);
+
+        final StringElement worldElement = (StringElement) element;
+        assertEquals("'text' elements value should be the big string.", value,
+                worldElement.getValue());
+
+    }
+
+    /**
      * Test method for {@link BsonOutputStream#writeDocument}.
      * 
      * @throws IOException
@@ -88,63 +146,6 @@ public class BsonOutputStreamTest {
         assertArrayEquals(
                 " { 'BSON': ['awesome', 5.05, 1986] } not the expected bytes.",
                 arrayDocument, out.toByteArray());
-    }
-
-    /**
-     * Test method for {@link BsonInputStream#readDocument()}.
-     * 
-     * @throws IOException
-     *             On a failure reading the test document.
-     */
-    @Test
-    public void testWriteBigUtf8StringWorldDocument() throws IOException {
-        final StringBuilder builder = new StringBuilder(128);
-        builder.append('\u1234'); // Have no idea but its not ASCII!
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-        builder.append("Now is the time for all good men to come to the aid...");
-
-        final String value = builder.toString();
-        Document wrote = BuilderFactory.start().add("text", value).build();
-
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final BsonOutputStream writer = new BsonOutputStream(out);
-
-        writer.writeDocument(wrote);
-
-        final ByteArrayInputStream in = new ByteArrayInputStream(
-                out.toByteArray());
-        final BsonInputStream reader = new BsonInputStream(in);
-
-        final Document doc = reader.readDocument();
-        reader.close();
-
-        assertTrue("Should be a RootDocument.", doc instanceof RootDocument);
-        assertTrue("Should contain a 'hello' element.", doc.contains("text"));
-
-        final Iterator<Element> iter = doc.iterator();
-        assertTrue("Should contain a single element.", iter.hasNext());
-        iter.next();
-        assertFalse("Should contain a single element.", iter.hasNext());
-
-        final Element element = doc.get("text");
-        assertNotNull("'text' element should not be null.", element);
-        assertTrue("'text' element should be a StringElement",
-                element instanceof StringElement);
-
-        final StringElement worldElement = (StringElement) element;
-        assertEquals("'text' elements value should be the big string.", value,
-                worldElement.getValue());
-
     }
 
 }

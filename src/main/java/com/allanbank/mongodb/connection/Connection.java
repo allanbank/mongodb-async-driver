@@ -7,12 +7,10 @@ package com.allanbank.mongodb.connection;
 import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.io.Flushable;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Reply;
 
 /**
@@ -34,17 +32,6 @@ public interface Connection extends Closeable, Flushable {
     public static final String OPEN_PROP_NAME = "open";
 
     /**
-     * Adds the pending messages from the specified list.
-     * 
-     * @param pending
-     *            The list to populate the pending list with.
-     * @throws InterruptedException
-     *             On the thread being interrupted while copying the messages.
-     */
-    public void addPending(List<PendingMessage> pending)
-            throws InterruptedException;
-
-    /**
      * Adds a {@link PropertyChangeListener} to this connection. Events are
      * fired as the state of the connection changes.
      * 
@@ -52,14 +39,6 @@ public interface Connection extends Closeable, Flushable {
      *            The listener for the change events.
      */
     public void addPropertyChangeListener(PropertyChangeListener listener);
-
-    /**
-     * Removes any to be sent pending messages into the specified list.
-     * 
-     * @param pending
-     *            The list to populate with the pending messages.
-     */
-    public void drainPending(List<PendingMessage> pending);
 
     /**
      * Returns the number of messages that are pending responses from the
@@ -92,16 +71,13 @@ public interface Connection extends Closeable, Flushable {
     public boolean isOpen();
 
     /**
-     * Notifies the call backs for the pending and optionally the to be sent
-     * messages that there has been an external, unrecoverable error.
+     * Notifies the call backs for the pending messages that there has been an
+     * external, unrecoverable error.
      * 
      * @param exception
      *            The error condition.
-     * @param notifyToBeSent
-     *            If true then the to be sent message's callback are also
-     *            notified, otherwise just the pending messages are notified.
      */
-    public void raiseErrors(MongoDbException exception, boolean notifyToBeSent);
+    public void raiseErrors(MongoDbException exception);
 
     /**
      * Removes a {@link PropertyChangeListener} from this connection.

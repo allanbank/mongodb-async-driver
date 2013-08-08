@@ -19,7 +19,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import org.easymock.Capture;
 import org.junit.After;
@@ -30,7 +29,6 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
-import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.ServerStatus;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
@@ -70,7 +68,6 @@ public class SimpleReconnectStrategyTest {
      * @throws InterruptedException
      *             On a Failure setting up the mock configuration for the test.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testReconnect() throws IOException, InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
@@ -102,9 +99,6 @@ public class SimpleReconnectStrategyTest {
         expect(
                 mockNewConnection.send(anyObject(ServerStatus.class),
                         capture(callbackCapture))).andReturn(myAddress);
-
-        mockOldConnection.drainPending((List<PendingMessage>) anyObject());
-        mockNewConnection.addPending((List<PendingMessage>) anyObject());
 
         replay(mockOldConnection, mockNewConnection, mockFactory, mockSelector);
 
@@ -153,7 +147,6 @@ public class SimpleReconnectStrategyTest {
      * @throws InterruptedException
      *             On a Failure setting up the mock configuration for the test.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testReconnectFirstFails() throws IOException,
             InterruptedException {
@@ -188,9 +181,6 @@ public class SimpleReconnectStrategyTest {
         expect(
                 mockNewConnection.send(anyObject(ServerStatus.class),
                         capture(callbackCapture))).andReturn(myAddress);
-
-        mockOldConnection.drainPending((List<PendingMessage>) anyObject());
-        mockNewConnection.addPending((List<PendingMessage>) anyObject());
 
         replay(mockOldConnection, mockNewConnection, mockFactory, mockSelector);
 

@@ -202,9 +202,6 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                             primaryConn, server, getState(),
                             getConnectionFactory(), getConfig());
 
-                    // Copy the pending messages.
-                    copyPending(newRsConn, oldConnection);
-
                     return newRsConn;
                 }
             }

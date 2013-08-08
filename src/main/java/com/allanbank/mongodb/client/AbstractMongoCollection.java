@@ -6,10 +6,11 @@
 package com.allanbank.mongodb.client;
 
 import java.util.List;
-import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.ListenableFuture;
+import com.allanbank.mongodb.LockType;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDatabase;
@@ -145,9 +146,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #aggregateAsync(Callback, Aggregate)
      */
     @Override
-    public Future<List<Document>> aggregateAsync(final Aggregate command)
-            throws MongoDbException {
-        final FutureCallback<List<Document>> future = new FutureCallback<List<Document>>();
+    public ListenableFuture<List<Document>> aggregateAsync(
+            final Aggregate command) throws MongoDbException {
+        final FutureCallback<List<Document>> future = new FutureCallback<List<Document>>(
+                getLockType());
 
         aggregateAsync(future, command);
 
@@ -161,8 +163,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<List<Document>> aggregateAsync(final Aggregate.Builder command)
-            throws MongoDbException {
+    public ListenableFuture<List<Document>> aggregateAsync(
+            final Aggregate.Builder command) throws MongoDbException {
         return aggregateAsync(command.build());
     }
 
@@ -228,7 +230,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public long count(final DocumentAssignable query,
             final ReadPreference readPreference) throws MongoDbException {
 
-        final Future<Long> future = countAsync(query, readPreference);
+        final ListenableFuture<Long> future = countAsync(query, readPreference);
 
         return FutureUtils.unwrap(future).longValue();
     }
@@ -256,7 +258,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<Long> countAsync() throws MongoDbException {
+    public ListenableFuture<Long> countAsync() throws MongoDbException {
         return countAsync(BuilderFactory.start(), getReadPreference());
     }
 
@@ -333,9 +335,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *             On an error finding the documents.
      */
     @Override
-    public Future<Long> countAsync(final DocumentAssignable query)
+    public ListenableFuture<Long> countAsync(final DocumentAssignable query)
             throws MongoDbException {
-        final FutureCallback<Long> future = new FutureCallback<Long>();
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
 
         countAsync(future, query, getReadPreference());
 
@@ -350,9 +353,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<Long> countAsync(final DocumentAssignable query,
+    public ListenableFuture<Long> countAsync(final DocumentAssignable query,
             final ReadPreference readPreference) throws MongoDbException {
-        final FutureCallback<Long> future = new FutureCallback<Long>();
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
 
         countAsync(future, query, readPreference);
 
@@ -368,7 +372,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<Long> countAsync(final ReadPreference readPreference)
+    public ListenableFuture<Long> countAsync(final ReadPreference readPreference)
             throws MongoDbException {
         return countAsync(BuilderFactory.start(), readPreference);
     }
@@ -496,7 +500,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final boolean singleDelete, final Durability durability)
             throws MongoDbException {
 
-        final Future<Long> future = deleteAsync(query, singleDelete, durability);
+        final ListenableFuture<Long> future = deleteAsync(query, singleDelete,
+                durability);
 
         return FutureUtils.unwrap(future).longValue();
     }
@@ -596,9 +601,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
-    public Future<Long> deleteAsync(final DocumentAssignable query)
+    public ListenableFuture<Long> deleteAsync(final DocumentAssignable query)
             throws MongoDbException {
-        final FutureCallback<Long> future = new FutureCallback<Long>();
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
 
         deleteAsync(future, query, DELETE_SINGLE_DELETE_DEFAULT,
                 getDurability());
@@ -617,9 +623,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
-    public Future<Long> deleteAsync(final DocumentAssignable query,
+    public ListenableFuture<Long> deleteAsync(final DocumentAssignable query,
             final boolean singleDelete) throws MongoDbException {
-        final FutureCallback<Long> future = new FutureCallback<Long>();
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
 
         deleteAsync(future, query, singleDelete, getDurability());
 
@@ -636,10 +643,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
-    public Future<Long> deleteAsync(final DocumentAssignable query,
+    public ListenableFuture<Long> deleteAsync(final DocumentAssignable query,
             final boolean singleDelete, final Durability durability)
             throws MongoDbException {
-        final FutureCallback<Long> future = new FutureCallback<Long>();
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
 
         deleteAsync(future, query, singleDelete, durability);
 
@@ -656,9 +664,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
-    public Future<Long> deleteAsync(final DocumentAssignable query,
+    public ListenableFuture<Long> deleteAsync(final DocumentAssignable query,
             final Durability durability) throws MongoDbException {
-        final FutureCallback<Long> future = new FutureCallback<Long>();
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
 
         deleteAsync(future, query, DELETE_SINGLE_DELETE_DEFAULT, durability);
 
@@ -719,9 +728,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<ArrayElement> distinctAsync(final Distinct command)
+    public ListenableFuture<ArrayElement> distinctAsync(final Distinct command)
             throws MongoDbException {
-        final FutureCallback<ArrayElement> future = new FutureCallback<ArrayElement>();
+        final FutureCallback<ArrayElement> future = new FutureCallback<ArrayElement>(
+                getLockType());
 
         distinctAsync(future, command);
 
@@ -735,8 +745,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<ArrayElement> distinctAsync(final Distinct.Builder command)
-            throws MongoDbException {
+    public ListenableFuture<ArrayElement> distinctAsync(
+            final Distinct.Builder command) throws MongoDbException {
         return distinctAsync(command.build());
     }
 
@@ -832,9 +842,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #explainAsync(Callback,Find)
      */
     @Override
-    public Future<Document> explainAsync(final Find query)
+    public ListenableFuture<Document> explainAsync(final Find query)
             throws MongoDbException {
-        final FutureCallback<Document> future = new FutureCallback<Document>();
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
 
         explainAsync(future, query);
 
@@ -848,7 +859,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<Document> explainAsync(final Find.Builder query)
+    public ListenableFuture<Document> explainAsync(final Find.Builder query)
             throws MongoDbException {
         return explainAsync(query.build());
     }
@@ -955,9 +966,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAndModifyAsync(Callback, FindAndModify)
      */
     @Override
-    public Future<Document> findAndModifyAsync(final FindAndModify command)
-            throws MongoDbException {
-        final FutureCallback<Document> future = new FutureCallback<Document>();
+    public ListenableFuture<Document> findAndModifyAsync(
+            final FindAndModify command) throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
 
         findAndModifyAsync(future, command);
 
@@ -971,7 +983,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<Document> findAndModifyAsync(
+    public ListenableFuture<Document> findAndModifyAsync(
             final FindAndModify.Builder command) throws MongoDbException {
         return findAndModifyAsync(command.build());
     }
@@ -1025,9 +1037,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, DocumentAssignable)
      */
     @Override
-    public Future<MongoIterator<Document>> findAsync(
+    public ListenableFuture<MongoIterator<Document>> findAsync(
             final DocumentAssignable query) throws MongoDbException {
-        final FutureCallback<MongoIterator<Document>> future = new FutureCallback<MongoIterator<Document>>();
+        final FutureCallback<MongoIterator<Document>> future = new FutureCallback<MongoIterator<Document>>(
+                getLockType());
 
         findAsync(future, query);
 
@@ -1043,9 +1056,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findAsync(Callback, Find)
      */
     @Override
-    public Future<MongoIterator<Document>> findAsync(final Find query)
+    public ListenableFuture<MongoIterator<Document>> findAsync(final Find query)
             throws MongoDbException {
-        final FutureCallback<MongoIterator<Document>> future = new FutureCallback<MongoIterator<Document>>();
+        final FutureCallback<MongoIterator<Document>> future = new FutureCallback<MongoIterator<Document>>(
+                getLockType());
 
         findAsync(future, query);
 
@@ -1059,8 +1073,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<MongoIterator<Document>> findAsync(final Find.Builder query)
-            throws MongoDbException {
+    public ListenableFuture<MongoIterator<Document>> findAsync(
+            final Find.Builder query) throws MongoDbException {
         return findAsync(query.build());
     }
 
@@ -1150,9 +1164,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findOneAsync(Callback, DocumentAssignable)
      */
     @Override
-    public Future<Document> findOneAsync(final DocumentAssignable query)
-            throws MongoDbException {
-        final FutureCallback<Document> future = new FutureCallback<Document>();
+    public ListenableFuture<Document> findOneAsync(
+            final DocumentAssignable query) throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
 
         findOneAsync(future, query);
 
@@ -1168,9 +1183,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #findOneAsync(Callback, Find)
      */
     @Override
-    public Future<Document> findOneAsync(final Find query)
+    public ListenableFuture<Document> findOneAsync(final Find query)
             throws MongoDbException {
-        final FutureCallback<Document> future = new FutureCallback<Document>();
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
 
         findOneAsync(future, query);
 
@@ -1184,7 +1200,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<Document> findOneAsync(final Find.Builder query)
+    public ListenableFuture<Document> findOneAsync(final Find.Builder query)
             throws MongoDbException {
         return findOneAsync(query.build());
     }
@@ -1286,9 +1302,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<ArrayElement> groupByAsync(final GroupBy command)
+    public ListenableFuture<ArrayElement> groupByAsync(final GroupBy command)
             throws MongoDbException {
-        final FutureCallback<ArrayElement> future = new FutureCallback<ArrayElement>();
+        final FutureCallback<ArrayElement> future = new FutureCallback<ArrayElement>(
+                getLockType());
 
         groupByAsync(future, command);
 
@@ -1302,8 +1319,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<ArrayElement> groupByAsync(final GroupBy.Builder command)
-            throws MongoDbException {
+    public ListenableFuture<ArrayElement> groupByAsync(
+            final GroupBy.Builder command) throws MongoDbException {
         return groupByAsync(command.build());
     }
 
@@ -1336,8 +1353,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public int insert(final boolean continueOnError,
             final Durability durability, final DocumentAssignable... documents)
             throws MongoDbException {
-        final Future<Integer> future = insertAsync(continueOnError, durability,
-                documents);
+        final ListenableFuture<Integer> future = insertAsync(continueOnError,
+                durability, documents);
 
         return FutureUtils.unwrap(future).intValue();
     }
@@ -1389,9 +1406,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      DocumentAssignable[])
      */
     @Override
-    public Future<Integer> insertAsync(final boolean continueOnError,
+    public ListenableFuture<Integer> insertAsync(final boolean continueOnError,
             final DocumentAssignable... documents) throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Integer> future = new FutureCallback<Integer>(
+                getLockType());
 
         insertAsync(future, continueOnError, getDurability(), documents);
 
@@ -1411,10 +1429,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      DocumentAssignable[])
      */
     @Override
-    public Future<Integer> insertAsync(final boolean continueOnError,
+    public ListenableFuture<Integer> insertAsync(final boolean continueOnError,
             final Durability durability, final DocumentAssignable... documents)
             throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Integer> future = new FutureCallback<Integer>(
+                getLockType());
 
         insertAsync(future, continueOnError, durability, documents);
 
@@ -1505,9 +1524,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      DocumentAssignable[])
      */
     @Override
-    public Future<Integer> insertAsync(final DocumentAssignable... documents)
-            throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+    public ListenableFuture<Integer> insertAsync(
+            final DocumentAssignable... documents) throws MongoDbException {
+        final FutureCallback<Integer> future = new FutureCallback<Integer>(
+                getLockType());
 
         insertAsync(future, INSERT_CONTINUE_ON_ERROR_DEFAULT, getDurability(),
                 documents);
@@ -1527,9 +1547,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      DocumentAssignable[])
      */
     @Override
-    public Future<Integer> insertAsync(final Durability durability,
+    public ListenableFuture<Integer> insertAsync(final Durability durability,
             final DocumentAssignable... documents) throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Integer> future = new FutureCallback<Integer>(
+                getLockType());
 
         insertAsync(future, INSERT_CONTINUE_ON_ERROR_DEFAULT, durability,
                 documents);
@@ -1597,9 +1618,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #mapReduceAsync(Callback, MapReduce)
      */
     @Override
-    public Future<List<Document>> mapReduceAsync(final MapReduce command)
-            throws MongoDbException {
-        final FutureCallback<List<Document>> future = new FutureCallback<List<Document>>();
+    public ListenableFuture<List<Document>> mapReduceAsync(
+            final MapReduce command) throws MongoDbException {
+        final FutureCallback<List<Document>> future = new FutureCallback<List<Document>>(
+                getLockType());
 
         mapReduceAsync(future, command);
 
@@ -1613,8 +1635,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<List<Document>> mapReduceAsync(final MapReduce.Builder command)
-            throws MongoDbException {
+    public ListenableFuture<List<Document>> mapReduceAsync(
+            final MapReduce.Builder command) throws MongoDbException {
         return mapReduceAsync(command.build());
     }
 
@@ -1678,9 +1700,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<Integer> saveAsync(final DocumentAssignable document)
+    public ListenableFuture<Integer> saveAsync(final DocumentAssignable document)
             throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+        final FutureCallback<Integer> future = new FutureCallback<Integer>(
+                getLockType());
 
         saveAsync(future, document, getDurability());
 
@@ -1695,9 +1718,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<Integer> saveAsync(final DocumentAssignable document,
-            final Durability durability) throws MongoDbException {
-        final FutureCallback<Integer> future = new FutureCallback<Integer>();
+    public ListenableFuture<Integer> saveAsync(
+            final DocumentAssignable document, final Durability durability)
+            throws MongoDbException {
+        final FutureCallback<Integer> future = new FutureCallback<Integer>(
+                getLockType());
 
         saveAsync(future, document, durability);
 
@@ -1851,9 +1876,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #textSearchAsync(Callback, Text)
      */
     @Override
-    public Future<List<TextResult>> textSearchAsync(final Text command)
+    public ListenableFuture<List<TextResult>> textSearchAsync(final Text command)
             throws MongoDbException {
-        final FutureCallback<List<TextResult>> future = new FutureCallback<List<TextResult>>();
+        final FutureCallback<List<TextResult>> future = new FutureCallback<List<TextResult>>(
+                getLockType());
 
         textSearchAsync(future, command);
 
@@ -1867,8 +1893,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public Future<List<TextResult>> textSearchAsync(final Text.Builder command)
-            throws MongoDbException {
+    public ListenableFuture<List<TextResult>> textSearchAsync(
+            final Text.Builder command) throws MongoDbException {
         return textSearchAsync(command.build());
     }
 
@@ -1926,8 +1952,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final boolean upsert, final Durability durability)
             throws MongoDbException {
 
-        final Future<Long> future = updateAsync(query, update, multiUpdate,
-                upsert, durability);
+        final ListenableFuture<Long> future = updateAsync(query, update,
+                multiUpdate, upsert, durability);
 
         return FutureUtils.unwrap(future).longValue();
     }
@@ -2039,9 +2065,10 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      boolean, boolean, Durability)
      */
     @Override
-    public Future<Long> updateAsync(final DocumentAssignable query,
+    public ListenableFuture<Long> updateAsync(final DocumentAssignable query,
             final DocumentAssignable update) throws MongoDbException {
-        final FutureCallback<Long> future = new FutureCallback<Long>();
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
 
         updateAsync(future, query, update, UPDATE_MULTIUPDATE_DEFAULT,
                 UPDATE_UPSERT_DEFAULT, getDurability());
@@ -2061,10 +2088,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      boolean, boolean, Durability)
      */
     @Override
-    public Future<Long> updateAsync(final DocumentAssignable query,
+    public ListenableFuture<Long> updateAsync(final DocumentAssignable query,
             final DocumentAssignable update, final boolean multiUpdate,
             final boolean upsert) throws MongoDbException {
-        final FutureCallback<Long> future = new FutureCallback<Long>();
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
 
         updateAsync(future, query, update, multiUpdate, upsert, getDurability());
 
@@ -2083,11 +2111,12 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      boolean, boolean, Durability)
      */
     @Override
-    public Future<Long> updateAsync(final DocumentAssignable query,
+    public ListenableFuture<Long> updateAsync(final DocumentAssignable query,
             final DocumentAssignable update, final boolean multiUpdate,
             final boolean upsert, final Durability durability)
             throws MongoDbException {
-        final FutureCallback<Long> future = new FutureCallback<Long>();
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
 
         updateAsync(future, query, update, multiUpdate, upsert, durability);
 
@@ -2106,10 +2135,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      *      boolean, boolean, Durability)
      */
     @Override
-    public Future<Long> updateAsync(final DocumentAssignable query,
+    public ListenableFuture<Long> updateAsync(final DocumentAssignable query,
             final DocumentAssignable update, final Durability durability)
             throws MongoDbException {
-        final FutureCallback<Long> future = new FutureCallback<Long>();
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
 
         updateAsync(future, query, update, UPDATE_MULTIUPDATE_DEFAULT,
                 UPDATE_UPSERT_DEFAULT, durability);
@@ -2151,5 +2181,14 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             }
         }
         return nameBuilder.toString();
+    }
+
+    /**
+     * Returns the type of lock to use.
+     * 
+     * @return The type of lock to use.
+     */
+    protected LockType getLockType() {
+        return myClient.getConfig().getLockType();
     }
 }

@@ -148,6 +148,8 @@ public class MongoClientImplTest {
 
         final Command message = new Command("admin", commandDoc.build());
 
+        expect(myMockClient.getConfig()).andReturn(
+                new MongoClientConfiguration());
         expect(myMockClient.send(eq(message), callback(reply(reply.build()))))
                 .andReturn(myAddress);
 
@@ -174,6 +176,8 @@ public class MongoClientImplTest {
 
         final Command message = new Command("admin", commandDoc.build());
 
+        expect(myMockClient.getConfig()).andReturn(
+                new MongoClientConfiguration());
         expect(myMockClient.send(eq(message), callback(reply(reply.build()))))
                 .andReturn(myAddress);
 

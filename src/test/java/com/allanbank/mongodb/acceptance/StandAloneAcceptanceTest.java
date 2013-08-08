@@ -230,8 +230,8 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
     }
 
     /**
-     * BackgroundTailableCursorReader provides a background runnable for reading
-     * documents.
+     * BackgroundTailableCursorReader provides a background myRunnable for
+     * reading documents.
      * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */

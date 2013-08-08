@@ -6,7 +6,6 @@
 package com.allanbank.mongodb;
 
 import java.util.List;
-import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -348,7 +347,7 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error issuing the command or in running the command
      */
-    public Future<Document> runCommandAsync(DocumentAssignable command)
+    public ListenableFuture<Document> runCommandAsync(DocumentAssignable command)
             throws MongoDbException;
 
     /**
@@ -360,7 +359,7 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error issuing the command or in running the command
      */
-    public Future<Document> runCommandAsync(String command)
+    public ListenableFuture<Document> runCommandAsync(String command)
             throws MongoDbException;
 
     /**
@@ -374,7 +373,7 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error issuing the command or in running the command
      */
-    public Future<Document> runCommandAsync(String command,
+    public ListenableFuture<Document> runCommandAsync(String command,
             DocumentAssignable options) throws MongoDbException;
 
     /**
@@ -390,7 +389,7 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error issuing the command or in running the command
      */
-    public Future<Document> runCommandAsync(String commandName,
+    public ListenableFuture<Document> runCommandAsync(String commandName,
             int commandValue, DocumentAssignable options)
             throws MongoDbException;
 
@@ -407,7 +406,7 @@ public interface MongoDatabase {
      * @throws MongoDbException
      *             On an error issuing the command or in running the command
      */
-    public Future<Document> runCommandAsync(String commandName,
+    public ListenableFuture<Document> runCommandAsync(String commandName,
             String commandValue, DocumentAssignable options)
             throws MongoDbException;
 

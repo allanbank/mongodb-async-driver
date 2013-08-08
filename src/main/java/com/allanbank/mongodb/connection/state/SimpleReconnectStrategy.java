@@ -60,8 +60,6 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
 
                         LOG.info("Reconnected to " + addr);
 
-                        copyPending(newConn, oldConnection);
-
                         return newConn;
                     }
 

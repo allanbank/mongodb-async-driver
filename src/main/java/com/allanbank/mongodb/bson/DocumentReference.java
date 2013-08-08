@@ -36,9 +36,6 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  */
 public class DocumentReference implements DocumentAssignable, Serializable {
 
-    /** The serialization version for the class. */
-    private static final long serialVersionUID = 7597767390422754639L;
-
     /** The name for the collection name field. */
     public static final String COLLECTION_FIELD_NAME = "$ref";
 
@@ -47,6 +44,9 @@ public class DocumentReference implements DocumentAssignable, Serializable {
 
     /** The name for the id field. */
     public static final String ID_FIELD_NAME = "$id";
+
+    /** The serialization version for the class. */
+    private static final long serialVersionUID = 7597767390422754639L;
 
     /** The name of the collection being referenced. */
     private final String myCollectionName;

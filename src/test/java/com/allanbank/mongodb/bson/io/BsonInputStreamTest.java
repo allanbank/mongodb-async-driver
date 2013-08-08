@@ -61,6 +61,33 @@ public class BsonInputStreamTest {
             (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff };
 
     /**
+     * Test method for {@link BsonInputStream#available()}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
+    @Test
+    public void testAvailable() throws IOException {
+
+        final Document seed = BuilderFactory.start()
+                .addBinary("juuid", (byte) 3, LEGACY_UUID_BYTES)
+                .addBinary("uuid", (byte) 4, STANDARD_UUID_BYTES).build();
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final BsonOutputStream bout = new BsonOutputStream(out);
+
+        bout.writeDocument(seed);
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(
+                out.toByteArray());
+        final BsonInputStream reader = new BsonInputStream(in);
+
+        assertEquals(out.toByteArray().length, reader.available());
+
+        reader.close();
+    }
+
+    /**
      * Test method for {@link BsonInputStream#readDocument()}.
      * 
      * @throws IOException
@@ -357,33 +384,6 @@ public class BsonInputStreamTest {
     }
 
     /**
-     * Test method for {@link BsonInputStream#available()}.
-     * 
-     * @throws IOException
-     *             On a failure reading the test document.
-     */
-    @Test
-    public void testAvailable() throws IOException {
-
-        final Document seed = BuilderFactory.start()
-                .addBinary("juuid", (byte) 3, LEGACY_UUID_BYTES)
-                .addBinary("uuid", (byte) 4, STANDARD_UUID_BYTES).build();
-
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final BsonOutputStream bout = new BsonOutputStream(out);
-
-        bout.writeDocument(seed);
-
-        final ByteArrayInputStream in = new ByteArrayInputStream(
-                out.toByteArray());
-        final BsonInputStream reader = new BsonInputStream(in);
-
-        assertEquals(out.toByteArray().length, reader.available());
-
-        reader.close();
-    }
-
-    /**
      * Test method for {@link BsonInputStream#readDocument()}.
      * 
      * @throws IOException
@@ -489,7 +489,7 @@ public class BsonInputStreamTest {
      */
     @Test
     public void testReadWriteLong() throws IOException {
-        DocumentBuilder builder = BuilderFactory.start();
+        final DocumentBuilder builder = BuilderFactory.start();
         builder.add("_id", 0x0102030405060708L);
 
         final Document doc = builder.build();

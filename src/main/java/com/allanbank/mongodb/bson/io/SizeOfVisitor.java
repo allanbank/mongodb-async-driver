@@ -207,7 +207,7 @@ public class SizeOfVisitor implements Visitor {
             for (final Element element : elements) {
                 // Optimization to avoid the array copy.
                 if (element.getType() == ElementType.BINARY) {
-                    BinaryElement be = (BinaryElement) element;
+                    final BinaryElement be = (BinaryElement) element;
                     doVisitBinary(be.getName(), be.getSubType(), be.length());
                 }
                 else {
@@ -241,35 +241,6 @@ public class SizeOfVisitor implements Visitor {
         final int dataLength = data.length;
 
         doVisitBinary(name, subType, dataLength);
-    }
-
-    /**
-     * Computes the size of the binary based on the name, type and length of the
-     * data.
-     * 
-     * @param name
-     *            The name of the element.
-     * @param subType
-     *            The sub-type of the binary element.
-     * @param dataLength
-     *            The length of data contained in the element.
-     */
-    private void doVisitBinary(final String name, final byte subType,
-            final int dataLength) {
-        mySize += 1;
-        mySize += computeCStringSize(name);
-
-        switch (subType) {
-        case 2: {
-            mySize += (4 + 1 + 4 + dataLength);
-            break;
-
-        }
-        case 0:
-        default:
-            mySize += (4 + 1 + dataLength);
-            break;
-        }
     }
 
     /**
@@ -447,6 +418,35 @@ public class SizeOfVisitor implements Visitor {
         mySize += 1;
         mySize += computeCStringSize(name);
         mySize += 8;
+    }
+
+    /**
+     * Computes the size of the binary based on the name, type and length of the
+     * data.
+     * 
+     * @param name
+     *            The name of the element.
+     * @param subType
+     *            The sub-type of the binary element.
+     * @param dataLength
+     *            The length of data contained in the element.
+     */
+    private void doVisitBinary(final String name, final byte subType,
+            final int dataLength) {
+        mySize += 1;
+        mySize += computeCStringSize(name);
+
+        switch (subType) {
+        case 2: {
+            mySize += (4 + 1 + 4 + dataLength);
+            break;
+
+        }
+        case 0:
+        default:
+            mySize += (4 + 1 + dataLength);
+            break;
+        }
     }
 
     /**

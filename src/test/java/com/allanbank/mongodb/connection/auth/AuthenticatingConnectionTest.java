@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.connection.auth;
 
 import static com.allanbank.mongodb.connection.CallbackReply.cb;
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
@@ -373,9 +374,9 @@ public class AuthenticatingConnectionTest {
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testAuthenticateRequestFails() throws IOException {
-
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
         final MongoDbException injected = new MongoDbException("Injected");
 
@@ -391,7 +392,7 @@ public class AuthenticatingConnectionTest {
         expect(
                 mockConnetion.send(
                         eq(new Command(TEST_DB, myAuthRequest.build())),
-                        cb(myAuthReply))).andThrow(injected);
+                        anyObject(Callback.class))).andThrow(injected);
 
         // Just a log message (now).
 
@@ -405,11 +406,19 @@ public class AuthenticatingConnectionTest {
 
         try {
             conn.send(msg, null);
-            fail("Should throw an exception when authentication falis.");
+            fail("Should throw an exception when authentication fails.");
         }
         catch (final MongoDbException good) {
             // Good.
-            assertSame(injected, good.getCause().getCause().getCause());
+            // Our error should be in there somewhere.
+            Throwable thrown = good;
+            while (thrown != null) {
+                if (injected == thrown) {
+                    break;
+                }
+                thrown = thrown.getCause();
+            }
+            assertSame(injected, thrown);
         }
 
         // And again.
@@ -419,7 +428,15 @@ public class AuthenticatingConnectionTest {
         }
         catch (final MongoDbException good) {
             // Good.
-            assertSame(injected, good.getCause().getCause().getCause());
+            // Our error should be in there somewhere.
+            Throwable thrown = good;
+            while (thrown != null) {
+                if (injected == thrown) {
+                    break;
+                }
+                thrown = thrown.getCause();
+            }
+            assertSame(injected, thrown);
         }
 
         IOUtils.close(conn);

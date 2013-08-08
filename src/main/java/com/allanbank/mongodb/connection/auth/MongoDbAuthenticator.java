@@ -299,6 +299,9 @@ public class MongoDbAuthenticator implements Authenticator {
             catch (final NoSuchAlgorithmException e) {
                 exception(new MongoDbAuthenticationException(e));
             }
+            catch (final RuntimeException e) {
+                exception(new MongoDbAuthenticationException(e));
+            }
         }
 
     }

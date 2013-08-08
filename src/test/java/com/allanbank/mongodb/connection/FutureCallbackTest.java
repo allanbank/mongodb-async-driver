@@ -11,6 +11,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -71,8 +72,14 @@ public class FutureCallbackTest {
             callback.get();
             fail("Should have thrown an IntterruptedException.");
         }
-        catch (final InterruptedException e) {
+        catch (final CancellationException e) {
             // Good.
+        }
+        catch (final InterruptedException e) {
+            final AssertionError error = new AssertionError(
+                    "Should not have seen an error.");
+            error.initCause(e);
+            throw error;
         }
         catch (final ExecutionException e) {
             final AssertionError error = new AssertionError(
@@ -85,8 +92,14 @@ public class FutureCallbackTest {
             callback.get(1, TimeUnit.NANOSECONDS);
             fail("Should have thrown an IntterruptedException.");
         }
-        catch (final InterruptedException e) {
+        catch (final CancellationException e) {
             // Good.
+        }
+        catch (final InterruptedException e) {
+            final AssertionError error = new AssertionError(
+                    "Should not have seen an error.");
+            error.initCause(e);
+            throw error;
         }
         catch (final TimeoutException te) {
             final AssertionError error = new AssertionError(

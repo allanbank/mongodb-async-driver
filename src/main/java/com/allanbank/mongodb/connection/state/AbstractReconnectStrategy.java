@@ -5,16 +5,9 @@
 
 package com.allanbank.mongodb.connection.state;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executor;
-
 import com.allanbank.mongodb.MongoClientConfiguration;
-import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
-import com.allanbank.mongodb.connection.message.PendingMessage;
-import com.allanbank.mongodb.connection.message.ReplyHandler;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 
 /**
@@ -112,34 +105,6 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
     @Override
     public void setState(final ClusterState state) {
         myState = state;
-    }
-
-    /**
-     * Copies the <tt>oldConnection</tt> pending messages to the
-     * <tt>newConnection</tt>.
-     * 
-     * @param newConnection
-     *            The connection to copy the messages to.
-     * @param oldConnection
-     *            The connection to copy the messages from.
-     */
-    protected void copyPending(final Connection newConnection,
-            final Connection oldConnection) {
-        final List<PendingMessage> pending = new ArrayList<PendingMessage>();
-
-        oldConnection.drainPending(pending);
-        try {
-            newConnection.addPending(pending);
-        }
-        catch (final InterruptedException e) {
-            // Fail the messages.
-            final Executor executor = myConfig.getExecutor();
-            final MongoDbException failed = new MongoDbException(e);
-            for (final PendingMessage pm : pending) {
-                ReplyHandler
-                        .raiseError(failed, pm.getReplyCallback(), executor);
-            }
-        }
     }
 
     /**

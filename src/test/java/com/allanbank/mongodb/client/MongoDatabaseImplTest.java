@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ReadPreference;
@@ -62,6 +63,9 @@ public class MongoDatabaseImplTest {
 
         myTestInstance = new MongoDatabaseImpl(myMockClient, "test");
         myAddress = "localhost:21017";
+
+        expect(myMockClient.getConfig()).andReturn(
+                new MongoClientConfiguration()).anyTimes();
     }
 
     /**

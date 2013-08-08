@@ -754,8 +754,7 @@ public class ClientImplTest {
                 strategy);
 
         // Create a new connection for the reconnect.
-        mockConnection
-                .raiseErrors(anyObject(MongoDbException.class), eq(false));
+        mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
         expect(
                 myMockConnectionFactory.connect(anyObject(ServerState.class),
@@ -769,7 +768,7 @@ public class ClientImplTest {
         mockConnection2.close();
         expectLastCall();
 
-        mockConnection.raiseErrors(anyObject(MongoDbException.class), eq(true));
+        mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
         mockConnection
                 .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -819,8 +818,7 @@ public class ClientImplTest {
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
         // Reconnect.
-        mockConnection
-                .raiseErrors(anyObject(MongoDbException.class), eq(false));
+        mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 mockStrategy);
@@ -828,7 +826,7 @@ public class ClientImplTest {
         mockConnection
                 .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection.raiseErrors(anyObject(MongoDbException.class), eq(true));
+        mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
 
         replay(mockConnection, mockStrategy);
@@ -1684,8 +1682,7 @@ public class ClientImplTest {
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
         // Reconnect.
-        mockConnection
-                .raiseErrors(anyObject(MongoDbException.class), eq(false));
+        mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 pauseStrategy);
@@ -1768,8 +1765,7 @@ public class ClientImplTest {
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
         // Reconnect.
-        mockConnection
-                .raiseErrors(anyObject(MongoDbException.class), eq(false));
+        mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 pauseStrategy);

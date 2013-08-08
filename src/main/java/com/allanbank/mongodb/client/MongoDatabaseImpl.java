@@ -8,10 +8,11 @@ package com.allanbank.mongodb.client;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.ListenableFuture;
+import com.allanbank.mongodb.LockType;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
@@ -218,7 +219,8 @@ public class MongoDatabaseImpl implements MongoDatabase {
         /* noCursorTimeout= */false, /* awaitData= */false,
         /* exhaust= */false, /* partial= */false);
 
-        final FutureCallback<MongoIterator<Document>> iterFuture = new FutureCallback<MongoIterator<Document>>();
+        final FutureCallback<MongoIterator<Document>> iterFuture = new FutureCallback<MongoIterator<Document>>(
+                getLockType());
         final QueryCallback callback = new QueryCallback(myClient, query,
                 iterFuture);
 
@@ -476,9 +478,10 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * @see #runCommandAsync(Callback, DocumentAssignable)
      */
     @Override
-    public Future<Document> runCommandAsync(final DocumentAssignable command)
-            throws MongoDbException {
-        final FutureCallback<Document> future = new FutureCallback<Document>();
+    public ListenableFuture<Document> runCommandAsync(
+            final DocumentAssignable command) throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
 
         runCommandAsync(future, command);
 
@@ -496,9 +499,10 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * @see #runCommandAsync(Callback, String, DocumentAssignable)
      */
     @Override
-    public Future<Document> runCommandAsync(final String command)
+    public ListenableFuture<Document> runCommandAsync(final String command)
             throws MongoDbException {
-        final FutureCallback<Document> future = new FutureCallback<Document>();
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
 
         runCommandAsync(future, command, null);
 
@@ -515,9 +519,10 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * @see #runCommandAsync(Callback, String, DocumentAssignable)
      */
     @Override
-    public Future<Document> runCommandAsync(final String command,
+    public ListenableFuture<Document> runCommandAsync(final String command,
             final DocumentAssignable options) throws MongoDbException {
-        final FutureCallback<Document> future = new FutureCallback<Document>();
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
 
         runCommandAsync(future, command, options);
 
@@ -535,10 +540,11 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * @see #runCommandAsync(Callback, String, int, DocumentAssignable)
      */
     @Override
-    public Future<Document> runCommandAsync(final String commandName,
+    public ListenableFuture<Document> runCommandAsync(final String commandName,
             final int commandValue, final DocumentAssignable options)
             throws MongoDbException {
-        final FutureCallback<Document> future = new FutureCallback<Document>();
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
 
         runCommandAsync(future, commandName, commandValue, options);
 
@@ -556,10 +562,11 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * @see #runCommandAsync(Callback, String, String, DocumentAssignable)
      */
     @Override
-    public Future<Document> runCommandAsync(final String commandName,
+    public ListenableFuture<Document> runCommandAsync(final String commandName,
             final String commandValue, final DocumentAssignable options)
             throws MongoDbException {
-        final FutureCallback<Document> future = new FutureCallback<Document>();
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
 
         runCommandAsync(future, commandName, commandValue, options);
 
@@ -658,6 +665,15 @@ public class MongoDatabaseImpl implements MongoDatabase {
                 }
             }
         }
+    }
+
+    /**
+     * Returns the type of lock to use.
+     * 
+     * @return The type of lock to use.
+     */
+    protected LockType getLockType() {
+        return myClient.getConfig().getLockType();
     }
 
     /**
