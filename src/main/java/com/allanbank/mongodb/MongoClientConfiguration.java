@@ -66,6 +66,14 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     private boolean myAutoDiscoverServers = true;
 
     /**
+     * Determines the model the driver uses for managing connections.
+     * <p>
+     * Defaults to {@link ConnectionModel#RECEIVER_THREAD}.
+     * </p>
+     */
+    private ConnectionModel myConnectionModel = ConnectionModel.RECEIVER_THREAD;
+
+    /**
      * Determines how long to wait (in milliseconds) for a socket connection to
      * complete.
      * <p>
@@ -594,6 +602,18 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the model the driver uses for managing connections.
+     * <p>
+     * Defaults to {@link ConnectionModel#RECEIVER_THREAD}.
+     * </p>
+     * 
+     * @return The model used for managing connections.
+     */
+    public ConnectionModel getConnectionModel() {
+        return myConnectionModel;
+    }
+
+    /**
      * Returns how long to wait (in milliseconds) for a socket connection to
      * complete.
      * <p>
@@ -933,6 +953,20 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public void setAutoDiscoverServers(final boolean autoDiscoverServers) {
         myAutoDiscoverServers = autoDiscoverServers;
+    }
+
+    /**
+     * Sets the model the driver uses for managing connections.
+     * <p>
+     * Defaults to {@link ConnectionModel#RECEIVER_THREAD}.
+     * </p>
+     * 
+     * @param connectionModel
+     *            The new value for the model the driver uses for managing
+     *            connections.
+     */
+    public void setConnectionModel(final ConnectionModel connectionModel) {
+        myConnectionModel = connectionModel;
     }
 
     /**

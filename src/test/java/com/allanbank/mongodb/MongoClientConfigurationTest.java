@@ -855,6 +855,26 @@ public class MongoClientConfigurationTest {
     }
 
     /**
+     * Test method for
+     * {@link MongoClientConfiguration#setConnectionModel(ConnectionModel)}.
+     */
+    @Test
+    public void testSetConnectionModel() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        // Check the default.
+        assertEquals(ConnectionModel.RECEIVER_THREAD,
+                config.getConnectionModel());
+
+        config.setConnectionModel(ConnectionModel.SENDER_RECEIVER_THREAD);
+        assertEquals(ConnectionModel.SENDER_RECEIVER_THREAD,
+                config.getConnectionModel());
+        config.setConnectionModel(ConnectionModel.RECEIVER_THREAD);
+        assertEquals(ConnectionModel.RECEIVER_THREAD,
+                config.getConnectionModel());
+    }
+
+    /**
      * Test method for {@link MongoClientConfiguration#setConnectTimeout(int)}.
      */
     @Test

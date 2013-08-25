@@ -320,7 +320,8 @@ public class MockSocketServer extends Thread {
         // Use non-blocking mode so we can pickup when to stop running.
         myConnection.configureBlocking(false);
 
-        ByteBuffer header = ByteBuffer.allocate(SocketConnection.HEADER_LENGTH);
+        ByteBuffer header = ByteBuffer
+                .allocate(AbstractSocketConnection.HEADER_LENGTH);
         ByteBuffer body = null;
         int read = 0;
         while (myRunning) {
@@ -346,7 +347,7 @@ public class MockSocketServer extends Thread {
                         final int length = EndianUtils.swap(dup.asIntBuffer()
                                 .get(0));
                         body = ByteBuffer.allocate(length
-                                - SocketConnection.HEADER_LENGTH);
+                                - AbstractSocketConnection.HEADER_LENGTH);
                     }
 
                     if (body.hasRemaining()) {
@@ -370,7 +371,7 @@ public class MockSocketServer extends Thread {
                         }
                         // Setup for the next message.
                         header = ByteBuffer
-                                .allocate(SocketConnection.HEADER_LENGTH);
+                                .allocate(AbstractSocketConnection.HEADER_LENGTH);
                         body = null;
 
                         if (!myReplies.isEmpty()) {

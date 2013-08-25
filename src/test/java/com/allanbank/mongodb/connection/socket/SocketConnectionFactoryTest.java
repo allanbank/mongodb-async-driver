@@ -5,7 +5,9 @@
 
 package com.allanbank.mongodb.connection.socket;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -18,6 +20,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.allanbank.mongodb.ConnectionModel;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
@@ -102,6 +105,7 @@ public class SocketConnectionFactoryTest {
         Connection conn = null;
         try {
             conn = myTestFactory.connect();
+            assertThat(conn, instanceOf(SocketConnection.class));
 
             assertTrue("Should have connected to the server.",
                     ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -174,6 +178,44 @@ public class SocketConnectionFactoryTest {
     }
 
     /**
+     * Test method for {@link SocketConnectionFactory#connect()} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testConnectWithModeSendReceive() throws IOException {
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                addr);
+        config.setConnectionModel(ConnectionModel.SENDER_RECEIVER_THREAD);
+
+        myTestFactory = new SocketConnectionFactory(config);
+
+        Connection conn = null;
+        try {
+            conn = myTestFactory.connect();
+
+            assertThat(conn, instanceOf(TwoThreadSocketConnection.class));
+
+            assertTrue("Should have connected to the server.",
+                    ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+            conn.close();
+
+            assertTrue("Should have disconnected from the server.",
+                    ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10)));
+            conn = null;
+        }
+        finally {
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
+
+    /**
      * Test method for {@link SocketConnectionFactory#getClusterType()}.
      * 
      * @throws IOException
@@ -188,5 +230,4 @@ public class SocketConnectionFactoryTest {
 
         assertEquals(ClusterType.STAND_ALONE, myTestFactory.getClusterType());
     }
-
 }

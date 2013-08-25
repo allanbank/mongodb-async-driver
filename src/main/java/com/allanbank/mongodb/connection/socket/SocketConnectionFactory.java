@@ -117,9 +117,20 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     @Override
     public Connection connect(final ServerState server,
             final MongoClientConfiguration config) throws IOException {
-        final SocketConnection connection = new SocketConnection(server,
-                myConfig);
 
+        final AbstractSocketConnection connection;
+
+        switch (myConfig.getConnectionModel()) {
+        case SENDER_RECEIVER_THREAD: {
+            connection = new TwoThreadSocketConnection(server, myConfig);
+            break;
+        }
+        case RECEIVER_THREAD: // Fall through
+        default: {
+            connection = new SocketConnection(server, myConfig);
+            break;
+        }
+        }
         connection.start();
 
         return connection;
