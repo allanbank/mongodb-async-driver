@@ -129,8 +129,21 @@ public abstract class AbstractSocketConnection implements Connection {
         myInput = mySocket.getInputStream();
         myBsonIn = new BsonInputStream(myInput);
 
+        // Careful with the size of the buffer here. Seems Java like to call
+        // madvise(..., MADV_DONTNEED) for buffers over a certain size.
+        // Net effect is that the performance of the system goes down the
+        // drain. Some numbers using the
+        // UnixDomainSocketAccepatanceTest.testMultiFetchiterator
+        // 1M ==> More than a minute...
+        // 512K ==> 24 seconds
+        // 256K ==> 16.9 sec.
+        // 128K ==> 17 sec.
+        // 64K ==> 17 sec.
+        // 32K ==> 16.5 sec.
+        // Based on those numbers we set the buffer to 128K as solidly in the
+        // optimal performance range.
         myOutput = new BufferedOutputStream(mySocket.getOutputStream(),
-                16 * 1024 * 1024);
+                128 * 1024);
         myBsonOut = new BsonOutputStream(myOutput);
 
         myPendingQueue = new PendingMessageQueue(

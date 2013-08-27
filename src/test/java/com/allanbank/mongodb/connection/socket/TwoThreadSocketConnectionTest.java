@@ -1393,7 +1393,7 @@ public class TwoThreadSocketConnectionTest {
 
         final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
         final IntBuffer buff = byteBuff.asIntBuffer();
-        buff.put(0, (7 * 4) + 8 + helloWorld.length);
+        buff.put(0, EndianUtils.swap((7 * 4) + 8 + helloWorld.length));
         buff.put(1, 0);
         buff.put(2, EndianUtils.swap(1));
         buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));
@@ -1529,7 +1529,7 @@ public class TwoThreadSocketConnectionTest {
 
         final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
         final IntBuffer buff = byteBuff.asIntBuffer();
-        buff.put(0, (7 * 4) + 8 + helloWorld.length);
+        buff.put(0, EndianUtils.swap((7 * 4) + 8 + helloWorld.length));
         buff.put(1, 0);
         buff.put(2, EndianUtils.swap(1234567));
         buff.put(3, EndianUtils.swap(Operation.INSERT.getCode()));
@@ -1600,7 +1600,7 @@ public class TwoThreadSocketConnectionTest {
 
         final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
         final IntBuffer buff = byteBuff.asIntBuffer();
-        buff.put(0, (7 * 4) + 8 + helloWorld.length);
+        buff.put(0, EndianUtils.swap((7 * 4) + 8 + helloWorld.length));
         buff.put(1, 0);
         buff.put(2, EndianUtils.swap(1));
         buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));

@@ -24,7 +24,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.allanbank.mongodb.LockType;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -165,7 +164,6 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig = new MongoClientConfiguration();
         myConfig.addServer(ourSocketAddress);
         myConfig.setSocketFactory(new UnixDomainSocketFactory());
-        myConfig.setLockType(LockType.LOW_LATENCY_SPIN);
 
         super.connect();
     }

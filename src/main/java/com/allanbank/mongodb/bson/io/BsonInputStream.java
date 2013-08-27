@@ -158,6 +158,19 @@ public class BsonInputStream extends InputStream {
     }
 
     /**
+     * Tries to prefetch the requested number of bytes from the underlying
+     * stream.
+     * 
+     * @param size
+     *            The number of bytes to try and read.
+     * @throws IOException
+     *             On a failure to read from the underlying stream.
+     */
+    public final void prefetch(final int size) throws IOException {
+        fetch(size, false);
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to track the bytes that have been read.
@@ -785,19 +798,6 @@ public class BsonInputStream extends InputStream {
         }
 
         return size;
-    }
-
-    /**
-     * Tries to prefetch the requested number of bytes from the underlying
-     * stream.
-     * 
-     * @param size
-     *            The number of bytes to try and read.
-     * @throws IOException
-     *             On a failure to read from the underlying stream.
-     */
-    public final void prefetch(final int size) throws IOException {
-        fetch(size, false);
     }
 
     /**
