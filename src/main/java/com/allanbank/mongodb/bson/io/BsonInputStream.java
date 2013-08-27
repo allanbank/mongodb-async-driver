@@ -796,7 +796,7 @@ public class BsonInputStream extends InputStream {
      * @throws IOException
      *             On a failure to read from the underlying stream.
      */
-    private final void prefetch(final int size) throws IOException {
+    public final void prefetch(final int size) throws IOException {
         fetch(size, false);
     }
 

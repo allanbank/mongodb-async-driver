@@ -308,6 +308,8 @@ public abstract class AbstractSocketConnection implements Connection {
                 return null;
             }
 
+            myBsonIn.prefetch(length - 4);
+
             final int requestId = myBsonIn.readInt();
             final int responseId = myBsonIn.readInt();
             final int opCode = myBsonIn.readInt();
