@@ -169,11 +169,10 @@ asynchronous variants of the methods.
 
 Thread Model
 
-  For each physical sockets connection a pair of threads is created.  The first is responsible for
-pushing requests to the server.  The second is responsible for reading the replies to the requests
-and matching them with the appropriate request callback (if any).  This simple reader/writer model
-provides for simplicity of programming and has been shown to perform as well if not better than 
-using Java's NIO package for using a single thread across multiple connections.
+  For each physical sockets connection by default a single read thread is created that is responsible 
+for reading the replies to the requests and matching them with the appropriate request callback (if any).  
+This simple model provides for simplicity of programming and has been shown to perform as well if not 
+better than  using Java's NIO package for using a single thread across multiple connections.
 
   The driver can not guarantee that two requests to the server, even from a single thread, will be 
 executed in the order they are submitted on the client. This is due to the asynchronous nature of the 
