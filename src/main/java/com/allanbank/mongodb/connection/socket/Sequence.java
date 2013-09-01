@@ -16,12 +16,11 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * We use an array of longs to avoid false sharing.
  * </p>
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Sequence {
-
-    /** The initial sequence value. */
-    static final long INITIAL_VALUE = 01L;
+/* package */class Sequence {
 
     /** The offset of the release value. */
     private static final int RELEASE_OFFSET = 15 + 7;
@@ -31,13 +30,6 @@ public class Sequence {
 
     /** The atomic array of long values. */
     private final AtomicLongArray myPaddedValue = new AtomicLongArray(30);
-
-    /**
-     * Create a sequence initialized to -1.
-     */
-    public Sequence() {
-        this(INITIAL_VALUE);
-    }
 
     /**
      * Create a sequence with a specified initial value.
@@ -84,7 +76,9 @@ public class Sequence {
      */
     public void release(final long expectedValue, final long newValue) {
         while (!compareAndSetRelease(expectedValue, newValue)) {
-            // Hard spin - should not really spin.
+            // Let another thread make progress - should not really spin if we
+            // did a waitFor.
+            Thread.yield();
         }
     }
 

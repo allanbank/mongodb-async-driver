@@ -354,7 +354,6 @@ public final class PendingMessageQueue {
         if (reserve < 0) {
 
             // Spinning here appears to slow things down.
-
             try {
                 myWaiting.incrementAndGet();
                 myLock.lock();

@@ -10,6 +10,7 @@ import static org.easymock.EasyMock.makeThreadSafe;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -139,6 +140,8 @@ public class TwoThreadSocketConnectionTest {
                 config);
         myTestConnection.start();
 
+        assertThat(myTestConnection.getServerName(), is(addr.getAddress()
+                .getHostName()));
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
@@ -1434,6 +1437,73 @@ public class TwoThreadSocketConnectionTest {
     }
 
     /**
+     * Test method for {@link SocketConnection}.
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws ExecutionException
+     *             On a failure waiting for a reply.
+     * @throws InterruptedException
+     *             On a failure waiting for a reply.
+     * @throws TimeoutException
+     *             On a failure waiting for a reply.
+     */
+    @Test
+    public void testRead2() throws IOException, InterruptedException,
+            ExecutionException, TimeoutException {
+        // From the BSON specification.
+        final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
+                (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
+                0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
+                (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addString("hello", "world");
+        final Document doc = builder.build();
+
+        final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
+        final IntBuffer buff = byteBuff.asIntBuffer();
+        buff.put(0, EndianUtils.swap((7 * 4) + 8 + helloWorld.length));
+        buff.put(1, 0);
+        buff.put(2, EndianUtils.swap(2));
+        buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));
+        buff.put(4, 0);
+        buff.put(5, 0);
+        buff.put(6, 0);
+        buff.put(7, 0);
+        buff.put(8, EndianUtils.swap(1));
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(byteBuff.array());
+        out.write(helloWorld);
+        ourServer.setReplies(Arrays.asList(out.toByteArray()));
+
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+
+        myTestConnection = new TwoThreadSocketConnection(new ServerState(addr),
+                new MongoClientConfiguration());
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final GetLastError error = new GetLastError("fo", false, false, 0, 0);
+        myTestConnection.send(error, error, future);
+        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
+        // Wake up the server.
+        assertTrue("Should receive the request after flush.",
+                ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
+        final Message reply = future.get(60, TimeUnit.SECONDS);
+
+        final Reply expected = new Reply(2, 0, 0,
+                Collections.singletonList(doc), false, false, false, false);
+
+        assertEquals("Did not receive the expected reply.", expected, reply);
+    }
+
+    /**
      * Test method for {@link TwoThreadSocketConnection#send} .
      * 
      * @throws IOException
@@ -1930,6 +2000,57 @@ public class TwoThreadSocketConnectionTest {
                 'o', '.', 'b', 'a', 'r', 0 },
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Flags should be one.", 1, EndianUtils.swap(asInts.get(7)));
+    }
+
+    /**
+     * Test method for {@link TwoThreadSocketConnection#stop} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testStop() throws IOException, InterruptedException {
+
+        // From the BSON specification.
+        final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
+                (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
+                0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
+                (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
+
+        final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
+        final IntBuffer buff = byteBuff.asIntBuffer();
+        buff.put(0, (7 * 4) + 8 + helloWorld.length);
+        buff.put(1, 0);
+        buff.put(2, EndianUtils.swap(1));
+        buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));
+        buff.put(4, 0);
+        buff.put(5, 0);
+        buff.put(6, 0);
+        buff.put(7, 0);
+        buff.put(8, EndianUtils.swap(1));
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(byteBuff.array());
+        out.write(helloWorld);
+        ourServer.setReplies(Arrays.asList(out.toByteArray()));
+
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new TwoThreadSocketConnection(new ServerState(addr),
+                config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        myTestConnection.stop();
+        myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
+
+        assertTrue(myTestConnection.isIdle());
+        assertFalse(myTestConnection.isOpen());
     }
 
     /**

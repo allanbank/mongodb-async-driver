@@ -5,12 +5,14 @@
 
 package com.allanbank.mongodb.connection.socket;
 
+import java.io.StreamCorruptedException;
 import java.util.logging.Level;
 
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -90,9 +92,11 @@ import com.allanbank.mongodb.util.IOUtils;
                 took = mySocketConnection.myPendingQueue.poll(myPendingMessage);
                 while (took && (myPendingMessage.getMessageId() != replyId)) {
 
+                    final MongoDbException noReply = new MongoDbException(
+                            "No reply received.");
+
                     // Note that this message will not get a reply.
-                    mySocketConnection.raiseError(
-                            AbstractSocketConnection.NO_REPLY,
+                    mySocketConnection.raiseError(noReply,
                             myPendingMessage.getReplyCallback());
 
                     // Keep looking.
@@ -118,6 +122,9 @@ import com.allanbank.mongodb.util.IOUtils;
         else if (received != null) {
             mySocketConnection.myLog.warning("Received a non-Reply message: "
                     + received);
+            mySocketConnection.shutdown(new ConnectionLostException(
+                    new StreamCorruptedException(
+                            "Received a non-Reply message: " + received)));
         }
     }
 }

@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Credential;
+import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
@@ -37,6 +38,7 @@ import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Command;
 import com.allanbank.mongodb.connection.message.Delete;
+import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.IOUtils;
@@ -743,6 +745,50 @@ public class AuthenticatingConnectionTest {
                 mockConnetion, myConfig);
 
         conn.send(msg, reply);
+
+        IOUtils.close(conn);
+
+        verify(mockConnetion);
+    }
+
+    /**
+     * Test method for {@link AuthenticatingConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @Test
+    public void testSendMessage2() throws IOException {
+
+        final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
+        final GetLastError msg2 = new GetLastError(TEST_DB, Durability.ACK);
+
+        final Connection mockConnetion = createMock(Connection.class);
+
+        // Nonce.
+        expect(
+                mockConnetion.send(
+                        eq(new Command(TEST_DB, myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
+
+        // Auth.
+        expect(
+                mockConnetion.send(
+                        eq(new Command(TEST_DB, myAuthRequest.build())),
+                        cb(myAuthReply))).andReturn(myAddress);
+
+        // Message.
+        expect(mockConnetion.send(msg, msg2, null)).andReturn(myAddress);
+
+        mockConnetion.close();
+        expectLastCall();
+
+        replay(mockConnetion);
+
+        final AuthenticatingConnection conn = new AuthenticatingConnection(
+                mockConnetion, myConfig);
+
+        conn.send(msg, msg2, null);
 
         IOUtils.close(conn);
 

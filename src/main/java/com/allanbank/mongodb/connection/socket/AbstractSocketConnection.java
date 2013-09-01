@@ -55,10 +55,6 @@ public abstract class AbstractSocketConnection implements Connection {
     /** The length of the message header in bytes. */
     public static final int HEADER_LENGTH = 16;
 
-    /** Exception that there was no reply for a message from MongoDB. */
-    public static final MongoDbException NO_REPLY = new MongoDbException(
-            "No reply received.");
-
     /** The writer for BSON documents. Shares this objects {@link #myInput}. */
     protected final BsonInputStream myBsonIn;
 
@@ -140,10 +136,10 @@ public abstract class AbstractSocketConnection implements Connection {
         // 128K ==> 17 sec.
         // 64K ==> 17 sec.
         // 32K ==> 16.5 sec.
-        // Based on those numbers we set the buffer to 128K as solidly in the
-        // optimal performance range.
+        // Based on those numbers we set the buffer to 32K as larger does not
+        // improve performance.
         myOutput = new BufferedOutputStream(mySocket.getOutputStream(),
-                128 * 1024);
+                32 * 1024);
         myBsonOut = new BsonOutputStream(myOutput);
 
         myPendingQueue = new PendingMessageQueue(
@@ -365,13 +361,7 @@ public abstract class AbstractSocketConnection implements Connection {
         catch (final IOException ioe) {
             final MongoDbException error = new ConnectionLostException(ioe);
 
-            // Have to assume all of the requests have failed that are pending.
-            final PendingMessage message = new PendingMessage();
-            while (myPendingQueue.poll(message)) {
-                raiseError(error, message.getReplyCallback());
-            }
-
-            closeQuietly();
+            shutdown(error);
 
             throw error;
         }
@@ -487,6 +477,22 @@ public abstract class AbstractSocketConnection implements Connection {
         if (myShutdown.get()) {
             flush();
         }
+    }
+
+    /**
+     * Shutsdown the connection on an error.
+     * 
+     * @param error
+     *            The error causing the shutdown.
+     */
+    protected void shutdown(final MongoDbException error) {
+        // Have to assume all of the requests have failed that are pending.
+        final PendingMessage message = new PendingMessage();
+        while (myPendingQueue.poll(message)) {
+            raiseError(error, message.getReplyCallback());
+        }
+
+        closeQuietly();
     }
 
     /**

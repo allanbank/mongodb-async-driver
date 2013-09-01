@@ -12,9 +12,11 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -27,6 +29,7 @@ import org.easymock.Capture;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
@@ -35,6 +38,7 @@ import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.Delete;
+import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -385,6 +389,35 @@ public class AbstractProxyConnectionTest {
     }
 
     /**
+     * Test method for {@link AbstractProxyConnection#getServerName}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @Test
+    public void testGetServerName() throws IOException {
+
+        final Connection mockConnetion = createMock(Connection.class);
+
+        // Message.
+        expect(mockConnetion.getServerName()).andReturn("foo");
+
+        mockConnetion.close();
+        expectLastCall();
+
+        replay(mockConnetion);
+
+        final TestProxiedConnection conn = new TestProxiedConnection(
+                mockConnetion, new MongoClientConfiguration());
+
+        assertThat(conn.getServerName(), is("foo"));
+
+        IOUtils.close(conn);
+
+        verify(mockConnetion);
+    }
+
+    /**
      * Test method for {@link AbstractProxyConnection#isIdle()} .
      * 
      * @throws IOException
@@ -627,11 +660,12 @@ public class AbstractProxyConnectionTest {
         final String address = "localhost:27017";
 
         final Message msg = new Delete("db", "collection", EMPTY_DOC, true);
+        final GetLastError msg2 = new GetLastError("db", Durability.ACK);
 
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        expect(mockConnetion.send(msg, null)).andReturn(address);
+        expect(mockConnetion.send(msg, msg2, null)).andReturn(address);
 
         mockConnetion.close();
         expectLastCall();
@@ -641,7 +675,7 @@ public class AbstractProxyConnectionTest {
         final TestProxiedConnection conn = new TestProxiedConnection(
                 mockConnetion, new MongoClientConfiguration());
 
-        conn.send(msg, null);
+        conn.send(msg, msg2, null);
 
         IOUtils.close(conn);
 
@@ -657,12 +691,13 @@ public class AbstractProxyConnectionTest {
     @Test
     public void testSendMessageArrayOnThrow() throws IOException {
         final Message msg = new Delete("db", "collection", EMPTY_DOC, true);
+        final GetLastError msg2 = new GetLastError("db", Durability.ACK);
         final MongoDbException thrown = new MongoDbException();
 
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        mockConnetion.send(msg, null);
+        mockConnetion.send(msg, msg2, null);
         expectLastCall().andThrow(thrown);
 
         mockConnetion.close();
@@ -674,7 +709,7 @@ public class AbstractProxyConnectionTest {
                 mockConnetion, new MongoClientConfiguration());
 
         try {
-            conn.send(msg, null);
+            conn.send(msg, msg2, null);
             fail("Should have thrown the exception.");
         }
         catch (final MongoDbException good) {
