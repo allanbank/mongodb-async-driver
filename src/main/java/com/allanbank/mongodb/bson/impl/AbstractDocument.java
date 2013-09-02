@@ -91,12 +91,10 @@ public abstract class AbstractDocument implements Document {
         if (this == object) {
             result = true;
         }
-        else if (object != null) {
-            if (object instanceof Document) {
-                final Document other = (Document) object;
+        else if ((object != null) && (object instanceof Document)) {
+            final Document other = (Document) object;
 
-                result = getElements().equals(other.getElements());
-            }
+            result = getElements().equals(other.getElements());
         }
         return result;
     }

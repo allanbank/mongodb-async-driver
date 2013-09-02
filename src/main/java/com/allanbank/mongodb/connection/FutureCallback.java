@@ -298,16 +298,16 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
      * 
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    private static final class PendingListener {
+    /* package */static final class PendingListener {
 
         /** The executor to use to run the {@link Runnable}. */
-        protected final Executor myExecutor;
+        /* package */final Executor myExecutor;
 
         /** The next item to execute. */
-        protected final PendingListener myNext;
+        /* package */final PendingListener myNext;
 
         /** The listener's {@link Runnable}. */
-        protected final Runnable myRunnable;
+        /* package */final Runnable myRunnable;
 
         /**
          * Creates a new PendingListener.
@@ -319,7 +319,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
          * @param next
          *            The next item to execute.
          */
-        protected PendingListener(final Runnable runnable,
+        /* package */PendingListener(final Runnable runnable,
                 final Executor executor, final PendingListener next) {
             myRunnable = runnable;
             myExecutor = executor;
@@ -336,28 +336,28 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
      * @param <V>
      *            The type of value for the future.
      */
-    private static final class Sync<V> extends AbstractQueuedSynchronizer {
+    /* package */static final class Sync<V> extends AbstractQueuedSynchronizer {
 
         /** State to represent the future was canceled. */
-        protected static final int CANCELED = 4;
+        /* package */static final int CANCELED = 4;
 
         /** State to represent the value has been set. */
-        protected static final int COMPLETED = 2;
+        /* package */static final int COMPLETED = 2;
 
         /** State set while the value is being set. */
-        protected static final int COMPLETING = 1;
+        /* package */static final int COMPLETING = 1;
 
         /** State to represent the future was interrupted. */
-        protected static final int INTERRUPTED = 8;
+        /* package */static final int INTERRUPTED = 8;
 
         /** The initial running state. */
-        protected static final int RUNNING = 0;
+        /* package */static final int RUNNING = 0;
+
+        /** The unused value passed to {@link #acquire(int)} methods. */
+        /* package */static final int UNUSED = -1;
 
         /** Serialization version of the class. */
         private static final long serialVersionUID = -9189950787072982459L;
-
-        /** The unused value passed to {@link #acquire(int)} methods. */
-        private static final int UNUSED = -1;
 
         /** The exception for the future. */
         private Throwable myException;
@@ -368,7 +368,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
         /**
          * Creates a new Sync.
          */
-        protected Sync() {
+        /* package */Sync() {
             myValue = null;
             myException = null;
         }
@@ -401,7 +401,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
          *            If we are interrupted.
          * @return If the cancel worked / won.
          */
-        boolean cancel(final boolean interrupt) {
+        /* package */boolean cancel(final boolean interrupt) {
             return complete(null, null, interrupt ? INTERRUPTED : CANCELED);
         }
 
@@ -417,7 +417,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
          * @throws InterruptedException
          *             If these call is interrupted.
          */
-        V get() throws CancellationException, ExecutionException,
+        /* package */V get() throws CancellationException, ExecutionException,
                 InterruptedException {
 
             // Acquire the shared lock allowing interruption.
@@ -442,8 +442,8 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
          * @throws InterruptedException
          *             If these call is interrupted.
          */
-        V get(final long nanos) throws TimeoutException, CancellationException,
-                ExecutionException, InterruptedException {
+        /* package */V get(final long nanos) throws TimeoutException,
+                CancellationException, ExecutionException, InterruptedException {
 
             // Attempt to acquire the shared lock with a timeout.
             if (!tryAcquireSharedNanos(UNUSED, nanos)) {
@@ -459,7 +459,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
          * @return True if the future state is {@link #CANCELED} or
          *         {@link #INTERRUPTED}.
          */
-        boolean isCancelled() {
+        /* package */boolean isCancelled() {
             return (getState() & (CANCELED | INTERRUPTED)) != 0;
         }
 
@@ -470,7 +470,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
          * @return True if the future state is {@link #COMPLETED},
          *         {@link #CANCELED} or {@link #INTERRUPTED}.
          */
-        boolean isDone() {
+        /* package */boolean isDone() {
             return (getState() & (COMPLETED | CANCELED | INTERRUPTED)) != 0;
         }
 
@@ -481,7 +481,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
          *            The value to set.
          * @return If the set worked / won.
          */
-        boolean set(final V value) {
+        /* package */boolean set(final V value) {
             return complete(value, null, COMPLETED);
         }
 
@@ -492,7 +492,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
          *            The exception to set.
          * @return If the set worked / won.
          */
-        boolean setException(final Throwable thrown) {
+        /* package */boolean setException(final Throwable thrown) {
             return complete(null, thrown, COMPLETED);
         }
 
