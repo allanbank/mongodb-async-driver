@@ -17,6 +17,7 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,6 +92,18 @@ public abstract class AbstractSocketConnection implements Connection {
     /** The open socket. */
     protected final Socket mySocket;
 
+    /** The number of messages sent by the connection. */
+    private final AtomicLong myMessagesSent;
+
+    /** The number of messages received by the connection. */
+    private final AtomicLong myRepliesReceived;
+
+    /**
+     * The total amount of time messages waited for a reply from the server in
+     * nanoseconds.
+     */
+    private final AtomicLong myTotalLatencyNanoSeconds;
+
     /**
      * Creates a new AbstractSocketConnection.
      * 
@@ -115,6 +128,10 @@ public abstract class AbstractSocketConnection implements Connection {
         myEventSupport = new PropertyChangeSupport(this);
         myOpen = new AtomicBoolean(false);
         myShutdown = new AtomicBoolean(false);
+
+        myRepliesReceived = new AtomicLong(0);
+        myTotalLatencyNanoSeconds = new AtomicLong(0);
+        myMessagesSent = new AtomicLong(0);
 
         mySocket = config.getSocketFactory().createSocket();
         mySocket.connect(myServer.getServer(), config.getConnectTimeout());
@@ -170,8 +187,24 @@ public abstract class AbstractSocketConnection implements Connection {
      * {@inheritDoc}
      */
     @Override
+    public long getMessagesSent() {
+        return myMessagesSent.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int getPendingCount() {
         return myPendingQueue.size();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getRepliesReceived() {
+        return myRepliesReceived.get();
     }
 
     /**
@@ -183,6 +216,14 @@ public abstract class AbstractSocketConnection implements Connection {
     @Override
     public String getServerName() {
         return myServer.getServer().getHostName();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getTotalLatencyNanoSeconds() {
+        return myTotalLatencyNanoSeconds.get();
     }
 
     /**
@@ -205,6 +246,14 @@ public abstract class AbstractSocketConnection implements Connection {
     @Override
     public boolean isOpen() {
         return myOpen.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isShuttingDown() {
+        return myShutdown.get();
     }
 
     /**
@@ -356,6 +405,8 @@ public abstract class AbstractSocketConnection implements Connection {
                 break;
             }
 
+            myRepliesReceived.incrementAndGet();
+
             return message;
         }
         catch (final IOException ioe) {
@@ -380,6 +431,7 @@ public abstract class AbstractSocketConnection implements Connection {
     protected void doSend(final int messageId, final Message message)
             throws IOException {
         message.write(messageId, myBsonOut);
+        myMessagesSent.incrementAndGet();
     }
 
     /**
@@ -437,11 +489,16 @@ public abstract class AbstractSocketConnection implements Connection {
      * 
      * @param reply
      *            The reply.
-     * @param replyCallback
-     *            The callback for the reply to the message.
+     * @param pendingMessage
+     *            The pending message.
      */
-    protected void reply(final Reply reply, final Callback<Reply> replyCallback) {
-        ReplyHandler.reply(reply, replyCallback, myExecutor);
+    protected void reply(final Reply reply, final PendingMessage pendingMessage) {
+
+        // Add the latency.
+        myTotalLatencyNanoSeconds.addAndGet(pendingMessage.latency());
+
+        final Callback<Reply> callback = pendingMessage.getReplyCallback();
+        ReplyHandler.reply(reply, callback, myExecutor);
     }
 
     /**

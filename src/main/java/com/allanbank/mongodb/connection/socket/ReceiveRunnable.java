@@ -106,8 +106,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
                 if (took) {
                     // Must be the pending message's reply.
-                    mySocketConnection.reply(reply,
-                            myPendingMessage.getReplyCallback());
+                    mySocketConnection.reply(reply, myPendingMessage);
                 }
                 else {
                     mySocketConnection.myLog

@@ -20,7 +20,7 @@ public class NoopCallbackTest {
      */
     @Test
     public void testCallback() {
-        final SocketConnection.NoopCallback cb = new AbstractSocketConnection.NoopCallback();
+        final AbstractSocketConnection.NoopCallback cb = new AbstractSocketConnection.NoopCallback();
 
         cb.callback(null);
     }
@@ -30,7 +30,7 @@ public class NoopCallbackTest {
      */
     @Test
     public void testException() {
-        final SocketConnection.NoopCallback cb = new AbstractSocketConnection.NoopCallback();
+        final AbstractSocketConnection.NoopCallback cb = new AbstractSocketConnection.NoopCallback();
 
         cb.exception(null);
     }
