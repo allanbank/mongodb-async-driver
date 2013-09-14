@@ -220,8 +220,6 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                 final StringElement primary = doc.get(StringElement.class,
                         "primary");
                 if (primary != null) {
-                    System.out.println("primary: " + primary.getValue()
-                            + ", conn: " + connection.getServerName());
                     return (primary.getValue().equals(connection
                             .getServerName()));
                 }
@@ -229,9 +227,13 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
         }
         catch (final InterruptedException e) {
             // Just ignore the reply.
+            LOG.finest("Failure testing if a connection is writable: "
+                    + e.getMessage());
         }
         catch (final ExecutionException e) {
             // Just ignore the reply.
+            LOG.finest("Failure testing if a connection is writable: "
+                    + e.getMessage());
         }
         return false;
     }

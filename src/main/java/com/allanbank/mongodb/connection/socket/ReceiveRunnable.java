@@ -64,6 +64,9 @@ import com.allanbank.mongodb.util.IOUtils;
                                 Level.WARNING,
                                 "Error reading a message: "
                                         + error.getMessage(), error);
+
+                        mySocketConnection
+                                .shutdown(new ConnectionLostException(error));
                     }
                     // All done.
                     return;

@@ -147,8 +147,7 @@ public class ShardedConnectionFactoryTest {
                 .getServers();
         assertEquals(1, servers.size());
 
-        assertEquals(3, ourServer.getRequests().size()); // For sweep + request
-                                                         // + ping.
+        assertEquals(2, ourServer.getRequests().size()); // For ping + request.
     }
 
     /**

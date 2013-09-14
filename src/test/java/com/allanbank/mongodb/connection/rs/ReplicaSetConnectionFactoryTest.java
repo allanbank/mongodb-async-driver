@@ -15,7 +15,9 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.describedAs;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -26,10 +28,13 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.easymock.EasyMock;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -56,7 +61,65 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 public class ReplicaSetConnectionFactoryTest {
 
     /** A Mock MongoDB server to connect to. */
-    private MockMongoDBServer myServer;
+    private static MockMongoDBServer ourServer;
+
+    /**
+     * Returns true if a driver thread is found.
+     * 
+     * @return True if a driver thread is found.
+     */
+    public static final boolean driverThreadRunning() {
+        final Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        for (final Thread t : threads) {
+            if (t.getName().contains("<--")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Starts a Mock MongoDB server.
+     * 
+     * @throws IOException
+     *             On a failure to start the Mock MongoDB server.
+     */
+    @BeforeClass
+    public static void setUpServer() throws IOException {
+        ourServer = new MockMongoDBServer();
+        ourServer.start();
+    }
+
+    /**
+     * Makes sure all of the threads have terminates at the end of the tests.
+     * 
+     * @throws IOException
+     *             On a failure to shutdown the test connection.
+     */
+    @AfterClass
+    public static void tearDownClass() throws IOException {
+        ourServer.setRunning(false);
+        ourServer.close();
+        ourServer = null;
+
+        // Make sure all of the driver's threads have shutdown.
+        long now = System.currentTimeMillis();
+        final long deadline = now + TimeUnit.SECONDS.toMillis(10);
+        while (driverThreadRunning() && (now < deadline)) {
+            try {
+                Thread.sleep(100);
+            }
+            catch (final InterruptedException e) {
+                // Ignored.
+            }
+            now = System.currentTimeMillis();
+
+        }
+
+        assertThat(driverThreadRunning(),
+                describedAs("Found a driver thread.", is(false)));
+    }
 
     /** The factory being tested. */
     private ReplicaSetConnectionFactory myTestFactory;
@@ -69,8 +132,12 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Before
     public void setUp() throws IOException {
-        myServer = new MockMongoDBServer();
-        myServer.start();
+        myTestFactory = null;
+
+        if (!ourServer.isRunning()) {
+            ourServer = new MockMongoDBServer();
+            ourServer.start();
+        }
     }
 
     /**
@@ -84,9 +151,7 @@ public class ReplicaSetConnectionFactoryTest {
         IOUtils.close(myTestFactory);
         myTestFactory = null;
 
-        myServer.setRunning(false);
-        myServer.close();
-        myServer = null;
+        ourServer.clear();
     }
 
     /**
@@ -94,7 +159,7 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testBootstrap() {
-        final InetSocketAddress addr = myServer.getInetSocketAddress();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
         final String serverName = ServerNameUtils.normalize(addr);
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
@@ -103,14 +168,14 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.pushArray("hosts").addString(serverName)
                 .addString("localhost:1234");
 
-        myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder),
+        ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder));
+                reply(replStatusBuilder), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
-                myServer.getInetSocketAddress());
+                ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
@@ -128,8 +193,10 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testBootstrapAddPrimary() {
-        final String serverName = myServer.getInetSocketAddress().getHostName()
-                + ":" + myServer.getInetSocketAddress().getPort();
+        final String serverName = ourServer.getInetSocketAddress()
+                .getHostName()
+                + ":"
+                + ourServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
@@ -137,13 +204,14 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.pushArray("hosts").addString(serverName)
                 .addString("localhost:1234").addString("localhost:6789");
 
-        myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder),
+        ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
-                myServer.getInetSocketAddress());
+                ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(false);
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
@@ -161,8 +229,10 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testBootstrapNoDiscover() {
-        final String serverName = myServer.getInetSocketAddress().getHostName()
-                + ":" + myServer.getInetSocketAddress().getPort();
+        final String serverName = ourServer.getInetSocketAddress()
+                .getHostName()
+                + ":"
+                + ourServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
@@ -170,10 +240,11 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.pushArray("hosts").addString(serverName)
                 .addString("localhost:1234");
 
-        myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder),
+        ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer(serverName);
@@ -194,17 +265,19 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testBootstrapNoPrimary() {
-        final String serverName = myServer.getInetSocketAddress().getHostName()
-                + ":" + myServer.getInetSocketAddress().getPort();
+        final String serverName = ourServer.getInetSocketAddress()
+                .getHostName()
+                + ":"
+                + ourServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
         replStatusBuilder.pushArray("hosts").addString(serverName);
 
-        myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder),
+        ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder));
+                reply(replStatusBuilder), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://" + serverName);
@@ -227,10 +300,10 @@ public class ReplicaSetConnectionFactoryTest {
     @Test
     public void testBootstrapNoReplyDocs() {
 
-        myServer.setReplies(reply(), reply());
+        ourServer.setReplies(reply(), reply(), reply());
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
-                myServer.getInetSocketAddress());
+                ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
@@ -252,7 +325,7 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testClose() throws IOException {
-        final InetSocketAddress addr = myServer.getInetSocketAddress();
+        final InetSocketAddress addr = ourServer.getInetSocketAddress();
         final String serverName = ServerNameUtils.normalize(addr);
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
@@ -261,10 +334,11 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.pushArray("hosts").addString(serverName)
                 .addString("localhost:1234");
 
-        myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
+        ourServer.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
-                myServer.getInetSocketAddress());
+                ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
@@ -298,19 +372,20 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testConnect() throws IOException {
-        final String serverName = myServer.getInetSocketAddress().getHostName()
-                + ":" + myServer.getInetSocketAddress().getPort();
+        final String serverName = ServerNameUtils.normalize(ourServer
+                .getInetSocketAddress());
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName);
 
-        myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
+        ourServer.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
-                myServer.getInetSocketAddress());
+                ourServer.getInetSocketAddress());
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
@@ -332,24 +407,27 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testConnectFails() throws IOException, InterruptedException {
-        final String serverName = myServer.getInetSocketAddress().getHostName()
-                + ":" + myServer.getInetSocketAddress().getPort();
+        final String serverName = ourServer.getInetSocketAddress()
+                .getHostName()
+                + ":"
+                + ourServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName);
 
-        myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
+        ourServer.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
-                myServer.getInetSocketAddress());
+                ourServer.getInetSocketAddress());
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
 
-        myServer.setRunning(false);
-        myServer.close();
+        ourServer.setRunning(false);
+        ourServer.close();
         Thread.sleep(100); // Make sure the socket is not connectable.
         try {
             myTestFactory = new ReplicaSetConnectionFactory(socketFactory,
@@ -503,7 +581,7 @@ public class ReplicaSetConnectionFactoryTest {
     @Test
     public void testGetClusterType() throws IOException {
         final String serverName = "localhost:"
-                + myServer.getInetSocketAddress().getPort();
+                + ourServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.push("repl");
@@ -511,10 +589,11 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.pushArray("hosts").addString(serverName)
                 .addString("localhost:1234");
 
-        myServer.setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
+        ourServer.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
-                myServer.getInetSocketAddress());
+                ourServer.getInetSocketAddress());
         config.setAutoDiscoverServers(true);
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(

@@ -43,6 +43,7 @@ import com.allanbank.mongodb.connection.message.ReplyHandler;
 import com.allanbank.mongodb.connection.message.Update;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.error.ConnectionLostException;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * AbstractSocketConnection provides the basic functionality for a socket
@@ -215,7 +216,7 @@ public abstract class AbstractSocketConnection implements Connection {
      */
     @Override
     public String getServerName() {
-        return myServer.getServer().getHostName();
+        return ServerNameUtils.normalize(myServer.getServer());
     }
 
     /**

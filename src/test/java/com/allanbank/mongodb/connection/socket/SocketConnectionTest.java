@@ -11,7 +11,6 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -69,7 +68,9 @@ import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
 import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * SocketConnectionTest provides tests for the {@link SocketConnection} class.
@@ -140,8 +141,8 @@ public class SocketConnectionTest {
         myTestConnection = new SocketConnection(new ServerState(addr), config);
         myTestConnection.start();
 
-        assertThat(myTestConnection.getServerName(), is(addr.getAddress()
-                .getHostName()));
+        assertThat(myTestConnection.getServerName(),
+                is(ServerNameUtils.normalize(addr)));
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
@@ -151,7 +152,7 @@ public class SocketConnectionTest {
         Thread receive = null;
         for (final Thread t : threads) {
             if (t.getName().contains("<--")) {
-                assertNull("Found 2 receive threads", receive);
+                assertNull("Found 2 receive threads: " + t.getName(), receive);
                 receive = t;
             }
         }
@@ -165,7 +166,7 @@ public class SocketConnectionTest {
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**
@@ -1594,7 +1595,7 @@ public class SocketConnectionTest {
         Thread receive = null;
         for (final Thread t : threads) {
             if (t.getName().contains("<--")) {
-                assertNull("Found 2 receive threads", receive);
+                assertNull("Found 2 receive threads: " + t.getName(), receive);
                 receive = t;
             }
         }
@@ -1617,8 +1618,6 @@ public class SocketConnectionTest {
         catch (final ExecutionException ee) {
             // Good.
             assertThat(ee.getCause(), instanceOf(MongoDbException.class));
-            assertThat(ee.getCause().getCause(),
-                    instanceOf(StreamCorruptedException.class));
         }
 
         // Pause for everything to cleanup.
@@ -1832,9 +1831,9 @@ public class SocketConnectionTest {
             future.get(1, TimeUnit.SECONDS);
             fail("Should have timedout waiting for a reply.");
         }
-        catch (final TimeoutException te) {
+        catch (final ExecutionException te) {
             // Good.
-            assertThat(te.getCause(), nullValue());
+            assertThat(te.getCause(), instanceOf(ConnectionLostException.class));
         }
     }
 
@@ -1983,7 +1982,7 @@ public class SocketConnectionTest {
         Thread receive = null;
         for (final Thread t : threads) {
             if (t.getName().contains("<--")) {
-                assertNull("Found 2 receive threads", receive);
+                assertNull("Found 2 receive threads: " + t.getName(), receive);
                 receive = t;
             }
         }
@@ -1998,7 +1997,7 @@ public class SocketConnectionTest {
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
-        myTestConnection = null;
+        // // myTestConnection = null;
     }
 
     /**
@@ -2027,7 +2026,7 @@ public class SocketConnectionTest {
         Thread receive = null;
         for (final Thread t : threads) {
             if (t.getName().contains("<--")) {
-                assertNull("Found 2 receive threads", receive);
+                assertNull("Found 2 receive threads: " + t.getName(), receive);
                 receive = t;
             }
         }
@@ -2042,7 +2041,7 @@ public class SocketConnectionTest {
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**
@@ -2072,7 +2071,7 @@ public class SocketConnectionTest {
         Thread receive = null;
         for (final Thread t : threads) {
             if (t.getName().contains("<--")) {
-                assertNull("Found 2 receive threads", receive);
+                assertNull("Found 2 receive threads: " + t.getName(), receive);
                 receive = t;
             }
         }
@@ -2087,7 +2086,7 @@ public class SocketConnectionTest {
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**
@@ -2117,7 +2116,7 @@ public class SocketConnectionTest {
         Thread receive = null;
         for (final Thread t : threads) {
             if (t.getName().contains("<--")) {
-                assertNull("Found 2 receive threads", receive);
+                assertNull("Found 2 receive threads: " + t.getName(), receive);
                 receive = t;
             }
         }
@@ -2133,7 +2132,7 @@ public class SocketConnectionTest {
                 receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**
@@ -2267,7 +2266,7 @@ public class SocketConnectionTest {
 
         assertTrue("Should have disconnected from the server.",
                 ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10)));
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**

@@ -112,7 +112,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                     sendIsPrimary(answers, connections, server, false);
 
                     // Anyone replied yet?
-                    final ReplicaSetConnection newConn = checkForReply(
+                    final ReplicaSetConnection newConn = checkForReply(state,
                             oldConnection, answers, connections, deadline);
                     if (newConn != null) {
                         return newConn;
@@ -128,7 +128,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                         + pauseTime);
 
                 // Check again for replies before trying to reconnect.
-                final ReplicaSetConnection newConn = checkForReply(
+                final ReplicaSetConnection newConn = checkForReply(state,
                         oldConnection, answers, connections, deadline);
                 if (newConn != null) {
                     return newConn;
@@ -151,6 +151,8 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * to confirm the primary server by asking it if it thinks it is the primary
      * server.
      * 
+     * @param state
+     *            The state of the cluster.
      * @param oldConnection
      *            The old connection to copy from.
      * @param answers
@@ -162,7 +164,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * @return The new connection if there was a reply and that server confirmed
      *         it was the primary.
      */
-    protected ReplicaSetConnection checkForReply(
+    protected ReplicaSetConnection checkForReply(final ClusterState state,
             final Connection oldConnection,
             final Map<InetSocketAddress, Future<Reply>> answers,
             final Map<InetSocketAddress, Connection> connections,
@@ -183,31 +185,42 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                 final String putativePrimary = checkReply(reply, connections,
                         addr, deadline);
 
-                // Phase2 - Verify the putative server.
-                if ((putativePrimary != null)
-                        && verifyPutative(answers, connections,
-                                putativePrimary, deadline)) {
-
-                    // Phase 3 - Setup a new replica set connection to the
-                    // primary and seed it with a secondary if there is a
-                    // suitable server.
-                    final ServerState server = getState().get(putativePrimary);
-
-                    // Mark the server writable.
-                    // There can only be 1 writable server.
-                    for (final ServerState other : getState()
-                            .getWritableServers()) {
-                        getState().markNotWritable(other);
+                if (putativePrimary != null) {
+                    // If this new server is not currently writable mark the old
+                    // primary not writable.
+                    if (!state.add(putativePrimary).isWritable()) {
+                        for (final ServerState server : state
+                                .getWritableServers()) {
+                            state.markNotWritable(server);
+                        }
                     }
-                    getState().markWritable(server);
 
-                    final Connection primaryConn = connections.remove(server
-                            .getServer());
-                    final ReplicaSetConnection newRsConn = new ReplicaSetConnection(
-                            primaryConn, server, getState(),
-                            getConnectionFactory(), getConfig());
+                    // Phase2 - Verify the putative server.
+                    if (verifyPutative(answers, connections, putativePrimary,
+                            deadline)) {
 
-                    return newRsConn;
+                        // Phase 3 - Setup a new replica set connection to the
+                        // primary and seed it with a secondary if there is a
+                        // suitable server.
+                        final ServerState server = getState().get(
+                                putativePrimary);
+
+                        // Mark the server writable.
+                        // There can only be 1 writable server.
+                        for (final ServerState other : getState()
+                                .getWritableServers()) {
+                            getState().markNotWritable(other);
+                        }
+                        getState().markWritable(server);
+
+                        final Connection primaryConn = connections
+                                .remove(server.getServer());
+                        final ReplicaSetConnection newRsConn = new ReplicaSetConnection(
+                                primaryConn, server, getState(),
+                                getConnectionFactory(), getConfig());
+
+                        return newRsConn;
+                    }
                 }
             }
             else {

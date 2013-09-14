@@ -380,16 +380,6 @@ public class ClientImpl extends AbstractClient {
                 myActiveReconnects += 1;
             }
 
-            // Stop using the connection.
-            myConnections.remove(connection);
-            connection.removePropertyChangeListener(myConnectionListener);
-
-            // Raise errors for all of the pending messages - there is no way to
-            // know their state of flight between here and the server.
-            MongoDbException exception = new ConnectionLostException(
-                    "Connection lost to MongoDB: " + connection);
-            connection.raiseErrors(exception);
-
             final Connection newConnection = strategy.reconnect(connection);
             if (newConnection != null) {
                 // Get the new connection in the rotation.
@@ -398,11 +388,19 @@ public class ClientImpl extends AbstractClient {
             }
         }
         finally {
+            myConnections.remove(connection);
+            connection.removePropertyChangeListener(myConnectionListener);
+
+            // Raise errors for all of the pending messages - there is no way to
+            // know their state of flight between here and the server.
+            final MongoDbException exception = new ConnectionLostException(
+                    "Connection lost to MongoDB: " + connection);
+            connection.raiseErrors(exception);
+
             synchronized (this) {
                 myActiveReconnects -= 1;
                 notifyAll();
             }
-
         }
     }
 

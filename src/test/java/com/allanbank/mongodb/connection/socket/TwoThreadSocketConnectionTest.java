@@ -68,6 +68,7 @@ import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
 import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.error.DocumentToLargeException;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * TwoThreadSocketConnectionTest provides tests for the
@@ -140,8 +141,8 @@ public class TwoThreadSocketConnectionTest {
                 config);
         myTestConnection.start();
 
-        assertThat(myTestConnection.getServerName(), is(addr.getAddress()
-                .getHostName()));
+        assertThat(myTestConnection.getServerName(),
+                is(ServerNameUtils.normalize(addr)));
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
@@ -165,7 +166,7 @@ public class TwoThreadSocketConnectionTest {
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**
@@ -1752,7 +1753,7 @@ public class TwoThreadSocketConnectionTest {
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**
@@ -1797,7 +1798,7 @@ public class TwoThreadSocketConnectionTest {
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**
@@ -1843,7 +1844,7 @@ public class TwoThreadSocketConnectionTest {
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**
@@ -1890,7 +1891,7 @@ public class TwoThreadSocketConnectionTest {
                 receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**
@@ -2076,7 +2077,7 @@ public class TwoThreadSocketConnectionTest {
 
         assertTrue("Should have disconnected from the server.",
                 ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10)));
-        myTestConnection = null;
+        // myTestConnection = null;
     }
 
     /**

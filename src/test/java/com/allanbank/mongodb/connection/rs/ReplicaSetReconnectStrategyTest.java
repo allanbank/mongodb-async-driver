@@ -6,11 +6,14 @@
 package com.allanbank.mongodb.connection.rs;
 
 import static com.allanbank.mongodb.connection.CallbackReply.reply;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -77,6 +80,21 @@ public class ReplicaSetReconnectStrategyTest {
         ourServer3.setRunning(false);
         ourServer3.close();
         ourServer3 = null;
+
+        // Make sure all of the driver's threads have shutdown.
+        long now = System.currentTimeMillis();
+        final long deadline = now + TimeUnit.SECONDS.toMillis(10);
+        while (ReplicaSetConnectionFactoryTest.driverThreadRunning()
+                && (now < deadline)) {
+            try {
+                Thread.sleep(100);
+            }
+            catch (final InterruptedException e) {
+                // Ignored.
+            }
+            now = System.currentTimeMillis();
+
+        }
     }
 
     /** The test connection. */
@@ -256,7 +274,6 @@ public class ReplicaSetReconnectStrategyTest {
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
                 .getServer());
-        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
 
         // Bootstrapped! Yay.
         // Setup for no one to be the new primary.
@@ -264,6 +281,21 @@ public class ReplicaSetReconnectStrategyTest {
         ourServer1.clear();
         ourServer2.clear();
         ourServer3.clear();
+
+        //
+        // Create the connection.
+        //
+
+        // Should only contact the primary.
+        ourServer1.setReplies(reply(replStatusBuilder));
+
+        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
+        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
+                .getReconnectStrategy();
+
+        //
+        // Force a reconnect.
+        //
 
         replStatusBuilder.reset();
         replStatusBuilder.push("repl");
@@ -294,20 +326,17 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
 
-        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
-                .getReconnectStrategy();
-
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
+        assertThat(myNewTestConnection, nullValue(Connection.class));
         servers = myTestFactory.getClusterState().getWritableServers();
-        assertEquals(1, servers.size());
-        assertEquals(ourServer3.getInetSocketAddress(), servers.get(0)
-                .getServer());
+        assertEquals(0, servers.size());
     }
 
     /**
      * Test method for {@link ReplicaSetReconnectStrategy#reconnect(Connection)}
-     * .
+     * . This scenario have the reconnect contact a different server before
+     * settling on the primary.
      * 
      * @throws IOException
      *             On a failure.
@@ -361,6 +390,21 @@ public class ReplicaSetReconnectStrategyTest {
         ourServer2.clear();
         ourServer3.clear();
 
+        //
+        // Create the connection.
+        //
+
+        // Should only contact the primary.
+        ourServer1.setReplies(reply(replStatusBuilder));
+
+        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
+        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
+                .getReconnectStrategy();
+
+        //
+        // Force a reconnect.
+        //
+
         // No one knows reply
         replStatusBuilder.reset();
         replStatusBuilder.push("repl");
@@ -378,10 +422,6 @@ public class ReplicaSetReconnectStrategyTest {
         ourServer2.setReplies(reply(replStatusBuilder), reply(reply2));
         ourServer3.setReplies(reply(replStatusBuilder), reply(reply2),
                 reply(reply2));
-
-        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
-        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
-                .getReconnectStrategy();
 
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
@@ -448,6 +488,21 @@ public class ReplicaSetReconnectStrategyTest {
         ourServer2.clear();
         ourServer3.clear();
 
+        //
+        // Create the connection.
+        //
+
+        // Should only contact the primary.
+        ourServer1.setReplies(reply(replStatusBuilder));
+
+        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
+        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
+                .getReconnectStrategy();
+
+        //
+        // Force a reconnect.
+        //
+
         // No one knows reply
         replStatusBuilder.reset();
         replStatusBuilder.push("repl");
@@ -490,10 +545,6 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
-
-        myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
-        final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
-                .getReconnectStrategy();
 
         myNewTestConnection = strategy.reconnect(myTestConnection);
         assertNull(myNewTestConnection);

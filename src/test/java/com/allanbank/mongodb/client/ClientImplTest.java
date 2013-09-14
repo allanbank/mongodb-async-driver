@@ -1735,10 +1735,9 @@ public class ClientImplTest {
         mockConnection.raiseErrors(anyObject(ConnectionLostException.class));
         expectLastCall();
 
-        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
-
         // Second message.
         expect(mockConnection.isOpen()).andReturn(false).times(2);
+
         // Wait for the reconnect.
 
         // After reconnect.
@@ -1809,31 +1808,37 @@ public class ClientImplTest {
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
         // Reconnect.
+        mockConnection
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
         expect(mockConnection.isShuttingDown()).andReturn(false);
+
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 pauseStrategy);
-        expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
+        mockConnection2
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
 
         // Second message.
-        expect(mockConnection.isOpen()).andReturn(false).times(2);
-
         // Wait for the reconnect.
 
-        // After reconnect.
-        expect(mockConnection.isOpen()).andReturn(false).times(2);
+        // After reconnect timeout.
+        expect(mockConnection.isOpen()).andReturn(false).times(4);
 
         replay(mockConnection, mockConnection2);
 
         myTestInstance.send(message, null);
 
-        new Thread(new Runnable() {
+        final Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 myTestInstance.handleConnectionClosed(mockConnection);
             }
-        }).start();
+        });
+        t.start();
+
         Thread.sleep(100);
 
         try {
@@ -1845,6 +1850,8 @@ public class ClientImplTest {
                     containsString("Could not create a connection to the server."));
 
         }
+
+        t.join();
 
         verify(mockConnection, mockConnection2);
     }
