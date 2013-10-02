@@ -11,6 +11,7 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isNull;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -78,6 +79,80 @@ public class ReplicaSetConnectionTest {
         myCluster = null;
         myConfig = null;
         myServer = null;
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
+     * 
+     * @throws IOException
+     *             On a failure setting up mocks.
+     */
+    @Test
+    public void testCloseSecondaryOnRemoveFromTheCluster() throws IOException {
+        final Query q = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.secondary(), false, false,
+                false, false);
+
+        final Server s1 = myCluster.add("foo:12345");
+        final Server s2 = myCluster.add("bar:12345");
+        final Server s3 = myCluster.add("bas:12345");
+        final Server s4 = myCluster.add("bat:12345");
+        final Server s5 = myCluster.add("bau:12345");
+        final Server s6 = myCluster.add("bav:12345");
+
+        s1.updateAverageLatency(1000);
+        s2.updateAverageLatency(1000);
+        s3.updateAverageLatency(1000);
+        s4.updateAverageLatency(1000);
+        s5.updateAverageLatency(1000);
+        s6.updateAverageLatency(1000);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final Connection mockConnection2 = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(mockFactory.connect(s1, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s2, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s3, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s4, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s5, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+
+        expect(mockFactory.connect(s6, myConfig)).andReturn(mockConnection2);
+        expect(mockConnection2.send(q, null)).andReturn("foo");
+
+        mockConnection2.shutdown();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory, mockConnection2);
+
+        final ReplicaSetConnection testConnection = new ReplicaSetConnection(
+                mockConnection, myServer, myCluster, mockFactory, myConfig);
+
+        // Open the connection.
+        assertEquals("foo", testConnection.send(q, null));
+
+        // Give the s6 server the same name as once of the other servers.
+        // That will cause the connection to be shutdown.
+        s6.update(BuilderFactory.start().add("me", s1.getCanonicalName())
+                .build());
+
+        verify(mockConnection, mockFactory, mockConnection2);
+
+        // The close should only close the main connection.
+        reset(mockConnection, mockFactory, mockConnection2);
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory, mockConnection2);
+        testConnection.close();
+        verify(mockConnection, mockFactory, mockConnection2);
+
     }
 
     /**

@@ -5,13 +5,16 @@
 
 package com.allanbank.mongodb.connection.state;
 
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.start;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.beans.PropertyChangeEvent;
@@ -649,6 +652,112 @@ public class ClusterTest {
         assertSame(myState, event.getValue().getSource());
         assertEquals(Boolean.FALSE, event.getValue().getOldValue());
         assertEquals(Boolean.TRUE, event.getValue().getNewValue());
+    }
+
+    /**
+     * Test method for ensuring the cluster hears when a server's canonical name
+     * changes.
+     */
+    @Test
+    public void testServerNameChange() {
+        myState = new Cluster(new MongoClientConfiguration());
+
+        final PropertyChangeListener mockListener = EasyMock
+                .createMock(PropertyChangeListener.class);
+
+        // Should only get notified of the new server once.
+        final Capture<PropertyChangeEvent> event = new Capture<PropertyChangeEvent>();
+        mockListener.propertyChange(EasyMock.capture(event));
+        expectLastCall();
+
+        replay(mockListener);
+
+        final Server ss = myState.add("foo");
+        assertEquals("foo:27017", ss.getCanonicalName());
+        assertEquals(Server.DEFAULT_PORT, ss.getAddresses().iterator().next()
+                .getPort());
+
+        ss.update(start(PRIMARY_UPDATE, start().add("me", "foo.domain:27017"))
+                .build());
+
+        assertTrue(ss.isWritable());
+        assertEquals("foo.domain:27017", ss.getCanonicalName());
+        assertEquals(Server.DEFAULT_PORT, ss.getAddresses().iterator().next()
+                .getPort());
+        assertThat(myState.getServers(), is(Collections.singletonList(ss)));
+
+        myState.addListener(mockListener);
+
+        ss.update(start(SECONDARY_UPDATE,
+                start().add("me", "foo.domain2:27017")).build());
+        assertEquals("foo.domain2:27017", ss.getCanonicalName());
+        assertThat(myState.getServers(), is(Collections.singletonList(ss)));
+        assertFalse(ss.isWritable());
+
+        ss.update(start(SECONDARY_UPDATE,
+                start().add("me", "foo.domain2:27017")).build());
+        assertThat(myState.getServers(), is(Collections.singletonList(ss)));
+
+        verify(mockListener);
+
+        assertTrue(event.hasCaptured());
+        assertEquals("writable", event.getValue().getPropertyName());
+        assertSame(myState, event.getValue().getSource());
+        assertEquals(Boolean.TRUE, event.getValue().getOldValue());
+        assertEquals(Boolean.FALSE, event.getValue().getNewValue());
+    }
+
+    /**
+     * Test method for ensuring the cluster hears when a server's canonical name
+     * changes (and is a duplicate of another server...).
+     */
+    @Test
+    public void testServerNameChangeRemovesDuplicateServer() {
+        myState = new Cluster(new MongoClientConfiguration());
+
+        final Server ss = myState.add("foo");
+        assertEquals("foo:27017", ss.getCanonicalName());
+        assertEquals(Server.DEFAULT_PORT, ss.getAddresses().iterator().next()
+                .getPort());
+
+        final Server ss2 = myState.add("foo.domain");
+        assertEquals("foo.domain:27017", ss2.getCanonicalName());
+        assertEquals(Server.DEFAULT_PORT, ss2.getAddresses().iterator().next()
+                .getPort());
+
+        final PropertyChangeListener mockListener = EasyMock
+                .createMock(PropertyChangeListener.class);
+
+        // Should only get notified of the new server once.
+        final Capture<PropertyChangeEvent> event = new Capture<PropertyChangeEvent>();
+        mockListener.propertyChange(EasyMock.capture(event));
+        expectLastCall();
+
+        replay(mockListener);
+
+        myState.addListener(mockListener);
+
+        // Update to the name of ss2. Should remove this server instance from
+        // the cluster.
+        ss.update(start(SECONDARY_UPDATE, start().add("me", "foo.domain:27017"))
+                .build());
+        assertEquals("foo.domain:27017", ss.getCanonicalName());
+        assertThat(myState.getServers(), is(Collections.singletonList(ss2)));
+
+        // Update it again but nothing should change.
+        ss.update(start(SECONDARY_UPDATE,
+                start().add("me", "foo.domain2:27017")).build());
+        assertEquals("foo.domain2:27017", ss.getCanonicalName());
+        assertThat(myState.getServers(), is(Collections.singletonList(ss2)));
+
+        verify(mockListener);
+
+        assertTrue(event.hasCaptured());
+        assertEquals(Cluster.SERVER_PROP, event.getValue().getPropertyName());
+        assertSame(myState, event.getValue().getSource());
+        assertEquals(ss, event.getValue().getOldValue());
+        assertNull(event.getValue().getNewValue());
+
     }
 
     /**

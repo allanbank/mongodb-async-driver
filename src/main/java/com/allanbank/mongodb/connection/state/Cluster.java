@@ -54,6 +54,9 @@ public class Cluster {
     /** Support for firing property change events. */
     /* package */final PropertyChangeSupport myChangeSupport;
 
+    /** The listener for changes to the server. */
+    /* package */final ServerListener myListener;
+
     /** The complete list of non-writable servers. */
     /* package */final CopyOnWriteArrayList<Server> myNonWritableServers;
 
@@ -75,6 +78,7 @@ public class Cluster {
         myServers = new ConcurrentHashMap<String, Server>();
         myWritableServers = new CopyOnWriteArrayList<Server>();
         myNonWritableServers = new CopyOnWriteArrayList<Server>();
+        myListener = new ServerListener();
     }
 
     /**
@@ -103,8 +107,7 @@ public class Cluster {
                     myChangeSupport.firePropertyChange(SERVER_PROP, null,
                             server);
 
-                    // Listen for the server's state to change.
-                    server.addListener(Server.STATE_PROP, new ServerListener());
+                    server.addListener(myListener);
                 }
             }
         }
@@ -319,8 +322,7 @@ public class Cluster {
      */
     protected List<Server> findCandidateServer(
             final ReadPreference readPreference) {
-        final Server server = myServers.get(ServerNameUtils
-                .normalize(readPreference.getServer()));
+        final Server server = myServers.get(readPreference.getServer());
         if ((server != null) && readPreference.matches(server.getTags())) {
             return Collections.singletonList(server);
         }
@@ -504,25 +506,50 @@ public class Cluster {
     protected final class ServerListener implements PropertyChangeListener {
         @Override
         public void propertyChange(final PropertyChangeEvent evt) {
-            if (Server.STATE_PROP.equals(evt.getPropertyName())) {
+            final String propertyName = evt.getPropertyName();
+            final Server server = (Server) evt.getSource();
+
+            if (Server.STATE_PROP.equals(propertyName)) {
 
                 final boolean old = !myWritableServers.isEmpty();
 
                 if (Server.State.WRITABLE == evt.getNewValue()) {
-                    myWritableServers.addIfAbsent((Server) evt.getSource());
-                    myNonWritableServers.remove(evt.getSource());
+                    myWritableServers.addIfAbsent(server);
+                    myNonWritableServers.remove(server);
                 }
                 else if (Server.State.READ_ONLY == evt.getNewValue()) {
-                    myWritableServers.remove(evt.getSource());
-                    myNonWritableServers.addIfAbsent((Server) evt.getSource());
+                    myWritableServers.remove(server);
+                    myNonWritableServers.addIfAbsent(server);
                 }
                 else {
-                    myWritableServers.remove(evt.getSource());
-                    myNonWritableServers.remove(evt.getSource());
+                    myWritableServers.remove(server);
+                    myNonWritableServers.remove(server);
                 }
 
                 myChangeSupport.firePropertyChange(WRITABLE_PROP, old,
                         !myWritableServers.isEmpty());
+
+            }
+            else if (Server.CANONICAL_NAME_PROP.equals(propertyName)) {
+                // Resolved a new canonical name. e.g., What the server
+                // calls itself in the cluster.
+
+                // Remove the entry with the old name.
+                myServers.remove(evt.getOldValue(), server);
+
+                // And add with the new name. Checking for duplicate entries.
+                final Server existing = myServers.putIfAbsent(
+                        server.getCanonicalName(), server);
+                if (existing != null) {
+                    // Already have a Server with that name. Remove the listener
+                    // and let this server get garbage collected.
+                    myNonWritableServers.remove(server);
+                    myWritableServers.remove(server);
+                    server.removeListener(myListener);
+
+                    myChangeSupport.firePropertyChange(SERVER_PROP, server,
+                            null);
+                }
             }
         }
     }

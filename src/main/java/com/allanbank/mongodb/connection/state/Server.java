@@ -166,23 +166,6 @@ public class Server {
     }
 
     /**
-     * Add a PropertyChangeListener to receive all future property changes for
-     * the {@code propertyName} of the {@link Server}.
-     * 
-     * @param propertyName
-     *            The name of the property to listen on.
-     * @param listener
-     *            The PropertyChangeListener to be added
-     * 
-     * @see PropertyChangeSupport#addPropertyChangeListener(String,
-     *      PropertyChangeListener)
-     */
-    public void addListener(final String propertyName,
-            final PropertyChangeListener listener) {
-        myEventSupport.addPropertyChangeListener(propertyName, listener);
-    }
-
-    /**
      * Notification that an attempt to connect to the server via the all of the
      * {@link #getAddresses() addresses provided} failed.
      */
@@ -227,6 +210,19 @@ public class Server {
         myState = State.UNAVAILABLE;
 
         myEventSupport.firePropertyChange(STATE_PROP, oldValue, myState);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a stable equality check. This is based only on the
+     * server object's identity. The {@link Cluster} class will de-duplicate
+     * once the canonical host names are determined.
+     * </p>
+     */
+    @Override
+    public boolean equals(final Object object) {
+        return (this == object);
     }
 
     /**
@@ -328,6 +324,20 @@ public class Server {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a stable hash for the server. This is based only on
+     * the server object's {@link System#identityHashCode(Object) identity hash
+     * code}. The {@link Cluster} class will de-duplicate once the canonical
+     * host names are determined.
+     * </p>
+     */
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    /**
      * Increments the number of messages sent to the server.
      */
     public void incrementMessagesSent() {
@@ -366,23 +376,6 @@ public class Server {
      */
     public void removeListener(final PropertyChangeListener listener) {
         myEventSupport.removePropertyChangeListener(listener);
-    }
-
-    /**
-     * Remove a PropertyChangeListener to stop receiving future property changes
-     * for the {@code propertyName} of the {@link Server}.
-     * 
-     * @param propertyName
-     *            The name of the property that was listened on.
-     * @param listener
-     *            The PropertyChangeListener to be removed
-     * 
-     * @see PropertyChangeSupport#removePropertyChangeListener(String,
-     *      PropertyChangeListener)
-     */
-    public void removeListener(final String propertyName,
-            final PropertyChangeListener listener) {
-        myEventSupport.removePropertyChangeListener(propertyName, listener);
     }
 
     /**

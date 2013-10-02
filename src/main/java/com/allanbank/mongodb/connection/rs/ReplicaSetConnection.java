@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.connection.rs;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,17 +47,20 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
     protected static final Logger LOG = Logger
             .getLogger(ReplicaSetConnection.class.getCanonicalName());
 
+    /** The secondary servers this connection is connected to. */
+    /* package */final ConcurrentMap<Server, Connection> mySecondaryServers;
+
     /** The state of the cluster for finding secondary connections. */
     private final Cluster myCluster;
 
     /** The connection factory for opening secondary connections. */
     private final ProxiedConnectionFactory myFactory;
 
-    /** The primary server this connection is connected to. */
-    private final Server myPrimaryServer;
+    /** The listener for changes in the cluster. */
+    private final PropertyChangeListener myListener;
 
     /** The primary server this connection is connected to. */
-    private final ConcurrentMap<Server, Connection> mySecondaryServers;
+    private final Server myPrimaryServer;
 
     /**
      * Creates a new {@link ReplicaSetConnection}.
@@ -82,7 +87,8 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
 
         mySecondaryServers = new ConcurrentHashMap<Server, Connection>();
 
-        // TODO - Listen for server name changes.
+        myListener = new ClusterListener();
+        myCluster.addListener(myListener);
     }
 
     /**
@@ -92,6 +98,8 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      */
     @Override
     public void close() throws IOException {
+        myCluster.removeListener(myListener);
+
         for (final Connection conn : mySecondaryServers.values()) {
             try {
                 conn.close();
@@ -363,5 +371,29 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
                     + server.getCanonicalName() + "': " + e.getMessage());
         }
         return conn;
+    }
+
+    /**
+     * ClusterListener provides a listener for changes in the cluster.
+     * 
+     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
+     *         be mutated in incompatible ways between any two releases of the
+     *         driver.
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected final class ClusterListener implements PropertyChangeListener {
+        @Override
+        public void propertyChange(final PropertyChangeEvent evt) {
+            final String propName = evt.getPropertyName();
+            if (Cluster.SERVER_PROP.equals(propName)
+                    && (evt.getNewValue() == null)) {
+                // A Server has been removed. Close the connection.
+                final Server removed = (Server) evt.getOldValue();
+                final Connection conn = mySecondaryServers.remove(removed);
+                if (conn != null) {
+                    conn.shutdown();
+                }
+            }
+        }
     }
 }
