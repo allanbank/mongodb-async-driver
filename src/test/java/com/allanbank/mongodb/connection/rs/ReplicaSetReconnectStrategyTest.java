@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.connection.rs;
 
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.start;
 import static com.allanbank.mongodb.connection.CallbackReply.reply;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
@@ -21,13 +22,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -46,6 +49,15 @@ public class ReplicaSetReconnectStrategyTest {
 
     /** A Mock MongoDB server to connect to. */
     private static MockMongoDBServer ourServer3;
+
+    /** Update document to mark servers as the primary. */
+    private static final Document PRIMARY_UPDATE = new ImmutableDocument(
+            BuilderFactory.start().add("ismaster", true));
+
+    /** Update document to mark servers as the secondary. */
+    private static final Document SECONDARY_UPDATE = new ImmutableDocument(
+            BuilderFactory.start().add("ismaster", false)
+                    .add("secondary", true));
 
     /**
      * Starts a Mock MongoDB server.
@@ -155,18 +167,15 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.pushArray("hosts").addString(serverName1)
                 .addString(serverName2).addString(serverName3);
 
-        ourServer1.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder)); // For ping/close.
-        ourServer3.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder)); // For ping/close.
+        // Servers are called twice. Once for ping and once for close.
+        ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)));
+        ourServer2.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
+        ourServer3.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer1.getInetSocketAddress());
@@ -176,11 +185,10 @@ public class ReplicaSetReconnectStrategyTest {
                 config);
         myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        List<ServerState> servers = myTestFactory.getClusterState()
-                .getWritableServers();
+        List<Server> servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
-                .getServer());
+                .getAddresses().iterator().next());
 
         // Bootstrapped! Yay.
         // Setup for server2 to take over.
@@ -194,11 +202,14 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.addString("primary", serverName2);
         replStatusBuilder.pushArray("hosts").addString(serverName1)
                 .addString(serverName2).addString(serverName3);
+
         // Note sure who will get asked first... server2 should be asked twice.
-        ourServer1.setReplies(reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder));
-        ourServer3.setReplies(reply(replStatusBuilder));
+        ourServer1
+                .setReplies(reply(start(SECONDARY_UPDATE, replStatusBuilder)));
+        ourServer2.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)));
+        ourServer3
+                .setReplies(reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
         myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
         final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
@@ -206,10 +217,10 @@ public class ReplicaSetReconnectStrategyTest {
 
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
-        servers = myTestFactory.getClusterState().getWritableServers();
+        servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer2.getInetSocketAddress(), servers.get(0)
-                .getServer());
+                .getAddresses().iterator().next());
     }
 
     /**
@@ -240,25 +251,15 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.pushArray("hosts").addString(serverName1)
                 .addString(serverName2).addString(serverName3);
 
-        ourServer1.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
-        ourServer3.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
+        // Servers are called twice. Once for ping and once for close.
+        ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)));
+        ourServer2.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
+        ourServer3.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer1.getInetSocketAddress());
@@ -269,11 +270,10 @@ public class ReplicaSetReconnectStrategyTest {
                 config);
         myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        List<ServerState> servers = myTestFactory.getClusterState()
-                .getWritableServers();
+        List<Server> servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
-                .getServer());
+                .getAddresses().iterator().next());
 
         // Bootstrapped! Yay.
         // Setup for no one to be the new primary.
@@ -314,22 +314,31 @@ public class ReplicaSetReconnectStrategyTest {
         reply2.pushArray("hosts").addString(serverName1).addString(serverName2)
                 .addString(serverName3);
 
-        // Note sure who will get asked first... server2 should be asked twice.
-        ourServer1.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replyUnknown), reply(replyUnknown),
-                reply(replyUnknown), reply(replyUnknown), reply(replyUnknown),
-                reply(replyUnknown));
-        ourServer3.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
+        // Note sure who will get asked first...
+        ourServer1.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
+        ourServer2.setReplies(reply(start(SECONDARY_UPDATE, replyUnknown)),
+                reply(start(SECONDARY_UPDATE, replyUnknown)),
+                reply(start(SECONDARY_UPDATE, replyUnknown)),
+                reply(start(SECONDARY_UPDATE, replyUnknown)),
+                reply(start(SECONDARY_UPDATE, replyUnknown)),
+                reply(start(SECONDARY_UPDATE, replyUnknown)));
+        ourServer3.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
         assertThat(myNewTestConnection, nullValue(Connection.class));
-        servers = myTestFactory.getClusterState().getWritableServers();
+        servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(0, servers.size());
     }
 
@@ -362,13 +371,15 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.pushArray("hosts").addString(serverName1)
                 .addString(serverName2).addString(serverName3);
 
-        ourServer1.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder)); // For ping/close.
-        ourServer3.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder)); // For ping/close.
+        // Servers are called twice. Once for ping and once for close.
+        ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)));
+        ourServer2.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
+        ourServer3.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer1.getInetSocketAddress());
@@ -378,11 +389,10 @@ public class ReplicaSetReconnectStrategyTest {
                 config);
         myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        List<ServerState> servers = myTestFactory.getClusterState()
-                .getWritableServers();
+        List<Server> servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
-                .getServer());
+                .getAddresses().iterator().next());
 
         // Bootstrapped! Yay.
         // Setup for server3 to take over.
@@ -418,17 +428,23 @@ public class ReplicaSetReconnectStrategyTest {
         reply2.pushArray("hosts").addString(serverName1).addString(serverName2)
                 .addString(serverName3);
 
-        ourServer1.setReplies(reply(replStatusBuilder), reply(reply2));
-        ourServer2.setReplies(reply(replStatusBuilder), reply(reply2));
-        ourServer3.setReplies(reply(replStatusBuilder), reply(reply2),
-                reply(reply2));
+        ourServer1.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, reply2)));
+        ourServer2.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, reply2)));
+        ourServer3.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, reply2)),
+                reply(start(PRIMARY_UPDATE, reply2)));
 
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
-        servers = myTestFactory.getClusterState().getWritableServers();
+        servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer3.getInetSocketAddress(), servers.get(0)
-                .getServer());
+                .getAddresses().iterator().next());
     }
 
     /**
@@ -453,19 +469,21 @@ public class ReplicaSetReconnectStrategyTest {
                 + ":"
                 + ourServer3.getInetSocketAddress().getPort();
 
-        final DocumentBuilder replStatusBuilder = BuilderFactory.start();
+        final DocumentBuilder replStatusBuilder = start();
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName1);
         replStatusBuilder.pushArray("hosts").addString(serverName1)
                 .addString(serverName2).addString(serverName3);
 
-        ourServer1.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder)); // For ping/close.
-        ourServer3.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder)); // For ping/close.
+        // Servers are called twice. Once for ping and once for close.
+        ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)));
+        ourServer2.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
+        ourServer3.setReplies(
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer1.getInetSocketAddress());
@@ -476,11 +494,10 @@ public class ReplicaSetReconnectStrategyTest {
                 config);
         myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        List<ServerState> servers = myTestFactory.getClusterState()
-                .getWritableServers();
+        List<Server> servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
-                .getServer());
+                .getAddresses().iterator().next());
 
         // Bootstrapped! Yay.
         // Setup for server3 to take over.
@@ -549,9 +566,9 @@ public class ReplicaSetReconnectStrategyTest {
         myNewTestConnection = strategy.reconnect(myTestConnection);
         assertNull(myNewTestConnection);
 
-        servers = myTestFactory.getClusterState().getWritableServers();
+        servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
         assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
-                .getServer());
+                .getAddresses().iterator().next());
     }
 }

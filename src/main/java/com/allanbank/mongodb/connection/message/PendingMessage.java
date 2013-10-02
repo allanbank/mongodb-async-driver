@@ -107,8 +107,8 @@ public class PendingMessage {
     }
 
     /**
-     * Determines the latency of the message. If the message does not have a
-     * time stamp then zero is returned.
+     * Determines the latency of the message in nano-seconds. If the message
+     * does not have a time stamp then zero is returned.
      * 
      * @return The current latency for the message.
      */

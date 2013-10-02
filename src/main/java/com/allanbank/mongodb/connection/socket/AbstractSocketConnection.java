@@ -11,13 +11,13 @@ import java.io.BufferedOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,9 +41,8 @@ import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.ReplyHandler;
 import com.allanbank.mongodb.connection.message.Update;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.error.ConnectionLostException;
-import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * AbstractSocketConnection provides the basic functionality for a socket
@@ -54,6 +53,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractSocketConnection implements Connection {
+
     /** The length of the message header in bytes. */
     public static final int HEADER_LENGTH = 16;
 
@@ -85,25 +85,13 @@ public abstract class AbstractSocketConnection implements Connection {
     protected final PendingMessageQueue myPendingQueue;
 
     /** The open socket. */
-    protected final ServerState myServer;
+    protected final Server myServer;
 
     /** Set to true when the connection should be gracefully closed. */
     protected final AtomicBoolean myShutdown;
 
     /** The open socket. */
     protected final Socket mySocket;
-
-    /** The number of messages sent by the connection. */
-    private final AtomicLong myMessagesSent;
-
-    /** The number of messages received by the connection. */
-    private final AtomicLong myRepliesReceived;
-
-    /**
-     * The total amount of time messages waited for a reply from the server in
-     * nanoseconds.
-     */
-    private final AtomicLong myTotalLatencyNanoSeconds;
 
     /**
      * Creates a new AbstractSocketConnection.
@@ -117,7 +105,7 @@ public abstract class AbstractSocketConnection implements Connection {
      * @throws IOException
      *             On a failure to read or write data to the MongoDB server.
      */
-    public AbstractSocketConnection(final ServerState server,
+    public AbstractSocketConnection(final Server server,
             final MongoClientConfiguration config) throws SocketException,
             IOException {
         super();
@@ -130,12 +118,7 @@ public abstract class AbstractSocketConnection implements Connection {
         myOpen = new AtomicBoolean(false);
         myShutdown = new AtomicBoolean(false);
 
-        myRepliesReceived = new AtomicLong(0);
-        myTotalLatencyNanoSeconds = new AtomicLong(0);
-        myMessagesSent = new AtomicLong(0);
-
-        mySocket = config.getSocketFactory().createSocket();
-        mySocket.connect(myServer.getServer(), config.getConnectTimeout());
+        mySocket = openSocket(server, config);
         updateSocketWithOptions(config);
 
         myOpen.set(true);
@@ -188,24 +171,8 @@ public abstract class AbstractSocketConnection implements Connection {
      * {@inheritDoc}
      */
     @Override
-    public long getMessagesSent() {
-        return myMessagesSent.get();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public int getPendingCount() {
         return myPendingQueue.size();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getRepliesReceived() {
-        return myRepliesReceived.get();
     }
 
     /**
@@ -216,15 +183,7 @@ public abstract class AbstractSocketConnection implements Connection {
      */
     @Override
     public String getServerName() {
-        return ServerNameUtils.normalize(myServer.getServer());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getTotalLatencyNanoSeconds() {
-        return myTotalLatencyNanoSeconds.get();
+        return myServer.getCanonicalName();
     }
 
     /**
@@ -406,7 +365,7 @@ public abstract class AbstractSocketConnection implements Connection {
                 break;
             }
 
-            myRepliesReceived.incrementAndGet();
+            myServer.incrementRepliesReceived();
 
             return message;
         }
@@ -432,7 +391,7 @@ public abstract class AbstractSocketConnection implements Connection {
     protected void doSend(final int messageId, final Message message)
             throws IOException {
         message.write(messageId, myBsonOut);
-        myMessagesSent.incrementAndGet();
+        myServer.incrementMessagesSent();
     }
 
     /**
@@ -495,8 +454,12 @@ public abstract class AbstractSocketConnection implements Connection {
      */
     protected void reply(final Reply reply, final PendingMessage pendingMessage) {
 
+        final long latency = pendingMessage.latency();
+
         // Add the latency.
-        myTotalLatencyNanoSeconds.addAndGet(pendingMessage.latency());
+        if (latency > 0) {
+            myServer.updateAverageLatency(latency);
+        }
 
         final Callback<Reply> callback = pendingMessage.getReplyCallback();
         ReplyHandler.reply(reply, callback, myExecutor);
@@ -624,6 +587,49 @@ public abstract class AbstractSocketConnection implements Connection {
             myLog.log(Level.WARNING,
                     "I/O exception trying to shutdown the connection.", e);
         }
+    }
+
+    /**
+     * Tries to open a connection to the server.
+     * 
+     * @param server
+     *            The server to open the connection to.
+     * @param config
+     *            The configuration for attempting to open the connection.
+     * @return The opened {@link Socket}.
+     * @throws IOException
+     *             On a failure opening a connection to the server.
+     */
+    private Socket openSocket(final Server server,
+            final MongoClientConfiguration config) throws IOException {
+        IOException last = null;
+        Socket socket = null;
+        for (final InetSocketAddress address : myServer.getAddresses()) {
+            try {
+                socket = config.getSocketFactory().createSocket();
+                socket.connect(address, config.getConnectTimeout());
+                last = null;
+                break;
+            }
+            catch (final IOException error) {
+                last = error;
+                try {
+                    if (socket != null) {
+                        socket.close();
+                    }
+                }
+                catch (final IOException ignore) {
+                    myLog.info("Could not close the defunct socket connection: "
+                            + socket);
+                }
+            }
+        }
+        if (last != null) {
+            server.connectFailed();
+            throw last;
+        }
+
+        return socket;
     }
 
     /**

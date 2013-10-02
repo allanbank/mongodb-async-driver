@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.bson.builder;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.impl.ArrayBuilderImpl;
 import com.allanbank.mongodb.bson.builder.impl.DocumentBuilderImpl;
 
@@ -41,6 +42,28 @@ public class BuilderFactory {
      */
     public static DocumentBuilder start(final DocumentAssignable seedDocument) {
         return new DocumentBuilderImpl(seedDocument);
+    }
+
+    /**
+     * Creates a new {@link DocumentBuilder} to append more elements to an
+     * existing set of documents.
+     * 
+     * @param seedDocuments
+     *            The documents to seed the builder with. The builder will
+     *            contain the seed document elements plus any added/appended
+     *            elements.
+     * @return The root level document builder.
+     */
+    public static DocumentBuilder start(
+            final DocumentAssignable... seedDocuments) {
+        final DocumentBuilderImpl builder = new DocumentBuilderImpl();
+        for (final DocumentAssignable seedDocument : seedDocuments) {
+            for (final Element element : seedDocument.asDocument()) {
+                builder.remove(element.getName());
+                builder.add(element);
+            }
+        }
+        return builder;
     }
 
     /**

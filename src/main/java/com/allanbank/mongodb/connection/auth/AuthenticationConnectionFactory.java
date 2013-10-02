@@ -12,7 +12,7 @@ import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -80,7 +80,7 @@ public class AuthenticationConnectionFactory implements
      * </p>
      */
     @Override
-    public AuthenticatingConnection connect(final ServerState server,
+    public AuthenticatingConnection connect(final Server server,
             final MongoClientConfiguration config) throws IOException {
         return new AuthenticatingConnection(myProxiedConnectionFactory.connect(
                 server, config), config);

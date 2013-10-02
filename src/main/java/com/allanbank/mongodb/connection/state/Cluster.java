@@ -7,7 +7,7 @@ package com.allanbank.mongodb.connection.state;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.Closeable;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,47 +18,50 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
-import com.allanbank.mongodb.connection.Connection;
-import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
- * {@link ClusterState} tracks the state of the cluster of MongoDB servers.
+ * {@link Cluster} tracks the state of the cluster of MongoDB servers.
  * PropertyChangeEvents are fired when a server is added or marked writable/not
  * writable.
  * <p>
  * This class uses brute force synchronization to protect its internal state. It
  * is assumed that multiple connections will be concurrently updating the
- * {@link ClusterState} at once and that at any given time this class may not
- * contain the absolute truth about the state of the cluster. Instead
- * connections should keep querying for the state of the cluster via their
- * connection until the view the server returned and the {@link ClusterState}
- * are consistent. Since this class will not fire a {@link PropertyChangeEvent}
- * when the state is not truly modified the simplest mechanism is to keep
- * querying for the cluster state on the connection until no addition change
- * events are seen.
+ * {@link Cluster} at once and that at any given time this class may not contain
+ * the absolute truth about the state of the cluster. Instead connections should
+ * keep querying for the state of the cluster via their connection until the
+ * view the server returned and the {@link Cluster} are consistent. Since this
+ * class will not fire a {@link PropertyChangeEvent} when the state is not truly
+ * modified the simplest mechanism is to keep querying for the cluster state on
+ * the connection until no addition change events are seen.
  * </p>
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ClusterState implements Closeable {
+public class Cluster {
+
+    /** The property sued for adding a new server. */
+    public static final String SERVER_PROP = "server";
+
+    /** The property name for if there is a writable server. */
+    public static final String WRITABLE_PROP = "writable";
 
     /** The complete list of servers. */
-    protected final ConcurrentMap<String, ServerState> myServers;
+    protected final ConcurrentMap<String, Server> myServers;
 
     /** Support for firing property change events. */
-    private final PropertyChangeSupport myChangeSupport;
+    /* package */final PropertyChangeSupport myChangeSupport;
+
+    /** The complete list of non-writable servers. */
+    /* package */final CopyOnWriteArrayList<Server> myNonWritableServers;
+
+    /** The complete list of writable servers. */
+    /* package */final CopyOnWriteArrayList<Server> myWritableServers;
 
     /** The configuration for connecting to the servers. */
     private final MongoClientConfiguration myConfig;
-
-    /** The complete list of non-writable servers. */
-    private final List<ServerState> myNonWritableServers;
-
-    /** The complete list of writable servers. */
-    private final List<ServerState> myWritableServers;
 
     /**
      * Creates a new CLusterState.
@@ -66,27 +69,62 @@ public class ClusterState implements Closeable {
      * @param config
      *            The configuration for the cluster.
      */
-    public ClusterState(final MongoClientConfiguration config) {
+    public Cluster(final MongoClientConfiguration config) {
         myConfig = config;
         myChangeSupport = new PropertyChangeSupport(this);
-        myServers = new ConcurrentHashMap<String, ServerState>();
-        myWritableServers = new CopyOnWriteArrayList<ServerState>();
-        myNonWritableServers = new CopyOnWriteArrayList<ServerState>();
+        myServers = new ConcurrentHashMap<String, Server>();
+        myWritableServers = new CopyOnWriteArrayList<Server>();
+        myNonWritableServers = new CopyOnWriteArrayList<Server>();
     }
 
     /**
-     * Adds a {@link ServerState} to the {@link ClusterState} for the address
-     * provided if one does not already exist.
+     * Adds a {@link Server} to the {@link Cluster} for the address provided if
+     * one does not already exist.
+     * 
+     * @param address
+     *            The address of the {@link Server} to return.
+     * @return The {@link Server} for the address.
+     */
+    public Server add(final InetSocketAddress address) {
+        final String normalized = ServerNameUtils.normalize(address);
+        Server server = myServers.get(normalized);
+        if (server == null) {
+
+            server = new Server(address);
+
+            synchronized (this) {
+                final Server existing = myServers.putIfAbsent(normalized,
+                        server);
+                if (existing != null) {
+                    server = existing;
+                }
+                else {
+                    myNonWritableServers.add(server);
+                    myChangeSupport.firePropertyChange(SERVER_PROP, null,
+                            server);
+
+                    // Listen for the server's state to change.
+                    server.addListener(Server.STATE_PROP, new ServerListener());
+                }
+            }
+        }
+        return server;
+    }
+
+    /**
+     * Adds a {@link Server} to the {@link Cluster} for the address provided if
+     * one does not already exist.
      * <p>
-     * This method is equivalent to calling {@link #get(String)}.
+     * This method is equivalent to calling {@link #add(InetSocketAddress)
+     * add(ServerNameUtils.parse(address))}.
      * </p>
      * 
      * @param address
-     *            The address of the {@link ServerState} to return.
-     * @return The {@link ServerState} for the address.
+     *            The address of the {@link Server} to return.
+     * @return The {@link Server} for the address.
      */
-    public ServerState add(final String address) {
-        return get(address);
+    public Server add(final String address) {
+        return add(ServerNameUtils.parse(address));
     }
 
     /**
@@ -102,23 +140,6 @@ public class ClusterState implements Closeable {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to ensure all of the {@link ServerState} connections are
-     * closed.
-     * </p>
-     */
-    @Override
-    public void close() {
-        for (final ServerState state : getServers()) {
-            final Connection conn = state.takeConnection();
-            if (conn != null) {
-                IOUtils.close(conn);
-            }
-        }
-    }
-
-    /**
      * Returns the set of servers that can be used based on the provided
      * {@link ReadPreference}.
      * 
@@ -128,9 +149,8 @@ public class ClusterState implements Closeable {
      *         ordered by preference to be used, most preferred to least
      *         preferred.
      */
-    public List<ServerState> findCandidateServers(
-            final ReadPreference readPreference) {
-        List<ServerState> results = Collections.emptyList();
+    public List<Server> findCandidateServers(final ReadPreference readPreference) {
+        List<Server> results = Collections.emptyList();
 
         switch (readPreference.getMode()) {
         case NEAREST:
@@ -159,36 +179,19 @@ public class ClusterState implements Closeable {
     }
 
     /**
-     * Returns the server state for the address provided. If the
-     * {@link ServerState} does not already exist a non-writable state is
-     * created and returned.
+     * Returns the server state for the address provided. If the {@link Server}
+     * does not already exist a non-writable state is created and returned.
+     * <p>
+     * This method is equivalent to calling {@link #add(InetSocketAddress)
+     * add(ServerNameUtils.parse(address))}.
+     * </p>
      * 
      * @param address
-     *            The address of the {@link ServerState} to return.
-     * @return The {@link ServerState} for the address.
+     *            The address of the {@link Server} to return.
+     * @return The {@link Server} for the address.
      */
-    public ServerState get(final String address) {
-
-        final String normalized = ServerNameUtils.normalize(address);
-        ServerState state = myServers.get(normalized);
-        if (state == null) {
-
-            state = new ServerState(ServerNameUtils.parse(normalized));
-            state.setWritable(false);
-
-            synchronized (this) {
-                final ServerState existing = myServers.putIfAbsent(normalized,
-                        state);
-                if (existing != null) {
-                    state = existing;
-                }
-                else {
-                    myNonWritableServers.add(state);
-                    myChangeSupport.firePropertyChange("server", null, state);
-                }
-            }
-        }
-        return state;
+    public Server get(final String address) {
+        return add(ServerNameUtils.parse(address));
     }
 
     /**
@@ -197,8 +200,8 @@ public class ClusterState implements Closeable {
      * 
      * @return The complete list of non-writable servers.
      */
-    public List<ServerState> getNonWritableServers() {
-        return new ArrayList<ServerState>(myNonWritableServers);
+    public List<Server> getNonWritableServers() {
+        return new ArrayList<Server>(myNonWritableServers);
     }
 
     /**
@@ -207,8 +210,8 @@ public class ClusterState implements Closeable {
      * 
      * @return The complete list of servers.
      */
-    public List<ServerState> getServers() {
-        return new ArrayList<ServerState>(myServers.values());
+    public List<Server> getServers() {
+        return new ArrayList<Server>(myServers.values());
     }
 
     /**
@@ -217,43 +220,8 @@ public class ClusterState implements Closeable {
      * 
      * @return The complete list of writable servers.
      */
-    public List<ServerState> getWritableServers() {
-        return new ArrayList<ServerState>(myWritableServers);
-    }
-
-    /**
-     * Marks the server as non-writable. Fires a {@link PropertyChangeEvent} if
-     * the server was previously writable.
-     * 
-     * @param server
-     *            The server to mark non-writable.
-     */
-    public void markNotWritable(final ServerState server) {
-        synchronized (this) {
-            if (server.setWritable(false)) {
-                myWritableServers.remove(server);
-                myNonWritableServers.add(server);
-                myChangeSupport.firePropertyChange("writable", true, false);
-            }
-        }
-    }
-
-    /**
-     * Marks the server as writable. Fires a {@link PropertyChangeEvent} if the
-     * server was previously non-writable.
-     * 
-     * @param server
-     *            The server to mark writable.
-     */
-    public void markWritable(final ServerState server) {
-        synchronized (this) {
-            if (!server.setWritable(true)) {
-                server.setSecondsBehind(0.0);
-                myNonWritableServers.remove(server);
-                myWritableServers.add(server);
-                myChangeSupport.firePropertyChange("writable", false, true);
-            }
-        }
+    public List<Server> getWritableServers() {
+        return new ArrayList<Server>(myWritableServers);
     }
 
     /**
@@ -304,7 +272,7 @@ public class ClusterState implements Closeable {
      *            The servers to compute the CDF for.
      * @return The CDF for the server latencies.
      */
-    protected final double[] cdf(final List<ServerState> servers) {
+    protected final double[] cdf(final List<Server> servers) {
         Collections.sort(servers, ServerLatencyComparator.COMPARATOR);
 
         // Pick a server to move to the front.
@@ -312,7 +280,7 @@ public class ClusterState implements Closeable {
         double sum = 0;
         double first = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < relativeLatency.length; ++i) {
-            final ServerState server = servers.get(i);
+            final Server server = servers.get(i);
             double latency = server.getAverageLatency();
 
             // Turn the latency into a ratio of the lowest latency.
@@ -349,9 +317,9 @@ public class ClusterState implements Closeable {
      * @return The Server found in a singleton list or an empty list if the
      *         server is not known.
      */
-    protected List<ServerState> findCandidateServer(
+    protected List<Server> findCandidateServer(
             final ReadPreference readPreference) {
-        final ServerState server = myServers.get(ServerNameUtils
+        final Server server = myServers.get(ServerNameUtils
                 .normalize(readPreference.getServer()));
         if ((server != null) && readPreference.matches(server.getTags())) {
             return Collections.singletonList(server);
@@ -370,11 +338,10 @@ public class ClusterState implements Closeable {
      * 
      * @see #sort
      */
-    protected List<ServerState> findNearestCandidates(
+    protected List<Server> findNearestCandidates(
             final ReadPreference readPreference) {
-        final List<ServerState> results = new ArrayList<ServerState>(
-                myServers.size());
-        for (final ServerState server : myServers.values()) {
+        final List<Server> results = new ArrayList<Server>(myServers.size());
+        for (final Server server : myServers.values()) {
             if (readPreference.matches(server.getTags())) {
                 results.add(server);
             }
@@ -398,11 +365,11 @@ public class ClusterState implements Closeable {
      * 
      * @see #sort
      */
-    protected List<ServerState> findNonWritableCandidates(
+    protected List<Server> findNonWritableCandidates(
             final ReadPreference readPreference) {
-        final List<ServerState> results = new ArrayList<ServerState>(
+        final List<Server> results = new ArrayList<Server>(
                 myNonWritableServers.size());
-        for (final ServerState server : myNonWritableServers) {
+        for (final Server server : myNonWritableServers) {
             if (readPreference.matches(server.getTags())
                     && isRecentEnough(server.getSecondsBehind())) {
                 results.add(server);
@@ -427,11 +394,11 @@ public class ClusterState implements Closeable {
      * 
      * @see #sort
      */
-    protected List<ServerState> findWritableCandidates(
+    protected List<Server> findWritableCandidates(
             final ReadPreference readPreference) {
-        final List<ServerState> results = new ArrayList<ServerState>(
+        final List<Server> results = new ArrayList<Server>(
                 myWritableServers.size());
-        for (final ServerState server : myWritableServers) {
+        for (final Server server : myWritableServers) {
             if (readPreference.matches(server.getTags())) {
                 results.add(server);
             }
@@ -456,7 +423,7 @@ public class ClusterState implements Closeable {
      * 
      * @see #cdf(List)
      */
-    protected final void sort(final List<ServerState> servers) {
+    protected final void sort(final List<Server> servers) {
         if (servers.isEmpty() || (servers.size() == 1)) {
             return;
         }
@@ -508,9 +475,9 @@ public class ClusterState implements Closeable {
      *            The second list of servers.
      * @return The 2 lists of servers merged into a single list.
      */
-    private final List<ServerState> merge(final List<ServerState> list1,
-            final List<ServerState> list2) {
-        List<ServerState> results;
+    private final List<Server> merge(final List<Server> list1,
+            final List<Server> list2) {
+        List<Server> results;
         if (list1.isEmpty()) {
             results = list2;
         }
@@ -518,11 +485,46 @@ public class ClusterState implements Closeable {
             results = list1;
         }
         else {
-            results = new ArrayList<ServerState>(list1.size() + list2.size());
+            results = new ArrayList<Server>(list1.size() + list2.size());
             results.addAll(list1);
             results.addAll(list2);
         }
         return results;
+    }
+
+    /**
+     * ServerListener provides a listener for the state updates of the
+     * {@link Server}.
+     * 
+     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
+     *         be mutated in incompatible ways between any two releases of the
+     *         driver.
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected final class ServerListener implements PropertyChangeListener {
+        @Override
+        public void propertyChange(final PropertyChangeEvent evt) {
+            if (Server.STATE_PROP.equals(evt.getPropertyName())) {
+
+                final boolean old = !myWritableServers.isEmpty();
+
+                if (Server.State.WRITABLE == evt.getNewValue()) {
+                    myWritableServers.addIfAbsent((Server) evt.getSource());
+                    myNonWritableServers.remove(evt.getSource());
+                }
+                else if (Server.State.READ_ONLY == evt.getNewValue()) {
+                    myWritableServers.remove(evt.getSource());
+                    myNonWritableServers.addIfAbsent((Server) evt.getSource());
+                }
+                else {
+                    myWritableServers.remove(evt.getSource());
+                    myNonWritableServers.remove(evt.getSource());
+                }
+
+                myChangeSupport.firePropertyChange(WRITABLE_PROP, old,
+                        !myWritableServers.isEmpty());
+            }
+        }
     }
 
 }

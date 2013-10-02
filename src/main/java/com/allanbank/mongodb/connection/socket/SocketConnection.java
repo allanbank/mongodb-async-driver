@@ -15,7 +15,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Reply;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -56,7 +56,7 @@ public class SocketConnection extends AbstractSocketConnection {
      * @throws IOException
      *             On a failure to read or write data to the MongoDB server.
      */
-    public SocketConnection(final ServerState server,
+    public SocketConnection(final Server server,
             final MongoClientConfiguration config) throws SocketException,
             IOException {
         super(server, config);
@@ -67,7 +67,7 @@ public class SocketConnection extends AbstractSocketConnection {
                 new ReceiveRunnable(this));
         myReceiver.setDaemon(true);
         myReceiver.setName("MongoDB " + mySocket.getLocalPort() + "<--"
-                + myServer.getServer().toString());
+                + myServer.getCanonicalName());
     }
 
     /**
@@ -194,7 +194,7 @@ public class SocketConnection extends AbstractSocketConnection {
             }
         }
 
-        return myServer.getName();
+        return myServer.getCanonicalName();
     }
 
     /**

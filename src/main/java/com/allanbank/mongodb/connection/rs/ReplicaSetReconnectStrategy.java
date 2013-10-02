@@ -8,7 +8,6 @@ package com.allanbank.mongodb.connection.rs;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +28,9 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.state.AbstractReconnectStrategy;
-import com.allanbank.mongodb.connection.state.ClusterState;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Cluster;
+import com.allanbank.mongodb.connection.state.Server;
+import com.allanbank.mongodb.connection.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -92,10 +92,10 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
 
         LOG.fine("Trying replica set reconnect.");
 
-        final ClusterState state = getState();
+        final Cluster state = getState();
 
-        final Map<InetSocketAddress, Future<Reply>> answers = new HashMap<InetSocketAddress, Future<Reply>>();
-        final Map<InetSocketAddress, Connection> connections = new HashMap<InetSocketAddress, Connection>();
+        final Map<Server, Future<Reply>> answers = new HashMap<Server, Future<Reply>>();
+        final Map<Server, Connection> connections = new HashMap<Server, Connection>();
         try {
             // Figure out a deadline for the reconnect.
             final int wait = getConfig().getReconnectTimeout();
@@ -107,7 +107,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
             int pauseTime = INITIAL_RECONNECT_PAUSE_TIME_MS;
             while (now < deadline) {
                 // Ask all of the servers who they think the primary is.
-                for (final ServerState server : state.getServers()) {
+                for (final Server server : state.getServers()) {
 
                     sendIsPrimary(answers, connections, server, false);
 
@@ -164,67 +164,47 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * @return The new connection if there was a reply and that server confirmed
      *         it was the primary.
      */
-    protected ReplicaSetConnection checkForReply(final ClusterState state,
+    protected ReplicaSetConnection checkForReply(final Cluster state,
             final Connection oldConnection,
-            final Map<InetSocketAddress, Future<Reply>> answers,
-            final Map<InetSocketAddress, Connection> connections,
-            final long deadline) {
-        final Map<InetSocketAddress, Future<Reply>> copy = new HashMap<InetSocketAddress, Future<Reply>>(
+            final Map<Server, Future<Reply>> answers,
+            final Map<Server, Connection> connections, final long deadline) {
+        final Map<Server, Future<Reply>> copy = new HashMap<Server, Future<Reply>>(
                 answers);
-        for (final Map.Entry<InetSocketAddress, Future<Reply>> entry : copy
-                .entrySet()) {
+        for (final Map.Entry<Server, Future<Reply>> entry : copy.entrySet()) {
 
-            final InetSocketAddress addr = entry.getKey();
+            final Server server = entry.getKey();
             final Future<Reply> reply = entry.getValue();
 
             if (reply.isDone()) {
                 // Remove this reply.
-                answers.remove(addr);
+                answers.remove(server);
 
                 // Check the result.
-                final String putativePrimary = checkReply(reply, connections,
-                        addr, deadline);
+                final String putative = checkReply(reply, connections, server,
+                        deadline);
 
-                if (putativePrimary != null) {
-                    // If this new server is not currently writable mark the old
-                    // primary not writable.
-                    if (!state.add(putativePrimary).isWritable()) {
-                        for (final ServerState server : state
-                                .getWritableServers()) {
-                            state.markNotWritable(server);
-                        }
-                    }
+                // Phase2 - Verify the putative server.
+                if ((putative != null)
+                        && verifyPutative(answers, connections, putative,
+                                deadline)) {
 
-                    // Phase2 - Verify the putative server.
-                    if (verifyPutative(answers, connections, putativePrimary,
-                            deadline)) {
+                    // Phase 3 - Setup a new replica set connection to the
+                    // primary and seed it with a secondary if there is a
+                    // suitable server.
+                    final Server primaryServer = getState().get(putative);
 
-                        // Phase 3 - Setup a new replica set connection to the
-                        // primary and seed it with a secondary if there is a
-                        // suitable server.
-                        final ServerState server = getState().get(
-                                putativePrimary);
+                    final Connection primaryConn = connections
+                            .remove(primaryServer);
 
-                        // Mark the server writable.
-                        // There can only be 1 writable server.
-                        for (final ServerState other : getState()
-                                .getWritableServers()) {
-                            getState().markNotWritable(other);
-                        }
-                        getState().markWritable(server);
+                    final ReplicaSetConnection newRsConn = new ReplicaSetConnection(
+                            primaryConn, primaryServer, getState(),
+                            getConnectionFactory(), getConfig());
 
-                        final Connection primaryConn = connections
-                                .remove(server.getServer());
-                        final ReplicaSetConnection newRsConn = new ReplicaSetConnection(
-                                primaryConn, server, getState(),
-                                getConnectionFactory(), getConfig());
-
-                        return newRsConn;
-                    }
+                    return newRsConn;
                 }
             }
             else {
-                LOG.fine("No reply yet from " + addr);
+                LOG.fine("No reply yet from " + server);
             }
         }
 
@@ -239,16 +219,16 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * @param connections
      *            The map of connections. The connection will be closed on an
      *            error.
-     * @param addr
-     *            The address of the server.
+     * @param server
+     *            The server.
      * @param deadline
      *            The deadline for the reconnect attempt.
      * @return The name of the server the reply indicates is the primary, null
      *         if there is no primary or any error.
      */
     protected String checkReply(final Future<Reply> replyFuture,
-            final Map<InetSocketAddress, Connection> connections,
-            final InetSocketAddress addr, final long deadline) {
+            final Map<Server, Connection> connections, final Server server,
+            final long deadline) {
         if (replyFuture != null) {
             try {
                 final Reply reply = replyFuture.get(
@@ -271,12 +251,12 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
             }
             catch (final TimeoutException e) {
                 // Kill the associated connection.
-                final Connection conn = connections.remove(addr);
+                final Connection conn = connections.remove(server);
                 IOUtils.close(conn);
             }
             catch (final ExecutionException e) {
                 // Kill the associated connection.
-                final Connection conn = connections.remove(addr);
+                final Connection conn = connections.remove(server);
                 IOUtils.close(conn);
             }
         }
@@ -299,37 +279,38 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * @return The future reply for the request sent to the server.
      */
     protected Future<Reply> sendIsPrimary(
-            final Map<InetSocketAddress, Future<Reply>> answers,
-            final Map<InetSocketAddress, Connection> connections,
-            final ServerState server, final boolean isPrimary) {
+            final Map<Server, Future<Reply>> answers,
+            final Map<Server, Connection> connections, final Server server,
+            final boolean isPrimary) {
         Future<Reply> reply = null;
-        final InetSocketAddress addr = server.getServer();
         try {
             // Locate a connection to the server.
-            Connection conn = connections.get(addr);
+            Connection conn = connections.get(server);
             if ((conn == null) || (conn.isOpen() == false)) {
                 conn = getConnectionFactory().connect(server, getConfig());
-                connections.put(addr, conn);
+                connections.put(server, conn);
             }
 
             // Only send to the server if there is not an outstanding
             // request.
-            reply = answers.get(addr);
+            reply = answers.get(server);
             if (reply == null) {
-                LOG.fine("Sending reconnect(rs) query to " + server.getServer());
+                LOG.fine("Sending reconnect(rs) query to "
+                        + server.getCanonicalName());
 
-                final FutureCallback<Reply> replyCallback = new FutureCallback<Reply>();
+                final FutureCallback<Reply> replyCallback = new ServerUpdateCallback(
+                        server);
                 conn.send(new IsMaster(), replyCallback);
 
                 reply = replyCallback;
-                answers.put(addr, reply);
+                answers.put(server, reply);
             }
         }
         catch (final IOException e) {
             // Nothing to do for now. Log at a debug level if this is not the
             // primary. Warn if we think it is the primary.
             final Level level = isPrimary ? Level.WARNING : Level.FINE;
-            LOG.log(level, "Cannot create a connection to '" + addr + "'.", e);
+            LOG.log(level, "Cannot create a connection to '" + server + "'.", e);
         }
 
         return reply;
@@ -366,26 +347,24 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      *            The deadline for the reconnect attempt.
      * @return True if the server concurs that it is the primary.
      */
-    protected boolean verifyPutative(
-            final Map<InetSocketAddress, Future<Reply>> answers,
-            final Map<InetSocketAddress, Connection> connections,
+    protected boolean verifyPutative(final Map<Server, Future<Reply>> answers,
+            final Map<Server, Connection> connections,
             final String putativePrimary, final long deadline) {
 
         LOG.fine("Verify putative server (" + putativePrimary
                 + ") on reconnect(rs).");
 
-        final ServerState server = getState().get(putativePrimary);
+        final Server server = getState().get(putativePrimary);
 
         // Make sure we send a new request. The old reply might have been
         // before becoming the primary.
-        answers.remove(server.getServer());
+        answers.remove(server);
 
         // If the primary agrees that they are the primary then it is
         // probably true.
         final Future<Reply> reply = sendIsPrimary(answers, connections, server,
                 true);
-        final String primary = checkReply(reply, connections,
-                server.getServer(), deadline);
+        final String primary = checkReply(reply, connections, server, deadline);
         if (putativePrimary.equals(primary)) {
             LOG.info("New primary for replica set: " + putativePrimary);
             return true;

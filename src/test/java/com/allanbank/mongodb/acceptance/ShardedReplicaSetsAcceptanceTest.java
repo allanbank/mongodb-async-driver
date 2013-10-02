@@ -58,7 +58,7 @@ import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.ServerStatus;
 import com.allanbank.mongodb.connection.socket.SocketConnection;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Cluster;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
 import com.allanbank.mongodb.util.IOUtils;
@@ -875,11 +875,13 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
     protected int countPrimaryCommands() {
         int count = 0;
         try {
+            final Cluster cluster = new Cluster(myConfig);
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
                 SocketConnection conn = null;
                 try {
-                    conn = new SocketConnection(new ServerState(
-                            new InetSocketAddress("localhost", port)), myConfig);
+                    conn = new SocketConnection(
+                            cluster.add(new InetSocketAddress("localhost", port)),
+                            myConfig);
                     conn.start();
 
                     final FutureCallback<Reply> replyFuture = new FutureCallback<Reply>();
@@ -934,11 +936,13 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
     protected int countSecondaryCommands() {
         int count = 0;
         try {
+            final Cluster cluster = new Cluster(myConfig);
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
                 SocketConnection conn = null;
                 try {
-                    conn = new SocketConnection(new ServerState(
-                            new InetSocketAddress("localhost", port)), myConfig);
+                    conn = new SocketConnection(
+                            cluster.add(new InetSocketAddress("localhost", port)),
+                            myConfig);
                     conn.start();
 
                     final FutureCallback<Reply> replyFuture = new FutureCallback<Reply>();

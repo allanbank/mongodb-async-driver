@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Durability;
@@ -34,7 +33,7 @@ import com.allanbank.mongodb.connection.FutureCallback;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.ServerStatus;
 import com.allanbank.mongodb.connection.socket.SocketConnection;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Cluster;
 import com.allanbank.mongodb.error.ConnectionLostException;
 
 /**
@@ -141,7 +140,6 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
      *             On a test failure.
      */
     @Test
-    @Ignore("Until we get the cluster state management re-written.")
     public void testSecondaryPreferredLoading() throws IOException,
             InterruptedException, ExecutionException {
 
@@ -159,11 +157,12 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig.setDefaultReadPreference(ReadPreference.preferSecondary());
         myConfig.setDefaultDurability(Durability.replicaDurable(2, 1000));
 
+        final Cluster cluster = new Cluster(myConfig);
         for (int i = 0; i < ports.length; ++i) {
             final int port = ports[i];
 
-            conns[i] = new SocketConnection(new ServerState(
-                    new InetSocketAddress("localhost", port)), myConfig);
+            conns[i] = new SocketConnection(cluster.add(new InetSocketAddress(
+                    "localhost", port)), myConfig);
             conns[i].start();
         }
 
@@ -226,8 +225,6 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
                     missed += 1;
                 }
             }
-
-            System.out.println("Missed " + missed + " of " + count);
         }
 
         // Collect the counters again.
@@ -254,8 +251,6 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             // + afterGetmore[i] + " query=" + afterQuery[i]
             // + " command=" + afterCommand[i]);
         }
-
-        // System.out.println("Took " + tries);
 
         // Look for tries * count queries.
         int queries = 0;
@@ -289,7 +284,8 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
                 }
             }
         }
-        assertFalse("Did not find a server with limited queries.", index == -1);
+        assertFalse("Did not find a server (primary) with limited queries.",
+                index == -1);
 
         // The remaining servers should be within 90% of (tries *
         // count) / (ports.length - 1) - Local servers so the clock has a hard

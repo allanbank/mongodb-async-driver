@@ -20,7 +20,7 @@ import java.util.List;
 public class LatencyServerSelector implements ServerSelector {
 
     /** The cluster to choose from. */
-    private final ClusterState myCluster;
+    private final Cluster myCluster;
 
     /** If true then only writable servers should be selected. */
     private final boolean myWritableOnly;
@@ -35,7 +35,7 @@ public class LatencyServerSelector implements ServerSelector {
      *            false then any server (writable and not writable) may be
      *            selected.
      */
-    public LatencyServerSelector(final ClusterState cluster,
+    public LatencyServerSelector(final Cluster cluster,
             final boolean writableOnly) {
         myCluster = cluster;
         myWritableOnly = writableOnly;
@@ -48,8 +48,8 @@ public class LatencyServerSelector implements ServerSelector {
      * </p>
      */
     @Override
-    public List<ServerState> pickServers() {
-        List<ServerState> servers;
+    public List<Server> pickServers() {
+        List<Server> servers;
         if (myWritableOnly) {
             servers = myCluster.getWritableServers();
         }
@@ -63,7 +63,7 @@ public class LatencyServerSelector implements ServerSelector {
         }
 
         // Copy to a list we know we can modify and sort.
-        servers = new ArrayList<ServerState>(servers);
+        servers = new ArrayList<Server>(servers);
         Collections.sort(servers, ServerLatencyComparator.COMPARATOR);
 
         return servers;

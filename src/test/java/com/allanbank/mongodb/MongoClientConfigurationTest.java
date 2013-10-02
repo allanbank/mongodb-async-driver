@@ -17,6 +17,11 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.SocketFactory;
 
+import org.easymock.EasyMock;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import com.allanbank.mongodb.util.ServerNameUtils;
@@ -218,7 +225,7 @@ public class MongoClientConfigurationTest {
                 addr1, addr2).clone();
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertEquals(0, config.getReadTimeout());
@@ -242,7 +249,7 @@ public class MongoClientConfigurationTest {
         final MongoClientConfiguration config = new MongoClientConfiguration();
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertEquals(0, config.getReadTimeout());
@@ -273,7 +280,7 @@ public class MongoClientConfigurationTest {
                 addr1, addr2);
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertEquals(0, config.getReadTimeout());
@@ -299,7 +306,7 @@ public class MongoClientConfigurationTest {
                 new MongoClientConfiguration(addr1, addr2));
 
         assertEquals(0, config.getConnectTimeout());
-        assertEquals(Durability.NONE, config.getDefaultDurability());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
         assertEquals(3, config.getMaxConnectionCount());
         assertEquals(1024, config.getMaxPendingOperationsPerConnection());
         assertEquals(0, config.getReadTimeout());
@@ -841,6 +848,38 @@ public class MongoClientConfigurationTest {
     }
 
     /**
+     * Test method for {@link MongoClientConfiguration} serialization.
+     * 
+     * @throws IOException
+     *             On a failure reading or writing the config.
+     * @throws ClassNotFoundException
+     *             On a failure reading the config.
+     */
+    @Test
+    public void testSerialization() throws IOException, ClassNotFoundException {
+        final Executor executor = EasyMock.createMock(Executor.class);
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.setExecutor(executor);
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ObjectOutputStream oout = new ObjectOutputStream(out);
+        oout.writeObject(config);
+        oout.close();
+
+        final ByteArrayInputStream in = new ByteArrayInputStream(
+                out.toByteArray());
+        final ObjectInputStream oin = new ObjectInputStream(in);
+
+        final Object read = oin.readObject();
+
+        assertThat(read, Matchers.instanceOf(MongoClientConfiguration.class));
+
+        final MongoClientConfiguration readConfig = (MongoClientConfiguration) read;
+        assertNull(readConfig.getExecutor());
+    }
+
+    /**
      * Test method for
      * {@link MongoClientConfiguration#setAutoDiscoverServers(boolean)}.
      */
@@ -915,9 +954,9 @@ public class MongoClientConfigurationTest {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
 
-        assertEquals(Durability.NONE, config.getDefaultDurability());
-        config.setDefaultDurability(Durability.ACK);
         assertEquals(Durability.ACK, config.getDefaultDurability());
+        config.setDefaultDurability(Durability.NONE);
+        assertEquals(Durability.NONE, config.getDefaultDurability());
     }
 
     /**
@@ -941,7 +980,7 @@ public class MongoClientConfigurationTest {
      */
     @Test
     public void testSetExecutor() {
-        final Executor executor = Executors.newSingleThreadExecutor();
+        final Executor executor = EasyMock.createMock(Executor.class);
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
 

@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.connection.rs;
 
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.start;
 import static com.allanbank.mongodb.connection.CallbackReply.cb;
 import static com.allanbank.mongodb.connection.CallbackReply.reply;
 import static org.easymock.EasyMock.anyObject;
@@ -39,8 +40,10 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
@@ -48,7 +51,7 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
@@ -59,9 +62,12 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetConnectionFactoryTest {
-
     /** A Mock MongoDB server to connect to. */
     private static MockMongoDBServer ourServer;
+
+    /** Update document to mark servers as the primary. */
+    private static final Document PRIMARY_UPDATE = new ImmutableDocument(
+            BuilderFactory.start().add("ismaster", true));
 
     /**
      * Returns true if a driver thread is found.
@@ -183,8 +189,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = myTestFactory.getClusterState()
-                .getServers();
+        final List<Server> servers = myTestFactory.getCluster().getServers();
         assertEquals(2, servers.size());
     }
 
@@ -219,8 +224,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = myTestFactory.getClusterState()
-                .getServers();
+        final List<Server> servers = myTestFactory.getCluster().getServers();
         assertEquals(2, servers.size());
     }
 
@@ -255,8 +259,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = myTestFactory.getClusterState()
-                .getServers();
+        final List<Server> servers = myTestFactory.getCluster().getServers();
         assertEquals(1, servers.size());
     }
 
@@ -288,8 +291,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = myTestFactory.getClusterState()
-                .getServers();
+        final List<Server> servers = myTestFactory.getCluster().getServers();
         assertEquals(1, servers.size());
         assertFalse(servers.get(0).isWritable());
     }
@@ -311,8 +313,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = myTestFactory.getClusterState()
-                .getServers();
+        final List<Server> servers = myTestFactory.getCluster().getServers();
         assertEquals(1, servers.size());
         assertFalse(servers.get(0).isWritable());
     }
@@ -346,22 +347,10 @@ public class ReplicaSetConnectionFactoryTest {
 
         myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = myTestFactory.getClusterState()
-                .getServers();
+        final List<Server> servers = myTestFactory.getCluster().getServers();
         assertEquals(2, servers.size());
 
-        final Connection mockConnection = createMock(Connection.class);
-
-        mockConnection.close();
-        expectLastCall();
-
-        replay(mockConnection);
-
-        IOUtils.close(servers.get(0).takeConnection());
-        servers.get(0).addConnection(mockConnection);
         myTestFactory.close();
-
-        verify(mockConnection);
     }
 
     /**
@@ -375,14 +364,15 @@ public class ReplicaSetConnectionFactoryTest {
         final String serverName = ServerNameUtils.normalize(ourServer
                 .getInetSocketAddress());
 
-        final DocumentBuilder replStatusBuilder = BuilderFactory.start();
+        final DocumentBuilder replStatusBuilder = start();
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName);
 
-        ourServer.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder));
+        ourServer.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -482,7 +472,7 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection).times(2);
 
         mockConnection.send(anyObject(IsMaster.class), cb());
@@ -520,7 +510,7 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andThrow(new IOException("This is a test")).times(2);
 
         replay(mockFactory, mockConnection);
@@ -548,7 +538,7 @@ public class ReplicaSetConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection).times(2);
 
         mockConnection.send(anyObject(IsMaster.class), cb());

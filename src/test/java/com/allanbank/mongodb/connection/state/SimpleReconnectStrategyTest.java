@@ -71,8 +71,9 @@ public class SimpleReconnectStrategyTest {
     @Test
     public void testReconnect() throws IOException, InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final ServerState server = new ServerState(new InetSocketAddress(
-                "localhost", 27017));
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(new InetSocketAddress("localhost",
+                27017));
 
         final Connection mockOldConnection = createMock(Connection.class);
         final Connection mockNewConnection = createMock(Connection.class);
@@ -123,8 +124,7 @@ public class SimpleReconnectStrategyTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
 
-        expect(mockSelector.pickServers()).andReturn(
-                new ArrayList<ServerState>());
+        expect(mockSelector.pickServers()).andReturn(new ArrayList<Server>());
 
         replay(mockOldConnection, mockNewConnection, mockFactory, mockSelector);
 
@@ -151,9 +151,8 @@ public class SimpleReconnectStrategyTest {
     public void testReconnectFirstFails() throws IOException,
             InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final ClusterState clusterState = new ClusterState(
-                new MongoClientConfiguration());
-        final ServerState server = clusterState.add("localhost:27017");
+        final Cluster clusterState = new Cluster(new MongoClientConfiguration());
+        final Server server = clusterState.add("localhost:27017");
 
         final Connection mockOldConnection = createMock(Connection.class);
         final Connection mockNewConnection = createMock(Connection.class);
@@ -210,8 +209,8 @@ public class SimpleReconnectStrategyTest {
     @Test
     public void testReconnectPingFails() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final ServerState server = new ServerState(new InetSocketAddress(
-                "localhost", 27017));
+        final Server server = new Server(new InetSocketAddress("localhost",
+                27017));
 
         final Connection mockOldConnection = createMock(Connection.class);
         final Connection mockNewConnection = createMock(Connection.class);

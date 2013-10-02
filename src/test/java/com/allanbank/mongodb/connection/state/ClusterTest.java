@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.connection.state;
 
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
@@ -17,11 +16,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,32 +32,57 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.connection.Connection;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 
 /**
- * ClusterStateTest provides tests for the {@link ClusterState}.
+ * ClusterTest provides tests for the {@link Cluster}.
  * 
- * @copyright 2012-2013, Allanbank Consulting, InmyState., All Rights Reserved
+ * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ClusterStateTest {
-    /** The pinger being tested. */
-    protected ClusterState myState = null;
+public class ClusterTest {
+
+    /** The tags for an F server. */
+    private static final Document F_TAGS = new ImmutableDocument(BuilderFactory
+            .start().addInteger("f", 1));
+
+    /** The tags for an G server. */
+    private static final Document G_TAGS = new ImmutableDocument(BuilderFactory
+            .start().addInteger("g", 1));
+
+    /** Update document to mark servers as the primary. */
+    private static final Document PRIMARY_UPDATE = new ImmutableDocument(
+            BuilderFactory.start().add("ismaster", true));
+
+    /** Update document to mark servers as the secondary. */
+    private static final Document SECONDARY_UPDATE = new ImmutableDocument(
+            BuilderFactory.start().add("ismaster", false)
+                    .add("secondary", true));
+
+    /** The builder for miscellaneous documents. */
+    private final DocumentBuilder myBuilder = BuilderFactory.start();
+
+    /** The cluster being tested. */
+    private Cluster myState = null;
 
     /**
-     * Cleans up the pinger.
+     * Cleans up the cluster.
      */
     @After
     public void tearDown() {
         myState = null;
+        myBuilder.reset();
     }
 
     /**
-     * Test method for {@link ClusterState#add(String)}.
+     * Test method for {@link Cluster#add(String)}.
      */
     @Test
     public void testAdd() {
-        myState = new ClusterState(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration());
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -71,9 +95,8 @@ public class ClusterStateTest {
 
         replay(mockListener);
 
-        final ServerState ss = myState.add("foo");
-        assertEquals("foo", ss.getServer().getHostName());
-        assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
+        final Server ss = myState.add("foo");
+        assertEquals("foo:" + Server.DEFAULT_PORT, ss.getCanonicalName());
 
         assertSame(ss, myState.add("foo"));
 
@@ -87,35 +110,35 @@ public class ClusterStateTest {
     }
 
     /**
-     * Test method for {@link ClusterState#cdf(List)}.
+     * Test method for {@link Cluster#cdf(List)}.
      */
     @Test
     public void testCdf() {
 
-        final List<ServerState> servers = new ArrayList<ServerState>(5);
-        ServerState server = new ServerState(new InetSocketAddress(1024));
+        final List<Server> servers = new ArrayList<Server>(5);
+        Server server = new Server(new InetSocketAddress(1024));
         server.updateAverageLatency(100);
         servers.add(server);
 
-        server = new ServerState(new InetSocketAddress(1025));
+        server = new Server(new InetSocketAddress(1025));
         server.updateAverageLatency(100);
         servers.add(server);
 
-        server = new ServerState(new InetSocketAddress(1026));
+        server = new Server(new InetSocketAddress(1026));
         server.updateAverageLatency(200);
         servers.add(server);
 
-        server = new ServerState(new InetSocketAddress(1027));
+        server = new Server(new InetSocketAddress(1027));
         server.updateAverageLatency(200);
         servers.add(server);
 
-        server = new ServerState(new InetSocketAddress(1028));
+        server = new Server(new InetSocketAddress(1028));
         server.updateAverageLatency(1000);
         servers.add(server);
 
         final double relativeSum = 1 + 1 + (1D / 2) + (1D / 2) + (1D / 10);
 
-        myState = new ClusterState(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration());
         Collections.shuffle(servers);
         final double[] cdf = myState.cdf(servers);
 
@@ -135,51 +158,28 @@ public class ClusterStateTest {
     }
 
     /**
-     * Test method for {@link ClusterState#close}.
-     * 
-     * @throws IOException
-     *             On a failure setting up the mock connection.
-     */
-    @Test
-    public void testClose() throws IOException {
-
-        final Connection mockConnection = createMock(Connection.class);
-
-        mockConnection.close();
-        expectLastCall();
-
-        replay(mockConnection);
-
-        myState = new ClusterState(new MongoClientConfiguration());
-        myState.add("localhost:27017").addConnection(mockConnection);
-        myState.close();
-
-        verify(mockConnection);
-    }
-
-    /**
-     * Test method for {@link ClusterState#findCandidateServers}.
+     * Test method for {@link Cluster#findCandidateServers}.
      */
     @Test
     public void testFindCandidateServersNearest() {
-        myState = new ClusterState(new MongoClientConfiguration());
-        final ServerState s1 = myState.add("localhost:27017");
-        final ServerState s2 = myState.add("localhost:27018");
-        final ServerState s3 = myState.add("localhost:27019");
+        myState = new Cluster(new MongoClientConfiguration());
+        final Server s1 = myState.add("localhost:27017");
+        final Server s2 = myState.add("localhost:27018");
+        final Server s3 = myState.add("localhost:27019");
 
         s1.updateAverageLatency(1);
         s2.updateAverageLatency(10);
         s3.updateAverageLatency(100);
 
-        myState.markNotWritable(s1);
-        myState.markWritable(s2);
+        s1.update(SECONDARY_UPDATE);
+        s2.update(PRIMARY_UPDATE);
 
-        List<ServerState> servers = myState.findCandidateServers(ReadPreference
+        List<Server> servers = myState.findCandidateServers(ReadPreference
                 .closest());
         assertEquals(3, servers.size());
         final double last = Double.NEGATIVE_INFINITY;
         double lowest = Double.MAX_VALUE;
-        for (final ServerState server : servers.subList(1, servers.size())) {
+        for (final Server server : servers.subList(1, servers.size())) {
             lowest = Math.min(lowest, server.getAverageLatency());
             assertTrue(
                     "Latencies out of order: " + last + " !< "
@@ -188,111 +188,107 @@ public class ClusterStateTest {
         }
 
         // Exclude on tags.
-        s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
-        s2.setTags(BuilderFactory.start().addInteger("g", 1).build());
-        servers = myState.findCandidateServers(ReadPreference.closest(
-                BuilderFactory.start().addInteger("f", 1).build(),
-                BuilderFactory.start().addInteger("g", 1).build()));
+        s1.update(myBuilder.reset().add("tags", F_TAGS).build());
+        s2.update(myBuilder.reset().add("tags", G_TAGS).build());
+        servers = myState.findCandidateServers(ReadPreference.closest(F_TAGS,
+                G_TAGS));
         assertEquals(2, servers.size());
         assertTrue(servers.contains(s1));
         assertTrue(servers.contains(s2));
     }
 
     /**
-     * Test method for {@link ClusterState#findCandidateServers}.
+     * Test method for {@link Cluster#findCandidateServers}.
      */
     @Test
     public void testFindCandidateServersPrimary() {
-        myState = new ClusterState(new MongoClientConfiguration());
-        final ServerState s1 = myState.add("localhost:27017");
-        final ServerState s2 = myState.add("localhost:27018");
-        final ServerState s3 = myState.add("localhost:27019");
+        myState = new Cluster(new MongoClientConfiguration());
+        final Server s1 = myState.add("localhost:27017");
+        final Server s2 = myState.add("localhost:27018");
+        final Server s3 = myState.add("localhost:27019");
 
         assertEquals(Collections.emptyList(),
                 myState.findCandidateServers(ReadPreference.PRIMARY));
 
-        myState.markWritable(s2);
+        s2.update(PRIMARY_UPDATE);
         assertEquals(Collections.singletonList(s2),
                 myState.findCandidateServers(ReadPreference.PRIMARY));
 
-        myState.markWritable(s3);
+        s3.update(PRIMARY_UPDATE);
         assertEquals(
-                new HashSet<ServerState>(Arrays.asList(s2, s3)),
-                new HashSet<ServerState>(myState
+                new HashSet<Server>(Arrays.asList(s2, s3)),
+                new HashSet<Server>(myState
                         .findCandidateServers(ReadPreference.PRIMARY)));
 
-        myState.markNotWritable(s2);
+        s2.update(SECONDARY_UPDATE);
         assertEquals(Collections.singletonList(s3),
                 myState.findCandidateServers(ReadPreference.PRIMARY));
 
-        myState.markWritable(s1);
-        myState.markNotWritable(s3);
+        s1.update(PRIMARY_UPDATE);
+        s3.update(SECONDARY_UPDATE);
         assertEquals(Collections.singletonList(s1),
                 myState.findCandidateServers(ReadPreference.PRIMARY));
     }
 
     /**
-     * Test method for {@link ClusterState#findCandidateServers}.
+     * Test method for {@link Cluster#findCandidateServers}.
      */
     @Test
     public void testFindCandidateServersPrimaryPreferred() {
-        myState = new ClusterState(new MongoClientConfiguration());
-        final ServerState s1 = myState.add("localhost:27017");
-        final ServerState s2 = myState.add("localhost:27018");
-        final ServerState s3 = myState.add("localhost:27019");
+        myState = new Cluster(new MongoClientConfiguration());
+        final Server s1 = myState.add("localhost:27017");
+        final Server s2 = myState.add("localhost:27018");
+        final Server s3 = myState.add("localhost:27019");
 
         s1.updateAverageLatency(1);
         s2.updateAverageLatency(10);
         s3.updateAverageLatency(100);
 
-        myState.markNotWritable(s1);
-        myState.markNotWritable(s2);
-        myState.markWritable(s3);
+        s1.update(SECONDARY_UPDATE);
+        s2.update(SECONDARY_UPDATE);
+        s3.update(PRIMARY_UPDATE);
 
-        List<ServerState> servers = myState.findCandidateServers(ReadPreference
+        List<Server> servers = myState.findCandidateServers(ReadPreference
                 .preferPrimary());
         assertEquals(3, servers.size());
         assertEquals(s3, servers.get(0)); // Writable first.
-        assertEquals(new HashSet<ServerState>(Arrays.asList(s1, s2)),
-                new HashSet<ServerState>(servers.subList(1, servers.size())));
+        assertEquals(new HashSet<Server>(Arrays.asList(s1, s2)),
+                new HashSet<Server>(servers.subList(1, servers.size())));
 
         // Exclude on tags.
-        s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
-        s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
+        s1.update(myBuilder.reset().add("tags", F_TAGS).build());
+        s3.update(myBuilder.reset().add("tags", G_TAGS).build());
         servers = myState.findCandidateServers(ReadPreference.preferPrimary(
-                BuilderFactory.start().addInteger("f", 1).build(),
-                BuilderFactory.start().addInteger("g", 1).build()));
+                F_TAGS, G_TAGS));
         assertEquals(2, servers.size());
         assertEquals(s3, servers.get(0));
         assertEquals(s1, servers.get(1));
 
-        myState.markNotWritable(s1);
-        myState.markNotWritable(s2);
-        myState.markNotWritable(s3);
-        s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
-        s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
+        s1.update(SECONDARY_UPDATE);
+        s2.update(SECONDARY_UPDATE);
+        s3.update(SECONDARY_UPDATE);
+        s1.update(myBuilder.reset().add("tags", F_TAGS).build());
+        s3.update(myBuilder.reset().add("tags", G_TAGS).build());
         servers = myState.findCandidateServers(ReadPreference.preferPrimary(
-                BuilderFactory.start().addInteger("f", 1).build(),
-                BuilderFactory.start().addInteger("g", 1).build()));
+                F_TAGS, G_TAGS));
         assertEquals(2, servers.size());
         assertTrue(servers.contains(s1));
         assertTrue(servers.contains(s3));
 
-        myState.markWritable(s1);
-        myState.markWritable(s2);
-        myState.markWritable(s3);
-        s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
-        s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
+        s1.update(PRIMARY_UPDATE);
+        s2.update(PRIMARY_UPDATE);
+        s3.update(PRIMARY_UPDATE);
+        s1.update(myBuilder.reset().add("tags", F_TAGS).build());
+        s3.update(myBuilder.reset().add("tags", G_TAGS).build());
         servers = myState.findCandidateServers(ReadPreference.preferPrimary(
-                BuilderFactory.start().addInteger("f", 1).build(),
-                BuilderFactory.start().addInteger("g", 1).build()));
+                F_TAGS, G_TAGS));
         assertEquals(2, servers.size());
         assertTrue(servers.contains(s1));
         assertTrue(servers.contains(s3));
 
         // Exclude all on tags.
-        s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
-        s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
+        s1.update(myBuilder.reset().add("tags", F_TAGS).build());
+        s3.update(myBuilder.reset().add("tags", G_TAGS).build());
         servers = myState.findCandidateServers(ReadPreference.preferPrimary(
                 BuilderFactory.start().addInteger("Z", 1).build(),
                 BuilderFactory.start().addInteger("Y", 1).build()));
@@ -300,95 +296,94 @@ public class ClusterStateTest {
     }
 
     /**
-     * Test method for {@link ClusterState#findCandidateServers}.
+     * Test method for {@link Cluster#findCandidateServers}.
      */
     @Test
     public void testFindCandidateServersSecondary() {
-        myState = new ClusterState(new MongoClientConfiguration());
-        final ServerState s1 = myState.add("localhost:27017");
-        final ServerState s2 = myState.add("localhost:27018");
-        final ServerState s3 = myState.add("localhost:27019");
+        myState = new Cluster(new MongoClientConfiguration());
+        final Server s1 = myState.add("localhost:27017");
+        final Server s2 = myState.add("localhost:27018");
+        final Server s3 = myState.add("localhost:27019");
 
-        myState.markWritable(s1);
-        myState.markWritable(s2);
-        myState.markWritable(s3);
+        s1.update(PRIMARY_UPDATE);
+        s2.update(PRIMARY_UPDATE);
+        s3.update(PRIMARY_UPDATE);
 
         assertEquals(Collections.emptyList(),
                 myState.findCandidateServers(ReadPreference.secondary()));
 
-        myState.markNotWritable(s2);
+        s2.update(SECONDARY_UPDATE);
         assertEquals(Collections.singletonList(s2),
                 myState.findCandidateServers(ReadPreference.secondary()));
 
-        myState.markNotWritable(s3);
+        s3.update(SECONDARY_UPDATE);
         assertEquals(
-                new HashSet<ServerState>(Arrays.asList(s2, s3)),
-                new HashSet<ServerState>(myState
-                        .findCandidateServers(ReadPreference.secondary())));
+                new HashSet<Server>(Arrays.asList(s2, s3)),
+                new HashSet<Server>(myState.findCandidateServers(ReadPreference
+                        .secondary())));
 
-        myState.markWritable(s2);
+        s2.update(PRIMARY_UPDATE);
         assertEquals(Collections.singletonList(s3),
                 myState.findCandidateServers(ReadPreference.secondary()));
 
-        myState.markNotWritable(s1);
-        myState.markWritable(s3);
+        s1.update(SECONDARY_UPDATE);
+        s3.update(PRIMARY_UPDATE);
         assertEquals(Collections.singletonList(s1),
                 myState.findCandidateServers(ReadPreference.secondary()));
 
         // Exclude on tags.
-        myState.markNotWritable(s1);
-        myState.markNotWritable(s2);
-        myState.markNotWritable(s3);
+        s1.update(SECONDARY_UPDATE);
+        s2.update(SECONDARY_UPDATE);
+        s3.update(SECONDARY_UPDATE);
 
-        s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
-        s3.setTags(BuilderFactory.start().addInteger("A", 1).build());
-        final List<ServerState> servers = myState
-                .findCandidateServers(ReadPreference.secondary(BuilderFactory
-                        .start().addInteger("f", 1).build(), BuilderFactory
-                        .start().addInteger("g", 1).build()));
+        s1.update(myBuilder.reset().add("tags", F_TAGS).build());
+        s3.update(myBuilder.reset()
+                .add("tags", BuilderFactory.start().addInteger("A", 1).build())
+                .build());
+        final List<Server> servers = myState
+                .findCandidateServers(ReadPreference.secondary(F_TAGS, G_TAGS));
         assertEquals(1, servers.size());
         assertEquals(s1, servers.get(0));
 
     }
 
     /**
-     * Test method for {@link ClusterState#findCandidateServers}.
+     * Test method for {@link Cluster#findCandidateServers}.
      */
     @Test
     public void testFindCandidateServersSecondaryPreferred() {
-        myState = new ClusterState(new MongoClientConfiguration());
-        final ServerState s1 = myState.add("localhost:27017");
-        final ServerState s2 = myState.add("localhost:27018");
-        final ServerState s3 = myState.add("localhost:27019");
+        myState = new Cluster(new MongoClientConfiguration());
+        final Server s1 = myState.add("localhost:27017");
+        final Server s2 = myState.add("localhost:27018");
+        final Server s3 = myState.add("localhost:27019");
 
         s1.updateAverageLatency(1);
         s2.updateAverageLatency(10);
         s3.updateAverageLatency(100);
 
-        myState.markWritable(s1);
-        myState.markWritable(s2);
-        myState.markNotWritable(s3);
+        s1.update(PRIMARY_UPDATE);
+        s2.update(PRIMARY_UPDATE);
+        s3.update(SECONDARY_UPDATE);
 
-        List<ServerState> servers = myState.findCandidateServers(ReadPreference
+        List<Server> servers = myState.findCandidateServers(ReadPreference
                 .preferSecondary());
         assertEquals(3, servers.size());
         assertEquals(s3, servers.get(0)); // Non-Writable first.
-        assertEquals(new HashSet<ServerState>(Arrays.asList(s1, s2)),
-                new HashSet<ServerState>(servers.subList(1, servers.size())));
+        assertEquals(new HashSet<Server>(Arrays.asList(s1, s2)),
+                new HashSet<Server>(servers.subList(1, servers.size())));
 
         // Exclude on tags.
-        s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
-        s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
+        s1.update(myBuilder.reset().add("tags", F_TAGS).build());
+        s3.update(myBuilder.reset().add("tags", G_TAGS).build());
         servers = myState.findCandidateServers(ReadPreference.preferSecondary(
-                BuilderFactory.start().addInteger("f", 1).build(),
-                BuilderFactory.start().addInteger("g", 1).build()));
+                F_TAGS, G_TAGS));
         assertEquals(2, servers.size());
         assertEquals(s3, servers.get(0));
         assertEquals(s1, servers.get(1));
 
         // Exclude all on tags.
-        s1.setTags(BuilderFactory.start().addInteger("f", 1).build());
-        s3.setTags(BuilderFactory.start().addInteger("g", 1).build());
+        s1.update(myBuilder.reset().add("tags", F_TAGS).build());
+        s3.update(myBuilder.reset().add("tags", G_TAGS).build());
         servers = myState.findCandidateServers(ReadPreference.preferSecondary(
                 BuilderFactory.start().addInteger("Z", 1).build(),
                 BuilderFactory.start().addInteger("Y", 1).build()));
@@ -396,43 +391,54 @@ public class ClusterStateTest {
     }
 
     /**
-     * Test method for {@link ClusterState#findCandidateServers}.
+     * Test method for {@link Cluster#findCandidateServers}.
      */
     @Test
     public void testFindCandidateServersSecondaryPreferredWithVeryLateServer() {
-        myState = new ClusterState(new MongoClientConfiguration());
-        final ServerState s1 = myState.add("localhost:27017");
-        final ServerState s2 = myState.add("localhost:27018");
-        final ServerState s3 = myState.add("localhost:27019");
+        myState = new Cluster(new MongoClientConfiguration());
+        final Server s1 = myState.add("localhost:27017");
+        final Server s2 = myState.add("localhost:27018");
+        final Server s3 = myState.add("localhost:27019");
 
         s1.updateAverageLatency(1);
         s2.updateAverageLatency(10);
         s3.updateAverageLatency(100);
 
-        // Should not be used. Too old.
-        s1.setSecondsBehind(TimeUnit.HOURS.toSeconds(1));
+        // Mark s1 as too old.
+        final long now = System.currentTimeMillis();
+        myBuilder.reset().add("myState", Server.SECONDARY_STATE);
+        final ArrayBuilder members = myBuilder.pushArray("members");
+        members.push().add("name", s1.getCanonicalName())
+                .add("optimeDate", new Date(now - TimeUnit.HOURS.toMillis(1)));
+        members.push().add("name", s2.getCanonicalName())
+                .add("optimeDate", new Date(now));
+        members.push()
+                .add("name", s3.getCanonicalName())
+                .add("optimeDate", new Date(now - TimeUnit.SECONDS.toMillis(1)));
+        s1.update(myBuilder.build());
 
-        myState.markNotWritable(s1);
-        myState.markWritable(s2);
-        myState.markNotWritable(s3);
+        // And the rest.
+        s1.update(SECONDARY_UPDATE);
+        s2.update(PRIMARY_UPDATE);
+        s3.update(SECONDARY_UPDATE);
 
-        final List<ServerState> servers = myState
+        final List<Server> servers = myState
                 .findCandidateServers(ReadPreference.preferSecondary());
         assertEquals(2, servers.size());
         assertEquals(s3, servers.get(0)); // Non-Writable first.
-        assertEquals(new HashSet<ServerState>(Arrays.asList(s2)),
-                new HashSet<ServerState>(servers.subList(1, servers.size())));
+        assertEquals(new HashSet<Server>(Arrays.asList(s2)),
+                new HashSet<Server>(servers.subList(1, servers.size())));
     }
 
     /**
-     * Test method for {@link ClusterState#findCandidateServers}.
+     * Test method for {@link Cluster#findCandidateServers}.
      */
     @Test
     public void testFindCandidateServersServer() {
-        myState = new ClusterState(new MongoClientConfiguration());
-        final ServerState s1 = myState.add("localhost:27017");
-        final ServerState s2 = myState.add("localhost:27018");
-        final ServerState s3 = myState.add("localhost:27019");
+        myState = new Cluster(new MongoClientConfiguration());
+        final Server s1 = myState.add("localhost:27017");
+        final Server s2 = myState.add("localhost:27018");
+        final Server s3 = myState.add("localhost:27019");
 
         assertEquals(Collections.singletonList(s1),
                 myState.findCandidateServers(ReadPreference
@@ -452,11 +458,11 @@ public class ClusterStateTest {
     }
 
     /**
-     * Test method for {@link ClusterState#get(java.lang.String)}.
+     * Test method for {@link Cluster#get(java.lang.String)}.
      */
     @Test
     public void testGet() {
-        myState = new ClusterState(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration());
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -469,9 +475,10 @@ public class ClusterStateTest {
 
         replay(mockListener);
 
-        final ServerState ss = myState.add("foo");
-        assertEquals("foo", ss.getServer().getHostName());
-        assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
+        final Server ss = myState.add("foo");
+        assertEquals("foo:27017", ss.getCanonicalName());
+        assertEquals(Server.DEFAULT_PORT, ss.getAddresses().iterator().next()
+                .getPort());
 
         assertSame(ss, myState.add("foo"));
 
@@ -485,17 +492,18 @@ public class ClusterStateTest {
     }
 
     /**
-     * Test method for {@link ClusterState#getNonWritableServers()}.
+     * Test method for {@link Cluster#getNonWritableServers()}.
      */
     @Test
     public void testGetNonWritableServers() {
-        myState = new ClusterState(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration());
 
-        final ServerState ss = myState.add("foo");
-        assertEquals("foo", ss.getServer().getHostName());
-        assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
+        final Server ss = myState.add("foo");
+        assertEquals("foo:27017", ss.getCanonicalName());
+        assertEquals(Server.DEFAULT_PORT, ss.getAddresses().iterator().next()
+                .getPort());
 
-        myState.markWritable(ss);
+        ss.update(PRIMARY_UPDATE);
         assertTrue(ss.isWritable());
 
         assertEquals(Collections.singletonList(ss), myState.getServers());
@@ -503,7 +511,7 @@ public class ClusterStateTest {
                 myState.getWritableServers());
         assertEquals(0, myState.getNonWritableServers().size());
 
-        myState.markNotWritable(ss);
+        ss.update(SECONDARY_UPDATE);
         assertFalse(ss.isWritable());
 
         assertEquals(Collections.singletonList(ss), myState.getServers());
@@ -514,11 +522,12 @@ public class ClusterStateTest {
     }
 
     /**
-     * Test method for {@link ClusterState#markNotWritable(ServerState)}.
+     * Test method for ensuring the cluster hears when a server becomes not
+     * writable.
      */
     @Test
     public void testMarkNotWritable() {
-        myState = new ClusterState(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration());
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -530,20 +539,21 @@ public class ClusterStateTest {
 
         replay(mockListener);
 
-        final ServerState ss = myState.add("foo");
-        assertEquals("foo", ss.getServer().getHostName());
-        assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
+        final Server ss = myState.add("foo");
+        assertEquals("foo:27017", ss.getCanonicalName());
+        assertEquals(Server.DEFAULT_PORT, ss.getAddresses().iterator().next()
+                .getPort());
 
-        myState.markWritable(ss);
+        ss.update(PRIMARY_UPDATE);
 
         assertTrue(ss.isWritable());
 
         myState.addListener(mockListener);
 
-        myState.markNotWritable(ss);
+        ss.update(SECONDARY_UPDATE);
         assertFalse(ss.isWritable());
 
-        myState.markNotWritable(ss);
+        ss.update(SECONDARY_UPDATE);
 
         verify(mockListener);
 
@@ -555,11 +565,12 @@ public class ClusterStateTest {
     }
 
     /**
-     * Test method for {@link ClusterState#markWritable(ServerState)}.
+     * Test method for ensuring the cluster hears when a server becomes
+     * writable.
      */
     @Test
     public void testMarkWritable() {
-        myState = new ClusterState(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration());
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -571,19 +582,20 @@ public class ClusterStateTest {
 
         replay(mockListener);
 
-        final ServerState ss = myState.add("foo");
-        assertEquals("foo", ss.getServer().getHostName());
-        assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
+        final Server ss = myState.add("foo");
+        assertEquals("foo:27017", ss.getCanonicalName());
+        assertEquals(Server.DEFAULT_PORT, ss.getAddresses().iterator().next()
+                .getPort());
 
-        myState.markNotWritable(ss);
+        ss.update(SECONDARY_UPDATE);
 
         assertFalse(ss.isWritable());
 
         myState.addListener(mockListener);
 
-        myState.markWritable(ss);
+        ss.update(PRIMARY_UPDATE);
         assertTrue(ss.isWritable());
-        myState.markWritable(ss);
+        ss.update(PRIMARY_UPDATE);
 
         verify(mockListener);
 
@@ -595,12 +607,11 @@ public class ClusterStateTest {
     }
 
     /**
-     * Test method for
-     * {@link ClusterState#removeListener(PropertyChangeListener)}.
+     * Test method for {@link Cluster#removeListener(PropertyChangeListener)}.
      */
     @Test
     public void testRemoveListener() {
-        myState = new ClusterState(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration());
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -612,23 +623,24 @@ public class ClusterStateTest {
 
         replay(mockListener);
 
-        final ServerState ss = myState.add("foo");
-        assertEquals("foo", ss.getServer().getHostName());
-        assertEquals(ServerState.DEFAULT_PORT, ss.getServer().getPort());
+        final Server ss = myState.add("foo");
+        assertEquals("foo:27017", ss.getCanonicalName());
+        assertEquals(Server.DEFAULT_PORT, ss.getAddresses().iterator().next()
+                .getPort());
 
-        myState.markNotWritable(ss);
+        ss.update(SECONDARY_UPDATE);
 
         assertFalse(ss.isWritable());
 
         myState.addListener(mockListener);
 
-        myState.markWritable(ss);
+        ss.update(PRIMARY_UPDATE);
         assertTrue(ss.isWritable());
-        myState.markWritable(ss);
+        ss.update(PRIMARY_UPDATE);
 
         myState.removeListener(mockListener);
 
-        myState.markNotWritable(ss);
+        ss.update(SECONDARY_UPDATE);
 
         verify(mockListener);
 
@@ -640,23 +652,23 @@ public class ClusterStateTest {
     }
 
     /**
-     * Test method for {@link ClusterState#sort(List)}.
+     * Test method for {@link Cluster#sort(List)}.
      */
     @Test
-    public void testSortListServerState() {
+    public void testSortListServer() {
 
         final int count = 1000;
-        final List<ServerState> servers = new ArrayList<ServerState>(count);
+        final List<Server> servers = new ArrayList<Server>(count);
         for (int i = 0; i < count; i++) {
 
-            final ServerState server = new ServerState(new InetSocketAddress(
+            final Server server = new Server(new InetSocketAddress(
                     "localhost:", i + 1024));
-            server.updateAverageLatency(Math.random() * 100000);
+            server.updateAverageLatency(Math.round(Math.random() * 100000));
 
             servers.add(server);
         }
 
-        myState = new ClusterState(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration());
         for (int i = 0; i < 100; ++i) {
             Collections.shuffle(servers);
 
@@ -665,7 +677,7 @@ public class ClusterStateTest {
             // Verify that the list is sorted EXCEPT the first server.
             final double last = Double.NEGATIVE_INFINITY;
             double lowest = Double.MAX_VALUE;
-            for (final ServerState server : servers.subList(1, count)) {
+            for (final Server server : servers.subList(1, count)) {
                 lowest = Math.min(lowest, server.getAverageLatency());
                 assertTrue(
                         "Latencies out of order: " + last + " !< "

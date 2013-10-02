@@ -49,6 +49,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.Message;
@@ -63,8 +64,9 @@ import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
+import com.allanbank.mongodb.connection.state.Cluster;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.connection.state.ServerSelector;
-import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
 import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.error.ConnectionLostException;
@@ -80,6 +82,10 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 public class ClientImplTest {
     /** A Mock MongoDB server to connect to. */
     private static MockMongoDBServer ourServer;
+
+    /** Update document to mark servers as the primary. */
+    private static final Document PRIMARY_UPDATE = new ImmutableDocument(
+            BuilderFactory.start().add("ismaster", true));
 
     /**
      * Starts a Mock MongoDB server.
@@ -106,11 +112,11 @@ public class ClientImplTest {
         ourServer = null;
     }
 
+    /** The active configuration. */
+    protected MongoClientConfiguration myConfig;
+
     /** The instance under test. */
     protected ClientImpl myTestInstance;
-
-    /** The active configuration. */
-    private MongoClientConfiguration myConfig;
 
     /** A mock connection factory. */
     private ProxiedConnectionFactory myMockConnectionFactory;
@@ -649,36 +655,36 @@ public class ClientImplTest {
                 + ourServer.getInetSocketAddress().getPort();
 
         ourServer.setReplies(
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")),
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")),
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")),
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")),
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")),
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")),
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")),
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")),
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")),
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")));
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")));
 
         final GetLastError message = new GetLastError("testDb", Durability.ACK);
         final MongoClientConfiguration config = new MongoClientConfiguration(
@@ -692,12 +698,12 @@ public class ClientImplTest {
                     new SocketConnectionFactory(config));
 
             myTestInstance.send(message, null);
-            ourServer.waitForRequest(1, 10000);
+            ourServer.waitForRequest(2, 10000);
 
             ourServer.disconnectClient();
             assertTrue(ourServer.waitForDisconnect(10000));
 
-            assertTrue(ourServer.waitForClient(100000000));
+            assertTrue(ourServer.waitForClient(10000));
             ourServer.waitForRequest(2, 10000); // ping.
 
             // Give a pause for the reconnect to finish on our side.
@@ -744,9 +750,10 @@ public class ClientImplTest {
         strategy.setSelector(new ServerSelector() {
 
             @Override
-            public List<ServerState> pickServers() {
-                return Collections.singletonList(new ServerState(
-                        new InetSocketAddress("localhost", 27017)));
+            public List<Server> pickServers() {
+                final Cluster cluster = new Cluster(myConfig);
+                return Collections.singletonList(cluster
+                        .add(new InetSocketAddress("localhost", 27017)));
             }
         });
         strategy.setConnectionFactory(myMockConnectionFactory);
@@ -757,7 +764,7 @@ public class ClientImplTest {
 
         // Create a new connection for the reconnect.
         expect(
-                myMockConnectionFactory.connect(anyObject(ServerState.class),
+                myMockConnectionFactory.connect(anyObject(Server.class),
                         eq(myConfig))).andReturn(mockConnection2);
 
         // The ping! -- Fail.

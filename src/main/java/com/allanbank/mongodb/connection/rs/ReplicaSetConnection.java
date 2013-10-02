@@ -12,6 +12,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Callback;
@@ -24,8 +27,8 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.AbstractProxyConnection;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.state.ClusterState;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Cluster;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -43,13 +46,16 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
             .getLogger(ReplicaSetConnection.class.getCanonicalName());
 
     /** The state of the cluster for finding secondary connections. */
-    private final ClusterState myCluster;
+    private final Cluster myCluster;
 
     /** The connection factory for opening secondary connections. */
     private final ProxiedConnectionFactory myFactory;
 
     /** The primary server this connection is connected to. */
-    private final ServerState myPrimaryServer;
+    private final Server myPrimaryServer;
+
+    /** The primary server this connection is connected to. */
+    private final ConcurrentMap<Server, Connection> mySecondaryServers;
 
     /**
      * Creates a new {@link ReplicaSetConnection}.
@@ -66,13 +72,60 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      *            The MongoDB client configuration.
      */
     public ReplicaSetConnection(final Connection proxiedConnection,
-            final ServerState server, final ClusterState cluster,
+            final Server server, final Cluster cluster,
             final ProxiedConnectionFactory factory,
             final MongoClientConfiguration config) {
         super(proxiedConnection, config);
         myPrimaryServer = server;
         myCluster = cluster;
         myFactory = factory;
+
+        mySecondaryServers = new ConcurrentHashMap<Server, Connection>();
+
+        // TODO - Listen for server name changes.
+    }
+
+    /**
+     * Closes the underlying connection.
+     * 
+     * @see Connection#close()
+     */
+    @Override
+    public void close() throws IOException {
+        for (final Connection conn : mySecondaryServers.values()) {
+            try {
+                conn.close();
+            }
+            catch (final IOException ioe) {
+                LOG.log(Level.WARNING, "Could not close the connection: "
+                        + conn, ioe);
+            }
+        }
+
+        super.close();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the proxied {@link Connection}.
+     * </p>
+     * 
+     * @see java.io.Flushable#flush()
+     */
+    @Override
+    public void flush() throws IOException {
+        for (final Connection conn : mySecondaryServers.values()) {
+            try {
+                conn.flush();
+            }
+            catch (final IOException ioe) {
+                LOG.log(Level.WARNING, "Could not flush the connection: "
+                        + conn, ioe);
+            }
+        }
+
+        super.flush();
     }
 
     /**
@@ -102,16 +155,11 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
     @Override
     public String send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
-        final List<ServerState> servers = findPotentialServers(message1,
-                message2);
+        final List<Server> servers = findPotentialServers(message1, message2);
 
         // First we try and send to a server with a connection already open.
-        String result = trySendToOpenConnection(servers, message1, message2,
+        final String result = trySend(servers, message1, message2,
                 replyCallback);
-        if (result == null) {
-            // Just get it out the door.
-            result = trySend(servers, message1, message2, replyCallback);
-        }
 
         if (result == null) {
             throw new MongoDbException(
@@ -167,16 +215,16 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      *             On a failure to locate a server that all messages can be sent
      *             to.
      */
-    protected List<ServerState> findPotentialServers(final Message message1,
+    protected List<Server> findPotentialServers(final Message message1,
             final Message message2) throws MongoDbException {
-        List<ServerState> servers;
+        List<Server> servers;
         if (message1 != null) {
-            List<ServerState> potentialServers = myCluster
+            List<Server> potentialServers = myCluster
                     .findCandidateServers(message1.getReadPreference());
             servers = potentialServers;
 
             if (message2 != null) {
-                servers = new ArrayList<ServerState>(potentialServers);
+                servers = new ArrayList<Server>(potentialServers);
                 potentialServers = myCluster.findCandidateServers(message2
                         .getReadPreference());
                 servers.retainAll(potentialServers);
@@ -239,66 +287,12 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
      * @return The token for the server that the messages were sent to or
      *         <code>null</code> if the messages could not be sent.
      */
-    protected String trySend(final List<ServerState> servers,
+    protected String trySend(final List<Server> servers,
             final Message message1, final Message message2,
             final Callback<Reply> reply) {
-        for (final ServerState server : servers) {
+        for (final Server server : servers) {
 
-            // No need to check for primary here. Already looked.
-
-            Connection conn = null;
-            try {
-                conn = server.takeConnection();
-
-                if (conn == null) {
-                    // Create one.
-                    try {
-                        conn = myFactory.connect(server, myConfig);
-                    }
-                    catch (final IOException e) {
-                        LOG.info("Could not connect to the server '"
-                                + server.getName() + "': " + e.getMessage());
-                    }
-                }
-                else if (!conn.isOpen()) {
-                    final Connection newConn = reconnect(conn);
-                    conn = newConn;
-                }
-
-                if (conn != null) {
-                    return doSend(conn, message1, message2, reply);
-                }
-            }
-            finally {
-                if ((conn != null) && !server.addConnection(conn)) {
-                    conn.shutdown();
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Tries to send the messages to the first server with an open connection.
-     * 
-     * @param servers
-     *            The servers the messages can be sent to.
-     * @param message1
-     *            The first message to send.
-     * @param message2
-     *            The second message to send. May be <code>null</code>.
-     * @param reply
-     *            The callback for the replies.
-     * @return The token for the server that the messages were sent to or
-     *         <code>null</code> if the messages could not be sent.
-     */
-    protected String trySendToOpenConnection(final List<ServerState> servers,
-            final Message message1, final Message message2,
-            final Callback<Reply> reply) {
-        for (final ServerState server : servers) {
-
-            // Check if sending to the primary.
+            // Check if sending to the primary server.
             if (server.equals(myPrimaryServer)) {
                 if (message2 == null) {
                     return super.send(message1, reply);
@@ -306,27 +300,68 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
                 return super.send(message1, message2, reply);
             }
 
-            Connection conn = null;
-            try {
-                conn = server.takeConnection();
-
-                if ((conn != null) && !conn.isOpen()) {
-                    // Oops. Closed while we were not looking.
-                    // Do a reconnect.
-                    conn = reconnect(conn);
-                }
-
-                if (conn != null) {
-                    return doSend(conn, message1, message2, reply);
-                }
+            Connection conn = mySecondaryServers.get(server);
+            if (conn == null) {
+                // Create one.
+                conn = createConnection(server);
             }
-            finally {
-                if ((conn != null) && !server.addConnection(conn)) {
-                    conn.shutdown();
-                }
+            else if (!conn.isOpen()) {
+                // Oops. Closed while we were not looking.
+                // Do a reconnect.
+                mySecondaryServers.remove(server, conn);
+
+                final Connection newConn = reconnect(conn);
+                conn = cacheConnection(server, newConn);
+            }
+
+            if (conn != null) {
+                return doSend(conn, message1, message2, reply);
             }
         }
 
         return null;
+    }
+
+    /**
+     * Caches the connection to the server if there is not already a connection
+     * in the cache. If there is a connection already in the cache then the one
+     * provided is closed and the cached connection it returned.
+     * 
+     * @param server
+     *            The server connected to.
+     * @param conn
+     *            The connection to cache, if possible.
+     * @return The connection in the cache.
+     */
+    private Connection cacheConnection(final Server server,
+            final Connection conn) {
+        final Connection newConn = mySecondaryServers.putIfAbsent(server, conn);
+        if (newConn != null) {
+            IOUtils.close(conn);
+            return newConn;
+        }
+        return conn;
+    }
+
+    /**
+     * Attempts to create a connection to the server, catching any exceptions
+     * thrown.
+     * 
+     * @param server
+     *            The server to connect to.
+     * @return The connection to the {@link Server}.
+     */
+    private Connection createConnection(final Server server) {
+        Connection conn = null;
+        try {
+            conn = myFactory.connect(server, myConfig);
+
+            conn = cacheConnection(server, conn);
+        }
+        catch (final IOException e) {
+            LOG.info("Could not connect to the server '"
+                    + server.getCanonicalName() + "': " + e.getMessage());
+        }
+        return conn;
     }
 }

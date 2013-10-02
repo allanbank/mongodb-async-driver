@@ -15,7 +15,7 @@ import com.allanbank.mongodb.connection.Message;
 import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.PendingMessageQueue;
 import com.allanbank.mongodb.connection.message.Reply;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -58,7 +58,7 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
      * @throws IOException
      *             On a failure to read or write data to the MongoDB server.
      */
-    public TwoThreadSocketConnection(final ServerState server,
+    public TwoThreadSocketConnection(final Server server,
             final MongoClientConfiguration config) throws SocketException,
             IOException {
         super(server, config);
@@ -71,12 +71,12 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
                 new ReceiveRunnable(this));
         myReceiver.setDaemon(true);
         myReceiver.setName("MongoDB " + mySocket.getLocalPort() + "<--"
-                + myServer.getServer().toString());
+                + myServer.getCanonicalName());
 
         mySender = config.getThreadFactory().newThread(new SendRunnable());
         mySender.setDaemon(true);
         mySender.setName("MongoDB " + mySocket.getLocalPort() + "-->"
-                + myServer.getServer().toString());
+                + myServer.getCanonicalName());
     }
 
     /**
@@ -166,7 +166,7 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
             throw new MongoDbException(e);
         }
 
-        return myServer.getName();
+        return myServer.getCanonicalName();
     }
 
     /**
@@ -182,7 +182,7 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
             throw new MongoDbException(e);
         }
 
-        return myServer.getName();
+        return myServer.getCanonicalName();
     }
 
     /**

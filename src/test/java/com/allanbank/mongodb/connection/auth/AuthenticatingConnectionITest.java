@@ -26,7 +26,7 @@ import com.allanbank.mongodb.connection.message.Insert;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Cluster;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -66,11 +66,13 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         try {
             socketFactory = new SocketConnectionFactory(config);
 
+            final Cluster cluster = new Cluster(config);
             final Document doc = BuilderFactory.start()
                     .addObjectId("_id", new ObjectId()).build();
 
-            socketConn = socketFactory.connect(new ServerState(
-                    new InetSocketAddress("localhost", 27017)), config);
+            socketConn = socketFactory.connect(
+                    cluster.add(new InetSocketAddress("localhost", 27017)),
+                    config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();
@@ -113,11 +115,13 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         try {
             socketFactory = new SocketConnectionFactory(config);
 
+            final Cluster cluster = new Cluster(config);
             final Document doc = BuilderFactory.start()
                     .addObjectId("_id", new ObjectId()).build();
 
-            socketConn = socketFactory.connect(new ServerState(
-                    new InetSocketAddress("localhost", 27017)), config);
+            socketConn = socketFactory.connect(
+                    cluster.add(new InetSocketAddress("localhost", 27017)),
+                    config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
             final FutureCallback<Reply> reply = new FutureCallback<Reply>();

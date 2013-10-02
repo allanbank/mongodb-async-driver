@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -82,8 +83,11 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     private int myConnectTimeout = 0;
 
-    /** The credentials for the user. */
-    private final ConcurrentHashMap<String, Credential> myCredentials;
+    /**
+     * The credentials for the user. This should be final but for support for
+     * the clone() method.
+     */
+    private ConcurrentHashMap<String, Credential> myCredentials;
 
     /**
      * The default database for the connection. This is used as the database to
@@ -97,10 +101,10 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * The default durability for write operations on the server.
      * <p>
-     * Defaults to {@link Durability#NONE}.
+     * Defaults to {@link Durability#ACK}.
      * </p>
      */
-    private Durability myDefaultDurability = Durability.NONE;
+    private Durability myDefaultDurability = Durability.ACK;
 
     /**
      * The default read preference for a query.
@@ -187,8 +191,8 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     private int myReconnectTimeout = 0;
 
     /**
-     * The list of servers to initially attempt to connect to. Not final for
-     * clone.
+     * The list of servers to initially attempt to connect to. This should be
+     * final but for support for the clone() method.
      */
     private List<InetSocketAddress> myServers = new ArrayList<InetSocketAddress>();
 
@@ -240,13 +244,30 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     public MongoClientConfiguration(final MongoClientConfiguration other) {
         this();
 
-        myServers.addAll(other.getServerAddresses());
-
         myAutoDiscoverServers = other.isAutoDiscoverServers();
+        myConnectionModel = other.getConnectionModel();
+        myConnectTimeout = other.getConnectTimeout();
+        myDefaultDatabase = other.getDefaultDatabase();
+        myDefaultDurability = other.getDefaultDurability();
+        myDefaultReadPreference = other.getDefaultReadPreference();
+        myExecutor = other.getExecutor();
+        myLockType = other.getLockType();
         myMaxConnectionCount = other.getMaxConnectionCount();
         myMaxPendingOperationsPerConnection = other
                 .getMaxPendingOperationsPerConnection();
+        myMaxSecondaryLag = other.getMaxSecondaryLag();
+        myReadTimeout = other.getReadTimeout();
+        myReconnectTimeout = other.getReconnectTimeout();
+        mySocketFactory = other.getSocketFactory();
+        myThreadFactory = other.getThreadFactory();
         myUsingSoKeepalive = other.isUsingSoKeepalive();
+
+        for (final Credential credential : other.getCredentials()) {
+            addCredential(credential);
+        }
+        for (final InetSocketAddress addr : other.getServerAddresses()) {
+            addServer(addr);
+        }
     }
 
     /**
@@ -592,8 +613,16 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         MongoClientConfiguration clone = null;
         try {
             clone = (MongoClientConfiguration) super.clone();
-            clone.myServers = new ArrayList<InetSocketAddress>(
-                    getServerAddresses());
+
+            clone.myCredentials = new ConcurrentHashMap<String, Credential>();
+            for (final Credential credential : getCredentials()) {
+                clone.addCredential(credential);
+            }
+
+            clone.myServers = new ArrayList<InetSocketAddress>();
+            for (final InetSocketAddress addr : getServerAddresses()) {
+                clone.addServer(addr);
+            }
         }
         catch (final CloneNotSupportedException shouldNotHappen) {
             clone = new MongoClientConfiguration(this);
@@ -660,7 +689,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Returns the default durability for write operations on the server.
      * <p>
-     * Defaults to {@link Durability#NONE}.
+     * Defaults to {@link Durability#ACK}.
      * </p>
      * 
      * @return The default durability for write operations on the server.
@@ -1269,5 +1298,25 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public void setUsingSoKeepalive(final boolean usingSoKeepalive) {
         myUsingSoKeepalive = usingSoKeepalive;
+    }
+
+    /**
+     * Reads the serialized configuration and sets the transient field to known
+     * values.
+     * 
+     * @param stream
+     *            The stream to read from.
+     * @throws IOException
+     *             On a failure reading from the stream.
+     * @throws ClassNotFoundException
+     *             On a failure locating a type in the stream.
+     */
+    private void readObject(final java.io.ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+
+        myExecutor = null;
+        mySocketFactory = null;
+        myThreadFactory = null;
     }
 }

@@ -8,17 +8,17 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * Compares {@link ServerState}s based on the latency of the servers.
+ * Compares {@link Server}'s based on the latency of the servers.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ServerLatencyComparator implements Comparator<ServerState>,
+public class ServerLatencyComparator implements Comparator<Server>,
         Serializable {
 
     /** A singleton instance of the comparator. No need to multiple instances. */
-    public static final Comparator<ServerState> COMPARATOR = new ServerLatencyComparator();
+    public static final Comparator<Server> COMPARATOR = new ServerLatencyComparator();
 
     /** Serialization version of the class. */
     private static final long serialVersionUID = -7926757327660948536L;
@@ -39,7 +39,7 @@ public class ServerLatencyComparator implements Comparator<ServerState>,
      * @see Comparator#compare
      */
     @Override
-    public int compare(final ServerState o1, final ServerState o2) {
+    public int compare(final Server o1, final Server o2) {
         return Double.compare(o1.getAverageLatency(), o2.getAverageLatency());
     }
 

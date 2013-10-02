@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.connection.sharded;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -25,11 +26,11 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.connection.state.Cluster;
 import com.allanbank.mongodb.connection.state.ClusterPinger;
-import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.LatencyServerSelector;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.connection.state.ServerSelector;
-import com.allanbank.mongodb.connection.state.ServerState;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -50,7 +51,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     protected final ProxiedConnectionFactory myConnectionFactory;
 
     /** The state of the cluster. */
-    private final ClusterState myClusterState;
+    private final Cluster myCluster;
 
     /** The MongoDB client configuration. */
     private final MongoClientConfiguration myConfig;
@@ -73,17 +74,14 @@ public class ShardedConnectionFactory implements ConnectionFactory {
             final MongoClientConfiguration config) {
         myConnectionFactory = factory;
         myConfig = config;
-        myClusterState = new ClusterState(config);
-        mySelector = new LatencyServerSelector(myClusterState, true);
-        myPinger = new ClusterPinger(myClusterState, ClusterType.SHARDED,
-                factory, config);
+        myCluster = new Cluster(config);
+        mySelector = new LatencyServerSelector(myCluster, true);
+        myPinger = new ClusterPinger(myCluster, ClusterType.SHARDED, factory,
+                config);
 
-        for (final String address : config.getServers()) {
-            final ServerState state = myClusterState.add(address);
-
-            // In a sharded environment we assume that all of the mongos servers
-            // are writable.
-            myClusterState.markWritable(state);
+        // Add all of the servers to the cluster.
+        for (final InetSocketAddress address : config.getServerAddresses()) {
+            myCluster.add(address);
         }
 
         bootstrap();
@@ -126,8 +124,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                 final FutureCallback<Reply> future = new FutureCallback<Reply>();
                 try {
                     // Send the request...
-                    conn = myConnectionFactory.connect(
-                            myClusterState.add(addr), myConfig);
+                    conn = myConnectionFactory.connect(myCluster.add(addr),
+                            myConfig);
                     conn.send(query, future);
 
                     // Receive the response.
@@ -140,8 +138,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                         if (idElem instanceof StringElement) {
                             final StringElement id = (StringElement) idElem;
 
-                            myClusterState.markWritable(myClusterState.add(id
-                                    .getValue()));
+                            myCluster.add(id.getValue());
+
                             LOG.fine("Adding shard mongos: " + id.getValue());
                         }
                     }
@@ -173,10 +171,8 @@ public class ShardedConnectionFactory implements ConnectionFactory {
             }
         }
 
-        // Last thing is to start the ping of servers. This will get the tags
-        // and latencies updated.
+        // Last thing is to get the status of each server we discovered.
         myPinger.initialSweep();
-        myPinger.start();
     }
 
     /**
@@ -189,7 +185,6 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     @Override
     public void close() {
         IOUtils.close(myPinger);
-        IOUtils.close(myClusterState);
         IOUtils.close(myConnectionFactory);
     }
 
@@ -201,7 +196,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     @Override
     public Connection connect() throws IOException {
         IOException lastError = null;
-        for (final ServerState primary : myClusterState.getWritableServers()) {
+        for (final Server primary : myCluster.getWritableServers()) {
             try {
                 final Connection primaryConn = myConnectionFactory.connect(
                         primary, myConfig);
@@ -244,7 +239,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         final ReconnectStrategy delegates = myConnectionFactory
                 .getReconnectStrategy();
 
-        delegates.setState(myClusterState);
+        delegates.setState(myCluster);
         delegates.setSelector(mySelector);
         delegates.setConnectionFactory(myConnectionFactory);
 
@@ -256,7 +251,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      * 
      * @return The clusterState value.
      */
-    protected ClusterState getClusterState() {
-        return myClusterState;
+    protected Cluster getCluster() {
+        return myCluster;
     }
 }

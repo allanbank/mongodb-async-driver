@@ -22,5 +22,5 @@ public interface ServerSelector {
      * 
      * @return The selected server to try and connect to.
      */
-    public List<ServerState> pickServers();
+    public List<Server> pickServers();
 }

@@ -29,7 +29,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
     protected ServerSelector mySelector = null;
 
     /** The state of the cluster. */
-    protected ClusterState myState = null;
+    protected Cluster myState = null;
 
     /**
      * Creates a new AbstractReconnectStrategy.
@@ -70,7 +70,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
      * 
      * @return The state of the cluster.
      */
-    public ClusterState getState() {
+    public Cluster getState() {
         return myState;
     }
 
@@ -103,7 +103,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
      * {@inheritDoc}
      */
     @Override
-    public void setState(final ClusterState state) {
+    public void setState(final Cluster state) {
         myState = state;
     }
 
@@ -116,9 +116,9 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
      *            The connection to verify.
      * @return True if the connection is working, false otherwise.
      */
-    protected boolean isConnected(final ServerState server,
+    protected boolean isConnected(final Server server,
             final Connection connection) {
-        return ClusterPinger.ping(server.getServer(), connection);
+        return ClusterPinger.ping(server, connection);
     }
 
 }

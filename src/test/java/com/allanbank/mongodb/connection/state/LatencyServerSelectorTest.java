@@ -15,6 +15,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
  * LatencyServerSelectorTest provides tests for the
@@ -30,24 +32,28 @@ public class LatencyServerSelectorTest {
     @Test
     public void testPickServersAll() {
 
-        final ClusterState cluster = new ClusterState(
-                new MongoClientConfiguration());
+        final Document primary = BuilderFactory.start().add("ismaster", true)
+                .build();
+        final Document secondary = BuilderFactory.start()
+                .add("ismaster", false).add("secondary", true).build();
 
-        cluster.add("localhost:27017").setAverageLatency(100);
-        cluster.add("localhost:27018").setAverageLatency(50);
-        cluster.add("localhost:27019").setAverageLatency(25);
-        cluster.add("localhost:27020").setAverageLatency(200);
-        cluster.add("localhost:27021").setAverageLatency(300);
-        cluster.add("localhost:27022").setAverageLatency(400);
+        final Cluster cluster = new Cluster(new MongoClientConfiguration());
 
-        cluster.markWritable(cluster.get("localhost:27017"));
-        cluster.markNotWritable(cluster.get("localhost:27018"));
-        cluster.markWritable(cluster.get("localhost:27019"));
-        cluster.markNotWritable(cluster.get("localhost:27020"));
-        cluster.markWritable(cluster.get("localhost:27021"));
-        cluster.markNotWritable(cluster.get("localhost:27022"));
+        cluster.add("localhost:27017").updateAverageLatency(100);
+        cluster.add("localhost:27018").updateAverageLatency(50);
+        cluster.add("localhost:27019").updateAverageLatency(25);
+        cluster.add("localhost:27020").updateAverageLatency(200);
+        cluster.add("localhost:27021").updateAverageLatency(300);
+        cluster.add("localhost:27022").updateAverageLatency(400);
 
-        final List<ServerState> expected = new ArrayList<ServerState>();
+        cluster.get("localhost:27017").update(primary);
+        cluster.get("localhost:27018").update(secondary);
+        cluster.get("localhost:27019").update(primary);
+        cluster.get("localhost:27020").update(secondary);
+        cluster.get("localhost:27021").update(primary);
+        cluster.get("localhost:27022").update(secondary);
+
+        final List<Server> expected = new ArrayList<Server>();
         expected.add(cluster.get("localhost:27019")); // 25.
         expected.add(cluster.get("localhost:27018")); // 50.
         expected.add(cluster.get("localhost:27017")); // 100.
@@ -66,22 +72,24 @@ public class LatencyServerSelectorTest {
     @Test
     public void testPickServersNone() {
 
-        final ClusterState cluster = new ClusterState(
-                new MongoClientConfiguration());
+        final Document secondary = BuilderFactory.start()
+                .add("ismaster", false).add("secondary", true).build();
 
-        cluster.add("localhost:27017").setAverageLatency(100);
-        cluster.add("localhost:27018").setAverageLatency(50);
-        cluster.add("localhost:27019").setAverageLatency(25);
-        cluster.add("localhost:27020").setAverageLatency(200);
-        cluster.add("localhost:27021").setAverageLatency(300);
-        cluster.add("localhost:27022").setAverageLatency(400);
+        final Cluster cluster = new Cluster(new MongoClientConfiguration());
 
-        cluster.markNotWritable(cluster.get("localhost:27017"));
-        cluster.markNotWritable(cluster.get("localhost:27018"));
-        cluster.markNotWritable(cluster.get("localhost:27019"));
-        cluster.markNotWritable(cluster.get("localhost:27020"));
-        cluster.markNotWritable(cluster.get("localhost:27021"));
-        cluster.markNotWritable(cluster.get("localhost:27022"));
+        cluster.add("localhost:27017").updateAverageLatency(100);
+        cluster.add("localhost:27018").updateAverageLatency(50);
+        cluster.add("localhost:27019").updateAverageLatency(25);
+        cluster.add("localhost:27020").updateAverageLatency(200);
+        cluster.add("localhost:27021").updateAverageLatency(300);
+        cluster.add("localhost:27022").updateAverageLatency(400);
+
+        cluster.get("localhost:27017").update(secondary);
+        cluster.get("localhost:27018").update(secondary);
+        cluster.get("localhost:27019").update(secondary);
+        cluster.get("localhost:27020").update(secondary);
+        cluster.get("localhost:27021").update(secondary);
+        cluster.get("localhost:27022").update(secondary);
 
         final LatencyServerSelector selector = new LatencyServerSelector(
                 cluster, true);
@@ -94,24 +102,28 @@ public class LatencyServerSelectorTest {
     @Test
     public void testPickServersWriteableOnly() {
 
-        final ClusterState cluster = new ClusterState(
-                new MongoClientConfiguration());
+        final Document primary = BuilderFactory.start().add("ismaster", true)
+                .build();
+        final Document secondary = BuilderFactory.start()
+                .add("ismaster", false).add("secondary", true).build();
 
-        cluster.add("localhost:27017").setAverageLatency(100);
-        cluster.add("localhost:27018").setAverageLatency(50);
-        cluster.add("localhost:27019").setAverageLatency(25);
-        cluster.add("localhost:27020").setAverageLatency(200);
-        cluster.add("localhost:27021").setAverageLatency(300);
-        cluster.add("localhost:27022").setAverageLatency(400);
+        final Cluster cluster = new Cluster(new MongoClientConfiguration());
 
-        cluster.markWritable(cluster.get("localhost:27017"));
-        cluster.markNotWritable(cluster.get("localhost:27018"));
-        cluster.markWritable(cluster.get("localhost:27019"));
-        cluster.markNotWritable(cluster.get("localhost:27020"));
-        cluster.markWritable(cluster.get("localhost:27021"));
-        cluster.markNotWritable(cluster.get("localhost:27022"));
+        cluster.add("localhost:27017").updateAverageLatency(100);
+        cluster.add("localhost:27018").updateAverageLatency(50);
+        cluster.add("localhost:27019").updateAverageLatency(25);
+        cluster.add("localhost:27020").updateAverageLatency(200);
+        cluster.add("localhost:27021").updateAverageLatency(300);
+        cluster.add("localhost:27022").updateAverageLatency(400);
 
-        final List<ServerState> expected = new ArrayList<ServerState>();
+        cluster.get("localhost:27017").update(primary);
+        cluster.get("localhost:27018").update(secondary);
+        cluster.get("localhost:27019").update(primary);
+        cluster.get("localhost:27020").update(secondary);
+        cluster.get("localhost:27021").update(primary);
+        cluster.get("localhost:27022").update(secondary);
+
+        final List<Server> expected = new ArrayList<Server>();
         expected.add(cluster.get("localhost:27019")); // 25.
         expected.add(cluster.get("localhost:27017")); // 100.
         expected.add(cluster.get("localhost:27021")); // 300.

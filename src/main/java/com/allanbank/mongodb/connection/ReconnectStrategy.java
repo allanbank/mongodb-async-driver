@@ -7,7 +7,7 @@ package com.allanbank.mongodb.connection;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.state.ClusterState;
+import com.allanbank.mongodb.connection.state.Cluster;
 import com.allanbank.mongodb.connection.state.ServerSelector;
 
 /**
@@ -52,7 +52,7 @@ public interface ReconnectStrategy {
      * @param state
      *            The state of the cluster.
      */
-    public void setState(ClusterState state);
+    public void setState(Cluster state);
 
     /**
      * Encapsulates the strategy for re-establishing the connection to the

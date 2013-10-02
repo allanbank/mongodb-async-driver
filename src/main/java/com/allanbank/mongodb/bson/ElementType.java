@@ -246,8 +246,8 @@ public enum ElementType {
     }
 
     /**
-     * Similar to {@link #compareTo(ElementType)} but instead of comparing on
-     * the ordinal value compares the values based on the MongoDB sort order.
+     * Similar to {@link #compareTo} but instead of comparing on the ordinal
+     * value compares the values based on the MongoDB sort order.
      * 
      * @param rhs
      *            The right-hand-side of the ordering.

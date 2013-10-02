@@ -5,7 +5,6 @@
 package com.allanbank.mongodb;
 
 import java.beans.PropertyEditorSupport;
-import java.util.concurrent.TimeUnit;
 
 /**
  * {@link java.beans.PropertyEditor} for the {@link Durability} class.
@@ -37,8 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class DurabilityEditor extends PropertyEditorSupport {
 
     /** The default wait time for tokenized durabilities: {@value} ms. */
-    public static final int DEFAULT_WAIT_TIME_MS = (int) TimeUnit.SECONDS
-            .toMillis(30);
+    public static final int DEFAULT_WAIT_TIME_MS = 30000;
 
     /**
      * Creates a new DurabilityEditor.

@@ -43,7 +43,7 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
 import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
@@ -122,8 +122,7 @@ public class ShardedConnectionFactoryTest {
 
         myTestFactory = new ShardedConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = myTestFactory.getClusterState()
-                .getServers();
+        final List<Server> servers = myTestFactory.getCluster().getServers();
         assertEquals(2, servers.size());
     }
 
@@ -143,8 +142,7 @@ public class ShardedConnectionFactoryTest {
 
         myTestFactory = new ShardedConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = myTestFactory.getClusterState()
-                .getServers();
+        final List<Server> servers = myTestFactory.getCluster().getServers();
         assertEquals(1, servers.size());
 
         assertEquals(2, ourServer.getRequests().size()); // For ping + request.
@@ -175,21 +173,15 @@ public class ShardedConnectionFactoryTest {
 
         final Connection mockConnection = createMock(Connection.class);
 
-        mockConnection.close();
-        expectLastCall();
-
         replay(mockConnection);
 
         final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
                 config);
         myTestFactory = new ShardedConnectionFactory(socketFactory, config);
 
-        final List<ServerState> servers = myTestFactory.getClusterState()
-                .getServers();
+        final List<Server> servers = myTestFactory.getCluster().getServers();
         assertEquals(2, servers.size());
 
-        IOUtils.close(servers.get(0).takeConnection());
-        servers.get(0).addConnection(mockConnection);
         myTestFactory.close();
 
         verify(mockConnection);
@@ -209,6 +201,7 @@ public class ShardedConnectionFactoryTest {
                 + ourServer.getInetSocketAddress().getPort();
 
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
+        replStatusBuilder.add("ismaster", true);
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName);
@@ -315,7 +308,7 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection).times(2);
 
         mockConnection.send(anyObject(IsMaster.class), cb());
@@ -353,7 +346,7 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andThrow(new IOException("This is a test")).times(2);
 
         replay(mockFactory, mockConnection);
@@ -381,7 +374,7 @@ public class ShardedConnectionFactoryTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection).times(2);
 
         mockConnection.send(anyObject(IsMaster.class), cb());

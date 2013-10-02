@@ -7,6 +7,7 @@ package com.allanbank.mongodb.connection.rs;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -24,10 +25,11 @@ import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.connection.state.Cluster;
 import com.allanbank.mongodb.connection.state.ClusterPinger;
-import com.allanbank.mongodb.connection.state.ClusterState;
 import com.allanbank.mongodb.connection.state.LatencyServerSelector;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Server;
+import com.allanbank.mongodb.connection.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -47,7 +49,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
     protected final ProxiedConnectionFactory myConnectionFactory;
 
     /** The state of the cluster. */
-    private final ClusterState myClusterState;
+    private final Cluster myCluster;
 
     /** The MongoDB client configuration. */
     private final MongoClientConfiguration myConfig;
@@ -67,16 +69,9 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
             final MongoClientConfiguration config) {
         myConnectionFactory = factory;
         myConfig = config;
-        myClusterState = new ClusterState(config);
-        myPinger = new ClusterPinger(myClusterState, ClusterType.REPLICA_SET,
+        myCluster = new Cluster(config);
+        myPinger = new ClusterPinger(myCluster, ClusterType.REPLICA_SET,
                 factory, config);
-        for (final String address : config.getServers()) {
-            final ServerState state = myClusterState.add(address);
-
-            // In a replica-set environment we assume that all of the
-            // servers are non-writable.
-            myClusterState.markNotWritable(state);
-        }
 
         // Bootstrap the state off of one of the servers.
         bootstrap();
@@ -86,10 +81,11 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      * Finds the primary member of the replica set.
      */
     public void bootstrap() {
+        // To fill in the list of servers.
         locatePrimary();
 
-        // Last thing is to start the ping of servers. This will get the tags
-        // and latencies updated.
+        // Last thing is to start the ping of servers. This will
+        // locate the primary, and get the tags and latencies updated.
         myPinger.initialSweep();
         myPinger.start();
     }
@@ -104,7 +100,6 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
     @Override
     public void close() {
         IOUtils.close(myPinger);
-        IOUtils.close(myClusterState);
         IOUtils.close(myConnectionFactory);
     }
 
@@ -117,18 +112,18 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
     public Connection connect() throws IOException {
         IOException lastError = null;
 
+        List<Server> writableServers = myCluster.getWritableServers();
         for (int i = 0; i < 10; ++i) {
-            servers: for (final ServerState primary : myClusterState
-                    .getWritableServers()) {
+            servers: for (final Server primary : writableServers) {
                 Connection primaryConn = null;
                 try {
                     primaryConn = myConnectionFactory
                             .connect(primary, myConfig);
 
-                    if (isWritable(primaryConn)) {
+                    if (isWritable(primary, primaryConn)) {
 
                         final ReplicaSetConnection rsConnection = new ReplicaSetConnection(
-                                primaryConn, primary, myClusterState,
+                                primaryConn, primary, myCluster,
                                 myConnectionFactory, myConfig);
 
                         primaryConn = null;
@@ -137,7 +132,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                     }
 
                     // Update the stale state.
-                    locatePrimary();
+                    writableServers = locatePrimary();
 
                     break servers;
                 }
@@ -182,8 +177,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
         strategy.setConfig(myConfig);
         strategy.setConnectionFactory(myConnectionFactory);
-        strategy.setState(myClusterState);
-        strategy.setSelector(new LatencyServerSelector(myClusterState, false));
+        strategy.setState(myCluster);
+        strategy.setSelector(new LatencyServerSelector(myCluster, false));
 
         return strategy;
     }
@@ -193,22 +188,26 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      * 
      * @return The clusterState value.
      */
-    protected ClusterState getClusterState() {
-        return myClusterState;
+    protected Cluster getCluster() {
+        return myCluster;
     }
 
     /**
      * Determines if the connection is to the primary member of the cluster.
      * 
+     * @param server
+     *            The server connected to.
      * @param connection
      *            The connection to test.
      * @return True if the connection is to the primary member of the
      *         cluster/replica set.
      */
-    protected boolean isWritable(final Connection connection) {
+    protected boolean isWritable(final Server server,
+            final Connection connection) {
 
         try {
-            final FutureCallback<Reply> replyCallback = new FutureCallback<Reply>();
+            final FutureCallback<Reply> replyCallback = new ServerUpdateCallback(
+                    server);
             connection.send(new IsMaster(), replyCallback);
 
             final Reply reply = replyCallback.get();
@@ -217,10 +216,10 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                 final Document doc = results.get(0);
 
                 // Get the name of the primary server.
-                final StringElement primary = doc.get(StringElement.class,
+                final StringElement primaryName = doc.get(StringElement.class,
                         "primary");
-                if (primary != null) {
-                    return (primary.getValue().equals(connection
+                if (primaryName != null) {
+                    return (primaryName.getValue().equals(connection
                             .getServerName()));
                 }
             }
@@ -240,14 +239,17 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
     /**
      * Locates the primary server in the cluster.
+     * 
+     * @return The list of primary servers.
      */
-    protected void locatePrimary() {
+    protected List<Server> locatePrimary() {
         for (final InetSocketAddress addr : myConfig.getServerAddresses()) {
             Connection conn = null;
             final FutureCallback<Reply> future = new FutureCallback<Reply>();
             try {
-                conn = myConnectionFactory.connect(new ServerState(addr),
-                        myConfig);
+                final Server server = myCluster.add(addr);
+
+                conn = myConnectionFactory.connect(server, myConfig);
 
                 conn.send(new IsMaster(), future);
 
@@ -263,7 +265,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                         final List<StringElement> hosts = doc.find(
                                 StringElement.class, "hosts", ".*");
                         for (final StringElement host : hosts) {
-                            myClusterState.add(host.getValue());
+                            myCluster.add(host.getValue());
                         }
                     }
 
@@ -271,15 +273,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                     for (final StringElement primary : doc.find(
                             StringElement.class, "primary")) {
 
-                        // There can only be 1 writable server.
-                        for (final ServerState other : myClusterState
-                                .getWritableServers()) {
-                            myClusterState.markNotWritable(other);
-                        }
-                        myClusterState.markWritable(myClusterState.get(primary
+                        return Collections.singletonList(myCluster.add(primary
                                 .getValue()));
-
-                        break;
                     }
                 }
             }
@@ -308,5 +303,6 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                                 + addr + ".");
             }
         }
+        return Collections.emptyList();
     }
 }

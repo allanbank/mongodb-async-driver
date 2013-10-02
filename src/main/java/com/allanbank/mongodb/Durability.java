@@ -602,13 +602,23 @@ public class Durability implements Serializable {
      */
     @Override
     public String toString() {
-        // Render as a JSON Document on a single line.
-        final StringWriter sink = new StringWriter();
-        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
-                sink, true);
-        asDocument().accept(visitor);
+        String result;
+        if (NONE.equals(this)) {
+            result = "NONE";
+        }
+        else if (ACK.equals(this)) {
+            result = "ACK";
+        }
+        else {
+            // Render as a JSON Document on a single line.
+            final StringWriter sink = new StringWriter();
+            final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                    sink, true);
+            asDocument().accept(visitor);
 
-        return sink.toString();
+            result = sink.toString();
+        }
+        return result;
     }
 
     /**

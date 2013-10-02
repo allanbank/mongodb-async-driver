@@ -10,7 +10,7 @@ import java.io.IOException;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Server;
 
 /**
  * Provides an interface for creating proxied connections.
@@ -31,7 +31,7 @@ public interface ProxiedConnectionFactory extends ConnectionFactory {
      * @throws IOException
      *             On a failure connecting to the server.
      */
-    public Connection connect(ServerState server,
-            MongoClientConfiguration config) throws IOException;
+    public Connection connect(Server server, MongoClientConfiguration config)
+            throws IOException;
 
 }

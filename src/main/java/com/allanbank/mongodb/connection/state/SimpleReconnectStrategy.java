@@ -44,32 +44,34 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
     @Override
     public Connection reconnect(final Connection oldConnection) {
 
-        final List<ServerState> servers = getSelector().pickServers();
+        final List<Server> servers = getSelector().pickServers();
 
         // Clear the interrupt state for the thread.
         final boolean wasInterrupted = Thread.interrupted();
         try {
-            for (final ServerState server : servers) {
-                Connection newConn = null;
-                try {
-                    final InetSocketAddress addr = server.getServer();
+            for (final Server server : servers) {
+                for (final InetSocketAddress addr : server.getAddresses()) {
 
-                    newConn = getConnectionFactory().connect(server,
-                            getConfig());
-                    if (isConnected(server, newConn)) {
+                    Connection newConn = null;
+                    try {
 
-                        LOG.info("Reconnected to " + addr);
+                        newConn = getConnectionFactory().connect(server,
+                                getConfig());
+                        if (isConnected(server, newConn)) {
 
-                        return newConn;
+                            LOG.info("Reconnected to " + addr);
+
+                            return newConn;
+                        }
+
+                        IOUtils.close(newConn);
                     }
-
-                    IOUtils.close(newConn);
-                }
-                catch (final IOException error) {
-                    // Connection failed.
-                    // Try the next one.
-                    LOG.fine("Reconnect to " + server + " failed: "
-                            + error.getMessage());
+                    catch (final IOException error) {
+                        // Connection failed.
+                        // Try the next one.
+                        LOG.fine("Reconnect to " + server + " failed: "
+                                + error.getMessage());
+                    }
                 }
             }
         }

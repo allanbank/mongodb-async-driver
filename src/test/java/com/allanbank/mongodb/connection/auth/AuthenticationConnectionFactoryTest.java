@@ -26,7 +26,8 @@ import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Cluster;
+import com.allanbank.mongodb.connection.state.Server;
 
 /**
  * AuthenticationConnectionFactoryTest provides test for the
@@ -101,7 +102,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Test method for
-     * {@link AuthenticationConnectionFactory#connect(ServerState, MongoClientConfiguration)}
+     * {@link AuthenticationConnectionFactory#connect(Server, MongoClientConfiguration)}
      * .
      * 
      * @throws IOException
@@ -116,14 +117,14 @@ public class AuthenticationConnectionFactoryTest {
 
         myTestFactory = new AuthenticationConnectionFactory(mockFactory, config);
 
-        expect(mockFactory.connect(anyObject(ServerState.class), eq(config)))
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
 
         replay(mockFactory, mockConnection);
 
+        final Cluster cluster = new Cluster(config);
         final AuthenticatingConnection conn = myTestFactory.connect(
-                new ServerState(new InetSocketAddress("localhost", 27017)),
-                config);
+                cluster.add(new InetSocketAddress("localhost", 27017)), config);
         assertSame(mockConnection, conn.getProxiedConnection());
 
         verify(mockFactory, mockConnection);

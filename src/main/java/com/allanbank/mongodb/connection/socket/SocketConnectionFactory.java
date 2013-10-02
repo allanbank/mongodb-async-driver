@@ -15,13 +15,14 @@ import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.ConnectionFactory;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
+import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.connection.state.ClusterState;
+import com.allanbank.mongodb.connection.state.Cluster;
 import com.allanbank.mongodb.connection.state.LatencyServerSelector;
+import com.allanbank.mongodb.connection.state.Server;
 import com.allanbank.mongodb.connection.state.ServerSelector;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.ServerUpdateCallback;
 import com.allanbank.mongodb.connection.state.SimpleReconnectStrategy;
-import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * {@link ConnectionFactory} to create direct socket connections to the servers.
@@ -39,7 +40,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     private final ServerSelector myServerSelector;
 
     /** The state of the cluster. */
-    private final ClusterState myState;
+    private final Cluster myState;
 
     /**
      * Creates a new {@link SocketConnectionFactory}.
@@ -50,26 +51,19 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     public SocketConnectionFactory(final MongoClientConfiguration config) {
         super();
         myConfig = config;
-        myState = new ClusterState(config);
+        myState = new Cluster(config);
         myServerSelector = new LatencyServerSelector(myState, true);
-
-        // Add all of the servers as writable by default.
-        for (final String address : config.getServers()) {
-            final ServerState state = myState.add(address);
-
-            myState.markWritable(state);
-        }
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to close the cluster state.
+     * Overridden to do nothing.
      * </p>
      */
     @Override
     public void close() {
-        IOUtils.close(myState);
+        // Nothing.
     }
 
     /**
@@ -90,7 +84,13 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         Collections.shuffle(servers);
         for (final InetSocketAddress address : servers) {
             try {
-                return connect(new ServerState(address), myConfig);
+                final Server server = myState.add(address);
+                final Connection conn = connect(server, myConfig);
+
+                // Get the state of the server updated.
+                conn.send(new IsMaster(), new ServerUpdateCallback(server));
+
+                return conn;
             }
             catch (final IOException error) {
                 last = error;
@@ -115,7 +115,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      *             On a failure connecting to the server.
      */
     @Override
-    public Connection connect(final ServerState server,
+    public Connection connect(final Server server,
             final MongoClientConfiguration config) throws IOException {
 
         final AbstractSocketConnection connection;
@@ -125,12 +125,14 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
             connection = new TwoThreadSocketConnection(server, myConfig);
             break;
         }
-        case RECEIVER_THREAD: // Fall through
+        case RECEIVER_THREAD: // Fall through to default.
         default: {
             connection = new SocketConnection(server, myConfig);
             break;
         }
         }
+
+        // Start the connection.
         connection.start();
 
         return connection;

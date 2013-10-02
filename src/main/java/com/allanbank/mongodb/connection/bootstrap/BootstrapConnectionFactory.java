@@ -27,7 +27,7 @@ import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.rs.ReplicaSetConnectionFactory;
 import com.allanbank.mongodb.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
-import com.allanbank.mongodb.connection.state.ServerState;
+import com.allanbank.mongodb.connection.state.Cluster;
 import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -90,11 +90,12 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
             factory = new AuthenticationConnectionFactory(factory, myConfig);
         }
         try {
+            final Cluster cluster = new Cluster(myConfig);
             for (final InetSocketAddress addr : myConfig.getServerAddresses()) {
                 Connection conn = null;
                 final FutureCallback<Reply> future = new FutureCallback<Reply>();
                 try {
-                    conn = factory.connect(new ServerState(addr), myConfig);
+                    conn = factory.connect(cluster.add(addr), myConfig);
 
                     conn.send(new IsMaster(), future);
                     final Reply reply = future.get();
