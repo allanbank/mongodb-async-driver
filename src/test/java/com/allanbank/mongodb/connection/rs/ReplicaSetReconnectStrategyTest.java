@@ -8,6 +8,7 @@ package com.allanbank.mongodb.connection.rs;
 import static com.allanbank.mongodb.bson.builder.BuilderFactory.start;
 import static com.allanbank.mongodb.connection.CallbackReply.reply;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -187,8 +188,8 @@ public class ReplicaSetReconnectStrategyTest {
 
         List<Server> servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
-        assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
-                .getAddresses().iterator().next());
+        assertThat(servers.get(0).getAddresses(),
+                hasItem(ourServer1.getInetSocketAddress()));
 
         // Bootstrapped! Yay.
         // Setup for server2 to take over.
@@ -219,8 +220,8 @@ public class ReplicaSetReconnectStrategyTest {
 
         servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
-        assertEquals(ourServer2.getInetSocketAddress(), servers.get(0)
-                .getAddresses().iterator().next());
+        assertThat(servers.get(0).getAddresses(),
+                hasItem(ourServer2.getInetSocketAddress()));
     }
 
     /**
@@ -272,8 +273,8 @@ public class ReplicaSetReconnectStrategyTest {
 
         List<Server> servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
-        assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
-                .getAddresses().iterator().next());
+        assertThat(servers.get(0).getAddresses(),
+                hasItem(ourServer1.getInetSocketAddress()));
 
         // Bootstrapped! Yay.
         // Setup for no one to be the new primary.
@@ -287,7 +288,7 @@ public class ReplicaSetReconnectStrategyTest {
         //
 
         // Should only contact the primary.
-        ourServer1.setReplies(reply(replStatusBuilder));
+        ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)));
 
         myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
         final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
@@ -391,8 +392,8 @@ public class ReplicaSetReconnectStrategyTest {
 
         List<Server> servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
-        assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
-                .getAddresses().iterator().next());
+        assertThat(servers.get(0).getAddresses(),
+                hasItem(ourServer1.getInetSocketAddress()));
 
         // Bootstrapped! Yay.
         // Setup for server3 to take over.
@@ -443,8 +444,8 @@ public class ReplicaSetReconnectStrategyTest {
 
         servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
-        assertEquals(ourServer3.getInetSocketAddress(), servers.get(0)
-                .getAddresses().iterator().next());
+        assertThat(servers.get(0).getAddresses(),
+                hasItem(ourServer3.getInetSocketAddress()));
     }
 
     /**
@@ -496,8 +497,8 @@ public class ReplicaSetReconnectStrategyTest {
 
         List<Server> servers = myTestFactory.getCluster().getWritableServers();
         assertEquals(1, servers.size());
-        assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
-                .getAddresses().iterator().next());
+        assertThat(servers.get(0).getAddresses(),
+                hasItem(ourServer1.getInetSocketAddress()));
 
         // Bootstrapped! Yay.
         // Setup for server3 to take over.
@@ -567,8 +568,6 @@ public class ReplicaSetReconnectStrategyTest {
         assertNull(myNewTestConnection);
 
         servers = myTestFactory.getCluster().getWritableServers();
-        assertEquals(1, servers.size());
-        assertEquals(ourServer1.getInetSocketAddress(), servers.get(0)
-                .getAddresses().iterator().next());
+        assertEquals(0, servers.size());
     }
 }

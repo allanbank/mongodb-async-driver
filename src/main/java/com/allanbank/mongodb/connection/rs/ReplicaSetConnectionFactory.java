@@ -131,9 +131,6 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                         return rsConnection;
                     }
 
-                    // Update the stale state.
-                    writableServers = locatePrimary();
-
                     break servers;
                 }
                 catch (final IOException e) {
@@ -143,6 +140,9 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                     IOUtils.close(primaryConn);
                 }
             }
+
+            // Update the stale state.
+            writableServers = locatePrimary();
         }
 
         if (lastError != null) {

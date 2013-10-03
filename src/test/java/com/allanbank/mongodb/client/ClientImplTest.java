@@ -731,7 +731,9 @@ public class ClientImplTest {
     public void testReconnectFails() throws IOException {
         final Message message = new Command("db", BuilderFactory.start()
                 .build());
-
+        final Cluster cluster = new Cluster(myConfig);
+        final Server server = cluster.add(new InetSocketAddress("localhost",
+                27017));
         final Capture<PropertyChangeListener> propListenerCapture = new Capture<PropertyChangeListener>();
         final Connection mockConnection = createMock(Connection.class);
         final Connection mockConnection2 = createMock(Connection.class);
@@ -748,24 +750,27 @@ public class ClientImplTest {
         final SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
         strategy.setConfig(myConfig);
         strategy.setSelector(new ServerSelector() {
-
             @Override
             public List<Server> pickServers() {
-                final Cluster cluster = new Cluster(myConfig);
-                return Collections.singletonList(cluster
-                        .add(new InetSocketAddress("localhost", 27017)));
+                return Collections.singletonList(server);
             }
         });
         strategy.setConnectionFactory(myMockConnectionFactory);
+        strategy.setState(cluster);
 
         expect(mockConnection.isShuttingDown()).andReturn(false);
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 strategy);
 
+        // Try the straight connect back - but fail to connect.
+        expect(mockConnection.getServerName()).andReturn(
+                server.getCanonicalName());
+        expect(myMockConnectionFactory.connect(server, myConfig)).andThrow(
+                new IOException("Injected"));
+
         // Create a new connection for the reconnect.
-        expect(
-                myMockConnectionFactory.connect(anyObject(Server.class),
-                        eq(myConfig))).andReturn(mockConnection2);
+        expect(myMockConnectionFactory.connect(server, myConfig)).andReturn(
+                mockConnection2);
 
         // The ping! -- Fail.
         expect(

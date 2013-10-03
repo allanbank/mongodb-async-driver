@@ -8,9 +8,12 @@ package com.allanbank.mongodb.connection.rs;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -72,6 +75,10 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
     protected static final Logger LOG = Logger
             .getLogger(ReplicaSetReconnectStrategy.class.getCanonicalName());
 
+    /** The set of servers we cannot connect to. */
+    private final Set<Server> myDeadServers = Collections
+            .newSetFromMap(new ConcurrentHashMap<Server, Boolean>());
+
     /**
      * Creates a new ReplicaSetReconnectStrategy.
      */
@@ -107,8 +114,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
         try {
             // First try a simple reconnect.
             for (final Server writable : state.getWritableServers()) {
-                if (verifyPutative(answers, connections,
-                        writable.getCanonicalName(), deadline)) {
+                if (verifyPutative(answers, connections, writable, deadline)) {
                     LOG.fine("New primary for replica set: "
                             + writable.getCanonicalName());
                     return createReplicaSetConnection(connections, writable);
@@ -200,18 +206,18 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                         deadline);
 
                 // Phase2 - Verify the putative server.
-                if ((putative != null)
-                        && verifyPutative(answers, connections, putative,
-                                deadline)) {
+                if (putative != null) {
+                    final Server putativeServer = getState().get(putative);
+                    if (verifyPutative(answers, connections, putativeServer,
+                            deadline)) {
 
-                    // Phase 3 - Setup a new replica set connection to the
-                    // primary and seed it with a secondary if there is a
-                    // suitable server.
-                    final Server primaryServer = getState().get(putative);
-
-                    LOG.info("New primary for replica set: " + putative);
-                    return createReplicaSetConnection(connections,
-                            primaryServer);
+                        // Phase 3 - Setup a new replica set connection to the
+                        // primary and seed it with a secondary if there is a
+                        // suitable server.
+                        LOG.info("New primary for replica set: " + putative);
+                        return createReplicaSetConnection(connections,
+                                putativeServer);
+                    }
                 }
             }
             else {
@@ -315,12 +321,16 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
 
                 reply = replyCallback;
                 answers.put(server, reply);
+
+                myDeadServers.remove(server);
             }
         }
         catch (final IOException e) {
             // Nothing to do for now. Log at a debug level if this is not the
-            // primary. Warn if we think it is the primary.
-            final Level level = isPrimary ? Level.WARNING : Level.FINE;
+            // primary. Warn if we think it is the primary (and have not warned
+            // before)
+            final Level level = (isPrimary && myDeadServers.add(server)) ? Level.WARNING
+                    : Level.FINE;
             LOG.log(level, "Cannot create a connection to '" + server + "'.", e);
         }
 
@@ -360,23 +370,22 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      */
     protected boolean verifyPutative(final Map<Server, Future<Reply>> answers,
             final Map<Server, Connection> connections,
-            final String putativePrimary, final long deadline) {
+            final Server putativePrimary, final long deadline) {
 
         LOG.fine("Verify putative server (" + putativePrimary
                 + ") on reconnect(rs).");
 
-        final Server server = getState().get(putativePrimary);
-
         // Make sure we send a new request. The old reply might have been
         // before becoming the primary.
-        answers.remove(server);
+        answers.remove(putativePrimary);
 
         // If the primary agrees that they are the primary then it is
         // probably true.
-        final Future<Reply> reply = sendIsPrimary(answers, connections, server,
-                true);
-        final String primary = checkReply(reply, connections, server, deadline);
-        if (putativePrimary.equals(primary)) {
+        final Future<Reply> reply = sendIsPrimary(answers, connections,
+                putativePrimary, true);
+        final String primary = checkReply(reply, connections, putativePrimary,
+                deadline);
+        if (putativePrimary.getCanonicalName().equals(primary)) {
             return true;
         }
 

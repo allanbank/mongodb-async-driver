@@ -6,7 +6,6 @@
 package com.allanbank.mongodb.connection.state;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -44,36 +43,27 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
     @Override
     public Connection reconnect(final Connection oldConnection) {
 
-        final List<Server> servers = getSelector().pickServers();
-
         // Clear the interrupt state for the thread.
         final boolean wasInterrupted = Thread.interrupted();
         try {
+            // First try and connect back to the original server. This will
+            // hopefully re-enable the state.
+            Server origServer = myState.get(oldConnection.getServerName());
+            Connection newConn = tryConnect(origServer);
+            if (newConn != null) {
+                return newConn;
+            }
+
+            final List<Server> servers = getSelector().pickServers();
             for (final Server server : servers) {
-                for (final InetSocketAddress addr : server.getAddresses()) {
-
-                    Connection newConn = null;
-                    try {
-
-                        newConn = getConnectionFactory().connect(server,
-                                getConfig());
-                        if (isConnected(server, newConn)) {
-
-                            LOG.info("Reconnected to " + addr);
-
-                            return newConn;
-                        }
-
-                        IOUtils.close(newConn);
-                    }
-                    catch (final IOException error) {
-                        // Connection failed.
-                        // Try the next one.
-                        LOG.fine("Reconnect to " + server + " failed: "
-                                + error.getMessage());
-                    }
+                newConn = tryConnect(server);
+                if (newConn != null) {
+                    return newConn;
                 }
             }
+
+            LOG.info("Reconnect attempt failed for all " + servers.size()
+                    + " servers: " + servers);
         }
         finally {
             // Reset the interrupt state.
@@ -82,9 +72,39 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
             }
         }
 
-        LOG.info("Reconnect attempt failed for all " + servers.size()
-                + " servers: " + servers);
+        return null;
+    }
 
+    /**
+     * Tries to connect to the server.
+     * 
+     * @param server
+     *            The server to connect to.
+     * @return The connection to the server.
+     */
+    private Connection tryConnect(final Server server) {
+        Connection newConn = null;
+        try {
+
+            newConn = getConnectionFactory().connect(server, getConfig());
+            if (isConnected(server, newConn)) {
+                LOG.info("Reconnected to " + server);
+
+                // Make sure we don't close the connection.
+                Connection result = newConn;
+                newConn = null;
+
+                return result;
+            }
+        }
+        catch (final IOException error) {
+            // Connection failed. Try the next one.
+            LOG.fine("Reconnect to " + server + " failed: "
+                    + error.getMessage());
+        }
+        finally {
+            IOUtils.close(newConn);
+        }
         return null;
     }
 }

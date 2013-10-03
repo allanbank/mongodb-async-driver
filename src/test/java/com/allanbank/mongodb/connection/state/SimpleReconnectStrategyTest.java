@@ -5,8 +5,8 @@
 
 package com.allanbank.mongodb.connection.state;
 
+import static com.allanbank.mongodb.connection.CallbackReply.cb;
 import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -20,16 +20,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.easymock.Capture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.connection.Connection;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.connection.message.IsMaster;
 import com.allanbank.mongodb.connection.message.ServerStatus;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 
@@ -72,13 +73,16 @@ public class SimpleReconnectStrategyTest {
     public void testReconnect() throws IOException, InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
         final Cluster cluster = new Cluster(config);
-        final Server server = cluster.add(new InetSocketAddress("localhost",
-                27017));
+        final Server server = cluster.add("foo:27017");
 
         final Connection mockOldConnection = createMock(Connection.class);
         final Connection mockNewConnection = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
+
+        expect(mockOldConnection.getServerName()).andReturn("foo:27017");
+        expect(mockFactory.connect(server, config)).andThrow(
+                new IOException("Inject"));
 
         expect(mockSelector.pickServers()).andReturn(
                 Collections.singletonList(server));
@@ -86,20 +90,10 @@ public class SimpleReconnectStrategyTest {
         expect(mockFactory.connect(server, config))
                 .andReturn(mockNewConnection);
 
-        final Capture<Callback<Reply>> callbackCapture = new Capture<Callback<Reply>>() {
-            /** Serialization version for the class. */
-            private static final long serialVersionUID = -8744386051520804331L;
-
-            @Override
-            public void setValue(final Callback<Reply> value) {
-                super.setValue(value);
-
-                value.callback(null);
-            }
-        };
         expect(
-                mockNewConnection.send(anyObject(ServerStatus.class),
-                        capture(callbackCapture))).andReturn(myAddress);
+                mockNewConnection.send(anyObject(IsMaster.class),
+                        cb(BuilderFactory.start(PRIMARY_UPDATE)))).andReturn(
+                myAddress);
 
         replay(mockOldConnection, mockNewConnection, mockFactory, mockSelector);
 
@@ -108,6 +102,7 @@ public class SimpleReconnectStrategyTest {
         strategy.setConnectionFactory(mockFactory);
         strategy.setConfig(config);
         strategy.setSelector(mockSelector);
+        strategy.setState(cluster);
 
         assertSame(mockNewConnection, strategy.reconnect(mockOldConnection));
 
@@ -116,13 +111,70 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
+     * 
+     * @throws IOException
+     *             On a Failure setting up the mock configuration for the test.
+     * @throws InterruptedException
+     *             On a Failure setting up the mock configuration for the test.
      */
     @Test
-    public void testReconnectFails() {
+    public void testReconnectBackWorks() throws IOException,
+            InterruptedException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add("foo:27017");
+
         final Connection mockOldConnection = createMock(Connection.class);
         final Connection mockNewConnection = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
+
+        expect(mockOldConnection.getServerName()).andReturn("foo:27017");
+        expect(mockFactory.connect(server, config))
+                .andReturn(mockNewConnection);
+        expect(
+                mockNewConnection.send(anyObject(IsMaster.class),
+                        cb(BuilderFactory.start(PRIMARY_UPDATE)))).andReturn(
+                myAddress);
+
+        replay(mockOldConnection, mockNewConnection, mockFactory, mockSelector);
+
+        final SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
+
+        strategy.setConnectionFactory(mockFactory);
+        strategy.setConfig(config);
+        strategy.setSelector(mockSelector);
+        strategy.setState(cluster);
+
+        assertSame(mockNewConnection, strategy.reconnect(mockOldConnection));
+
+        verify(mockOldConnection, mockNewConnection, mockFactory, mockSelector);
+    }
+
+    /** Update document to mark servers as the primary. */
+    private static final Document PRIMARY_UPDATE = new ImmutableDocument(
+            BuilderFactory.start().add("ismaster", true));
+
+    /**
+     * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks.
+     */
+    @Test
+    public void testReconnectFails() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add("foo:27017");
+
+        final Connection mockOldConnection = createMock(Connection.class);
+        final Connection mockNewConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+        final ServerSelector mockSelector = createMock(ServerSelector.class);
+
+        expect(mockOldConnection.getServerName()).andReturn("foo:27017");
+        expect(mockFactory.connect(server, config)).andThrow(
+                new IOException("Inject"));
 
         expect(mockSelector.pickServers()).andReturn(new ArrayList<Server>());
 
@@ -131,8 +183,9 @@ public class SimpleReconnectStrategyTest {
         final SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
 
         strategy.setConnectionFactory(mockFactory);
-        strategy.setConfig(new MongoClientConfiguration());
+        strategy.setConfig(config);
         strategy.setSelector(mockSelector);
+        strategy.setState(cluster);
 
         assertNull(strategy.reconnect(mockOldConnection));
 
@@ -151,13 +204,18 @@ public class SimpleReconnectStrategyTest {
     public void testReconnectFirstFails() throws IOException,
             InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster clusterState = new Cluster(new MongoClientConfiguration());
-        final Server server = clusterState.add("localhost:27017");
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(new InetSocketAddress("foo", 27017));
 
         final Connection mockOldConnection = createMock(Connection.class);
         final Connection mockNewConnection = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
+
+        expect(mockOldConnection.getServerName()).andReturn("foo:27017");
+
+        expect(mockFactory.connect(server, config)).andThrow(
+                new IOException("Inject"));
 
         expect(mockSelector.pickServers()).andReturn(
                 Arrays.asList(server, server));
@@ -166,20 +224,10 @@ public class SimpleReconnectStrategyTest {
         expect(mockFactory.connect(server, config))
                 .andReturn(mockNewConnection);
 
-        final Capture<Callback<Reply>> callbackCapture = new Capture<Callback<Reply>>() {
-            /** Serialization version for the class. */
-            private static final long serialVersionUID = -8744386051520804331L;
-
-            @Override
-            public void setValue(final Callback<Reply> value) {
-                super.setValue(value);
-
-                value.callback(null);
-            }
-        };
         expect(
                 mockNewConnection.send(anyObject(ServerStatus.class),
-                        capture(callbackCapture))).andReturn(myAddress);
+                        cb(BuilderFactory.start(PRIMARY_UPDATE)))).andReturn(
+                myAddress);
 
         replay(mockOldConnection, mockNewConnection, mockFactory, mockSelector);
 
@@ -188,9 +236,9 @@ public class SimpleReconnectStrategyTest {
         strategy.setConnectionFactory(mockFactory);
         strategy.setConfig(config);
         strategy.setSelector(mockSelector);
-        strategy.setState(clusterState);
+        strategy.setState(cluster);
 
-        assertSame(clusterState, strategy.getState());
+        assertSame(cluster, strategy.getState());
         assertSame(mockSelector, strategy.getSelector());
         assertSame(config, strategy.getConfig());
         assertSame(mockFactory, strategy.getConnectionFactory());
@@ -209,34 +257,26 @@ public class SimpleReconnectStrategyTest {
     @Test
     public void testReconnectPingFails() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Server server = new Server(new InetSocketAddress("localhost",
-                27017));
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(new InetSocketAddress("foo", 27017));
 
         final Connection mockOldConnection = createMock(Connection.class);
         final Connection mockNewConnection = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
 
+        expect(mockOldConnection.getServerName()).andReturn("foo:27017");
+        expect(mockFactory.connect(server, config)).andThrow(
+                new IOException("Inject"));
+
         expect(mockSelector.pickServers()).andReturn(
                 Collections.singletonList(server));
-
         expect(mockFactory.connect(server, config))
                 .andReturn(mockNewConnection);
-
-        final Capture<Callback<Reply>> callbackCapture = new Capture<Callback<Reply>>() {
-            /** Serialization version for the class. */
-            private static final long serialVersionUID = -8744386051520804331L;
-
-            @Override
-            public void setValue(final Callback<Reply> value) {
-                super.setValue(value);
-
-                value.exception(new MongoDbException("This is a test."));
-            }
-        };
         expect(
                 mockNewConnection.send(anyObject(ServerStatus.class),
-                        capture(callbackCapture))).andReturn(myAddress);
+                        cb(new MongoDbException("Injected")))).andReturn(
+                myAddress);
 
         mockNewConnection.close();
 
@@ -247,6 +287,7 @@ public class SimpleReconnectStrategyTest {
         strategy.setConnectionFactory(mockFactory);
         strategy.setConfig(config);
         strategy.setSelector(mockSelector);
+        strategy.setState(cluster);
 
         assertNull(strategy.reconnect(mockOldConnection));
 

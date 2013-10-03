@@ -127,7 +127,12 @@ public class Cluster {
      * @return The {@link Server} for the address.
      */
     public Server add(final String address) {
-        return add(ServerNameUtils.parse(address));
+        Server server = myServers.get(address);
+        if (server == null) {
+            server = add(ServerNameUtils.parse(address));
+        }
+
+        return server;
     }
 
     /**
@@ -185,8 +190,7 @@ public class Cluster {
      * Returns the server state for the address provided. If the {@link Server}
      * does not already exist a non-writable state is created and returned.
      * <p>
-     * This method is equivalent to calling {@link #add(InetSocketAddress)
-     * add(ServerNameUtils.parse(address))}.
+     * This method is equivalent to calling {@link #add(String) add(address)}.
      * </p>
      * 
      * @param address
@@ -194,7 +198,7 @@ public class Cluster {
      * @return The {@link Server} for the address.
      */
     public Server get(final String address) {
-        return add(ServerNameUtils.parse(address));
+        return add(address);
     }
 
     /**

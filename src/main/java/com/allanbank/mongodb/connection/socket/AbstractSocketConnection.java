@@ -649,6 +649,10 @@ public abstract class AbstractSocketConnection implements Connection {
             try {
                 socket = config.getSocketFactory().createSocket();
                 socket.connect(address, config.getConnectTimeout());
+
+                // Let the server know the working connection.
+                server.connectionOpened(address);
+
                 last = null;
                 break;
             }

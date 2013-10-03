@@ -16,9 +16,9 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.describedAs;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.describedAs;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -732,7 +732,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         final IOException thrown = new IOException("Injected");
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-                .andThrow(thrown).times(10);
+                .andThrow(thrown).times(11);
 
         // A clean close.
         mockFactory.close();
