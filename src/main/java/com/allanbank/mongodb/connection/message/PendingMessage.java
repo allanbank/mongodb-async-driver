@@ -137,7 +137,7 @@ public class PendingMessage {
         myMessageId = messageId;
         myMessage = message;
         myReplyCallback = replyCallback;
-        myTimestamp = 0;
+        myTimestamp = System.nanoTime();
     }
 
     /**

@@ -50,6 +50,11 @@ public class ReplicaSetConnectionTest {
     private static final Document PRIMARY_UPDATE = new ImmutableDocument(
             BuilderFactory.start().add("ismaster", true));
 
+    /** Update document to mark servers as the secondary. */
+    private static final Document SECONDARY_UPDATE = new ImmutableDocument(
+            BuilderFactory.start().add("ismaster", false)
+                    .add("secondary", true));
+
     /** The cluster being used in the test. */
     private Cluster myCluster;
 
@@ -161,6 +166,227 @@ public class ReplicaSetConnectionTest {
      * @throws IOException
      *             On a failure setting up mocks.
      */
+    @Test
+    public void testCloseSecondaryThrowsIOException() throws IOException {
+        final Query q = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.secondary(), false, false,
+                false, false);
+
+        final Server s1 = myCluster.add("foo:12345");
+        final Server s2 = myCluster.add("bar:12345");
+        final Server s3 = myCluster.add("bas:12345");
+        final Server s4 = myCluster.add("bat:12345");
+        final Server s5 = myCluster.add("bau:12345");
+        final Server s6 = myCluster.add("bav:12345");
+
+        s1.updateAverageLatency(1000);
+        s2.updateAverageLatency(1000);
+        s3.updateAverageLatency(1000);
+        s4.updateAverageLatency(1000);
+        s5.updateAverageLatency(1000);
+        s6.updateAverageLatency(1000);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final Connection mockConnection2 = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(mockFactory.connect(s1, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s2, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s3, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s4, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s5, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+
+        expect(mockFactory.connect(s6, myConfig)).andReturn(mockConnection2);
+        expect(mockConnection2.send(q, null)).andReturn("foo");
+
+        mockConnection.close();
+        expectLastCall();
+        mockConnection2.close();
+        expectLastCall().andThrow(new IOException("Injected"));
+
+        replay(mockConnection, mockFactory, mockConnection2);
+
+        final ReplicaSetConnection testConnection = new ReplicaSetConnection(
+                mockConnection, myServer, myCluster, mockFactory, myConfig);
+
+        assertEquals("foo", testConnection.send(q, null));
+
+        testConnection.close();
+
+        verify(mockConnection, mockFactory, mockConnection2);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
+     * 
+     * @throws IOException
+     *             On a failure setting up mocks.
+     */
+    @Test
+    public void testFlushSecondary() throws IOException {
+        final Query q = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.secondary(), false, false,
+                false, false);
+
+        final Server s1 = myCluster.add("foo:12345");
+        final Server s2 = myCluster.add("bar:12345");
+        final Server s3 = myCluster.add("bas:12345");
+        final Server s4 = myCluster.add("bat:12345");
+        final Server s5 = myCluster.add("bau:12345");
+        final Server s6 = myCluster.add("bav:12345");
+
+        s1.updateAverageLatency(1000);
+        s2.updateAverageLatency(1000);
+        s3.updateAverageLatency(1000);
+        s4.updateAverageLatency(1000);
+        s5.updateAverageLatency(1000);
+        s6.updateAverageLatency(1000);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final Connection mockConnection2 = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(mockFactory.connect(s1, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s2, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s3, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s4, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s5, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+
+        expect(mockFactory.connect(s6, myConfig)).andReturn(mockConnection2);
+        expect(mockConnection2.send(q, null)).andReturn("foo");
+
+        mockConnection.flush();
+        expectLastCall();
+        mockConnection2.flush();
+        expectLastCall();
+
+        mockConnection.close();
+        expectLastCall();
+        mockConnection2.close();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory, mockConnection2);
+
+        final ReplicaSetConnection testConnection = new ReplicaSetConnection(
+                mockConnection, myServer, myCluster, mockFactory, myConfig);
+
+        assertEquals("foo", testConnection.send(q, null));
+
+        testConnection.flush();
+        testConnection.close();
+
+        verify(mockConnection, mockFactory, mockConnection2);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
+     * 
+     * @throws IOException
+     *             On a failure setting up mocks.
+     */
+    @Test
+    public void testFlushSecondaryThrowsIOException() throws IOException {
+        final Query q = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.secondary(), false, false,
+                false, false);
+
+        final Server s1 = myCluster.add("foo:12345");
+        final Server s2 = myCluster.add("bar:12345");
+        final Server s3 = myCluster.add("bas:12345");
+        final Server s4 = myCluster.add("bat:12345");
+        final Server s5 = myCluster.add("bau:12345");
+        final Server s6 = myCluster.add("bav:12345");
+
+        s1.updateAverageLatency(1000);
+        s2.updateAverageLatency(1000);
+        s3.updateAverageLatency(1000);
+        s4.updateAverageLatency(1000);
+        s5.updateAverageLatency(1000);
+        s6.updateAverageLatency(1000);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final Connection mockConnection2 = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(mockFactory.connect(s1, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s2, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s3, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s4, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s5, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+
+        expect(mockFactory.connect(s6, myConfig)).andReturn(mockConnection2);
+        expect(mockConnection2.send(q, null)).andReturn("foo");
+
+        mockConnection.flush();
+        expectLastCall();
+        mockConnection2.flush();
+        expectLastCall().andThrow(new IOException("Injected"));
+
+        mockConnection.close();
+        expectLastCall();
+        mockConnection2.close();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory, mockConnection2);
+
+        final ReplicaSetConnection testConnection = new ReplicaSetConnection(
+                mockConnection, myServer, myCluster, mockFactory, myConfig);
+
+        assertEquals("foo", testConnection.send(q, null));
+
+        testConnection.flush();
+        testConnection.close();
+
+        verify(mockConnection, mockFactory, mockConnection2);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
+     * 
+     * @throws IOException
+     *             On a failure setting up mocks.
+     */
+    @Test
+    public void testIgnoreServerAdd() throws IOException {
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory);
+
+        final ReplicaSetConnection testConnection = new ReplicaSetConnection(
+                mockConnection, myServer, myCluster, mockFactory, myConfig);
+
+        myCluster.add("foo:12345");
+
+        testConnection.close();
+
+        verify(mockConnection, mockFactory);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
+     * 
+     * @throws IOException
+     *             On a failure setting up mocks.
+     */
     @SuppressWarnings("unchecked")
     @Test
     public void testSend() throws IOException {
@@ -180,6 +406,37 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig);
 
         assertEquals("foo", testConnection.send(msg, null));
+
+        testConnection.close();
+
+        verify(mockConnection, mockFactory);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
+     * 
+     * @throws IOException
+     *             On a failure setting up mocks.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSend2Messages() throws IOException {
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        final Message msg = new IsMaster();
+
+        expect(mockConnection.send(eq(msg), eq(msg), isNull(Callback.class)))
+                .andReturn("foo");
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory);
+
+        final ReplicaSetConnection testConnection = new ReplicaSetConnection(
+                mockConnection, myServer, myCluster, mockFactory, myConfig);
+
+        assertEquals("foo", testConnection.send(msg, msg, null));
 
         testConnection.close();
 
@@ -308,7 +565,7 @@ public class ReplicaSetConnectionTest {
      *             On a failure setting up mocks.
      */
     @Test
-    public void testSendToSecondaryAllFail() throws IOException {
+    public void testSendToSecondary2Messages() throws IOException {
         final Query q = new Query("db", "c", BuilderFactory.start().build(),
                 null, 0, 0, 0, false, ReadPreference.secondary(), false, false,
                 false, false);
@@ -319,6 +576,13 @@ public class ReplicaSetConnectionTest {
         final Server s4 = myCluster.add("bat:12345");
         final Server s5 = myCluster.add("bau:12345");
         final Server s6 = myCluster.add("bav:12345");
+
+        s1.updateAverageLatency(1000);
+        s2.updateAverageLatency(1000);
+        s3.updateAverageLatency(1000);
+        s4.updateAverageLatency(1000);
+        s5.updateAverageLatency(1000);
+        s6.updateAverageLatency(1000);
 
         final Connection mockConnection = createMock(Connection.class);
         final Connection mockConnection2 = createMock(Connection.class);
@@ -334,7 +598,56 @@ public class ReplicaSetConnectionTest {
                 new IOException("Oops.")).times(0, 1);
         expect(mockFactory.connect(s5, myConfig)).andThrow(
                 new IOException("Oops.")).times(0, 1);
-        expect(mockFactory.connect(s6, myConfig)).andThrow(
+
+        expect(mockFactory.connect(s6, myConfig)).andReturn(mockConnection2);
+        expect(mockConnection2.send(q, q, null)).andReturn("foo");
+
+        mockConnection.close();
+        expectLastCall();
+        mockConnection2.close();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory, mockConnection2);
+
+        final ReplicaSetConnection testConnection = new ReplicaSetConnection(
+                mockConnection, myServer, myCluster, mockFactory, myConfig);
+
+        assertEquals("foo", testConnection.send(q, q, null));
+
+        testConnection.close();
+
+        verify(mockConnection, mockFactory, mockConnection2);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
+     * 
+     * @throws IOException
+     *             On a failure setting up mocks.
+     */
+    @Test
+    public void testSendToSecondaryAllFail() throws IOException {
+        final Query q = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.secondary(), false, false,
+                false, false);
+
+        final Server s1 = myCluster.add("foo:12345");
+        final Server s2 = myCluster.add("bar:12345");
+        final Server s3 = myCluster.add("bas:12345");
+
+        s1.update(SECONDARY_UPDATE);
+        s2.update(SECONDARY_UPDATE);
+        s3.update(SECONDARY_UPDATE);
+
+        final Connection mockConnection = createMock(Connection.class);
+        final Connection mockConnection2 = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        expect(mockFactory.connect(s1, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s2, myConfig)).andThrow(
+                new IOException("Oops.")).times(0, 1);
+        expect(mockFactory.connect(s3, myConfig)).andThrow(
                 new IOException("Oops.")).times(0, 1);
 
         mockConnection.close();
@@ -578,6 +891,50 @@ public class ReplicaSetConnectionTest {
 
         final Query q1 = new Query("db", "c", BuilderFactory.start().build(),
                 null, 0, 0, 0, false, ReadPreference.primary(), false, false,
+                false, false);
+        final Query q2 = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.secondary(), false, false,
+                false, false);
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection, mockFactory);
+
+        final ReplicaSetConnection testConnection = new ReplicaSetConnection(
+                mockConnection, myServer, myCluster, mockFactory, myConfig);
+
+        try {
+            testConnection.send(q1, q2, null);
+            fail("Should not have found any available server for the read preference.");
+        }
+        catch (final MongoDbException good) {
+            assertTrue(good.getMessage().contains(
+                    q1.getReadPreference().toString()));
+            assertTrue(good.getMessage().contains(
+                    q2.getReadPreference().toString()));
+        }
+        finally {
+            testConnection.close();
+        }
+
+        verify(mockConnection, mockFactory);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnection#send(Message, Callback)} .
+     * 
+     * @throws IOException
+     *             On a failure setting up mocks.
+     */
+    @Test
+    public void testSendWithReadPreferencesConflictRemoveDups()
+            throws IOException {
+        final Connection mockConnection = createMock(Connection.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        final Query q1 = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.secondary(), false, false,
                 false, false);
         final Query q2 = new Query("db", "c", BuilderFactory.start().build(),
                 null, 0, 0, 0, false, ReadPreference.secondary(), false, false,

@@ -247,7 +247,7 @@ public class ReplicaSetConnection extends AbstractProxyConnection {
                         final ReadPreference prefs = message
                                 .getReadPreference();
                         if (seen.add(prefs)) {
-                            if (seen.size() == 1) {
+                            if (seen.size() > 1) {
                                 builder.append(", ");
                             }
                             builder.append(prefs);

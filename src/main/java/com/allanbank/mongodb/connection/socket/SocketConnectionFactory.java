@@ -125,8 +125,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
             connection = new TwoThreadSocketConnection(server, myConfig);
             break;
         }
-        case RECEIVER_THREAD: // Fall through to default.
-        default: {
+        default: { // and RECEIVER_THREAD
             connection = new SocketConnection(server, myConfig);
             break;
         }

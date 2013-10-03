@@ -15,7 +15,9 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -27,6 +29,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -34,13 +37,16 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.connection.ClusterType;
 import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
+import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.Server;
@@ -58,6 +64,10 @@ public class ShardedConnectionFactoryTest {
 
     /** A Mock MongoDB server to connect to. */
     private static MockMongoDBServer ourServer;
+
+    /** Update document to mark servers as the primary. */
+    private static final Document PRIMARY_UPDATE = new ImmutableDocument(
+            BuilderFactory.start().add("ismaster", true));
 
     /**
      * Starts a Mock MongoDB server.
@@ -149,6 +159,200 @@ public class ShardedConnectionFactoryTest {
     }
 
     /**
+     * Test method for {@link ShardedConnectionFactory#bootstrap()}.
+     * 
+     * @throws IOException
+     *             On a failure.
+     */
+    @Test
+    public void testBootstrapThrowsExecutionError() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer("localhost:6547");
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection).times(2);
+
+        // Query for servers.
+        expect(
+                mockConnection.send(anyObject(Query.class), cb(new IOException(
+                        "Injected.")))).andReturn("localhost:6547");
+
+        // Ping.
+        expect(mockConnection.send(anyObject(IsMaster.class), cb())).andReturn(
+                "localhost:6547");
+
+        mockConnection.shutdown();
+        expectLastCall();
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockFactory, mockConnection);
+
+        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
+
+        verify(mockFactory, mockConnection);
+
+        // Reset the mock for the close() in teardown.
+        reset(mockFactory, mockConnection);
+    }
+
+    /**
+     * Test method for {@link ShardedConnectionFactory#bootstrap()}.
+     * 
+     * @throws IOException
+     *             On a failure.
+     */
+    @Test
+    public void testBootstrapThrowsInterruptedException() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer("localhost:6547");
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection).times(2);
+
+        // Query for servers.
+        expect(mockConnection.send(anyObject(Query.class), cb())).andAnswer(
+                new IAnswer<String>() {
+                    @Override
+                    public String answer() throws Throwable {
+                        Thread.currentThread().interrupt();
+                        return "localhost:6547";
+                    }
+                });
+
+        // Ping.
+        expect(mockConnection.send(anyObject(IsMaster.class), cb())).andReturn(
+                "localhost:6547");
+
+        mockConnection.shutdown();
+        expectLastCall();
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockFactory, mockConnection);
+
+        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
+
+        verify(mockFactory, mockConnection);
+
+        // Reset the mock for the close() in teardown.
+        reset(mockFactory, mockConnection);
+    }
+
+    /**
+     * Test method for {@link ShardedConnectionFactory#bootstrap()}.
+     * 
+     * @throws IOException
+     *             On a failure.
+     */
+    @Test
+    public void testBootstrapThrowsIOError() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer("localhost:6547");
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andThrow(new IOException("This is a test")).times(2);
+
+        replay(mockFactory, mockConnection);
+
+        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
+
+        verify(mockFactory, mockConnection);
+
+        // Reset the mock for the close() in teardown.
+        reset(mockFactory);
+    }
+
+    /**
+     * Test method for {@link ShardedConnectionFactory#bootstrap()}.
+     * 
+     * @throws IOException
+     *             On a failure.
+     */
+    @Test
+    public void testBootstrapThrowsMongoDbExecption() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer("localhost:6547");
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection).times(2);
+
+        expect(mockConnection.send(anyObject(IsMaster.class), cb())).andThrow(
+                new MongoDbException("This is a test")).times(2);
+
+        mockConnection.shutdown();
+        expectLastCall();
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockFactory, mockConnection);
+
+        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
+
+        verify(mockFactory, mockConnection);
+
+        // Reset the mock for the close() in teardown.
+        reset(mockFactory, mockConnection);
+    }
+
+    /**
+     * Test method for {@link ShardedConnectionFactory#bootstrap()}.
+     * 
+     * @throws IOException
+     *             On a failure.
+     */
+    @Test
+    public void testBootstrapThrowsMongoError() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer("localhost:6547");
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection).times(2);
+
+        mockConnection.send(anyObject(IsMaster.class), cb());
+        expectLastCall().andThrow(new MongoDbException("This is a test"))
+                .times(2);
+
+        mockConnection.shutdown();
+        expectLastCall();
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockFactory, mockConnection);
+
+        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
+        assertNotNull(myTestFactory);
+
+        verify(mockFactory, mockConnection);
+
+        // Reset the mock for the close() in teardown.
+        reset(mockFactory, mockConnection);
+    }
+
+    /**
      * Test method for {@link ShardedConnectionFactory#close()} .
      * 
      * @throws IOException
@@ -220,6 +424,7 @@ public class ShardedConnectionFactoryTest {
         IOUtils.close(connection);
 
         assertThat(connection, instanceOf(ShardedConnection.class));
+        assertThat(connection.toString(), startsWith("Sharded(MongoDB("));
     }
 
     /**
@@ -301,7 +506,7 @@ public class ShardedConnectionFactoryTest {
      *             On a failure.
      */
     @Test
-    public void testConnectThrowsExecutionError() throws IOException {
+    public void testConnectOnIOException() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
         config.addServer("localhost:6547");
 
@@ -311,86 +516,38 @@ public class ShardedConnectionFactoryTest {
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection).times(2);
 
-        mockConnection.send(anyObject(IsMaster.class), cb());
-        expectLastCall().andThrow(new MongoDbException("This is a test"))
-                .times(2);
-
-        mockConnection.shutdown();
-        expectLastCall();
-
+        // Query for servers.
+        expect(mockConnection.send(anyObject(Query.class), cb())).andReturn(
+                "localhost:6547");
         mockConnection.close();
         expectLastCall();
 
-        replay(mockFactory, mockConnection);
-
-        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
-        assertNotNull(myTestFactory);
-
-        verify(mockFactory, mockConnection);
-
-        // Reset the mock for the close() in teardown.
-        reset(mockFactory, mockConnection);
-    }
-
-    /**
-     * Test method for {@link ShardedConnectionFactory#connect()}.
-     * 
-     * @throws IOException
-     *             On a failure.
-     */
-    @Test
-    public void testConnectThrowsIOError() throws IOException {
-        final MongoClientConfiguration config = new MongoClientConfiguration();
-        config.addServer("localhost:6547");
-
-        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
-        final Connection mockConnection = createMock(Connection.class);
-
-        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-                .andThrow(new IOException("This is a test")).times(2);
-
-        replay(mockFactory, mockConnection);
-
-        myTestFactory = new ShardedConnectionFactory(mockFactory, config);
-        assertNotNull(myTestFactory);
-
-        verify(mockFactory, mockConnection);
-
-        // Reset the mock for the close() in teardown.
-        reset(mockFactory);
-    }
-
-    /**
-     * Test method for {@link ShardedConnectionFactory#connect()}.
-     * 
-     * @throws IOException
-     *             On a failure.
-     */
-    @Test
-    public void testConnectThrowsMongoError() throws IOException {
-        final MongoClientConfiguration config = new MongoClientConfiguration();
-        config.addServer("localhost:6547");
-
-        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
-        final Connection mockConnection = createMock(Connection.class);
-
-        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-                .andReturn(mockConnection).times(2);
-
-        mockConnection.send(anyObject(IsMaster.class), cb());
-        expectLastCall().andThrow(new MongoDbException("This is a test"))
-                .times(2);
-
+        // Ping.
+        expect(
+                mockConnection.send(anyObject(IsMaster.class),
+                        cb(BuilderFactory.start(PRIMARY_UPDATE)))).andReturn(
+                "localhost:6547");
         mockConnection.shutdown();
         expectLastCall();
 
-        mockConnection.close();
-        expectLastCall();
+        // Connect
+        final IOException thrown = new IOException("Injected");
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andThrow(thrown);
 
         replay(mockFactory, mockConnection);
 
         myTestFactory = new ShardedConnectionFactory(mockFactory, config);
         assertNotNull(myTestFactory);
+
+        try {
+            final Connection conn = myTestFactory.connect();
+            IOUtils.close(conn);
+            fail("Should havethrown an IOException.");
+        }
+        catch (final IOException good) {
+            assertThat(good, sameInstance(thrown));
+        }
 
         verify(mockFactory, mockConnection);
 

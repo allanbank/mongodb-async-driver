@@ -205,7 +205,7 @@ public class TwoThreadSocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -269,7 +269,7 @@ public class TwoThreadSocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -328,7 +328,6 @@ public class TwoThreadSocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", true, false, 0, 0);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -388,7 +387,6 @@ public class TwoThreadSocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", false, true, 0, 0);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -450,7 +448,6 @@ public class TwoThreadSocketConnectionTest {
         final GetLastError error = new GetLastError("fo", false, false, 10,
                 1000);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -505,7 +502,7 @@ public class TwoThreadSocketConnectionTest {
         final GetMore getMore = new GetMore("foo", "bar", 12345678901234L,
                 98765, ReadPreference.CLOSEST);
         myTestConnection.send(getMore, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -567,7 +564,6 @@ public class TwoThreadSocketConnectionTest {
 
         final Insert insert = new Insert("foo", "bar", multi, true);
         myTestConnection.send(insert, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -632,7 +628,6 @@ public class TwoThreadSocketConnectionTest {
         final Insert insert = new Insert("foo", "bar",
                 Collections.singletonList(doc), false);
         myTestConnection.send(insert, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -680,7 +675,6 @@ public class TwoThreadSocketConnectionTest {
         final KillCursors kill = new KillCursors(
                 new long[] { 12345678901234L }, ReadPreference.CLOSEST);
         myTestConnection.send(kill, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -736,7 +730,6 @@ public class TwoThreadSocketConnectionTest {
 
         final Delete delete = new Delete("foo", "bar", builder.build(), false);
         myTestConnection.send(delete, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -796,7 +789,6 @@ public class TwoThreadSocketConnectionTest {
                 7654321, false, ReadPreference.PRIMARY, false, false, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -859,7 +851,6 @@ public class TwoThreadSocketConnectionTest {
                 7654321, false, ReadPreference.PRIMARY, false, true, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -923,7 +914,6 @@ public class TwoThreadSocketConnectionTest {
                 7654321, false, ReadPreference.PRIMARY, false, false, true,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -987,7 +977,6 @@ public class TwoThreadSocketConnectionTest {
                 7654321, false, ReadPreference.PRIMARY, true, false, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -1051,7 +1040,6 @@ public class TwoThreadSocketConnectionTest {
                 7654321, false, ReadPreference.PRIMARY, false, false, false,
                 true);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -1115,7 +1103,6 @@ public class TwoThreadSocketConnectionTest {
                 7654321, false, ReadPreference.SECONDARY, false, false, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -1179,7 +1166,6 @@ public class TwoThreadSocketConnectionTest {
                 7654321, true, ReadPreference.PRIMARY, false, false, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -1243,7 +1229,6 @@ public class TwoThreadSocketConnectionTest {
                 1234567, false, ReadPreference.PRIMARY, false, false, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -1334,7 +1319,6 @@ public class TwoThreadSocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertFalse(myTestConnection.isIdle());
         assertFalse(myTestConnection.isOpen());
@@ -1394,7 +1378,6 @@ public class TwoThreadSocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1459,7 +1442,6 @@ public class TwoThreadSocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1528,7 +1510,7 @@ public class TwoThreadSocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -1591,7 +1573,6 @@ public class TwoThreadSocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1660,7 +1641,6 @@ public class TwoThreadSocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1923,7 +1903,6 @@ public class TwoThreadSocketConnectionTest {
 
         final Delete delete = new Delete("foo", "bar", doc, true);
         myTestConnection.send(delete, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -2073,7 +2052,6 @@ public class TwoThreadSocketConnectionTest {
 
         final Update update = new Update("foo", "bar", doc, doc, false, false);
         myTestConnection.send(update, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -2138,7 +2116,6 @@ public class TwoThreadSocketConnectionTest {
 
         final Update update = new Update("foo", "bar", doc, doc, true, false);
         myTestConnection.send(update, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -2203,7 +2180,6 @@ public class TwoThreadSocketConnectionTest {
 
         final Update update = new Update("foo", "bar", doc, doc, false, true);
         myTestConnection.send(update, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));

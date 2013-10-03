@@ -46,6 +46,31 @@ public class ReadPreferenceEditorTest {
     /**
      * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
      */
+    @Test
+    public void testSetJsonNearest() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("{ mode : 'NEAREST' }");
+        assertThat(editor.getValue(), is((Object) ReadPreference.closest()));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
+    @Test
+    public void testSetJsonNearestWithTags() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("{ mode : 'NEAREST', tags : [ { a : 1 } ] }");
+        assertThat(
+                editor.getValue(),
+                is((Object) ReadPreference.closest(BuilderFactory.start().add(
+                        "a", 1))));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
     @Test(expected = IllegalArgumentException.class)
     public void testSetJsonNoMode() {
         final ReadPreferenceEditor editor = new ReadPreferenceEditor();

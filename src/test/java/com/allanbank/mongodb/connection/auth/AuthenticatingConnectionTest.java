@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.connection.auth;
 
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.start;
 import static com.allanbank.mongodb.connection.CallbackReply.cb;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
@@ -501,6 +502,71 @@ public class AuthenticatingConnectionTest {
         conn.send(msg, null);
 
         IOUtils.close(conn);
+
+        verify(mockConnetion);
+    }
+
+    /**
+     * Test method for {@link AuthenticatingConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @Test
+    public void testAuthWithMultipleCredentialsFailures() throws IOException {
+        myConfig.addCredential(Credential.builder().userName("allanbank")
+                .password("super_secret_password".toCharArray())
+                .database(TEST_DB + '1')
+                .authenticationType(Credential.MONGODB_CR).build());
+
+        final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
+
+        final Connection mockConnetion = createMock(Connection.class);
+
+        // Nonce.
+        expect(
+                mockConnetion.send(
+                        eq(new Command(TEST_DB, myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
+
+        // Auth -- Failure
+        expect(
+                mockConnetion.send(
+                        eq(new Command(TEST_DB, myAuthRequest.build())),
+                        cb(start(myAuthReply).remove("ok")))).andReturn(
+                myAddress);
+
+        // Nonce.
+        expect(
+                mockConnetion.send(
+                        eq(new Command(TEST_DB + '1', myNonceRequest.build())),
+                        cb(myNonceReply))).andReturn(myAddress);
+
+        // Auth -- Failure 2
+        expect(
+                mockConnetion.send(
+                        eq(new Command(TEST_DB + '1', myAuthRequest.build())),
+                        cb(start(myAuthReply).remove("ok").add("ok", 0))))
+                .andReturn(myAddress);
+
+        mockConnetion.close();
+        expectLastCall();
+
+        replay(mockConnetion);
+
+        final AuthenticatingConnection conn = new AuthenticatingConnection(
+                mockConnetion, myConfig);
+
+        try {
+            conn.send(msg, null);
+            fail("Authentication should have failed.");
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+        }
+        finally {
+            IOUtils.close(conn);
+        }
 
         verify(mockConnetion);
     }

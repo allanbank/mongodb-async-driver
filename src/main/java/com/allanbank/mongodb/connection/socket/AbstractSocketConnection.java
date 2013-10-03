@@ -255,8 +255,10 @@ public abstract class AbstractSocketConnection implements Connection {
         // Mark
         myShutdown.set(true);
 
-        // Force a message with a callback to wake the sender and receiver up.
-        send(new IsMaster(), new NoopCallback());
+        if (isOpen()) {
+            // Force a message with a callback to wake the receiver up.
+            send(new IsMaster(), new NoopCallback());
+        }
     }
 
     /**
@@ -481,6 +483,9 @@ public abstract class AbstractSocketConnection implements Connection {
         final int messageId = pendingMessage.getMessageId();
         final Message message = pendingMessage.getMessage();
 
+        // Mark the timestamp.
+        pendingMessage.timestampNow();
+
         // Make sure the message is on the queue before the
         // message is sent to ensure the receive thread can
         // assume an empty pending queue means that there is
@@ -541,38 +546,6 @@ public abstract class AbstractSocketConnection implements Connection {
             }
         }
         mySocket.setPerformancePreferences(1, 5, 6);
-    }
-
-    /**
-     * Waits for the requested number of messages to become pending.
-     * 
-     * @param count
-     *            The number of pending messages expected.
-     * @param millis
-     *            The number of milliseconds to wait.
-     */
-    protected void waitForPending(final int count, final long millis) {
-        long now = System.currentTimeMillis();
-        final long deadline = now + millis;
-
-        while ((count < myPendingQueue.size()) && (now < deadline)) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(50);
-            }
-            catch (final InterruptedException e) {
-                // Ignore.
-                e.hashCode();
-            }
-            now = System.currentTimeMillis();
-        }
-        // Pause for the write to happen.
-        try {
-            TimeUnit.MILLISECONDS.sleep(5);
-        }
-        catch (final InterruptedException e) {
-            // Ignore.
-            e.hashCode();
-        }
     }
 
     /**

@@ -5,12 +5,16 @@
 package com.allanbank.mongodb.connection.socket;
 
 import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.makeThreadSafe;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StreamCorruptedException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -37,6 +42,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.net.SocketFactory;
+
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -45,6 +52,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
@@ -65,6 +73,7 @@ import com.allanbank.mongodb.connection.message.GetLastError;
 import com.allanbank.mongodb.connection.message.GetMore;
 import com.allanbank.mongodb.connection.message.Insert;
 import com.allanbank.mongodb.connection.message.KillCursors;
+import com.allanbank.mongodb.connection.message.PendingMessage;
 import com.allanbank.mongodb.connection.message.Query;
 import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.connection.message.Update;
@@ -206,7 +215,6 @@ public class SocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -270,7 +278,6 @@ public class SocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -329,8 +336,6 @@ public class SocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", true, false, 0, 0);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
-
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -389,7 +394,6 @@ public class SocketConnectionTest {
 
         final GetLastError error = new GetLastError("fo", false, true, 0, 0);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -451,7 +455,6 @@ public class SocketConnectionTest {
         final GetLastError error = new GetLastError("fo", false, false, 10,
                 1000);
         myTestConnection.send(error, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -506,7 +509,7 @@ public class SocketConnectionTest {
         final GetMore getMore = new GetMore("foo", "bar", 12345678901234L,
                 98765, ReadPreference.CLOSEST);
         myTestConnection.send(getMore, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -568,7 +571,6 @@ public class SocketConnectionTest {
 
         final Insert insert = new Insert("foo", "bar", multi, true);
         myTestConnection.send(insert, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -633,7 +635,6 @@ public class SocketConnectionTest {
         final Insert insert = new Insert("foo", "bar",
                 Collections.singletonList(doc), false);
         myTestConnection.send(insert, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -681,7 +682,6 @@ public class SocketConnectionTest {
         final KillCursors kill = new KillCursors(
                 new long[] { 12345678901234L }, ReadPreference.CLOSEST);
         myTestConnection.send(kill, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -737,7 +737,6 @@ public class SocketConnectionTest {
 
         final Delete delete = new Delete("foo", "bar", builder.build(), false);
         myTestConnection.send(delete, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -797,7 +796,6 @@ public class SocketConnectionTest {
                 7654321, false, ReadPreference.PRIMARY, false, false, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -860,7 +858,6 @@ public class SocketConnectionTest {
                 7654321, false, ReadPreference.PRIMARY, false, true, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -924,7 +921,6 @@ public class SocketConnectionTest {
                 7654321, false, ReadPreference.PRIMARY, false, false, true,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -988,7 +984,6 @@ public class SocketConnectionTest {
                 7654321, false, ReadPreference.PRIMARY, true, false, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -1052,7 +1047,6 @@ public class SocketConnectionTest {
                 7654321, false, ReadPreference.PRIMARY, false, false, false,
                 true);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -1116,7 +1110,6 @@ public class SocketConnectionTest {
                 7654321, false, ReadPreference.SECONDARY, false, false, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -1180,7 +1173,6 @@ public class SocketConnectionTest {
                 7654321, true, ReadPreference.PRIMARY, false, false, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -1244,7 +1236,6 @@ public class SocketConnectionTest {
                 1234567, false, ReadPreference.PRIMARY, false, false, false,
                 false);
         myTestConnection.send(query, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -1334,7 +1325,6 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertFalse(myTestConnection.isIdle());
         assertFalse(myTestConnection.isOpen());
@@ -1394,7 +1384,6 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1461,7 +1450,6 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1506,7 +1494,6 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1573,7 +1560,7 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
+
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
 
@@ -1631,7 +1618,6 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1681,7 +1667,6 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1731,7 +1716,6 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1783,7 +1767,6 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1850,7 +1833,6 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1861,6 +1843,49 @@ public class SocketConnectionTest {
                 Collections.singletonList(doc), true, true, true, true);
 
         assertEquals("Did not receive the expected reply.", expected, reply);
+    }
+
+    /**
+     * Test method for {@link SocketConnection}.
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws TimeoutException
+     *             On a failure waiting for a reply.
+     * @throws InterruptedException
+     *             On a failure waiting for a reply.
+     */
+    @Test
+    public void testReadTimeout() throws IOException, InterruptedException,
+            TimeoutException {
+
+        ourServer.setReplies(Arrays.asList(new byte[] { 1 }));
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.setReadTimeout(250);
+        myTestConnection = new SocketConnection(myTestServer, config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final GetLastError error = new GetLastError("fo", false, false, 0, 0);
+        myTestConnection.send(error, future);
+
+        // Wake up the server.
+        assertTrue("Should receive the request after flush.",
+                ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
+
+        // This should thrown an exception.
+        try {
+            future.get(60, TimeUnit.SECONDS);
+            fail("Should have thrown an execution exception.");
+        }
+        catch (final ExecutionException e) {
+            // Good.
+            assertThat(e.getMessage(), containsString("Read timed out"));
+        }
     }
 
     /**
@@ -1896,7 +1921,6 @@ public class SocketConnectionTest {
         final FutureCallback<Reply> future = new FutureCallback<Reply>();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         // Wake up the server.
         assertTrue("Should receive the request after flush.",
@@ -1911,6 +1935,161 @@ public class SocketConnectionTest {
             assertThat(te.getCause().getCause(),
                     instanceOf(StreamCorruptedException.class));
         }
+    }
+
+    /**
+     * Test method for {@link SocketConnection}.
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws ExecutionException
+     *             On a failure waiting for a reply.
+     * @throws InterruptedException
+     *             On a failure waiting for a reply.
+     * @throws TimeoutException
+     *             On a failure waiting for a reply.
+     */
+    @Test
+    public void testReadWhenPendingQueueIsCorrupt() throws IOException,
+            InterruptedException, ExecutionException, TimeoutException {
+        // From the BSON specification.
+        final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
+                (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
+                0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
+                (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
+
+        final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
+        final IntBuffer buff = byteBuff.asIntBuffer();
+        buff.put(0, EndianUtils.swap((7 * 4) + 8 + helloWorld.length));
+        buff.put(1, 0);
+        buff.put(2, EndianUtils.swap(1));
+        buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));
+        buff.put(4, 0);
+        buff.put(5, 0);
+        buff.put(6, 0);
+        buff.put(7, 0);
+        buff.put(8, EndianUtils.swap(1));
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(byteBuff.array());
+        out.write(helloWorld);
+
+        myTestConnection = new SocketConnection(myTestServer,
+                new MongoClientConfiguration());
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final GetLastError error = new GetLastError("fo", false, false, 0, 0);
+        myTestConnection.send(error, future);
+        assertTrue("Should receive the request after flush.",
+                ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
+
+        // Now remove items from the pending queue.
+        final PendingMessage pending = new PendingMessage();
+        assertThat(myTestConnection.myPendingQueue.poll(pending), is(true));
+        assertThat(pending.getMessageId(), is(1));
+        assertThat(pending.getReplyCallback(),
+                sameInstance((Callback<Reply>) future));
+        assertThat(myTestConnection.myPendingQueue.poll(pending), is(false));
+
+        // Now to add two back...
+        final FutureCallback<Reply> future2 = new FutureCallback<Reply>();
+        pending.set(1234, error, future2);
+        assertThat(myTestConnection.myPendingQueue.offer(pending), is(true));
+        pending.set(1235, error, future);
+        assertThat(myTestConnection.myPendingQueue.offer(pending), is(true));
+
+        // Add the reply to the first message.
+        ourServer.setReplies(Arrays.asList(out.toByteArray()));
+
+        // Send another mesage to trigger the errors.
+        final FutureCallback<Reply> future3 = new FutureCallback<Reply>();
+        myTestConnection.send(error, future3);
+
+        // Wake up the server.
+        assertTrue("Should receive the request after flush.",
+                ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
+        try {
+            future.get(60, TimeUnit.SECONDS);
+            fail("Should have thrown an error");
+        }
+        catch (final ExecutionException e) {
+            assertThat(e.getCause(), instanceOf(MongoDbException.class));
+        }
+        try {
+            future2.get(60, TimeUnit.SECONDS);
+            fail("Should have thrown an error");
+        }
+        catch (final ExecutionException e) {
+            assertThat(e.getCause(), instanceOf(MongoDbException.class));
+        }
+        try {
+            future3.get(60, TimeUnit.SECONDS);
+            fail("Should have thrown an error");
+        }
+        catch (final ExecutionException e) {
+            assertThat(e.getCause(), instanceOf(MongoDbException.class));
+        }
+    }
+
+    /**
+     * Test method for {@link SocketConnection}.
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws TimeoutException
+     *             On a failure waiting for a reply.
+     * @throws InterruptedException
+     *             On a failure waiting for a reply.
+     */
+    @Test
+    public void testReplyWithLatency() throws IOException,
+            InterruptedException, TimeoutException {
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        myTestConnection = new SocketConnection(myTestServer, config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final PendingMessage message = new PendingMessage();
+        message.timestampNow();
+
+        final List<Document> results = Collections.emptyList();
+        myTestConnection.reply(new Reply(1, 1, 1, results, false, false, false,
+                false), message);
+    }
+
+    /**
+     * Test method for {@link SocketConnection}.
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws TimeoutException
+     *             On a failure waiting for a reply.
+     * @throws InterruptedException
+     *             On a failure waiting for a reply.
+     */
+    @Test
+    public void testReplyWithoutLatency() throws IOException,
+            InterruptedException, TimeoutException {
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        myTestConnection = new SocketConnection(myTestServer, config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final PendingMessage message = new PendingMessage();
+
+        final List<Document> results = Collections.emptyList();
+        myTestConnection.reply(new Reply(1, 1, 1, results, false, false, false,
+                false), message);
     }
 
     /**
@@ -2137,6 +2316,39 @@ public class SocketConnectionTest {
     }
 
     /**
+     * Test method for {@link SocketConnection#shutdown} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testShutdownWhenClosed() throws IOException,
+            InterruptedException {
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(myTestServer, config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        myTestConnection.close();
+        myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
+
+        assertTrue(myTestConnection.isIdle());
+        assertFalse(myTestConnection.isOpen());
+
+        myTestConnection.shutdown();
+
+        assertTrue(myTestConnection.isIdle());
+        assertFalse(myTestConnection.isOpen());
+
+    }
+
+    /**
      * Test method for {@link SocketConnection#send} .
      * 
      * @throws IOException
@@ -2163,7 +2375,6 @@ public class SocketConnectionTest {
 
         final Delete delete = new Delete("foo", "bar", doc, true);
         myTestConnection.send(delete, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -2190,6 +2401,48 @@ public class SocketConnectionTest {
                 'o', '.', 'b', 'a', 'r', 0 },
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Flags should be one.", 1, EndianUtils.swap(asInts.get(7)));
+    }
+
+    /**
+     * Test method for
+     * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
+     * .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testSocketConnectFailure() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        final SocketFactory mockFactory = createMock(SocketFactory.class);
+        final Socket mockSocket = createMock(Socket.class);
+
+        final SocketException thrown = new SocketException("Injected.");
+        expect(mockFactory.createSocket()).andReturn(mockSocket);
+
+        mockSocket.connect(ourServer.getInetSocketAddress(),
+                config.getConnectTimeout());
+        expectLastCall().andThrow(thrown);
+
+        mockSocket.close();
+        expectLastCall().andThrow(new IOException("Injected but just logged."));
+
+        replay(mockFactory, mockSocket);
+
+        config.setSocketFactory(mockFactory);
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(ourServer.getInetSocketAddress());
+
+        try {
+            myTestConnection = new SocketConnection(server, config);
+            fail("Should have thrown an SocketException");
+        }
+        catch (final SocketException good) {
+            assertThat(good, sameInstance(thrown));
+        }
+
+        verify(mockFactory, mockSocket);
     }
 
     /**
@@ -2235,6 +2488,141 @@ public class SocketConnectionTest {
                 .getAddress(), addr.getPort() + 1));
         myTestConnection = new SocketConnection(wrongPort,
                 new MongoClientConfiguration());
+    }
+
+    /**
+     * Test method for
+     * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
+     * .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testSocketFactoryFailure() throws IOException {
+
+        final SocketFactory mockFactory = createMock(SocketFactory.class);
+
+        final IOException thrown = new IOException("Injected.");
+        expect(mockFactory.createSocket()).andThrow(thrown);
+
+        replay(mockFactory);
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.setSocketFactory(mockFactory);
+
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(ourServer.getInetSocketAddress());
+
+        try {
+            myTestConnection = new SocketConnection(server, config);
+            fail("Should have thrown an IOException");
+        }
+        catch (final IOException good) {
+            assertThat(good, sameInstance(thrown));
+        }
+
+        verify(mockFactory);
+    }
+
+    /**
+     * Test method for
+     * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
+     * .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testSocketOptionsFailure() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        final SocketFactory mockFactory = createMock(SocketFactory.class);
+        final Socket mockSocket = createMock(Socket.class);
+
+        final SocketException thrown = new SocketException("Injected.");
+        expect(mockFactory.createSocket()).andReturn(mockSocket);
+
+        mockSocket.connect(ourServer.getInetSocketAddress(),
+                config.getConnectTimeout());
+        expectLastCall();
+
+        mockSocket.setKeepAlive(config.isUsingSoKeepalive());
+        expectLastCall();
+        mockSocket.setSoTimeout(config.getReadTimeout());
+        expectLastCall();
+        mockSocket.setTcpNoDelay(true);
+        expectLastCall().andThrow(thrown);
+        // mockSocket.setPerformancePreferences(1, 5, 6);
+
+        replay(mockFactory, mockSocket);
+
+        config.setSocketFactory(mockFactory);
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(ourServer.getInetSocketAddress());
+
+        try {
+            myTestConnection = new SocketConnection(server, config);
+            fail("Should have thrown an SocketException");
+        }
+        catch (final SocketException good) {
+            assertThat(good, sameInstance(thrown));
+        }
+
+        verify(mockFactory, mockSocket);
+    }
+
+    /**
+     * Test method for
+     * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
+     * .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testSocketOptionsFailureFromUnixDomainSockets()
+            throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        final SocketFactory mockFactory = createMock(SocketFactory.class);
+        final Socket mockSocket = createMock(Socket.class);
+
+        final SocketException thrown = new AFUNIXSocketException();
+        expect(mockFactory.createSocket()).andReturn(mockSocket);
+
+        mockSocket.connect(ourServer.getInetSocketAddress(),
+                config.getConnectTimeout());
+        expectLastCall();
+
+        mockSocket.setKeepAlive(config.isUsingSoKeepalive());
+        expectLastCall();
+        mockSocket.setSoTimeout(config.getReadTimeout());
+        expectLastCall();
+        mockSocket.setTcpNoDelay(true);
+        expectLastCall().andThrow(thrown);
+        mockSocket.setPerformancePreferences(1, 5, 6);
+        expectLastCall();
+        expect(mockSocket.getInputStream()).andReturn(
+                new ByteArrayInputStream(new byte[0]));
+        expect(mockSocket.getOutputStream()).andReturn(
+                new ByteArrayOutputStream());
+        expect(mockSocket.getLocalPort()).andReturn(12345);
+
+        mockSocket.close();
+        expectLastCall();
+
+        replay(mockFactory, mockSocket);
+
+        config.setSocketFactory(mockFactory);
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(ourServer.getInetSocketAddress());
+
+        myTestConnection = new SocketConnection(server, config);
+        myTestConnection.close();
+        myTestConnection = null;
+
+        verify(mockFactory, mockSocket);
     }
 
     /**
@@ -2313,7 +2701,6 @@ public class SocketConnectionTest {
 
         final Update update = new Update("foo", "bar", doc, doc, false, false);
         myTestConnection.send(update, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -2378,7 +2765,6 @@ public class SocketConnectionTest {
 
         final Update update = new Update("foo", "bar", doc, doc, true, false);
         myTestConnection.send(update, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -2443,7 +2829,6 @@ public class SocketConnectionTest {
 
         final Update update = new Update("foo", "bar", doc, doc, false, true);
         myTestConnection.send(update, null);
-        myTestConnection.waitForPending(1, TimeUnit.SECONDS.toMillis(10));
 
         assertTrue("Should receive the request after flush.",
                 ourServer.waitForRequest(1, TimeUnit.SECONDS.toMillis(10)));
@@ -2481,6 +2866,56 @@ public class SocketConnectionTest {
     }
 
     /**
+     * Test method for {@link SocketConnection#shutdown} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws InterruptedException
+     *             On a failure to sleep.
+     */
+    @Test
+    public void testWaitForClosedWhenInterrupted() throws IOException,
+            InterruptedException {
+        // From the BSON specification.
+        final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
+                (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
+                0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
+                (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
+
+        final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
+        final IntBuffer buff = byteBuff.asIntBuffer();
+        buff.put(0, (7 * 4) + 8 + helloWorld.length);
+        buff.put(1, 0);
+        buff.put(2, EndianUtils.swap(1));
+        buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));
+        buff.put(4, 0);
+        buff.put(5, 0);
+        buff.put(6, 0);
+        buff.put(7, 0);
+        buff.put(8, EndianUtils.swap(1));
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(byteBuff.array());
+        out.write(helloWorld);
+        ourServer.setReplies(Arrays.asList(out.toByteArray()));
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.setReadTimeout(100);
+        myTestConnection = new SocketConnection(myTestServer, config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        myTestConnection.shutdown();
+        Thread.currentThread().interrupt();
+        myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
+
+        assertTrue(myTestConnection.isIdle());
+        assertFalse(myTestConnection.isOpen());
+
+    }
+
+    /**
      * Waits for the capture to have been set.
      * 
      * @param capture
@@ -2501,6 +2936,19 @@ public class SocketConnectionTest {
             }
             now = System.currentTimeMillis();
         }
+    }
+
+    /**
+     * AFUNIXSocketException provides a test instance of the Unix domain socket
+     * exception.
+     * 
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static final class AFUNIXSocketException extends SocketException {
+
+        /** The serialization id for the class. */
+        private static final long serialVersionUID = 1433767421262380441L;
+
     }
 
     /**

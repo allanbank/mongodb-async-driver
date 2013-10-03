@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -122,6 +123,73 @@ public class BootstrapConnectionFactoryTest {
         }
         catch (final CannotConnectException good) {
             // Good.
+        }
+    }
+
+    /**
+     * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
+     * 
+     * @throws UnknownHostException
+     *             On a failure to resolve localhost.
+     */
+    @Test
+    public void testBootstrapInterrupted() throws UnknownHostException {
+        final DocumentBuilder replStatusBuilder = BuilderFactory.start();
+        replStatusBuilder.addString("process", "mongod");
+
+        ourServer.setReplies(reply(replStatusBuilder));
+
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                ourServer.getInetSocketAddress());
+
+        config.setAutoDiscoverServers(false);
+
+        myTestFactory = new BootstrapConnectionFactory(config);
+
+        Thread.currentThread().interrupt();
+        try {
+            myTestFactory.getDelegate();
+            fail("Should have failed.");
+        }
+        catch (final CannotConnectException error) {
+            // Good
+        }
+
+        // Try again and it should work (not interrupted any more).
+        assertThat("Wrong type of myTestFactory.", myTestFactory.getDelegate(),
+                instanceOf(SocketConnectionFactory.class));
+        assertThat(myTestFactory.getReconnectStrategy(),
+                instanceOf(SimpleReconnectStrategy.class));
+        assertEquals(ClusterType.STAND_ALONE, myTestFactory.getClusterType());
+    }
+
+    /**
+     * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
+     * 
+     * @throws UnknownHostException
+     *             On a failure to resolve localhost.
+     */
+    @Test
+    public void testBootstrapNotOkReply() throws UnknownHostException {
+        final DocumentBuilder replStatusBuilder = BuilderFactory.start();
+        replStatusBuilder.addString("process", "mongod").add("ok", 0);
+
+        ourServer.setReplies(reply(replStatusBuilder));
+
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                ourServer.getInetSocketAddress());
+
+        config.setAutoDiscoverServers(false);
+
+        myTestFactory = new BootstrapConnectionFactory(config);
+
+        Thread.currentThread().interrupt();
+        try {
+            myTestFactory.getDelegate();
+            fail("Should have failed.");
+        }
+        catch (final CannotConnectException error) {
+            // Good
         }
     }
 

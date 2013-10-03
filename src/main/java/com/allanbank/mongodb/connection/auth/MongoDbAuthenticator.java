@@ -258,11 +258,6 @@ public class MongoDbAuthenticator implements Authenticator {
          */
         @Override
         protected void handle(final Reply reply) {
-            final MongoDbException exception = asError(reply);
-            if (exception != null) {
-                exception(exception);
-                return;
-            }
 
             StringElement nonce = null;
             if (reply.getResults().size() > 0) {

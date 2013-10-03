@@ -19,6 +19,7 @@ import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.describedAs;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -32,12 +33,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
@@ -49,6 +52,7 @@ import com.allanbank.mongodb.connection.Connection;
 import com.allanbank.mongodb.connection.MockMongoDBServer;
 import com.allanbank.mongodb.connection.ReconnectStrategy;
 import com.allanbank.mongodb.connection.message.IsMaster;
+import com.allanbank.mongodb.connection.message.ReplicaSetStatus;
 import com.allanbank.mongodb.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.connection.state.Server;
@@ -463,6 +467,159 @@ public class ReplicaSetConnectionFactoryTest {
      * 
      * @throws IOException
      *             On a failure.
+     * @throws InterruptedException
+     *             On a failure.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testConnectReplyWeird() throws IOException,
+            InterruptedException {
+        final String serverName = "foo:27017";
+
+        final DocumentBuilder replStatusBuilder = BuilderFactory
+                .start(PRIMARY_UPDATE);
+        replStatusBuilder.add("me", serverName);
+        replStatusBuilder.push("repl");
+        replStatusBuilder.addString("primary", serverName);
+        replStatusBuilder.pushArray("hosts").addString(serverName);
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer(serverName);
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        // The request to find the cluster.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // Now the ping sweep.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        expect(
+                mockConnection.send(eq(new ReplicaSetStatus()),
+                        cb(replStatusBuilder))).andReturn(serverName);
+        mockConnection.shutdown();
+        expectLastCall();
+
+        //
+        // End of the constructor... Now for the connect.
+        //
+
+        // Any empty reply.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb())).andReturn(
+                serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // Locate the primary...
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // An Interrupted thread...
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andAnswer(new IAnswer<Connection>() {
+                    @Override
+                    public Connection answer() throws Throwable {
+                        // For the next check....
+                        Thread.currentThread().interrupt();
+                        return mockConnection;
+                    }
+                });
+        expect(
+                mockConnection.send(eq(new IsMaster()),
+                        anyObject(Callback.class))).andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // Locate the primary...
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // Execution error.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(
+                mockConnection.send(eq(new IsMaster()), cb(new IOException(
+                        "Injected.")))).andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // Locate the primary...
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // No primary field in reply.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(
+                mockConnection.send(eq(new IsMaster()),
+                        cb(start(PRIMARY_UPDATE)))).andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // Locate the primary...
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // Finally success...
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        expect(mockConnection.getServerName()).andReturn(serverName);
+
+        // A clean close.
+        mockConnection.close();
+        expectLastCall();
+        mockFactory.close();
+        expectLastCall();
+
+        replay(mockFactory, mockConnection);
+
+        try {
+            myTestFactory = new ReplicaSetConnectionFactory(mockFactory, config);
+
+            final Connection connection = myTestFactory.connect();
+            IOUtils.close(connection);
+        }
+        finally {
+            IOUtils.close(myTestFactory);
+            myTestFactory = null;
+        }
+
+        verify(mockFactory, mockConnection);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnectionFactory#connect()}.
+     * 
+     * @throws IOException
+     *             On a failure.
      */
     @Test
     public void testConnectThrowsExecutionError() throws IOException {
@@ -529,6 +686,84 @@ public class ReplicaSetConnectionFactoryTest {
      * 
      * @throws IOException
      *             On a failure.
+     * @throws InterruptedException
+     *             On a failure.
+     */
+    @Test
+    public void testConnectThrowsIOException() throws IOException,
+            InterruptedException {
+        final String serverName = "foo:27017";
+
+        final DocumentBuilder replStatusBuilder = BuilderFactory
+                .start(PRIMARY_UPDATE);
+        replStatusBuilder.add("me", serverName);
+        replStatusBuilder.push("repl");
+        replStatusBuilder.addString("primary", serverName);
+        replStatusBuilder.pushArray("hosts").addString(serverName);
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer(serverName);
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        // The request to find the cluster.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // Now the ping sweep.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        expect(
+                mockConnection.send(eq(new ReplicaSetStatus()),
+                        cb(replStatusBuilder))).andReturn(serverName);
+        mockConnection.shutdown();
+        expectLastCall();
+
+        //
+        // End of the constructor... Now for the connect.
+        //
+
+        final IOException thrown = new IOException("Injected");
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andThrow(thrown).times(10);
+
+        // A clean close.
+        mockFactory.close();
+        expectLastCall();
+
+        replay(mockFactory, mockConnection);
+
+        try {
+            myTestFactory = new ReplicaSetConnectionFactory(mockFactory, config);
+
+            final Connection connection = myTestFactory.connect();
+            IOUtils.close(connection);
+            fail("Should have failed to connect.");
+        }
+        catch (final IOException ioe) {
+            // Good.
+            assertThat(ioe, sameInstance(thrown));
+        }
+        finally {
+            IOUtils.close(myTestFactory);
+            myTestFactory = null;
+        }
+
+        verify(mockFactory, mockConnection);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnectionFactory#connect()}.
+     * 
+     * @throws IOException
+     *             On a failure.
      */
     @Test
     public void testConnectThrowsMongoError() throws IOException {
@@ -560,6 +795,74 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Reset the mock factory for a close in tearDown.
         reset(mockFactory, mockConnection);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnectionFactory#connect()}.
+     * 
+     * @throws IOException
+     *             On a failure.
+     * @throws InterruptedException
+     *             On a failure.
+     */
+    @Test
+    public void testExceptionsInBootstrap() throws IOException,
+            InterruptedException {
+        final String serverName = "foo:27017";
+
+        final DocumentBuilder replStatusBuilder = BuilderFactory
+                .start(PRIMARY_UPDATE);
+        replStatusBuilder.add("me", serverName);
+        replStatusBuilder.push("repl");
+        replStatusBuilder.addString("primary", serverName);
+        replStatusBuilder.pushArray("hosts").addString(serverName);
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer(serverName);
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        // The request to find the cluster.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(
+                mockConnection.send(eq(new IsMaster()), cb(new IOException(
+                        "Injected.")))).andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // Now the ping sweep.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        expect(
+                mockConnection.send(eq(new ReplicaSetStatus()),
+                        cb(replStatusBuilder))).andReturn(serverName);
+        mockConnection.shutdown();
+        expectLastCall();
+
+        //
+        // End of the constructor... Now for the connect.
+        //
+
+        // A clean close.
+        mockFactory.close();
+        expectLastCall();
+
+        replay(mockFactory, mockConnection);
+
+        try {
+            Thread.currentThread().interrupt();
+            myTestFactory = new ReplicaSetConnectionFactory(mockFactory, config);
+        }
+        finally {
+            IOUtils.close(myTestFactory);
+            myTestFactory = null;
+        }
+
+        verify(mockFactory, mockConnection);
     }
 
     /**
@@ -621,5 +924,74 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Reset the mock factory for a close in tearDown.
         reset(mockFactory);
+    }
+
+    /**
+     * Test method for {@link ReplicaSetConnectionFactory#connect()}.
+     * 
+     * @throws IOException
+     *             On a failure.
+     * @throws InterruptedException
+     *             On a failure.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testInterruptedBootstrap() throws IOException,
+            InterruptedException {
+        final String serverName = "foo:27017";
+
+        final DocumentBuilder replStatusBuilder = BuilderFactory
+                .start(PRIMARY_UPDATE);
+        replStatusBuilder.add("me", serverName);
+        replStatusBuilder.push("repl");
+        replStatusBuilder.addString("primary", serverName);
+        replStatusBuilder.pushArray("hosts").addString(serverName);
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer(serverName);
+
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+        final Connection mockConnection = createMock(Connection.class);
+
+        // The request to find the cluster.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(
+                mockConnection.send(eq(new IsMaster()),
+                        anyObject(Callback.class))).andReturn(serverName);
+        mockConnection.close();
+        expectLastCall();
+
+        // Now the ping sweep.
+        expect(mockFactory.connect(anyObject(Server.class), eq(config)))
+                .andReturn(mockConnection);
+        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
+                .andReturn(serverName);
+        expect(
+                mockConnection.send(eq(new ReplicaSetStatus()),
+                        cb(replStatusBuilder))).andReturn(serverName);
+        mockConnection.shutdown();
+        expectLastCall();
+
+        //
+        // End of the constructor... Now for the connect.
+        //
+
+        // A clean close.
+        mockFactory.close();
+        expectLastCall();
+
+        replay(mockFactory, mockConnection);
+
+        try {
+            Thread.currentThread().interrupt();
+            myTestFactory = new ReplicaSetConnectionFactory(mockFactory, config);
+        }
+        finally {
+            IOUtils.close(myTestFactory);
+            myTestFactory = null;
+        }
+
+        verify(mockFactory, mockConnection);
     }
 }
