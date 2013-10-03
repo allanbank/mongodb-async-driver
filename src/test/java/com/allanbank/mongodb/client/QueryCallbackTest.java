@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.client;
 
-import static com.allanbank.mongodb.connection.CallbackReply.reply;
+import static com.allanbank.mongodb.client.connection.CallbackReply.reply;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.replay;
@@ -30,8 +30,8 @@ import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.connection.message.Query;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.message.Query;
+import com.allanbank.mongodb.client.connection.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;

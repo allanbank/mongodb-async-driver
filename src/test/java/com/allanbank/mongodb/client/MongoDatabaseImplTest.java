@@ -33,9 +33,9 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.connection.message.Command;
-import com.allanbank.mongodb.connection.message.Query;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.message.Command;
+import com.allanbank.mongodb.client.connection.message.Query;
+import com.allanbank.mongodb.client.connection.message.Reply;
 
 /**
  * MongoDatabaseImplTest provides tests for the {@link MongoDatabaseImpl} class.

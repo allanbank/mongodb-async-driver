@@ -10,7 +10,7 @@ import java.util.List;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.message.Reply;
 import com.allanbank.mongodb.error.ReplyException;
 
 /**

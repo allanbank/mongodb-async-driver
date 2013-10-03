@@ -12,7 +12,7 @@ import static org.junit.Assert.assertSame;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-import com.allanbank.mongodb.connection.Message;
+import com.allanbank.mongodb.client.connection.Message;
 
 /**
  * MongoClientClosedExceptionTest provides tests for the

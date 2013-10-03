@@ -27,7 +27,7 @@ import org.junit.Test;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.message.Reply;
 import com.allanbank.mongodb.error.ReplyException;
 import com.allanbank.mongodb.error.ShardConfigStaleException;
 

@@ -13,7 +13,7 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.DocumentElement;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.message.Reply;
 
 /**
  * Callback to extract the map/reduce and aggregation results from the reply.
@@ -57,7 +57,7 @@ public class ReplyResultCallback extends AbstractReplyCallback<List<Document>> {
      * Overridden to extract the 'results' elements from the reply.
      * </p>
      * 
-     * @see com.allanbank.mongodb.client.AbstractReplyCallback#convert(com.allanbank.mongodb.connection.message.Reply)
+     * @see com.allanbank.mongodb.client.AbstractReplyCallback#convert(com.allanbank.mongodb.client.connection.message.Reply)
      */
     @Override
     protected List<Document> convert(final Reply reply) throws MongoDbException {

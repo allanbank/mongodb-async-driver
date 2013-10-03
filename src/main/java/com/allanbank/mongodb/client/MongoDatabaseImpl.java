@@ -26,9 +26,9 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.connection.FutureCallback;
-import com.allanbank.mongodb.connection.message.Command;
-import com.allanbank.mongodb.connection.message.Query;
+import com.allanbank.mongodb.client.connection.FutureCallback;
+import com.allanbank.mongodb.client.connection.message.Command;
+import com.allanbank.mongodb.client.connection.message.Query;
 import com.allanbank.mongodb.util.FutureUtils;
 
 /**

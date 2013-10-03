@@ -14,7 +14,7 @@ import org.junit.AfterClass;
 
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.connection.auth.MongoDbAuthenticator;
+import com.allanbank.mongodb.client.connection.auth.MongoDbAuthenticator;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**

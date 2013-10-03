@@ -8,8 +8,8 @@ package com.allanbank.mongodb.client;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.connection.message.Query;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.message.Query;
+import com.allanbank.mongodb.client.connection.message.Reply;
 
 /**
  * Callback to convert a {@link Query} {@link Reply} into a single document.

@@ -10,7 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import com.allanbank.mongodb.connection.auth.Authenticator;
+import com.allanbank.mongodb.client.connection.auth.Authenticator;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**
@@ -68,7 +68,7 @@ public final class Credential implements Serializable {
 
     static {
         KERBEROS = "com.allanbank.mongodb.extensions.authentication.KerberosAuthenticator";
-        MONGODB_CR = "com.allanbank.mongodb.connection.auth.MongoDbAuthenticator";
+        MONGODB_CR = "com.allanbank.mongodb.client.connection.auth.MongoDbAuthenticator";
     }
 
     /**

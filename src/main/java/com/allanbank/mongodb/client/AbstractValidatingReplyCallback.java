@@ -15,7 +15,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.element.NullElement;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
 import com.allanbank.mongodb.error.QueryFailedException;

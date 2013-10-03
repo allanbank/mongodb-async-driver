@@ -33,8 +33,8 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
-import com.allanbank.mongodb.connection.FutureCallback;
-import com.allanbank.mongodb.connection.message.GetLastError;
+import com.allanbank.mongodb.client.connection.FutureCallback;
+import com.allanbank.mongodb.client.connection.message.GetLastError;
 import com.allanbank.mongodb.util.FutureUtils;
 
 /**

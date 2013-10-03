@@ -15,9 +15,9 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
-import com.allanbank.mongodb.connection.ClusterType;
-import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.ClusterType;
+import com.allanbank.mongodb.client.connection.Message;
+import com.allanbank.mongodb.client.connection.message.Reply;
 
 /**
  * Unified client interface to MongoDB.

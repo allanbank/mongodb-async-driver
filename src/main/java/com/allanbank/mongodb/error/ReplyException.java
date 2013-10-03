@@ -6,8 +6,8 @@
 package com.allanbank.mongodb.error;
 
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.Message;
+import com.allanbank.mongodb.client.connection.message.Reply;
 
 /**
  * Base class exception for all reply errors.

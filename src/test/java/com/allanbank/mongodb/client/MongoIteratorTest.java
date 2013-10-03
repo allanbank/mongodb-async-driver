@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.client;
 
-import static com.allanbank.mongodb.connection.CallbackReply.cb;
+import static com.allanbank.mongodb.client.connection.CallbackReply.cb;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createStrictMock;
@@ -39,10 +39,10 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.connection.message.GetMore;
-import com.allanbank.mongodb.connection.message.KillCursors;
-import com.allanbank.mongodb.connection.message.Query;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.message.GetMore;
+import com.allanbank.mongodb.client.connection.message.KillCursors;
+import com.allanbank.mongodb.client.connection.message.Query;
+import com.allanbank.mongodb.client.connection.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 
 /**

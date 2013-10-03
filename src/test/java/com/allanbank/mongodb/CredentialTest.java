@@ -28,7 +28,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.allanbank.mongodb.connection.auth.MongoDbAuthenticator;
+import com.allanbank.mongodb.client.connection.auth.MongoDbAuthenticator;
 
 /**
  * CredentialTest provides tests for the {@link Credential} class.

@@ -17,9 +17,9 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
-import com.allanbank.mongodb.connection.ClusterType;
-import com.allanbank.mongodb.connection.Connection;
-import com.allanbank.mongodb.connection.Message;
+import com.allanbank.mongodb.client.connection.ClusterType;
+import com.allanbank.mongodb.client.connection.Connection;
+import com.allanbank.mongodb.client.connection.Message;
 
 /**
  * A specialization of the {@link ClientImpl} to always try to use the same

@@ -7,7 +7,7 @@ package com.allanbank.mongodb.error;
 
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.connection.Message;
+import com.allanbank.mongodb.client.connection.Message;
 
 /**
  * MongoClientClosedException is thrown when there is an attempt to send a

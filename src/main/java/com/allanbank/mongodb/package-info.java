@@ -18,7 +18,7 @@
  * <p>
  * In the <a href="client/package-summary.html">com.allanbank.mongodb.client</a> package are the implementation 
  * of the primary interfaces for the driver and support classes to convert 
- * {@link com.allanbank.mongodb.connection.message.Reply}(s) from the server into a more user friendly format.
+ * {@link com.allanbank.mongodb.client.connection.message.Reply}(s) from the server into a more user friendly format.
  * </p>
  * <p>
  * To facilitate constructing queries and the more complex commands to the MongoDB servers a set 
@@ -28,10 +28,6 @@
  * <p>
  * Exceptions (all inheriting from {@link com.allanbank.mongodb.MongoDbException} are located in the 
  * <a href="error/package-summary.html">com.allanbank.mongodb.error</a> package.
- * </p>
- * <p>
- * Lastly, the <a href="connection/package-summary.html">com.allanbank.mongodb.connection</a> package contains the 
- * heart of the driver.  Most users of the driver will not need to use any of the classes in this package.
  * </p>
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved

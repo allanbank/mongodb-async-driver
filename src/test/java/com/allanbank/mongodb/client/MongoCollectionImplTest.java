@@ -59,14 +59,14 @@ import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Sort;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
-import com.allanbank.mongodb.connection.ClusterType;
-import com.allanbank.mongodb.connection.message.Command;
-import com.allanbank.mongodb.connection.message.Delete;
-import com.allanbank.mongodb.connection.message.GetLastError;
-import com.allanbank.mongodb.connection.message.Insert;
-import com.allanbank.mongodb.connection.message.Query;
-import com.allanbank.mongodb.connection.message.Reply;
-import com.allanbank.mongodb.connection.message.Update;
+import com.allanbank.mongodb.client.connection.ClusterType;
+import com.allanbank.mongodb.client.connection.message.Command;
+import com.allanbank.mongodb.client.connection.message.Delete;
+import com.allanbank.mongodb.client.connection.message.GetLastError;
+import com.allanbank.mongodb.client.connection.message.Insert;
+import com.allanbank.mongodb.client.connection.message.Query;
+import com.allanbank.mongodb.client.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.message.Update;
 import com.allanbank.mongodb.error.ReplyException;
 
 /**

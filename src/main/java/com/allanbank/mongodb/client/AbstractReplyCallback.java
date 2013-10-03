@@ -6,7 +6,7 @@ package com.allanbank.mongodb.client;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.connection.message.Reply;
+import com.allanbank.mongodb.client.connection.message.Reply;
 
 /**
  * Helper class for constructing callbacks that convert a {@link Reply} message
