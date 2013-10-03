@@ -60,7 +60,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * The initial amount of time to pause waiting for a server to take over as
      * the primary.
      */
-    public static final int INITIAL_RECONNECT_PAUSE_TIME_MS = 100;
+    public static final int INITIAL_RECONNECT_PAUSE_TIME_MS = 10;
 
     /**
      * The Maximum amount of time to pause waiting for a server to take over as
@@ -88,22 +88,35 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * </p>
      */
     @Override
-    public ReplicaSetConnection reconnect(final Connection oldConnection) {
+    public synchronized ReplicaSetConnection reconnect(
+            final Connection oldConnection) {
 
         LOG.fine("Trying replica set reconnect.");
-
         final Cluster state = getState();
+
+        // Figure out a deadline for the reconnect.
+        final int wait = getConfig().getReconnectTimeout();
+        long now = System.currentTimeMillis();
+        final long deadline = (wait <= 0) ? Long.MAX_VALUE : (now + wait);
 
         final Map<Server, Future<Reply>> answers = new HashMap<Server, Future<Reply>>();
         final Map<Server, Connection> connections = new HashMap<Server, Connection>();
-        try {
-            // Figure out a deadline for the reconnect.
-            final int wait = getConfig().getReconnectTimeout();
-            long now = System.currentTimeMillis();
-            final long deadline = (wait <= 0) ? Long.MAX_VALUE : (now + wait);
 
-            // How much time to pause for replies and waiting for a server to
-            // become primary.
+        // Clear any interrupts
+        final boolean interrupted = Thread.interrupted();
+        try {
+            // First try a simple reconnect.
+            for (final Server writable : state.getWritableServers()) {
+                if (verifyPutative(answers, connections,
+                        writable.getCanonicalName(), deadline)) {
+                    LOG.fine("New primary for replica set: "
+                            + writable.getCanonicalName());
+                    return createReplicaSetConnection(connections, writable);
+                }
+            }
+
+            // How much time to pause for replies and waiting for a server
+            // to become primary.
             int pauseTime = INITIAL_RECONNECT_PAUSE_TIME_MS;
             while (now < deadline) {
                 // Ask all of the servers who they think the primary is.
@@ -141,6 +154,9 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
             // Shut down the connections we created.
             for (final Connection conn : connections.values()) {
                 IOUtils.close(conn);
+            }
+            if (interrupted) {
+                Thread.currentThread().interrupt();
             }
         }
         return null;
@@ -193,14 +209,9 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                     // suitable server.
                     final Server primaryServer = getState().get(putative);
 
-                    final Connection primaryConn = connections
-                            .remove(primaryServer);
-
-                    final ReplicaSetConnection newRsConn = new ReplicaSetConnection(
-                            primaryConn, primaryServer, getState(),
-                            getConnectionFactory(), getConfig());
-
-                    return newRsConn;
+                    LOG.info("New primary for replica set: " + putative);
+                    return createReplicaSetConnection(connections,
+                            primaryServer);
                 }
             }
             else {
@@ -366,10 +377,27 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                 true);
         final String primary = checkReply(reply, connections, server, deadline);
         if (putativePrimary.equals(primary)) {
-            LOG.info("New primary for replica set: " + putativePrimary);
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Creates the {@link ReplicaSetConnection} for the primary server.
+     * 
+     * @param connections
+     *            The connection that are being managed.
+     * @param primaryServer
+     *            The primary server.
+     * @return The {@link ReplicaSetConnection}.
+     */
+    private ReplicaSetConnection createReplicaSetConnection(
+            final Map<Server, Connection> connections,
+            final Server primaryServer) {
+        final Connection primaryConn = connections.remove(primaryServer);
+
+        return new ReplicaSetConnection(primaryConn, primaryServer, getState(),
+                getConnectionFactory(), getConfig());
     }
 }

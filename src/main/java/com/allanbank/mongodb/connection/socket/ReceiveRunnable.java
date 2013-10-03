@@ -5,13 +5,9 @@
 
 package com.allanbank.mongodb.connection.socket;
 
-import java.io.StreamCorruptedException;
 import java.util.logging.Level;
 
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.connection.Message;
-import com.allanbank.mongodb.connection.message.PendingMessage;
-import com.allanbank.mongodb.connection.message.Reply;
 import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -23,9 +19,6 @@ import com.allanbank.mongodb.util.IOUtils;
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 /* package */class ReceiveRunnable implements Runnable {
-
-    /** The {@link PendingMessage} used for the local cached copy. */
-    private final PendingMessage myPendingMessage = new PendingMessage();
 
     /** The socket we are reading from. */
     private final AbstractSocketConnection mySocketConnection;
@@ -46,20 +39,20 @@ import com.allanbank.mongodb.util.IOUtils;
     @Override
     public void run() {
         try {
-            while (mySocketConnection.myOpen.get()) {
+            while (mySocketConnection.isOpen()) {
                 try {
-                    receiveOne();
+                    mySocketConnection.doReceiveOne();
 
                     // Check if we are shutdown. Note the shutdown() method
                     // makes sure the last message gets a reply.
-                    if (mySocketConnection.myShutdown.get()
+                    if (mySocketConnection.isShuttingDown()
                             && mySocketConnection.isIdle()) {
                         // All done.
                         return;
                     }
                 }
                 catch (final MongoDbException error) {
-                    if (mySocketConnection.myOpen.get()) {
+                    if (mySocketConnection.isOpen()) {
                         mySocketConnection.myLog.log(
                                 Level.WARNING,
                                 "Error reading a message: "
@@ -76,57 +69,6 @@ import com.allanbank.mongodb.util.IOUtils;
         finally {
             // Make sure the connection is closed completely.
             IOUtils.close(mySocketConnection);
-        }
-    }
-
-    /**
-     * Receives and process a single message.
-     */
-    protected final void receiveOne() {
-        final Message received = mySocketConnection.doReceive();
-        if (received instanceof Reply) {
-            final Reply reply = (Reply) received;
-            final int replyId = reply.getResponseToId();
-            boolean took = false;
-
-            // Keep polling the pending queue until we get to
-            // message based on a matching replyId.
-            try {
-                took = mySocketConnection.myPendingQueue.poll(myPendingMessage);
-                while (took && (myPendingMessage.getMessageId() != replyId)) {
-
-                    final MongoDbException noReply = new MongoDbException(
-                            "No reply received.");
-
-                    // Note that this message will not get a reply.
-                    mySocketConnection.raiseError(noReply,
-                            myPendingMessage.getReplyCallback());
-
-                    // Keep looking.
-                    took = mySocketConnection.myPendingQueue
-                            .poll(myPendingMessage);
-                }
-
-                if (took) {
-                    // Must be the pending message's reply.
-                    mySocketConnection.reply(reply, myPendingMessage);
-                }
-                else {
-                    mySocketConnection.myLog
-                            .warning("Could not find the callback for reply '"
-                                    + replyId + "'.");
-                }
-            }
-            finally {
-                myPendingMessage.clear();
-            }
-        }
-        else if (received != null) {
-            mySocketConnection.myLog.warning("Received a non-Reply message: "
-                    + received);
-            mySocketConnection.shutdown(new ConnectionLostException(
-                    new StreamCorruptedException(
-                            "Received a non-Reply message: " + received)));
         }
     }
 }

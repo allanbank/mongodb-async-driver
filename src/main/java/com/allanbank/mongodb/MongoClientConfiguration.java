@@ -147,6 +147,15 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     private int myMaxConnectionCount = 3;
 
     /**
+     * Determines the number of read timeouts (a tick) before closing the
+     * connection.
+     * <p>
+     * Defaults to {@link Integer#MAX_VALUE}.
+     * </p>
+     */
+    private int myMaxIdleTickCount = Integer.MAX_VALUE;
+
+    /**
      * Determines the maximum number of pending operations to allow per
      * connection. The higher the value the more "asynchronous" the driver can
      * be but risks more operations being in an unknown state on a connection
@@ -171,6 +180,14 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * </p>
      */
     private long myMaxSecondaryLag = TimeUnit.MINUTES.toMillis(5);
+
+    /**
+     * Determines the minimum number of connections to try and keep open.
+     * <p>
+     * Defaults to 0.
+     * </p>
+     */
+    private int myMinConnectionCount = 0;
 
     /**
      * Determines how long to wait (in milliseconds) for a socket read to
@@ -251,11 +268,13 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         myDefaultDurability = other.getDefaultDurability();
         myDefaultReadPreference = other.getDefaultReadPreference();
         myExecutor = other.getExecutor();
+        myMaxIdleTickCount = other.getMaxIdleTickCount();
         myLockType = other.getLockType();
         myMaxConnectionCount = other.getMaxConnectionCount();
         myMaxPendingOperationsPerConnection = other
                 .getMaxPendingOperationsPerConnection();
         myMaxSecondaryLag = other.getMaxSecondaryLag();
+        myMinConnectionCount = other.getMinConnectionCount();
         myReadTimeout = other.getReadTimeout();
         myReconnectTimeout = other.getReconnectTimeout();
         mySocketFactory = other.getSocketFactory();
@@ -762,6 +781,20 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the number of read timeouts (a tick) before closing the
+     * connection.
+     * <p>
+     * Defaults to {@link Integer#MAX_VALUE}.
+     * </p>
+     * 
+     * @return The number of read timeouts (a tick) before closing the
+     *         connection.
+     */
+    public int getMaxIdleTickCount() {
+        return myMaxIdleTickCount;
+    }
+
+    /**
      * Returns the maximum number of pending operations to allow per connection.
      * The higher the value the more "asynchronous" the driver can be but risks
      * more operations being in an unknown state on a connection error. When the
@@ -797,6 +830,18 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public long getMaxSecondaryLag() {
         return myMaxSecondaryLag;
+    }
+
+    /**
+     * Returns the minimum number of connections to try and keep open.
+     * <p>
+     * Defaults to 0.
+     * </p>
+     * 
+     * @return The minimum number of connections to try and keep open.
+     */
+    public int getMinConnectionCount() {
+        return myMinConnectionCount;
     }
 
     /**
@@ -1142,6 +1187,18 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Sets the value of the number of read timeouts (a tick) before closing the
+     * connection.
+     * 
+     * @param idleTickCount
+     *            The new value for the number of read timeouts (a tick) before
+     *            closing the connection.
+     */
+    public void setMaxIdleTickCount(final int idleTickCount) {
+        myMaxIdleTickCount = idleTickCount;
+    }
+
+    /**
      * Sets the maximum number of pending operations to allow per connection.
      * The higher the value the more "asynchronous" the driver can be but risks
      * more operations being in an unknown state on a connection error. When the
@@ -1172,6 +1229,17 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public void setMaxSecondaryLag(final long maxSecondaryLag) {
         myMaxSecondaryLag = maxSecondaryLag;
+    }
+
+    /**
+     * Sets the value of the minimum number of connections to try and keep open.
+     * 
+     * @param minimumConnectionCount
+     *            The new value for the minimum number of connections to try and
+     *            keep open.
+     */
+    public void setMinConnectionCount(final int minimumConnectionCount) {
+        myMinConnectionCount = minimumConnectionCount;
     }
 
     /**

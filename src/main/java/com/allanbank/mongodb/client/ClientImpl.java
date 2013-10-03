@@ -342,11 +342,20 @@ public class ClientImpl extends AbstractClient {
         // Look for the connection in the "active" set first.
         if (myConnections.contains(connection)) {
             // Is it a graceful shutdown?
-            if (connection.isShuttingDown()) {
-                LOG.info("MongoDB Connection closed: " + connection);
-                connection.removePropertyChangeListener(myConnectionListener);
-                connection.raiseErrors(new ConnectionLostException(
-                        "Connection shutdown."));
+            if (connection.isShuttingDown() && myConnections.remove(connection)) {
+
+                if (myConnections.size() < myConfig.getMinConnectionCount()) {
+                    LOG.fine("MongoDB Connection closed: " + connection
+                            + ". Will try to reconnect.");
+                    reconnect(connection);
+                }
+                else {
+                    LOG.info("MongoDB Connection closed: " + connection);
+                    connection
+                            .removePropertyChangeListener(myConnectionListener);
+                    connection.raiseErrors(new ConnectionLostException(
+                            "Connection shutdown."));
+                }
             }
             else {
                 // Attempt a reconnect.

@@ -149,6 +149,61 @@ public class SocketConnectionTest {
     }
 
     /**
+     * Test method for {@link SocketConnection}.
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     * @throws ExecutionException
+     *             On a failure waiting for a reply.
+     * @throws InterruptedException
+     *             On a failure waiting for a reply.
+     * @throws TimeoutException
+     *             On a failure waiting for a reply.
+     */
+    @Test
+    public void testAutoClose() throws IOException, InterruptedException,
+            ExecutionException, TimeoutException {
+
+        // From the BSON specification.
+        final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
+                (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
+                0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
+                (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
+
+        final ByteBuffer byteBuff = ByteBuffer.allocate(9 * 4);
+        final IntBuffer buff = byteBuff.asIntBuffer();
+        buff.put(0, EndianUtils.swap((7 * 4) + 8 + helloWorld.length));
+        buff.put(1, 0);
+        buff.put(2, EndianUtils.swap(1));
+        buff.put(3, EndianUtils.swap(Operation.REPLY.getCode()));
+        buff.put(4, 0);
+        buff.put(5, 0);
+        buff.put(6, 0);
+        buff.put(7, 0);
+        buff.put(8, EndianUtils.swap(1));
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(byteBuff.array());
+        out.write(helloWorld);
+        ourServer.setReplies(Arrays.asList(out.toByteArray()));
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.setReadTimeout(100);
+        config.setMaxIdleTickCount(3);
+
+        myTestConnection = new SocketConnection(myTestServer, config);
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        assertTrue("Should have disconnected from the server.",
+                ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10)));
+
+        assertThat(myTestConnection.isOpen(), is(false));
+    }
+
+    /**
      * Test method for {@link SocketConnection#close()}.
      * 
      * @throws IOException

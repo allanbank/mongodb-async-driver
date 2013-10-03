@@ -11,6 +11,7 @@ import java.io.BufferedOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StreamCorruptedException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -93,6 +94,15 @@ public abstract class AbstractSocketConnection implements Connection {
     /** The open socket. */
     protected final Socket mySocket;
 
+    /** The connections configuration. */
+    private final MongoClientConfiguration myConfig;
+
+    /** Tracks the number of sequential read timeouts. */
+    private int myIdleTicks = 0;
+
+    /** The {@link PendingMessage} used for the local cached copy. */
+    private final PendingMessage myPendingMessage = new PendingMessage();
+
     /**
      * Creates a new AbstractSocketConnection.
      * 
@@ -110,10 +120,12 @@ public abstract class AbstractSocketConnection implements Connection {
             IOException {
         super();
 
+        myServer = server;
+        myConfig = config;
+
         myLog = Logger.getLogger(getClass().getCanonicalName());
 
         myExecutor = config.getExecutor();
-        myServer = server;
         myEventSupport = new PropertyChangeSupport(this);
         myOpen = new AtomicBoolean(false);
         myShutdown = new AtomicBoolean(false);
@@ -381,6 +393,60 @@ public abstract class AbstractSocketConnection implements Connection {
     }
 
     /**
+     * Receives and process a single message.
+     */
+    protected void doReceiveOne() {
+        final Message received = doReceive();
+        if (received instanceof Reply) {
+            myIdleTicks = 0;
+            final Reply reply = (Reply) received;
+            final int replyId = reply.getResponseToId();
+            boolean took = false;
+
+            // Keep polling the pending queue until we get to
+            // message based on a matching replyId.
+            try {
+                took = myPendingQueue.poll(myPendingMessage);
+                while (took && (myPendingMessage.getMessageId() != replyId)) {
+
+                    final MongoDbException noReply = new MongoDbException(
+                            "No reply received.");
+
+                    // Note that this message will not get a reply.
+                    raiseError(noReply, myPendingMessage.getReplyCallback());
+
+                    // Keep looking.
+                    took = myPendingQueue.poll(myPendingMessage);
+                }
+
+                if (took) {
+                    // Must be the pending message's reply.
+                    reply(reply, myPendingMessage);
+                }
+                else {
+                    myLog.warning("Could not find the callback for reply '"
+                            + replyId + "'.");
+                }
+            }
+            finally {
+                myPendingMessage.clear();
+            }
+        }
+        else if (received != null) {
+            myLog.warning("Received a non-Reply message: " + received);
+            shutdown(new ConnectionLostException(new StreamCorruptedException(
+                    "Received a non-Reply message: " + received)));
+        }
+        else {
+            myIdleTicks += 1;
+            if (myConfig.getMaxIdleTickCount() <= myIdleTicks) {
+                // Shutdown the connection., nicely.
+                shutdown();
+            }
+        }
+    }
+
+    /**
      * Sends a single message to the connection.
      * 
      * @param messageId
@@ -512,6 +578,8 @@ public abstract class AbstractSocketConnection implements Connection {
      *            The error causing the shutdown.
      */
     protected void shutdown(final MongoDbException error) {
+        myServer.connectionTerminated();
+
         // Have to assume all of the requests have failed that are pending.
         final PendingMessage message = new PendingMessage();
         while (myPendingQueue.poll(message)) {
