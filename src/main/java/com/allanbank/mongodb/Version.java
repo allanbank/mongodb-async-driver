@@ -17,7 +17,8 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
- * Version provides TODO - Finish
+ * Version provides a class to handle version numbers and provide the version of
+ * the driver in use.
  * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
@@ -25,6 +26,9 @@ public class Version implements Serializable, Comparable<Version> {
 
     /** The driver's version. */
     public static final Version VERSION;
+
+    /** A version to use when we don't know the version. */
+    public static final Version UNKNOWN;
 
     /** The logger for the {@link Version}. */
     private static final Logger LOG = Logger.getLogger(Version.class
@@ -53,6 +57,7 @@ public class Version implements Serializable, Comparable<Version> {
         }
 
         VERSION = parse(props.getProperty("version", "0-DEVELOPMENT"));
+        UNKNOWN = new Version(new int[0], "UNKNOWN");
     }
 
     /**
@@ -208,7 +213,9 @@ public class Version implements Serializable, Comparable<Version> {
             builder.append(String.valueOf(myVersion[i]));
         }
         if (!mySuffix.isEmpty()) {
-            builder.append('-');
+            if (myVersion.length > 0) {
+                builder.append('-');
+            }
             builder.append(mySuffix);
         }
         return builder.toString();

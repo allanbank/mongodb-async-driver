@@ -130,6 +130,7 @@ public class VersionTest {
         assertThat(Version.parse("1.2.3.4.5-FOO").toString(),
                 is("1.2.3.4.5-FOO"));
         assertThat(Version.parse("1-FOO").toString(), is("1-FOO"));
+        assertThat(Version.UNKNOWN.toString(), is("UNKNOWN"));
     }
 
 }
