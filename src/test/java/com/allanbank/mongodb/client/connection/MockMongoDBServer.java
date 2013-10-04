@@ -25,14 +25,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
-import com.allanbank.mongodb.client.connection.message.Delete;
-import com.allanbank.mongodb.client.connection.message.GetMore;
-import com.allanbank.mongodb.client.connection.message.Header;
-import com.allanbank.mongodb.client.connection.message.Insert;
-import com.allanbank.mongodb.client.connection.message.KillCursors;
-import com.allanbank.mongodb.client.connection.message.Query;
-import com.allanbank.mongodb.client.connection.message.Reply;
-import com.allanbank.mongodb.client.connection.message.Update;
+import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.Operation;
+import com.allanbank.mongodb.client.message.Delete;
+import com.allanbank.mongodb.client.message.GetMore;
+import com.allanbank.mongodb.client.message.Header;
+import com.allanbank.mongodb.client.message.Insert;
+import com.allanbank.mongodb.client.message.KillCursors;
+import com.allanbank.mongodb.client.message.Query;
+import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.message.Update;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**

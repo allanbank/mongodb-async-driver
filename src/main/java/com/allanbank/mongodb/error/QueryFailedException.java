@@ -5,7 +5,7 @@
 
 package com.allanbank.mongodb.error;
 
-import com.allanbank.mongodb.client.connection.message.Reply;
+import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * Exception raised when a query fails.

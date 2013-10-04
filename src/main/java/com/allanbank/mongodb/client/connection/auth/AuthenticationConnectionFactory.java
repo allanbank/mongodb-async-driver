@@ -8,11 +8,11 @@ package com.allanbank.mongodb.client.connection.auth;
 import java.io.IOException;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
-import com.allanbank.mongodb.client.connection.ClusterType;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.Server;
+import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**

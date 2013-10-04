@@ -29,11 +29,11 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.builder.QueryBuilder;
-import com.allanbank.mongodb.client.connection.FutureCallback;
-import com.allanbank.mongodb.client.connection.message.Reply;
-import com.allanbank.mongodb.client.connection.message.ServerStatus;
+import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.connection.socket.SocketConnection;
-import com.allanbank.mongodb.client.connection.state.Cluster;
+import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.message.ServerStatus;
+import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.error.ConnectionLostException;
 
 /**

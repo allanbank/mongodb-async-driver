@@ -18,7 +18,7 @@
  * <p>
  * In the <a href="client/package-summary.html">com.allanbank.mongodb.client</a> package are the implementation 
  * of the primary interfaces for the driver and support classes to convert 
- * {@link com.allanbank.mongodb.client.connection.message.Reply}(s) from the server into a more user friendly format.
+ * {@link com.allanbank.mongodb.client.message.Reply}(s) from the server into a more user friendly format.
  * </p>
  * <p>
  * To facilitate constructing queries and the more complex commands to the MongoDB servers a set 

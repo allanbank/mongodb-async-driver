@@ -23,14 +23,14 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.connection.Connection;
-import com.allanbank.mongodb.client.connection.Message;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
-import com.allanbank.mongodb.client.connection.message.Reply;
 import com.allanbank.mongodb.client.connection.proxy.AbstractProxyConnection;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.Cluster;
-import com.allanbank.mongodb.client.connection.state.Server;
+import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.state.Cluster;
+import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**

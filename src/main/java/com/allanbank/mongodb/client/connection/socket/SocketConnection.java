@@ -12,10 +12,10 @@ import java.util.logging.Level;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.client.connection.Message;
-import com.allanbank.mongodb.client.connection.message.PendingMessage;
-import com.allanbank.mongodb.client.connection.message.Reply;
-import com.allanbank.mongodb.client.connection.state.Server;
+import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.message.PendingMessage;
+import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**

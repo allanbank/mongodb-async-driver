@@ -35,12 +35,21 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
-import com.allanbank.mongodb.client.connection.ClusterType;
-import com.allanbank.mongodb.client.connection.message.Command;
-import com.allanbank.mongodb.client.connection.message.Delete;
-import com.allanbank.mongodb.client.connection.message.Insert;
-import com.allanbank.mongodb.client.connection.message.Query;
-import com.allanbank.mongodb.client.connection.message.Update;
+import com.allanbank.mongodb.client.callback.LongToIntCallback;
+import com.allanbank.mongodb.client.callback.QueryCallback;
+import com.allanbank.mongodb.client.callback.QueryOneCallback;
+import com.allanbank.mongodb.client.callback.QueryStreamingCallback;
+import com.allanbank.mongodb.client.callback.ReplyArrayCallback;
+import com.allanbank.mongodb.client.callback.ReplyDocumentCallback;
+import com.allanbank.mongodb.client.callback.ReplyIntegerCallback;
+import com.allanbank.mongodb.client.callback.ReplyLongCallback;
+import com.allanbank.mongodb.client.callback.ReplyResultCallback;
+import com.allanbank.mongodb.client.callback.TextCallback;
+import com.allanbank.mongodb.client.message.Command;
+import com.allanbank.mongodb.client.message.Delete;
+import com.allanbank.mongodb.client.message.Insert;
+import com.allanbank.mongodb.client.message.Query;
+import com.allanbank.mongodb.client.message.Update;
 
 /**
  * Implementation of the {@link MongoCollection} interface.

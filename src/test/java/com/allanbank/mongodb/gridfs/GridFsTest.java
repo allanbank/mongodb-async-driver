@@ -49,7 +49,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.Index;
-import com.allanbank.mongodb.client.connection.FutureCallback;
+import com.allanbank.mongodb.client.FutureCallback;
 
 /**
  * GridFsTest provides tests for the {@link GridFs} class.

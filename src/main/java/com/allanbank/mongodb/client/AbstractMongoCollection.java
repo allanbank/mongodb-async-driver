@@ -33,8 +33,7 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
-import com.allanbank.mongodb.client.connection.FutureCallback;
-import com.allanbank.mongodb.client.connection.message.GetLastError;
+import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.util.FutureUtils;
 
 /**
@@ -1772,7 +1771,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public MongoCursorControl streamingFind(final Callback<Document> results,
             final Find query) throws MongoDbException {
-        return streamingFind(new LegacyStreamCallbackAdapter(results), query);
+        return streamingFind(
+                new com.allanbank.mongodb.client.callback.LegacyStreamCallbackAdapter(
+                        results), query);
     }
 
     /**

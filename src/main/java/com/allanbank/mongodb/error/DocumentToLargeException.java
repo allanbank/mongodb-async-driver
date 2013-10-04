@@ -44,7 +44,7 @@ public class DocumentToLargeException extends MongoDbException {
      */
     public DocumentToLargeException(final int size, final int maximum,
             final Document document) {
-        super("Attemted to serialize a document of size " + size
+        super("Attempted to serialize a document of size " + size
                 + " when current maximum is " + maximum + ".");
 
         mySize = size;

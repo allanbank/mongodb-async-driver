@@ -45,10 +45,6 @@
  * contains base classes for <tt>ConnectionFactory</tt> and <tt>Connection</tt> implementations
  * that delegate to another implementation.
  * </p>
- * <p>
- * The <a href="state/package.html">com.allanbank.mongodb.client.connection.state</a> package contains 
- * support classes for state management.
- * </p>
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */

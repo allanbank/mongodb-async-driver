@@ -14,7 +14,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.client.connection.message.Reply;
+import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * CursorNotFoundExceptionTest provides tests for the

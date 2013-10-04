@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.ConnectionModel;
 import com.allanbank.mongodb.MongoClientConfiguration;
-import com.allanbank.mongodb.client.connection.ClusterType;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
 
 /**

@@ -22,12 +22,12 @@ import org.junit.After;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
-import com.allanbank.mongodb.client.connection.ClusterType;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.Cluster;
-import com.allanbank.mongodb.client.connection.state.Server;
+import com.allanbank.mongodb.client.state.Cluster;
+import com.allanbank.mongodb.client.state.Server;
 
 /**
  * AuthenticationConnectionFactoryTest provides test for the

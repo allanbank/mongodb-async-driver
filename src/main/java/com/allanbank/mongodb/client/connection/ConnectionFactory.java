@@ -8,6 +8,7 @@ package com.allanbank.mongodb.client.connection;
 import java.io.Closeable;
 import java.io.IOException;
 
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.bootstrap.BootstrapConnectionFactory;
 import com.allanbank.mongodb.client.connection.socket.SocketConnection;
 

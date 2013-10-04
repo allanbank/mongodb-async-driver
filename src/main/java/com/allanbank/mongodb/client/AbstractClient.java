@@ -13,8 +13,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.connection.Connection;
-import com.allanbank.mongodb.client.connection.Message;
-import com.allanbank.mongodb.client.connection.message.Reply;
+import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.MongoClientClosedException;
 

@@ -7,8 +7,8 @@ package com.allanbank.mongodb.client.connection;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.Cluster;
-import com.allanbank.mongodb.client.connection.state.ServerSelector;
+import com.allanbank.mongodb.client.state.Cluster;
+import com.allanbank.mongodb.client.state.ServerSelector;
 
 /**
  * ReconnectStrategy provides a common interface for a strategy for reconnecting

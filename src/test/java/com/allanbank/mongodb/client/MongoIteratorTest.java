@@ -39,10 +39,10 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.client.connection.message.GetMore;
-import com.allanbank.mongodb.client.connection.message.KillCursors;
-import com.allanbank.mongodb.client.connection.message.Query;
-import com.allanbank.mongodb.client.connection.message.Reply;
+import com.allanbank.mongodb.client.message.GetMore;
+import com.allanbank.mongodb.client.message.KillCursors;
+import com.allanbank.mongodb.client.message.Query;
+import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 
 /**

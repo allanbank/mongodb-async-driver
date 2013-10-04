@@ -16,10 +16,10 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.connection.Connection;
-import com.allanbank.mongodb.client.connection.Message;
-import com.allanbank.mongodb.client.connection.message.Reply;
 import com.allanbank.mongodb.client.connection.proxy.AbstractProxyConnection;
+import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**

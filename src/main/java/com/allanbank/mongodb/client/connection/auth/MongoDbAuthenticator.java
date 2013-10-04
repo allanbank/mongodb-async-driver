@@ -21,12 +21,12 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.client.AbstractReplyCallback;
-import com.allanbank.mongodb.client.AbstractValidatingReplyCallback;
+import com.allanbank.mongodb.client.FutureCallback;
+import com.allanbank.mongodb.client.callback.AbstractReplyCallback;
+import com.allanbank.mongodb.client.callback.AbstractValidatingReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
-import com.allanbank.mongodb.client.connection.FutureCallback;
-import com.allanbank.mongodb.client.connection.message.Command;
-import com.allanbank.mongodb.client.connection.message.Reply;
+import com.allanbank.mongodb.client.message.Command;
+import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.IOUtils;
 

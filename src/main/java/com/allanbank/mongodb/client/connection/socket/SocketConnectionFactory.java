@@ -11,18 +11,18 @@ import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
-import com.allanbank.mongodb.client.connection.ClusterType;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
-import com.allanbank.mongodb.client.connection.message.IsMaster;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.Cluster;
-import com.allanbank.mongodb.client.connection.state.LatencyServerSelector;
-import com.allanbank.mongodb.client.connection.state.Server;
-import com.allanbank.mongodb.client.connection.state.ServerSelector;
-import com.allanbank.mongodb.client.connection.state.ServerUpdateCallback;
-import com.allanbank.mongodb.client.connection.state.SimpleReconnectStrategy;
+import com.allanbank.mongodb.client.message.IsMaster;
+import com.allanbank.mongodb.client.state.Cluster;
+import com.allanbank.mongodb.client.state.LatencyServerSelector;
+import com.allanbank.mongodb.client.state.Server;
+import com.allanbank.mongodb.client.state.ServerSelector;
+import com.allanbank.mongodb.client.state.ServerUpdateCallback;
+import com.allanbank.mongodb.client.state.SimpleReconnectStrategy;
 
 /**
  * {@link ConnectionFactory} to create direct socket connections to the servers.

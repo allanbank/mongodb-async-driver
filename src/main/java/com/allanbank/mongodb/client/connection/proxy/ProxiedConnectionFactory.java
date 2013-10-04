@@ -10,7 +10,7 @@ import java.io.IOException;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.Server;
+import com.allanbank.mongodb.client.state.Server;
 
 /**
  * Provides an interface for creating proxied connections.

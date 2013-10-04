@@ -30,14 +30,14 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
+import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.connection.Connection;
-import com.allanbank.mongodb.client.connection.Message;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
-import com.allanbank.mongodb.client.connection.message.IsMaster;
-import com.allanbank.mongodb.client.connection.message.Query;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.Cluster;
-import com.allanbank.mongodb.client.connection.state.Server;
+import com.allanbank.mongodb.client.message.IsMaster;
+import com.allanbank.mongodb.client.message.Query;
+import com.allanbank.mongodb.client.state.Cluster;
+import com.allanbank.mongodb.client.state.Server;
 
 /**
  * ReplicaSetConnectionTest provides tests of the {@link ReplicaSetConnection}.

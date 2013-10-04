@@ -20,13 +20,13 @@ import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.connection.Connection;
-import com.allanbank.mongodb.client.connection.FutureCallback;
-import com.allanbank.mongodb.client.connection.message.Insert;
-import com.allanbank.mongodb.client.connection.message.Query;
-import com.allanbank.mongodb.client.connection.message.Reply;
 import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.Cluster;
+import com.allanbank.mongodb.client.message.Insert;
+import com.allanbank.mongodb.client.message.Query;
+import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**

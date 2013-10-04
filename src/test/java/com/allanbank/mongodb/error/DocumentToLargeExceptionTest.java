@@ -39,7 +39,7 @@ public class DocumentToLargeExceptionTest {
         final DocumentToLargeException ex = new DocumentToLargeException(size,
                 max, doc);
 
-        assertEquals("Attemted to serialize a document of size " + size
+        assertEquals("Attempted to serialize a document of size " + size
                 + " when current maximum is " + max + ".", ex.getMessage());
         assertEquals(size, ex.getSize());
         assertEquals(max, ex.getMaximumSize());

@@ -11,7 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.client.connection.message.Reply;
+import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * Provides the lowest level interface for interacting with a MongoDB server.

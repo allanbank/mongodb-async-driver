@@ -37,16 +37,15 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.client.connection.ClusterType;
+import com.allanbank.mongodb.client.callback.QueryStreamingCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
-import com.allanbank.mongodb.client.connection.Message;
-import com.allanbank.mongodb.client.connection.message.Command;
-import com.allanbank.mongodb.client.connection.message.GetLastError;
-import com.allanbank.mongodb.client.connection.message.GetMore;
-import com.allanbank.mongodb.client.connection.message.Query;
-import com.allanbank.mongodb.client.connection.message.Reply;
-import com.allanbank.mongodb.client.connection.message.Update;
+import com.allanbank.mongodb.client.message.Command;
+import com.allanbank.mongodb.client.message.GetLastError;
+import com.allanbank.mongodb.client.message.GetMore;
+import com.allanbank.mongodb.client.message.Query;
+import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.message.Update;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**

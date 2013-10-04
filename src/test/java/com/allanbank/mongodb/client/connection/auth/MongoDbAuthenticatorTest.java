@@ -25,10 +25,10 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.connection.Connection;
-import com.allanbank.mongodb.client.connection.Message;
-import com.allanbank.mongodb.client.connection.message.Command;
-import com.allanbank.mongodb.client.connection.message.Reply;
+import com.allanbank.mongodb.client.message.Command;
+import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**

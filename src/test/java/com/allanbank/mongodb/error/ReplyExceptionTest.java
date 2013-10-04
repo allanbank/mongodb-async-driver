@@ -16,8 +16,8 @@ import org.easymock.EasyMock;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.client.connection.Message;
-import com.allanbank.mongodb.client.connection.message.Reply;
+import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * ReplyExceptionTest provides tests for the {@link ReplyException}.

@@ -32,7 +32,7 @@ import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.client.connection.ClusterType;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.MockMongoDBServer;
@@ -41,7 +41,7 @@ import com.allanbank.mongodb.client.connection.rs.ReplicaSetConnectionFactory;
 import com.allanbank.mongodb.client.connection.rs.ReplicaSetReconnectStrategy;
 import com.allanbank.mongodb.client.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.SimpleReconnectStrategy;
+import com.allanbank.mongodb.client.state.SimpleReconnectStrategy;
 import com.allanbank.mongodb.error.CannotConnectException;
 
 /**

@@ -31,7 +31,7 @@ import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.MockMongoDBServer;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.Server;
+import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**

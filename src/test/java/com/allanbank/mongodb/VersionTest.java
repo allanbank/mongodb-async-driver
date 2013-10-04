@@ -32,6 +32,14 @@ import com.allanbank.mongodb.bson.element.LongElement;
 public class VersionTest {
 
     /**
+     * Test method for {@link Version#VERSION}.
+     */
+    @Test
+    public void testAutoVersion() {
+        assertThat(Version.VERSION, notNullValue());
+    }
+
+    /**
      * Test method for {@link Version#compareTo(com.allanbank.mongodb.Version)}.
      */
     @Test
@@ -61,14 +69,6 @@ public class VersionTest {
                 assertThat(Version.UNKNOWN.compareTo(ith), greaterThan(0));
             }
         }
-    }
-
-    /**
-     * Test method for {@link Version#VERSION}.
-     */
-    @Test
-    public void testAutoVersion() {
-        assertThat(Version.VERSION, notNullValue());
     }
 
     /**

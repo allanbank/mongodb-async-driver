@@ -17,19 +17,19 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.client.connection.ClusterType;
+import com.allanbank.mongodb.client.ClusterType;
+import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
-import com.allanbank.mongodb.client.connection.FutureCallback;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
-import com.allanbank.mongodb.client.connection.message.IsMaster;
-import com.allanbank.mongodb.client.connection.message.Reply;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
-import com.allanbank.mongodb.client.connection.state.Cluster;
-import com.allanbank.mongodb.client.connection.state.ClusterPinger;
-import com.allanbank.mongodb.client.connection.state.LatencyServerSelector;
-import com.allanbank.mongodb.client.connection.state.Server;
-import com.allanbank.mongodb.client.connection.state.ServerUpdateCallback;
+import com.allanbank.mongodb.client.message.IsMaster;
+import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.state.Cluster;
+import com.allanbank.mongodb.client.state.ClusterPinger;
+import com.allanbank.mongodb.client.state.LatencyServerSelector;
+import com.allanbank.mongodb.client.state.Server;
+import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
