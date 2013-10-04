@@ -8,10 +8,11 @@ package com.allanbank.mongodb.client.connection.message;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 
 /**
  * Provides a convenient mechanism for creating a <a
- * href="http://www.mongodb.org/display/DOCS/serverStatus+Command"
+ * href="http://docs.mongodb.org/manual/reference/command/serverStatus/"
  * >serverStatus</a> command.
  * <p>
  * This is a helper class for retrieving the status of a MongoDB server. The
@@ -100,7 +101,7 @@ public class ServerStatus extends AdminCommand {
     static {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addInteger("serverStatus", 1);
-        SERVER_STATUS = builder.build();
+        SERVER_STATUS = new ImmutableDocument(builder);
     }
 
     /**

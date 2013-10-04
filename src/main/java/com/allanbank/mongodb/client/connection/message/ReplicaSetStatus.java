@@ -8,10 +8,11 @@ package com.allanbank.mongodb.client.connection.message;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 
 /**
  * Provides a convenient mechanism for creating a <a href=
- * "http://www.mongodb.org/display/DOCS/Replica+Set+Commands#ReplicaSetCommands-replSetGetStatus"
+ * "http://docs.mongodb.org/manual/reference/command/replSetGetStatus/"
  * >replSetGetStatus</a> command.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
@@ -26,7 +27,7 @@ public class ReplicaSetStatus extends AdminCommand {
     static {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addInteger("replSetGetStatus", 1);
-        REPLICA_SET_STATUS = builder.build();
+        REPLICA_SET_STATUS = new ImmutableDocument(builder);
     }
 
     /**
