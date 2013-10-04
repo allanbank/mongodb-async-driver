@@ -27,7 +27,10 @@ public class Version implements Serializable, Comparable<Version> {
     /** The driver's version. */
     public static final Version VERSION;
 
-    /** A version to use when we don't know the version. */
+    /**
+     * A version to use when we don't know the version. This version will always
+     * compare greater than (higher, more recent) than all other versions.
+     */
     public static final Version UNKNOWN;
 
     /** The logger for the {@link Version}. */
@@ -144,6 +147,14 @@ public class Version implements Serializable, Comparable<Version> {
     public int compareTo(Version other) {
 
         int compare = 0;
+
+        // Check to make sure UNKNOWN is the highest version.
+        if (UNKNOWN.equals(this)) {
+            compare = UNKNOWN.equals(other) ? 0 : 1;
+        }
+        else if (UNKNOWN.equals(other)) {
+            compare = -1;
+        }
 
         int fields = Math.min(myVersion.length, other.myVersion.length);
         for (int i = 0; (compare == 0) && (i < fields); ++i) {

@@ -50,9 +50,15 @@ public class VersionTest {
                 else {
                     assertThat(ith + " < " + jth, ith.compareTo(jth),
                             lessThan(0));
-                    assertThat(jth + " < " + ith, jth.compareTo(ith),
+                    assertThat(jth + " > " + ith, jth.compareTo(ith),
                             greaterThan(0));
                 }
+
+                // Unknown is the "highest" version. This ensures that version
+                // check without a version for the server still go to the
+                // server.
+                assertThat(ith.compareTo(Version.UNKNOWN), lessThan(0));
+                assertThat(Version.UNKNOWN.compareTo(ith), greaterThan(0));
             }
         }
     }
