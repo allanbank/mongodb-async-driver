@@ -859,6 +859,27 @@ public class Find {
         }
 
         /**
+         * Sets the value of the fields to be returned from the matching
+         * documents to the new value.
+         * <p>
+         * This method adds each field to a document with a value of {@code 1}
+         * and then delegates to the
+         * {@link #setReturnFields(DocumentAssignable)} method.
+         * </p>
+         * 
+         * @param fieldNames
+         *            The names of the fields to be returned.
+         * @return This builder for chaining method calls.
+         */
+        public Builder returnFields(String... fieldNames) {
+            DocumentBuilder builder = BuilderFactory.start();
+            for (String fieldName : fieldNames) {
+                builder.add(fieldName, 1);
+            }
+            return setReturnFields(builder);
+        }
+
+        /**
          * Sets that only index keys should be returned.
          * <p>
          * This method delegates to {@link #setReturnIndexKeysOnly(boolean)
