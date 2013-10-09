@@ -78,7 +78,7 @@ public class MongoDbAuthenticatorTest {
         assertThat(getNonceCapture.getValue(), instanceOf(Command.class));
 
         final Command nonceCommand = (Command) getNonceCapture.getValue();
-        assertThat(nonceCommand.getQuery(),
+        assertThat(nonceCommand.getCommand(),
                 is(BuilderFactory.start().add("getnonce", 1).build()));
 
         assertThat(getNonceReplyCapture.hasCaptured(), is(true));
@@ -96,7 +96,7 @@ public class MongoDbAuthenticatorTest {
 
         final Command authCommand = (Command) authCapture.getValue();
         assertThat(
-                authCommand.getQuery(),
+                authCommand.getCommand(),
                 is(BuilderFactory.start().addInteger("authenticate", 1)
                         .add(reply.get("nonce"))
                         .addString("user", credential.getUserName())
@@ -156,7 +156,7 @@ public class MongoDbAuthenticatorTest {
         assertThat(getNonceCapture.getValue(), instanceOf(Command.class));
 
         final Command nonceCommand = (Command) getNonceCapture.getValue();
-        assertThat(nonceCommand.getQuery(),
+        assertThat(nonceCommand.getCommand(),
                 is(BuilderFactory.start().add("getnonce", 1).build()));
 
         assertThat(getNonceReplyCapture.hasCaptured(), is(true));
@@ -174,7 +174,7 @@ public class MongoDbAuthenticatorTest {
 
         final Command authCommand = (Command) authCapture.getValue();
         assertThat(
-                authCommand.getQuery(),
+                authCommand.getCommand(),
                 is(BuilderFactory.start().addInteger("authenticate", 1)
                         .add(reply.get("nonce"))
                         .addString("user", credential.getUserName())
@@ -229,7 +229,7 @@ public class MongoDbAuthenticatorTest {
         assertThat(getNonceCapture.getValue(), instanceOf(Command.class));
 
         final Command nonceCommand = (Command) getNonceCapture.getValue();
-        assertThat(nonceCommand.getQuery(),
+        assertThat(nonceCommand.getCommand(),
                 is(BuilderFactory.start().add("getnonce", 1).build()));
 
         assertThat(getNonceReplyCapture.hasCaptured(), is(true));
@@ -286,7 +286,7 @@ public class MongoDbAuthenticatorTest {
         assertThat(getNonceCapture.getValue(), instanceOf(Command.class));
 
         final Command nonceCommand = (Command) getNonceCapture.getValue();
-        assertThat(nonceCommand.getQuery(),
+        assertThat(nonceCommand.getCommand(),
                 is(BuilderFactory.start().add("getnonce", 1).build()));
 
         assertThat(getNonceReplyCapture.hasCaptured(), is(true));
@@ -342,7 +342,7 @@ public class MongoDbAuthenticatorTest {
         assertThat(getNonceCapture.getValue(), instanceOf(Command.class));
 
         final Command nonceCommand = (Command) getNonceCapture.getValue();
-        assertThat(nonceCommand.getQuery(),
+        assertThat(nonceCommand.getCommand(),
                 is(BuilderFactory.start().add("getnonce", 1).build()));
 
         assertThat(getNonceReplyCapture.hasCaptured(), is(true));
@@ -403,7 +403,7 @@ public class MongoDbAuthenticatorTest {
         assertThat(getNonceCapture.getValue(), instanceOf(Command.class));
 
         final Command nonceCommand = (Command) getNonceCapture.getValue();
-        assertThat(nonceCommand.getQuery(),
+        assertThat(nonceCommand.getCommand(),
                 is(BuilderFactory.start().add("getnonce", 1).build()));
 
         assertThat(getNonceReplyCapture.hasCaptured(), is(true));
@@ -421,7 +421,7 @@ public class MongoDbAuthenticatorTest {
 
         final Command authCommand = (Command) authCapture.getValue();
         assertThat(
-                authCommand.getQuery(),
+                authCommand.getCommand(),
                 is(BuilderFactory.start().addInteger("authenticate", 1)
                         .add(reply.get("nonce"))
                         .addString("user", credential.getUserName())

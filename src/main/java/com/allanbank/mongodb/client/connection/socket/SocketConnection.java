@@ -125,6 +125,9 @@ public class SocketConnection extends AbstractSocketConnection {
     @Override
     public String send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
+
+        validate(message1, message2);
+
         final int count = (message2 == null) ? 1 : 2;
         final long seq = mySendSequence.reserve(count);
         final long end = seq + count;

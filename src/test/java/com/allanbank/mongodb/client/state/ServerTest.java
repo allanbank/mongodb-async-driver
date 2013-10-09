@@ -15,8 +15,10 @@ import java.net.InetSocketAddress;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.client.Client;
 
 /**
  * ServerTest provides tests for the {@link Server} class.
@@ -152,6 +154,42 @@ public class ServerTest {
      * Test method for {@link Server#getTags()}.
      */
     @Test
+    public void testUpdateWithMaxBsonObjectSize() {
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add(Server.MAX_BSON_OBJECT_SIZE_PROP, 123456);
+
+        final Server server = new Server(new InetSocketAddress("foo", 27017));
+
+        // Default is null/empty.
+        assertThat(server.getMaxBsonObjectSize(), is(Client.MAX_DOCUMENT_SIZE));
+
+        // Set the tags.
+        server.update(builder.build());
+        assertThat(server.getMaxBsonObjectSize(), is(123456));
+
+        // Clear the tags.
+        builder.reset();
+        builder.addNull(Server.MAX_BSON_OBJECT_SIZE_PROP);
+        server.update(builder.build());
+        assertThat(server.getMaxBsonObjectSize(), is(123456));
+
+        // Set them again.
+        builder.reset();
+        builder.add(Server.MAX_BSON_OBJECT_SIZE_PROP, 654321L);
+        server.update(builder.build());
+        assertThat(server.getMaxBsonObjectSize(), is(654321));
+
+        // A document without tags has no effect (still set).
+        builder.reset();
+        server.update(builder.build());
+        assertThat(server.getMaxBsonObjectSize(), is(654321));
+    }
+
+    /**
+     * Test method for {@link Server#getTags()}.
+     */
+    @Test
     public void testUpdateWithTags() {
 
         final DocumentBuilder builder = BuilderFactory.start();
@@ -187,4 +225,39 @@ public class ServerTest {
                 is(BuilderFactory.start().addInteger("f", 1).build()));
     }
 
+    /**
+     * Test method for {@link Server#getTags()}.
+     */
+    @Test
+    public void testUpdateWithVersion() {
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.pushArray("versionArray").add(1).add(2L).add(3.0);
+
+        final Server server = new Server(new InetSocketAddress("foo", 27017));
+
+        // Default is "unknown".
+        assertThat(server.getVersion(), is(Version.UNKNOWN));
+
+        // Set the version.
+        server.update(builder.build());
+        assertThat(server.getVersion(), is(Version.parse("1.2.3")));
+
+        // Clear the tags.
+        builder.reset();
+        builder.pushArray("versionArray");
+        server.update(builder.build());
+        assertThat(server.getVersion(), is(Version.parse("1.2.3")));
+
+        // Set them again.
+        builder.reset();
+        builder.pushArray("versionArray").add(2).add(3L).add(4.0);
+        server.update(builder.build());
+        assertThat(server.getVersion(), is(Version.parse("2.3.4")));
+
+        // A document without tags has no effect (still set).
+        builder.reset();
+        server.update(builder.build());
+        assertThat(server.getVersion(), is(Version.parse("2.3.4")));
+    }
 }

@@ -5,10 +5,11 @@
 
 package com.allanbank.mongodb.client.message;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
@@ -30,16 +31,10 @@ public class BuildInfoTest {
 
         assertEquals(AdminCommand.ADMIN_DATABASE, buildInfo.getDatabaseName());
         assertEquals(Command.COMMAND_COLLECTION, buildInfo.getCollectionName());
-        assertEquals(-1, buildInfo.getNumberToReturn());
-        assertEquals(0, buildInfo.getNumberToSkip());
-        assertEquals(BuildInfo.BUILD_INFO, buildInfo.getQuery());
-        assertNull(buildInfo.getReturnFields());
-        assertFalse(buildInfo.isAwaitData());
-        assertFalse(buildInfo.isExhaust());
-        assertFalse(buildInfo.isNoCursorTimeout());
-        assertFalse(buildInfo.isPartial());
+        assertEquals(BuildInfo.BUILD_INFO, buildInfo.getCommand());
         assertSame(ReadPreference.PRIMARY, buildInfo.getReadPreference());
-        assertFalse(buildInfo.isTailable());
+        assertThat(buildInfo.getRequiredServerVersion(), nullValue());
+        assertThat(buildInfo.getOperationName(), is("buildinfo"));
     }
 
 }

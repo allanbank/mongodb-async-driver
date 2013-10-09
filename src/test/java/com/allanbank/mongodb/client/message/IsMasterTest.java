@@ -5,10 +5,10 @@
 
 package com.allanbank.mongodb.client.message;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
@@ -30,16 +30,8 @@ public class IsMasterTest {
 
         assertEquals(AdminCommand.ADMIN_DATABASE, isMaster.getDatabaseName());
         assertEquals(Command.COMMAND_COLLECTION, isMaster.getCollectionName());
-        assertEquals(-1, isMaster.getNumberToReturn());
-        assertEquals(0, isMaster.getNumberToSkip());
-        assertEquals(IsMaster.IS_MASTER, isMaster.getQuery());
-        assertNull(isMaster.getReturnFields());
-        assertFalse(isMaster.isAwaitData());
-        assertFalse(isMaster.isExhaust());
-        assertFalse(isMaster.isNoCursorTimeout());
-        assertFalse(isMaster.isPartial());
+        assertEquals(IsMaster.IS_MASTER, isMaster.getCommand());
         assertSame(ReadPreference.PRIMARY, isMaster.getReadPreference());
-        assertFalse(isMaster.isTailable());
+        assertThat(isMaster.getRequiredServerVersion(), nullValue());
     }
-
 }

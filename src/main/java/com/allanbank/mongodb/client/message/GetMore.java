@@ -125,6 +125,17 @@ public class GetMore extends AbstractMessage {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the name of the operation: "GET_MORE".
+     * </p>
+     */
+    @Override
+    public String getOperationName() {
+        return Operation.GET_MORE.name();
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

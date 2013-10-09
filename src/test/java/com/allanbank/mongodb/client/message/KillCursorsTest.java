@@ -5,11 +5,13 @@
 
 package com.allanbank.mongodb.client.message;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -146,6 +148,8 @@ public class KillCursorsTest {
 
         ids[0] = 2345;
         assertArrayEquals(new long[] { 1234 }, message.getCursorIds());
+        assertThat(message.getOperationName(),
+                is(Operation.KILL_CURSORS.name()));
     }
 
     /**

@@ -5,10 +5,12 @@
 
 package com.allanbank.mongodb.client.message;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -188,6 +190,7 @@ public class UpdateTest {
                 Boolean.valueOf(message.isMultiUpdate()));
         assertEquals(Boolean.valueOf(upsert),
                 Boolean.valueOf(message.isUpsert()));
+        assertThat(message.getOperationName(), is(Operation.UPDATE.name()));
     }
 
     /**

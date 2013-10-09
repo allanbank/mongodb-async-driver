@@ -24,6 +24,7 @@ import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.TimestampElement;
+import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
@@ -49,6 +50,9 @@ public class Server {
 
     /** The document element type. */
     public static final Class<DocumentElement> DOCUMENT_TYPE = DocumentElement.class;
+
+    /** The name for the Server's maximum BSON object size property: {@value} . */
+    public static final String MAX_BSON_OBJECT_SIZE_PROP = "maxBsonObjectSize";
 
     /** The numeric element type. */
     public static final Class<NumericElement> NUMERIC_TYPE = NumericElement.class;
@@ -104,8 +108,11 @@ public class Server {
     /** Provides support for the sending of property change events. */
     private final PropertyChangeSupport myEventSupport;
 
-    /** The maximum BSON object size the server will accept. Defaults to 16MiB. */
-    private long myMaxBsonObjectSize = 16 * 1024 * 1024;
+    /**
+     * The maximum BSON object size the server will accept. Defaults to
+     * {@link Client#MAX_DOCUMENT_SIZE}.
+     */
+    private volatile int myMaxBsonObjectSize = Client.MAX_DOCUMENT_SIZE;
 
     /** The number of messages sent to the server. */
     private final AtomicLong myMessagesSent;
@@ -278,6 +285,16 @@ public class Server {
     }
 
     /**
+     * Returns the maximum BSON object size the server will accept. Defaults to
+     * {@link Client#MAX_DOCUMENT_SIZE}.
+     * 
+     * @return The maximum BSON object size the server will accept.
+     */
+    public int getMaxBsonObjectSize() {
+        return myMaxBsonObjectSize;
+    }
+
+    /**
      * Returns the number of messages sent to the server.
      * 
      * @return The number of messages sent to the server.
@@ -332,6 +349,15 @@ public class Server {
      */
     public long getTotalLatencyNanoSeconds() {
         return myTotalLatency.get();
+    }
+
+    /**
+     * Returns the version of the server.
+     * 
+     * @return The version of the server.
+     */
+    public Version getVersion() {
+        return myVersion;
     }
 
     /**
@@ -474,15 +500,15 @@ public class Server {
      *            The reply to the {@code buildinfo} command.
      */
     private void updateMaxBsonObjectSize(final Document buildInfoReply) {
-        final long oldValue = myMaxBsonObjectSize;
+        final int oldValue = myMaxBsonObjectSize;
 
         final NumericElement maxSize = buildInfoReply.findFirst(NUMERIC_TYPE,
-                "maxBsonObjectSize");
+                MAX_BSON_OBJECT_SIZE_PROP);
         if (maxSize != null) {
-            myMaxBsonObjectSize = maxSize.getLongValue();
+            myMaxBsonObjectSize = maxSize.getIntValue();
         }
 
-        myEventSupport.firePropertyChange(VERSION_PROP, oldValue,
+        myEventSupport.firePropertyChange(MAX_BSON_OBJECT_SIZE_PROP, oldValue,
                 myMaxBsonObjectSize);
     }
 
@@ -623,7 +649,7 @@ public class Server {
     private void updateTags(final Document isMasterReply) {
         final Document oldValue = myTags;
 
-        Document tags = isMasterReply.findFirst(DOCUMENT_TYPE, "tags");
+        Document tags = isMasterReply.findFirst(DOCUMENT_TYPE, TAGS_PROP);
         if (tags != null) {
             // Strip to a pure Document from a DocumentElement.
             tags = BuilderFactory.start(tags.asDocument()).build();

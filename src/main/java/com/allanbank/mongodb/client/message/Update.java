@@ -147,6 +147,17 @@ public class Update extends AbstractMessage {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the name of the operation: "UPDATE".
+     * </p>
+     */
+    @Override
+    public String getOperationName() {
+        return Operation.UPDATE.name();
+    }
+
+    /**
      * Returns the query to select the document to update.
      * 
      * @return The query to select the document to update.

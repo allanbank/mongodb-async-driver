@@ -7,6 +7,7 @@ package com.allanbank.mongodb.client;
 import java.io.IOException;
 
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -29,6 +30,13 @@ public interface Message {
     public String getDatabaseName();
 
     /**
+     * Returns a short name for the operation.
+     * 
+     * @return A short name for the operation.
+     */
+    public String getOperationName();
+
+    /**
      * Provides the details on which servers are eligible to receive the
      * message.
      * 
@@ -36,6 +44,19 @@ public interface Message {
      *         request.
      */
     public ReadPreference getReadPreference();
+
+    /**
+     * Returns the required version for the message.
+     * <p>
+     * This may be {@code null} which should be interpreted to mean that all
+     * versions of the server support the message's operation. In reality that
+     * is probably more accurately stated as all supported versions.
+     * </p>
+     * 
+     * @return The version of the server that introduced support for the
+     *         operation.
+     */
+    public Version getRequiredServerVersion();
 
     /**
      * Validates that the documents with the message do not exceed the maximum

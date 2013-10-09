@@ -25,8 +25,10 @@ import java.util.logging.Logger;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -44,6 +46,8 @@ import com.allanbank.mongodb.client.message.ReplyHandler;
 import com.allanbank.mongodb.client.message.Update;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.error.ConnectionLostException;
+import com.allanbank.mongodb.error.DocumentToLargeException;
+import com.allanbank.mongodb.error.ServerVersionException;
 
 /**
  * AbstractSocketConnection provides the basic functionality for a socket
@@ -617,6 +621,37 @@ public abstract class AbstractSocketConnection implements Connection {
     }
 
     /**
+     * Ensures that the documents in the message do not exceed the maximum size
+     * allowed by MongoDB.
+     * 
+     * @param message1
+     *            The message to be sent to the server.
+     * @param message2
+     *            The second message to be sent to the server.
+     * @throws DocumentToLargeException
+     *             On a message being too large.
+     * @throws ServerVersionException
+     *             If one of the messages cannot be sent to the server version.
+     */
+    protected void validate(final Message message1, final Message message2)
+            throws DocumentToLargeException, ServerVersionException {
+
+        final SizeOfVisitor visitor = new SizeOfVisitor();
+
+        final Version serverVersion = myServer.getVersion();
+        final int maxBsonSize = myServer.getMaxBsonObjectSize();
+
+        message1.validateSize(visitor, maxBsonSize);
+        validateVersion(message1, serverVersion);
+
+        if (message2 != null) {
+            visitor.reset();
+            message2.validateSize(visitor, maxBsonSize);
+            validateVersion(message1, serverVersion);
+        }
+    }
+
+    /**
      * Closes the connection to the server without allowing an exception to be
      * thrown.
      */
@@ -675,6 +710,28 @@ public abstract class AbstractSocketConnection implements Connection {
         }
 
         return socket;
+    }
+
+    /**
+     * Validates that the server we are about to send the message to knows how
+     * to handle the message.
+     * 
+     * @param message
+     *            The message to be sent.
+     * @param serverVersion
+     *            The server version.
+     * @throws ServerVersionException
+     *             If the messages cannot be sent to the server version.
+     */
+    private void validateVersion(final Message message,
+            final Version serverVersion) throws ServerVersionException {
+        final Version messageVersion = message.getRequiredServerVersion();
+        if ((messageVersion != null)
+                && (messageVersion.compareTo(serverVersion) > 0)) {
+
+            throw new ServerVersionException(message.getOperationName(),
+                    messageVersion, serverVersion, message);
+        }
     }
 
     /**

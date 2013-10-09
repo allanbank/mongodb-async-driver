@@ -10,8 +10,8 @@ import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.client.Message;
 
 /**
- * UnsupportedOperationException is thrown to report that an attempt was made to
- * send a request to a server that required a more recent version of the server.
+ * ServerVersionException is thrown to report that an attempt was made to send a
+ * request to a server that required a more recent version of the server.
  * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
@@ -19,7 +19,7 @@ import com.allanbank.mongodb.client.Message;
  *          removed or modified.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class UnsupportedOperationException extends MongoDbException {
+public class ServerVersionException extends MongoDbException {
 
     /** Serialization version for the class. */
     private static final long serialVersionUID = -8577756570001826274L;
@@ -37,7 +37,7 @@ public class UnsupportedOperationException extends MongoDbException {
     private final Version myRequiredVersion;
 
     /**
-     * Creates a new DocumentToLargeException.
+     * Creates a new ServerVersionException.
      * 
      * @param operation
      *            The name of the command/operation.
@@ -48,7 +48,7 @@ public class UnsupportedOperationException extends MongoDbException {
      * @param message
      *            The operation's message.
      */
-    public UnsupportedOperationException(final String operation,
+    public ServerVersionException(final String operation,
             final Version required, final Version actual, final Message message) {
         super("Attempted to send the '" + operation + "' operation to a "
                 + actual + " server but the operation is "

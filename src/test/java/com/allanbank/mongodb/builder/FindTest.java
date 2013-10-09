@@ -87,44 +87,6 @@ public class FindTest {
      * Test method for {@link Find#Find}.
      */
     @Test
-    public void testFindWithReturnKeys() {
-        final Document query = Find.ALL;
-        final Document fields = BuilderFactory.start().add("foo", 1)
-                .add("bar", 1).build();
-        final Document sort = BuilderFactory.start().add("foo", 1).build();
-
-        final Find.Builder builder = new Find.Builder();
-        builder.setQuery(query);
-        builder.returnFields("foo", "bar");
-        builder.setBatchSize(101010);
-        builder.setLimit(202020);
-        builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
-        builder.setReadPreference(ReadPreference.CLOSEST);
-        builder.sort(sort);
-        builder.tailable();
-
-        Find request = builder.build();
-        assertSame(query, request.getQuery());
-        assertEquals(fields, request.getReturnFields());
-        assertEquals(101010, request.getBatchSize());
-        assertEquals(202020, request.getLimit());
-        assertEquals(123456, request.getNumberToSkip());
-        assertTrue(request.isPartialOk());
-        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
-        assertSame(sort, request.getSort());
-        assertNull(request.getHint());
-        assertNull(request.getHintName());
-        assertFalse(request.isSnapshot());
-        assertTrue(request.isTailable());
-        assertTrue(request.isAwaitData());
-        assertFalse(request.isImmortalCursor());
-    }
-
-    /**
-     * Test method for {@link Find#Find}.
-     */
-    @Test
     public void testFindMinimal() {
         final Find.Builder builder = new Find.Builder();
 
@@ -534,6 +496,44 @@ public class FindTest {
         builder.returnKey(false);
         request = builder.build();
         assertEquals(Find.ALL, request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     */
+    @Test
+    public void testFindWithReturnKeys() {
+        final Document query = Find.ALL;
+        final Document fields = BuilderFactory.start().add("foo", 1)
+                .add("bar", 1).build();
+        final Document sort = BuilderFactory.start().add("foo", 1).build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(query);
+        builder.returnFields("foo", "bar");
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.sort(sort);
+        builder.tailable();
+
+        final Find request = builder.build();
+        assertSame(query, request.getQuery());
+        assertEquals(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertSame(sort, request.getSort());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+        assertTrue(request.isTailable());
+        assertTrue(request.isAwaitData());
+        assertFalse(request.isImmortalCursor());
     }
 
     /**

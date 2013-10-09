@@ -301,6 +301,17 @@ public class Query extends AbstractMessage {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the name of the operation: "QUERY".
+     * </p>
+     */
+    @Override
+    public String getOperationName() {
+        return Operation.QUERY.name();
+    }
+
+    /**
      * Returns the query document containing the expression to select documents
      * from the collection.
      * 

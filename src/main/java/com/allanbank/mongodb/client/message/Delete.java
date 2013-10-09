@@ -120,6 +120,17 @@ public class Delete extends AbstractMessage {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the name of the operation: "DELETE".
+     * </p>
+     */
+    @Override
+    public String getOperationName() {
+        return Operation.DELETE.name();
+    }
+
+    /**
      * Returns the query {@link Document}.
      * 
      * @return The query {@link Document}.

@@ -208,6 +208,17 @@ public class Reply extends AbstractMessage {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the name of the operation: "REPLY".
+     * </p>
+     */
+    @Override
+    public String getOperationName() {
+        return Operation.REPLY.name();
+    }
+
+    /**
      * Returns the id of the request this response is for.
      * 
      * @return The id of the request this response is for.

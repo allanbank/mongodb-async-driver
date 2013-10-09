@@ -146,6 +146,17 @@ public class Insert extends AbstractMessage {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the name of the operation: "INSERT".
+     * </p>
+     */
+    @Override
+    public String getOperationName() {
+        return Operation.INSERT.name();
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

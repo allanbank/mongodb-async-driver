@@ -11,10 +11,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.message.Reply;
-import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.MongoClientClosedException;
 
 /**
@@ -60,7 +58,7 @@ public abstract class AbstractClient implements Client {
     public String send(final Message message,
             final Callback<Reply> replyCallback) throws MongoDbException {
 
-        validate(message, null);
+        assertOpen(message);
 
         return findConnection(message, null).send(message, replyCallback);
     }
@@ -76,7 +74,7 @@ public abstract class AbstractClient implements Client {
     public String send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
 
-        validate(message1, message2);
+        assertOpen(message1);
 
         return findConnection(message1, message2).send(message1, message2,
                 replyCallback);
@@ -102,30 +100,17 @@ public abstract class AbstractClient implements Client {
             Message message2) throws MongoDbException;
 
     /**
-     * Ensures that the documents in the message do not exceed the maximum size
-     * allowed by MongoDB.
+     * Asserts that the command is open.
      * 
-     * @param message1
-     *            The message to be sent to the server.
-     * @param message2
-     *            The second message to be sent to the server.
-     * @throws DocumentToLargeException
-     *             On a message being too large.
+     * @param message
+     *            The message being sent.
      * @throws MongoClientClosedException
-     *             If the client has already been closed.
+     *             If the client has been closed.
      */
-    private void validate(final Message message1, final Message message2)
-            throws DocumentToLargeException, MongoClientClosedException {
+    private void assertOpen(final Message message)
+            throws MongoClientClosedException {
         if (myClosed.get()) {
-            throw new MongoClientClosedException(message1);
-        }
-
-        final SizeOfVisitor visitor = new SizeOfVisitor();
-        message1.validateSize(visitor, MAX_DOCUMENT_SIZE);
-
-        if (message2 != null) {
-            visitor.reset();
-            message2.validateSize(visitor, MAX_DOCUMENT_SIZE);
+            throw new MongoClientClosedException(message);
         }
     }
 

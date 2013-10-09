@@ -871,9 +871,9 @@ public class Find {
          *            The names of the fields to be returned.
          * @return This builder for chaining method calls.
          */
-        public Builder returnFields(String... fieldNames) {
-            DocumentBuilder builder = BuilderFactory.start();
-            for (String fieldName : fieldNames) {
+        public Builder returnFields(final String... fieldNames) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            for (final String fieldName : fieldNames) {
                 builder.add(fieldName, 1);
             }
             return setReturnFields(builder);

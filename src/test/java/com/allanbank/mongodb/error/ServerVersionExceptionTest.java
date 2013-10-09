@@ -16,24 +16,23 @@ import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.message.IsMaster;
 
 /**
- * UnsupportedOperationExceptionTest provides tests for the
- * {@link UnsupportedOperationException} class.
+ * ServerVersionExceptionTest provides tests for the
+ * {@link ServerVersionException} class.
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class UnsupportedOperationExceptionTest {
+public class ServerVersionExceptionTest {
 
     /**
-     * Test method for
-     * {@link UnsupportedOperationException#UnsupportedOperationException} .
+     * Test method for {@link ServerVersionException#ServerVersionException}.
      */
     @Test
-    public void testDocumentToLargeException() {
+    public void testServerVersionException() {
         final Version actual = Version.parse("1.2.1");
         final Version required = Version.parse("1.2.3");
         final Message message = new IsMaster();
 
-        final UnsupportedOperationException ex = new UnsupportedOperationException(
+        final ServerVersionException ex = new ServerVersionException(
                 "isMaster", required, actual, message);
 
         assertThat(

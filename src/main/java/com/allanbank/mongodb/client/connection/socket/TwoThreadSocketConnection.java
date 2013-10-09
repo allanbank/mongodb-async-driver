@@ -159,6 +159,9 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
     @Override
     public String send(final Message message,
             final Callback<Reply> replyCallback) throws MongoDbException {
+
+        validate(message, null);
+
         try {
             myToSendQueue.put(message, replyCallback);
         }
@@ -175,6 +178,9 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
     @Override
     public String send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
+
+        validate(message1, message2);
+
         try {
             myToSendQueue.put(message1, null, message2, replyCallback);
         }

@@ -5,9 +5,11 @@
 
 package com.allanbank.mongodb.client.message;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -246,6 +248,7 @@ public class ReplyTest {
                 Boolean.valueOf(message.isQueryFailed()));
         assertEquals(Boolean.valueOf(shardConfigStale),
                 Boolean.valueOf(message.isShardConfigStale()));
+        assertThat(message.getOperationName(), is(Operation.REPLY.name()));
     }
 
     /**

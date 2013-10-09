@@ -107,6 +107,17 @@ public class KillCursors extends AbstractMessage {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the name of the operation: "KILL_CURSORS".
+     * </p>
+     */
+    @Override
+    public String getOperationName() {
+        return Operation.KILL_CURSORS.name();
+    }
+
+    /**
      * Computes a reasonable hash code.
      * 
      * @return The hash code value.

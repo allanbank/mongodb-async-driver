@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.client.message;
 
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -30,6 +31,9 @@ public abstract class AbstractMessage implements Message {
     /** The details on which servers may be sent the message. */
     private final ReadPreference myReadPreference;
 
+    /** The required version of the server to support processing the message. */
+    private final Version myRequiredServerVersion;
+
     /**
      * Create a new AbstractMessage.
      */
@@ -37,6 +41,7 @@ public abstract class AbstractMessage implements Message {
         myDatabaseName = "";
         myCollectionName = "";
         myReadPreference = ReadPreference.PRIMARY;
+        myRequiredServerVersion = null;
     }
 
     /**
@@ -54,6 +59,29 @@ public abstract class AbstractMessage implements Message {
         myDatabaseName = databaseName;
         myCollectionName = collectionName;
         myReadPreference = readPreference;
+        myRequiredServerVersion = null;
+    }
+
+    /**
+     * Create a new AbstractMessage.
+     * 
+     * @param databaseName
+     *            The name of the database.
+     * @param collectionName
+     *            The name of the collection.
+     * @param readPreference
+     *            The preferences for which servers to send the message.
+     * @param requiredServerVersion
+     *            The required version of the server to support processing the
+     *            message.
+     */
+    public AbstractMessage(final String databaseName,
+            final String collectionName, final ReadPreference readPreference,
+            final Version requiredServerVersion) {
+        myDatabaseName = databaseName;
+        myCollectionName = collectionName;
+        myReadPreference = readPreference;
+        myRequiredServerVersion = requiredServerVersion;
     }
 
     /**
@@ -109,6 +137,14 @@ public abstract class AbstractMessage implements Message {
     @Override
     public ReadPreference getReadPreference() {
         return myReadPreference;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Version getRequiredServerVersion() {
+        return myRequiredServerVersion;
     }
 
     /**

@@ -52,9 +52,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
-import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.EndianUtils;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -69,7 +67,6 @@ import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.message.Update;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
-import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * TwoThreadSocketConnectionTest provides tests for the
@@ -2237,62 +2234,5 @@ public class TwoThreadSocketConnectionTest {
             }
             now = System.currentTimeMillis();
         }
-    }
-
-    /**
-     * PoisonMessage provides a message that throws an exception when you try to
-     * write it.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static class PoisonMessage implements Message {
-
-        /** The exception to throw. */
-        private final Throwable myToThrow;
-
-        /**
-         * Creates a new PoisonMessage.
-         * 
-         * @param toThrow
-         *            The exception to throw.
-         */
-        public PoisonMessage(final Throwable toThrow) {
-            myToThrow = toThrow;
-        }
-
-        @Override
-        public String getDatabaseName() {
-            return "f";
-        }
-
-        @Override
-        public ReadPreference getReadPreference() {
-            return ReadPreference.PRIMARY;
-        }
-
-        @Override
-        public void validateSize(final SizeOfVisitor visitor,
-                final int maxDocumentSize) throws DocumentToLargeException {
-            // Nothing.
-        }
-
-        @Override
-        public void write(final int messageId, final BsonOutputStream out)
-                throws IOException {
-            if (myToThrow instanceof IOException) {
-                throw (IOException) myToThrow;
-            }
-            else if (myToThrow instanceof RuntimeException) {
-                throw (RuntimeException) myToThrow;
-            }
-            else if (myToThrow instanceof Error) {
-                throw (Error) myToThrow;
-            }
-            else {
-                throw new MongoDbException(myToThrow);
-            }
-
-        }
-
     }
 }

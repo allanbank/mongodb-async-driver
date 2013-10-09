@@ -12,6 +12,7 @@ import static org.easymock.EasyMock.makeThreadSafe;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
@@ -56,22 +57,24 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.EndianUtils;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.connection.Connection;
+import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.Insert;
+import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.message.KillCursors;
 import com.allanbank.mongodb.client.message.PendingMessage;
 import com.allanbank.mongodb.client.message.Query;
@@ -81,6 +84,7 @@ import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
+import com.allanbank.mongodb.error.ServerVersionException;
 
 /**
  * SocketConnectionTest provides tests for the {@link SocketConnection} class.
@@ -244,6 +248,47 @@ public class SocketConnectionTest {
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
 
         // myTestConnection = null;
+    }
+
+    /**
+     * Test method for {@link SocketConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testCommandToNew() throws IOException {
+
+        myTestConnection = new SocketConnection(myTestServer,
+                new MongoClientConfiguration());
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("silverBullet", 1);
+        final Document commandDoc = builder.build();
+
+        final Message command = new Command("db", commandDoc,
+                ReadPreference.PRIMARY, Version.parse("99.99.99"));
+
+        // Tell the server our max size is actually small.
+        builder.reset().pushArray("versionArray").add(1).add(1).add(1);
+        myTestServer.update(builder.build());
+
+        // Now the send should fail.
+        try {
+            myTestConnection.send(command, null);
+            fail("Should have thrown a ServerVersionException");
+        }
+        catch (final ServerVersionException sve) {
+            // Good.
+            assertThat(sve.getActualVersion(), is(Version.parse("1.1.1")));
+            assertThat(sve.getOperation(), is("silverBullet"));
+            assertThat(sve.getOperationsMessage(), is(command));
+            assertThat(sve.getRequiredVersion(), is(Version.parse("99.99.99")));
+        }
     }
 
     /**
@@ -716,6 +761,47 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
                         - helloWorld.length, request.length));
+    }
+
+    /**
+     * Test method for {@link SocketConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testInsertToLarge() throws IOException {
+
+        myTestConnection = new SocketConnection(myTestServer,
+                new MongoClientConfiguration());
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("data", new byte[2048]);
+
+        final Document doc = builder.build();
+
+        final Insert insert = new Insert("db", "c",
+                Collections.singletonList(doc), true);
+
+        // Tell the server our max size is actually small.
+        myTestServer.update(builder.reset().add("maxBsonObjectSize", 1024)
+                .build());
+
+        // Now the send should fail.
+        try {
+            myTestConnection.send(insert, null);
+            fail("Should have thrown a DocumenToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertThat(dtle.getDocument(), is(doc));
+            assertThat(dtle.getMaximumSize(), is(1024));
+            assertThat(dtle.getSize(), greaterThan(2048));
+        }
     }
 
     /**
@@ -2148,6 +2234,47 @@ public class SocketConnectionTest {
     }
 
     /**
+     * Test method for {@link SocketConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testSecondMessageToLarge() throws IOException {
+
+        myTestConnection = new SocketConnection(myTestServer,
+                new MongoClientConfiguration());
+        myTestConnection.start();
+
+        assertTrue("Should have connected to the server.",
+                ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add("data", new byte[2048]);
+
+        final Document doc = builder.build();
+
+        final Insert insert = new Insert("db", "c",
+                Collections.singletonList(doc), true);
+
+        // Tell the server our max size is actually small.
+        myTestServer.update(builder.reset().add("maxBsonObjectSize", 1024)
+                .build());
+
+        // Now the send should fail.
+        try {
+            myTestConnection.send(new IsMaster(), insert, null);
+            fail("Should have thrown a DocumenToLargeException");
+        }
+        catch (final DocumentToLargeException dtle) {
+            // Good.
+            assertThat(dtle.getDocument(), is(doc));
+            assertThat(dtle.getMaximumSize(), is(1024));
+            assertThat(dtle.getSize(), greaterThan(2048));
+        }
+    }
+
+    /**
      * Test method for {@link SocketConnection#close()}.
      * 
      * @throws IOException
@@ -3003,63 +3130,6 @@ public class SocketConnectionTest {
 
         /** The serialization id for the class. */
         private static final long serialVersionUID = 1433767421262380441L;
-
-    }
-
-    /**
-     * PoisonMessage provides a message that throws an exception when you try to
-     * write it.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static class PoisonMessage implements Message {
-
-        /** The exception to throw. */
-        private final Throwable myToThrow;
-
-        /**
-         * Creates a new PoisonMessage.
-         * 
-         * @param toThrow
-         *            The exception to throw.
-         */
-        public PoisonMessage(final Throwable toThrow) {
-            myToThrow = toThrow;
-        }
-
-        @Override
-        public String getDatabaseName() {
-            return "f";
-        }
-
-        @Override
-        public ReadPreference getReadPreference() {
-            return ReadPreference.PRIMARY;
-        }
-
-        @Override
-        public void validateSize(final SizeOfVisitor visitor,
-                final int maxDocumentSize) throws DocumentToLargeException {
-            // Nothing.
-        }
-
-        @Override
-        public void write(final int messageId, final BsonOutputStream out)
-                throws IOException {
-            if (myToThrow instanceof IOException) {
-                throw (IOException) myToThrow;
-            }
-            else if (myToThrow instanceof RuntimeException) {
-                throw (RuntimeException) myToThrow;
-            }
-            else if (myToThrow instanceof Error) {
-                throw (Error) myToThrow;
-            }
-            else {
-                throw new MongoDbException(myToThrow);
-            }
-
-        }
 
     }
 }
