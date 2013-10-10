@@ -289,7 +289,7 @@ public abstract class AbstractBuilder implements Builder {
          */
         @Override
         public void accept(final Visitor visitor) {
-            // No-op.
+            build().accept(visitor);
         }
 
         /**

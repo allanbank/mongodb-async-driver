@@ -5,8 +5,10 @@
 
 package com.allanbank.mongodb.bson.builder.impl;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -371,6 +373,20 @@ public class ArrayBuilderImplTest {
 
         element = builder.build("foo");
         assertTrue(element.getEntries().size() == 0);
+    }
+
+    /**
+     * Test method for the {@link DocumentBuilderImpl#toString()}.
+     */
+    @Test
+    public void testToString() {
+        final ArrayBuilderImpl builder = new ArrayBuilderImpl();
+
+        builder.add(new byte[] { 1 });
+
+        assertThat(builder.toString(),
+                is(new ArrayElement("elements", builder.subElements())
+                        .toString()));
     }
 
 }

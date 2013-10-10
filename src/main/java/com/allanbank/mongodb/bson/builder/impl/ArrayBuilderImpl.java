@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb.bson.builder.impl;
 
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.JavaScriptElement;
 import com.allanbank.mongodb.bson.element.JavaScriptWithScopeElement;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.element.LongElement;
 import com.allanbank.mongodb.bson.element.MaxKeyElement;
 import com.allanbank.mongodb.bson.element.MinKeyElement;
@@ -488,6 +490,24 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     public ArrayBuilder reset() {
         super.reset();
         return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the current state of the builder as an array
+     * element.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringWriter writer = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                writer, false);
+
+        visitor.visitArray("elements", myElements);
+
+        return writer.toString();
     }
 
     /**
