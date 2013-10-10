@@ -33,6 +33,15 @@ public class Version implements Serializable, Comparable<Version> {
     /** The driver's version. */
     public static final Version VERSION;
 
+    /** Version 2.0 */
+    public static final Version VERSION_2_0 = Version.parse("2.0");
+
+    /** Version 2.2 */
+    public static final Version VERSION_2_2 = Version.parse("2.2");
+
+    /** Version 2.4 */
+    public static final Version VERSION_2_4 = Version.parse("2.4");
+
     /** The logger for the {@link Version}. */
     private static final Logger LOG = Logger.getLogger(Version.class
             .getCanonicalName());

@@ -13,9 +13,11 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.message.BuildInfo;
 import com.allanbank.mongodb.client.message.PendingMessage;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.state.Server;
+import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -206,5 +208,9 @@ public class SocketConnection extends AbstractSocketConnection {
     @Override
     public void start() {
         myReceiver.start();
+
+        if (myServer.needBuildInfo()) {
+            send(new BuildInfo(), new ServerUpdateCallback(myServer));
+        }
     }
 }

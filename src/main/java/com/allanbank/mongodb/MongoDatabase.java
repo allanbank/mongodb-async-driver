@@ -280,6 +280,22 @@ public interface MongoDatabase {
      * @param reply
      *            {@link Callback} that will be notified of the command results.
      * @param command
+     *            The command document to run.
+     * @param requiredServerVersion
+     *            The minimum required server version to support the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(Callback<Document> reply,
+            DocumentAssignable command, Version requiredServerVersion)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link Callback} that will be notified of the command results.
+     * @param command
      *            The name of the command to run.
      * @throws MongoDbException
      *             On an error issuing the command or in running the command

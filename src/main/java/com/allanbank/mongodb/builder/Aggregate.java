@@ -12,6 +12,7 @@ import java.util.List;
 
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
@@ -81,6 +82,9 @@ import com.allanbank.mongodb.builder.expression.Expressions;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class Aggregate {
+
+    /** The first version of MongoDB to support the aggregate command. */
+    public static final Version REQUIRED_VERSION = Version.parse("2.1.0");
 
     /**
      * Creates a new builder for a {@link Aggregate}.

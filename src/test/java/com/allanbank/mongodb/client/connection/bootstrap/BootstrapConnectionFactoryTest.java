@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.client.connection.bootstrap;
 
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.start;
 import static com.allanbank.mongodb.client.connection.CallbackReply.reply;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -30,8 +31,11 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
+import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
@@ -41,6 +45,7 @@ import com.allanbank.mongodb.client.connection.rs.ReplicaSetConnectionFactory;
 import com.allanbank.mongodb.client.connection.rs.ReplicaSetReconnectStrategy;
 import com.allanbank.mongodb.client.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
+import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.SimpleReconnectStrategy;
 import com.allanbank.mongodb.error.CannotConnectException;
 
@@ -56,6 +61,11 @@ public class BootstrapConnectionFactoryTest {
 
     /** A test user name. */
     public static final String USER_NAME = "user";
+
+    /** Update document with the "build info". */
+    private static final Document BUILD_INFO = new ImmutableDocument(
+            BuilderFactory.start().add(Server.MAX_BSON_OBJECT_SIZE_PROP,
+                    Client.MAX_DOCUMENT_SIZE));
 
     /** A Mock MongoDB server to connect to. */
     private static MockMongoDBServer ourServer;
@@ -109,7 +119,7 @@ public class BootstrapConnectionFactoryTest {
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.addString("process", "mongod");
 
-        ourServer.setReplies(reply());
+        ourServer.setReplies(reply(start(BUILD_INFO)), reply());
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -137,7 +147,8 @@ public class BootstrapConnectionFactoryTest {
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.addString("process", "mongod");
 
-        ourServer.setReplies(reply(replStatusBuilder));
+        ourServer
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -174,7 +185,8 @@ public class BootstrapConnectionFactoryTest {
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.addString("process", "mongod").add("ok", 0);
 
-        ourServer.setReplies(reply(replStatusBuilder));
+        ourServer
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -202,8 +214,9 @@ public class BootstrapConnectionFactoryTest {
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.addString("setName", "foo");
 
-        ourServer.setReplies(reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder), reply());
+        ourServer.setReplies(reply(start(BUILD_INFO)),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder), reply());
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -225,7 +238,8 @@ public class BootstrapConnectionFactoryTest {
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.addString("msg", "isdbgrid");
 
-        ourServer.setReplies(reply(replStatusBuilder), reply());
+        ourServer.setReplies(reply(start(BUILD_INFO)),
+                reply(replStatusBuilder), reply());
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -248,7 +262,8 @@ public class BootstrapConnectionFactoryTest {
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.addString("process", "mongod");
 
-        ourServer.setReplies(reply(replStatusBuilder));
+        ourServer
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -275,7 +290,8 @@ public class BootstrapConnectionFactoryTest {
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.addString("process", "mongod");
 
-        ourServer.setReplies(reply(replStatusBuilder));
+        ourServer
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 fails, ourServer.getInetSocketAddress());
@@ -301,8 +317,8 @@ public class BootstrapConnectionFactoryTest {
         final DocumentBuilder replStatusBuilder = BuilderFactory.start();
         replStatusBuilder.addString("process", "mongod");
 
-        ourServer.setReplies(reply(nonceReply), reply(authReply),
-                reply(replStatusBuilder));
+        ourServer.setReplies(reply(start(BUILD_INFO)), reply(nonceReply),
+                reply(authReply), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());

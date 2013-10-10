@@ -61,10 +61,12 @@ import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.EndianUtils;
 import com.allanbank.mongodb.builder.Find;
+import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -92,9 +94,18 @@ import com.allanbank.mongodb.error.ServerVersionException;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SocketConnectionTest {
+    /** Update document with the "build info". */
+    private static final Document BUILD_INFO;
 
     /** A Mock MongoDB server to connect to. */
     private static MockSocketServer ourServer;
+
+    static {
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add(Server.MAX_BSON_OBJECT_SIZE_PROP, Client.MAX_DOCUMENT_SIZE);
+        builder.pushArray("versionArray").add(99).add(99).add(99);
+        BUILD_INFO = new ImmutableDocument(builder);
+    }
 
     /**
      * Starts a Mock MongoDB server.
@@ -134,6 +145,9 @@ public class SocketConnectionTest {
     public void setUp() {
         myTestServer = new Cluster(new MongoClientConfiguration())
                 .add(ourServer.getInetSocketAddress());
+
+        // Disable the re-request of build information.
+        myTestServer.update(BUILD_INFO);
     }
 
     /**

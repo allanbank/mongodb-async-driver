@@ -9,6 +9,7 @@ import static com.allanbank.mongodb.util.Assertions.assertNotEmpty;
 
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 
@@ -72,6 +73,9 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  * @since MongoDB 2.4
  */
 public class Text {
+    /** The first version of MongoDB to support the text command. */
+    public static final Version REQUIRED_VERSION = Version.parse("2.4.0");
+
     /**
      * Creates a new builder for a {@link Text} command.
      * 

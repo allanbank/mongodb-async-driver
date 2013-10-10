@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.client.connection.sharded;
 
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.start;
 import static com.allanbank.mongodb.client.connection.CallbackReply.cb;
 import static com.allanbank.mongodb.client.connection.CallbackReply.reply;
 import static org.easymock.EasyMock.anyObject;
@@ -41,6 +42,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
+import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.MockMongoDBServer;
@@ -61,6 +63,11 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedConnectionFactoryTest {
+
+    /** Update document with the "build info". */
+    private static final Document BUILD_INFO = new ImmutableDocument(
+            BuilderFactory.start().add(Server.MAX_BSON_OBJECT_SIZE_PROP,
+                    Client.MAX_DOCUMENT_SIZE));
 
     /** A Mock MongoDB server to connect to. */
     private static MockMongoDBServer ourServer;
@@ -116,9 +123,9 @@ public class ShardedConnectionFactoryTest {
         final String serverName = ServerNameUtils.normalize(addr);
 
         ourServer.setReplies(
-                reply(BuilderFactory.start().addString("_id", serverName),
-                        BuilderFactory.start().addString("_id",
-                                "localhost:1234")),
+                reply(start(BUILD_INFO)),
+                reply(start().addString("_id", serverName), BuilderFactory
+                        .start().addString("_id", "localhost:1234")),
                 reply(BuilderFactory.start().addString("_id", serverName),
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")));
@@ -141,7 +148,7 @@ public class ShardedConnectionFactoryTest {
      */
     @Test
     public void testBootstrapNoDiscover() {
-        ourServer.setReplies(reply());
+        ourServer.setReplies(reply(start(BUILD_INFO)), reply());
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -155,7 +162,8 @@ public class ShardedConnectionFactoryTest {
         final List<Server> servers = myTestFactory.getCluster().getServers();
         assertEquals(1, servers.size());
 
-        assertEquals(2, ourServer.getRequests().size()); // For ping + request.
+        assertEquals(3, ourServer.getRequests().size()); // For buildInfo + ping
+                                                         // + request.
     }
 
     /**
@@ -364,6 +372,7 @@ public class ShardedConnectionFactoryTest {
         final String serverName = ServerNameUtils.normalize(addr);
 
         ourServer.setReplies(
+                reply(start(BUILD_INFO)),
                 reply(BuilderFactory.start().addString("_id", serverName),
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")),
@@ -410,8 +419,8 @@ public class ShardedConnectionFactoryTest {
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName);
 
-        ourServer
-                .setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
+        ourServer.setReplies(reply(start(BUILD_INFO)),
+                reply(replStatusBuilder), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -447,8 +456,8 @@ public class ShardedConnectionFactoryTest {
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName);
 
-        ourServer
-                .setReplies(reply(replStatusBuilder), reply(replStatusBuilder));
+        ourServer.setReplies(reply(start(BUILD_INFO)),
+                reply(replStatusBuilder), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -564,6 +573,7 @@ public class ShardedConnectionFactoryTest {
                 + ourServer.getInetSocketAddress().getPort();
 
         ourServer.setReplies(
+                reply(start(BUILD_INFO)),
                 reply(BuilderFactory.start().addString("_id", serverName),
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")),
@@ -591,6 +601,7 @@ public class ShardedConnectionFactoryTest {
                 + ourServer.getInetSocketAddress().getPort();
 
         ourServer.setReplies(
+                reply(start(BUILD_INFO)),
                 reply(BuilderFactory.start().addString("_id", serverName),
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")),

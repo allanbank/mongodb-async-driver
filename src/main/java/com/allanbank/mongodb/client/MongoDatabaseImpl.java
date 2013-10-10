@@ -19,6 +19,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -388,13 +389,32 @@ public class MongoDatabaseImpl implements MongoDatabase {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the
+     * {@link #runCommandAsync(Callback, DocumentAssignable, Version)} method
+     * with {@code null} as the version.
+     * </p>
+     * 
+     * @see #runCommandAsync(Callback, DocumentAssignable, Version)
+     */
+    @Override
+    public void runCommandAsync(final Callback<Document> reply,
+            final DocumentAssignable command) throws MongoDbException {
+        runCommandAsync(reply, command, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to build a {@link Command} message and send it to the server.
      * </p>
      */
     @Override
     public void runCommandAsync(final Callback<Document> reply,
-            final DocumentAssignable command) throws MongoDbException {
-        final Command commandMessage = new Command(myName, command.asDocument());
+            final DocumentAssignable command, final Version requireServerVersion)
+            throws MongoDbException {
+        final Command commandMessage = new Command(myName,
+                command.asDocument(), ReadPreference.PRIMARY,
+                requireServerVersion);
 
         myClient.send(commandMessage, new ReplyCommandCallback(reply));
     }

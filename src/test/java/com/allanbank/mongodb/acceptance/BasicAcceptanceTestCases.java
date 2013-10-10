@@ -16,13 +16,14 @@ import static com.allanbank.mongodb.builder.Sort.desc;
 import static com.allanbank.mongodb.builder.expression.Expressions.constant;
 import static com.allanbank.mongodb.builder.expression.Expressions.field;
 import static com.allanbank.mongodb.builder.expression.Expressions.set;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -32,7 +33,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
-import static org.junit.Assume.assumeTrue;
 
 import java.awt.geom.Point2D;
 import java.io.DataInputStream;
@@ -76,6 +76,7 @@ import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.StreamCallback;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -109,7 +110,7 @@ import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
 import com.allanbank.mongodb.error.QueryFailedException;
-import com.allanbank.mongodb.error.ReplyException;
+import com.allanbank.mongodb.error.ServerVersionException;
 import com.allanbank.mongodb.gridfs.GridFs;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -478,14 +479,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
             assertEquals(expected, results);
         }
-        catch (final ReplyException re) {
+        catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
-            final String message = re.getMessage();
+            assumeThat(sve.getActualVersion(),
+                    greaterThan(Aggregate.REQUIRED_VERSION));
 
-            assumeTrue(!message.contains("no such cmd: aggregate")
-                    && !message.contains("unrecognized command: aggregate"));
-
-            throw re;
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
     }
 
@@ -525,17 +525,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assumeThat(docs.get(1), is(doc2.add(docs.get(1).get("d")).build()));
             assumeThat(docs.get(2), is(doc3.add(docs.get(2).get("d")).build()));
         }
-        catch (final ReplyException re) {
+        catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
-            assumeThat(
-                    re.getMessage(),
-                    // Before 2.2
-                    allOf(not(containsString("no such cmd: aggregate")),
-                            not(containsString("unrecognized command: aggregate")),
-                            // before 2.4
-                            not(containsString("unrecognized pipeline op \"$geoNear"))));
+            assumeThat(sve.getActualVersion(),
+                    greaterThan(Aggregate.REQUIRED_VERSION));
 
-            fatal(re);
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
     }
 
@@ -7308,14 +7304,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             results = myCollection.textSearch(Text.builder().searchTerm(
                     "coffee magic"));
         }
-        catch (final ReplyException error) {
+        catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
-            final String message = error.getMessage();
+            assumeThat(sve.getActualVersion(),
+                    greaterThan(Text.REQUIRED_VERSION));
 
-            assumeTrue(!message.contains("no such cmd: text")
-                    && !message.contains("unrecognized command: text"));
-
-            throw error;
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
 
         assertThat(results.size(), is(2));
@@ -7412,29 +7407,39 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myCollection.insert(Durability.ACK, BuilderFactory.start());
 
         if (!isShardedConfiguration()) {
-            Document result = myCollection.updateOptions(BuilderFactory.start()
-                    .add("usePowerOf2Sizes", true));
+            try {
+                Document result = myCollection.updateOptions(BuilderFactory
+                        .start().add("usePowerOf2Sizes", true));
 
-            // Check for non-2.2 servers.
-            assumeThat(result.get("errmsg"), nullValue());
+                assertEquals(new BooleanElement("usePowerOf2Sizes_old", false),
+                        result.get("usePowerOf2Sizes_old"));
 
-            assertEquals(new BooleanElement("usePowerOf2Sizes_old", false),
-                    result.get("usePowerOf2Sizes_old"));
+                result = myCollection.updateOptions(BuilderFactory.start().add(
+                        "usePowerOf2Sizes", true));
 
-            result = myCollection.updateOptions(BuilderFactory.start().add(
-                    "usePowerOf2Sizes", true));
+                // 2.4 returns null.
+                assertThat(
+                        result.get("usePowerOf2Sizes_old"),
+                        anyOf(is((Element) new BooleanElement(
+                                "usePowerOf2Sizes_old", true)),
+                                nullValue(Element.class)));
 
-            // 2.4 returns null.
-            assertThat(
-                    result.get("usePowerOf2Sizes_old"),
-                    anyOf(is((Element) new BooleanElement(
-                            "usePowerOf2Sizes_old", true)),
-                            nullValue(Element.class)));
+                result = myCollection.updateOptions(BuilderFactory.start().add(
+                        "usePowerOf2Sizes", false));
+                assertEquals(new BooleanElement("usePowerOf2Sizes_old", true),
+                        result.get("usePowerOf2Sizes_old"));
+            }
+            catch (final ServerVersionException sve) {
+                // Check for before-2.2 servers.
 
-            result = myCollection.updateOptions(BuilderFactory.start().add(
-                    "usePowerOf2Sizes", false));
-            assertEquals(new BooleanElement("usePowerOf2Sizes_old", true),
-                    result.get("usePowerOf2Sizes_old"));
+                // Check if we are talking to a recent MongoDB instance.
+                assumeThat(sve.getActualVersion(),
+                        greaterThan(Version.VERSION_2_2));
+
+                // Humm - Should have worked. Rethrow the error.
+                throw sve;
+
+            }
         }
     }
 

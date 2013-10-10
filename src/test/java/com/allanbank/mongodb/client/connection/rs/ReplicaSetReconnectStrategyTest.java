@@ -27,6 +27,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
+import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.MockMongoDBServer;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
@@ -41,6 +42,11 @@ import com.allanbank.mongodb.util.IOUtils;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetReconnectStrategyTest {
+
+    /** Update document with the "build info". */
+    private static final Document BUILD_INFO = new ImmutableDocument(
+            BuilderFactory.start().add(Server.MAX_BSON_OBJECT_SIZE_PROP,
+                    Client.MAX_DOCUMENT_SIZE));
 
     /** A Mock MongoDB server to connect to. */
     private static MockMongoDBServer ourServer1;
@@ -169,12 +175,13 @@ public class ReplicaSetReconnectStrategyTest {
                 .addString(serverName2).addString(serverName3);
 
         // Servers are called twice. Once for ping and once for close.
-        ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+        ourServer1.setReplies(reply(start(BUILD_INFO)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)),
                 reply(start(PRIMARY_UPDATE, replStatusBuilder)));
-        ourServer2.setReplies(
+        ourServer2.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
-        ourServer3.setReplies(
+        ourServer3.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
@@ -205,12 +212,13 @@ public class ReplicaSetReconnectStrategyTest {
                 .addString(serverName2).addString(serverName3);
 
         // Note sure who will get asked first... server2 should be asked twice.
-        ourServer1
-                .setReplies(reply(start(SECONDARY_UPDATE, replStatusBuilder)));
-        ourServer2.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+        ourServer1.setReplies(reply(start(BUILD_INFO)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
+        ourServer2.setReplies(reply(start(BUILD_INFO)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)),
                 reply(start(PRIMARY_UPDATE, replStatusBuilder)));
-        ourServer3
-                .setReplies(reply(start(SECONDARY_UPDATE, replStatusBuilder)));
+        ourServer3.setReplies(reply(start(BUILD_INFO)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
         myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
         final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
@@ -288,7 +296,8 @@ public class ReplicaSetReconnectStrategyTest {
         //
 
         // Should only contact the primary.
-        ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)));
+        ourServer1.setReplies(reply(start(BUILD_INFO)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)));
 
         myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
         final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
@@ -373,12 +382,13 @@ public class ReplicaSetReconnectStrategyTest {
                 .addString(serverName2).addString(serverName3);
 
         // Servers are called twice. Once for ping and once for close.
-        ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+        ourServer1.setReplies(reply(start(BUILD_INFO)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)),
                 reply(start(PRIMARY_UPDATE, replStatusBuilder)));
-        ourServer2.setReplies(
+        ourServer2.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
-        ourServer3.setReplies(
+        ourServer3.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
@@ -406,7 +416,8 @@ public class ReplicaSetReconnectStrategyTest {
         //
 
         // Should only contact the primary.
-        ourServer1.setReplies(reply(replStatusBuilder));
+        ourServer1.setReplies(reply(start(BUILD_INFO)),
+                reply(replStatusBuilder));
 
         myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
         final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
@@ -429,13 +440,13 @@ public class ReplicaSetReconnectStrategyTest {
         reply2.pushArray("hosts").addString(serverName1).addString(serverName2)
                 .addString(serverName3);
 
-        ourServer1.setReplies(
+        ourServer1.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, reply2)));
-        ourServer2.setReplies(
+        ourServer2.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, reply2)));
-        ourServer3.setReplies(
+        ourServer3.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(PRIMARY_UPDATE, reply2)),
                 reply(start(PRIMARY_UPDATE, reply2)));
@@ -477,12 +488,13 @@ public class ReplicaSetReconnectStrategyTest {
                 .addString(serverName2).addString(serverName3);
 
         // Servers are called twice. Once for ping and once for close.
-        ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+        ourServer1.setReplies(reply(start(BUILD_INFO)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)),
                 reply(start(PRIMARY_UPDATE, replStatusBuilder)));
-        ourServer2.setReplies(
+        ourServer2.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
-        ourServer3.setReplies(
+        ourServer3.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
@@ -511,7 +523,8 @@ public class ReplicaSetReconnectStrategyTest {
         //
 
         // Should only contact the primary.
-        ourServer1.setReplies(reply(replStatusBuilder));
+        ourServer1.setReplies(reply(start(BUILD_INFO)),
+                reply(replStatusBuilder));
 
         myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
         final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
@@ -527,7 +540,7 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.pushArray("hosts").addString(serverName1)
                 .addString(serverName2).addString(serverName3);
 
-        ourServer1.setReplies(reply(replStatusBuilder),
+        ourServer1.setReplies(reply(start(BUILD_INFO)),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
@@ -538,8 +551,9 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
-        ourServer2.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder));
+        ourServer2.setReplies(reply(start(BUILD_INFO)),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
@@ -550,8 +564,9 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
-        ourServer3.setReplies(reply(replStatusBuilder),
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder));
+        ourServer3.setReplies(reply(start(BUILD_INFO)),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
@@ -562,7 +577,8 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
-                reply(replStatusBuilder), reply(replStatusBuilder));
+                reply(replStatusBuilder), reply(replStatusBuilder),
+                reply(replStatusBuilder));
 
         myNewTestConnection = strategy.reconnect(myTestConnection);
         assertNull(myNewTestConnection);

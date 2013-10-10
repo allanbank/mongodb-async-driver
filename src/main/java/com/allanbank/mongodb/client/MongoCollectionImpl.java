@@ -17,6 +17,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -50,6 +51,7 @@ import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.Insert;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Update;
+import com.allanbank.mongodb.util.FutureUtils;
 
 /**
  * Implementation of the {@link MongoCollection} interface.
@@ -104,7 +106,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference);
+                builder.build(), readPreference, Aggregate.REQUIRED_VERSION);
         myClient.send(commandMsg, new ReplyResultCallback("result", results));
     }
 
@@ -655,7 +657,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference);
+                builder.build(), readPreference, Text.REQUIRED_VERSION);
         myClient.send(commandMsg, new ReplyResultCallback(new TextCallback(
                 results)));
     }
@@ -694,8 +696,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public Document updateOptions(final DocumentAssignable options)
             throws MongoDbException {
-        return myDatabase
-                .runCommand("collMod", getName(), options.asDocument());
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
+
+        final DocumentBuilder commandDoc = BuilderFactory.start();
+        commandDoc.add("collMod", getName());
+        addOptions("collMod", options, commandDoc);
+
+        myDatabase.runCommandAsync(future, commandDoc.build(),
+                Version.VERSION_2_2);
+
+        return FutureUtils.unwrap(future);
     }
 
     /**
@@ -723,6 +734,27 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         return result;
+    }
+
+    /**
+     * Adds the options to the document builder.
+     * 
+     * @param command
+     *            The command to make sure is removed from the options.
+     * @param options
+     *            The options to be added. May be <code>null</code>.
+     * @param builder
+     *            The builder to add the options to.
+     */
+    protected void addOptions(final String command,
+            final DocumentAssignable options, final DocumentBuilder builder) {
+        if (options != null) {
+            for (final Element element : options.asDocument()) {
+                if (!command.equals(element.getName())) {
+                    builder.add(element);
+                }
+            }
+        }
     }
 
     /**

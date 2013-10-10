@@ -39,6 +39,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -5314,13 +5315,17 @@ public class MongoCollectionImplTest {
      */
     @Test
     public void testUpdateOptions() {
+        final Document command = BuilderFactory.start().add("collMod", "test")
+                .add("usePowerOf2Sizes", true).build();
+
         final Document options = BuilderFactory.start()
                 .add("usePowerOf2Sizes", true).build();
 
         final Document result = BuilderFactory.start().build();
 
-        expect(myMockDatabase.runCommand("collMod", "test", options))
-                .andReturn(result);
+        myMockDatabase.runCommandAsync(callback(result), eq(command),
+                eq(Version.VERSION_2_2));
+        expectLastCall();
 
         replay();
 

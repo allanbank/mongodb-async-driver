@@ -14,12 +14,13 @@ import static com.allanbank.mongodb.builder.Sort.desc;
 import static com.allanbank.mongodb.builder.expression.Expressions.field;
 import static com.allanbank.mongodb.builder.expression.Expressions.set;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.Assume.assumeThat;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -61,6 +62,7 @@ import com.allanbank.mongodb.client.message.ServerStatus;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
+import com.allanbank.mongodb.error.ServerVersionException;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -241,14 +243,13 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
             assertTrue("Should have more than " + count + " commands: "
                     + (after - before), count < (after - before));
         }
-        catch (final ReplyException re) {
+        catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
-            final String message = re.getMessage();
+            assumeThat(sve.getActualVersion(),
+                    greaterThan(Aggregate.REQUIRED_VERSION));
 
-            assumeTrue(!message.contains("no such cmd: aggregate")
-                    && !message.contains("unrecognized command: aggregate"));
-
-            throw re;
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
     }
 

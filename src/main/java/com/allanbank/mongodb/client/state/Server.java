@@ -108,6 +108,9 @@ public class Server {
     /** Provides support for the sending of property change events. */
     private final PropertyChangeSupport myEventSupport;
 
+    /** The time of the last version update. */
+    private long myLastVersionUpdate = 0;
+
     /**
      * The maximum BSON object size the server will accept. Defaults to
      * {@link Client#MAX_DOCUMENT_SIZE}.
@@ -403,6 +406,21 @@ public class Server {
     }
 
     /**
+     * Returns true if there has not been a recent update to the server's
+     * version or maximum document size.
+     * 
+     * @return True if there has not been a recent update to the server's
+     *         version or maximum document size.
+     */
+    public boolean needBuildInfo() {
+        final long now = System.currentTimeMillis();
+        final long tenMinutesAgo = now - TimeUnit.MINUTES.toMillis(10);
+
+        return Version.UNKNOWN.equals(myVersion)
+                || (myLastVersionUpdate < tenMinutesAgo);
+    }
+
+    /**
      * Remove a PropertyChangeListener to stop receiving future property changes
      * for the {@link Server}.
      * 
@@ -677,6 +695,7 @@ public class Server {
                 NUMERIC_TYPE, "versionArray", ".*");
         if (!versionElements.isEmpty()) {
             myVersion = Version.parse(versionElements);
+            myLastVersionUpdate = System.currentTimeMillis();
         }
 
         myEventSupport.firePropertyChange(VERSION_PROP, oldValue, myVersion);

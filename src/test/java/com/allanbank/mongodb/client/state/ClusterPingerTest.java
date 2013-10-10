@@ -31,6 +31,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.CallbackCapture;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -1137,7 +1138,7 @@ public class ClusterPingerTest {
      */
     private Callback<Reply> cbWithConn(final DocumentBuilder builder,
             final Server state, final Connection conn) {
-        class CallbackWithSetConnection extends CallbackReply {
+        class CallbackWithSetConnection extends CallbackCapture<Reply> {
 
             private static final long serialVersionUID = -2458416861114720698L;
 
@@ -1214,7 +1215,7 @@ public class ClusterPingerTest {
      * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public class CloseCallbackReply extends CallbackReply {
+    public class CloseCallbackReply extends CallbackCapture<Reply> {
 
         /** The serialization version for the class. */
         private static final long serialVersionUID = -5855409833338626339L;
