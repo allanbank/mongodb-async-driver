@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.error;
 
+import java.io.IOException;
+
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.client.Message;
@@ -28,7 +30,7 @@ public class ServerVersionException extends MongoDbException {
     private final Version myActualVersion;
 
     /** The operation's message. */
-    private final Message myMessage;
+    private transient Message myMessage;
 
     /** The name of the operation. */
     private final String myOperation;
@@ -79,20 +81,38 @@ public class ServerVersionException extends MongoDbException {
     }
 
     /**
-     * Returns the operation's message.
-     * 
-     * @return The operation's message.
-     */
-    public Message getOperationsMessage() {
-        return myMessage;
-    }
-
-    /**
      * Returns the required server version for the operation.
      * 
      * @return The required server version for the operation.
      */
     public Version getRequiredVersion() {
         return myRequiredVersion;
+    }
+
+    /**
+     * Returns the operation's message.
+     * 
+     * @return The operation's message.
+     */
+    public Message getSentMessage() {
+        return myMessage;
+    }
+
+    /**
+     * Reads the serialized configuration and sets the transient field to known
+     * values.
+     * 
+     * @param stream
+     *            The stream to read from.
+     * @throws IOException
+     *             On a failure reading from the stream.
+     * @throws ClassNotFoundException
+     *             On a failure locating a type in the stream.
+     */
+    private void readObject(final java.io.ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+
+        myMessage = null;
     }
 }

@@ -300,7 +300,7 @@ public class SocketConnectionTest {
             // Good.
             assertThat(sve.getActualVersion(), is(Version.parse("1.1.1")));
             assertThat(sve.getOperation(), is("silverBullet"));
-            assertThat(sve.getOperationsMessage(), is(command));
+            assertThat(sve.getSentMessage(), is(command));
             assertThat(sve.getRequiredVersion(), is(Version.parse("99.99.99")));
         }
     }
