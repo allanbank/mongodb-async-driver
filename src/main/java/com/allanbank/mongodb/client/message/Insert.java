@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -104,7 +105,30 @@ public class Insert extends AbstractMessage {
      */
     public Insert(final String databaseName, final String collectionName,
             final List<Document> documents, final boolean continueOnError) {
-        super(databaseName, collectionName, ReadPreference.PRIMARY);
+        this(databaseName, collectionName, documents, continueOnError, null);
+    }
+
+    /**
+     * Creates a new Insert.
+     * 
+     * @param databaseName
+     *            The name of the database.
+     * @param collectionName
+     *            The name of the collection.
+     * @param documents
+     *            The documents to be inserted.
+     * @param continueOnError
+     *            If the insert should continue if one of the documents causes
+     *            an error.
+     * @param requiredServerVersion
+     *            The required version of the server to support processing the
+     *            message.
+     */
+    public Insert(final String databaseName, final String collectionName,
+            final List<Document> documents, final boolean continueOnError,
+            final Version requiredServerVersion) {
+        super(databaseName, collectionName, ReadPreference.PRIMARY,
+                requiredServerVersion);
 
         myDocuments = new ArrayList<Document>(documents);
         myContinueOnError = continueOnError;

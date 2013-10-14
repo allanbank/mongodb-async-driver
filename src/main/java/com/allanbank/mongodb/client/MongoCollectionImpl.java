@@ -21,6 +21,7 @@ import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -33,6 +34,7 @@ import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
@@ -168,11 +170,19 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             indexEntryBuilder.add(option);
         }
 
-        final MongoCollection indexCollection = new MongoCollectionImpl(
+        final MongoCollectionImpl indexCollection = new MongoCollectionImpl(
                 myClient, myDatabase, "system.indexes");
         final Document indexDocument = indexEntryBuilder.build();
         if (indexCollection.findOne(indexDocument) == null) {
-            indexCollection.insert(Durability.ACK, indexDocument);
+
+            final Version requiredServerVersion = determineIndexServerVersion(
+                    options, keys);
+
+            final FutureCallback<Integer> callback = new FutureCallback<Integer>();
+            indexCollection.insertAsync(callback, false, Durability.ACK,
+                    requiredServerVersion, indexDocument);
+
+            FutureUtils.unwrap(callback);
         }
     }
 
@@ -435,26 +445,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             final boolean continueOnError, final Durability durability,
             final DocumentAssignable... documents) throws MongoDbException {
 
-        // Make sure the documents have an _id.
-        final List<Document> docs = new ArrayList<Document>(documents.length);
-        for (final DocumentAssignable docAssignable : documents) {
-            final Document doc = docAssignable.asDocument();
-            if (!doc.contains(ID_FIELD_NAME) && (doc instanceof RootDocument)) {
-                ((RootDocument) doc).injectId();
-            }
-            docs.add(doc);
-        }
-
-        final Insert insertMessage = new Insert(getDatabaseName(), myName,
-                docs, continueOnError);
-        if (Durability.NONE == durability) {
-            myClient.send(insertMessage, null);
-            results.callback(Integer.valueOf(-1));
-        }
-        else {
-            myClient.send(insertMessage, asGetLastError(durability),
-                    new ReplyIntegerCallback(results));
-        }
+        insertAsync(results, continueOnError, durability, null, documents);
     }
 
     /**
@@ -839,5 +830,81 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         return readPreference;
+    }
+
+    /**
+     * Determines the minimum server version required to support the provided
+     * index keys and options.
+     * 
+     * @param options
+     *            The index options.
+     * @param keys
+     *            The index keys.
+     * @return The version required for the index. May be null.
+     */
+    private Version determineIndexServerVersion(
+            final DocumentAssignable options, final Element[] keys) {
+        Version result = null;
+
+        for (final Element key : keys) {
+            if (key.getType() == ElementType.STRING) {
+                final String type = key.getValueAsString();
+                if (Index.GEO_2DSPHERE_INDEX_NAME.equals(type)) {
+                    result = Version.later(result, Version.VERSION_2_4);
+                }
+                else if (Index.TEXT_INDEX_NAME.equals(type)) {
+                    result = Version.later(result, Version.VERSION_2_4);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Sends an {@link Insert} message to the server. This version is private to
+     * this class since most inserts do not need the server version.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert.
+     * @param continueOnError
+     *            If the insert should continue if one of the documents causes
+     *            an error.
+     * @param durability
+     *            The durability for the insert.
+     * @param requiredServerVersion
+     *            The required version of the server to support processing the
+     *            message.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    private void insertAsync(final Callback<Integer> results,
+            final boolean continueOnError, final Durability durability,
+            final Version requiredServerVersion,
+            final DocumentAssignable... documents) throws MongoDbException {
+
+        // Make sure the documents have an _id.
+        final List<Document> docs = new ArrayList<Document>(documents.length);
+        for (final DocumentAssignable docAssignable : documents) {
+            final Document doc = docAssignable.asDocument();
+            if (!doc.contains(ID_FIELD_NAME) && (doc instanceof RootDocument)) {
+                ((RootDocument) doc).injectId();
+            }
+            docs.add(doc);
+        }
+
+        final Insert insertMessage = new Insert(getDatabaseName(), myName,
+                docs, continueOnError, requiredServerVersion);
+        if (Durability.NONE == durability) {
+            myClient.send(insertMessage, null);
+            results.callback(Integer.valueOf(-1));
+        }
+        else {
+            myClient.send(insertMessage, asGetLastError(durability),
+                    new ReplyIntegerCallback(results));
+        }
     }
 }

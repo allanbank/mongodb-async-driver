@@ -20,6 +20,27 @@ import com.allanbank.mongodb.bson.element.StringElement;
  */
 public final class Index {
 
+    /** The value to indicate an ascending index order. */
+    public static final int ASCENDING = Sort.ASCENDING;
+
+    /** The value to indicate an descending index order. */
+    public static final int DESCENDING = Sort.DESCENDING;
+
+    /** The value for the {@value} index. */
+    public static final String GEO_2D_INDEX_NAME = "2d";
+
+    /** The value for the {@value} index. */
+    public static final String GEO_2DSPHERE_INDEX_NAME = "2dsphere";
+
+    /** The value for the {@value} index. */
+    public static final String GEO_HAYSTACK_INDEX_NAME = "geoHaystack";
+
+    /** The value for the {@value} index. */
+    public static final String HASHED_INDEX_NAME = "hashed";
+
+    /** The value for the {@value} index. */
+    public static final String TEXT_INDEX_NAME = "text";
+
     /**
      * Creates an ascending order specification, e.g.,
      * <tt>{ &lt;field&gt; : 1 }</tt>.
@@ -59,7 +80,7 @@ public final class Index {
      * @return The 2D index specification.
      */
     public static StringElement geo2d(final String field) {
-        return new StringElement(field, "2d");
+        return new StringElement(field, GEO_2D_INDEX_NAME);
     }
 
     /**
@@ -72,7 +93,7 @@ public final class Index {
      * @since MongoDB 2.4
      */
     public static StringElement geo2dSphere(final String field) {
-        return new StringElement(field, "2dsphere");
+        return new StringElement(field, GEO_2DSPHERE_INDEX_NAME);
     }
 
     /**
@@ -87,7 +108,7 @@ public final class Index {
      *      Index Documentation</a>
      */
     public static StringElement geoHaystack(final String field) {
-        return new StringElement(field, "geoHaystack");
+        return new StringElement(field, GEO_HAYSTACK_INDEX_NAME);
     }
 
     /**
@@ -100,7 +121,7 @@ public final class Index {
      * @since MongoDB 2.4
      */
     public static StringElement hashed(final String field) {
-        return new StringElement(field, "hashed");
+        return new StringElement(field, HASHED_INDEX_NAME);
     }
 
     /**
@@ -123,7 +144,7 @@ public final class Index {
      *      Text Index Documentation</a>
      */
     public static StringElement text(final String field) {
-        return new StringElement(field, "text");
+        return new StringElement(field, TEXT_INDEX_NAME);
     }
 
     /**

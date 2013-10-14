@@ -16,13 +16,11 @@ import static com.allanbank.mongodb.builder.Sort.desc;
 import static com.allanbank.mongodb.builder.expression.Expressions.constant;
 import static com.allanbank.mongodb.builder.expression.Expressions.field;
 import static com.allanbank.mongodb.builder.expression.Expressions.set;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -482,7 +480,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThan(Aggregate.REQUIRED_VERSION));
+                    greaterThanOrEqualTo(Aggregate.REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -521,14 +519,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertThat(docs.size(), is(3));
             // Don't really care about the distance. Copy from the received
             // document.
-            assumeThat(docs.get(0), is(doc1.add(docs.get(0).get("d")).build()));
-            assumeThat(docs.get(1), is(doc2.add(docs.get(1).get("d")).build()));
-            assumeThat(docs.get(2), is(doc3.add(docs.get(2).get("d")).build()));
+            assertThat(docs.get(0), is(doc1.add(docs.get(0).get("d")).build()));
+            assertThat(docs.get(1), is(doc2.add(docs.get(1).get("d")).build()));
+            assertThat(docs.get(2), is(doc3.add(docs.get(2).get("d")).build()));
         }
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThan(Aggregate.REQUIRED_VERSION));
+                    greaterThanOrEqualTo(Aggregate.REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -2955,10 +2953,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 .parse("{_id: 'LS1', p: {type: 'LineString', "
                         + "coordinates: [ [5,2], [7,3], [7,5], [9,4] ] } } )");
 
-        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3, doc4);
-
         MongoIterator<Document> iter = null;
         try {
+            // Will create and index the collection if it does not exist.
+            getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3,
+                    doc4);
+
             iter = getGeoSphereCollection().find(
                     where("p").geoWithin(
                             GeoJson.polygon(Arrays.asList(p(0, 0), p(3, 0),
@@ -2973,11 +2973,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertEquals(0, expected.size());
             iter.close();
         }
-        catch (final QueryFailedException qfe) {
+        catch (final ServerVersionException sve) {
             // See if a version prior to 2.4
-            assumeThat(qfe.getMessage(),
-                    is(not(containsString("invalid operator: $geoWithin"))));
-            fatal(qfe);
+
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_4));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
         finally {
             if (iter != null) {
@@ -3711,10 +3715,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 .parse("{_id: 'LS1', p: {type: 'LineString', "
                         + "coordinates: [ [5,2], [7,3], [7,5], [9,4] ] } } )");
 
-        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3, doc4);
-
         MongoIterator<Document> iter = null;
         try {
+            // Will create and index the collection if it does not exist.
+            getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3,
+                    doc4);
+
             iter = getGeoSphereCollection().find(
                     where("p").intersects(
                             GeoJson.polygon(Arrays.asList(p(0, 0), p(3, 0),
@@ -3749,11 +3755,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             iter.close();
 
         }
-        catch (final QueryFailedException qfe) {
+        catch (final ServerVersionException sve) {
             // See if a version prior to 2.4
-            assumeThat(qfe.getMessage(),
-                    is(not(containsString("invalid operator: $geoIntersects"))));
-            fatal(qfe);
+
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_4));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
         finally {
             if (iter != null) {
@@ -4546,10 +4556,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(x + 2).addDouble(y + 2);
 
-        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
-
         MongoIterator<Document> iter = null;
         try {
+            // Will create and index the collection if it does not exist.
+            getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
             iter = getGeoSphereCollection().find(
                     where("p").near(GeoJson.point(p(x, y))));
 
@@ -4561,11 +4572,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertEquals(doc3.build(), iter.next());
             assertFalse(iter.hasNext());
         }
-        catch (final QueryFailedException qfe) {
+        catch (final ServerVersionException sve) {
             // See if a version prior to 2.4
-            assumeThat(qfe.getMessage(),
-                    is(not(containsString("can't find special index: 2d"))));
-            fatal(qfe);
+
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_4));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
         finally {
             if (iter != null) {
@@ -4596,10 +4611,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.add("p", GeoJson.point(p(x + 20, y + 20)));
 
-        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
-
         MongoIterator<Document> iter = null;
         try {
+            // Will create and index the collection if it does not exist.
+            getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
             iter = getGeoSphereCollection().find(
                     where("p").near(GeoJson.point(p(x, y)),
                             distance(x, y, x + 5, y + 5) + 1));
@@ -4610,11 +4626,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertEquals(doc2.build(), iter.next());
             assertFalse(iter.hasNext());
         }
-        catch (final QueryFailedException qfe) {
+        catch (final ServerVersionException sve) {
             // See if a version prior to 2.4
-            assumeThat(qfe.getMessage(),
-                    is(not(containsString("can't find special index: 2d"))));
-            fatal(qfe);
+
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_4));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
         finally {
             if (iter != null) {
@@ -4865,10 +4885,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(x + 2).addDouble(y + 2);
 
-        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
-
         MongoIterator<Document> iter = null;
         try {
+            // Will create and index the collection if it does not exist.
+            getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
             iter = getGeoSphereCollection().find(
                     where("p").nearSphere(GeoJson.point(p(x, y))));
 
@@ -4880,11 +4901,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertEquals(doc3.build(), iter.next());
             assertFalse(iter.hasNext());
         }
-        catch (final QueryFailedException qfe) {
+        catch (final ServerVersionException sve) {
             // See if a version prior to 2.4
-            assumeThat(qfe.getMessage(),
-                    is(not(containsString("can't find special index: 2d"))));
-            fatal(qfe);
+
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_4));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
         finally {
             if (iter != null) {
@@ -4914,10 +4939,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.add("p", GeoJson.point(p(x + 20.0, y + 20)));
 
-        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
-
         MongoIterator<Document> iter = null;
         try {
+            // Will create and index the collection if it does not exist.
+            getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
             iter = getGeoSphereCollection().find(
                     where("p").nearSphere(GeoJson.point(p(x, y)),
                             distance(x, y, x + 2, y + 2) + 1));
@@ -4928,11 +4954,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertEquals(doc2.build(), iter.next());
             assertFalse(iter.hasNext());
         }
-        catch (final QueryFailedException qfe) {
+        catch (final ServerVersionException sve) {
             // See if a version prior to 2.4
-            assumeThat(qfe.getMessage(),
-                    is(not(containsString("can't find special index: 2d"))));
-            fatal(qfe);
+
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_4));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
         finally {
             if (iter != null) {
@@ -5949,10 +5979,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.add("p", GeoJson.point(p(minx - 1, miny - 1)));
 
-        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
-
         MongoIterator<Document> iter = null;
         try {
+            // Will create and index the collection if it does not exist.
+            getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
             iter = getGeoSphereCollection().find(
                     where("p").within(
                             GeoJson.polygon(Arrays.asList(p(minx, miny),
@@ -5970,13 +6001,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
-        catch (final QueryFailedException qfe) {
+        catch (final ServerVersionException sve) {
             // See if a version prior to 2.4
-            assumeThat(
-                    qfe.getMessage(),
-                    allOf(not(containsString("can't find special index: 2d")),
-                            not(containsString("Couldn't pull any geometry out of $within query"))));
-            fatal(qfe);
+
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_4));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
         finally {
             if (iter != null) {
@@ -6007,9 +6040,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final DocumentBuilder doc1 = BuilderFactory.start();
         doc1.addObjectId("_id", new ObjectId());
         doc1.add("p", GeoJson.point(p(minx, miny)));
-        // doc1.pushArray("p")
-        // .add(GeoJson.point(p(minx, miny)))
-        // .add(GeoJson.point(p(minx + (deltax / 2), miny + (deltay / 2))));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
@@ -6020,10 +6050,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.add("p", GeoJson.point(p(minx - 1, miny - 1)));
 
-        getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
-
         MongoIterator<Document> iter = null;
         try {
+            // Will create and index the collection if it does not exist.
+            getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3);
+
             iter = getGeoSphereCollection().find(
                     where("p").within(
                             GeoJson.polygon(Arrays.asList(p(minx, miny),
@@ -6032,26 +6063,24 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
-            // expected.add(doc1.build());
             expected.add(doc2.build());
 
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            // assertTrue(iter.hasNext());
-            // assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
-        catch (final QueryFailedException qfe) {
+        catch (final ServerVersionException sve) {
             // See if a version prior to 2.4
-            assumeThat(
-                    qfe.getMessage(),
-                    allOf(not(containsString("can't find special index: 2d")),
-                            not(containsString("Couldn't pull any geometry out of $within query"))));
 
-            fatal(qfe);
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_4));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
         finally {
             if (iter != null) {
@@ -7282,10 +7311,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     public void testTextSearch() {
         final DocumentBuilder builder = BuilderFactory.start();
 
-        // Need the text index.
-        myCollection.createIndex(Index.text("content"));
-
-        // ... and some content.
+        // Some content.
         myCollection.insert(
                 Durability.ACK,
                 builder.reset().add("content",
@@ -7301,13 +7327,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         List<TextResult> results = Collections.emptyList();
         try {
+            // Need the text index.
+            myCollection.createIndex(Index.text("content"));
+
             results = myCollection.textSearch(Text.builder().searchTerm(
                     "coffee magic"));
         }
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThan(Text.REQUIRED_VERSION));
+                    greaterThanOrEqualTo(Text.REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -7434,7 +7463,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
                 // Check if we are talking to a recent MongoDB instance.
                 assumeThat(sve.getActualVersion(),
-                        greaterThan(Version.VERSION_2_2));
+                        greaterThanOrEqualTo(Version.VERSION_2_2));
 
                 // Humm - Should have worked. Rethrow the error.
                 throw sve;

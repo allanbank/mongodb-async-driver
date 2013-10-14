@@ -197,7 +197,8 @@ public class Query extends AbstractMessage {
             final boolean tailable, final ReadPreference readPreference,
             final boolean noCursorTimeout, final boolean awaitData,
             final boolean exhaust, final boolean partial) {
-        super(databaseName, collectionName, readPreference);
+        super(databaseName, collectionName, readPreference, QueryVersionVisitor
+                .version(query));
 
         myQuery = query;
         myReturnFields = returnFields;
