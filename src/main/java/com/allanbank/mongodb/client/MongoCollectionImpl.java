@@ -175,11 +175,10 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final Document indexDocument = indexEntryBuilder.build();
         if (indexCollection.findOne(indexDocument) == null) {
 
-            final Version requiredServerVersion = determineIndexServerVersion(
-                    options, keys);
+            final Version requiredServerVersion = determineIndexServerVersion(keys);
 
             final FutureCallback<Integer> callback = new FutureCallback<Integer>();
-            indexCollection.insertAsync(callback, false, Durability.ACK,
+            indexCollection.doInsertAsync(callback, false, Durability.ACK,
                     requiredServerVersion, indexDocument);
 
             FutureUtils.unwrap(callback);
@@ -445,7 +444,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             final boolean continueOnError, final Durability durability,
             final DocumentAssignable... documents) throws MongoDbException {
 
-        insertAsync(results, continueOnError, durability, null, documents);
+        doInsertAsync(results, continueOnError, durability, null, documents);
     }
 
     /**
@@ -790,6 +789,79 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
+     * Determines the minimum server version required to support the provided
+     * index keys and options.
+     * 
+     * @param keys
+     *            The index keys.
+     * @return The version required for the index. May be null.
+     */
+    protected Version determineIndexServerVersion(final Element[] keys) {
+        Version result = null;
+
+        for (final Element key : keys) {
+            if (key.getType() == ElementType.STRING) {
+                final String type = key.getValueAsString();
+                if (Index.GEO_2DSPHERE_INDEX_NAME.equals(type)) {
+                    result = Version.later(result, Version.VERSION_2_4);
+                }
+                else if (Index.TEXT_INDEX_NAME.equals(type)) {
+                    result = Version.later(result, Version.VERSION_2_4);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Sends an {@link Insert} message to the server. This version is private to
+     * this class since most inserts do not need the server version.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert.
+     * @param continueOnError
+     *            If the insert should continue if one of the documents causes
+     *            an error.
+     * @param durability
+     *            The durability for the insert.
+     * @param requiredServerVersion
+     *            The required version of the server to support processing the
+     *            message.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    protected void doInsertAsync(final Callback<Integer> results,
+            final boolean continueOnError, final Durability durability,
+            final Version requiredServerVersion,
+            final DocumentAssignable... documents) throws MongoDbException {
+
+        // Make sure the documents have an _id.
+        final List<Document> docs = new ArrayList<Document>(documents.length);
+        for (final DocumentAssignable docAssignable : documents) {
+            final Document doc = docAssignable.asDocument();
+            if (!doc.contains(ID_FIELD_NAME) && (doc instanceof RootDocument)) {
+                ((RootDocument) doc).injectId();
+            }
+            docs.add(doc);
+        }
+
+        final Insert insertMessage = new Insert(getDatabaseName(), myName,
+                docs, continueOnError, requiredServerVersion);
+        if (Durability.NONE == durability) {
+            myClient.send(insertMessage, null);
+            results.callback(Integer.valueOf(-1));
+        }
+        else {
+            myClient.send(insertMessage, asGetLastError(durability),
+                    new ReplyIntegerCallback(results));
+        }
+    }
+
+    /**
      * Determines the {@link ReadPreference} to be used based on the command's
      * {@code ReadPreference} or the collection's if the command's
      * {@code ReadPreference} is <code>null</code>. Updates the command's
@@ -830,81 +902,5 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         return readPreference;
-    }
-
-    /**
-     * Determines the minimum server version required to support the provided
-     * index keys and options.
-     * 
-     * @param options
-     *            The index options.
-     * @param keys
-     *            The index keys.
-     * @return The version required for the index. May be null.
-     */
-    private Version determineIndexServerVersion(
-            final DocumentAssignable options, final Element[] keys) {
-        Version result = null;
-
-        for (final Element key : keys) {
-            if (key.getType() == ElementType.STRING) {
-                final String type = key.getValueAsString();
-                if (Index.GEO_2DSPHERE_INDEX_NAME.equals(type)) {
-                    result = Version.later(result, Version.VERSION_2_4);
-                }
-                else if (Index.TEXT_INDEX_NAME.equals(type)) {
-                    result = Version.later(result, Version.VERSION_2_4);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Sends an {@link Insert} message to the server. This version is private to
-     * this class since most inserts do not need the server version.
-     * 
-     * @param results
-     *            {@link Callback} that will be notified with the results of the
-     *            insert.
-     * @param continueOnError
-     *            If the insert should continue if one of the documents causes
-     *            an error.
-     * @param durability
-     *            The durability for the insert.
-     * @param requiredServerVersion
-     *            The required version of the server to support processing the
-     *            message.
-     * @param documents
-     *            The documents to add to the collection.
-     * @throws MongoDbException
-     *             On an error inserting the documents.
-     */
-    private void insertAsync(final Callback<Integer> results,
-            final boolean continueOnError, final Durability durability,
-            final Version requiredServerVersion,
-            final DocumentAssignable... documents) throws MongoDbException {
-
-        // Make sure the documents have an _id.
-        final List<Document> docs = new ArrayList<Document>(documents.length);
-        for (final DocumentAssignable docAssignable : documents) {
-            final Document doc = docAssignable.asDocument();
-            if (!doc.contains(ID_FIELD_NAME) && (doc instanceof RootDocument)) {
-                ((RootDocument) doc).injectId();
-            }
-            docs.add(doc);
-        }
-
-        final Insert insertMessage = new Insert(getDatabaseName(), myName,
-                docs, continueOnError, requiredServerVersion);
-        if (Durability.NONE == durability) {
-            myClient.send(insertMessage, null);
-            results.callback(Integer.valueOf(-1));
-        }
-        else {
-            myClient.send(insertMessage, asGetLastError(durability),
-                    new ReplyIntegerCallback(results));
-        }
     }
 }
