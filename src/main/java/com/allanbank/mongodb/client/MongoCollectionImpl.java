@@ -805,6 +805,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 if (Index.GEO_2DSPHERE_INDEX_NAME.equals(type)) {
                     result = Version.later(result, Version.VERSION_2_4);
                 }
+                else if (Index.HASHED_INDEX_NAME.equals(type)) {
+                    result = Version.later(result, Version.VERSION_2_4);
+                }
                 else if (Index.TEXT_INDEX_NAME.equals(type)) {
                     result = Version.later(result, Version.VERSION_2_4);
                 }

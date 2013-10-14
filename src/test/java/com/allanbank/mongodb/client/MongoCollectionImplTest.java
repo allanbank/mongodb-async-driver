@@ -8,15 +8,20 @@ package com.allanbank.mongodb.client;
 import static com.allanbank.mongodb.AnswerCallback.callback;
 import static com.allanbank.mongodb.builder.QueryBuilder.where;
 import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isNull;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -25,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -50,6 +56,7 @@ import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -1101,6 +1108,153 @@ public class MongoCollectionImplTest {
         replay();
 
         myTestInstance.createIndex(false, Index.asc("k"), Index.desc("l"));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
+     */
+    @Test
+    public void testCreateIndexWithVersionFor2DShpere() {
+
+        final Durability expectedDur = Durability.ACK;
+        final GetLastError expectedLastError = new GetLastError("test",
+                expectedDur.isWaitForFsync(), expectedDur.isWaitForJournal(),
+                expectedDur.getWaitForReplicas(),
+                expectedDur.getWaitTimeoutMillis());
+
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+
+        final DocumentBuilder indexDocBuilder = BuilderFactory.start();
+        indexDocBuilder.addString("name", "name");
+        indexDocBuilder.addString("ns", "test.test");
+        indexDocBuilder.push("key").add("k", Index.GEO_2DSPHERE_INDEX_NAME);
+
+        final Query queryMessage = new Query("test", "system.indexes",
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                ReadPreference.PRIMARY, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(4);
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(queryMessage), callback(reply())))
+                .andReturn(myAddress);
+
+        final Capture<Insert> insert = new Capture<Insert>();
+        expect(
+                myMockClient.send(capture(insert), eq(expectedLastError),
+                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        replay();
+
+        myTestInstance.createIndex("name", false, Index.geo2dSphere("k"));
+
+        assertThat(insert.getValue().getRequiredServerVersion(),
+                is(Version.VERSION_2_4));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
+     */
+    @Test
+    public void testCreateIndexWithVersionForHashed() {
+
+        final Durability expectedDur = Durability.ACK;
+        final GetLastError expectedLastError = new GetLastError("test",
+                expectedDur.isWaitForFsync(), expectedDur.isWaitForJournal(),
+                expectedDur.getWaitForReplicas(),
+                expectedDur.getWaitTimeoutMillis());
+
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+
+        final DocumentBuilder indexDocBuilder = BuilderFactory.start();
+        indexDocBuilder.addString("name", "name");
+        indexDocBuilder.addString("ns", "test.test");
+        indexDocBuilder.push("key").add("k", Index.HASHED_INDEX_NAME);
+
+        final Query queryMessage = new Query("test", "system.indexes",
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                ReadPreference.PRIMARY, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(4);
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(queryMessage), callback(reply())))
+                .andReturn(myAddress);
+
+        final Capture<Insert> insert = new Capture<Insert>();
+        expect(
+                myMockClient.send(capture(insert), eq(expectedLastError),
+                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        replay();
+
+        myTestInstance.createIndex("name", false, Index.hashed("k"));
+
+        assertThat(insert.getValue().getRequiredServerVersion(),
+                is(Version.VERSION_2_4));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
+     */
+    @Test
+    public void testCreateIndexWithVersionForText() {
+
+        final Durability expectedDur = Durability.ACK;
+        final GetLastError expectedLastError = new GetLastError("test",
+                expectedDur.isWaitForFsync(), expectedDur.isWaitForJournal(),
+                expectedDur.getWaitForReplicas(),
+                expectedDur.getWaitTimeoutMillis());
+
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+
+        final DocumentBuilder indexDocBuilder = BuilderFactory.start();
+        indexDocBuilder.addString("name", "name");
+        indexDocBuilder.addString("ns", "test.test");
+        indexDocBuilder.push("key").add("k", Index.TEXT_INDEX_NAME);
+
+        final Query queryMessage = new Query("test", "system.indexes",
+                indexDocBuilder.build(), null, 1 /* batchSize */,
+                1 /* limit */, 0 /* skip */, false /* tailable */,
+                ReadPreference.PRIMARY, false /* noCursorTimeout */,
+                false /* awaitData */, false /* exhaust */, false /* partial */);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(4);
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(queryMessage), callback(reply())))
+                .andReturn(myAddress);
+
+        final Capture<Insert> insert = new Capture<Insert>();
+        expect(
+                myMockClient.send(capture(insert), eq(expectedLastError),
+                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        replay();
+
+        myTestInstance.createIndex("name", false, Index.text("k"));
+
+        assertThat(insert.getValue().getRequiredServerVersion(),
+                is(Version.VERSION_2_4));
 
         verify();
     }
@@ -3610,6 +3764,36 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
+     * {@link AbstractMongoCollection#insert(Durability, DocumentAssignable...)}
+     * .
+     */
+    @Test
+    public void testInsertCannotInjectId() {
+        final Document doc = new ImmutableDocument(BuilderFactory.start()
+                .build());
+        final Document replyDoc = new ImmutableDocument(BuilderFactory.start()
+                .addInteger("n", 2));
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        replay();
+
+        assertEquals(2, myTestInstance.insert(Durability.ACK, doc));
+        assertThat(doc.get("_id"), nullValue(Element.class));
+
+        verify();
+    }
+
+    /**
+     * Test method for
      * {@link AbstractMongoCollection#insert(DocumentAssignable...)} .
      */
     @Test
@@ -3660,6 +3844,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(2, myTestInstance.insert(Durability.ACK, doc));
+        assertThat(doc.get("_id"), notNullValue(Element.class));
 
         verify();
     }
