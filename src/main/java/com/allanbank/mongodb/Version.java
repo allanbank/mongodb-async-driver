@@ -73,6 +73,43 @@ public class Version implements Serializable, Comparable<Version> {
     }
 
     /**
+     * Returns the earlier of the two versions. If either version is
+     * {@code null} then the other version is returned. Only if both version are
+     * {@code null} will {@code null} be returned.
+     * 
+     * @param lhs
+     *            The first version to compare.
+     * @param rhs
+     *            The second version to compare.
+     * @return The earlier (lesser) version of the two.
+     */
+    public static Version earlier(final Version lhs, final Version rhs) {
+        if ((lhs == null) || ((rhs != null) && (lhs.compareTo(rhs) > 0))) {
+            return rhs;
+        }
+
+        return lhs;
+    }
+
+    /**
+     * Returns the later of the two versions. If either version is {@code null}
+     * then the other version is returned. Only if both version are {@code null}
+     * will {@code null} be returned.
+     * 
+     * @param lhs
+     *            The first version to compare.
+     * @param rhs
+     *            The second version to compare.
+     * @return The later (greater) version of the two.
+     */
+    public static Version later(final Version lhs, final Version rhs) {
+        if ((lhs == null) || ((rhs != null) && (lhs.compareTo(rhs) < 0))) {
+            return rhs;
+        }
+        return lhs;
+    }
+
+    /**
      * Parses a version from a version array. The values in the array are
      * assumed to be {@link NumericElement}s.
      * 

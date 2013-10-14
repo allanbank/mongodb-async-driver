@@ -9,6 +9,8 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -72,6 +74,49 @@ public class VersionTest {
     }
 
     /**
+     * Test method for {@link Version#earlier}.
+     */
+    @Test
+    public void testEarlier() {
+        final String[] order = new String[] { "1", "1.2", "1.2.3", "2.1.1",
+                "2.1.1-S", "2.1.1-T" };
+
+        assertThat(Version.earlier(null, null), nullValue());
+
+        for (int i = 0; i < order.length; ++i) {
+            for (int j = i; j < order.length; ++j) {
+                final Version ith = Version.parse(order[i]);
+                final Version jth = Version.parse(order[j]);
+                if (i == j) {
+                    // Bias to lhs.
+                    assertThat(ith + " == " + jth, Version.earlier(ith, jth),
+                            sameInstance(ith));
+                    assertThat(jth + " == " + ith, Version.earlier(jth, ith),
+                            sameInstance(jth));
+                }
+                else {
+                    assertThat(ith + " < " + jth, Version.earlier(ith, jth),
+                            sameInstance(ith));
+                    assertThat(jth + " > " + ith, Version.earlier(jth, ith),
+                            sameInstance(ith));
+                }
+
+                // Unknown is the "highest" version. This ensures that version
+                // check without a version for the server still go to the
+                // server.
+                assertThat(Version.earlier(ith, Version.UNKNOWN),
+                        sameInstance(ith));
+                assertThat(Version.earlier(Version.UNKNOWN, ith),
+                        sameInstance(ith));
+
+                // Null value returns non-null.
+                assertThat(Version.earlier(ith, null), sameInstance(ith));
+                assertThat(Version.earlier(null, ith), sameInstance(ith));
+            }
+        }
+    }
+
+    /**
      * Test method for {@link Version#equals} and {@link Version#hashCode}.
      */
     @Test
@@ -110,6 +155,49 @@ public class VersionTest {
 
             assertFalse(obj1.equals("foo"));
             assertFalse(obj1.equals(null));
+        }
+    }
+
+    /**
+     * Test method for {@link Version#later}.
+     */
+    @Test
+    public void testLater() {
+        final String[] order = new String[] { "1", "1.2", "1.2.3", "2.1.1",
+                "2.1.1-S", "2.1.1-T" };
+
+        assertThat(Version.later(null, null), nullValue());
+
+        for (int i = 0; i < order.length; ++i) {
+            for (int j = i; j < order.length; ++j) {
+                final Version ith = Version.parse(order[i]);
+                final Version jth = Version.parse(order[j]);
+                if (i == j) {
+                    // Bias to lhs.
+                    assertThat(ith + " == " + jth, Version.later(ith, jth),
+                            sameInstance(ith));
+                    assertThat(jth + " == " + ith, Version.later(jth, ith),
+                            sameInstance(jth));
+                }
+                else {
+                    assertThat(ith + " < " + jth, Version.later(ith, jth),
+                            sameInstance(jth));
+                    assertThat(jth + " > " + ith, Version.later(jth, ith),
+                            sameInstance(jth));
+                }
+
+                // Unknown is the "highest" version. This ensures that version
+                // check without a version for the server still go to the
+                // server.
+                assertThat(Version.later(ith, Version.UNKNOWN),
+                        sameInstance(Version.UNKNOWN));
+                assertThat(Version.later(Version.UNKNOWN, ith),
+                        sameInstance(Version.UNKNOWN));
+
+                // Null value returns non-null.
+                assertThat(Version.later(ith, null), sameInstance(ith));
+                assertThat(Version.later(null, ith), sameInstance(ith));
+            }
         }
     }
 
