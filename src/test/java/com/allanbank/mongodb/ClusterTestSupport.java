@@ -375,15 +375,21 @@ public class ClusterTestSupport {
     protected void startReplicaSet(final File workingDirectory,
             final int startPort, final int replicas) throws AssertionError {
 
-        final File rsConfig = new File(workingDirectory, "config-" + startPort
-                + ".js");
+        final File initialConfig = new File(workingDirectory, "config-"
+                + startPort + ".js");
+        final File reconfig = new File(workingDirectory, "reconfig-"
+                + startPort + ".js");
 
-        FileWriter writer = null;
+        FileWriter initialConfigWriter = null;
+        FileWriter reconfigWriter = null;
         ManagedProcess arbiter = null;
         try {
-            writer = new FileWriter(rsConfig);
-            writer.write("rs.initiate({ _id: \"rs-" + startPort
+            initialConfigWriter = new FileWriter(initialConfig);
+            initialConfigWriter.write("rs.initiate({ _id: \"rs-" + startPort
                     + "\", members: [\n");
+
+            reconfigWriter = new FileWriter(reconfig);
+            reconfigWriter.write("var config = rs.conf();\n");
 
             // Arbiter.
             int port = startPort;
@@ -393,12 +399,13 @@ public class ClusterTestSupport {
                     String.valueOf(port), "--dbpath", db.getAbsolutePath(),
                     "--smallfiles", "--replSet", "rs-" + startPort,
                     "--noprealloc", "--nojournal", "--oplogSize", "2");
+            reconfigWriter
+                    .write("config.members.push({ _id: 0, host: \"localhost:"
+                            + port + "\", arbiterOnly:true })\n");
             myProcesses.add(arbiter);
 
-            arbiter.waitFor(port, TimeUnit.SECONDS.toMillis(30));
-            writer.write("{ _id: 0, host: \"localhost:" + port
-                    + "\", arbiterOnly:true }");
-
+            List<ManagedProcess> members = new ArrayList<ManagedProcess>(
+                    replicas);
             for (int i = 0; i < replicas; ++i) {
                 port = startPort + i + 1;
                 db = new File(workingDirectory, "mongod-" + port);
@@ -411,35 +418,62 @@ public class ClusterTestSupport {
                         "--oplogSize", "512");
                 myProcesses.add(member);
 
-                member.waitFor(port, TimeUnit.SECONDS.toMillis(30));
-                writer.write(",\n  { _id: " + (i + 1) + ", host: \"localhost:"
-                        + port + "\" }");
+                if (members.isEmpty()) {
+                    initialConfigWriter.write("  { _id: 1, host: \"localhost:"
+                            + port + "\" }");
+                }
+                else {
+                    reconfigWriter.write("config.members.push({ _id: "
+                            + (i + 1) + ", host: \"localhost:" + port
+                            + "\" });\n");
+                }
+                members.add(member);
+            }
+            initialConfigWriter.write("\n] })");
+            IOUtils.close(initialConfigWriter);
+            reconfigWriter.write("rs.reconfig(config);\n");
+            IOUtils.close(reconfigWriter);
 
+            // Make sure the ports are open (should be by now...)
+            arbiter.waitFor(startPort, TimeUnit.SECONDS.toMillis(30));
+            for (int i = 0; i < replicas; ++i) {
+                port = startPort + i + 1;
+                members.get(i).waitFor(port, TimeUnit.SECONDS.toMillis(30));
+                if (i == 0) {
+
+                    // Tell the first node the initial config.
+                    final ManagedProcess config = run(workingDirectory,
+                            "mongo",
+                            "localhost:" + String.valueOf(startPort + 1)
+                                    + "/admin", initialConfig.getAbsolutePath());
+                    config.waitFor();
+                }
             }
 
-            writer.write("\n] })");
-            IOUtils.close(writer);
+            // Wait for the first node to become primary.
+            members.get(0).waitFor("replSet PRIMARY",
+                    TimeUnit.MINUTES.toMillis(3));
 
-            final ManagedProcess config = run(workingDirectory, "mongo",
+            // Now add the other members.
+            final ManagedProcess config2 = run(workingDirectory, "mongo",
                     "localhost:" + String.valueOf(startPort + 1) + "/admin",
-                    rsConfig.getAbsolutePath());
-            config.waitFor();
+                    reconfig.getAbsolutePath());
+            config2.waitFor();
 
+            // Use the Arbiter to tell when everyone is in the right state.
             arbiter.waitFor("is now in state PRIMARY",
                     TimeUnit.MINUTES.toMillis(3));
 
             // Each replica will be a secondary at some point.
-            arbiter.waitFor("is now in state SECONDARY", replicas,
+            arbiter.waitFor("is now in state SECONDARY", replicas - 1,
                     TimeUnit.MINUTES.toMillis(3));
-
-            // Wait for everything to be calm.
-            sleep(TimeUnit.SECONDS.toMillis(2));
         }
         catch (final IOException ioe) {
             fail("Could not write the replica set config.", ioe);
         }
         finally {
-            IOUtils.close(writer);
+            IOUtils.close(initialConfigWriter);
+            IOUtils.close(reconfigWriter);
         }
     }
 
