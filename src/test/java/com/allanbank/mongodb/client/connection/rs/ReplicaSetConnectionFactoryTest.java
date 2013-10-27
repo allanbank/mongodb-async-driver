@@ -19,14 +19,13 @@ import static org.easymock.EasyMock.verify;
 import static org.hamcrest.Matchers.describedAs;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -423,17 +422,12 @@ public class ReplicaSetConnectionFactoryTest {
         ourServer.setRunning(false);
         ourServer.close();
         Thread.sleep(100); // Make sure the socket is not connectable.
-        try {
-            myTestFactory = new ReplicaSetConnectionFactory(socketFactory,
-                    config);
 
-            final Connection connection = myTestFactory.connect();
-            IOUtils.close(connection);
-            fail("Should have failed to connect.");
-        }
-        catch (final IOException ioe) {
-            // Good.
-        }
+        myTestFactory = new ReplicaSetConnectionFactory(socketFactory, config);
+
+        // Always get a connection back even if there is no primary.
+        final Connection connection = myTestFactory.connect();
+        IOUtils.close(connection);
     }
 
     /**
@@ -589,11 +583,17 @@ public class ReplicaSetConnectionFactoryTest {
         // Finally success...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
+        mockConnection
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
                 .andReturn(serverName);
         expect(mockConnection.getServerName()).andReturn(serverName);
 
         // A clean close.
+        mockConnection
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
         mockFactory.close();
@@ -745,11 +745,6 @@ public class ReplicaSetConnectionFactoryTest {
 
             final Connection connection = myTestFactory.connect();
             IOUtils.close(connection);
-            fail("Should have failed to connect.");
-        }
-        catch (final IOException ioe) {
-            // Good.
-            assertThat(ioe, sameInstance(thrown));
         }
         finally {
             IOUtils.close(myTestFactory);

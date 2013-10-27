@@ -76,6 +76,16 @@ public class ServerTestDriverSupport {
     }
 
     /**
+     * Repairs a MongoDB instance running in a replica set mode. This verifies
+     * all of the members are running and that there is a primary.
+     * 
+     * @see ClusterTestSupport#startReplicaSet
+     */
+    protected static void repairReplicaSet() {
+        ourClusterTestSupport.repairReplicaSet();
+    }
+
+    /**
      * Starts a MongoDB instance running in a standalone mode.
      */
     protected static void startAuthenticated() {

@@ -77,27 +77,26 @@ public class SocketConnection extends AbstractSocketConnection {
      */
     @Override
     public void close() throws IOException {
-        final boolean wasOpen = myOpen.get();
-        myOpen.set(false);
+        if (myOpen.compareAndSet(true, false)) {
+            myReceiver.interrupt();
 
-        myReceiver.interrupt();
+            // Now that output is shutdown. Close up the socket. This
+            // Triggers the receiver to close if the interrupt didn't work.
+            myOutput.close();
+            myInput.close();
+            mySocket.close();
 
-        // Now that output is shutdown. Close up the socket. This
-        // Triggers the receiver to close if the interrupt didn't work.
-        myOutput.close();
-        myInput.close();
-        mySocket.close();
-
-        try {
-            if (Thread.currentThread() != myReceiver) {
-                myReceiver.join();
+            try {
+                if (Thread.currentThread() != myReceiver) {
+                    myReceiver.join();
+                }
             }
-        }
-        catch (final InterruptedException ie) {
-            // Ignore.
-        }
+            catch (final InterruptedException ie) {
+                // Ignore.
+            }
 
-        myEventSupport.firePropertyChange(OPEN_PROP_NAME, wasOpen, false);
+            myEventSupport.firePropertyChange(OPEN_PROP_NAME, true, false);
+        }
     }
 
     /**

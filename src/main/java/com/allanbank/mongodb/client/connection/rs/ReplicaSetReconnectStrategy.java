@@ -95,9 +95,25 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * </p>
      */
     @Override
-    public synchronized ReplicaSetConnection reconnect(
-            final Connection oldConnection) {
+    public ReplicaSetConnection reconnect(final Connection oldConnection) {
+        final ReplicaSetConnectionInfo info = reconnectPrimary();
+        if (info != null) {
+            return new ReplicaSetConnection(info.getConnection(),
+                    info.getPrimaryServer(), getState(),
+                    getConnectionFactory(), getConfig(), this);
+        }
+        return null;
+    }
 
+    /**
+     * Overridden to search for the primary server in the replica set. This will
+     * only continue until the
+     * {@link MongoClientConfiguration#getReconnectTimeout()} has expired. </p>
+     * 
+     * @return The information for the primary connection or null if the
+     *         reconnect fails.
+     */
+    public synchronized ReplicaSetConnectionInfo reconnectPrimary() {
         LOG.fine("Trying replica set reconnect.");
         final Cluster state = getState();
 
@@ -131,8 +147,8 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                     sendIsPrimary(answers, connections, server, false);
 
                     // Anyone replied yet?
-                    final ReplicaSetConnection newConn = checkForReply(state,
-                            oldConnection, answers, connections, deadline);
+                    final ReplicaSetConnectionInfo newConn = checkForReply(
+                            state, answers, connections, deadline);
                     if (newConn != null) {
                         return newConn;
                     }
@@ -147,8 +163,8 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                         + pauseTime);
 
                 // Check again for replies before trying to reconnect.
-                final ReplicaSetConnection newConn = checkForReply(state,
-                        oldConnection, answers, connections, deadline);
+                final ReplicaSetConnectionInfo newConn = checkForReply(state,
+                        answers, connections, deadline);
                 if (newConn != null) {
                     return newConn;
                 }
@@ -159,6 +175,8 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
         finally {
             // Shut down the connections we created.
             for (final Connection conn : connections.values()) {
+                conn.shutdown();
+                conn.waitForClosed(1, TimeUnit.SECONDS);
                 IOUtils.close(conn);
             }
             if (interrupted) {
@@ -175,8 +193,6 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * 
      * @param state
      *            The state of the cluster.
-     * @param oldConnection
-     *            The old connection to copy from.
      * @param answers
      *            The pending ({@link Future}) answers from each server.
      * @param connections
@@ -186,8 +202,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * @return The new connection if there was a reply and that server confirmed
      *         it was the primary.
      */
-    protected ReplicaSetConnection checkForReply(final Cluster state,
-            final Connection oldConnection,
+    protected ReplicaSetConnectionInfo checkForReply(final Cluster state,
             final Map<Server, Future<Reply>> answers,
             final Map<Server, Connection> connections, final long deadline) {
         final Map<Server, Future<Reply>> copy = new HashMap<Server, Future<Reply>>(
@@ -215,6 +230,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                         // primary and seed it with a secondary if there is a
                         // suitable server.
                         LOG.info("New primary for replica set: " + putative);
+                        updateUnknown(state, answers, connections);
                         return createReplicaSetConnection(connections,
                                 putativeServer);
                     }
@@ -401,12 +417,39 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      *            The primary server.
      * @return The {@link ReplicaSetConnection}.
      */
-    private ReplicaSetConnection createReplicaSetConnection(
+    private ReplicaSetConnectionInfo createReplicaSetConnection(
             final Map<Server, Connection> connections,
             final Server primaryServer) {
         final Connection primaryConn = connections.remove(primaryServer);
 
-        return new ReplicaSetConnection(primaryConn, primaryServer, getState(),
-                getConnectionFactory(), getConfig());
+        return new ReplicaSetConnectionInfo(primaryConn, primaryServer);
+    }
+
+    /**
+     * Tries to send messages to all of the members of the cluster in an
+     * indeterminate state.
+     * 
+     * @param state
+     *            The state of the cluster.
+     * @param answers
+     *            The pending responses.
+     * @param connections
+     *            The connection already created.
+     */
+    private void updateUnknown(final Cluster state,
+            final Map<Server, Future<Reply>> answers,
+            final Map<Server, Connection> connections) {
+        for (final Server server : state.getServers()) {
+            switch (server.getState()) {
+            case UNKNOWN:
+            case UNAVAILABLE: {
+                answers.remove(server);
+                sendIsPrimary(answers, connections, server, false);
+            }
+            default: {
+                // Known good.
+            }
+            }
+        }
     }
 }

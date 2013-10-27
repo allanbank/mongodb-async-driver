@@ -11,6 +11,7 @@ import java.io.BufferedOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.StreamCorruptedException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -387,10 +388,11 @@ public abstract class AbstractSocketConnection implements Connection {
 
             return message;
         }
+
         catch (final IOException ioe) {
             final MongoDbException error = new ConnectionLostException(ioe);
 
-            shutdown(error);
+            shutdown(error, (ioe instanceof InterruptedIOException));
 
             throw error;
         }
@@ -439,7 +441,7 @@ public abstract class AbstractSocketConnection implements Connection {
         else if (received != null) {
             myLog.warning("Received a non-Reply message: " + received);
             shutdown(new ConnectionLostException(new StreamCorruptedException(
-                    "Received a non-Reply message: " + received)));
+                    "Received a non-Reply message: " + received)), false);
         }
         else {
             myIdleTicks += 1;
@@ -511,7 +513,8 @@ public abstract class AbstractSocketConnection implements Connection {
         }
 
         if (eofCheck < 0) {
-            throw new EOFException();
+            throw new EOFException("Remote connection closed: "
+                    + mySocket.getRemoteSocketAddress());
         }
         return result;
     }
@@ -580,9 +583,14 @@ public abstract class AbstractSocketConnection implements Connection {
      * 
      * @param error
      *            The error causing the shutdown.
+     * @param receiveError
+     *            If true then the socket experienced a receive error.
      */
-    protected void shutdown(final MongoDbException error) {
-        myServer.connectionTerminated();
+    protected void shutdown(final MongoDbException error,
+            final boolean receiveError) {
+        if (receiveError) {
+            myServer.connectionTerminated();
+        }
 
         // Have to assume all of the requests have failed that are pending.
         final PendingMessage message = new PendingMessage();

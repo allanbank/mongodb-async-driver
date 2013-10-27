@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 
+import com.allanbank.mongodb.client.connection.socket.SocketConnection;
+import com.allanbank.mongodb.client.message.IsMaster;
+import com.allanbank.mongodb.client.state.Cluster;
+import com.allanbank.mongodb.client.state.Server;
+import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -73,6 +79,20 @@ public class ClusterTestSupport {
         }
 
         file.delete();
+    }
+
+    /**
+     * Repairs a MongoDB instance running in a replica set mode. Below is the
+     * role and port allocation.
+     * <ul>
+     * <li>27017 - Arbiter</li>
+     * <li>27018 - Shard - Probable Primary</li>
+     * <li>27019 - Shard</li>
+     * <li>27020 - Shard</li>
+     * </ul>
+     */
+    public void repairReplicaSet() {
+        repairReplicaSet(myWorkingDirectory, DEFAULT_PORT, 3);
     }
 
     /**
@@ -346,6 +366,63 @@ public class ClusterTestSupport {
     }
 
     /**
+     * Repairs a replica set on the specified start port.
+     * 
+     * @param workingDirectory
+     *            The work directory for the replica set.
+     * @param startPort
+     *            The starting port for the replica set.
+     * @param replicas
+     *            The number of replicas in the replica set.
+     * @throws AssertionError
+     *             On a failure starting the replica set.
+     */
+    protected void repairReplicaSet(final File workingDirectory,
+            final int startPort, final int replicas) throws AssertionError {
+
+        long now = System.currentTimeMillis();
+        final long deadline = now + TimeUnit.MINUTES.toMillis(2);
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        final Cluster cluster = new Cluster(config);
+        while ((now < deadline) && cluster.getWritableServers().isEmpty()) {
+            for (int port = startPort; port < (startPort + replicas + 1); ++port) {
+                SocketConnection connection = null;
+                try {
+                    final Server server = cluster.add(new InetSocketAddress(
+                            "localhost", port));
+                    connection = new SocketConnection(server, config);
+                    connection.start();
+                    connection.send(new IsMaster(), new ServerUpdateCallback(
+                            server));
+                    connection.shutdown();
+                    connection.waitForClosed(10, TimeUnit.SECONDS);
+                }
+                catch (final IOException error) {
+                    // Could not connect. restart the process.
+                    final File db = new File(workingDirectory, "mongod-" + port);
+
+                    final ManagedProcess process = run(workingDirectory,
+                            "mongod", "--port", String.valueOf(port),
+                            "--dbpath", db.getAbsolutePath(), "--smallfiles",
+                            "--replSet", "rs-" + startPort, "--noprealloc",
+                            "--nojournal", "--oplogSize", "512");
+                    myProcesses.add(process);
+                }
+                finally {
+                    now = System.currentTimeMillis();
+                    IOUtils.close(connection);
+                }
+            }
+
+            if (cluster.getWritableServers().isEmpty()) {
+                // Missing primary: Pause.
+                sleep(TimeUnit.SECONDS.toMillis(5));
+            }
+        }
+    }
+
+    /**
      * Sleeps for the specified number of milliseconds.
      * 
      * @param millis
@@ -398,13 +475,13 @@ public class ClusterTestSupport {
             arbiter = run(workingDirectory, "mongod", "--port",
                     String.valueOf(port), "--dbpath", db.getAbsolutePath(),
                     "--smallfiles", "--replSet", "rs-" + startPort,
-                    "--noprealloc", "--nojournal", "--oplogSize", "2");
+                    "--noprealloc", "--nojournal", "--oplogSize", "512");
             reconfigWriter
                     .write("config.members.push({ _id: 0, host: \"localhost:"
                             + port + "\", arbiterOnly:true })\n");
             myProcesses.add(arbiter);
 
-            List<ManagedProcess> members = new ArrayList<ManagedProcess>(
+            final List<ManagedProcess> members = new ArrayList<ManagedProcess>(
                     replicas);
             for (int i = 0; i < replicas; ++i) {
                 port = startPort + i + 1;

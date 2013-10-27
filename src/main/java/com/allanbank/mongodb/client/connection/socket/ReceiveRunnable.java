@@ -58,8 +58,8 @@ import com.allanbank.mongodb.util.IOUtils;
                                 "Error reading a message: "
                                         + error.getMessage(), error);
 
-                        mySocketConnection
-                                .shutdown(new ConnectionLostException(error));
+                        mySocketConnection.shutdown(
+                                new ConnectionLostException(error), false);
                     }
                     // All done.
                     return;

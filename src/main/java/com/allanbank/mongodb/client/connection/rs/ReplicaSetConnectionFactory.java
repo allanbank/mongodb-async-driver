@@ -57,6 +57,9 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
     /** Pings the servers in the cluster collecting latency and tags. */
     private final ClusterPinger myPinger;
 
+    /** The strategy for reconnecting/finding the primary. */
+    private final ReplicaSetReconnectStrategy myStrategy;
+
     /**
      * Creates a new {@link ReplicaSetConnectionFactory}.
      * 
@@ -72,6 +75,12 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
         myCluster = new Cluster(config);
         myPinger = new ClusterPinger(myCluster, ClusterType.REPLICA_SET,
                 factory, config);
+
+        myStrategy = new ReplicaSetReconnectStrategy();
+        myStrategy.setConfig(myConfig);
+        myStrategy.setConnectionFactory(myConnectionFactory);
+        myStrategy.setState(myCluster);
+        myStrategy.setSelector(new LatencyServerSelector(myCluster, false));
 
         // Bootstrap the state off of one of the servers.
         bootstrap();
@@ -110,8 +119,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      */
     @Override
     public Connection connect() throws IOException {
-        IOException lastError = null;
 
+        // Try to find the primary.
         List<Server> writableServers = myCluster.getWritableServers();
         for (int i = 0; i < 10; ++i) {
             servers: for (final Server primary : writableServers) {
@@ -124,7 +133,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
                         final ReplicaSetConnection rsConnection = new ReplicaSetConnection(
                                 primaryConn, primary, myCluster,
-                                myConnectionFactory, myConfig);
+                                myConnectionFactory, myConfig, myStrategy);
 
                         primaryConn = null;
 
@@ -134,7 +143,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                     break servers;
                 }
                 catch (final IOException e) {
-                    lastError = e;
+                    LOG.finer("Error connecting to presumptive primary: "
+                            + e.getMessage());
                 }
                 finally {
                     IOUtils.close(primaryConn);
@@ -145,12 +155,11 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
             writableServers = locatePrimary();
         }
 
-        if (lastError != null) {
-            throw lastError;
-        }
-
-        throw new IOException(
-                "Could not determine the primary server in the replica set.");
+        // Don't throw an error here.
+        // Might be doing a secondary query which means we don't need the
+        // primary.
+        return new ReplicaSetConnection(null, null, myCluster,
+                myConnectionFactory, myConfig, myStrategy);
     }
 
     /**
@@ -172,15 +181,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
      */
     @Override
     public ReconnectStrategy getReconnectStrategy() {
-
-        final ReplicaSetReconnectStrategy strategy = new ReplicaSetReconnectStrategy();
-
-        strategy.setConfig(myConfig);
-        strategy.setConnectionFactory(myConnectionFactory);
-        strategy.setState(myCluster);
-        strategy.setSelector(new LatencyServerSelector(myCluster, false));
-
-        return strategy;
+        return myStrategy;
     }
 
     /**
