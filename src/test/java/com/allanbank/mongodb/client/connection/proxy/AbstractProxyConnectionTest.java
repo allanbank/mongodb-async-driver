@@ -900,7 +900,7 @@ public class AbstractProxyConnectionTest {
          */
         public TestProxiedConnection(final Connection proxiedConnection,
                 final MongoClientConfiguration config) {
-            super(proxiedConnection, config);
+            super(proxiedConnection);
         }
     }
 }

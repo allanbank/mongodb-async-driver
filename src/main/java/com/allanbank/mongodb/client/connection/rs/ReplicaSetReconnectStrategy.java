@@ -439,13 +439,17 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
             final Map<Server, Connection> connections) {
         for (final Server server : state.getServers()) {
             switch (server.getState()) {
-            case UNKNOWN:
+            case UNKNOWN: // Fall through.
             case UNAVAILABLE: {
                 answers.remove(server);
                 sendIsPrimary(answers, connections, server, false);
+                break;
             }
+            case READ_ONLY:
+            case WRITABLE:
             default: {
                 // Known good.
+                break;
             }
             }
         }

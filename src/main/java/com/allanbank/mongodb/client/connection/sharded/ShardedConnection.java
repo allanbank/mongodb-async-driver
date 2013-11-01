@@ -28,7 +28,7 @@ public class ShardedConnection extends AbstractProxyConnection {
      */
     public ShardedConnection(final Connection proxiedConnection,
             final MongoClientConfiguration config) {
-        super(proxiedConnection, config);
+        super(proxiedConnection);
     }
 
     /**
