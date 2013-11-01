@@ -88,14 +88,14 @@ public class Find {
     /** If true then an error in the query should return any partial results. */
     private final boolean myPartialOk;
 
+    /** The fields to be projected/returned from the matching documents. */
+    private final Document myProjection;
+
     /** The query document. */
     private final Document myQuery;
 
     /** The preference for which servers to use to retrieve the results. */
     private final ReadPreference myReadPreference;
-
-    /** The fields to be returned from the matching documents. */
-    private final Document myReturnFields;
 
     /** If set to true then only the index keys will be returned. */
     private final boolean myReturnIndexKeysOnly;
@@ -133,7 +133,7 @@ public class Find {
         myPartialOk = builder.myPartialOk;
         myQuery = builder.myQuery;
         myReadPreference = builder.myReadPreference;
-        myReturnFields = builder.myReturnFields;
+        myProjection = builder.myProjection;
         mySnapshot = builder.mySnapshot;
         mySort = builder.mySort;
         myTailable = builder.myTailable;
@@ -239,6 +239,16 @@ public class Find {
     }
 
     /**
+     * Returns the fields to be projected or returned from the matching
+     * documents.
+     * 
+     * @return The fields to be projected from the matching documents.
+     */
+    public Document getProjection() {
+        return myProjection;
+    }
+
+    /**
      * Returns the query document.
      * 
      * @return The query document.
@@ -262,9 +272,13 @@ public class Find {
      * Returns the fields to be returned from the matching documents.
      * 
      * @return The fields to be returned from the matching documents.
+     * @deprecated Replaced with the MongoDB standardized name:
+     *             {@link #getProjection() projection}. This method will be
+     *             removed on or after the 1.4 release.
      */
+    @Deprecated
     public Document getReturnFields() {
-        return myReturnFields;
+        return myProjection;
     }
 
     /**
@@ -522,14 +536,14 @@ public class Find {
          */
         protected boolean myPartialOk;
 
+        /** The fields to be returned from the matching documents. */
+        protected Document myProjection;
+
         /** The query document. */
         protected Document myQuery;
 
         /** The preference for which servers to use to retrieve the results. */
         protected ReadPreference myReadPreference;
-
-        /** The fields to be returned from the matching documents. */
-        protected Document myReturnFields;
 
         /** If set to true then only the index keys will be returned. */
         protected boolean myReturnIndexKeysOnly;
@@ -783,6 +797,43 @@ public class Find {
         }
 
         /**
+         * Sets the value of the fields to be projected from the matching
+         * documents to the new value.
+         * <p>
+         * This method delegates to {@link #setProjection(DocumentAssignable)} .
+         * </p>
+         * 
+         * @param projection
+         *            The new value for the fields to be projected from the
+         *            matching documents.
+         * @return This builder for chaining method calls.
+         */
+        public Builder projection(final DocumentAssignable projection) {
+            return setProjection(projection);
+        }
+
+        /**
+         * Sets the value of the fields to be returned from the matching
+         * documents to the new value.
+         * <p>
+         * This method adds each field to a document with a value of {@code 1}
+         * and then delegates to the {@link #setProjection(DocumentAssignable)}
+         * method.
+         * </p>
+         * 
+         * @param fieldNames
+         *            The names of the fields to be returned.
+         * @return This builder for chaining method calls.
+         */
+        public Builder projection(final String... fieldNames) {
+            final DocumentBuilder builder = BuilderFactory.start();
+            for (final String fieldName : fieldNames) {
+                builder.add(fieldName, 1);
+            }
+            return setProjection(builder);
+        }
+
+        /**
          * Sets the value of the query document to the new value.
          * <p>
          * This method delegates to {@link #setQuery(DocumentAssignable)}.
@@ -826,7 +877,7 @@ public class Find {
             myPartialOk = false;
             myQuery = ALL;
             myReadPreference = null;
-            myReturnFields = null;
+            myProjection = null;
             mySnapshot = false;
             mySort = null;
             myTailable = false;
@@ -845,38 +896,39 @@ public class Find {
          * Sets the value of the fields to be returned from the matching
          * documents to the new value.
          * <p>
-         * This method delegates to {@link #setReturnFields(DocumentAssignable)}
-         * .
+         * This method delegates to {@link #projection(DocumentAssignable)} .
          * </p>
          * 
          * @param returnFields
          *            The new value for the fields to be returned from the
          *            matching documents.
          * @return This builder for chaining method calls.
+         * @deprecated Replaced with the MongoDB standardized name:
+         *             {@link #projection(DocumentAssignable) projection}. This
+         *             method will be removed on or after the 1.4 release.
          */
+        @Deprecated
         public Builder returnFields(final DocumentAssignable returnFields) {
-            return setReturnFields(returnFields);
+            return projection(returnFields);
         }
 
         /**
          * Sets the value of the fields to be returned from the matching
          * documents to the new value.
          * <p>
-         * This method adds each field to a document with a value of {@code 1}
-         * and then delegates to the
-         * {@link #setReturnFields(DocumentAssignable)} method.
+         * This method delegates to the {@link #projection(String[])} method.
          * </p>
          * 
          * @param fieldNames
          *            The names of the fields to be returned.
          * @return This builder for chaining method calls.
+         * @deprecated Replaced with the MongoDB standardized name:
+         *             {@link #projection(String[]) projection}. This method
+         *             will be removed on or after the 1.4 release.
          */
+        @Deprecated
         public Builder returnFields(final String... fieldNames) {
-            final DocumentBuilder builder = BuilderFactory.start();
-            for (final String fieldName : fieldNames) {
-                builder.add(fieldName, 1);
-            }
-            return setReturnFields(builder);
+            return projection(fieldNames);
         }
 
         /**
@@ -1154,6 +1206,20 @@ public class Find {
         }
 
         /**
+         * Sets the value of the fields to be projected or returned from the
+         * matching documents to the new value.
+         * 
+         * @param projection
+         *            The new value for the fields to be projected from the
+         *            matching documents.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setProjection(final DocumentAssignable projection) {
+            myProjection = projection.asDocument();
+            return this;
+        }
+
+        /**
          * Sets the value of the query document to the new value.
          * 
          * @param query
@@ -1182,15 +1248,21 @@ public class Find {
         /**
          * Sets the value of the fields to be returned from the matching
          * documents to the new value.
+         * <p>
+         * This method delegates to {@link #setProjection(DocumentAssignable)} .
+         * </p>
          * 
          * @param returnFields
          *            The new value for the fields to be returned from the
          *            matching documents.
          * @return This builder for chaining method calls.
+         * @deprecated Replaced with the MongoDB standardized name:
+         *             {@link #setProjection projection}. This method will be
+         *             removed on or after the 1.4 release.
          */
+        @Deprecated
         public Builder setReturnFields(final DocumentAssignable returnFields) {
-            myReturnFields = returnFields.asDocument();
-            return this;
+            return setProjection(returnFields);
         }
 
         /**

@@ -664,9 +664,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Now go find all of them by the covering index.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
                 .start().build());
-        findBuilder.setReturnFields(BuilderFactory.start()
-                .addBoolean("_id", false).addBoolean("foo", true)
-                .addBoolean("bar", true).build());
+        findBuilder.projection(BuilderFactory.start().addBoolean("_id", false)
+                .addBoolean("foo", true).addBoolean("bar", true).build());
         final MongoIterator<Document> iter = myCollection.find(findBuilder
                 .build());
         int expectedId = 0;
@@ -1008,7 +1007,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc2.addInteger("b", 2);
 
         final Find.Builder find = new Find.Builder();
-        find.setReturnFields(BuilderFactory.start().add("a", 1).add("b", 1));
+        find.setProjection(BuilderFactory.start().add("a", 1).add("b", 1));
 
         find.setQuery(and(where("a").equals(1), where("b").equals(1)));
         assertEquals(doc1.build(), myCollection.findOne(find.build()));
@@ -1057,7 +1056,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc2.addInteger("b", 2);
 
         final Find.Builder find = new Find.Builder();
-        find.setReturnFields(BuilderFactory.start().add("a", 1).add("b", 1));
+        find.setProjection(BuilderFactory.start().add("a", 1).add("b", 1));
 
         find.setQuery(and(where("a").equals(1), where("b").equals(1)));
         MongoIterator<Document> iter = myCollection.find(find.build());
@@ -1514,7 +1513,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
                 .start().build());
-        findBuilder.setReturnFields(BuilderFactory.start()
+        findBuilder.setProjection(BuilderFactory.start()
                 .addBoolean("_id", true).build());
 
         final TestIteratorAsyncCallback cb = new TestIteratorAsyncCallback();
@@ -1703,7 +1702,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
                 .start().build());
-        findBuilder.setReturnFields(BuilderFactory.start()
+        findBuilder.setProjection(BuilderFactory.start()
                 .addBoolean("_id", true).build());
         // Fetch a lot.
         findBuilder.setBatchSize(10);
@@ -1742,7 +1741,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
                 .start().build());
-        findBuilder.setReturnFields(BuilderFactory.start()
+        findBuilder.setProjection(BuilderFactory.start()
                 .addBoolean("_id", true).build());
         // Fetch a lot.
         findBuilder.setBatchSize(10);
@@ -1782,7 +1781,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
                 .start().build());
-        findBuilder.setReturnFields(BuilderFactory.start()
+        findBuilder.setProjection(BuilderFactory.start()
                 .addBoolean("_id", true).build());
         // Fetch a lot.
         findBuilder.setBatchSize(10);
@@ -7090,7 +7089,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
                 .start().build());
-        findBuilder.setReturnFields(BuilderFactory.start()
+        findBuilder.setProjection(BuilderFactory.start()
                 .addBoolean("_id", true).build());
         // Fetch a lot.
         findBuilder.setBatchSize(10);
@@ -7206,7 +7205,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
                 .start().build());
-        findBuilder.setReturnFields(BuilderFactory.start()
+        findBuilder.setProjection(BuilderFactory.start()
                 .addBoolean("_id", true).build());
         // Fetch a lot.
         findBuilder.setBatchSize(50);
@@ -7246,7 +7245,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
                 .start().build());
-        findBuilder.setReturnFields(BuilderFactory.start()
+        findBuilder.setProjection(BuilderFactory.start()
                 .addBoolean("_id", true).build());
         // Fetch a lot.
         findBuilder.setBatchSize(50);

@@ -37,7 +37,7 @@ public class FindTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(query);
-        builder.returnFields(fields);
+        builder.projection(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -48,7 +48,7 @@ public class FindTest {
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -69,7 +69,7 @@ public class FindTest {
 
         request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -93,7 +93,7 @@ public class FindTest {
         final Find request = builder.build();
 
         assertSame(Find.ALL, request.getQuery());
-        assertNull(request.getReturnFields());
+        assertNull(request.getProjection());
         assertEquals(0, request.getBatchSize());
         assertEquals(0, request.getLimit());
         assertEquals(0, request.getNumberToSkip());
@@ -133,7 +133,7 @@ public class FindTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.query(query);
-        builder.setReturnFields(fields);
+        builder.setProjection(fields);
         builder.batchSize(101010);
         builder.limit(202020);
         builder.skip(123456);
@@ -143,7 +143,7 @@ public class FindTest {
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -161,7 +161,7 @@ public class FindTest {
 
         builder.reset();
         builder.setQuery(query);
-        builder.setReturnFields(fields);
+        builder.setProjection(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -170,7 +170,7 @@ public class FindTest {
 
         request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -195,7 +195,7 @@ public class FindTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(query);
-        builder.setReturnFields(fields);
+        builder.setProjection(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -206,7 +206,7 @@ public class FindTest {
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -229,7 +229,7 @@ public class FindTest {
 
         builder.reset();
         builder.setQuery(query);
-        builder.setReturnFields(fields);
+        builder.setProjection(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -239,7 +239,7 @@ public class FindTest {
 
         request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -262,7 +262,7 @@ public class FindTest {
 
         builder.reset();
         builder.setQuery(query);
-        builder.setReturnFields(fields);
+        builder.setProjection(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -271,7 +271,7 @@ public class FindTest {
 
         request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -296,7 +296,7 @@ public class FindTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(query);
-        builder.setReturnFields(fields);
+        builder.setProjection(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -307,7 +307,7 @@ public class FindTest {
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -323,7 +323,7 @@ public class FindTest {
 
         builder.reset();
         builder.setQuery(query);
-        builder.setReturnFields(fields);
+        builder.setProjection(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -332,7 +332,7 @@ public class FindTest {
 
         request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -471,6 +471,132 @@ public class FindTest {
 
     /**
      * Test method for {@link Find#Find}.
+     * 
+     * @deprecated Replaced with the MongoDB standardized name: projection. This
+     *             test will be removed on or after the 1.4 release.
+     */
+    @Test
+    @Deprecated
+    public void testFindWithReturnFields1() {
+        final Document query = Find.ALL;
+        final Document fields = BuilderFactory.start().add("foo", 1)
+                .add("bar", 1).build();
+        final Document sort = BuilderFactory.start().add("foo", 1).build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(query);
+        builder.returnFields("foo", "bar");
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.sort(sort);
+        builder.tailable();
+
+        final Find request = builder.build();
+        assertSame(query, request.getQuery());
+        assertEquals(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertSame(sort, request.getSort());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+        assertTrue(request.isTailable());
+        assertTrue(request.isAwaitData());
+        assertFalse(request.isImmortalCursor());
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     * 
+     * @deprecated Replaced with the MongoDB standardized name: projection. This
+     *             test will be removed on or after the 1.4 release.
+     */
+    @Test
+    @Deprecated
+    public void testFindWithReturnFields2() {
+        final Document query = Find.ALL;
+        final Document fields = BuilderFactory.start().add("foo", 1)
+                .add("bar", 1).build();
+        final Document sort = BuilderFactory.start().add("foo", 1).build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(query);
+        builder.setReturnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.sort(sort);
+        builder.tailable();
+
+        final Find request = builder.build();
+        assertSame(query, request.getQuery());
+        assertEquals(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertSame(sort, request.getSort());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+        assertTrue(request.isTailable());
+        assertTrue(request.isAwaitData());
+        assertFalse(request.isImmortalCursor());
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
+     * 
+     * @deprecated Replaced with the MongoDB standardized name: projection. This
+     *             test will be removed on or after the 1.4 release.
+     */
+    @Test
+    @Deprecated
+    public void testFindWithReturnFields3() {
+        final Document query = Find.ALL;
+        final Document fields = BuilderFactory.start().add("foo", 1)
+                .add("bar", 1).build();
+        final Document sort = BuilderFactory.start().add("foo", 1).build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(query);
+        builder.returnFields(fields);
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.CLOSEST);
+        builder.sort(sort);
+        builder.tailable();
+
+        final Find request = builder.build();
+        assertSame(query, request.getQuery());
+        assertEquals(fields, request.getReturnFields());
+        assertEquals(101010, request.getBatchSize());
+        assertEquals(202020, request.getLimit());
+        assertEquals(123456, request.getNumberToSkip());
+        assertTrue(request.isPartialOk());
+        assertSame(ReadPreference.CLOSEST, request.getReadPreference());
+        assertSame(sort, request.getSort());
+        assertNull(request.getHint());
+        assertNull(request.getHintName());
+        assertFalse(request.isSnapshot());
+        assertTrue(request.isTailable());
+        assertTrue(request.isAwaitData());
+        assertFalse(request.isImmortalCursor());
+    }
+
+    /**
+     * Test method for {@link Find#Find}.
      */
     @Test
     public void testFindWithReturnIndexKeysOnly() {
@@ -510,7 +636,7 @@ public class FindTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(query);
-        builder.returnFields("foo", "bar");
+        builder.projection("foo", "bar");
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -521,7 +647,7 @@ public class FindTest {
 
         final Find request = builder.build();
         assertSame(query, request.getQuery());
-        assertEquals(fields, request.getReturnFields());
+        assertEquals(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -579,7 +705,7 @@ public class FindTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(query);
-        builder.setReturnFields(fields);
+        builder.setProjection(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -589,7 +715,7 @@ public class FindTest {
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -605,7 +731,7 @@ public class FindTest {
 
         builder.reset();
         builder.setQuery(query);
-        builder.setReturnFields(fields);
+        builder.setProjection(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -614,7 +740,7 @@ public class FindTest {
 
         request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -639,7 +765,7 @@ public class FindTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(query);
-        builder.setReturnFields(fields);
+        builder.setProjection(fields);
         builder.setBatchSize(101010);
         builder.setLimit(202020);
         builder.setNumberToSkip(123456);
@@ -649,7 +775,7 @@ public class FindTest {
 
         Find request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());
@@ -666,7 +792,7 @@ public class FindTest {
 
         request = builder.build();
         assertSame(query, request.getQuery());
-        assertSame(fields, request.getReturnFields());
+        assertSame(fields, request.getProjection());
         assertEquals(101010, request.getBatchSize());
         assertEquals(202020, request.getLimit());
         assertEquals(123456, request.getNumberToSkip());

@@ -300,7 +300,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         final Query queryMessage = new Query(getDatabaseName(), myName,
-                queryDoc, query.getReturnFields(), query.getBatchSize(),
+                queryDoc, query.getProjection(), query.getBatchSize(),
                 query.getLimit(), query.getNumberToSkip(),
                 false /* tailable */, readPreference,
                 false /* noCursorTimeout */, false /* awaitData */,
@@ -783,7 +783,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
 
         return new Query(getDatabaseName(), myName, queryDoc,
-                query.getReturnFields(), batchSize, limit,
+                query.getProjection(), batchSize, limit,
                 query.getNumberToSkip(), tailable, readPreference, immortal,
                 awaitData, false /* exhaust */, query.isPartialOk());
     }

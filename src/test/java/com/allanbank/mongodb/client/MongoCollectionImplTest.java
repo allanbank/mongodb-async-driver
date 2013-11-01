@@ -1995,7 +1995,7 @@ public class MongoCollectionImplTest {
                 "foo", 1);
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder.build());
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -2012,7 +2012,7 @@ public class MongoCollectionImplTest {
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
         final Query message = new Query("test", "test",
-                qRequestBuilder.asDocument(), request.getReturnFields(),
+                qRequestBuilder.asDocument(), request.getProjection(),
                 request.getBatchSize(), request.getLimit(),
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
@@ -2049,7 +2049,7 @@ public class MongoCollectionImplTest {
                 "foo", 1);
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder.build());
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -2064,7 +2064,7 @@ public class MongoCollectionImplTest {
         qRequestBuilder.add("$explain", true);
 
         final Query message = new Query("test", "test",
-                qRequestBuilder.asDocument(), request.getReturnFields(),
+                qRequestBuilder.asDocument(), request.getProjection(),
                 request.getBatchSize(), request.getLimit(),
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
@@ -2846,7 +2846,7 @@ public class MongoCollectionImplTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder);
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -2864,7 +2864,7 @@ public class MongoCollectionImplTest {
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
         final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getReturnFields(), 1, 1,
+                qRequestBuilder.build(), request.getProjection(), 1, 1,
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
@@ -2898,7 +2898,7 @@ public class MongoCollectionImplTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder);
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -2914,7 +2914,7 @@ public class MongoCollectionImplTest {
         qRequestBuilder.addDocument("$orderby", sort.asDocument());
 
         final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getReturnFields(), 1, 1,
+                qRequestBuilder.build(), request.getProjection(), 1, 1,
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
@@ -2946,7 +2946,7 @@ public class MongoCollectionImplTest {
                 "foo", 1);
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder.build());
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -2957,7 +2957,7 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final Query message = new Query("test", "test", qBuilder.asDocument(),
-                request.getReturnFields(), 1, 1, request.getNumberToSkip(),
+                request.getProjection(), 1, 1, request.getNumberToSkip(),
                 false, ReadPreference.PREFER_SECONDARY, false, false, false,
                 true);
 
@@ -2993,7 +2993,7 @@ public class MongoCollectionImplTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder);
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -3011,7 +3011,7 @@ public class MongoCollectionImplTest {
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
         final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getReturnFields(),
+                qRequestBuilder.build(), request.getProjection(),
                 request.getBatchSize(), request.getLimit(),
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
@@ -3055,7 +3055,7 @@ public class MongoCollectionImplTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder);
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -3071,7 +3071,7 @@ public class MongoCollectionImplTest {
         qRequestBuilder.addDocument("$orderby", sort.asDocument());
 
         final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getReturnFields(),
+                qRequestBuilder.build(), request.getProjection(),
                 request.getBatchSize(), request.getLimit(),
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
@@ -3113,7 +3113,7 @@ public class MongoCollectionImplTest {
                 "foo", 1);
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder.build());
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -3124,7 +3124,7 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final Query message = new Query("test", "test", qBuilder.asDocument(),
-                request.getReturnFields(), request.getBatchSize(),
+                request.getProjection(), request.getBatchSize(),
                 request.getLimit(), request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
@@ -4741,7 +4741,7 @@ public class MongoCollectionImplTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder);
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -4757,7 +4757,7 @@ public class MongoCollectionImplTest {
         qRequestBuilder.addDocument("$orderby", sort.asDocument());
 
         final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getReturnFields(),
+                qRequestBuilder.build(), request.getProjection(),
                 request.getBatchSize(), request.getLimit(),
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
@@ -4805,7 +4805,7 @@ public class MongoCollectionImplTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder);
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -4823,7 +4823,7 @@ public class MongoCollectionImplTest {
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
         final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getReturnFields(),
+                qRequestBuilder.build(), request.getProjection(),
                 request.getBatchSize(), request.getLimit(),
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
@@ -4870,7 +4870,7 @@ public class MongoCollectionImplTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder);
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -4886,7 +4886,7 @@ public class MongoCollectionImplTest {
         qRequestBuilder.addDocument("$orderby", sort.asDocument());
 
         final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getReturnFields(),
+                qRequestBuilder.build(), request.getProjection(),
                 request.getBatchSize(), request.getLimit(),
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
@@ -4931,7 +4931,7 @@ public class MongoCollectionImplTest {
                 "foo", 1);
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder.build());
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -4942,7 +4942,7 @@ public class MongoCollectionImplTest {
         final Find request = builder.build();
 
         final Query message = new Query("test", "test", qBuilder.asDocument(),
-                request.getReturnFields(), request.getBatchSize(),
+                request.getProjection(), request.getBatchSize(),
                 request.getLimit(), request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
 
@@ -4989,7 +4989,7 @@ public class MongoCollectionImplTest {
 
         final Find.Builder builder = new Find.Builder();
         builder.setQuery(qBuilder);
-        builder.setReturnFields(BuilderFactory.start().addBoolean("_id", true)
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
                 .build());
         builder.setBatchSize(101010);
         builder.setLimit(202020);
@@ -5007,7 +5007,7 @@ public class MongoCollectionImplTest {
                 ReadPreference.PREFER_SECONDARY.asDocument());
 
         final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getReturnFields(),
+                qRequestBuilder.build(), request.getProjection(),
                 request.getBatchSize(), request.getLimit(),
                 request.getNumberToSkip(), false,
                 ReadPreference.PREFER_SECONDARY, false, false, false, true);
