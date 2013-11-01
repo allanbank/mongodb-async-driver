@@ -127,7 +127,7 @@ public class ClientImpl extends AbstractClient {
             try {
                 final Connection conn = myConnections.remove(0);
                 myConnectionsToClose.add(conn);
-                conn.shutdown();
+                conn.shutdown(false);
             }
             catch (final ArrayIndexOutOfBoundsException aiob) {
                 // There is a race between the isEmpty() and the remove we can't
@@ -308,7 +308,7 @@ public class ClientImpl extends AbstractClient {
                     try {
                         final Connection conn = myConnections.remove(0);
                         myConnectionsToClose.add(conn);
-                        conn.shutdown();
+                        conn.shutdown(false);
                     }
                     catch (final ArrayIndexOutOfBoundsException aiob) {
                         // Race between the size() and remove(0).
@@ -509,7 +509,7 @@ public class ClientImpl extends AbstractClient {
 
                 try {
                     final Connection conn = myConnections.get(index);
-                    if (conn.isOpen() && (conn.getPendingCount() == 0)) {
+                    if (conn.isAvailable() && (conn.getPendingCount() == 0)) {
                         return conn;
                     }
                 }
@@ -547,7 +547,7 @@ public class ClientImpl extends AbstractClient {
 
                 try {
                     final Connection conn = myConnections.get(index);
-                    if (conn.isOpen()) {
+                    if (conn.isAvailable()) {
                         connections.put(
                                 Integer.valueOf(conn.getPendingCount()), conn);
                     }

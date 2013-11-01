@@ -192,7 +192,9 @@ public class ShardedConnectionFactoryTest {
         expect(mockConnection.send(anyObject(IsMaster.class), cb())).andReturn(
                 "localhost:6547");
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         mockConnection.close();
@@ -240,7 +242,9 @@ public class ShardedConnectionFactoryTest {
         expect(mockConnection.send(anyObject(IsMaster.class), cb())).andReturn(
                 "localhost:6547");
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         mockConnection.close();
@@ -305,7 +309,9 @@ public class ShardedConnectionFactoryTest {
         expect(mockConnection.send(anyObject(IsMaster.class), cb())).andThrow(
                 new MongoDbException("This is a test")).times(2);
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         mockConnection.close();
@@ -343,7 +349,9 @@ public class ShardedConnectionFactoryTest {
         expectLastCall().andThrow(new MongoDbException("This is a test"))
                 .times(2);
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         mockConnection.close();
@@ -536,7 +544,9 @@ public class ShardedConnectionFactoryTest {
                 mockConnection.send(anyObject(IsMaster.class),
                         cb(BuilderFactory.start(PRIMARY_UPDATE)))).andReturn(
                 "localhost:6547");
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         // Connect

@@ -133,6 +133,23 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
+    public boolean isAvailable() {
+        try {
+            return myProxiedConnection.isAvailable();
+        }
+        catch (final MongoDbException error) {
+            onExceptin(error);
+            throw error;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Forwards the call to the proxied {@link Connection}.
+     * </p>
+     */
+    @Override
     public boolean isIdle() {
         try {
             return myProxiedConnection.isIdle();
@@ -240,8 +257,8 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public void shutdown() {
-        myProxiedConnection.shutdown();
+    public void shutdown(final boolean force) {
+        myProxiedConnection.shutdown(force);
     }
 
     /**

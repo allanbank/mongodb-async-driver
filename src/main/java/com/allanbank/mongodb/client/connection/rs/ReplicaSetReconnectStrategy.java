@@ -175,9 +175,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
         finally {
             // Shut down the connections we created.
             for (final Connection conn : connections.values()) {
-                conn.shutdown();
-                conn.waitForClosed(1, TimeUnit.SECONDS);
-                IOUtils.close(conn);
+                conn.shutdown(true);
             }
             if (interrupted) {
                 Thread.currentThread().interrupt();
@@ -319,7 +317,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
         try {
             // Locate a connection to the server.
             Connection conn = connections.get(server);
-            if ((conn == null) || (conn.isOpen() == false)) {
+            if ((conn == null) || !conn.isAvailable()) {
                 conn = getConnectionFactory().connect(server, getConfig());
                 connections.put(server, conn);
             }

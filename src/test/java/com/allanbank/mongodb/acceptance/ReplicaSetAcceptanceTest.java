@@ -290,7 +290,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
 
         myConfig.setAutoDiscoverServers(true);
         myConfig.setReconnectTimeout((int) TimeUnit.SECONDS
-                .toMillis(stepUpSeconds * 2));
+                .toMillis(stepUpSeconds * 3));
 
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());

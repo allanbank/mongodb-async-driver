@@ -163,7 +163,7 @@ public class SerialClientImpl extends AbstractClient {
     @Override
     protected Connection findConnection(final Message message1,
             final Message message2) throws MongoDbException {
-        if ((myConnection == null) || !myConnection.isOpen()) {
+        if ((myConnection == null) || !myConnection.isAvailable()) {
             myConnection = myDelegate.findConnection(message1, message2);
         }
 

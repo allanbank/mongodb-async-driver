@@ -49,6 +49,7 @@ import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.ServerVersionException;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * AbstractSocketConnection provides the basic functionality for a socket
@@ -206,6 +207,17 @@ public abstract class AbstractSocketConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
+     * True if the connection is open and not shutting down.
+     * </p>
+     */
+    @Override
+    public boolean isAvailable() {
+        return isOpen() && !isShuttingDown();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * True if the send and pending queues are empty.
      * </p>
      */
@@ -217,7 +229,7 @@ public abstract class AbstractSocketConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
-     * True if the send and receive threads are running.
+     * True if the connection has not been closed.
      * </p>
      */
     @Override
@@ -268,13 +280,18 @@ public abstract class AbstractSocketConnection implements Connection {
      * </p>
      */
     @Override
-    public void shutdown() {
+    public void shutdown(final boolean force) {
         // Mark
         myShutdown.set(true);
 
-        if (isOpen()) {
-            // Force a message with a callback to wake the receiver up.
-            send(new IsMaster(), new NoopCallback());
+        if (force) {
+            IOUtils.close(this);
+        }
+        else {
+            if (isOpen()) {
+                // Force a message with a callback to wake the receiver up.
+                send(new IsMaster(), new NoopCallback());
+            }
         }
     }
 
@@ -284,10 +301,11 @@ public abstract class AbstractSocketConnection implements Connection {
     public abstract void start();
 
     /**
-     * Stops the socket connection by calling {@link #shutdown()}.
+     * Stops the socket connection by calling {@link #shutdown(boolean)
+     * shutdown(false)}.
      */
     public void stop() {
-        shutdown();
+        shutdown(false);
     }
 
     /**
@@ -447,7 +465,7 @@ public abstract class AbstractSocketConnection implements Connection {
             myIdleTicks += 1;
             if (myConfig.getMaxIdleTickCount() <= myIdleTicks) {
                 // Shutdown the connection., nicely.
-                shutdown();
+                shutdown(false);
             }
         }
     }

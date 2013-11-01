@@ -418,6 +418,71 @@ public class AbstractProxyConnectionTest {
     }
 
     /**
+     * Test method for {@link AbstractProxyConnection#isAvailable()} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testIsAvailable() throws IOException {
+        final Connection mockConnetion = createMock(Connection.class);
+
+        // Message.
+        expect(mockConnetion.isAvailable()).andReturn(true);
+
+        mockConnetion.close();
+        expectLastCall();
+
+        replay(mockConnetion);
+
+        final TestProxiedConnection conn = new TestProxiedConnection(
+                mockConnetion, new MongoClientConfiguration());
+
+        assertEquals(true, conn.isAvailable());
+
+        IOUtils.close(conn);
+
+        verify(mockConnetion);
+    }
+
+    /**
+     * Test method for {@link AbstractProxyConnection#isAvailable()} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testIsAvailableOnError() throws IOException {
+        final MongoDbException thrown = new MongoDbException();
+        final Connection mockConnetion = createMock(Connection.class);
+
+        // Message.
+        expect(mockConnetion.isAvailable()).andThrow(thrown);
+
+        mockConnetion.close();
+        expectLastCall().times(2);
+
+        replay(mockConnetion);
+
+        final TestProxiedConnection conn = new TestProxiedConnection(
+                mockConnetion, new MongoClientConfiguration());
+
+        try {
+            conn.isAvailable();
+            fail("Should have thrown the exception.");
+        }
+        catch (final MongoDbException good) {
+            assertSame(thrown, good);
+        }
+
+        IOUtils.close(conn);
+
+        verify(mockConnetion);
+    }
+
+    /**
      * Test method for {@link AbstractProxyConnection#isIdle()} .
      * 
      * @throws IOException
@@ -722,7 +787,7 @@ public class AbstractProxyConnectionTest {
     }
 
     /**
-     * Test method for {@link AbstractProxyConnection#shutdown()} .
+     * Test method for {@link AbstractProxyConnection#shutdown(boolean)} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -732,7 +797,7 @@ public class AbstractProxyConnectionTest {
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        mockConnetion.shutdown();
+        mockConnetion.shutdown(true);
         expectLastCall();
 
         mockConnetion.close();
@@ -743,7 +808,7 @@ public class AbstractProxyConnectionTest {
         final TestProxiedConnection conn = new TestProxiedConnection(
                 mockConnetion, new MongoClientConfiguration());
 
-        conn.shutdown();
+        conn.shutdown(true);
 
         IOUtils.close(conn);
 

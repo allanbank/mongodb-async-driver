@@ -8,7 +8,9 @@ package com.allanbank.mongodb.client.connection.rs;
 import static com.allanbank.mongodb.bson.builder.BuilderFactory.start;
 import static com.allanbank.mongodb.client.connection.CallbackReply.reply;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -133,10 +135,9 @@ public class ReplicaSetReconnectStrategyTest {
      */
     @After
     public void tearDown() throws IOException {
-        ourServer1.clear();
-        ourServer2.clear();
-        ourServer3.clear();
 
+        System.out.println(myTestConnection);
+        System.out.println("new: " + myNewTestConnection);
         IOUtils.close(myTestConnection);
         IOUtils.close(myNewTestConnection);
         IOUtils.close(myTestFactory);
@@ -144,6 +145,27 @@ public class ReplicaSetReconnectStrategyTest {
         myTestConnection = null;
         myNewTestConnection = null;
         myTestFactory = null;
+
+        // Make sure we clear the servers after closing the connections as there
+        // are not enough replies for the reply thread to shutdown cleanly when
+        // the server disconnects.
+        ourServer1.clear();
+        ourServer2.clear();
+        ourServer3.clear();
+
+        final Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        for (final Thread t : threads) {
+            if (t != null) {
+                if (t.getName().contains("<--")) {
+                    if (t.isAlive()) {
+                        t.interrupt();
+                        assertThat("Found receive threads: " + t.getName(),
+                                true, is(false));
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -177,11 +199,14 @@ public class ReplicaSetReconnectStrategyTest {
         // Servers are called twice. Once for ping and once for close.
         ourServer1.setReplies(reply(start(BUILD_INFO)),
                 reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)),
                 reply(start(PRIMARY_UPDATE, replStatusBuilder)));
         ourServer2.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
         ourServer3.setReplies(reply(start(BUILD_INFO)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
@@ -224,6 +249,11 @@ public class ReplicaSetReconnectStrategyTest {
         final ReplicaSetReconnectStrategy strategy = (ReplicaSetReconnectStrategy) myTestFactory
                 .getReconnectStrategy();
 
+        // Force a search.
+        for (final Server writable : myTestFactory.getCluster()
+                .getWritableServers()) {
+            writable.connectionTerminated();
+        }
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
         servers = myTestFactory.getCluster().getWritableServers();
@@ -262,6 +292,7 @@ public class ReplicaSetReconnectStrategyTest {
 
         // Servers are called twice. Once for ping and once for close.
         ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)),
                 reply(start(PRIMARY_UPDATE, replStatusBuilder)));
         ourServer2.setReplies(
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
@@ -345,6 +376,11 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
+        // Force a search
+        for (final Server writable : myTestFactory.getCluster()
+                .getWritableServers()) {
+            writable.connectionTerminated();
+        }
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
         assertThat(myNewTestConnection, nullValue(Connection.class));
@@ -384,11 +420,17 @@ public class ReplicaSetReconnectStrategyTest {
         // Servers are called twice. Once for ping and once for close.
         ourServer1.setReplies(reply(start(BUILD_INFO)),
                 reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)),
+                reply(start(PRIMARY_UPDATE, replStatusBuilder)),
                 reply(start(PRIMARY_UPDATE, replStatusBuilder)));
         ourServer2.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
         ourServer3.setReplies(reply(start(BUILD_INFO)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)));
 
@@ -417,6 +459,7 @@ public class ReplicaSetReconnectStrategyTest {
 
         // Should only contact the primary.
         ourServer1.setReplies(reply(start(BUILD_INFO)),
+                reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder));
 
         myTestConnection = (ReplicaSetConnection) myTestFactory.connect();
@@ -442,15 +485,29 @@ public class ReplicaSetReconnectStrategyTest {
 
         ourServer1.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, reply2)),
+                reply(start(SECONDARY_UPDATE, reply2)),
+                reply(start(SECONDARY_UPDATE, reply2)),
                 reply(start(SECONDARY_UPDATE, reply2)));
         ourServer2.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
+                reply(start(SECONDARY_UPDATE, reply2)),
+                reply(start(SECONDARY_UPDATE, reply2)),
+                reply(start(SECONDARY_UPDATE, reply2)),
+                reply(start(SECONDARY_UPDATE, reply2)),
                 reply(start(SECONDARY_UPDATE, reply2)));
         ourServer3.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
                 reply(start(PRIMARY_UPDATE, reply2)),
+                reply(start(PRIMARY_UPDATE, reply2)),
+                reply(start(PRIMARY_UPDATE, reply2)),
+                reply(start(PRIMARY_UPDATE, reply2)),
                 reply(start(PRIMARY_UPDATE, reply2)));
 
+        for (final Server writable : myTestFactory.getCluster()
+                .getWritableServers()) {
+            writable.connectionTerminated();
+        }
         myNewTestConnection = strategy.reconnect(myTestConnection);
 
         servers = myTestFactory.getCluster().getWritableServers();
@@ -580,10 +637,14 @@ public class ReplicaSetReconnectStrategyTest {
                 reply(replStatusBuilder), reply(replStatusBuilder),
                 reply(replStatusBuilder));
 
+        for (final Server writable : myTestFactory.getCluster()
+                .getWritableServers()) {
+            writable.connectionTerminated();
+        }
         myNewTestConnection = strategy.reconnect(myTestConnection);
         assertNull(myNewTestConnection);
 
         servers = myTestFactory.getCluster().getWritableServers();
-        assertEquals(0, servers.size());
+        assertThat(servers, empty());
     }
 }

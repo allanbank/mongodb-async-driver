@@ -16,6 +16,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -91,6 +92,17 @@ public class ReplicaSetConnectionTest {
         myCluster = null;
         myConfig = null;
         myServer = null;
+
+        final Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        for (final Thread t : threads) {
+            if (t != null) {
+                if (t.getName().contains("<--")) {
+                    assertThat("Found receive threads: " + t.getName(),
+                            t.isAlive(), is(false));
+                }
+            }
+        }
     }
 
     /**
@@ -118,7 +130,7 @@ public class ReplicaSetConnectionTest {
         mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
         expect(mockConnection.isShuttingDown()).andReturn(false);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         expect(mockStrategy.reconnectPrimary()).andReturn(
@@ -180,7 +192,7 @@ public class ReplicaSetConnectionTest {
         mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
         expect(mockConnection.isShuttingDown()).andReturn(false);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         expect(mockStrategy.reconnectPrimary()).andReturn(null);
@@ -246,7 +258,7 @@ public class ReplicaSetConnectionTest {
         expectLastCall();
         mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         expect(mockStrategy.reconnectPrimary()).andReturn(null);
@@ -337,7 +349,7 @@ public class ReplicaSetConnectionTest {
         mockConnection2
                 .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.shutdown();
+        mockConnection2.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory, mockConnection2);
@@ -660,7 +672,7 @@ public class ReplicaSetConnectionTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection.isOpen()).andReturn(Boolean.TRUE);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.send(eq(msg), isNull(Callback.class))).andReturn(
                 "foo");
         mockConnection
@@ -700,7 +712,7 @@ public class ReplicaSetConnectionTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.send(eq(msg), eq(msg), isNull(Callback.class)))
                 .andReturn("foo");
 
@@ -849,10 +861,10 @@ public class ReplicaSetConnectionTest {
             fail("Should not have found any available server for the read preference.");
         }
         catch (final MongoDbException good) {
-            assertTrue(good.getMessage().contains(
-                    q1.getReadPreference().toString()));
-            assertTrue(good.getMessage().contains(
-                    q3.getReadPreference().toString()));
+            assertThat(good.getMessage(), containsString(q1.getReadPreference()
+                    .toString()));
+            assertThat(good.getMessage(), containsString(q3.getReadPreference()
+                    .toString()));
 
             final int indexof = good.getMessage().indexOf(
                     q1.getReadPreference().toString());
@@ -1124,7 +1136,7 @@ public class ReplicaSetConnectionTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         expect(mockConnection2.send(q, null)).andReturn("foo");
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.send(q, null)).andReturn("bar");
 
         mockConnection
@@ -1208,7 +1220,7 @@ public class ReplicaSetConnectionTest {
         expect(mockConnection2.send(q, null)).andReturn("foo");
 
         // Second message.
-        expect(mockConnection2.isOpen()).andReturn(false);
+        expect(mockConnection2.isAvailable()).andReturn(false);
         expect(mockFactory.getReconnectStrategy()).andReturn(mockStrategy);
         mockConnection3
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -1219,7 +1231,7 @@ public class ReplicaSetConnectionTest {
         mockConnection2
                 .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        mockConnection2.shutdown();
+        mockConnection2.shutdown(true);
         expectLastCall();
 
         expect(mockConnection3.send(q, null)).andReturn("bar");

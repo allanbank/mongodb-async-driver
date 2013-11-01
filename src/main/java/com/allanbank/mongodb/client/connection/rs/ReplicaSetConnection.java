@@ -58,6 +58,9 @@ public class ReplicaSetConnection implements Connection {
     /** Support for emitting property change events. */
     protected final PropertyChangeSupport myEventSupport;
 
+    /** Set to false when the connection is closed. */
+    protected final AtomicBoolean myOpen;
+
     /** Set to true when the connection should be gracefully closed. */
     protected final AtomicBoolean myShutdown;
 
@@ -109,6 +112,7 @@ public class ReplicaSetConnection implements Connection {
         myConfig = config;
         myReconnectStrategy = strategy;
 
+        myOpen = new AtomicBoolean(true);
         myShutdown = new AtomicBoolean(false);
         myEventSupport = new PropertyChangeSupport(this);
         myServers = new ConcurrentHashMap<Server, Connection>();
@@ -119,8 +123,7 @@ public class ReplicaSetConnection implements Connection {
         myCluster.addListener(myListener);
 
         if (proxiedConnection != null) {
-            myServers.put(server, proxiedConnection);
-            proxiedConnection.addPropertyChangeListener(myListener);
+            cacheConnection(server, proxiedConnection);
         }
     }
 
@@ -142,6 +145,8 @@ public class ReplicaSetConnection implements Connection {
      */
     @Override
     public void close() throws IOException {
+
+        myOpen.set(false);
         myCluster.removeListener(myListener);
 
         for (final Connection conn : myServers.values()) {
@@ -206,6 +211,17 @@ public class ReplicaSetConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
+     * True if the connection is open and not shutting down.
+     * </p>
+     */
+    @Override
+    public boolean isAvailable() {
+        return isOpen() && !isShuttingDown();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return if the last used connection is idle.
      * </p>
      */
@@ -222,7 +238,7 @@ public class ReplicaSetConnection implements Connection {
      */
     @Override
     public boolean isOpen() {
-        return !myServers.isEmpty();
+        return myOpen.get();
     }
 
     /**
@@ -289,7 +305,7 @@ public class ReplicaSetConnection implements Connection {
     public String send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
 
-        if (isShuttingDown()) {
+        if (!isAvailable()) {
             throw new ConnectionLostException("Connection shutting down.");
         }
 
@@ -314,10 +330,10 @@ public class ReplicaSetConnection implements Connection {
      * </p>
      */
     @Override
-    public void shutdown() {
+    public void shutdown(final boolean force) {
         myShutdown.set(true);
         for (final Connection conn : myServers.values()) {
-            conn.shutdown();
+            conn.shutdown(force);
         }
     }
 
@@ -446,6 +462,11 @@ public class ReplicaSetConnection implements Connection {
      */
     protected synchronized void handleConnectionClosed(
             final Connection connection) {
+
+        if (!myOpen.get()) {
+            return;
+        }
+
         final Server server = findServerForConnection(connection);
 
         try {
@@ -459,7 +480,7 @@ public class ReplicaSetConnection implements Connection {
 
                 // Mark this a graceful shutdown.
                 removeCachedConnection(server, connection);
-                shutdown();
+                shutdown(true);
 
                 myEventSupport.firePropertyChange(Connection.OPEN_PROP_NAME,
                         true, isOpen());
@@ -486,7 +507,7 @@ public class ReplicaSetConnection implements Connection {
                 else if (myServers.size() == 1) {
                     // Mark this a graceful shutdown.
                     removeCachedConnection(server, connection);
-                    shutdown();
+                    shutdown(false);
 
                     myEventSupport.firePropertyChange(
                             Connection.OPEN_PROP_NAME, true, isOpen());
@@ -541,7 +562,7 @@ public class ReplicaSetConnection implements Connection {
 
         if (conn != null) {
             conn.removePropertyChangeListener(myListener);
-            conn.shutdown();
+            conn.shutdown(true);
         }
     }
 
@@ -572,7 +593,7 @@ public class ReplicaSetConnection implements Connection {
                 // Create one.
                 conn = connect(server);
             }
-            else if (!conn.isOpen()) {
+            else if (!conn.isAvailable()) {
 
                 removeCachedConnection(server, conn);
 
@@ -607,7 +628,7 @@ public class ReplicaSetConnection implements Connection {
             final Connection conn) {
         final Connection existing = myServers.putIfAbsent(server, conn);
         if (existing != null) {
-            conn.shutdown();
+            conn.shutdown(true);
             return existing;
         }
 

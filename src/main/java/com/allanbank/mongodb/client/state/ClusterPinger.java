@@ -26,6 +26,7 @@ import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.message.ReplicaSetStatus;
 import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * ClusterPinger pings each of the connections in the cluster and updates the
@@ -155,55 +156,65 @@ public class ClusterPinger implements Runnable, Closeable {
         final List<Server> servers = myCluster.getServers();
         final List<Future<Reply>> replies = new ArrayList<Future<Reply>>(
                 servers.size());
-        for (final Server server : servers) {
-            // Ping the current server.
-            final String name = server.getCanonicalName();
-            Connection conn = null;
-            try {
-                conn = myConnectionFactory.connect(server, myConfig);
+        final List<Connection> connections = new ArrayList<Connection>(
+                servers.size());
+        try {
+            for (final Server server : servers) {
+                // Ping the current server.
+                final String name = server.getCanonicalName();
+                Connection conn = null;
+                try {
+                    conn = myConnectionFactory.connect(server, myConfig);
 
-                // Use a server status request to measure latency. It is
-                // a best case since it does not require any locks.
-                final Future<Reply> reply = PINGER.pingAsync(myClusterType,
-                        server, conn);
-                replies.add(reply);
+                    // Use a server status request to measure latency. It is
+                    // a best case since it does not require any locks.
+                    final Future<Reply> reply = PINGER.pingAsync(myClusterType,
+                            server, conn);
+                    replies.add(reply);
+                }
+                catch (final IOException e) {
+                    LOG.info("Could not ping '" + name + "': " + e.getMessage());
+                }
+                finally {
+                    if (conn != null) {
+                        connections.add(conn);
+                        conn.shutdown(false);
+                    }
+                }
             }
-            catch (final IOException e) {
-                LOG.info("Could not ping '" + name + "': " + e.getMessage());
-            }
-            finally {
-                if (conn != null) {
-                    conn.shutdown();
+
+            final int maxRemaining = Math.max(1, replies.size() / 2);
+            while (maxRemaining <= replies.size()) {
+                final Iterator<Future<Reply>> iter = replies.iterator();
+                while (iter.hasNext()) {
+                    Future<Reply> future = iter.next();
+                    try {
+                        if (future != null) {
+                            // Pause...
+                            future.get(10, TimeUnit.MILLISECONDS);
+                        }
+
+                        // A good reply or we could not connect to the server.
+                        iter.remove();
+                    }
+                    catch (final ExecutionException e) {
+                        // We got a reply. Its a failure but its a reply.
+                        iter.remove();
+                    }
+                    catch (final TimeoutException e) {
+                        // No reply yet.
+                        future = null;
+                    }
+                    catch (final InterruptedException e) {
+                        // No reply yet.
+                        future = null;
+                    }
                 }
             }
         }
-
-        final int maxRemaining = Math.max(1, replies.size() / 2);
-        while (maxRemaining <= replies.size()) {
-            final Iterator<Future<Reply>> iter = replies.iterator();
-            while (iter.hasNext()) {
-                Future<Reply> future = iter.next();
-                try {
-                    if (future != null) {
-                        // Pause...
-                        future.get(10, TimeUnit.MILLISECONDS);
-                    }
-
-                    // A good reply or we could not connect to the server.
-                    iter.remove();
-                }
-                catch (final ExecutionException e) {
-                    // We got a reply. Its a failure but its a reply.
-                    iter.remove();
-                }
-                catch (final TimeoutException e) {
-                    // No reply yet.
-                    future = null;
-                }
-                catch (final InterruptedException e) {
-                    // No reply yet.
-                    future = null;
-                }
+        finally {
+            for (final Connection conn : connections) {
+                IOUtils.close(conn);
             }
         }
     }
@@ -255,7 +266,7 @@ public class ClusterPinger implements Runnable, Closeable {
                     finally {
                         myPingThread.setName("MongoDB Pinger - Idle");
                         if (conn != null) {
-                            conn.shutdown();
+                            conn.shutdown(true);
                         }
                     }
 

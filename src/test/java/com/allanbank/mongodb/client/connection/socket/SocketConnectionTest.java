@@ -219,6 +219,7 @@ public class SocketConnectionTest {
                 ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10)));
 
         assertThat(myTestConnection.isOpen(), is(false));
+        assertThat(myTestConnection.isAvailable(), is(false));
     }
 
     /**
@@ -260,8 +261,7 @@ public class SocketConnectionTest {
 
         assertFalse("Receive thread should have died.", receive.isAlive());
         assertFalse("Connection should be closed.", myTestConnection.isOpen());
-
-        // myTestConnection = null;
+        assertThat(myTestConnection.isAvailable(), is(false));
     }
 
     /**
@@ -1471,7 +1471,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        myTestConnection.shutdown();
+        myTestConnection.shutdown(false);
         myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
 
         assertTrue(myTestConnection.isIdle());
@@ -2504,7 +2504,8 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        myTestConnection.shutdown();
+        myTestConnection.shutdown(false);
+        assertThat(myTestConnection.isAvailable(), is(false));
         myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
 
         assertTrue(myTestConnection.isIdle());
@@ -2537,7 +2538,8 @@ public class SocketConnectionTest {
         assertTrue(myTestConnection.isIdle());
         assertFalse(myTestConnection.isOpen());
 
-        myTestConnection.shutdown();
+        myTestConnection.shutdown(false);
+        assertThat(myTestConnection.isAvailable(), is(false));
 
         assertTrue(myTestConnection.isIdle());
         assertFalse(myTestConnection.isOpen());
@@ -3102,7 +3104,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        myTestConnection.shutdown();
+        myTestConnection.shutdown(false);
         Thread.currentThread().interrupt();
         myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
 

@@ -57,6 +57,15 @@ public interface Connection extends Closeable, Flushable {
     public String getServerName();
 
     /**
+     * Returns true if the connection is open and not shutting down, false
+     * otherwise.
+     * 
+     * @return True if the connection is open and not shutting down, false
+     *         otherwise.
+     */
+    public boolean isAvailable();
+
+    /**
      * Determines if the connection is idle.
      * 
      * @return True if the connection is waiting for messages to send and has no
@@ -133,8 +142,12 @@ public interface Connection extends Closeable, Flushable {
      * Notifies the connection that once all outstanding requests have been sent
      * and all replies received the Connection should be closed. This method
      * will return prior to the connection being closed.
+     * 
+     * @param force
+     *            If true then the connection can be immediately closed as the
+     *            caller knows there are no outstanding requests to the server.
      */
-    public void shutdown();
+    public void shutdown(boolean force);
 
     /**
      * Waits for the connection to become idle.

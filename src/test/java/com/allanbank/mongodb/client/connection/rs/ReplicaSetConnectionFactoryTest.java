@@ -161,6 +161,17 @@ public class ReplicaSetConnectionFactoryTest {
         myTestFactory = null;
 
         ourServer.clear();
+
+        final Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        for (final Thread t : threads) {
+            if (t != null) {
+                if (t.getName().contains("<--")) {
+                    assertThat("Found receive threads: " + t.getName(),
+                            t.isAlive(), is(false));
+                }
+            }
+        }
     }
 
     /**
@@ -499,7 +510,9 @@ public class ReplicaSetConnectionFactoryTest {
         expect(
                 mockConnection.send(eq(new ReplicaSetStatus()),
                         cb(replStatusBuilder))).andReturn(serverName);
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         //
@@ -595,7 +608,7 @@ public class ReplicaSetConnectionFactoryTest {
                 .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.close();
-        expectLastCall();
+
         mockFactory.close();
         expectLastCall();
 
@@ -636,7 +649,9 @@ public class ReplicaSetConnectionFactoryTest {
         expectLastCall().andThrow(new MongoDbException("This is a test"))
                 .times(2);
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         mockConnection.close();
@@ -723,7 +738,9 @@ public class ReplicaSetConnectionFactoryTest {
         expect(
                 mockConnection.send(eq(new ReplicaSetStatus()),
                         cb(replStatusBuilder))).andReturn(serverName);
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         //
@@ -775,7 +792,9 @@ public class ReplicaSetConnectionFactoryTest {
         expectLastCall().andThrow(new MongoDbException("This is a test"))
                 .times(2);
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         mockConnection.close();
@@ -835,7 +854,9 @@ public class ReplicaSetConnectionFactoryTest {
         expect(
                 mockConnection.send(eq(new ReplicaSetStatus()),
                         cb(replStatusBuilder))).andReturn(serverName);
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         //
@@ -965,7 +986,9 @@ public class ReplicaSetConnectionFactoryTest {
         expect(
                 mockConnection.send(eq(new ReplicaSetStatus()),
                         cb(replStatusBuilder))).andReturn(serverName);
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         //

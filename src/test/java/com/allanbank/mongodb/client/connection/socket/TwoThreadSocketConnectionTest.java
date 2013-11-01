@@ -182,6 +182,7 @@ public class TwoThreadSocketConnectionTest {
         assertNotNull("Did not find the receive thread", receive);
 
         myTestConnection.close();
+        assertThat(myTestConnection.isAvailable(), is(false));
 
         assertTrue("Should have disconnected from the server.",
                 ourServer.waitForDisconnect(TimeUnit.SECONDS.toMillis(10)));
@@ -1321,7 +1322,7 @@ public class TwoThreadSocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        myTestConnection.shutdown();
+        myTestConnection.shutdown(false);
         myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
 
         assertTrue(myTestConnection.isIdle());
@@ -1880,7 +1881,8 @@ public class TwoThreadSocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        myTestConnection.shutdown();
+        myTestConnection.shutdown(false);
+        assertThat(myTestConnection.isAvailable(), is(false));
         myTestConnection.waitForClosed(10, TimeUnit.SECONDS);
 
         assertTrue(myTestConnection.isIdle());

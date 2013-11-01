@@ -167,7 +167,7 @@ public class ClientImplTest {
         expect(mockConnection.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
         expectLastCall();
 
         mockConnection.waitForClosed(myConfig.getReadTimeout(),
@@ -210,7 +210,7 @@ public class ClientImplTest {
         expect(mockConnection.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
         expectLastCall();
 
         mockConnection.waitForClosed(myConfig.getReadTimeout(),
@@ -258,7 +258,7 @@ public class ClientImplTest {
         expect(mockConnection.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
         expectLastCall();
 
         mockConnection.waitForClosed(myConfig.getReadTimeout(),
@@ -348,7 +348,7 @@ public class ClientImplTest {
                 mockConnection7);
 
         // Second request - Still at sequence zero.
-        expect(mockConnection1.isOpen()).andReturn(true);
+        expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
@@ -369,9 +369,9 @@ public class ClientImplTest {
                 mockConnection7);
 
         // Third Request - start at sequence 1.
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        expect(mockConnection1.isOpen()).andReturn(true);
+        expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection3);
         mockConnection3
@@ -392,11 +392,11 @@ public class ClientImplTest {
                 mockConnection7);
 
         // Fourth Request - start at sequence 3.
-        expect(mockConnection1.isOpen()).andReturn(true);
+        expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        expect(mockConnection3.isOpen()).andReturn(true);
+        expect(mockConnection3.isAvailable()).andReturn(true);
         expect(mockConnection3.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection4);
         mockConnection4
@@ -417,13 +417,13 @@ public class ClientImplTest {
                 mockConnection7);
 
         // Fifth request - start at sequence 6.
-        expect(mockConnection3.isOpen()).andReturn(true);
+        expect(mockConnection3.isAvailable()).andReturn(true);
         expect(mockConnection3.getPendingCount()).andReturn(1);
-        expect(mockConnection4.isOpen()).andReturn(true);
+        expect(mockConnection4.isAvailable()).andReturn(true);
         expect(mockConnection4.getPendingCount()).andReturn(1);
-        expect(mockConnection1.isOpen()).andReturn(true);
+        expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection5);
         mockConnection5
@@ -444,15 +444,15 @@ public class ClientImplTest {
                 mockConnection7);
 
         // Sixth request - start at sequence 10.
-        expect(mockConnection1.isOpen()).andReturn(true);
+        expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        expect(mockConnection3.isOpen()).andReturn(true);
+        expect(mockConnection3.isAvailable()).andReturn(true);
         expect(mockConnection3.getPendingCount()).andReturn(1);
-        expect(mockConnection4.isOpen()).andReturn(true);
+        expect(mockConnection4.isAvailable()).andReturn(true);
         expect(mockConnection4.getPendingCount()).andReturn(1);
-        expect(mockConnection5.isOpen()).andReturn(true);
+        expect(mockConnection5.isAvailable()).andReturn(true);
         expect(mockConnection5.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection6);
         mockConnection6
@@ -473,15 +473,15 @@ public class ClientImplTest {
                 mockConnection7);
 
         // Seventh Request - last connection - start at sequence 15.
-        expect(mockConnection4.isOpen()).andReturn(true);
+        expect(mockConnection4.isAvailable()).andReturn(true);
         expect(mockConnection4.getPendingCount()).andReturn(1);
-        expect(mockConnection5.isOpen()).andReturn(true);
+        expect(mockConnection5.isAvailable()).andReturn(true);
         expect(mockConnection5.getPendingCount()).andReturn(1);
-        expect(mockConnection6.isOpen()).andReturn(true);
+        expect(mockConnection6.isAvailable()).andReturn(true);
         expect(mockConnection6.getPendingCount()).andReturn(1);
-        expect(mockConnection1.isOpen()).andReturn(true);
+        expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection7);
         mockConnection7
@@ -503,26 +503,26 @@ public class ClientImplTest {
 
         // Eighth request - Most idle - start at sequence 20.
         // First pass for idle.
-        expect(mockConnection7.isOpen()).andReturn(true);
+        expect(mockConnection7.isAvailable()).andReturn(true);
         expect(mockConnection7.getPendingCount()).andReturn(1);
-        expect(mockConnection1.isOpen()).andReturn(true);
+        expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        expect(mockConnection3.isOpen()).andReturn(true);
+        expect(mockConnection3.isAvailable()).andReturn(true);
         expect(mockConnection3.getPendingCount()).andReturn(1);
-        expect(mockConnection4.isOpen()).andReturn(true);
+        expect(mockConnection4.isAvailable()).andReturn(true);
         expect(mockConnection4.getPendingCount()).andReturn(1);
         // Second for most idle.
-        expect(mockConnection5.isOpen()).andReturn(true);
+        expect(mockConnection5.isAvailable()).andReturn(true);
         expect(mockConnection5.getPendingCount()).andReturn(2);
-        expect(mockConnection6.isOpen()).andReturn(true);
+        expect(mockConnection6.isAvailable()).andReturn(true);
         expect(mockConnection6.getPendingCount()).andReturn(1);
-        expect(mockConnection7.isOpen()).andReturn(true);
+        expect(mockConnection7.isAvailable()).andReturn(true);
         expect(mockConnection7.getPendingCount()).andReturn(5);
-        expect(mockConnection1.isOpen()).andReturn(true);
+        expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(4);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(3);
         expect(mockConnection6.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
@@ -1369,7 +1369,7 @@ public class ClientImplTest {
         expect(mockConnection.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
@@ -1378,17 +1378,17 @@ public class ClientImplTest {
         expect(mockConnection2.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
         expectLastCall();
 
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(0);
         expect(mockConnection2.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
@@ -1436,7 +1436,7 @@ public class ClientImplTest {
         expect(mockConnection.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
@@ -1445,17 +1445,17 @@ public class ClientImplTest {
         expect(mockConnection2.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
         expectLastCall();
 
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(0);
         expect(mockConnection2.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
@@ -1497,7 +1497,7 @@ public class ClientImplTest {
         expect(mockConnection.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
@@ -1538,7 +1538,7 @@ public class ClientImplTest {
         expect(mockConnection.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
@@ -1548,13 +1548,13 @@ public class ClientImplTest {
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
         // First pass for idle.
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(2);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         // Now most idle.
-        expect(mockConnection.isOpen()).andReturn(false);
-        expect(mockConnection2.isOpen()).andReturn(false);
+        expect(mockConnection.isAvailable()).andReturn(false);
+        expect(mockConnection2.isAvailable()).andReturn(false);
 
         replay(mockConnection, mockConnection2);
 
@@ -1624,7 +1624,7 @@ public class ClientImplTest {
 
         expect(mockConnection.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(0);
         expect(mockConnection.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
@@ -1661,7 +1661,7 @@ public class ClientImplTest {
         expect(mockConnection.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
@@ -1671,14 +1671,14 @@ public class ClientImplTest {
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
 
         // First pass for idle.
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(2);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         // Now most idle.
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.getPendingCount()).andReturn(2);
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
@@ -1747,12 +1747,12 @@ public class ClientImplTest {
         expectLastCall();
 
         // Second message.
-        expect(mockConnection.isOpen()).andReturn(false).times(2);
+        expect(mockConnection.isAvailable()).andReturn(false).times(2);
 
         // Wait for the reconnect.
 
         // After reconnect.
-        expect(mockConnection2.isOpen()).andReturn(true);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(0);
         expect(mockConnection2.send(message, null)).andReturn(
                 ServerNameUtils.normalize(ourServer.getInetSocketAddress()));
@@ -1836,7 +1836,7 @@ public class ClientImplTest {
         // Wait for the reconnect.
 
         // After reconnect timeout.
-        expect(mockConnection.isOpen()).andReturn(false).times(4);
+        expect(mockConnection.isAvailable()).andReturn(false).times(4);
 
         replay(mockConnection, mockConnection2);
 

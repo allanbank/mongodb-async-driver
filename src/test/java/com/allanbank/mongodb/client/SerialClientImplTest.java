@@ -648,8 +648,8 @@ public class SerialClientImplTest {
         expectLastCall();
         expect(mockConnection.send(message, null)).andReturn(myAddress);
 
-        expect(mockConnection.isOpen()).andReturn(false);
-        expect(mockConnection.isOpen()).andReturn(false);
+        expect(mockConnection.isAvailable()).andReturn(false);
+        expect(mockConnection.isAvailable()).andReturn(false);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -689,8 +689,8 @@ public class SerialClientImplTest {
         expectLastCall();
         expect(mockConnection.send(message, null)).andReturn(myAddress);
 
-        expect(mockConnection.isOpen()).andReturn(false);
-        expect(mockConnection.isOpen()).andReturn(false);
+        expect(mockConnection.isAvailable()).andReturn(false);
+        expect(mockConnection.isAvailable()).andReturn(false);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -756,7 +756,7 @@ public class SerialClientImplTest {
         expectLastCall();
 
         expect(mockConnection.send(message, null)).andReturn(myAddress);
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         replay(mockConnection);
@@ -789,11 +789,11 @@ public class SerialClientImplTest {
         expectLastCall();
         expect(mockConnection.send(message, null)).andReturn(myAddress);
 
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         // First pass for idle.
-        expect(mockConnection.isOpen()).andReturn(true);
+        expect(mockConnection.isAvailable()).andReturn(true);
         expect(mockConnection.send(message, null)).andReturn(myAddress);
 
         replay(mockConnection);

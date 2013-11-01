@@ -94,7 +94,9 @@ public class ClusterPingerTest {
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
                 .andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -141,7 +143,9 @@ public class ClusterPingerTest {
                 mockConnection.send(anyObject(IsMaster.class),
                         cbAndCloseWithConn(reply, state, mockConnection)))
                 .andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -186,7 +190,9 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
                         cb(new MongoDbException("Error")))).andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -234,7 +240,9 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(anyObject(ReplicaSetStatus.class),
                         cb(reply))).andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -318,7 +326,9 @@ public class ClusterPingerTest {
                 mockConnection.send(anyObject(IsMaster.class),
                         anyObject(ServerUpdateCallback.class))).andThrow(
                 new MongoDbException("Injected - 5"));
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -360,9 +370,6 @@ public class ClusterPingerTest {
         final Connection mockConnection = createMock(Connection.class);
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
 
-        makeThreadSafe(mockFactory, true);
-        makeThreadSafe(mockConnection, true);
-
         final Capture<ServerUpdateCallback> catureReply = new Capture<ServerUpdateCallback>();
 
         expect(
@@ -372,7 +379,9 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
                         capture(catureReply))).andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(false);
+        expectLastCall();
+        mockConnection.close();
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -390,11 +399,11 @@ public class ClusterPingerTest {
         t.interrupt();
         Thread.sleep(50);
 
-        verify(mockConnection, mockFactory);
-
         catureReply.getValue().callback(reply(reply));
 
-        t.join(1000);
+        t.join(10000);
+
+        verify(mockConnection, mockFactory);
 
         assertFalse(t.isAlive());
 
@@ -433,7 +442,7 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
                         cbAndClose(reply))).andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -472,7 +481,7 @@ public class ClusterPingerTest {
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cbAndClose()))
                 .andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -526,7 +535,7 @@ public class ClusterPingerTest {
                 .andReturn(address);
 
         // Have to shutdown the connection since state won't accept it.
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -578,7 +587,7 @@ public class ClusterPingerTest {
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
                 .andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -626,7 +635,7 @@ public class ClusterPingerTest {
                 mockConnection.send(anyObject(IsMaster.class),
                         cbAndClose(reply))).andReturn(address);
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -668,7 +677,7 @@ public class ClusterPingerTest {
                 mockConnection.send(anyObject(IsMaster.class),
                         cbAndCloseError())).andReturn(address);
 
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -721,7 +730,7 @@ public class ClusterPingerTest {
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
                 .andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         // Second Sweep.
@@ -732,7 +741,7 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
                         cbAndClose(reply))).andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -782,7 +791,7 @@ public class ClusterPingerTest {
                 mockConnection);
         expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
                 .andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         // Second Sweep.
@@ -793,7 +802,7 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
                         cbAndClose(reply))).andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -845,7 +854,7 @@ public class ClusterPingerTest {
                 mockConnection.send(anyObject(IsMaster.class),
                         cbWithConn(reply, state, mockConnection))).andReturn(
                 address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         // Second Sweep.
@@ -856,7 +865,7 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
                         cbAndClose(reply))).andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -932,7 +941,7 @@ public class ClusterPingerTest {
                 mockConnection.send(anyObject(IsMaster.class),
                         cbAndCloseError())).andAnswer(
                 throwA(new MongoDbException("Injected - 2")));
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);
@@ -987,7 +996,7 @@ public class ClusterPingerTest {
         expect(
                 mockConnection.send(anyObject(IsMaster.class),
                         capture(catureReply))).andReturn(address);
-        mockConnection.shutdown();
+        mockConnection.shutdown(true);
         expectLastCall();
 
         replay(mockConnection, mockFactory);

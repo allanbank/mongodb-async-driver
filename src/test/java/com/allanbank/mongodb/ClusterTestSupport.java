@@ -395,7 +395,7 @@ public class ClusterTestSupport {
                     connection.start();
                     connection.send(new IsMaster(), new ServerUpdateCallback(
                             server));
-                    connection.shutdown();
+                    connection.shutdown(false);
                     connection.waitForClosed(10, TimeUnit.SECONDS);
                 }
                 catch (final IOException error) {
