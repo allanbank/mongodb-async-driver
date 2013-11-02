@@ -5,13 +5,17 @@
 
 package com.allanbank.mongodb.builder;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -170,5 +174,67 @@ public class GroupByTest {
         assertNull(g.getQuery());
         assertNull(g.getReduceFunction());
         assertSame(ReadPreference.SECONDARY, g.getReadPreference());
+    }
+
+    /**
+     * Test method for {@link GroupBy.Builder#setMaximumTimeMilliseconds(long)}
+     * .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsDefault() {
+        final Set<String> keys = new HashSet<String>();
+        keys.add("k1");
+        keys.add("k2");
+
+        final GroupBy.Builder b = GroupBy.builder();
+        b.keys(keys);
+
+        final GroupBy command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(0L));
+    }
+
+    /**
+     * Test method for {@link GroupBy.Builder#setMaximumTimeMilliseconds(long)}
+     * .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaFluent() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Set<String> keys = new HashSet<String>();
+        keys.add("k1");
+        keys.add("k2");
+
+        final GroupBy.Builder b = GroupBy.builder();
+        b.keys(keys);
+
+        final long value = random.nextLong();
+        b.maximumTime(value, TimeUnit.MILLISECONDS);
+
+        final GroupBy command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
+    }
+
+    /**
+     * Test method for {@link GroupBy.Builder#setMaximumTimeMilliseconds(long)}
+     * .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaSetter() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Set<String> keys = new HashSet<String>();
+        keys.add("k1");
+        keys.add("k2");
+
+        final GroupBy.Builder b = GroupBy.builder();
+        b.keys(keys);
+
+        final long value = random.nextLong();
+        b.setMaximumTimeMilliseconds(value);
+
+        final GroupBy command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
     }
 }

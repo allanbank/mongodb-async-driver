@@ -30,6 +30,7 @@ import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -94,13 +95,22 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     public void aggregateAsync(final Callback<List<Document>> results,
             final Aggregate command) throws MongoDbException {
 
+        Version minVersion = Aggregate.REQUIRED_VERSION;
+
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("aggregate", getName());
 
+        // Pipeline of operations.
         final ArrayBuilder pipeline = builder.pushArray("pipeline");
         for (final Element e : command.getPipeline()) {
             pipeline.add(e);
+        }
+
+        // Options.
+        if (command.getMaximumTimeMilliseconds() > 0) {
+            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 
         // Should be last since might wrap command in a $query element.
@@ -108,7 +118,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference, Aggregate.REQUIRED_VERSION);
+                builder.build(), readPreference, minVersion);
         myClient.send(commandMsg, new ReplyResultCallback("result", results));
     }
 
@@ -120,20 +130,24 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void countAsync(final Callback<Long> results,
-            final DocumentAssignable query, final ReadPreference readPreference)
+    public void countAsync(final Callback<Long> results, final Count count)
             throws MongoDbException {
+        Version minVersion = null;
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("count", getName());
-        builder.addDocument("query", query.asDocument());
+        builder.addDocument("query", count.getQuery());
+        if (count.getMaximumTimeMilliseconds() > 0) {
+            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            builder.add("maxTimeMS", count.getMaximumTimeMilliseconds());
+        }
 
         // Should be last since might wrap command in a $query element.
         final ReadPreference finalPreference = updateReadPreference(builder,
-                readPreference, true);
+                count.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), finalPreference);
+                builder.build(), finalPreference, minVersion);
 
         myClient.send(commandMsg, new ReplyLongCallback(results));
     }
@@ -217,6 +231,9 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void distinctAsync(final Callback<ArrayElement> results,
             final Distinct command) throws MongoDbException {
+
+        Version minVersion = null;
+
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("distinct", getName());
@@ -224,13 +241,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (command.getQuery() != null) {
             builder.addDocument("query", command.getQuery());
         }
+        if (command.getMaximumTimeMilliseconds() > 0) {
+            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
+        }
 
         // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(builder,
                 command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference);
+                builder.build(), readPreference, minVersion);
 
         myClient.send(commandMsg, new ReplyArrayCallback(results));
 
@@ -321,6 +342,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void findAndModifyAsync(final Callback<Document> results,
             final FindAndModify command) throws MongoDbException {
+        Version minVersion = null;
+
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("findAndModify", getName());
@@ -343,9 +366,14 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (command.isUpsert()) {
             builder.addBoolean("upsert", true);
         }
+        if (command.getMaximumTimeMilliseconds() > 0) {
+            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
+        }
 
+        // Must be the primary since this is a write.
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build());
+                builder.build(), ReadPreference.PRIMARY, minVersion);
         myClient.send(commandMsg, new ReplyDocumentCallback(results));
     }
 
@@ -395,6 +423,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void groupByAsync(final Callback<ArrayElement> results,
             final GroupBy command) throws MongoDbException {
+        Version minVersion = null;
+
         final DocumentBuilder builder = BuilderFactory.start();
 
         final DocumentBuilder groupDocBuilder = builder.push("group");
@@ -423,13 +453,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (command.getQuery() != null) {
             groupDocBuilder.addDocument("cond", command.getQuery());
         }
+        if (command.getMaximumTimeMilliseconds() > 0) {
+            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
+        }
 
         // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(
                 groupDocBuilder, command.getReadPreference(), false);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference);
+                builder.build(), readPreference, minVersion);
         myClient.send(commandMsg, new ReplyArrayCallback("retval", results));
     }
 
@@ -488,6 +522,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void mapReduceAsync(final Callback<List<Document>> results,
             final MapReduce command) throws MongoDbException {
+        Version minVersion = null;
+
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("mapreduce", getName());
@@ -516,6 +552,10 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
         if (command.isVerbose()) {
             builder.addBoolean("verbose", true);
+        }
+        if (command.getMaximumTimeMilliseconds() > 0) {
+            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 
         final DocumentBuilder outputBuilder = builder.push("out");
@@ -552,7 +592,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference);
+                builder.build(), readPreference, minVersion);
         myClient.send(commandMsg, new ReplyResultCallback(results));
     }
 
@@ -625,6 +665,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     @Override
     public void textSearchAsync(final Callback<List<TextResult>> results,
             final Text command) throws MongoDbException {
+        Version minVersion = Text.REQUIRED_VERSION;
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("text", getName());
@@ -641,13 +682,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         if (command.getLanguage() != null) {
             builder.add("language", command.getLanguage());
         }
+        if (command.getMaximumTimeMilliseconds() > 0) {
+            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
+        }
 
         // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(builder,
                 command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference, Text.REQUIRED_VERSION);
+                builder.build(), readPreference, minVersion);
         myClient.send(commandMsg, new ReplyResultCallback(new TextCallback(
                 results)));
     }

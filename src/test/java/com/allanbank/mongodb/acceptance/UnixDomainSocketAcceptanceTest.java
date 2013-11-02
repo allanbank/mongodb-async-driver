@@ -77,6 +77,7 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
     @BeforeClass
     public static void startServer() {
         startStandAlone();
+        buildLargeCollection();
 
         FileOutputStream out = null;
         InputStream in = null;

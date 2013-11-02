@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import java.util.concurrent.TimeUnit;
+
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoCursorControl;
@@ -76,6 +78,9 @@ public class Find {
      */
     private final Document myMaximumRange;
 
+    /** The maximum amount of time to allow the query to run. */
+    private final long myMaximumTimeMilliseconds;
+
     /**
      * If set then controls the minimum value for the range within the used
      * index.
@@ -142,6 +147,7 @@ public class Find {
         myMaximumRange = builder.myMaximumRange;
         myMinimumRange = builder.myMinimumRange;
         myMaximumDocumentsToScan = builder.myMaximumDocumentsToScan;
+        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
         myReturnIndexKeysOnly = builder.myReturnIndexKeysOnly;
         myShowDiskLocation = builder.myShowDiskLocation;
     }
@@ -210,6 +216,19 @@ public class Find {
      */
     public Document getMaximumRange() {
         return myMaximumRange;
+    }
+
+    /**
+     * Returns the maximum amount of time to allow the query to run on the
+     * Server before it is aborted.
+     * 
+     * @return The maximum amount of time to allow the query to run on the
+     *         Server before it is aborted.
+     * 
+     * @since MongoDB 2.6
+     */
+    public long getMaximumTimeMilliseconds() {
+        return myMaximumTimeMilliseconds;
     }
 
     /**
@@ -419,7 +438,8 @@ public class Find {
 
         if (explain || mySnapshot || myReturnIndexKeysOnly
                 || myShowDiskLocation || (mySort != null)
-                || (myMaximumDocumentsToScan > 0) || (myHint != null)
+                || (myMaximumDocumentsToScan > 0)
+                || (myMaximumTimeMilliseconds > 0) || (myHint != null)
                 || (myHintName != null) || (readPreference != null)
                 || (myMaximumRange != null) || (myMinimumRange != null)) {
             final DocumentBuilder builder = BuilderFactory.start();
@@ -439,6 +459,10 @@ public class Find {
 
             if (myMaximumRange != null) {
                 builder.add("$max", myMaximumRange);
+            }
+
+            if (myMaximumTimeMilliseconds > 0) {
+                builder.add("$maxTimeMS", myMaximumTimeMilliseconds);
             }
 
             if (myMaximumDocumentsToScan > 0) {
@@ -521,6 +545,9 @@ public class Find {
          * index.
          */
         protected Document myMaximumRange;
+
+        /** The maximum amount of time to allow the query to run. */
+        protected long myMaximumTimeMilliseconds;
 
         /**
          * If set then controls the minimum value for the range within the used
@@ -737,6 +764,30 @@ public class Find {
         }
 
         /**
+         * Sets the maximum number of milliseconds to allow the query to run
+         * before aborting the request on the server.
+         * <p>
+         * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
+         * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
+         * </p>
+         * 
+         * @param timeLimit
+         *            The new maximum amount of time to allow the query to run.
+         * @param timeLimitUnits
+         *            The units for the maximum amount of time to allow the
+         *            query to run.
+         * 
+         * @return This {@link Builder} for method call chaining.
+         * 
+         * @since MongoDB 2.6
+         */
+        public Builder maximumTime(final long timeLimit,
+                final TimeUnit timeLimitUnits) {
+            return setMaximumTimeMilliseconds(timeLimitUnits
+                    .toMillis(timeLimit));
+        }
+
+        /**
          * Sets the value of maximum number of documents that will be scanned
          * for results to the new value.
          * <p>
@@ -884,6 +935,7 @@ public class Find {
             myAwaitData = false;
             myImmortalCursor = false;
             myMaximumRange = null;
+            myMaximumTimeMilliseconds = 0;
             myMinimumRange = null;
             myMaximumDocumentsToScan = -1;
             myReturnIndexKeysOnly = false;
@@ -1150,6 +1202,23 @@ public class Find {
             else {
                 myMaximumRange = null;
             }
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of milliseconds to allow the query to run
+         * before aborting the request on the server.
+         * 
+         * @param maximumTimeMilliseconds
+         *            The new maximum number of milliseconds to allow the query
+         *            to run.
+         * @return This {@link Builder} for method call chaining.
+         * 
+         * @since MongoDB 2.6
+         */
+        public Builder setMaximumTimeMilliseconds(
+                final long maximumTimeMilliseconds) {
+            myMaximumTimeMilliseconds = maximumTimeMilliseconds;
             return this;
         }
 

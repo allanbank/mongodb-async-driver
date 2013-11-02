@@ -6,12 +6,17 @@
 package com.allanbank.mongodb.builder;
 
 import static com.allanbank.mongodb.builder.Sort.asc;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -238,4 +243,68 @@ public class FindAndModifyTest {
         assertTrue(request.isUpsert());
     }
 
+    /**
+     * Test method for
+     * {@link FindAndModify.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsDefault() {
+        final Document query = Find.ALL;
+        final Document update = BuilderFactory.start().addInteger("foo", 3)
+                .build();
+
+        final FindAndModify.Builder b = FindAndModify.builder();
+        b.setQuery(query);
+        b.setUpdate(update);
+
+        final FindAndModify command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(0L));
+    }
+
+    /**
+     * Test method for
+     * {@link FindAndModify.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaFluent() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Document query = Find.ALL;
+        final Document update = BuilderFactory.start().addInteger("foo", 3)
+                .build();
+
+        final FindAndModify.Builder b = FindAndModify.builder();
+        b.setQuery(query);
+        b.setUpdate(update);
+
+        final long value = random.nextLong();
+        b.maximumTime(value, TimeUnit.MILLISECONDS);
+
+        final FindAndModify command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
+    }
+
+    /**
+     * Test method for
+     * {@link FindAndModify.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaSetter() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Document query = Find.ALL;
+        final Document update = BuilderFactory.start().addInteger("foo", 3)
+                .build();
+
+        final FindAndModify.Builder b = FindAndModify.builder();
+        b.setQuery(query);
+        b.setUpdate(update);
+
+        final long value = random.nextLong();
+        b.setMaximumTimeMilliseconds(value);
+
+        final FindAndModify command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
+    }
 }

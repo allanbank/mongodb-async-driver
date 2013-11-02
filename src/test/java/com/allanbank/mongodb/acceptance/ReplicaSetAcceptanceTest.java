@@ -58,6 +58,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
     @BeforeClass
     public static void startServer() {
         startReplicaSet();
+        buildLargeCollection();
     }
 
     /**

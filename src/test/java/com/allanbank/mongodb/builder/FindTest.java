@@ -5,17 +5,23 @@
 
 package com.allanbank.mongodb.builder;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * FindTest provides tests for the {@link Find} command.
@@ -802,5 +808,54 @@ public class FindTest {
         assertEquals(BuilderFactory.start().add("$query", request.getQuery())
                 .add("$orderby", request.getSort()).build(),
                 request.toQueryRequest(false));
+    }
+
+    /**
+     * Test method for {@link Find.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsDefault() {
+        final Find.Builder b = Find.builder();
+        final Find command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(0L));
+    }
+
+    /**
+     * Test method for {@link Find.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaFluent() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Find.Builder b = Find.builder();
+
+        final long value = Math.abs(random.nextLong()) + 1;
+        b.maximumTime(value, TimeUnit.MILLISECONDS);
+
+        final Find command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
+
+        final DocumentBuilder query = BuilderFactory.start().add("$query",
+                BuilderFactory.start());
+        query.add("$maxTimeMS", command.getMaximumTimeMilliseconds());
+
+        assertThat(command.toQueryRequest(false), is(query.build()));
+    }
+
+    /**
+     * Test method for {@link Find.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaSetter() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Find.Builder b = Find.builder();
+
+        final long value = random.nextLong();
+        b.setMaximumTimeMilliseconds(value);
+
+        final Find command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
     }
 }

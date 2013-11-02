@@ -5,10 +5,15 @@
 
 package com.allanbank.mongodb.builder;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -153,4 +158,53 @@ public class DistinctTest {
         assertSame(ReadPreference.CLOSEST, d.getReadPreference());
     }
 
+    /**
+     * Test method for {@link Distinct.Builder#setMaximumTimeMilliseconds(long)}
+     * .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsDefault() {
+        final Distinct.Builder b = new Distinct.Builder();
+        b.key("foo");
+
+        final Distinct command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(0L));
+    }
+
+    /**
+     * Test method for {@link Distinct.Builder#setMaximumTimeMilliseconds(long)}
+     * .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaFluent() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Distinct.Builder b = new Distinct.Builder();
+        b.key("foo");
+
+        final long value = random.nextLong();
+        b.maximumTime(value, TimeUnit.MILLISECONDS);
+
+        final Distinct command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
+    }
+
+    /**
+     * Test method for {@link Distinct.Builder#setMaximumTimeMilliseconds(long)}
+     * .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaSetter() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Distinct.Builder b = new Distinct.Builder();
+        b.key("foo");
+
+        final long value = random.nextLong();
+        b.setMaximumTimeMilliseconds(value);
+
+        final Distinct command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
+    }
 }

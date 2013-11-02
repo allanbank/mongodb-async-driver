@@ -11,6 +11,9 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 
 import com.allanbank.mongodb.ReadPreference;
@@ -44,6 +47,49 @@ public class TextTest {
         assertThat(command.getReadPreference(), is(ReadPreference.SECONDARY));
         assertThat(command.getReturnFields(),
                 is(BuilderFactory.start().add("f", 1).add("_id", 0).build()));
+    }
+
+    /**
+     * Test method for {@link Text.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsDefault() {
+        final Text.Builder b = Text.builder().searchTerm("foo");
+        final Text command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(0L));
+    }
+
+    /**
+     * Test method for {@link Text.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaFluent() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Text.Builder b = Text.builder().searchTerm("foo");
+
+        final long value = random.nextLong();
+        b.maximumTime(value, TimeUnit.MILLISECONDS);
+
+        final Text command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
+    }
+
+    /**
+     * Test method for {@link Text.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaSetter() {
+        final Random random = new Random(System.currentTimeMillis());
+        final Text.Builder b = Text.builder().searchTerm("foo");
+
+        final long value = random.nextLong();
+        b.setMaximumTimeMilliseconds(value);
+
+        final Text command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
     }
 
     /**

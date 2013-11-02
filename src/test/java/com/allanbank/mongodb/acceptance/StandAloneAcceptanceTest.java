@@ -5,12 +5,14 @@
 
 package com.allanbank.mongodb.acceptance;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -44,6 +46,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
     @BeforeClass
     public static void startServer() {
         startStandAlone();
+        buildLargeCollection();
     }
 
     /**
@@ -65,8 +68,9 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        assertEquals(Arrays.asList(TEST_DB_NAME, "local"),
-                myMongo.listDatabaseNames());
+        final List<String> dbs = myMongo.listDatabaseNames();
+        assertThat(dbs, hasItem(TEST_DB_NAME));
+        assertThat(dbs, hasItem("local"));
 
         // Stop the server.
         try {
@@ -93,8 +97,9 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        assertEquals(Arrays.asList(TEST_DB_NAME, "local"),
-                myMongo.listDatabaseNames());
+        final List<String> dbs = myMongo.listDatabaseNames();
+        assertThat(dbs, hasItem(TEST_DB_NAME));
+        assertThat(dbs, hasItem("local"));
 
         // Stop the server.
         try {

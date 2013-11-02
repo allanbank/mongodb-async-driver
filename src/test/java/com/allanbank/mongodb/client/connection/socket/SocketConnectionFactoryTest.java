@@ -22,6 +22,8 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.ConnectionModel;
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
 
@@ -45,6 +47,7 @@ public class SocketConnectionFactoryTest {
     public static void setUpBeforeClass() throws IOException {
         ourServer = new MockSocketServer();
         ourServer.start();
+
     }
 
     /**
@@ -98,9 +101,11 @@ public class SocketConnectionFactoryTest {
     @Test
     public void testConnect() throws IOException {
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
+
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 addr);
         myTestFactory = new SocketConnectionFactory(config);
+        updateVersion();
 
         Connection conn = null;
         try {
@@ -192,6 +197,7 @@ public class SocketConnectionFactoryTest {
         config.setConnectionModel(ConnectionModel.SENDER_RECEIVER_THREAD);
 
         myTestFactory = new SocketConnectionFactory(config);
+        updateVersion();
 
         Connection conn = null;
         try {
@@ -229,5 +235,16 @@ public class SocketConnectionFactoryTest {
         myTestFactory = new SocketConnectionFactory(config);
 
         assertEquals(ClusterType.STAND_ALONE, myTestFactory.getClusterType());
+    }
+
+    /**
+     * Updates the version of the server so ewe don't need to wait for it.
+     */
+    private void updateVersion() {
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.pushArray("versionArray").add(1).add(2L).add(3.0);
+
+        myTestFactory.getState().add(ourServer.getInetSocketAddress())
+                .update(builder.build());
     }
 }

@@ -15,7 +15,6 @@ import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.MongoIteratorImpl;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
-import com.allanbank.mongodb.error.ReplyException;
 
 /**
  * Callback to convert a {@link Query} {@link Reply} into a
@@ -99,8 +98,8 @@ public final class QueryCallback extends
     @Override
     protected MongoDbException asError(final Reply reply, final int okValue,
             final int errorNumber, final String errorMessage) {
-        return new ReplyException(okValue, errorNumber, errorMessage,
-                myQueryMessage, reply);
+        return super.asError(reply, okValue, errorNumber, errorMessage,
+                myQueryMessage);
     }
 
     /**

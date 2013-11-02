@@ -7,6 +7,8 @@ package com.allanbank.mongodb.builder;
 
 import static com.allanbank.mongodb.util.Assertions.assertNotEmpty;
 
+import java.util.concurrent.TimeUnit;
+
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
@@ -91,6 +93,9 @@ public class Text {
     /** Maximum number of document to return. */
     private final int myLimit;
 
+    /** The maximum amount of time to allow the command to run. */
+    private final long myMaximumTimeMilliseconds;
+
     /** A standard MongoDB query document to limit the final results. */
     private final Document myQuery;
 
@@ -121,6 +126,7 @@ public class Text {
         myReadPreference = builder.myReadPreference;
         myReturnFields = builder.myReturnFields;
         mySearchTerm = builder.mySearchTerm;
+        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
     }
 
     /**
@@ -139,6 +145,19 @@ public class Text {
      */
     public int getLimit() {
         return myLimit;
+    }
+
+    /**
+     * Returns the maximum amount of time to allow the command to run on the
+     * Server before it is aborted.
+     * 
+     * @return The maximum amount of time to allow the command to run on the
+     *         Server before it is aborted.
+     * 
+     * @since MongoDB 2.6
+     */
+    public long getMaximumTimeMilliseconds() {
+        return myMaximumTimeMilliseconds;
     }
 
     /**
@@ -202,6 +221,9 @@ public class Text {
         /** Maximum number of document to return. */
         protected int myLimit;
 
+        /** The maximum amount of time to allow the command to run. */
+        protected long myMaximumTimeMilliseconds;
+
         /** A standard MongoDB query document to limit the final results. */
         protected Document myQuery;
 
@@ -264,6 +286,31 @@ public class Text {
         }
 
         /**
+         * Sets the maximum number of milliseconds to allow the command to run
+         * before aborting the request on the server.
+         * <p>
+         * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
+         * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
+         * </p>
+         * 
+         * @param timeLimit
+         *            The new maximum amount of time to allow the command to
+         *            run.
+         * @param timeLimitUnits
+         *            The units for the maximum amount of time to allow the
+         *            command to run.
+         * 
+         * @return This {@link Builder} for method call chaining.
+         * 
+         * @since MongoDB 2.6
+         */
+        public Builder maximumTime(final long timeLimit,
+                final TimeUnit timeLimitUnits) {
+            return setMaximumTimeMilliseconds(timeLimitUnits
+                    .toMillis(timeLimit));
+        }
+
+        /**
          * Sets the standard MongoDB query document to limit the final results
          * to the new value.
          * <p>
@@ -309,6 +356,7 @@ public class Text {
         public Builder reset() {
             myLanguage = null;
             myLimit = 0;
+            myMaximumTimeMilliseconds = 0;
             myQuery = null;
             myReadPreference = null;
             myReturnFields = null;
@@ -369,6 +417,23 @@ public class Text {
          */
         public Builder setLimit(final int limit) {
             myLimit = limit;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of milliseconds to allow the command to run
+         * before aborting the request on the server.
+         * 
+         * @param maximumTimeMilliseconds
+         *            The new maximum number of milliseconds to allow the
+         *            command to run.
+         * @return This {@link Builder} for method call chaining.
+         * 
+         * @since MongoDB 2.6
+         */
+        public Builder setMaximumTimeMilliseconds(
+                final long maximumTimeMilliseconds) {
+            myMaximumTimeMilliseconds = maximumTimeMilliseconds;
             return this;
         }
 

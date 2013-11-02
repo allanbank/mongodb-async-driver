@@ -377,7 +377,6 @@ public class MockSocketServer extends Thread {
                         if (!myReplies.isEmpty()) {
                             final byte[] reply = myReplies.remove(0);
                             final ByteBuffer buffer = ByteBuffer.wrap(reply);
-
                             while (buffer.hasRemaining()) {
                                 myConnection.write(buffer);
                             }

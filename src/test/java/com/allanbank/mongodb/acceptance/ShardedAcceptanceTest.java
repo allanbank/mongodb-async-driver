@@ -37,6 +37,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
     @BeforeClass
     public static void startServer() {
         startSharded();
+        buildLargeCollection();
     }
 
     /**

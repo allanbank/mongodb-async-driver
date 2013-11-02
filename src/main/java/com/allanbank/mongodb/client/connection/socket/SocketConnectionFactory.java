@@ -9,8 +9,12 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
@@ -32,6 +36,10 @@ import com.allanbank.mongodb.client.state.SimpleReconnectStrategy;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SocketConnectionFactory implements ProxiedConnectionFactory {
+
+    /** The logger for the factory. */
+    private static final Logger LOG = Logger
+            .getLogger(SocketConnectionFactory.class.getName());
 
     /** The MongoDB client configuration. */
     private final MongoClientConfiguration myConfig;
@@ -88,7 +96,25 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
                 final Connection conn = connect(server, myConfig);
 
                 // Get the state of the server updated.
-                conn.send(new IsMaster(), new ServerUpdateCallback(server));
+                final ServerUpdateCallback cb = new ServerUpdateCallback(server);
+                conn.send(new IsMaster(), cb);
+
+                if (Version.UNKNOWN.equals(server.getVersion())) {
+                    // If we don't know the version then wait for that response.
+                    try {
+                        cb.get();
+                    }
+                    catch (final ExecutionException e) {
+                        // Probably not in a good state...
+                        LOG.log(Level.FINE,
+                                "Could not execute a 'ismaster' command.", e);
+                    }
+                    catch (final InterruptedException e) {
+                        // Probably not in a good state...
+                        LOG.log(Level.FINE,
+                                "Could not execute a 'ismaster' command.", e);
+                    }
+                }
 
                 return conn;
             }
@@ -163,5 +189,14 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         strategy.setState(myState);
 
         return strategy;
+    }
+
+    /**
+     * Returns the cluster state.
+     * 
+     * @return The cluster state.
+     */
+    protected Cluster getState() {
+        return myState;
     }
 }

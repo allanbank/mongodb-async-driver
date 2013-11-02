@@ -73,5 +73,9 @@ public class QueryVersionVisitor extends VisitorAdapter {
             myRequiredServerVersion = Version.later(myRequiredServerVersion,
                     Version.VERSION_2_4);
         }
+        else if ("$maxTimeMS".equals(name)) {
+            myRequiredServerVersion = Version.later(myRequiredServerVersion,
+                    Version.VERSION_2_6);
+        }
     }
 }

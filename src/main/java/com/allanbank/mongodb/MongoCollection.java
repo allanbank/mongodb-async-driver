@@ -14,6 +14,7 @@ import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -126,6 +127,30 @@ public interface MongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
+     * 
+     * @param count
+     *            The count command.
+     * @return The count of the documents.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     */
+    public long count(Count count) throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param count
+     *            The count command.
+     * @return The count of the documents.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     */
+    public long count(Count.Builder count) throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
      * <p>
      * This is equivalent to calling {@link #countAsync(DocumentAssignable)
      * countAsync(...).get()}
@@ -203,6 +228,34 @@ public interface MongoCollection {
      * 
      * @param results
      *            The callback to notify of the results.
+     * @param count
+     *            The count command.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     */
+    public void countAsync(Callback<Long> results, Count count)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param count
+     *            The count command.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     */
+    public void countAsync(Callback<Long> results, Count.Builder count)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param results
+     *            The callback to notify of the results.
      * @param query
      *            The query document.
      * @throws MongoDbException
@@ -245,6 +298,34 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public void countAsync(Callback<Long> results, ReadPreference readPreference)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param count
+     *            The count command.
+     * @return The future that will be updated with the count once it is
+     *         completed.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     */
+    public ListenableFuture<Long> countAsync(Count count)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param count
+     *            The count command.
+     * @return The future that will be updated with the count once it is
+     *         completed.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     */
+    public ListenableFuture<Long> countAsync(Count.Builder count)
             throws MongoDbException;
 
     /**

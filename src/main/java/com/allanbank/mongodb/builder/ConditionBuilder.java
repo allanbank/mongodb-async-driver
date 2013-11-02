@@ -1183,10 +1183,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link Index#geo2dSphere(String) 2dsphere} index.
      * </p>
      * <p>
-     * Only a single {@link #intersects} comparison can be used. Calling
-     * multiple <tt>intersects(...)</tt> methods overwrites previous values. In
-     * addition any {@link #equals(boolean) equals(...)} condition is removed
-     * since no equality operator is supported by MongoDB.
+     * Only a single {@link #geoWithin} comparison can be used. Calling multiple
+     * <tt>geoWithin(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
      * </p>
      * 
      * @param geoJsonDoc
@@ -1202,6 +1202,59 @@ public class ConditionBuilder implements DocumentAssignable {
                 new DocumentElement(GeospatialOperator.GEO_WITHIN.getToken(),
                         new DocumentElement(GeospatialOperator.GEOMETRY,
                                 geoJsonDoc.asDocument())));
+
+        return this;
+    }
+
+    /**
+     * Geospatial query for documents whose field intersects the specified
+     * {@link GeoJson GeoJSON} specified geometry.
+     * <p>
+     * This method is designed to be use with a GeoJSON document constructed
+     * with the {@link GeoJson} class<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {@link QueryBuilder#where where}("geo").intersects({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * </p>
+     * <p>
+     * <b>NOTE: </b> The {@code $geoIntersects} operator requires a
+     * {@link Index#geo2dSphere(String) 2dsphere} index.
+     * </p>
+     * <p>
+     * Only a single {@link #geoWithin} comparison can be used. Calling multiple
+     * <tt>geoWithin(...)</tt> methods overwrites previous values. In addition
+     * any {@link #equals(boolean) equals(...)} condition is removed since no
+     * equality operator is supported by MongoDB.
+     * </p>
+     * 
+     * @param geoJsonDoc
+     *            The GeoJSON document describing the geometry.
+     * @param unique
+     *            If false then the query will return a document with multiple
+     *            matching shaped or points multiple times.
+     * @return The condition builder for chaining method calls.
+     * 
+     * @since MongoDB 2.4
+     */
+    public ConditionBuilder geoWithin(final DocumentAssignable geoJsonDoc,
+            final boolean unique) {
+        myEqualsComparison = null;
+
+        myOtherComparisons
+                .put(GeospatialOperator.GEO_WITHIN,
+                        new DocumentElement(
+                                GeospatialOperator.GEO_WITHIN.getToken(),
+                                new DocumentElement(
+                                        GeospatialOperator.GEOMETRY, geoJsonDoc
+                                                .asDocument()),
+                                new BooleanElement(
+                                        GeospatialOperator.UNIQUE_DOCS_MODIFIER,
+                                        unique)));
 
         return this;
     }
@@ -3795,7 +3848,8 @@ public class ConditionBuilder implements DocumentAssignable {
      * Checks if the value is not equal to the specified <tt>value</tt>.
      * <p>
      * <b>WARNING:</b> Testing has shown that this query matches all documents
-     * even if the value of the field is a {@link ElementType#MIN_KEY}.
+     * even if the value of the field is a {@link ElementType#MIN_KEY}. This was
+     * fixed in 2.6. See SERVER-11369.
      * </p>
      * <p>
      * Only a single {@link #notEqualTo(boolean) notEqualTo(...)} comparison can
@@ -3806,6 +3860,9 @@ public class ConditionBuilder implements DocumentAssignable {
      * </p>
      * 
      * @return The condition builder for chaining method calls.
+     * 
+     * @see <a
+     *      href="https://jira.mongodb.org/browse/SERVER-11369">SERVER-11369</a>
      */
     public ConditionBuilder notEqualToMaxKey() {
         myEqualsComparison = null;
@@ -3818,7 +3875,8 @@ public class ConditionBuilder implements DocumentAssignable {
      * Checks if the value is not equal to the specified <tt>value</tt>.
      * <p>
      * <b>WARNING:</b> Testing has shown that this query matches all documents
-     * even if the value of the field is a {@link ElementType#MIN_KEY}.
+     * even if the value of the field is a {@link ElementType#MIN_KEY}. This was
+     * fixed in 2.6. See SERVER-11369.
      * </p>
      * <p>
      * Only a single {@link #notEqualTo(boolean) notEqualTo(...)} comparison can
@@ -3829,6 +3887,9 @@ public class ConditionBuilder implements DocumentAssignable {
      * </p>
      * 
      * @return The condition builder for chaining method calls.
+     * 
+     * @see <a
+     *      href="https://jira.mongodb.org/browse/SERVER-11369">SERVER-11369</a>
      */
     public ConditionBuilder notEqualToMinKey() {
         myEqualsComparison = null;

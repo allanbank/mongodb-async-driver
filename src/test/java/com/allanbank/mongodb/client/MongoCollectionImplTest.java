@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -58,6 +59,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -232,6 +234,44 @@ public class MongoCollectionImplTest {
         myTestInstance.aggregateAsync(mockCallback, builder);
 
         verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#aggregateAsync(Aggregate)}
+     * .
+     * 
+     * @throws Exception
+     *             On a failure.
+     */
+    @Test
+    public void testAggregateWithMaxTime() throws Exception {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.limit(5);
+        builder.maximumTime(10, TimeUnit.SECONDS);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+        expectedCommand.add("maxTimeMS", 10000L);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Collections.singletonList(value.build()), myTestInstance
+                .aggregateAsync(builder).get());
+
+        verify();
     }
 
     /**
@@ -542,6 +582,41 @@ public class MongoCollectionImplTest {
 
         assertEquals(Long.valueOf(1),
                 myTestInstance.countAsync(doc, ReadPreference.SECONDARY).get());
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#countAsync(Count.Builder)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error
+     */
+    @Test
+    public void testCountAsyncWithMaxTime() throws Exception {
+
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+        final Document doc = BuilderFactory.start().build();
+
+        final Count.Builder builder = Count.builder();
+        builder.setQuery(doc);
+        builder.setReadPreference(ReadPreference.SECONDARY);
+        builder.setMaximumTimeMilliseconds(1234L);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .add("maxTimeMS", 1234L).build(),
+                        ReadPreference.SECONDARY)), callback(reply(replyDoc))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(Long.valueOf(1), myTestInstance.countAsync(builder).get());
 
         verify();
     }
@@ -1754,6 +1829,48 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test method for {@link AbstractMongoCollection#distinctAsync(Distinct)} .
+     * 
+     * @throws Exception
+     *             On a failure.
+     */
+    @Test
+    public void testDistinctWithMaxTime() throws Exception {
+        final Distinct.Builder builder = new Distinct.Builder();
+        builder.setKey("foo");
+        builder.setQuery(BuilderFactory.start().build());
+
+        builder.maximumTime(30, TimeUnit.SECONDS);
+
+        final Distinct request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final ArrayBuilder values = result.pushArray("values");
+        values.push().addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("distinct", "test");
+        expectedCommand.addString("key", "foo");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.add("maxTimeMS", request.getMaximumTimeMilliseconds());
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(result.build().find(ArrayElement.class, "values").get(0),
+                myTestInstance.distinctAsync(builder).get());
+
+        verify();
+    }
+
+    /**
      * Test method for
      * {@link MongoCollectionImpl#distinctAsync(Callback, Distinct)} .
      */
@@ -2251,6 +2368,43 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("update", request.getUpdate());
         expectedCommand.addDocument("fields", BuilderFactory.start()
                 .add("f", 1));
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
+                .andReturn(myAddress);
+
+        replay();
+
+        assertEquals(value.build(), myTestInstance.findAndModify(builder));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     */
+    @Test
+    public void testFindAndModifyWithMaxTime() {
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
+
+        builder.maximumTime(1, TimeUnit.DAYS);
+
+        final FindAndModify request = builder.build();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.push("value");
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("findAndModify", "test");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.addDocument("update", request.getUpdate());
+        expectedCommand.add("maxTimeMS", request.getMaximumTimeMilliseconds());
 
         final Command message = new Command("test", expectedCommand.build());
 
@@ -3366,6 +3520,7 @@ public class MongoCollectionImplTest {
         builder.setInitialValue(BuilderFactory.start().build());
         builder.setQuery(BuilderFactory.start().addBoolean("foo", true).build());
         builder.setReduceFunction("reduce");
+        builder.setMaximumTimeMilliseconds(1000);
 
         final GroupBy request = builder.build();
 
@@ -3378,6 +3533,7 @@ public class MongoCollectionImplTest {
         group.addJavaScript("$reduce", request.getReduceFunction());
         group.addJavaScript("finalize", request.getFinalizeFunction());
         group.addDocument("cond", request.getQuery());
+        group.add("maxTimeMS", 1000L);
 
         final Command message = new Command("test", expectedCommand.build());
 
@@ -4015,6 +4171,7 @@ public class MongoCollectionImplTest {
         builder.setScope(BuilderFactory.start().addInteger("foo", 13).build());
         builder.setSort(BuilderFactory.start().addInteger("foo", 14).build());
         builder.setVerbose(true);
+        builder.setMaximumTimeMilliseconds(2345L);
 
         final MapReduce request = builder.build();
 
@@ -4032,6 +4189,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addBoolean("jsMode", true);
         expectedCommand.addBoolean("verbose", true);
         expectedCommand.push("out").addInteger("inline", 1);
+        expectedCommand.add("maxTimeMS", 2345L);
 
         final Command message = new Command("test", expectedCommand.build());
 
@@ -5043,7 +5201,7 @@ public class MongoCollectionImplTest {
                 .limit(10).query(where("f").equals(false))
                 .readPreference(ReadPreference.PREFER_SECONDARY)
                 .returnFields(BuilderFactory.start().add("f", 1).add("_id", 0))
-                .build();
+                .maximumTime(5432, TimeUnit.MILLISECONDS).build();
 
         final DocumentBuilder result = BuilderFactory.start();
         final DocumentBuilder value = result.pushArray("results").push();
@@ -5058,6 +5216,7 @@ public class MongoCollectionImplTest {
         expectedCommand.add("project",
                 BuilderFactory.start().add("f", 1).add("_id", 0).build());
         expectedCommand.addString("language", "l");
+        expectedCommand.add("maxTimeMS", 5432L);
 
         final Command message = new Command("test", expectedCommand.build(),
                 ReadPreference.PREFER_SECONDARY);

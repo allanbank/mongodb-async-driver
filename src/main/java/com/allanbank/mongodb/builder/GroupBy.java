@@ -10,6 +10,7 @@ import static com.allanbank.mongodb.util.Assertions.assertThat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
@@ -52,6 +53,9 @@ public class GroupBy {
     /** The fields to group by. */
     private final Set<String> myKeys;
 
+    /** The maximum amount of time to allow the command to run. */
+    private final long myMaximumTimeMilliseconds;
+
     /** The query to select the documents to run the group against. */
     private final Document myQuery;
 
@@ -86,6 +90,7 @@ public class GroupBy {
         myQuery = builder.myQuery;
         myFinalizeFunction = builder.myFinalizeFunction;
         myReadPreference = builder.myReadPreference;
+        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
     }
 
     /**
@@ -126,6 +131,19 @@ public class GroupBy {
      */
     public Set<String> getKeys() {
         return myKeys;
+    }
+
+    /**
+     * Returns the maximum amount of time to allow the command to run on the
+     * Server before it is aborted.
+     * 
+     * @return The maximum amount of time to allow the command to run on the
+     *         Server before it is aborted.
+     * 
+     * @since MongoDB 2.6
+     */
+    public long getMaximumTimeMilliseconds() {
+        return myMaximumTimeMilliseconds;
     }
 
     /**
@@ -190,6 +208,9 @@ public class GroupBy {
 
         /** The fields to group by. */
         protected final Set<String> myKeys;
+
+        /** The maximum amount of time to allow the command to run. */
+        protected long myMaximumTimeMilliseconds;
 
         /** The query to select the documents to run the group against. */
         protected Document myQuery;
@@ -289,6 +310,31 @@ public class GroupBy {
         }
 
         /**
+         * Sets the maximum number of milliseconds to allow the command to run
+         * before aborting the request on the server.
+         * <p>
+         * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
+         * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
+         * </p>
+         * 
+         * @param timeLimit
+         *            The new maximum amount of time to allow the command to
+         *            run.
+         * @param timeLimitUnits
+         *            The units for the maximum amount of time to allow the
+         *            command to run.
+         * 
+         * @return This {@link Builder} for method call chaining.
+         * 
+         * @since MongoDB 2.6
+         */
+        public Builder maximumTime(final long timeLimit,
+                final TimeUnit timeLimitUnits) {
+            return setMaximumTimeMilliseconds(timeLimitUnits
+                    .toMillis(timeLimit));
+        }
+
+        /**
          * Sets the value of the query to select the documents to run the group
          * against.
          * <p>
@@ -356,6 +402,7 @@ public class GroupBy {
             myQuery = null;
             myReadPreference = null;
             myReduceFunction = null;
+            myMaximumTimeMilliseconds = 0;
 
             return this;
         }
@@ -413,6 +460,23 @@ public class GroupBy {
             if (keys != null) {
                 myKeys.addAll(keys);
             }
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of milliseconds to allow the command to run
+         * before aborting the request on the server.
+         * 
+         * @param maximumTimeMilliseconds
+         *            The new maximum number of milliseconds to allow the
+         *            command to run.
+         * @return This {@link Builder} for method call chaining.
+         * 
+         * @since MongoDB 2.6
+         */
+        public Builder setMaximumTimeMilliseconds(
+                final long maximumTimeMilliseconds) {
+            myMaximumTimeMilliseconds = maximumTimeMilliseconds;
             return this;
         }
 

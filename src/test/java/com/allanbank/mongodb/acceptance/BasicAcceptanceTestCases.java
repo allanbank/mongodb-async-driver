@@ -93,6 +93,7 @@ import com.allanbank.mongodb.bson.json.Json;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.AggregationGeoNear;
 import com.allanbank.mongodb.builder.ConditionBuilder;
+import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -107,7 +108,9 @@ import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
+import com.allanbank.mongodb.error.MaximumTimeLimitExceededException;
 import com.allanbank.mongodb.error.QueryFailedException;
+import com.allanbank.mongodb.error.ReplyException;
 import com.allanbank.mongodb.error.ServerVersionException;
 import com.allanbank.mongodb.gridfs.GridFs;
 import com.allanbank.mongodb.util.IOUtils;
@@ -149,6 +152,58 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /** A unique value to add to each collection name to ensure test isolation. */
     protected static int ourUniqueId = 0;
+
+    /**
+     * Creates a large collection of documents that test should only read from.
+     */
+    protected static void buildLargeCollection() {
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
+
+        final MongoClient mongoClient = MongoFactory.createClient(config);
+        try {
+            final MongoCollection collection = largeCollection(mongoClient);
+
+            // Use the Future delayed strategy.
+            final BlockingQueue<Future<Integer>> sent = new ArrayBlockingQueue<Future<Integer>>(
+                    5000);
+            for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+                final DocumentBuilder builder = BuilderFactory.start();
+                builder.addInteger("_id", i);
+
+                final Future<Integer> result = collection.insertAsync(builder
+                        .build());
+                while (!sent.offer(result)) {
+                    sent.take().get();
+                }
+            }
+            for (final Future<Integer> result : sent) {
+                result.get();
+            }
+        }
+        catch (final InterruptedException e) {
+            fail(e.getMessage());
+        }
+        catch (final ExecutionException e) {
+            fail(e.getMessage());
+        }
+        finally {
+            IOUtils.close(mongoClient);
+        }
+    }
+
+    /**
+     * Returns the large collection handle.
+     * 
+     * @param mongoClient
+     *            The client to connect to the collection.
+     * @return The handle to the large collection.
+     */
+    private static MongoCollection largeCollection(final MongoClient mongoClient) {
+        return mongoClient.getDatabase(TEST_DB_NAME + "_large").getCollection(
+                TEST_COLLECTION_NAME);
+    }
 
     /** The default collection for the test. */
     protected MongoCollection myCollection = null;
@@ -488,6 +543,38 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies the {@link Aggregate} command will timeout.
+     */
+    @Test
+    public void testAggregateTimeout() {
+        myConfig.setDefaultDurability(Durability.ACK);
+
+        final MongoCollection collection = largeCollection(myMongo);
+
+        final Aggregate.Builder builder = new Aggregate.Builder();
+
+        builder.maximumTime(1, TimeUnit.MILLISECONDS);
+        builder.match(where("state").notEqualTo("NZ"));
+
+        try {
+            collection.aggregate(builder.build());
+            fail("Should have thrown a timeout exception.");
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+    }
+
+    /**
      * Verifies using the $geoNear with the Aggregation Framework.
      */
     @SuppressWarnings("boxing")
@@ -595,6 +682,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         catch (final DocumentToLargeException dtle) {
             // Good.
             assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
+        }
+    }
+
+    /**
+     * Verifies counting the number of documents in the collection.
+     */
+    @Test
+    public void testCountTimeout() {
+        final MongoCollection collection = largeCollection(myMongo);
+
+        final Count.Builder builder = new Count.Builder();
+        // Need a query do it does not use an index of the collection meta-data.
+        builder.query(where("g").lessThan(123));
+        builder.maximumTime(1, TimeUnit.MILLISECONDS);
+
+        try {
+            collection.count(builder.build());
+            fail("Should have thrown a timeout exception.");
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
     }
 
@@ -807,6 +924,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that a {@link Distinct} will timeout.
+     */
+    @Test
+    public void testDistinctTimeout() {
+
+        final MongoCollection collection = largeCollection(myMongo);
+
+        final Distinct.Builder builder = new Distinct.Builder();
+        builder.setKey("zip-code");
+        builder.maximumTime(1, TimeUnit.MILLISECONDS);
+
+        try {
+            collection.distinct(builder.build());
+            fail("Should have thrown a timeout exception.");
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+    }
+
+    /**
      * Verifies that a collection is removed from the database on a drop.
      */
     @Test
@@ -924,6 +1071,49 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies submitting a {@link FindAndModify} command timeout.
+     */
+    @Test
+    public void testFindAndModifyTimeout() {
+        final DocumentBuilder doc = BuilderFactory.start();
+        doc.addString("zip-code", "10010");
+        for (int i = 0; i < 10000; ++i) {
+            myCollection.insert(Durability.ACK, doc);
+        }
+
+        final DocumentBuilder query = BuilderFactory.start();
+        query.addInteger("g", 0);
+
+        final DocumentBuilder update = BuilderFactory.start();
+        update.push("$inc").addInteger("i", 1);
+
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(query.build());
+        builder.setUpdate(update.build());
+        builder.upsert();
+        builder.setReturnNew(true);
+
+        builder.maximumTime(1, TimeUnit.MILLISECONDS);
+
+        try {
+            myCollection.findAndModify(builder.build());
+            fail("Should have thrown a timeout exception.");
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+    }
+
+    /**
      * Verifies submitting a findAndModify command.
      */
     @Test
@@ -1014,6 +1204,37 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         find.setQuery(and(where("a").equals(1), where("b").equals(2)));
         assertEquals(doc2.build(), myCollection.findOne(find.build()));
+    }
+
+    /**
+     * Verifies that a {@link Find} will timeout.
+     */
+    @Test
+    public void testFindTimeout() {
+        final MongoCollection collection = largeCollection(myMongo);
+
+        final Find.Builder find = new Find.Builder();
+
+        // A query without an index (so it takes longer).
+        find.query(where("g").greaterThan(25));
+        find.maximumTime(1, TimeUnit.MILLISECONDS);
+
+        try {
+            collection.find(find);
+            fail("Should have thrown a timeout exception.");
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
     }
 
     /**
@@ -1389,6 +1610,49 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that a {@link GroupBy} will timeout.
+     */
+    @Test
+    public void testGroupByTimeout() {
+
+        final DocumentBuilder query = BuilderFactory.start();
+        query.push("invoked_at.d").addString("$gte", "2009-11")
+                .addString("$lt", "2009-12");
+
+        final GroupBy.Builder builder = new GroupBy.Builder();
+        builder.setKeys(Collections.singleton("http_action"));
+        builder.setInitialValue(BuilderFactory.start().addInteger("count", 0)
+                .addDouble("total_time", 0.0).build());
+        builder.setQuery(query.build());
+        builder.setReduceFunction("function(doc, out){ out.count++; out.total_time+=doc.response_time }");
+        builder.setFinalizeFunction("function(out){ out.avg_time = out.total_time / out.count }");
+
+        // Minimum amount of time.
+        builder.maximumTime(1, TimeUnit.MILLISECONDS);
+
+        try {
+            final MongoCollection collection = largeCollection(myMongo);
+            collection.groupBy(builder.build());
+            fail("Should have thrown a timeout exception.");
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+        catch (final ReplyException re) {
+            System.out.println(re.getErrorNumber());
+        }
+    }
+
+    /**
      * Verifies that we can insert a series of documents and then fetch them
      * from MongoDB one at a time via their _id.
      */
@@ -1493,22 +1757,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.ACK);
         myConfig.setMaxConnectionCount(1);
 
-        // Use the Future delayed strategy.
-        final BlockingQueue<Future<Integer>> sent = new ArrayBlockingQueue<Future<Integer>>(
-                5000);
-        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
-            final DocumentBuilder builder = BuilderFactory.start();
-            builder.addInteger("_id", i);
-
-            final Future<Integer> result = myCollection.insertAsync(builder
-                    .build());
-            while (!sent.offer(result)) {
-                sent.take().get();
-            }
-        }
-        for (final Future<Integer> result : sent) {
-            result.get();
-        }
+        final MongoCollection collection = largeCollection(myMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -1517,7 +1766,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 .addBoolean("_id", true).build());
 
         final TestIteratorAsyncCallback cb = new TestIteratorAsyncCallback();
-        myCollection.findAsync(cb, findBuilder.build());
+        collection.findAsync(cb, findBuilder.build());
 
         cb.check(); // Blocks.
 
@@ -1682,6 +1931,52 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies that a {@link MapReduce} will timeout.
+     */
+    @Test
+    public void testMapReduceTimeout() {
+        final MongoCollection collection = largeCollection(myMongo);
+
+        final MapReduce.Builder mrBuilder = new MapReduce.Builder();
+        mrBuilder.setMapFunction("function() {                              "
+                + "    this.tags.forEach(                                   "
+                + "               function(z){                              "
+                + "                       emit( z , { count : 1 } );        "
+                + "               }                                         "
+                + "    );                                                   "
+                + "};");
+        mrBuilder.setReduceFunction("function( key , values ){              "
+                + "    var total = 0;                                       "
+                + "    for ( var i=0; i<values.length; i++ ) {              "
+                + "        total += values[i].count;                        "
+                + "    }                                                    "
+                + "    return { count : total };                            "
+                + "};");
+        mrBuilder.setOutputName("myoutput");
+        mrBuilder.setOutputType(MapReduce.OutputType.REPLACE);
+
+        // Shortest possible timeout.
+        mrBuilder.maximumTime(1, TimeUnit.MILLISECONDS);
+
+        try {
+            collection.mapReduce(mrBuilder);
+            fail("Should have thrown a timeout exception.");
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+    }
+
+    /**
      * Verifies that the MongoDB iteration over a large collection works as
      * expected.
      */
@@ -1692,12 +1987,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
-            final DocumentBuilder builder = BuilderFactory.start();
-            builder.addInteger("_id", i);
-
-            myCollection.insert(builder.build());
-        }
+        final MongoCollection collection = largeCollection(myMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -1707,7 +1997,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Fetch a lot.
         findBuilder.setBatchSize(10);
 
-        final MongoIterator<Document> iter = myCollection.find(findBuilder
+        final MongoIterator<Document> iter = collection.find(findBuilder
                 .build());
         int count = 0;
         for (final Document found : iter) {
@@ -1731,12 +2021,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
-            final DocumentBuilder builder = BuilderFactory.start();
-            builder.addInteger("_id", i);
-
-            myCollection.insert(builder.build());
-        }
+        final MongoCollection collection = largeCollection(myMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -1747,7 +2032,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         findBuilder.setBatchSize(10);
         findBuilder.setLimit(123);
 
-        final MongoIterator<Document> iter = myCollection.find(findBuilder
+        final MongoIterator<Document> iter = collection.find(findBuilder
                 .build());
         int count = 0;
         for (final Document found : iter) {
@@ -1771,12 +2056,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
-            final DocumentBuilder builder = BuilderFactory.start();
-            builder.addInteger("_id", i);
-
-            myCollection.insert(builder.build());
-        }
+        final MongoCollection collection = largeCollection(myMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -1787,7 +2067,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         findBuilder.setBatchSize(10);
         findBuilder.setLimit(123);
 
-        MongoIterator<Document> iter = myCollection.find(findBuilder.build());
+        MongoIterator<Document> iter = collection.find(findBuilder.build());
         int count = 0;
         for (final Document found : iter) {
 
@@ -2966,6 +3246,62 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1);
 
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
+            iter.close();
+        }
+        catch (final ServerVersionException sve) {
+            // See if a version prior to 2.4
+
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_4));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#geoWithin(DocumentAssignable)}.
+     */
+    @Test
+    public void testQueryWithGeoWithinUniqueDocsFalse() {
+        final Document doc1 = BuilderFactory.start().add("_id", "P1")
+                .add("p", GeoJson.multiPoint(p(2, 2), p(1, 1))).build();
+        final Document doc2 = Json
+                .parse("{_id: 'P2', p: {type: 'Point', coordinates: [3,6] } } )");
+        final Document doc3 = Json
+                .parse("{_id: 'Poly1', p: {type: 'Polygon', coordinates: ["
+                        + "[ [3,1], [1,2], [5,6], [9,2], [4,3], [3,1] ]] } } )");
+        final Document doc4 = Json
+                .parse("{_id: 'LS1', p: {type: 'LineString', "
+                        + "coordinates: [ [5,2], [7,3], [7,5], [9,4] ] } } )");
+
+        MongoIterator<Document> iter = null;
+        try {
+            // Will create and index the collection if it does not exist.
+            getGeoSphereCollection().insert(Durability.ACK, doc1, doc2, doc3,
+                    doc4);
+
+            iter = getGeoSphereCollection().find(
+                    where("p").geoWithin(
+                            GeoJson.polygon(Arrays.asList(p(0, 0), p(3, 0),
+                                    p(3, 3), p(0, 3), p(0, 0))), false));
+
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1);
+            expected.add(doc1);
+
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
@@ -5525,11 +5861,20 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             expected.add(doc2.build());
 
             final Set<Document> received = new HashSet<Document>();
+
             assertTrue(iter.hasNext());
             received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
-            assertFalse(iter.hasNext());
+
+            // For 2.5/2.6 this behavior was fixed and now return just the
+            // matching document.
+            if (!iter.hasNext()) {
+                expected.clear();
+                expected.add(doc1.build());
+            }
+            else {
+                received.add(iter.next());
+                assertFalse(iter.hasNext());
+            }
 
             assertEquals(expected, received);
         }
@@ -5566,9 +5911,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final Set<Document> received = new HashSet<Document>();
             assertTrue(iter.hasNext());
             received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
-            assertFalse(iter.hasNext());
+
+            // For 2.5/2.6 this behavior was fixed and now return just the
+            // matching document.
+            if (!iter.hasNext()) {
+                expected.clear();
+                expected.add(doc1.build());
+            }
+            else {
+                received.add(iter.next());
+                assertFalse(iter.hasNext());
+            }
 
             assertEquals(expected, received);
         }
@@ -7079,12 +7432,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
-            final DocumentBuilder builder = BuilderFactory.start();
-            builder.addInteger("_id", i);
-
-            myCollection.insert(builder.build());
-        }
+        final MongoCollection collection = largeCollection(myMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -7095,7 +7443,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         findBuilder.setBatchSize(10);
         findBuilder.setLimit(123);
 
-        MongoIterator<Document> iter = myCollection.find(findBuilder.build());
+        MongoIterator<Document> iter = collection.find(findBuilder.build());
         int count = 0;
         for (final Document found : iter) {
 
@@ -7195,12 +7543,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
-            final DocumentBuilder builder = BuilderFactory.start();
-            builder.addInteger("_id", i);
-
-            myCollection.insert(builder.build());
-        }
+        final MongoCollection collection = largeCollection(myMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -7213,7 +7556,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final Find find = findBuilder.build();
 
         final DocumentCallback callback = new DocumentCallback();
-        myCollection.streamingFind(callback, find);
+        collection.streamingFind(callback, find);
 
         callback.waitFor(TimeUnit.SECONDS.toMillis(60));
 
@@ -7235,12 +7578,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
-            final DocumentBuilder builder = BuilderFactory.start();
-            builder.addInteger("_id", i);
-
-            myCollection.insert(builder.build());
-        }
+        final MongoCollection collection = largeCollection(myMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -7253,7 +7591,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final Find find = findBuilder.build();
 
         final DocumentCallback callback = new DocumentCallback();
-        myCollection.streamingFind((Callback<Document>) callback, find);
+        collection.streamingFind((Callback<Document>) callback, find);
 
         callback.waitFor(TimeUnit.SECONDS.toMillis(60));
 
@@ -7351,6 +7689,58 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         assertThat(second.getDocument().get(StringElement.class, "content"),
                 is(new StringElement("content",
                         "Now is the time to drink all of the coffee.")));
+    }
+
+    /**
+     * Verifies the function of the {@link Text text} command timeing out.
+     */
+    @SuppressWarnings("boxing")
+    @Test
+    public void testTextSearchTimeout() {
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        // Some content, a bit more than the default to make the query take
+        // longer.
+        for (int i = 0; i < 10000; ++i) {
+            myCollection.insert(
+                    Durability.ACK,
+                    builder.reset().add("content",
+                            "Now is the time to drink all of the coffee."));
+            myCollection.insert(
+                    Durability.ACK,
+                    builder.reset().add("content",
+                            "Now is the time to drink all of the tea!"));
+            myCollection.insert(
+                    Durability.ACK,
+                    builder.reset().add("content",
+                            "Coffee is full of magical powers."));
+        }
+
+        try {
+            // Need the text index.
+            myCollection.createIndex(Index.text("content"));
+
+            final Text.Builder command = Text.builder().searchTerm(
+                    "coffee magic");
+
+            // Shortest possible timeout.
+            command.maximumTime(1, TimeUnit.MILLISECONDS);
+
+            myCollection.textSearch(command);
+            fail("Should have thrown a timeout exception.");
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
     }
 
     /**

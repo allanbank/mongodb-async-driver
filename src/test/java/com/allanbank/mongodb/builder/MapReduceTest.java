@@ -5,11 +5,16 @@
 
 package com.allanbank.mongodb.builder;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -387,5 +392,60 @@ public class MapReduceTest {
         assertSame(scope, mr.getScope());
         assertEquals(sort, mr.getSort());
         assertTrue(mr.isVerbose());
+    }
+
+    /**
+     * Test method for
+     * {@link MapReduce.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsDefault() {
+        final MapReduce.Builder b = MapReduce.builder();
+        b.setMapFunction("map");
+        b.setReduceFunction("reduce");
+        b.setOutputType(MapReduce.OutputType.INLINE);
+        final MapReduce command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(0L));
+    }
+
+    /**
+     * Test method for
+     * {@link MapReduce.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaFluent() {
+        final Random random = new Random(System.currentTimeMillis());
+        final MapReduce.Builder b = MapReduce.builder();
+        b.setMapFunction("map");
+        b.setReduceFunction("reduce");
+        b.setOutputType(MapReduce.OutputType.INLINE);
+
+        final long value = random.nextLong();
+        b.maximumTime(value, TimeUnit.MILLISECONDS);
+
+        final MapReduce command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
+    }
+
+    /**
+     * Test method for
+     * {@link MapReduce.Builder#setMaximumTimeMilliseconds(long)} .
+     */
+    @Test
+    public void testMaximumTimeMillisecondsViaSetter() {
+        final Random random = new Random(System.currentTimeMillis());
+        final MapReduce.Builder b = MapReduce.builder();
+        b.setMapFunction("map");
+        b.setReduceFunction("reduce");
+        b.setOutputType(MapReduce.OutputType.INLINE);
+
+        final long value = random.nextLong();
+        b.setMaximumTimeMilliseconds(value);
+
+        final MapReduce command = b.build();
+
+        assertThat(command.getMaximumTimeMilliseconds(), is(value));
     }
 }

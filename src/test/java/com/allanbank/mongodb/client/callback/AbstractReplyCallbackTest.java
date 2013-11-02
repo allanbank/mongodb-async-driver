@@ -32,6 +32,7 @@ import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
+import com.allanbank.mongodb.error.MaximumTimeLimitExceededException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
 import com.allanbank.mongodb.error.ShardConfigStaleException;
@@ -413,6 +414,132 @@ public class AbstractReplyCallbackTest {
     @Test
     public void testVerifyOnQueryFailed() {
         final List<Document> docs = Collections.emptyList();
+        final Query q = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.PRIMARY, false, false,
+                false, false);
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, true, false);
+
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
+        final Capture<Throwable> capture = new Capture<Throwable>();
+
+        mockCallback.exception(capture(capture));
+        expectLastCall();
+
+        replay(mockCallback);
+
+        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        callback.callback(reply);
+
+        verify(mockCallback);
+
+        final Throwable thrown = capture.getValue();
+        assertThat(thrown, instanceOf(QueryFailedException.class));
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#verify(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testVerifyOnQueryFailedButTimeout() {
+
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().add("ok", 0).add("code", 50).build());
+
+        final Query q = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.PRIMARY, false, false,
+                false, false);
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, true, false);
+
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
+        final Capture<Throwable> capture = new Capture<Throwable>();
+
+        mockCallback.exception(capture(capture));
+        expectLastCall();
+
+        replay(mockCallback);
+
+        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        callback.callback(reply);
+
+        verify(mockCallback);
+
+        final Throwable thrown = capture.getValue();
+        assertThat(thrown, instanceOf(MaximumTimeLimitExceededException.class));
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#verify(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testVerifyOnQueryFailedButTimeoutGroupBy() {
+
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().add("ok", 0).add("code", 16711).build());
+
+        final Query q = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.PRIMARY, false, false,
+                false, false);
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, true, false);
+
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
+        final Capture<Throwable> capture = new Capture<Throwable>();
+
+        mockCallback.exception(capture(capture));
+        expectLastCall();
+
+        replay(mockCallback);
+
+        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        callback.callback(reply);
+
+        verify(mockCallback);
+
+        final Throwable thrown = capture.getValue();
+        assertThat(thrown, instanceOf(MaximumTimeLimitExceededException.class));
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#verify(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testVerifyOnQueryFailedButTimeoutMapReduce() {
+
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().add("ok", 0).add("code", 13475).build());
+
+        final Query q = new Query("db", "c", BuilderFactory.start().build(),
+                null, 0, 0, 0, false, ReadPreference.PRIMARY, false, false,
+                false, false);
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, true, false);
+
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
+        final Capture<Throwable> capture = new Capture<Throwable>();
+
+        mockCallback.exception(capture(capture));
+        expectLastCall();
+
+        replay(mockCallback);
+
+        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        callback.callback(reply);
+
+        verify(mockCallback);
+
+        final Throwable thrown = capture.getValue();
+        assertThat(thrown, instanceOf(MaximumTimeLimitExceededException.class));
+    }
+
+    /**
+     * Test method for {@link AbstractReplyCallback#verify(Reply)} .
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testVerifyOnQueryFailedWithNormalReplyError() {
+        final List<Document> docs = Collections.singletonList(BuilderFactory
+                .start().add("ok", 0).build());
         final Query q = new Query("db", "c", BuilderFactory.start().build(),
                 null, 0, 0, 0, false, ReadPreference.PRIMARY, false, false,
                 false, false);

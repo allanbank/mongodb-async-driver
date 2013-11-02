@@ -26,6 +26,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
@@ -208,6 +209,30 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #countAsync(Count)} and unwrap the result.
+     * </p>
+     */
+    @Override
+    public long count(final Count count) throws MongoDbException {
+        final ListenableFuture<Long> future = countAsync(count);
+
+        return FutureUtils.unwrap(future).longValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #count(Count) count(count.build())}.
+     * </p>
+     */
+    @Override
+    public long count(final Count.Builder count) throws MongoDbException {
+        return count(count.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #count(DocumentAssignable, ReadPreference)}
      * method with {@link #getReadPreference()} as the <tt>readPreference</tt>
      * argument.
@@ -279,6 +304,30 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * This is the canonical <code>count</code> method that implementations must
+     * override.
+     * </p>
+     */
+    @Override
+    public abstract void countAsync(Callback<Long> results, Count count)
+            throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Callback, Count)
+     * countAsync(results, count.build())}.
+     * </p>
+     */
+    @Override
+    public void countAsync(final Callback<Long> results,
+            final Count.Builder count) throws MongoDbException {
+        countAsync(results, count.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the
      * {@link #countAsync(Callback, DocumentAssignable, ReadPreference)} method
      * with {@link #getReadPreference()} as the <tt>readPreference</tt>
@@ -294,14 +343,18 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * This is the canonical <code>count</code> method that implementations must
-     * override.
+     * Overridden to call the {@link #countAsync(Callback, Count)} method with
+     * the query and read preferences set.
      * </p>
      */
     @Override
-    public abstract void countAsync(Callback<Long> results,
-            DocumentAssignable query, ReadPreference readPreference)
-            throws MongoDbException;
+    public void countAsync(final Callback<Long> results,
+            final DocumentAssignable query, final ReadPreference readPreference)
+            throws MongoDbException {
+        countAsync(results,
+                Count.builder().query(query).readPreference(readPreference)
+                        .build());
+    }
 
     /**
      * {@inheritDoc}
@@ -315,6 +368,37 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void countAsync(final Callback<Long> results,
             final ReadPreference readPreference) throws MongoDbException {
         countAsync(results, BuilderFactory.start(), readPreference);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Callback, Count)}.
+     * </p>
+     * On an error counting the documents.
+     */
+    @Override
+    public ListenableFuture<Long> countAsync(final Count count)
+            throws MongoDbException {
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
+
+        countAsync(future, count);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Count)
+     * countAsync(count.build())}.
+     * </p>
+     */
+    @Override
+    public ListenableFuture<Long> countAsync(final Count.Builder count)
+            throws MongoDbException {
+        return countAsync(count.build());
     }
 
     /**

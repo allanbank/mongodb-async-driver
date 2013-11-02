@@ -15,9 +15,11 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.element.NullElement;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
+import com.allanbank.mongodb.error.MaximumTimeLimitExceededException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
 import com.allanbank.mongodb.error.ShardConfigStaleException;
@@ -152,13 +154,41 @@ public abstract class AbstractValidatingReplyCallback implements
      */
     protected MongoDbException asError(final Reply reply, final int okValue,
             final int errorNumber, final String errorMessage) {
+        return asError(reply, okValue, errorNumber, errorMessage, null);
+    }
+
+    /**
+     * Creates an exception from the parsed reply fields.
+     * 
+     * @param reply
+     *            The raw reply.
+     * @param okValue
+     *            The 'ok' field.
+     * @param errorNumber
+     *            The 'errno' field.
+     * @param errorMessage
+     *            The 'errmsg' field.
+     * @param message
+     *            The message that triggered the error, if known.
+     * @return The exception created.
+     */
+    protected final MongoDbException asError(final Reply reply,
+            final int okValue, final int errorNumber,
+            final String errorMessage, final Message message) {
         if ((errorNumber == 11000) || (errorNumber == 11001)
                 || errorMessage.startsWith("E11000")
                 || errorMessage.startsWith("E11001")) {
             return new DuplicateKeyException(okValue, errorNumber,
-                    errorMessage, reply);
+                    errorMessage, message, reply);
         }
-        return new ReplyException(okValue, errorNumber, errorMessage, reply);
+        else if ((errorNumber == 50) || // Standard
+                (errorNumber == 13475) || // M/R 2.5-ish
+                (errorNumber == 16711)) { // GroupBy 2.5-ish
+            return new MaximumTimeLimitExceededException(okValue, errorNumber,
+                    errorMessage, message, reply);
+        }
+        return new ReplyException(okValue, errorNumber, errorMessage, message,
+                reply);
     }
 
     /**
@@ -229,7 +259,12 @@ public abstract class AbstractValidatingReplyCallback implements
             throw new CursorNotFoundException(reply, asError(reply, true));
         }
         else if (reply.isQueryFailed()) {
-            throw new QueryFailedException(reply, asError(reply, true));
+            final MongoDbException error = asError(reply, true);
+            if ((error == null) || (error.getClass() == ReplyException.class)) {
+                throw new QueryFailedException(reply, error);
+            }
+
+            throw error;
         }
         else if (reply.isShardConfigStale()) {
             throw new ShardConfigStaleException(reply, asError(reply, true));

@@ -83,6 +83,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
     @BeforeClass
     public static void startServer() {
         startShardedReplicaSets();
+        buildLargeCollection();
     }
 
     /**

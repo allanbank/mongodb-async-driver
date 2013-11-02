@@ -8,6 +8,8 @@ package com.allanbank.mongodb.builder;
 import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 import static com.allanbank.mongodb.util.Assertions.assertThat;
 
+import java.util.concurrent.TimeUnit;
+
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -43,6 +45,9 @@ public class FindAndModify {
 
     /** The subset of fields to retrieve from the matched document. */
     private final Document myFields;
+
+    /** The maximum amount of time to allow the command to run. */
+    private final long myMaximumTimeMilliseconds;
 
     /** The query to locate the document to update. */
     private final Document myQuery;
@@ -89,6 +94,7 @@ public class FindAndModify {
         myUpsert = builder.myUpsert;
         myReturnNew = builder.myReturnNew;
         myRemove = builder.myRemove;
+        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
     }
 
     /**
@@ -98,6 +104,19 @@ public class FindAndModify {
      */
     public Document getFields() {
         return myFields;
+    }
+
+    /**
+     * Returns the maximum amount of time to allow the command to run on the
+     * Server before it is aborted.
+     * 
+     * @return The maximum amount of time to allow the command to run on the
+     *         Server before it is aborted.
+     * 
+     * @since MongoDB 2.6
+     */
+    public long getMaximumTimeMilliseconds() {
+        return myMaximumTimeMilliseconds;
     }
 
     /**
@@ -171,6 +190,9 @@ public class FindAndModify {
         /** Retrieve a subset of fields from the matched document. */
         protected Document myFields;
 
+        /** The maximum amount of time to allow the command to run. */
+        protected long myMaximumTimeMilliseconds;
+
         /** A query to locate the document to update. */
         protected Document myQuery;
 
@@ -228,6 +250,31 @@ public class FindAndModify {
         }
 
         /**
+         * Sets the maximum number of milliseconds to allow the command to run
+         * before aborting the request on the server.
+         * <p>
+         * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
+         * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
+         * </p>
+         * 
+         * @param timeLimit
+         *            The new maximum amount of time to allow the command to
+         *            run.
+         * @param timeLimitUnits
+         *            The units for the maximum amount of time to allow the
+         *            command to run.
+         * 
+         * @return This {@link Builder} for method call chaining.
+         * 
+         * @since MongoDB 2.6
+         */
+        public Builder maximumTime(final long timeLimit,
+                final TimeUnit timeLimitUnits) {
+            return setMaximumTimeMilliseconds(timeLimitUnits
+                    .toMillis(timeLimit));
+        }
+
+        /**
          * Sets the query to locate the document to update.
          * <p>
          * This method delegates to {@link #setQuery(DocumentAssignable)}.
@@ -280,6 +327,7 @@ public class FindAndModify {
             mySort = null;
             myUpdate = null;
             myUpsert = false;
+            myMaximumTimeMilliseconds = 0;
 
             return this;
         }
@@ -324,6 +372,23 @@ public class FindAndModify {
          */
         public Builder setFields(final DocumentAssignable fields) {
             myFields = fields.asDocument();
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of milliseconds to allow the command to run
+         * before aborting the request on the server.
+         * 
+         * @param maximumTimeMilliseconds
+         *            The new maximum number of milliseconds to allow the
+         *            command to run.
+         * @return This {@link Builder} for method call chaining.
+         * 
+         * @since MongoDB 2.6
+         */
+        public Builder setMaximumTimeMilliseconds(
+                final long maximumTimeMilliseconds) {
+            myMaximumTimeMilliseconds = maximumTimeMilliseconds;
             return this;
         }
 
