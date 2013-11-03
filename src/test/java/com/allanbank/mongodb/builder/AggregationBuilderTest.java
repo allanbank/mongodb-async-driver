@@ -37,25 +37,102 @@ import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.LongElement;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.builder.Aggregate.Builder;
+import com.allanbank.mongodb.builder.Aggregation.Builder;
 
 /**
- * AggregateBuilderTest provides tests of the {@link Aggregate.Builder} class.
+ * AggregationBuilderTest provides tests of the {@link Aggregation.Builder}
+ * class.
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
- * @deprecated See deprecation of {@link Aggregate}.
  */
-@Deprecated
-public class AggregateBuilderTest extends Builder {
+public class AggregationBuilderTest extends Builder {
+
+    /**
+     * Test method for {@link Aggregation.Builder#allowDiskUsage}.
+     */
+    @Test
+    public void testAllowDiskUsage() {
+        final Aggregation.Builder b = new Aggregation.Builder();
+
+        b.allowDiskUsage();
+
+        Aggregation a = b.build();
+
+        final List<Element> pipeline = a.getPipeline();
+        assertEquals(0, pipeline.size());
+
+        assertThat(a.isUseCursor(), is(true));
+        assertThat(a.isAllowDiskUsage(), is(true));
+
+        b.reset();
+
+        a = b.build();
+
+        assertThat(a.isUseCursor(), is(false));
+        assertThat(a.isAllowDiskUsage(), is(false));
+
+    }
+
+    /**
+     * Test method for {@link Aggregation.Builder#batchSize(int)}.
+     */
+    @Test
+    public void testBatchSize() {
+        final Aggregation.Builder b = new Aggregation.Builder();
+
+        b.batchSize(100);
+
+        Aggregation a = b.build();
+
+        final List<Element> pipeline = a.getPipeline();
+        assertEquals(0, pipeline.size());
+
+        assertThat(a.isUseCursor(), is(true));
+        assertThat(a.getBatchSize(), is(100));
+
+        b.reset();
+
+        a = b.build();
+
+        assertThat(a.isUseCursor(), is(false));
+        assertThat(a.getBatchSize(), is(0));
+
+    }
+
+    /**
+     * Test method for {@link Aggregation.Builder#cursorLimit(int)}.
+     */
+    @Test
+    public void testCursorLimit() {
+        final Aggregation.Builder b = new Aggregation.Builder();
+
+        b.cursorLimit(100);
+
+        Aggregation a = b.build();
+
+        final List<Element> pipeline = a.getPipeline();
+        assertEquals(0, pipeline.size());
+
+        assertThat(a.isUseCursor(), is(true));
+        assertThat(a.getCursorLimit(), is(100));
+
+        b.reset();
+
+        a = b.build();
+
+        assertThat(a.isUseCursor(), is(false));
+        assertThat(a.getCursorLimit(), is(0));
+
+    }
 
     /**
      * Test method for
-     * {@link Aggregate.Builder#group(AggregationGroupId, AggregationGroupField[])}
+     * {@link Aggregation.Builder#group(AggregationGroupId, AggregationGroupField[])}
      * .
      */
     @Test
     public void testGroupAggregationGroupIdAggregationGroupFieldArray() {
-        final Aggregate.Builder builder = Aggregate.builder();
+        final Aggregation.Builder builder = Aggregation.builder();
         builder.group(id("a"), set("d").average("e"));
 
         // Now the old fashioned way.
@@ -70,13 +147,13 @@ public class AggregateBuilderTest extends Builder {
 
     /**
      * Test method for
-     * {@link Aggregate.Builder#group(AggregationGroupId.Builder, AggregationGroupField[])}
+     * {@link Aggregation.Builder#group(AggregationGroupId.Builder, AggregationGroupField[])}
      * .
      */
     @Test
     public void testGroupBuilderAggregationGroupFieldArray() {
 
-        final Aggregate.Builder builder = new Aggregate.Builder();
+        final Aggregation.Builder builder = new Aggregation.Builder();
         builder.group(id().addField("a").addField("b", "c"),
                 set("d").average("e"));
 
@@ -91,7 +168,7 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#group(DocumentAssignable)} .
+     * Test method for {@link Aggregation.Builder#group(DocumentAssignable)} .
      */
     @Test
     public void testGroupDocumentAssignable() {
@@ -100,11 +177,11 @@ public class AggregateBuilderTest extends Builder {
 
         final DocumentAssignable da = db;
 
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.group(da);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -128,12 +205,12 @@ public class AggregateBuilderTest extends Builder {
 
     /**
      * Test method for
-     * {@link Aggregate.Builder#group(DocumentAssignable, AggregationGroupField[])}
+     * {@link Aggregation.Builder#group(DocumentAssignable, AggregationGroupField[])}
      * .
      */
     @Test
     public void testGroupDocumentAssignableAggregationGroupFieldArray() {
-        final Aggregate.Builder builder = new Aggregate.Builder();
+        final Aggregation.Builder builder = new Aggregation.Builder();
         builder.group(id().addField("a").addField("b", "c").build(), set("d")
                 .average("e"));
 
@@ -148,15 +225,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#limit(int)}.
+     * Test method for {@link Aggregation.Builder#limit(int)}.
      */
     @Test
     public void testLimitInt() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.limit(100);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -178,15 +255,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#limit(long)}.
+     * Test method for {@link Aggregation.Builder#limit(long)}.
      */
     @Test
     public void testLimitLong() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.limit(100L);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -208,7 +285,7 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#match(DocumentAssignable)} .
+     * Test method for {@link Aggregation.Builder#match(DocumentAssignable)} .
      */
     @Test
     public void testMatch() {
@@ -217,11 +294,11 @@ public class AggregateBuilderTest extends Builder {
 
         final DocumentAssignable da = db;
 
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.match(da);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -245,60 +322,60 @@ public class AggregateBuilderTest extends Builder {
 
     /**
      * Test method for
-     * {@link Aggregate.Builder#setMaximumTimeMilliseconds(long)} .
+     * {@link Aggregation.Builder#setMaximumTimeMilliseconds(long)} .
      */
     @Test
     public void testMaximumTimeMillisecondsDefault() {
-        final Aggregate.Builder b = new Aggregate.Builder();
-        final Aggregate command = b.build();
+        final Aggregation.Builder b = new Aggregation.Builder();
+        final Aggregation command = b.build();
 
         assertThat(command.getMaximumTimeMilliseconds(), is(0L));
     }
 
     /**
      * Test method for
-     * {@link Aggregate.Builder#setMaximumTimeMilliseconds(long)} .
+     * {@link Aggregation.Builder#setMaximumTimeMilliseconds(long)} .
      */
     @Test
     public void testMaximumTimeMillisecondsViaFluent() {
         final Random random = new Random(System.currentTimeMillis());
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         final long value = random.nextLong();
         b.maximumTime(value, TimeUnit.MILLISECONDS);
 
-        final Aggregate command = b.build();
+        final Aggregation command = b.build();
 
         assertThat(command.getMaximumTimeMilliseconds(), is(value));
     }
 
     /**
      * Test method for
-     * {@link Aggregate.Builder#setMaximumTimeMilliseconds(long)} .
+     * {@link Aggregation.Builder#setMaximumTimeMilliseconds(long)} .
      */
     @Test
     public void testMaximumTimeMillisecondsViaSetter() {
         final Random random = new Random(System.currentTimeMillis());
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         final long value = random.nextLong();
         b.setMaximumTimeMilliseconds(value);
 
-        final Aggregate command = b.build();
+        final Aggregation command = b.build();
 
         assertThat(command.getMaximumTimeMilliseconds(), is(value));
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#out(String)}.
+     * Test method for {@link Aggregation.Builder#out(String)}.
      */
     @Test
     public void testOutString() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.out("foo");
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -321,13 +398,14 @@ public class AggregateBuilderTest extends Builder {
 
     /**
      * Test method for
-     * {@link Aggregate.Builder#project(AggregationProjectFields, Element[])} .
+     * {@link Aggregation.Builder#project(AggregationProjectFields, Element[])}
+     * .
      */
     @Test
     public void testProjectAggregationProjectFieldsElementArray() {
         final int interval = 100000;
 
-        final Aggregate.Builder builder = new Aggregate.Builder();
+        final Aggregation.Builder builder = new Aggregation.Builder();
         builder.project(includeWithoutId("a"), set("f", field("f")),
                 set("g", field("h")), set("i", field("j")),
                 set("k", add(constant(0), constant(interval))));
@@ -347,7 +425,7 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#project(DocumentAssignable)} .
+     * Test method for {@link Aggregation.Builder#project(DocumentAssignable)} .
      */
     @Test
     public void testProjectDocumentAssignable() {
@@ -356,11 +434,11 @@ public class AggregateBuilderTest extends Builder {
 
         final DocumentAssignable da = db;
 
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.project(da);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -383,15 +461,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#reset()}.
+     * Test method for {@link Aggregation.Builder#reset()}.
      */
     @Test
     public void testReset() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.skip(100);
 
-        Aggregate a = b.build();
+        Aggregation a = b.build();
 
         List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -404,15 +482,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#skip(int)}.
+     * Test method for {@link Aggregation.Builder#skip(int)}.
      */
     @Test
     public void testSkipInt() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.skip(100);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -434,15 +512,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#skip(long)}.
+     * Test method for {@link Aggregation.Builder#skip(long)}.
      */
     @Test
     public void testSkipLong() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.skip(100L);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -464,15 +542,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#sort(IntegerElement[])} .
+     * Test method for {@link Aggregation.Builder#sort(IntegerElement[])} .
      */
     @Test
     public void testSortIntegerElementArray() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.sort(Sort.asc("f"), Sort.desc("g"));
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -498,15 +576,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#sort(String[])}.
+     * Test method for {@link Aggregation.Builder#sort(String[])}.
      */
     @Test
     public void testSortStringArray() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.sort("f", "g");
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -533,7 +611,7 @@ public class AggregateBuilderTest extends Builder {
 
     /**
      * Test method for
-     * {@link Aggregate.Builder#step(String, DocumentAssignable)} .
+     * {@link Aggregation.Builder#step(String, DocumentAssignable)} .
      */
     @Test
     public void testStepStringDocumentAssignable() {
@@ -542,11 +620,11 @@ public class AggregateBuilderTest extends Builder {
 
         final DocumentAssignable da = db;
 
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.step("foo", da);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -569,16 +647,16 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#step(String, double)}.
+     * Test method for {@link Aggregation.Builder#step(String, double)}.
      */
     @Test
     public void testStepStringDouble() {
 
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.step("foo", 1.023);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -601,15 +679,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#step(String, Element[])} .
+     * Test method for {@link Aggregation.Builder#step(String, Element[])} .
      */
     @Test
     public void testStepStringElementArray() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.step("foo", new IntegerElement("f", 1), new IntegerElement("g", -1));
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -635,15 +713,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#step(String, int)}.
+     * Test method for {@link Aggregation.Builder#step(String, int)}.
      */
     @Test
     public void testStepStringInt() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.step("foo", 1023);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -666,16 +744,16 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#step(String, List)}.
+     * Test method for {@link Aggregation.Builder#step(String, List)}.
      */
     @Test
     public void testStepStringListOfElement() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.step("foo", Arrays.asList((Element) new IntegerElement("f", 1),
                 new IntegerElement("g", -1)));
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -701,15 +779,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#step(String, long)}.
+     * Test method for {@link Aggregation.Builder#step(String, long)}.
      */
     @Test
     public void testStepStringLong() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.step("foo", 1023L);
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -732,15 +810,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#step(String, String)}.
+     * Test method for {@link Aggregation.Builder#step(String, String)}.
      */
     @Test
     public void testStepStringString() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.step("foo", "bar");
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -763,15 +841,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#unwind(String)}.
+     * Test method for {@link Aggregation.Builder#unwind(String)}.
      */
     @Test
     public void testUnwindWithDollarSign() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.unwind("$bar");
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -794,15 +872,15 @@ public class AggregateBuilderTest extends Builder {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder#unwind(String)}.
+     * Test method for {@link Aggregation.Builder#unwind(String)}.
      */
     @Test
     public void testUnwindWithoutDollarSign() {
-        final Aggregate.Builder b = new Aggregate.Builder();
+        final Aggregation.Builder b = new Aggregation.Builder();
 
         b.unwind("bar");
 
-        final Aggregate a = b.build();
+        final Aggregation a = b.build();
 
         final List<Element> pipeline = a.getPipeline();
         assertEquals(1, pipeline.size());
@@ -823,5 +901,4 @@ public class AggregateBuilderTest extends Builder {
 
         assertFalse(iter.hasNext());
     }
-
 }

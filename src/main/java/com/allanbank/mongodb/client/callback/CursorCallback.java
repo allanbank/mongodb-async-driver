@@ -13,18 +13,19 @@ import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.MongoIteratorImpl;
+import com.allanbank.mongodb.client.message.CursorableMessage;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
 
 /**
- * Callback to convert a {@link Query} {@link Reply} into a
+ * Callback to convert a {@link CursorableMessage} {@link Reply} into a
  * {@link MongoIteratorImpl}.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public final class QueryCallback extends
+public final class CursorCallback extends
         AbstractReplyCallback<MongoIterator<Document>> {
 
     /** The server the original request was sent to. */
@@ -33,8 +34,11 @@ public final class QueryCallback extends
     /** The original query. */
     private final Client myClient;
 
-    /** The original query. */
-    private final Query myQueryMessage;
+    /** If true then the callback should expect a command formated cursor reply. */
+    private final boolean myCommand;
+
+    /** The original message to start the cursor. */
+    private final CursorableMessage myMessage;
 
     /** The reply to the query. */
     private volatile Reply myReply;
@@ -46,23 +50,28 @@ public final class QueryCallback extends
     private final AtomicBoolean mySetOther;
 
     /**
-     * Create a new QueryCallback.
+     * Create a new CursorCallback.
      * 
      * @param client
      *            The client interface to the server.
-     * @param queryMessage
+     * @param message
      *            The original query.
+     * @param command
+     *            If true then the callback should expect a command formated
+     *            cursor reply.
      * @param results
      *            The callback to update once the first set of results are
      *            ready.
      */
-    public QueryCallback(final Client client, final Query queryMessage,
+    public CursorCallback(final Client client, final CursorableMessage message,
+            final boolean command,
             final Callback<MongoIterator<Document>> results) {
 
         super(results);
 
         myClient = client;
-        myQueryMessage = queryMessage;
+        myMessage = message;
+        myCommand = command;
 
         mySetOther = new AtomicBoolean(false);
     }
@@ -99,7 +108,7 @@ public final class QueryCallback extends
     protected MongoDbException asError(final Reply reply, final int okValue,
             final int errorNumber, final String errorMessage) {
         return super.asError(reply, okValue, errorNumber, errorMessage,
-                myQueryMessage);
+                myMessage);
     }
 
     /**
@@ -113,7 +122,11 @@ public final class QueryCallback extends
     @Override
     protected MongoIterator<Document> convert(final Reply reply)
             throws MongoDbException {
-        return new MongoIteratorImpl(myQueryMessage, myClient, myAddress, reply);
+        Reply result = reply;
+        if (isCommand()) {
+            result = CommandCursorTranslator.translate(reply);
+        }
+        return new MongoIteratorImpl(myMessage, myClient, myAddress, result);
     }
 
     /**
@@ -128,6 +141,17 @@ public final class QueryCallback extends
     protected void handle(final Reply reply) {
         myReply = reply;
         trigger();
+    }
+
+    /**
+     * Returns true if the callback should expect a command formated cursor
+     * reply.
+     * 
+     * @return True if the callback should expect a command formated cursor
+     *         reply.
+     */
+    protected boolean isCommand() {
+        return myCommand;
     }
 
     /**

@@ -27,7 +27,7 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.client.callback.QueryCallback;
+import com.allanbank.mongodb.client.callback.CursorCallback;
 import com.allanbank.mongodb.client.callback.ReplyCommandCallback;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Query;
@@ -223,8 +223,8 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
         final FutureCallback<MongoIterator<Document>> iterFuture = new FutureCallback<MongoIterator<Document>>(
                 getLockType());
-        final QueryCallback callback = new QueryCallback(myClient, query,
-                iterFuture);
+        final CursorCallback callback = new CursorCallback(myClient, query,
+                false, iterFuture);
 
         final String addr = myClient.send(query, callback);
         callback.setAddress(addr);

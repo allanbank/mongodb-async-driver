@@ -9,26 +9,26 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.client.MongoIteratorImpl;
-import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
 
 /**
- * Callback to convert a {@link Query} {@link Reply} into a single document.
+ * Callback to convert a {@link Reply} into a single document.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public final class QueryOneCallback extends AbstractReplyCallback<Document> {
+public final class SingleDocumentCallback extends
+        AbstractReplyCallback<Document> {
 
     /**
-     * Create a new QueryCallback.
+     * Create a new CursorCallback.
      * 
      * @param results
      *            The callback to update once the first set of results are
      *            ready.
      */
-    public QueryOneCallback(final Callback<Document> results) {
+    public SingleDocumentCallback(final Callback<Document> results) {
         super(results);
     }
 

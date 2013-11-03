@@ -44,12 +44,12 @@ import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
 
 /**
- * QueryStreamingCallbackTest provides test for the
- * {@link QueryStreamingCallback} class.
+ * CursorStreamingCallbackTest provides test for the
+ * {@link CursorStreamingCallback} class.
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class QueryStreamingCallbackTest {
+public class CursorStreamingCallbackTest {
 
     /** The address for the test. */
     private String myAddress = null;
@@ -90,7 +90,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} getting all of the
+     * Test method for {@link CursorStreamingCallback} getting all of the
      * documents in one batch.
      */
     @SuppressWarnings("unchecked")
@@ -100,8 +100,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Reply reply = new Reply(0, 0, 0, myDocs, false, false, false,
                 false);
@@ -123,7 +123,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback#asDocument()} .
+     * Test method for {@link CursorStreamingCallback#asDocument()} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -142,8 +142,8 @@ public class QueryStreamingCallbackTest {
         final Reply reply = new Reply(0, 123456, 0, myDocs, false, false,
                 false, false);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         for (final Document doc : myDocs) {
             mockCallback.callback(doc);
@@ -167,7 +167,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback#asDocument()} .
+     * Test method for {@link CursorStreamingCallback#asDocument()} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -185,8 +185,8 @@ public class QueryStreamingCallbackTest {
 
         replay(mockClient, mockCallback);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         qsCallback.setAddress(myAddress);
         qsCallback.close();
@@ -196,7 +196,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback#asDocument()} .
+     * Test method for {@link CursorStreamingCallback#asDocument()} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -216,8 +216,8 @@ public class QueryStreamingCallbackTest {
 
         replay(mockClient, mockCallback);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         qsCallback.setAddress(myAddress);
         qsCallback.callback(reply);
@@ -228,7 +228,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} requesting the second
+     * Test method for {@link CursorStreamingCallback} requesting the second
      * batch.
      */
     @SuppressWarnings("unchecked")
@@ -238,8 +238,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
@@ -269,7 +269,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} requesting the second and
+     * Test method for {@link CursorStreamingCallback} requesting the second and
      * third batch both of which are empty.
      */
     @SuppressWarnings("unchecked")
@@ -280,8 +280,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
@@ -312,7 +312,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} getting all of the
+     * Test method for {@link CursorStreamingCallback} getting all of the
      * documents in one batch.
      */
     @SuppressWarnings("unchecked")
@@ -322,8 +322,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
@@ -342,7 +342,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} getting all of the
+     * Test method for {@link CursorStreamingCallback} getting all of the
      * documents in one batch.
      */
     @SuppressWarnings("unchecked")
@@ -352,8 +352,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Reply reply = new Reply(0, 0, 0, myDocs, false, false, true,
                 false);
@@ -371,7 +371,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} getting all of the
+     * Test method for {@link CursorStreamingCallback} getting all of the
      * documents in one batch.
      */
     @SuppressWarnings("unchecked")
@@ -381,8 +381,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Document replyDoc = BuilderFactory.start().add("ok", 0)
                 .add("$err", "This is an error").build();
@@ -402,7 +402,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} getting all of the
+     * Test method for {@link CursorStreamingCallback} getting all of the
      * documents in one batch.
      */
     @SuppressWarnings("unchecked")
@@ -412,8 +412,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Reply reply = new Reply(0, 0, 0, myDocs, false, false, false,
                 false);
@@ -435,7 +435,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback#nextBatchSize()}.
+     * Test method for {@link CursorStreamingCallback#nextBatchSize()}.
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -451,8 +451,8 @@ public class QueryStreamingCallbackTest {
         myQuery = new Query("db", "c", myDocs.get(0), myDocs.get(0), batchSize,
                 limit, 0, false, ReadPreference.PRIMARY, false, false, false,
                 false);
-        QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
         assertEquals(batchSize, qsCallback.nextBatchSize());
         qsCallback.close();
 
@@ -460,16 +460,16 @@ public class QueryStreamingCallbackTest {
         myQuery = new Query("db", "c", myDocs.get(0), myDocs.get(0), batchSize,
                 limit, 0, false, ReadPreference.PRIMARY, false, false, false,
                 false);
-        qsCallback = new QueryStreamingCallback(mockClient, myQuery,
+        qsCallback = new CursorStreamingCallback(mockClient, myQuery, false,
                 mockCallback);
-        assertEquals(-limit, qsCallback.nextBatchSize());
+        assertEquals(limit, qsCallback.nextBatchSize());
         qsCallback.close();
 
         limit = -1;
         myQuery = new Query("db", "c", myDocs.get(0), myDocs.get(0), batchSize,
                 limit, 0, false, ReadPreference.PRIMARY, false, false, false,
                 false);
-        qsCallback = new QueryStreamingCallback(mockClient, myQuery,
+        qsCallback = new CursorStreamingCallback(mockClient, myQuery, false,
                 mockCallback);
         assertEquals(batchSize, qsCallback.nextBatchSize());
 
@@ -479,7 +479,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} .
+     * Test method for {@link CursorStreamingCallback} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -493,8 +493,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
@@ -524,7 +524,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} .
+     * Test method for {@link CursorStreamingCallback} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -538,8 +538,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Reply reply = new Reply(0, 0, 0, myDocs, false, false, false,
                 false);
@@ -565,7 +565,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback#setBatchSize(int)}.
+     * Test method for {@link CursorStreamingCallback#setBatchSize(int)}.
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -579,8 +579,8 @@ public class QueryStreamingCallbackTest {
 
         replay(mockClient, mockCallback);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         assertEquals(batchSize, qsCallback.getBatchSize());
         qsCallback.setBatchSize(10);
@@ -591,7 +591,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback#stop()} .
+     * Test method for {@link CursorStreamingCallback#stop()} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -616,8 +616,8 @@ public class QueryStreamingCallbackTest {
 
         replay(mockClient, mockCallback);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
         qsCallback.setAddress(myAddress);
         qsCallback.stop();
         qsCallback.callback(reply);
@@ -629,7 +629,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} getting all of the
+     * Test method for {@link CursorStreamingCallback} getting all of the
      * documents in one batch.
      */
     @SuppressWarnings("unchecked")
@@ -639,8 +639,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Reply reply = new Reply(0, 0, 0, myDocs, false, false, false,
                 false);
@@ -663,7 +663,7 @@ public class QueryStreamingCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryStreamingCallback} .
+     * Test method for {@link CursorStreamingCallback} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -677,8 +677,8 @@ public class QueryStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        final QueryStreamingCallback qsCallback = new QueryStreamingCallback(
-                mockClient, myQuery, mockCallback);
+        final CursorStreamingCallback qsCallback = new CursorStreamingCallback(
+                mockClient, myQuery, false, mockCallback);
 
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
@@ -731,7 +731,7 @@ public class QueryStreamingCallbackTest {
 
         replay(mockClient, mockCallback);
 
-        final QueryStreamingCallback iterImpl = new QueryStreamingCallback(
+        final CursorStreamingCallback iterImpl = new CursorStreamingCallback(
                 mockClient, b.build(), mockCallback);
 
         assertThat(iterImpl.getBatchSize(), is(23));

@@ -23,7 +23,7 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.builder.expression.Expressions;
 
 /**
- * Aggregate provides support for the <tt>aggregate</tt> command supporting a
+ * Aggregation provides support for the <tt>aggregate</tt> command supporting a
  * pipeline of commands to execute.
  * <p>
  * Instances of this class are constructed via the inner {@link Builder} class.
@@ -44,7 +44,7 @@ import com.allanbank.mongodb.builder.expression.Expressions;
  *  
  *  DocumentBuilder b1 = BuilderFactory.start();
  *  DocumentBuilder b2 = BuilderFactory.start();
- *  Aggregate.Builder builder = new Aggregate.Builder();
+ *  Aggregation.Builder builder = new Aggregation.Builder();
  *  
  *  builder.match(where("state").notEqualTo("NZ"))
  *          .group(id().addField("state")
@@ -81,23 +81,32 @@ import com.allanbank.mongodb.builder.expression.Expressions;
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
- * @deprecated Replaced with the {@link Aggregation} class to support cursors.
- *             This method will be replaced after the 1.4 release.
  */
-@Deprecated
-public class Aggregate {
+public class Aggregation {
 
     /** The first version of MongoDB to support the aggregate command. */
     public static final Version REQUIRED_VERSION = Version.parse("2.1.0");
 
     /**
-     * Creates a new builder for a {@link Aggregate}.
+     * Creates a new builder for a {@link Aggregation}.
      * 
-     * @return The builder to construct a {@link Aggregate}.
+     * @return The builder to construct a {@link Aggregation}.
      */
     public static Builder builder() {
         return new Builder();
     }
+
+    /**
+     * Set to true if the aggregation results should be allowed to spill to
+     * disk.
+     */
+    private final boolean myAllowDiskUsage;
+
+    /** The number of documents to be returned in each batch of results. */
+    private final int myBatchSize;
+
+    /** The total number of documents to be returned. */
+    private final int myLimit;
 
     /** The maximum amount of time to allow the command to run. */
     private final long myMaximumTimeMilliseconds;
@@ -108,27 +117,71 @@ public class Aggregate {
     /** The read preference to use. */
     private final ReadPreference myReadPreference;
 
+    /** Set to true if the aggregation results should be returned as a cursor. */
+    private final boolean myUseCursor;
+
     /**
-     * Creates a new Aggregate.
+     * Creates a new Aggregation.
      * 
      * @param builder
-     *            The builder for the Aggregate instance.
+     *            The builder for the Aggregation instance.
      */
-    protected Aggregate(final Builder builder) {
+    protected Aggregation(final Builder builder) {
         myPipeline = Collections.unmodifiableList(Arrays
                 .asList(builder.myPipeline.build()));
+        myBatchSize = builder.myBatchSize;
+        myLimit = builder.myLimit;
+        myUseCursor = builder.myUseCursor;
+        myAllowDiskUsage = builder.myAllowDiskUsage;
         myReadPreference = builder.myReadPreference;
         myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
     }
 
     /**
-     * Converts this {@link Aggregate} into a {@link Aggregation}.
+     * Creates a new Aggregation. This method is or the use of the
+     * {@link Aggregate#asAggregation()} method.
      * 
-     * @return The {@link Aggregation}.
+     * @param pipeline
+     *            The pipeline of operations to be applied.
+     * @param readPreference
+     *            The read preference to use.
+     * @param maximumTimeMilliseconds
+     *            The maximum amount of time to allow the command to run.
+     * 
+     * @deprecated For use by the deprecated class {@link Aggregate}.
      */
-    public Aggregation asAggregation() {
-        return new Aggregation(myPipeline, myReadPreference,
-                myMaximumTimeMilliseconds);
+    @Deprecated
+    protected Aggregation(final List<Element> pipeline,
+            final ReadPreference readPreference,
+            final long maximumTimeMilliseconds) {
+        myPipeline = Collections.unmodifiableList(new ArrayList<Element>(
+                pipeline));
+        myReadPreference = readPreference;
+        myMaximumTimeMilliseconds = maximumTimeMilliseconds;
+        myUseCursor = false;
+        myAllowDiskUsage = false;
+        myBatchSize = 0;
+        myLimit = 0;
+    }
+
+    /**
+     * Returns the number of documents to be returned in each batch of results
+     * by the cursor.
+     * 
+     * @return The number of documents to be returned in each batch of results
+     *         by the cursor.
+     */
+    public int getBatchSize() {
+        return myBatchSize;
+    }
+
+    /**
+     * Returns the total number of documents to be returned by the cursor.
+     * 
+     * @return The total number of documents to be returned the cursor.
+     */
+    public int getCursorLimit() {
+        return myLimit;
     }
 
     /**
@@ -170,6 +223,26 @@ public class Aggregate {
     }
 
     /**
+     * Returns true if the aggregation results should be allowed to spill to
+     * disk.
+     * 
+     * @return True if the aggregation results should be allowed to spill to
+     *         disk.
+     */
+    public boolean isAllowDiskUsage() {
+        return myAllowDiskUsage;
+    }
+
+    /**
+     * Returns true if the aggregation results should be returned as a cursor.
+     * 
+     * @return True if the aggregation results should be returned as a cursor.
+     */
+    public boolean isUseCursor() {
+        return myUseCursor;
+    }
+
+    /**
      * Builder provides the ability to construct aggregate command pipelines.
      * <p>
      * Methods are provided for all existing pipeline operators and generic
@@ -193,7 +266,7 @@ public class Aggregate {
      *  
      *  DocumentBuilder b1 = BuilderFactory.start();
      *  DocumentBuilder b2 = BuilderFactory.start();
-     *  Aggregate.Builder builder = new Aggregate.Builder();
+     *  Aggregation.Builder builder = new Aggregation.Builder();
      *  
      *  builder.match(where("state").notEqualTo("NZ"))
      *          .group(id().addField("state")
@@ -229,11 +302,20 @@ public class Aggregate {
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     * @deprecated Replaced with the {@link Aggregation} class to support
-     *             cursors. This method will be replaced after the 1.4 release.
      */
-    @Deprecated
     public static class Builder {
+
+        /**
+         * Set to true if the aggregation results should be returned as a
+         * cursor.
+         */
+        protected boolean myAllowDiskUsage;
+
+        /** The number of documents to be returned in each batch of results. */
+        protected int myBatchSize;
+
+        /** The total number of documents to be returned. */
+        protected int myLimit;
 
         /** The maximum amount of time to allow the command to run. */
         protected long myMaximumTimeMilliseconds;
@@ -245,20 +327,98 @@ public class Aggregate {
         protected ReadPreference myReadPreference;
 
         /**
+         * Set to true if the aggregation results should be returned as a
+         * cursor.
+         */
+        protected boolean myUseCursor;
+
+        /**
          * Creates a new Builder.
          */
         public Builder() {
             myPipeline = BuilderFactory.startArray();
+            reset();
         }
 
         /**
-         * Constructs a new {@link Aggregate} object from the state of the
+         * Allows the aggregation command can spill to disk.
+         * <p>
+         * This method delegates to {@link #allowDiskUsage(boolean)
+         * allowDiskUsage(true)}.
+         * </p>
+         * <p>
+         * This method also sets the builder to use a cursor to true.
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder allowDiskUsage() {
+            return allowDiskUsage(true);
+        }
+
+        /**
+         * Sets to true if the aggregation command can spill to disk.
+         * <p>
+         * This method delegates to {@link #setAllowDiskUsage(boolean)}.
+         * </p>
+         * <p>
+         * This method also sets the builder to use a cursor to true.
+         * </p>
+         * 
+         * @param allowDiskUsage
+         *            The new value for if the aggregation command can spill to
+         *            disk.
+         * @return This builder for chaining method calls.
+         */
+        public Builder allowDiskUsage(final boolean allowDiskUsage) {
+            return setAllowDiskUsage(allowDiskUsage);
+        }
+
+        /**
+         * Sets the value of the number of documents to be returned in each
+         * batch.
+         * <p>
+         * This method delegates to {@link #setBatchSize(int)}.
+         * </p>
+         * <p>
+         * This method also sets the builder to use a cursor to true.
+         * </p>
+         * 
+         * @param batchSize
+         *            The new value for the number of documents to be returned
+         *            in each batch.
+         * @return This builder for chaining method calls.
+         */
+        public Builder batchSize(final int batchSize) {
+            return setBatchSize(batchSize);
+        }
+
+        /**
+         * Constructs a new {@link Aggregation} object from the state of the
          * builder.
          * 
-         * @return The new {@link Aggregate} object.
+         * @return The new {@link Aggregation} object.
          */
-        public Aggregate build() {
-            return new Aggregate(this);
+        public Aggregation build() {
+            return new Aggregation(this);
+        }
+
+        /**
+         * Sets the value of the total number of documents to be returned.
+         * <p>
+         * This method delegates to {@link #setCusorLimit(int)}.
+         * </p>
+         * <p>
+         * This method also sets the builder to use a cursor to true.
+         * </p>
+         * 
+         * @param limit
+         *            The new value for the total number of documents to be
+         *            returned.
+         * @return This builder for chaining method calls.
+         */
+        public Builder cursorLimit(final int limit) {
+            return setCusorLimit(limit);
         }
 
         /**
@@ -271,7 +431,7 @@ public class Aggregate {
          * <code>
          * import {@link AggregationGeoNear com.allanbank.mongodb.builder.AggregationGeoNear};
          * 
-         * {@link Aggregate.Builder} builder = new Aggregate.Builder();
+         * {@link Aggregation.Builder} builder = new Aggregation.Builder();
          * builder.geoNear( AggregationGeoNear.builder()
          *           .location( new Point( 1, 2 ) )
          *           .distanceLocationField( "stats.distance" )
@@ -301,7 +461,7 @@ public class Aggregate {
          * <code>
          * import {@link AggregationGeoNear com.allanbank.mongodb.builder.AggregationGeoNear};
          * 
-         * {@link Aggregate.Builder} builder = new Aggregate.Builder();
+         * {@link Aggregation.Builder} builder = new Aggregation.Builder();
          * builder.geoNear( AggregationGeoNear.builder()
          *           .location( new Point( 1, 2 ) )
          *           .distanceLocationField( "stats.distance" )
@@ -336,7 +496,7 @@ public class Aggregate {
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
          * import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
          * 
-         * {@link Aggregate.Builder} builder = new Aggregate.Builder();
+         * {@link Aggregation.Builder} builder = new Aggregation.Builder();
          * builder.group(
          *           id("$field1"),
          *           set("resultField1").uniqueValuesOf("$field2"),
@@ -384,7 +544,7 @@ public class Aggregate {
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
          * import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
          * 
-         * {@link Aggregate.Builder} builder = new Aggregate.Builder();
+         * {@link Aggregation.Builder} builder = new Aggregation.Builder();
          * builder.group(
          *           id().addField("$field1").addField("$field2"),
          *           set("resultField1").uniqueValuesOf("$field3"),
@@ -439,7 +599,7 @@ public class Aggregate {
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
          * import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
          * 
-         * {@link Aggregate.Builder} builder = new Aggregate.Builder();
+         * {@link Aggregation.Builder} builder = new Aggregation.Builder();
          * builder.group(
          *           id().addInteger("i", 1),
          *           set("resultField1").uniqueValuesOf("$field3"),
@@ -510,7 +670,7 @@ public class Aggregate {
          * <code>
          * import static {@link QueryBuilder#where com.allanbank.mongodb.builder.QueryBuilder.where}
          * 
-         * Aggregate.Builder builder = new Aggregate.Builder();
+         * Aggregation.Builder builder = new Aggregation.Builder();
          * 
          * builder.match( where("f").greaterThan(23).lessThan(42).and("g").lessThan(3) );
          * ...
@@ -595,7 +755,7 @@ public class Aggregate {
          * import static {@link com.allanbank.mongodb.builder.expression.Expressions com.allanbank.mongodb.builder.expression.Expressions.*};
          * 
          * 
-         * Aggregate.Builder builder = new Aggregate.Builder();
+         * Aggregation.Builder builder = new Aggregation.Builder();
          * ...
          * builder.project(
          *         include("chr", "begin", "end", "calledPloidy"),
@@ -652,7 +812,61 @@ public class Aggregate {
             myPipeline.reset();
             myReadPreference = null;
             myMaximumTimeMilliseconds = 0;
+            myBatchSize = 0;
+            myLimit = 0;
+            myUseCursor = false;
+            myAllowDiskUsage = false;
+
             return this;
+        }
+
+        /**
+         * Sets to true if the aggregation command can spill to disk.
+         * <p>
+         * This method also sets the builder to use a cursor to true.
+         * </p>
+         * 
+         * @param allowDiskUsage
+         *            The new value for if the aggregation command can spill to
+         *            disk.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setAllowDiskUsage(final boolean allowDiskUsage) {
+            myAllowDiskUsage = allowDiskUsage;
+            return setUseCursor(true);
+        }
+
+        /**
+         * Sets the value of the number of documents to be returned in each
+         * batch.
+         * <p>
+         * This method also sets the builder to use a cursor to true.
+         * </p>
+         * 
+         * @param batchSize
+         *            The new value for the number of documents to be returned
+         *            in each batch.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setBatchSize(final int batchSize) {
+            myBatchSize = batchSize;
+            return setUseCursor(true);
+        }
+
+        /**
+         * Sets the value of the total number of documents to be returned.
+         * <p>
+         * This method also sets the builder to use a cursor to true.
+         * </p>
+         * 
+         * @param limit
+         *            The new value for the total number of documents to be
+         *            returned.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setCusorLimit(final int limit) {
+            myLimit = limit;
+            return setUseCursor(true);
         }
 
         /**
@@ -689,6 +903,20 @@ public class Aggregate {
          */
         public Builder setReadPreference(final ReadPreference readPreference) {
             myReadPreference = readPreference;
+            return this;
+        }
+
+        /**
+         * Sets to true if the aggregation results should be returned as a
+         * cursor.
+         * 
+         * @param useCursor
+         *            The new value for if the results should be returned via a
+         *            cursor.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setUseCursor(final boolean useCursor) {
+            myUseCursor = useCursor;
             return this;
         }
 
@@ -740,7 +968,7 @@ public class Aggregate {
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
          * 
-         * Aggregate.Builder builder = new Aggregate.Builder();
+         * Aggregation.Builder builder = new Aggregation.Builder();
          * 
          * builder.setSort( asc("f"), desc("g") );
          * ...
@@ -906,6 +1134,35 @@ public class Aggregate {
                 step("$unwind", "$" + fieldName);
             }
             return this;
+        }
+
+        /**
+         * Sets that the results should be returned using a cursor.
+         * <p>
+         * This method delegates to {@link #setUseCursor(boolean)
+         * setUseCursor(true)}.
+         * </p>
+         * 
+         * @return This builder for chaining method calls.
+         */
+        public Builder useCursor() {
+            return setUseCursor(true);
+        }
+
+        /**
+         * Sets to true if the aggregation results should be returned as a
+         * cursor.
+         * <p>
+         * This method delegates to {@link #setUseCursor(boolean)}.
+         * </p>
+         * 
+         * @param useCursor
+         *            The new value for if the results should be returned via a
+         *            cursor.
+         * @return This builder for chaining method calls.
+         */
+        public Builder useCursor(final boolean useCursor) {
+            return setUseCursor(useCursor);
         }
     }
 }

@@ -22,9 +22,9 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.client.message.CursorableMessage;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.KillCursors;
-import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 
@@ -78,6 +78,34 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
     private boolean myShutdown = false;
 
     /**
+     * Create a new MongoDBInterator.
+     * 
+     * @param originalQuery
+     *            The original query being iterated over.
+     * @param client
+     *            The client for issuing more requests.
+     * @param server
+     *            The server that received the original query request.
+     * @param reply
+     *            The initial results of the query that are available.
+     */
+    public MongoIteratorImpl(final CursorableMessage originalQuery,
+            final Client client, final String server, final Reply reply) {
+        myNextReply = new FutureCallback<Reply>();
+        myNextReply.callback(reply);
+
+        myReadPerference = ReadPreference.server(server);
+        myCursorId = 0;
+        myClient = client;
+        myCurrentIterator = null;
+        myBatchSize = originalQuery.getBatchSize();
+        myLimit = originalQuery.getLimit();
+        myDatabaseName = originalQuery.getDatabaseName();
+        myCollectionName = originalQuery.getCollectionName();
+
+    }
+
+    /**
      * Create a new MongoIteratorImpl from a cursor document.
      * 
      * @param client
@@ -109,34 +137,6 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
                 .get(NumericElement.class, BATCH_SIZE_FIELD).getIntValue();
         myReadPerference = ReadPreference.server(cursorDocument.get(
                 StringElement.class, SERVER_FIELD).getValue());
-    }
-
-    /**
-     * Create a new MongoDBInterator.
-     * 
-     * @param originalQuery
-     *            The original query being iterated over.
-     * @param client
-     *            The client for issuing more requests.
-     * @param server
-     *            The server that received the original query request.
-     * @param reply
-     *            The initial results of the query that are available.
-     */
-    public MongoIteratorImpl(final Query originalQuery, final Client client,
-            final String server, final Reply reply) {
-        myNextReply = new FutureCallback<Reply>();
-        myNextReply.callback(reply);
-
-        myReadPerference = ReadPreference.server(server);
-        myCursorId = 0;
-        myClient = client;
-        myCurrentIterator = null;
-        myBatchSize = originalQuery.getBatchSize();
-        myLimit = originalQuery.getLimit();
-        myDatabaseName = originalQuery.getDatabaseName();
-        myCollectionName = originalQuery.getCollectionName();
-
     }
 
     /**
@@ -267,7 +267,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
      */
     public int nextBatchSize() {
         if ((0 < myLimit) && (myLimit <= myBatchSize)) {
-            return -myLimit;
+            return myLimit;
         }
         return myBatchSize;
     }

@@ -32,7 +32,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.client.callback.QueryStreamingCallback;
+import com.allanbank.mongodb.client.callback.CursorStreamingCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
@@ -266,8 +266,8 @@ public class ClientImpl extends AbstractClient {
         final Document cursorDoc = cursorDocument.asDocument();
 
         if (isCursorDocument(cursorDoc)) {
-            final QueryStreamingCallback cb = new QueryStreamingCallback(this,
-                    cursorDoc, results);
+            final CursorStreamingCallback cb = new CursorStreamingCallback(
+                    this, cursorDoc, results);
             cb.restart();
 
             return cb;

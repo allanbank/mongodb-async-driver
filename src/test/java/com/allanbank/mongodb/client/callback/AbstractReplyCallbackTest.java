@@ -62,7 +62,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply,
                 false);
         assertNull(error);
@@ -87,7 +88,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply,
                 false);
         assertNull(error);
@@ -116,7 +118,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -147,7 +150,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -345,7 +349,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply,
                 true);
         assertEquals(-1, error.getOkValue());
@@ -370,7 +375,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply,
                 false);
         assertNull(error);
@@ -398,7 +404,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -427,7 +434,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -459,7 +467,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -491,7 +500,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -523,7 +533,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -553,7 +564,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -582,7 +594,8 @@ public class AbstractReplyCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);

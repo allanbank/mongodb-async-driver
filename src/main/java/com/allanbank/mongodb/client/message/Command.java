@@ -92,6 +92,29 @@ public class Command extends AbstractMessage {
     }
 
     /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     * 
+     * @param object
+     *            The object to compare to.
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final Command other = (Command) object;
+
+            result = super.equals(object) && myCommand.equals(other.myCommand);
+        }
+        return result;
+    }
+
+    /**
      * Returns the command's document.
      * 
      * @return The command's document.
@@ -116,6 +139,48 @@ public class Command extends AbstractMessage {
         // Not expected. Command documents should have atleast one element. Just
         // return a generic name here.
         return "command";
+    }
+
+    /**
+     * Computes a reasonable hash code.
+     * 
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + myCommand.hashCode();
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a human readable form of the command.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("Command[");
+        builder.append(getOperationName());
+        builder.append(", db=");
+        builder.append(myDatabaseName);
+        builder.append(", collection=");
+        builder.append(myCollectionName);
+        if (getReadPreference() != null) {
+            builder.append(", readPreference=");
+            builder.append(getReadPreference());
+        }
+        if (getRequiredServerVersion() != null) {
+            builder.append(", requiredServerVersion=");
+            builder.append(getRequiredServerVersion());
+        }
+        builder.append("]: ");
+        builder.append(myCommand);
+
+        return builder.toString();
     }
 
     /**

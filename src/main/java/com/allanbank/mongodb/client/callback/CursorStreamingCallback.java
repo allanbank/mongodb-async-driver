@@ -18,6 +18,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.MongoIteratorImpl;
+import com.allanbank.mongodb.client.message.CursorableMessage;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.KillCursors;
 import com.allanbank.mongodb.client.message.Query;
@@ -25,14 +26,14 @@ import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.ReplyException;
 
 /**
- * Callback to convert a {@link Query} {@link Reply} into a series of callback
- * for each document received.
+ * Callback to convert a {@link CursorableMessage} {@link Reply} into a series
+ * of callback for each document received.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public final class QueryStreamingCallback extends
+public final class CursorStreamingCallback extends
         AbstractValidatingReplyCallback implements MongoCursorControl {
 
     /** The server the original request was sent to. */
@@ -52,6 +53,9 @@ public final class QueryStreamingCallback extends
     /** The name of the collection the query was originally created on. */
     private final String myCollectionName;
 
+    /** If true then the callback should expect a command formated cursor reply. */
+    private boolean myCommand;
+
     /** The original query. */
     private long myCursorId = 0;
 
@@ -67,8 +71,8 @@ public final class QueryStreamingCallback extends
      */
     private int myLimit = 0;
 
-    /** The original query that started the cursor, if known. */
-    private final Query myOriginalQuery;
+    /** The original message that started the cursor, if known. */
+    private final CursorableMessage myMessage;
 
     /** The last reply. */
     private volatile Reply myReply;
@@ -80,7 +84,34 @@ public final class QueryStreamingCallback extends
     private boolean myShutdown = false;
 
     /**
-     * Create a new QueryCallback from a cursor document.
+     * Create a new CursorCallback.
+     * 
+     * @param client
+     *            The client interface to the server.
+     * @param originalMessage
+     *            The original message.
+     * @param command
+     *            If true then the callback should expect a command formated
+     *            cursor reply.
+     * @param results
+     *            The callback to update with each document.
+     */
+    public CursorStreamingCallback(final Client client,
+            final CursorableMessage originalMessage, final boolean command,
+            final StreamCallback<Document> results) {
+
+        myClient = client;
+        myDatabaseName = originalMessage.getDatabaseName();
+        myCollectionName = originalMessage.getCollectionName();
+        myBatchSize = originalMessage.getBatchSize();
+        myMessage = originalMessage;
+        myCommand = command;
+        myForwardCallback = results;
+        myLimit = originalMessage.getLimit();
+    }
+
+    /**
+     * Create a new CursorCallback from a cursor document.
      * 
      * @param client
      *            The client interface to the server.
@@ -91,7 +122,7 @@ public final class QueryStreamingCallback extends
      * 
      * @see MongoIteratorImpl#asDocument()
      */
-    public QueryStreamingCallback(final Client client,
+    public CursorStreamingCallback(final Client client,
             final Document cursorDocument,
             final StreamCallback<Document> results) {
 
@@ -105,7 +136,8 @@ public final class QueryStreamingCallback extends
             collection = ns.substring(index + 1);
         }
 
-        myOriginalQuery = null;
+        myMessage = null;
+        myCommand = false;
         myClient = client;
         myDatabaseName = db;
         myCollectionName = collection;
@@ -118,28 +150,6 @@ public final class QueryStreamingCallback extends
                 .get(NumericElement.class, BATCH_SIZE_FIELD).getIntValue();
         myAddress = cursorDocument.get(StringElement.class, SERVER_FIELD)
                 .getValue();
-    }
-
-    /**
-     * Create a new QueryCallback.
-     * 
-     * @param client
-     *            The client interface to the server.
-     * @param originalQuery
-     *            The original query.
-     * @param results
-     *            The callback to update with each document.
-     */
-    public QueryStreamingCallback(final Client client,
-            final Query originalQuery, final StreamCallback<Document> results) {
-
-        myClient = client;
-        myDatabaseName = originalQuery.getDatabaseName();
-        myCollectionName = originalQuery.getCollectionName();
-        myBatchSize = originalQuery.getBatchSize();
-        myOriginalQuery = originalQuery;
-        myForwardCallback = results;
-        myLimit = originalQuery.getLimit();
     }
 
     /**
@@ -320,7 +330,7 @@ public final class QueryStreamingCallback extends
     protected MongoDbException asError(final Reply reply, final int okValue,
             final int errorNumber, final String errorMessage) {
         return new ReplyException(okValue, errorNumber, errorMessage,
-                myOriginalQuery, reply);
+                myMessage, reply);
     }
 
     /**
@@ -333,10 +343,31 @@ public final class QueryStreamingCallback extends
      */
     @Override
     protected void handle(final Reply reply) throws MongoDbException {
-        myReply = reply;
-        if (myAddress != null) {
-            push(reply);
+        System.out.println(isCommand());
+        // Handle the first reply being from a command.
+        Reply result = reply;
+        if (isCommand()) {
+            result = CommandCursorTranslator.translate(reply);
+
+            // But only the first reply...
+            myCommand = false;
         }
+
+        myReply = result;
+        if (myAddress != null) {
+            push(result);
+        }
+    }
+
+    /**
+     * Returns true if the callback should expect a command formated cursor
+     * reply.
+     * 
+     * @return True if the callback should expect a command formated cursor
+     *         reply.
+     */
+    protected boolean isCommand() {
+        return myCommand;
     }
 
     /**
@@ -386,7 +417,7 @@ public final class QueryStreamingCallback extends
      */
     protected int nextBatchSize() {
         if ((0 < myLimit) && (myLimit <= myBatchSize)) {
-            return -myLimit;
+            return myLimit;
         }
         return myBatchSize;
     }
@@ -436,8 +467,8 @@ public final class QueryStreamingCallback extends
             }
             else {
                 try {
-                    for (final Document result : loadDocuments(reply)) {
-                        myForwardCallback.callback(result);
+                    for (final Document document : loadDocuments(reply)) {
+                        myForwardCallback.callback(document);
                     }
                     if (myCursorId == 0) {
                         // Signal the end of the results.

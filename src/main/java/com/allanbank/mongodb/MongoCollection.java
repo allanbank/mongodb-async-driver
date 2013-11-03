@@ -13,7 +13,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
-import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.Aggregation;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -48,7 +48,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public List<Document> aggregate(Aggregate command) throws MongoDbException;
+    public MongoIterator<Document> aggregate(Aggregation command)
+            throws MongoDbException;
 
     /**
      * Invokes a aggregate command on the server.
@@ -59,7 +60,40 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public List<Document> aggregate(Aggregate.Builder command)
+    public MongoIterator<Document> aggregate(Aggregation.Builder command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param command
+     *            The details of the aggregation request.
+     * @return The aggregation results returned.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     * @deprecated Replaced with the {@link #aggregate(Aggregation)} to support
+     *             cursors. This method will be replaced after the 1.4 release.
+     */
+    @Deprecated
+    public List<Document> aggregate(
+            com.allanbank.mongodb.builder.Aggregate command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param command
+     *            The details of the aggregation request.
+     * @return The aggregation results returned.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     * @deprecated Replaced with the {@link #aggregate(Aggregation.Builder)} to
+     *             support cursors. This method will be replaced after the 1.4
+     *             release.
+     */
+    @Deprecated
+    public List<Document> aggregate(
+            com.allanbank.mongodb.builder.Aggregate.Builder command)
             throws MongoDbException;
 
     /**
@@ -71,8 +105,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public ListenableFuture<List<Document>> aggregateAsync(Aggregate command)
-            throws MongoDbException;
+    public ListenableFuture<MongoIterator<Document>> aggregateAsync(
+            Aggregation command) throws MongoDbException;
 
     /**
      * Invokes a aggregate command on the server.
@@ -83,34 +117,105 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
+    public ListenableFuture<MongoIterator<Document>> aggregateAsync(
+            Aggregation.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     * @deprecated Replaced with the
+     *             {@link #aggregateAsync(Callback, Aggregation)} to support
+     *             cursors. This method will be replaced after the 1.4 release.
+     */
+    @Deprecated
+    public void aggregateAsync(Callback<List<Document>> results,
+            com.allanbank.mongodb.builder.Aggregate command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     * @deprecated Replaced with the
+     *             {@link #aggregateAsync(Callback, Aggregation.Builder)} to
+     *             support cursors. This method will be replaced after the 1.4
+     *             release.
+     */
+    @Deprecated
+    public void aggregateAsync(Callback<List<Document>> results,
+            com.allanbank.mongodb.builder.Aggregate.Builder command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     */
+    public void aggregateAsync(Callback<MongoIterator<Document>> results,
+            Aggregation command) throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     */
+    public void aggregateAsync(Callback<MongoIterator<Document>> results,
+            Aggregation.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param command
+     *            The details of the aggregation request.
+     * @return ListenableFuture for the aggregation results returned.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     * @deprecated Replaced with the {@link #aggregateAsync(Aggregation)} to
+     *             support cursors. This method will be replaced after the 1.4
+     *             release.
+     */
+    @Deprecated
     public ListenableFuture<List<Document>> aggregateAsync(
-            Aggregate.Builder command) throws MongoDbException;
+            com.allanbank.mongodb.builder.Aggregate command)
+            throws MongoDbException;
 
     /**
      * Invokes a aggregate command on the server.
      * 
-     * @param results
-     *            Callback for the aggregation results returned.
      * @param command
      *            The details of the aggregation request.
+     * @return ListenableFuture for the aggregation results returned.
      * @throws MongoDbException
      *             On an error executing the aggregate command.
+     * @deprecated Replaced with the
+     *             {@link #aggregateAsync(Aggregation.Builder)} to support
+     *             cursors. This method will be replaced after the 1.4 release.
      */
-    public void aggregateAsync(Callback<List<Document>> results,
-            Aggregate command) throws MongoDbException;
-
-    /**
-     * Invokes a aggregate command on the server.
-     * 
-     * @param results
-     *            Callback for the aggregation results returned.
-     * @param command
-     *            The details of the aggregation request.
-     * @throws MongoDbException
-     *             On an error executing the aggregate command.
-     */
-    public void aggregateAsync(Callback<List<Document>> results,
-            Aggregate.Builder command) throws MongoDbException;
+    @Deprecated
+    public ListenableFuture<List<Document>> aggregateAsync(
+            com.allanbank.mongodb.builder.Aggregate.Builder command)
+            throws MongoDbException;
 
     /**
      * Counts the set of documents in the collection.
@@ -872,7 +977,42 @@ public interface MongoCollection {
     public boolean dropIndex(String name) throws MongoDbException;
 
     /**
-     * Explains the way that the document will be performed.
+     * Explains the way that the aggregation will be performed.
+     * <p>
+     * This is equivalent to calling {@link #explainAsync(Aggregation)
+     * explainAsync(...).get()}
+     * </p>
+     * 
+     * @param aggregation
+     *            The aggregation details.
+     * @return The document describing the method used to execute the
+     *         aggregation.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @since MongoDB 2.6
+     */
+    public Document explain(Aggregation aggregation) throws MongoDbException;
+
+    /**
+     * Explains the way that the aggregation will be performed.
+     * <p>
+     * This is equivalent to calling {@link #explainAsync(Aggregation)
+     * explainAsync(...).get()}
+     * </p>
+     * 
+     * @param aggregation
+     *            The aggregation details.
+     * @return The document describing the method used to execute the
+     *         aggregation.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @since MongoDB 2.6
+     */
+    public Document explain(Aggregation.Builder aggregation)
+            throws MongoDbException;
+
+    /**
+     * Explains the way that the query will be performed.
      * 
      * @param query
      *            The query document.
@@ -883,7 +1023,7 @@ public interface MongoCollection {
     public Document explain(DocumentAssignable query) throws MongoDbException;
 
     /**
-     * Explains the way that the document will be performed.
+     * Explains the way that the query will be performed.
      * <p>
      * This is equivalent to calling {@link #explainAsync(Find)
      * explainAsync(...).get()}
@@ -898,7 +1038,7 @@ public interface MongoCollection {
     public Document explain(Find query) throws MongoDbException;
 
     /**
-     * Explains the way that the document will be performed.
+     * Explains the way that the query will be performed.
      * <p>
      * This is equivalent to calling {@link #explainAsync(Find)
      * explainAsync(...).get()}
@@ -913,7 +1053,61 @@ public interface MongoCollection {
     public Document explain(Find.Builder query) throws MongoDbException;
 
     /**
-     * Explains the way that the document will be performed.
+     * Explains the way that the aggregation will be performed.
+     * 
+     * @param aggregation
+     *            The aggregation details.
+     * @return The document describing the method used to execute the query.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @since MongoDB 2.6
+     */
+    public ListenableFuture<Document> explainAsync(Aggregation aggregation)
+            throws MongoDbException;
+
+    /**
+     * Explains the way that the aggregation will be performed.
+     * 
+     * @param aggregation
+     *            The aggregation details.
+     * @return The document describing the method used to execute the query.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @since MongoDB 2.6
+     */
+    public ListenableFuture<Document> explainAsync(
+            Aggregation.Builder aggregation) throws MongoDbException;
+
+    /**
+     * Explains the way that the aggregation will be performed.
+     * 
+     * @param aggregation
+     *            The aggregation details.
+     * @param results
+     *            Callback that will be notified of the results of the explain.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @since MongoDB 2.6
+     */
+    public void explainAsync(Callback<Document> results, Aggregation aggregation)
+            throws MongoDbException;
+
+    /**
+     * Explains the way that the aggregation will be performed.
+     * 
+     * @param aggregation
+     *            The aggregation details.
+     * @param results
+     *            Callback that will be notified of the results of the explain.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @since MongoDB 2.6
+     */
+    public void explainAsync(Callback<Document> results,
+            Aggregation.Builder aggregation) throws MongoDbException;
+
+    /**
+     * Explains the way that the query will be performed.
      * 
      * @param query
      *            The query details.
@@ -926,7 +1120,7 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
-     * Explains the way that the document will be performed.
+     * Explains the way that the query will be performed.
      * 
      * @param query
      *            The query details.
@@ -1994,6 +2188,90 @@ public interface MongoCollection {
      *      Command Reference</a>
      */
     public Document stats() throws MongoDbException;
+
+    /**
+     * Performs an aggregation and streams them to the provided callback one at
+     * a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param aggregation
+     *            The aggregation details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            Aggregation aggregation) throws MongoDbException;
+
+    /**
+     * Performs an aggregation and streams them to the provided callback one at
+     * a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * <p>
+     * This method is equivalent to {@link #stream(StreamCallback, Aggregation)
+     * stream( results, aggregation.build() ) }.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param aggregation
+     *            The aggregation details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            Aggregation.Builder aggregation) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection

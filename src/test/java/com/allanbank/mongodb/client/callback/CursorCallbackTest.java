@@ -39,14 +39,14 @@ import com.allanbank.mongodb.error.ReplyException;
 import com.allanbank.mongodb.error.ShardConfigStaleException;
 
 /**
- * QueryCallbackTest provides tests for the {@link QueryCallback} class.
+ * CursorCallbackTest provides tests for the {@link CursorCallback} class.
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class QueryCallbackTest {
+public class CursorCallbackTest {
 
     /**
-     * Test method for {@link QueryCallback#asError(Reply, int, int, String)}.
+     * Test method for {@link CursorCallback#asError(Reply, int, int, String)}.
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -60,7 +60,8 @@ public class QueryCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
 
         final MongoDbException e = callback.asError(reply, 0, 1234,
                 "Now this is broken.");
@@ -78,7 +79,7 @@ public class QueryCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryCallback#convert(Reply)} .
+     * Test method for {@link CursorCallback#convert(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -92,7 +93,8 @@ public class QueryCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.setAddress("server");
         final MongoIteratorImpl mIter = (MongoIteratorImpl) callback
                 .convert(reply);
@@ -102,8 +104,8 @@ public class QueryCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryCallback#getAddress()} and
-     * {@link QueryCallback#setAddress}.
+     * Test method for {@link CursorCallback#getAddress()} and
+     * {@link CursorCallback#setAddress}.
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -117,7 +119,8 @@ public class QueryCallbackTest {
 
         replay(mockCallback);
 
-        QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         assertNull(callback.getAddress());
         callback.setAddress("server");
         assertEquals("server", callback.getAddress());
@@ -128,7 +131,7 @@ public class QueryCallbackTest {
 
         replay(mockCallback);
 
-        callback = new QueryCallback(null, q, mockCallback);
+        callback = new CursorCallback(null, q, false, mockCallback);
         callback.callback(reply);
         verify(mockCallback);
 
@@ -153,7 +156,7 @@ public class QueryCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryCallback#verify(Reply)} .
+     * Test method for {@link CursorCallback#verify(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -171,7 +174,8 @@ public class QueryCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -181,7 +185,7 @@ public class QueryCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryCallback#verify(Reply)} .
+     * Test method for {@link CursorCallback#verify(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -199,7 +203,8 @@ public class QueryCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -209,7 +214,7 @@ public class QueryCallbackTest {
     }
 
     /**
-     * Test method for {@link QueryCallback#verify(Reply)} .
+     * Test method for {@link CursorCallback#verify(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -227,7 +232,8 @@ public class QueryCallbackTest {
 
         replay(mockCallback);
 
-        final QueryCallback callback = new QueryCallback(null, q, mockCallback);
+        final CursorCallback callback = new CursorCallback(null, q, false,
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);

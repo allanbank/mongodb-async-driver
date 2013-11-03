@@ -41,7 +41,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Query extends AbstractMessage {
+public class Query extends AbstractMessage implements CursorableMessage {
 
     /** Flag bit for the await data. */
     public static final int AWAIT_DATA_FLAG_BIT = 0x20;
@@ -268,6 +268,7 @@ public class Query extends AbstractMessage {
      * 
      * @return The number of documents to be returned in each batch of results.
      */
+    @Override
     public int getBatchSize() {
         return myBatchSize;
     }
@@ -277,6 +278,7 @@ public class Query extends AbstractMessage {
      * 
      * @return The total number of documents to be returned.
      */
+    @Override
     public int getLimit() {
         return myLimit;
     }

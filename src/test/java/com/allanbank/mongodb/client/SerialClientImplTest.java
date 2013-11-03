@@ -37,7 +37,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.client.callback.QueryStreamingCallback;
+import com.allanbank.mongodb.client.callback.CursorStreamingCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.message.Command;
@@ -397,8 +397,8 @@ public class SerialClientImplTest {
 
         verify(mockConnection, mockStreamCallback);
 
-        assertThat(iter, instanceOf(QueryStreamingCallback.class));
-        final QueryStreamingCallback iterImpl = (QueryStreamingCallback) iter;
+        assertThat(iter, instanceOf(CursorStreamingCallback.class));
+        final CursorStreamingCallback iterImpl = (CursorStreamingCallback) iter;
         assertThat(iterImpl.getBatchSize(), is(23));
         assertThat(iterImpl.getLimit(), is(4321));
         assertThat(iterImpl.getCursorId(), is(123456L));

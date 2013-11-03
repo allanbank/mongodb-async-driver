@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -90,8 +91,9 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.json.Json;
-import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.Aggregation;
 import com.allanbank.mongodb.builder.AggregationGeoNear;
+import com.allanbank.mongodb.builder.AggregationProjectFields;
 import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
@@ -418,7 +420,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      *      By</a>
      */
     @Test
-    public void testAggregate() {
+    public void testAggregation() {
         myConfig.setDefaultDurability(Durability.ACK);
 
         final DocumentBuilder doc = BuilderFactory.start();
@@ -480,7 +482,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         final DocumentBuilder b1 = BuilderFactory.start();
         final DocumentBuilder b2 = BuilderFactory.start();
-        final Aggregate.Builder builder = new Aggregate.Builder();
+        final Aggregation.Builder builder = new Aggregation.Builder();
 
         builder.match(where("state").notEqualTo("NZ"))
                 .group(id().addField("state").addField("city"),
@@ -527,15 +529,20 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         expected.add(expected2.build());
         expected.add(expected3.build());
 
+        MongoIterator<Document> iter = null;
         try {
-            final List<Document> results = aggregate.aggregate(builder.build());
+            final List<Document> results = new ArrayList<Document>();
+            iter = aggregate.aggregate(builder.build());
+            while (iter.hasNext()) {
+                results.add(iter.next());
+            }
 
             assertEquals(expected, results);
         }
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Aggregate.REQUIRED_VERSION));
+                    greaterThanOrEqualTo(Aggregation.REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -543,15 +550,159 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies the {@link Aggregate} command will timeout.
+     * Verifies the {@link Aggregation} command will use a cursor.
      */
     @Test
-    public void testAggregateTimeout() {
+    public void testAggregationCursor() {
         myConfig.setDefaultDurability(Durability.ACK);
 
         final MongoCollection collection = largeCollection(myMongo);
 
-        final Aggregate.Builder builder = new Aggregate.Builder();
+        final Aggregation.Builder builder = new Aggregation.Builder();
+        builder.match(Find.ALL);
+        builder.project(AggregationProjectFields.include("a"));
+
+        builder.useCursor();
+        builder.setBatchSize(100);
+
+        MongoIterator<Document> iter = null;
+        try {
+            int count = 0;
+            iter = collection.aggregate(builder);
+            for (final Document found : iter) {
+                assertNotNull(found);
+
+                count += 1;
+            }
+
+            assertEquals(LARGE_COLLECTION_COUNT, count);
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+        finally {
+            IOUtils.close(iter);
+        }
+    }
+
+    /**
+     * Verifies the function of Aggregation explain capability.
+     */
+    @Test
+    public void testAggregationExplain() {
+        myConfig.setDefaultDurability(Durability.ACK);
+
+        final MongoCollection aggregate = myDb.getCollection("aggregate");
+
+        final DocumentBuilder b1 = BuilderFactory.start();
+        final DocumentBuilder b2 = BuilderFactory.start();
+        final Aggregation.Builder builder = new Aggregation.Builder();
+
+        builder.match(where("state").notEqualTo("NZ"))
+                .group(id().addField("state").addField("city"),
+                        set("pop").sum("pop"))
+                .sort(asc("pop"))
+                .group(id("_id.state"), set("biggestcity").last("_id.city"),
+                        set("biggestpop").last("pop"),
+                        set("smallestcity").first("_id.city"),
+                        set("smallestpop").first("pop"))
+                .project(
+                        includeWithoutId(),
+                        set("state", field("_id")),
+                        set("biggestCity",
+                                b1.add(set("name", field("biggestcity"))).add(
+                                        set("pop", field("biggestpop")))),
+                        set("smallestCity",
+                                b2.add(set("name", field("smallestcity"))).add(
+                                        set("pop", field("smallestpop")))))
+                .sort(desc("biggestCity.pop"));
+
+        try {
+            final Document explanation = aggregate.explain(builder.build());
+
+            // Just a quick look to make sure it looks like an explain plan.
+            final ArrayElement stages = explanation.get(ArrayElement.class,
+                    "stages");
+            assertThat(stages, notNullValue());
+            assertThat(stages.getEntries().size(), is(6));
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+    }
+
+    /**
+     * Verifies the {@link Aggregation} command will use a cursor.
+     */
+    @Test
+    public void testAggregationStream() {
+        myConfig.setDefaultDurability(Durability.ACK);
+
+        final MongoCollection collection = largeCollection(myMongo);
+
+        final Aggregation.Builder builder = new Aggregation.Builder();
+        builder.match(Find.ALL);
+        builder.project(AggregationProjectFields.include("a"));
+
+        builder.setCusorLimit(345);
+        builder.useCursor();
+        builder.setBatchSize(100);
+
+        final MongoIterator<Document> iter = null;
+        try {
+            final Aggregation command = builder.build();
+            final DocumentCallback callback = new DocumentCallback();
+            collection.stream(callback, command);
+
+            callback.waitFor(TimeUnit.SECONDS.toMillis(60));
+
+            assertTrue(callback.isTerminated());
+            assertFalse(callback.isTerminatedByNull());
+            assertFalse(callback.isTerminatedByException());
+            assertEquals(command.getCursorLimit(), callback.getCount());
+            assertNull(callback.getException());
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+        finally {
+            IOUtils.close(iter);
+        }
+    }
+
+    /**
+     * Verifies the {@link Aggregation} command will timeout.
+     */
+    @Test
+    public void testAggregationTimeout() {
+        myConfig.setDefaultDurability(Durability.ACK);
+
+        final MongoCollection collection = largeCollection(myMongo);
+
+        final Aggregation.Builder builder = new Aggregation.Builder();
 
         builder.maximumTime(1, TimeUnit.MILLISECONDS);
         builder.match(where("state").notEqualTo("NZ"));
@@ -579,7 +730,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @SuppressWarnings("boxing")
     @Test
-    public void testAggregateWithGeoNear() {
+    public void testAggregationWithGeoNear() {
         final double x = 5.1;
         final double y = 5.1;
 
@@ -597,11 +748,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
+        MongoIterator<Document> iter = null;
         try {
-            final List<Document> docs = getGeoCollection().aggregate(
-                    Aggregate.builder().geoNear(
+            final List<Document> docs = new ArrayList<Document>();
+            iter = getGeoCollection().aggregate(
+                    Aggregation.builder().geoNear(
                             AggregationGeoNear.builder().location(p(x, y))
                                     .distanceField("d")));
+            while (iter.hasNext()) {
+                docs.add(iter.next());
+            }
 
             assertThat(docs.size(), is(3));
             // Don't really care about the distance. Copy from the received
@@ -613,7 +769,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Aggregate.REQUIRED_VERSION));
+                    greaterThanOrEqualTo(Aggregation.REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -8133,6 +8289,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
          */
         @Override
         public synchronized void callback(final Document result) {
+            System.out.println(result);
             if (result != null) {
                 myCount += 1;
             }

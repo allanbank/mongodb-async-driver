@@ -43,7 +43,7 @@ public class Version implements Serializable, Comparable<Version> {
     public static final Version VERSION_2_4 = Version.parse("2.4");
 
     /** Version 2.6 */
-    public static final Version VERSION_2_6 = Version.parse("2.6");
+    public static final Version VERSION_2_6 = Version.parse("2.5");
 
     /** The logger for the {@link Version}. */
     private static final Logger LOG = Logger.getLogger(Version.class

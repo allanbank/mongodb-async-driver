@@ -29,7 +29,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
-import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.Aggregation;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -39,16 +39,17 @@ import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
+import com.allanbank.mongodb.client.callback.CursorCallback;
+import com.allanbank.mongodb.client.callback.CursorStreamingCallback;
 import com.allanbank.mongodb.client.callback.LongToIntCallback;
-import com.allanbank.mongodb.client.callback.QueryCallback;
-import com.allanbank.mongodb.client.callback.QueryOneCallback;
-import com.allanbank.mongodb.client.callback.QueryStreamingCallback;
 import com.allanbank.mongodb.client.callback.ReplyArrayCallback;
 import com.allanbank.mongodb.client.callback.ReplyDocumentCallback;
 import com.allanbank.mongodb.client.callback.ReplyIntegerCallback;
 import com.allanbank.mongodb.client.callback.ReplyLongCallback;
 import com.allanbank.mongodb.client.callback.ReplyResultCallback;
+import com.allanbank.mongodb.client.callback.SingleDocumentCallback;
 import com.allanbank.mongodb.client.callback.TextCallback;
+import com.allanbank.mongodb.client.message.AggregationCommand;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.Insert;
@@ -89,37 +90,19 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * Overridden to construct a aggregate command and send it to the server.
      * </p>
      * 
-     * @see MongoCollection#aggregateAsync(Callback, Aggregate)
+     * @see MongoCollection#aggregateAsync(Callback, Aggregation)
      */
     @Override
-    public void aggregateAsync(final Callback<List<Document>> results,
-            final Aggregate command) throws MongoDbException {
+    public void aggregateAsync(final Callback<MongoIterator<Document>> results,
+            final Aggregation command) throws MongoDbException {
 
-        Version minVersion = Aggregate.REQUIRED_VERSION;
+        final AggregationCommand commandMsg = toCommand(command, false);
 
-        final DocumentBuilder builder = BuilderFactory.start();
+        final CursorCallback callback = new CursorCallback(myClient,
+                commandMsg, true, results);
+        final String address = myClient.send(commandMsg, callback);
 
-        builder.addString("aggregate", getName());
-
-        // Pipeline of operations.
-        final ArrayBuilder pipeline = builder.pushArray("pipeline");
-        for (final Element e : command.getPipeline()) {
-            pipeline.add(e);
-        }
-
-        // Options.
-        if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.later(minVersion, Version.VERSION_2_6);
-            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
-        }
-
-        // Should be last since might wrap command in a $query element.
-        final ReadPreference readPreference = updateReadPreference(builder,
-                command.getReadPreference(), true);
-
-        final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference, minVersion);
-        myClient.send(commandMsg, new ReplyResultCallback("result", results));
+        callback.setAddress(address);
     }
 
     /**
@@ -298,6 +281,21 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to send a {@link AggregationCommand} message to the server to
+     * explain the {@link Aggregation}.
+     * </p>
+     */
+    @Override
+    public void explainAsync(final Callback<Document> results,
+            final Aggregation aggregation) throws MongoDbException {
+        final AggregationCommand commandMsg = toCommand(aggregation, true);
+
+        myClient.send(commandMsg, new SingleDocumentCallback(results));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to send a {@link Query} message to the server to explain the
      * {@link Find}'s query.
      * </p>
@@ -327,7 +325,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 false /* noCursorTimeout */, false /* awaitData */,
                 false /* exhaust */, query.isPartialOk());
 
-        myClient.send(queryMessage, new QueryOneCallback(results));
+        myClient.send(queryMessage, new SingleDocumentCallback(results));
     }
 
     /**
@@ -391,8 +389,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 query.getBatchSize(), query.isTailable(), query.isAwaitData(),
                 query.isImmortalCursor());
 
-        final QueryCallback callback = new QueryCallback(myClient,
-                queryMessage, results);
+        final CursorCallback callback = new CursorCallback(myClient,
+                queryMessage, false, results);
         final String address = myClient.send(queryMessage, callback);
 
         callback.setAddress(address);
@@ -411,7 +409,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             throws MongoDbException {
         final Query queryMessage = createQuery(query, 1, 1, false, false, false);
 
-        myClient.send(queryMessage, new QueryOneCallback(results));
+        myClient.send(queryMessage, new SingleDocumentCallback(results));
     }
 
     /**
@@ -455,7 +453,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
             minVersion = Version.later(minVersion, Version.VERSION_2_6);
-            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
+            groupDocBuilder.add("maxTimeMS",
+                    command.getMaximumTimeMilliseconds());
         }
 
         // Should be last since might wrap command in a $query element.
@@ -633,6 +632,29 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * This is the canonical <code>stream(Aggregation)</code> method that
+     * implementations must override.
+     * </p>
+     * 
+     * @see MongoCollection#stream(StreamCallback, Aggregation)
+     */
+    @Override
+    public MongoCursorControl stream(final StreamCallback<Document> results,
+            final Aggregation aggregation) throws MongoDbException {
+        final AggregationCommand commandMsg = toCommand(aggregation, false);
+
+        final CursorStreamingCallback callback = new CursorStreamingCallback(
+                myClient, commandMsg, true, results);
+        final String address = myClient.send(commandMsg, callback);
+
+        callback.setAddress(address);
+
+        return callback;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to send a {@link Query} message to the server and setup the
      * streaming query callback.
      * </p>
@@ -645,8 +667,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 query.getBatchSize(), query.isTailable(), query.isAwaitData(),
                 query.isImmortalCursor());
 
-        final QueryStreamingCallback callback = new QueryStreamingCallback(
-                myClient, queryMessage, results);
+        final CursorStreamingCallback callback = new CursorStreamingCallback(
+                myClient, queryMessage, false, results);
         final String address = myClient.send(queryMessage, callback);
 
         callback.setAddress(address);
@@ -907,6 +929,60 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             myClient.send(insertMessage, asGetLastError(durability),
                     new ReplyIntegerCallback(results));
         }
+    }
+
+    /**
+     * Converts the {@link Aggregation} object to an {@link AggregationCommand}.
+     * 
+     * @param command
+     *            The {@link Aggregation} to convert.
+     * @param explain
+     *            If rue then have the server explain the aggregation instead of
+     *            performing the aggregation.
+     * @return The command to send to the server for the {@link Aggregation}.
+     */
+    protected AggregationCommand toCommand(final Aggregation command,
+            final boolean explain) {
+        Version minVersion = Aggregation.REQUIRED_VERSION;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        builder.addString("aggregate", getName());
+
+        // Pipeline of operations.
+        final ArrayBuilder pipeline = builder.pushArray("pipeline");
+        for (final Element e : command.getPipeline()) {
+            pipeline.add(e);
+        }
+
+        // Options - 2.6 on...
+        if (command.getMaximumTimeMilliseconds() > 0) {
+            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
+        }
+        if (command.isUseCursor()) {
+            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            final DocumentBuilder cursor = builder.push("cursor");
+            if (command.getBatchSize() > 0) {
+                cursor.add("batchSize", command.getBatchSize());
+            }
+            if (command.isAllowDiskUsage()) {
+                cursor.add("allowDiskUsage", true);
+            }
+        }
+        if (explain) {
+            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            builder.add("explain", true);
+        }
+
+        // Should be last since might wrap command in a $query element.
+        final ReadPreference readPreference = updateReadPreference(builder,
+                command.getReadPreference(), true);
+
+        final AggregationCommand commandMsg = new AggregationCommand(command,
+                getDatabaseName(), getName(), builder.build(), readPreference,
+                minVersion);
+        return commandMsg;
     }
 
     /**

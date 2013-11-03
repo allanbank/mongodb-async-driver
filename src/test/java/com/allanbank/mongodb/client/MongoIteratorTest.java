@@ -588,7 +588,7 @@ public class MongoIteratorTest {
                 limit, 0, false, ReadPreference.PRIMARY, false, false, false,
                 false);
         iter = new MongoIteratorImpl(myQuery, mockClient, myAddress, reply);
-        assertEquals(-limit, iter.nextBatchSize());
+        assertEquals(limit, iter.nextBatchSize());
 
         limit = -1;
         myQuery = new Query("db", "c", myDocs.get(0), myDocs.get(0), batchSize,

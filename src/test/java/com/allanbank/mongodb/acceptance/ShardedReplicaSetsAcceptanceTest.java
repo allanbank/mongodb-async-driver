@@ -39,6 +39,7 @@ import org.junit.Test;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
@@ -48,7 +49,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.Aggregation;
 import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.GroupBy;
@@ -115,7 +116,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * Test that a aggregate command for a secondary runs on the secondary.
      */
     @Test
-    public void testAggregateOnSecondaries() {
+    public void testAggregationOnSecondaries() {
         myConfig.setMaxConnectionCount(1);
         myConfig.setDefaultDurability(Durability.replicaDurable(2, 1000));
 
@@ -180,7 +181,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
         final DocumentBuilder b1 = BuilderFactory.start();
         final DocumentBuilder b2 = BuilderFactory.start();
-        final Aggregate.Builder builder = new Aggregate.Builder();
+        final Aggregation.Builder builder = new Aggregation.Builder();
 
         builder.setReadPreference(ReadPreference.SECONDARY);
         builder.match(where("state").notEqualTo("NZ"))
@@ -228,8 +229,13 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         expected.add(expected2.build());
         expected.add(expected3.build());
 
+        MongoIterator<Document> iter = null;
         try {
-            final List<Document> results = aggregate.aggregate(builder.build());
+            final List<Document> results = new ArrayList<Document>();
+            iter = aggregate.aggregate(builder.build());
+            while (iter.hasNext()) {
+                results.add(iter.next());
+            }
 
             assertEquals(expected, results);
 
@@ -247,10 +253,13 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThan(Aggregate.REQUIRED_VERSION));
+                    greaterThan(Aggregation.REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
+        }
+        finally {
+            IOUtils.close(iter);
         }
     }
 

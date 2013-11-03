@@ -34,21 +34,19 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 
 /**
- * AggregateTest provides tests for the example usage of the {@link Aggregate}
- * class.
+ * AggregationTest provides tests for the example usage of the
+ * {@link Aggregation} class.
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
- * @deprecated See deprecation of {@link Aggregate}.
  */
-@Deprecated
-public class AggregateTest {
+public class AggregationTest {
 
     /**
-     * Test method for {@link Aggregate}.
+     * Test method for {@link Aggregation}.
      */
     @Test
     public void testAggregationWithreadPreference() {
-        final Aggregate.Builder builder = new Aggregate.Builder();
+        final Aggregation.Builder builder = new Aggregation.Builder();
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
         builder.group(id("a"), set("d").average("e"));
 
@@ -78,7 +76,7 @@ public class AggregateTest {
                 .maxDistance(12345.6).query(BuilderFactory.start().add("a", 2))
                 .spherical().uniqueDocs(false);
 
-        final Aggregate aggregate = Aggregate.builder().geoNear(geoNear)
+        final Aggregation aggregate = Aggregation.builder().geoNear(geoNear)
                 .build();
 
         final DocumentBuilder expected = BuilderFactory.start();
@@ -100,7 +98,7 @@ public class AggregateTest {
     }
 
     /**
-     * Test method for {@link Aggregate.Builder} usability.
+     * Test method for {@link Aggregation.Builder} usability.
      * 
      * @see <a
      *      href="https://groups.google.com/d/topic/mongodb-user/1cYch580h0w/discussion">Inspired
@@ -112,7 +110,7 @@ public class AggregateTest {
         final int interval = 100000;
 
         // Example form MongoDB users group message.
-        final Aggregate.Builder builder = new Aggregate.Builder();
+        final Aggregation.Builder builder = new Aggregation.Builder();
         builder.match(
                 where("calledPloidy").notIn(constant("N")).and("sampleName")
                         .equals("XYZ"))

@@ -25,7 +25,7 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
-import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.Aggregation;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -34,6 +34,7 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
+import com.allanbank.mongodb.client.callback.IteratorToListCallbackAdapter;
 import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.util.FutureUtils;
 
@@ -114,13 +115,13 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #aggregateAsync(Aggregate)}.
+     * Overridden to call the {@link #aggregateAsync(Aggregation)}.
      * </p>
      * 
-     * @see #aggregateAsync(Aggregate)
+     * @see #aggregateAsync(Aggregation)
      */
     @Override
-    public List<Document> aggregate(final Aggregate command)
+    public MongoIterator<Document> aggregate(final Aggregation command)
             throws MongoDbException {
         return FutureUtils.unwrap(aggregateAsync(command));
     }
@@ -128,11 +129,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #aggregate(Aggregate)}.
+     * Overridden to call the {@link #aggregate(Aggregation)}.
      * </p>
      */
     @Override
-    public List<Document> aggregate(final Aggregate.Builder command)
+    public MongoIterator<Document> aggregate(final Aggregation.Builder command)
             throws MongoDbException {
         return aggregate(command.build());
     }
@@ -140,14 +141,143 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #aggregateAsync(Callback, Aggregate)}.
+     * Overridden to call the
+     * {@link #aggregateAsync(com.allanbank.mongodb.builder.Aggregate)}.
      * </p>
      * 
-     * @see #aggregateAsync(Callback, Aggregate)
+     * @see #aggregateAsync(com.allanbank.mongodb.builder.Aggregate)
      */
     @Override
+    @Deprecated
+    public List<Document> aggregate(
+            final com.allanbank.mongodb.builder.Aggregate command)
+            throws MongoDbException {
+        return FutureUtils.unwrap(aggregateAsync(command));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #aggregate(com.allanbank.mongodb.builder.Aggregate)}.
+     * </p>
+     */
+    @Override
+    @Deprecated
+    public List<Document> aggregate(
+            final com.allanbank.mongodb.builder.Aggregate.Builder command)
+            throws MongoDbException {
+        return aggregate(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #aggregateAsync(Callback, Aggregation)}.
+     * </p>
+     * 
+     * @see #aggregateAsync(Callback, Aggregation)
+     */
+    @Override
+    public ListenableFuture<MongoIterator<Document>> aggregateAsync(
+            final Aggregation command) throws MongoDbException {
+        final FutureCallback<MongoIterator<Document>> future;
+
+        future = new FutureCallback<MongoIterator<Document>>(getLockType());
+
+        aggregateAsync(future, command);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #aggregateAsync(Aggregation)}.
+     * </p>
+     */
+    @Override
+    public ListenableFuture<MongoIterator<Document>> aggregateAsync(
+            final Aggregation.Builder command) throws MongoDbException {
+        return aggregateAsync(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to convert the {@link com.allanbank.mongodb.builder.Aggregate}
+     * instance to a {@link Aggregation} instance and then call
+     * {@link #aggregateAsync(Callback, Aggregation)}.
+     * </p>
+     */
+    @Override
+    @Deprecated
+    public void aggregateAsync(final Callback<List<Document>> results,
+            final com.allanbank.mongodb.builder.Aggregate command)
+            throws MongoDbException {
+
+        final Aggregation newCommand = command.asAggregation();
+
+        aggregateAsync(new IteratorToListCallbackAdapter(results), newCommand);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #aggregateAsync(Callback, com.allanbank.mongodb.builder.Aggregate)}
+     * .
+     * </p>
+     */
+    @Override
+    @Deprecated
+    public void aggregateAsync(final Callback<List<Document>> results,
+            final com.allanbank.mongodb.builder.Aggregate.Builder command)
+            throws MongoDbException {
+        aggregateAsync(results, command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>aggregate</code> method that implementations
+     * must override.
+     * </p>
+     * 
+     * @see MongoCollection#aggregateAsync(Callback, Aggregation)
+     */
+    @Override
+    public abstract void aggregateAsync(
+            Callback<MongoIterator<Document>> results, Aggregation command)
+            throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #aggregateAsync(Callback, Aggregation)}.
+     * </p>
+     */
+    @Override
+    public void aggregateAsync(final Callback<MongoIterator<Document>> results,
+            final Aggregation.Builder command) throws MongoDbException {
+        aggregateAsync(results, command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #aggregateAsync(Callback, com.allanbank.mongodb.builder.Aggregate)}
+     * .
+     * </p>
+     * 
+     * @see #aggregateAsync(Callback, com.allanbank.mongodb.builder.Aggregate)
+     */
+    @Override
+    @Deprecated
     public ListenableFuture<List<Document>> aggregateAsync(
-            final Aggregate command) throws MongoDbException {
+            final com.allanbank.mongodb.builder.Aggregate command)
+            throws MongoDbException {
         final FutureCallback<List<Document>> future = new FutureCallback<List<Document>>(
                 getLockType());
 
@@ -159,38 +289,16 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #aggregateAsync(Aggregate)}.
+     * Overridden to call the
+     * {@link #aggregateAsync(com.allanbank.mongodb.builder.Aggregate)}.
      * </p>
      */
     @Override
+    @Deprecated
     public ListenableFuture<List<Document>> aggregateAsync(
-            final Aggregate.Builder command) throws MongoDbException {
+            final com.allanbank.mongodb.builder.Aggregate.Builder command)
+            throws MongoDbException {
         return aggregateAsync(command.build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>aggregate</code> method that implementations
-     * must override.
-     * </p>
-     * 
-     * @see MongoCollection#aggregateAsync(Callback, Aggregate)
-     */
-    @Override
-    public abstract void aggregateAsync(Callback<List<Document>> results,
-            Aggregate command) throws MongoDbException;
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #aggregateAsync(Callback, Aggregate)}.
-     * </p>
-     */
-    @Override
-    public void aggregateAsync(final Callback<List<Document>> results,
-            final Aggregate.Builder command) throws MongoDbException {
-        aggregateAsync(results, command.build());
     }
 
     /**
@@ -858,6 +966,31 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #explainAsync(Aggregation)} method.
+     * </p>
+     */
+    @Override
+    public Document explain(final Aggregation aggregation)
+            throws MongoDbException {
+        return FutureUtils.unwrap(explainAsync(aggregation));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #explainAsync(Aggregation)} method.
+     * </p>
+     */
+    @Override
+    public Document explain(final Aggregation.Builder aggregation)
+            throws MongoDbException {
+        return FutureUtils.unwrap(explainAsync(aggregation.build()));
+
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #explain(Find)} method.
      * </p>
      * 
@@ -896,8 +1029,69 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * This is the canonical <code>count</code> method that implementations must
-     * override.
+     * Overridden to call the {@link #explainAsync(Callback,Aggregation)}
+     * method.
+     * </p>
+     */
+    @Override
+    public ListenableFuture<Document> explainAsync(final Aggregation aggregation)
+            throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
+
+        explainAsync(future, aggregation);
+
+        return future;
+
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #explainAsync(Callback,Aggregation)}
+     * method.
+     * </p>
+     */
+    @Override
+    public ListenableFuture<Document> explainAsync(
+            final Aggregation.Builder aggregation) throws MongoDbException {
+        final FutureCallback<Document> future = new FutureCallback<Document>(
+                getLockType());
+
+        explainAsync(future, aggregation.build());
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>explain*(Aggregation)</code> method that
+     * implementations must override.
+     * </p>
+     */
+    @Override
+    public abstract void explainAsync(Callback<Document> results,
+            Aggregation aggregation) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #explainAsync(Callback,Aggregation)}
+     * method.
+     * </p>
+     */
+    @Override
+    public void explainAsync(final Callback<Document> results,
+            final Aggregation.Builder aggregation) throws MongoDbException {
+        explainAsync(results, aggregation.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>explain*(Find)</code> method that
+     * implementations must override.
      * </p>
      */
     @Override
@@ -1826,6 +2020,33 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public void setReadPreference(final ReadPreference readPreference) {
         myReadPreference = readPreference;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This is the canonical <code>stream(Aggregation)</code> method that
+     * implementations must override.
+     * </p>
+     * 
+     * @see MongoCollection#stream(StreamCallback, Aggregation)
+     */
+    @Override
+    public abstract MongoCursorControl stream(StreamCallback<Document> results,
+            Aggregation aggregation) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #stream(StreamCallback, Aggregation)}.
+     * </p>
+     * 
+     * @see #stream(StreamCallback, Aggregation)
+     */
+    @Override
+    public MongoCursorControl stream(final StreamCallback<Document> results,
+            final Aggregation.Builder aggregation) throws MongoDbException {
+        return stream(results, aggregation.build());
     }
 
     /**
