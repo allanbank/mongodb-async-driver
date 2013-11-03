@@ -343,7 +343,6 @@ public final class CursorStreamingCallback extends
      */
     @Override
     protected void handle(final Reply reply) throws MongoDbException {
-        System.out.println(isCommand());
         // Handle the first reply being from a command.
         Reply result = reply;
         if (isCommand()) {

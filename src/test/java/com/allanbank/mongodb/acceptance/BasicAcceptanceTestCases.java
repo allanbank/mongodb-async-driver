@@ -8289,7 +8289,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
          */
         @Override
         public synchronized void callback(final Document result) {
-            System.out.println(result);
             if (result != null) {
                 myCount += 1;
             }
