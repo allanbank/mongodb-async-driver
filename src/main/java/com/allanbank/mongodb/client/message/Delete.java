@@ -10,6 +10,7 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -196,10 +197,7 @@ public class Delete extends AbstractMessage {
     @Override
     public void write(final int messageId, final BsonOutputStream out)
             throws IOException {
-        int flags = 0;
-        if (mySingleDelete) {
-            flags += SINGLE_DELETE_BIT;
-        }
+        int flags = computeFlags();
 
         int size = HEADER_SIZE;
         size += 4; // reserved - 0;
@@ -212,5 +210,41 @@ public class Delete extends AbstractMessage {
         out.writeCString(myDatabaseName, ".", myCollectionName);
         out.writeInt(flags);
         out.writeDocument(myQuery);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to write a delete message.
+     * </p>
+     * 
+     * @see Message#write
+     */
+    @Override
+    public void write(final int messageId, final BufferingBsonOutputStream out)
+            throws IOException {
+        final int flags = computeFlags();
+
+        final long start = writeHeader(out, messageId, 0, Operation.DELETE);
+        out.writeInt(0);
+        out.writeCString(myDatabaseName, ".", myCollectionName);
+        out.writeInt(flags);
+        out.writeDocument(myQuery);
+        finishHeader(out, start);
+
+        out.flushBuffer();
+    }
+
+    /**
+     * Computes the message flags bit field.
+     * 
+     * @return The message flags bit field.
+     */
+    private int computeFlags() {
+        int flags = 0;
+        if (mySingleDelete) {
+            flags += SINGLE_DELETE_BIT;
+        }
+        return flags;
     }
 }

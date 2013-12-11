@@ -47,6 +47,9 @@ public class SizeOfVisitor implements Visitor {
     /** The computed size. */
     private int mySize;
 
+    /** The encoder for strings. */
+    private final StringEncoder myStringEncoder;
+
     /** The tail of the list of cached sizes. */
     private CachedSizeNode myTail = null;
 
@@ -54,8 +57,19 @@ public class SizeOfVisitor implements Visitor {
      * Creates a new SizeOfVisitor.
      */
     public SizeOfVisitor() {
+        this(null);
+    }
+
+    /**
+     * Creates a new SizeOfVisitor.
+     * 
+     * @param encoder
+     *            The encoder for strings.
+     */
+    public SizeOfVisitor(final StringEncoder encoder) {
         super();
         mySize = 0;
+        myStringEncoder = encoder;
     }
 
     /**
@@ -132,51 +146,10 @@ public class SizeOfVisitor implements Visitor {
      * @return The length of the string encoded as UTF8.
      */
     public int utf8Size(final String string) {
-
-        int length = 0;
-        final int strLength = string.length();
-        for (int i = 0; i < strLength; ++i) {
-            final int c = string.charAt(i);
-            if (c < 0x0080) {
-                length += 1;
-            }
-            else if (c < 0x0800) {
-                length += 2;
-            }
-            else {
-                // To complicated above here, surrogates and what not.
-                return length + string.substring(i).getBytes(UTF8).length;
-            }
-            // Below does not work with invalid surrogate sequences.
-            // Above is the same logic used to encode the string so is "safe".
-            // Need to figure out if it is "good enough".
-            /**
-             * <pre>
-             *             else if (c < 0x1000) {
-             *                 length += 3;
-             *             }
-             *             else {
-             *                 // Have to worry about surrogate pairs.
-             *                 if (Character.isHighSurrogate((char) c)
-             *                         && ((i + 1) < strLength)
-             *                         && Character.isLowSurrogate(string.charAt(i + 1))) {
-             *                     // Consume the second character too.
-             *                     i += 1;
-             *                     c = Character.toCodePoint((char) c, string.charAt(i));
-             *                 }
-             * 
-             *                 if (c <= 0xFFFF) {
-             *                     length += 3;
-             *                 }
-             *                 else {
-             *                     length += 4;
-             *                 }
-             *             }
-             * </pre>
-             */
+        if (myStringEncoder != null) {
+            return myStringEncoder.encodeSize(string);
         }
-
-        return length;
+        return StringEncoder.utf8Size(string);
     }
 
     /**

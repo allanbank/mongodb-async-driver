@@ -27,13 +27,24 @@ import java.util.List;
  */
 public class RandomAccessOutputStream extends OutputStream {
     /** UTF-8 Character set for encoding strings. */
-    public final static Charset UTF8 = Charset.forName("UTF-8");
+    public final static Charset UTF8;
 
-    /** The maximum size buffer to allocate. */
-    private static final int MAX_BUFFER_SIZE = 8192;
+    /** The maximum size buffer to allocate. Must be a power of 2. */
+    private static final int BUFFER_SIZE;
 
-    /** The minimum size buffer to allocate. */
-    private static final int MIN_BUFFER_SIZE = 512;
+    /** Mask for the buffer position within a specific buffer. */
+    private static final int BUFFER_SIZE_MASK;
+
+    /** The number of bits in the buffer size. */
+    private static final int BUFFER_SIZE_SHIFT;
+
+    static {
+        UTF8 = Charset.forName("UTF-8");
+
+        BUFFER_SIZE = Integer.highestOneBit(8192);
+        BUFFER_SIZE_MASK = BUFFER_SIZE - 1;
+        BUFFER_SIZE_SHIFT = Integer.numberOfTrailingZeros(BUFFER_SIZE);
+    }
 
     /** The set of buffers allocated. */
     private final List<byte[]> myBuffers;
@@ -60,6 +71,9 @@ public class RandomAccessOutputStream extends OutputStream {
     /** The current buffer being written. */
     private long mySize;
 
+    /** The offset into the current buffer. */
+    private final StringEncoder myStringEncoder = new StringEncoder();
+
     /**
      * Creates a new {@link RandomAccessOutputStream}.
      */
@@ -67,7 +81,7 @@ public class RandomAccessOutputStream extends OutputStream {
         mySize = 0;
         myCurrentBufferOffset = 0;
         myCurrentBufferIndex = 0;
-        myCurrentBuffer = new byte[MIN_BUFFER_SIZE];
+        myCurrentBuffer = new byte[BUFFER_SIZE];
 
         myBuffers = new ArrayList<byte[]>();
         myBuffers.add(myCurrentBuffer);
@@ -89,6 +103,28 @@ public class RandomAccessOutputStream extends OutputStream {
     @Override
     public void flush() {
         // Nothing.
+    }
+
+    /**
+     * Returns the maximum number of strings that may have their encoded form
+     * cached.
+     * 
+     * @return The maximum number of strings that may have their encoded form
+     *         cached.
+     */
+    public int getMaxCachedStringEntries() {
+        return myStringEncoder.getMaxCacheEntries();
+    }
+
+    /**
+     * Returns the maximum length for a string that the stream is allowed to
+     * cache.
+     * 
+     * @return The maximum length for a string that the stream is allowed to
+     *         cache.
+     */
+    public int getMaxCachedStringLength() {
+        return myStringEncoder.getMaxCacheLength();
     }
 
     /**
@@ -119,6 +155,32 @@ public class RandomAccessOutputStream extends OutputStream {
         myCurrentBufferOffset = 0;
         myCurrentBufferIndex = 0;
         myCurrentBuffer = myBuffers.get(0);
+    }
+
+    /**
+     * Sets the value of maximum number of strings that may have their encoded
+     * form cached.
+     * 
+     * @param maxCacheEntries
+     *            The new value for the maximum number of strings that may have
+     *            their encoded form cached.
+     */
+    public void setMaxCachedStringEntries(final int maxCacheEntries) {
+        myStringEncoder.setMaxCacheEntries(maxCacheEntries);
+    }
+
+    /**
+     * Sets the value of length for a string that the stream is allowed to cache
+     * to the new value. This can be used to stop a single long string from
+     * pushing useful values out of the cache.
+     * 
+     * @param maxlength
+     *            The new value for the length for a string that the encoder is
+     *            allowed to cache.
+     */
+    public void setMaxCachedStringLength(final int maxlength) {
+        myStringEncoder.setMaxCacheLength(maxlength);
+
     }
 
     /**
@@ -235,14 +297,9 @@ public class RandomAccessOutputStream extends OutputStream {
         }
 
         // Find the start buffer.
-        long start = position;
-        int bufferIndex = 0;
+        final long start = position & BUFFER_SIZE_MASK;
+        int bufferIndex = (int) (position >> BUFFER_SIZE_SHIFT);
         byte[] internalBuffer = myBuffers.get(bufferIndex);
-        while (internalBuffer.length <= start) {
-            start -= myBuffers.get(bufferIndex).length;
-            bufferIndex += 1;
-            internalBuffer = myBuffers.get(bufferIndex);
-        }
 
         // Write into the correct position.
         int wrote = 0;
@@ -277,14 +334,9 @@ public class RandomAccessOutputStream extends OutputStream {
      */
     public void writeAt(final long position, final int b) {
         // Find the start buffer.
-        long start = position;
-        int bufferIndex = 0;
-        byte[] internalBuffer = myBuffers.get(bufferIndex);
-        while (internalBuffer.length <= start) {
-            start -= myBuffers.get(bufferIndex).length;
-            bufferIndex += 1;
-            internalBuffer = myBuffers.get(bufferIndex);
-        }
+        final long start = position & BUFFER_SIZE_MASK;
+        final int bufferIndex = (int) (position >> BUFFER_SIZE_SHIFT);
+        final byte[] internalBuffer = myBuffers.get(bufferIndex);
 
         internalBuffer[(int) start] = (byte) b;
     }
@@ -318,7 +370,15 @@ public class RandomAccessOutputStream extends OutputStream {
      */
     public void writeCString(final String... strings) {
         for (final String string : strings) {
-            writeBytes(string.getBytes(UTF8));
+            // writeBytes(string.getBytes(UTF8));
+            try {
+                myStringEncoder.encode(string, this);
+            }
+            catch (final IOException cannotHappen) {
+                // We never throw so should not throw from the encoder.
+                throw new IllegalStateException(
+                        "Encoder should not throw when writing to a buffer.");
+            }
         }
         writeByte((byte) 0);
     }
@@ -382,11 +442,27 @@ public class RandomAccessOutputStream extends OutputStream {
      *            The String to write.
      */
     public void writeString(final String string) {
-        final byte[] bytes = string.getBytes(UTF8);
+        // final byte[] bytes = string.getBytes(UTF8);
+        //
+        // writeInt(bytes.length + 1);
+        // writeBytes(bytes);
+        // writeByte((byte) 0);
 
-        writeInt(bytes.length + 1);
-        writeBytes(bytes);
+        final long position = getPosition();
+        writeInt(0); // For size.
+        try {
+            myStringEncoder.encode(string, this);
+        }
+        catch (final IOException cannotHappen) {
+            // We never throw so should not throw from the encoder.
+            throw new IllegalStateException(
+                    "Encoder should not throw when writing to a buffer.");
+        }
         writeByte((byte) 0);
+
+        final int size = (int) (getPosition() - position - 4);
+        writeIntAt(position, size);
+
     }
 
     /**
@@ -417,8 +493,7 @@ public class RandomAccessOutputStream extends OutputStream {
             myCurrentBuffer = myBuffers.get(myCurrentBufferIndex);
         }
         else {
-            myCurrentBuffer = new byte[Math.min(myCurrentBuffer.length << 1,
-                    MAX_BUFFER_SIZE)];
+            myCurrentBuffer = new byte[BUFFER_SIZE];
             myBuffers.add(myCurrentBuffer);
         }
 

@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
@@ -3465,14 +3466,23 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             iter.close();
         }
         catch (final ServerVersionException sve) {
-            // See if a version prior to 2.4
+            // See if a version prior to 2.6 (for Multi-Point GeoJSON support)
 
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_4));
+                    greaterThanOrEqualTo(Version.VERSION_2_6));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
+        }
+        catch (final ReplyException re) {
+            // See if we fail to insert the MultiPoint document.
+            assumeThat(re.getMessage(),
+                    not(containsString("Can't extract geo keys from object, "
+                            + "malformed geometry?:{ type: \"MultiPoint\"")));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw re;
         }
         finally {
             if (iter != null) {

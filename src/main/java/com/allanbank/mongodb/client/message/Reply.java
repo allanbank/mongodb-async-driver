@@ -12,6 +12,7 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -319,19 +320,7 @@ public class Reply extends AbstractMessage {
     @Override
     public void write(final int messageId, final BsonOutputStream out)
             throws IOException {
-        int flags = 0;
-        if (myAwaitCapable) {
-            flags += AWAIT_CAPABLE_BIT;
-        }
-        if (myCursorNotFound) {
-            flags += CURSOR_NOT_FOUND_BIT;
-        }
-        if (myQueryFailed) {
-            flags += QUERY_FAILURE_BIT;
-        }
-        if (myShardConfigStale) {
-            flags += SHARD_CONFIG_STALE_BIT;
-        }
+        final int flags = computeFlags();
 
         int size = HEADER_SIZE;
         size += 4; // flags;
@@ -350,6 +339,55 @@ public class Reply extends AbstractMessage {
         for (final Document result : myResults) {
             out.writeDocument(result);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to write the reply message.
+     * </p>
+     * 
+     * @see Message#write(int, BsonOutputStream)
+     */
+    @Override
+    public void write(final int messageId, final BufferingBsonOutputStream out)
+            throws IOException {
+        final int flags = computeFlags();
+
+        final long start = writeHeader(out, messageId, myResponseToId,
+                Operation.REPLY);
+        out.writeInt(flags);
+        out.writeLong(myCursorId);
+        out.writeInt(myCursorOffset);
+        out.writeInt(myResults.size());
+        for (final Document result : myResults) {
+            out.writeDocument(result);
+        }
+        finishHeader(out, start);
+
+        out.flushBuffer();
+    }
+
+    /**
+     * Computes the message flags bit field.
+     * 
+     * @return The message flags bit field.
+     */
+    private int computeFlags() {
+        int flags = 0;
+        if (myAwaitCapable) {
+            flags += AWAIT_CAPABLE_BIT;
+        }
+        if (myCursorNotFound) {
+            flags += CURSOR_NOT_FOUND_BIT;
+        }
+        if (myQueryFailed) {
+            flags += QUERY_FAILURE_BIT;
+        }
+        if (myShardConfigStale) {
+            flags += SHARD_CONFIG_STALE_BIT;
+        }
+        return flags;
     }
 
 }

@@ -31,10 +31,10 @@ public class BsonOutputStream {
     protected final OutputStream myOutput;
 
     /** The visitor for writing BSON documents. */
-    protected final WriteVisitor myWriteVisitor;
+    protected final StringEncoder myStringEncoder;
 
-    /** A private buffer for encoding strings. */
-    private final byte[] myBuffer = new byte[1024];
+    /** The visitor for writing BSON documents. */
+    protected final WriteVisitor myWriteVisitor;
 
     /**
      * Creates a new {@link BsonOutputStream}.
@@ -44,6 +44,7 @@ public class BsonOutputStream {
      */
     public BsonOutputStream(final OutputStream output) {
         myOutput = output;
+        myStringEncoder = new StringEncoder();
         myWriteVisitor = new WriteVisitor(this);
     }
 
@@ -54,6 +55,37 @@ public class BsonOutputStream {
      */
     public IOException getError() {
         return myError;
+    }
+
+    /**
+     * Returns the maximum number of strings that may have their encoded form
+     * cached.
+     * 
+     * @return The maximum number of strings that may have their encoded form
+     *         cached.
+     */
+    public int getMaxCachedStringEntries() {
+        return myStringEncoder.getMaxCacheEntries();
+    }
+
+    /**
+     * Returns the maximum length for a string that the stream is allowed to
+     * cache.
+     * 
+     * @return The maximum length for a string that the stream is allowed to
+     *         cache.
+     */
+    public int getMaxCachedStringLength() {
+        return myStringEncoder.getMaxCacheLength();
+    }
+
+    /**
+     * Returns the encoder value.
+     * 
+     * @return The encoder value.
+     */
+    public StringEncoder getStringEncoder() {
+        return myStringEncoder;
     }
 
     /**
@@ -70,6 +102,32 @@ public class BsonOutputStream {
      */
     public void reset() {
         myError = null;
+    }
+
+    /**
+     * Sets the value of maximum number of strings that may have their encoded
+     * form cached.
+     * 
+     * @param maxCacheEntries
+     *            The new value for the maximum number of strings that may have
+     *            their encoded form cached.
+     */
+    public void setMaxCachedStringEntries(final int maxCacheEntries) {
+        myStringEncoder.setMaxCacheEntries(maxCacheEntries);
+    }
+
+    /**
+     * Sets the value of length for a string that the stream is allowed to cache
+     * to the new value. This can be used to stop a single long string from
+     * pushing useful values out of the cache.
+     * 
+     * @param maxlength
+     *            The new value for the length for a string that the encoder is
+     *            allowed to cache.
+     */
+    public void setMaxCachedStringLength(final int maxlength) {
+        myStringEncoder.setMaxCacheLength(maxlength);
+
     }
 
     /**
@@ -254,38 +312,12 @@ public class BsonOutputStream {
      *            The string to encode.
      */
     protected void writeUtf8(final String string) {
-        final int strLength = string.length();
-        int bufferOffset = 0;
-        for (int i = 0; i < strLength; ++i) {
-
-            if (myBuffer.length < (bufferOffset + 2)) {
-                writeBytes(myBuffer, 0, bufferOffset);
-                bufferOffset = 0;
-            }
-
-            final int c = string.charAt(i);
-            if (c < 0x80) {
-                // 1 byte encoded / ASCII!
-                myBuffer[bufferOffset] = (byte) c;
-                bufferOffset += 1;
-            }
-            else if (c < 0x800) {
-                // 2 byte encoded.
-                myBuffer[bufferOffset] = (byte) (0xc0 | (c >> 6));
-                myBuffer[bufferOffset + 1] = (byte) (0x80 | (c & 0x3f));
-                bufferOffset += 2;
-            }
-            else {
-                writeBytes(myBuffer, 0, bufferOffset);
-                bufferOffset = 0;
-
-                // Complicated beyond here. Surrogates and what not. Let the
-                // full charset handle it.
-                writeBytes(string.substring(i).getBytes(UTF8));
-                return;
-            }
+        try {
+            myStringEncoder.encode(string, myOutput);
         }
-        writeBytes(myBuffer, 0, bufferOffset);
+        catch (final IOException ioe) {
+            myError = ioe;
+        }
     }
 
 }

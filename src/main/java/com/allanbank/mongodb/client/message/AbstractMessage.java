@@ -7,6 +7,7 @@ package com.allanbank.mongodb.client.message;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 
@@ -211,6 +212,72 @@ public abstract class AbstractMessage implements Message {
         stream.writeInt(requestId);
         stream.writeInt(responseTo);
         stream.writeInt(op.getCode());
+    }
+
+    /**
+     * Writes the MsgHeader to the <tt>stream</tt>.
+     * 
+     * <pre>
+     * <code>
+     * struct MsgHeader {
+     *     int32   messageLength; // total message size, including this
+     *     int32   requestID;     // identifier for this message
+     *     int32   responseTo;    // requestID from the original request
+     *                            //   (used in reponses from db)
+     *     int32   opCode;        // request type - see table below
+     * }
+     * </code>
+     * </pre>
+     * 
+     * @param stream
+     *            The stream to write to.
+     * @param requestId
+     *            The requestID from above.
+     * @param responseTo
+     *            The responseTo from above.
+     * @param op
+     *            The operation for the opCode field.
+     * @return The position of the start of the header for the message.
+     */
+    protected long writeHeader(final BufferingBsonOutputStream stream,
+            final int requestId, final int responseTo, final Operation op) {
+
+        final long start = stream.getPosition();
+
+        stream.writeInt(0);
+        stream.writeInt(requestId);
+        stream.writeInt(responseTo);
+        stream.writeInt(op.getCode());
+
+        return start;
+    }
+
+    /**
+     * Writes the MsgHeader messageLengthField in the header <tt>stream</tt>.
+     * 
+     * <pre>
+     * <code>
+     * struct MsgHeader {
+     *     int32   messageLength; // total message size, including this
+     *     int32   requestID;     // identifier for this message
+     *     int32   responseTo;    // requestID from the original request
+     *                            //   (used in reponses from db)
+     *     int32   opCode;        // request type - see table below
+     * }
+     * </code>
+     * </pre>
+     * 
+     * @param stream
+     *            The stream to write to.
+     * @param start
+     *            The position of the start of the header for the message.
+     */
+    protected void finishHeader(final BufferingBsonOutputStream stream,
+            final long start) {
+
+        final long end = stream.getPosition();
+
+        stream.writeIntAt(start, (int) (end - start));
     }
 
 }

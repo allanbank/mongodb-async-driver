@@ -9,6 +9,7 @@ import java.io.IOException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 
@@ -85,4 +86,18 @@ public interface Message {
      *             On an error writing to the stream.
      */
     public void write(int messageId, BsonOutputStream out) throws IOException;
+
+    /**
+     * Writes the message from the stream. The message header <b>is</b> written
+     * by this method.
+     * 
+     * @param messageId
+     *            The id to be assigned to the message.
+     * @param out
+     *            The sink for data written.
+     * @throws IOException
+     *             On an error writing to the stream.
+     */
+    public void write(int messageId, BufferingBsonOutputStream out)
+            throws IOException;
 }

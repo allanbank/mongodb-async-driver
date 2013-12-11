@@ -11,6 +11,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -96,5 +97,14 @@ public class PoisonMessage implements Message {
             throw new MongoDbException(myToThrow);
         }
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void write(final int messageId, final BufferingBsonOutputStream out)
+            throws IOException {
+        write(messageId, (BsonOutputStream) null);
     }
 }

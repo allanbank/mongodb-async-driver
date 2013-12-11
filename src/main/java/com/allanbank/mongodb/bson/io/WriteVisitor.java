@@ -41,7 +41,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     public WriteVisitor(final BsonOutputStream output) {
         myOutput = output;
-        mySizeVisitor = new SizeOfVisitor();
+        mySizeVisitor = new SizeOfVisitor(output.getStringEncoder());
     }
 
     /**
@@ -51,8 +51,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      *            The stream to myOutput.write to.
      */
     public WriteVisitor(final OutputStream output) {
-        myOutput = new BsonOutputStream(output);
-        mySizeVisitor = new SizeOfVisitor();
+        this(new BsonOutputStream(output));
     }
 
     /**

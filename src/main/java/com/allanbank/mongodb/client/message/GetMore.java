@@ -9,6 +9,7 @@ import java.io.IOException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -184,5 +185,27 @@ public class GetMore extends AbstractMessage {
         out.writeCString(myDatabaseName, ".", myCollectionName);
         out.writeInt(myNumberToReturn);
         out.writeLong(myCursorId);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to write a get_more message.
+     * </p>
+     * 
+     * @see Message#write(int, BsonOutputStream)
+     */
+    @Override
+    public void write(final int messageId, final BufferingBsonOutputStream out)
+            throws IOException {
+
+        long start = writeHeader(out, messageId, 0, Operation.GET_MORE);
+        out.writeInt(0);
+        out.writeCString(myDatabaseName, ".", myCollectionName);
+        out.writeInt(myNumberToReturn);
+        out.writeLong(myCursorId);
+        finishHeader(out, start);
+
+        out.flushBuffer();
     }
 }

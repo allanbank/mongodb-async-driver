@@ -10,6 +10,7 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -466,25 +467,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
     @Override
     public void write(final int messageId, final BsonOutputStream out)
             throws IOException {
-        int flags = 0;
-        if (myAwaitData) {
-            flags += AWAIT_DATA_FLAG_BIT;
-        }
-        if (myExhaust) {
-            flags += EXHAUST_FLAG_BIT;
-        }
-        if (myNoCursorTimeout) {
-            flags += NO_CURSOR_TIMEOUT_FLAG_BIT;
-        }
-        if (myPartial) {
-            flags += PARTIAL_FLAG_BIT;
-        }
-        if (getReadPreference().isSecondaryOk()) {
-            flags += REPLICA_OK_FLAG_BIT;
-        }
-        if (myTailable) {
-            flags += TAILABLE_CURSOR_FLAG_BIT;
-        }
+        final int flags = computeFlags();
 
         int size = HEADER_SIZE;
         size += 4; // flags;
@@ -505,5 +488,60 @@ public class Query extends AbstractMessage implements CursorableMessage {
         if (myReturnFields != null) {
             out.writeDocument(myReturnFields);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to write the query message.
+     * </p>
+     * 
+     * @see Message#write(int, BsonOutputStream)
+     */
+    @Override
+    public void write(final int messageId, final BufferingBsonOutputStream out)
+            throws IOException {
+        final int flags = computeFlags();
+
+        final long start = writeHeader(out, messageId, 0, Operation.QUERY);
+        out.writeInt(flags);
+        out.writeCString(myDatabaseName, ".", myCollectionName);
+        out.writeInt(myNumberToSkip);
+        out.writeInt(myNumberToReturn);
+        out.writeDocument(myQuery);
+        if (myReturnFields != null) {
+            out.writeDocument(myReturnFields);
+        }
+        finishHeader(out, start);
+
+        out.flushBuffer();
+    }
+
+    /**
+     * Computes the message flags bit field.
+     * 
+     * @return The message flags bit field.
+     */
+    private int computeFlags() {
+        int flags = 0;
+        if (myAwaitData) {
+            flags += AWAIT_DATA_FLAG_BIT;
+        }
+        if (myExhaust) {
+            flags += EXHAUST_FLAG_BIT;
+        }
+        if (myNoCursorTimeout) {
+            flags += NO_CURSOR_TIMEOUT_FLAG_BIT;
+        }
+        if (myPartial) {
+            flags += PARTIAL_FLAG_BIT;
+        }
+        if (getReadPreference().isSecondaryOk()) {
+            flags += REPLICA_OK_FLAG_BIT;
+        }
+        if (myTailable) {
+            flags += TAILABLE_CURSOR_FLAG_BIT;
+        }
+        return flags;
     }
 }

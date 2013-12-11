@@ -10,6 +10,7 @@ import java.util.Arrays;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -167,5 +168,27 @@ public class KillCursors extends AbstractMessage {
         for (final long myCursorId : myCursorIds) {
             out.writeLong(myCursorId);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to write the kill_cursors message.
+     * </p>
+     * 
+     * @see Message#write(int, BsonOutputStream)
+     */
+    @Override
+    public void write(final int messageId, final BufferingBsonOutputStream out)
+            throws IOException {
+        long start = writeHeader(out, messageId, 0, Operation.KILL_CURSORS);
+        out.writeInt(0);
+        out.writeInt(myCursorIds.length);
+        for (final long myCursorId : myCursorIds) {
+            out.writeLong(myCursorId);
+        }
+        finishHeader(out, start);
+
+        out.flushBuffer();
     }
 }

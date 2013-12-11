@@ -10,6 +10,7 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -254,13 +255,7 @@ public class Update extends AbstractMessage {
     public void write(final int messageId, final BsonOutputStream out)
             throws IOException {
 
-        int flags = 0;
-        if (myMultiUpdate) {
-            flags += MULTIUPDATE_FLAG_BIT;
-        }
-        if (myUpsert) {
-            flags += UPSERT_FLAG_BIT;
-        }
+        final int flags = computeFlags();
 
         int size = HEADER_SIZE;
         size += 4; // 0 - reserved.
@@ -275,5 +270,46 @@ public class Update extends AbstractMessage {
         out.writeInt(flags);
         out.writeDocument(myQuery);
         out.writeDocument(myUpdate);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to write the update message.
+     * </p>
+     * 
+     * @see Message#write(int, BsonOutputStream)
+     */
+    @Override
+    public void write(final int messageId, final BufferingBsonOutputStream out)
+            throws IOException {
+
+        final int flags = computeFlags();
+
+        final long start = writeHeader(out, messageId, 0, Operation.UPDATE);
+        out.writeInt(0);
+        out.writeCString(myDatabaseName, ".", myCollectionName);
+        out.writeInt(flags);
+        out.writeDocument(myQuery);
+        out.writeDocument(myUpdate);
+        finishHeader(out, start);
+
+        out.flushBuffer();
+    }
+
+    /**
+     * Computes the message flags bit field.
+     * 
+     * @return The message flags bit field.
+     */
+    private int computeFlags() {
+        int flags = 0;
+        if (myMultiUpdate) {
+            flags += MULTIUPDATE_FLAG_BIT;
+        }
+        if (myUpsert) {
+            flags += UPSERT_FLAG_BIT;
+        }
+        return flags;
     }
 }

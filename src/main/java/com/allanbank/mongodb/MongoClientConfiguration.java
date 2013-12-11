@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import javax.net.SocketFactory;
 
+import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
@@ -497,6 +498,105 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         else {
             myDefaultDurability = defaultDurability;
         }
+    }
+
+    /**
+     * The maximum length for a string that the stream is allowed to cache.This
+     * can be used to stop a single long string from pushing useful values out
+     * of the cache. Setting this value to zero turns off the caching.
+     * <p>
+     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_LENGTH}.
+     * </p>
+     */
+    private int myMaxCachedStringLength = StringEncoder.DEFAULT_MAX_CACHE_LENGTH;
+
+    /**
+     * The maximum number of strings that may have their encoded form cached.
+     * <p>
+     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_ENTRIES}.
+     * </p>
+     */
+    private int myMaxCachedStringEntries = StringEncoder.DEFAULT_MAX_CACHE_ENTRIES;
+
+    /**
+     * Returns the maximum length for a string that the stream is allowed to
+     * cache.This can be used to stop a single long string from pushing useful
+     * values out of the cache. Setting this value to zero turns off the
+     * caching.
+     * <p>
+     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_LENGTH}.
+     * </p>
+     * <p>
+     * Note: The caches are maintained per connection and there is a cache for
+     * the encoder and another for the decoder. The results is that caching 25
+     * string with 10 connections can result in 500 cache entries (2 * 25 * 10).
+     * </p>
+     * 
+     * @return The maximum length for a string that the stream is allowed to
+     *         cache.
+     */
+    public int getMaxCachedStringLength() {
+        return myMaxCachedStringLength;
+    }
+
+    /**
+     * Returns the maximum number of strings that may have their encoded form
+     * cached.
+     * <p>
+     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_ENTRIES}.
+     * </p>
+     * <p>
+     * Note: The caches are maintained per connection and there is a cache for
+     * the encoder and another for the decoder. The results is that caching 25
+     * string with 10 connections can result in 500 cache entries (2 * 25 * 10).
+     * </p>
+     * 
+     * @return The maximum number of strings that may have their encoded form
+     *         cached.
+     */
+    public int getMaxCachedStringEntries() {
+        return myMaxCachedStringEntries;
+    }
+
+    /**
+     * Sets the value of length for a string that may be cached. This can be
+     * used to stop a single long string from pushing useful values out of the
+     * cache. Setting this value to zero turns off the caching.
+     * <p>
+     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_LENGTH}.
+     * </p>
+     * <p>
+     * Note: The caches are maintained per connection and there is a cache for
+     * the encoder and another for the decoder. The results is that caching 25
+     * string with 10 connections can result in 500 cache entries (2 * 25 * 10).
+     * </p>
+     * 
+     * @param maxlength
+     *            The new value for the length for a string that the encoder is
+     *            allowed to cache.
+     */
+    public void setMaxCachedStringLength(final int maxlength) {
+        myMaxCachedStringLength = maxlength;
+    }
+
+    /**
+     * Sets the value of maximum number of strings that may have their encoded
+     * form cached.
+     * <p>
+     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_ENTRIES}.
+     * </p>
+     * <p>
+     * Note: The caches are maintained per connection and there is a cache for
+     * the encoder and another for the decoder. The results is that caching 25
+     * string with 10 connections can result in 500 cache entries (2 * 25 * 10).
+     * </p>
+     * 
+     * @param maxCacheEntries
+     *            The new value for the maximum number of strings that may have
+     *            their encoded form cached.
+     */
+    public void setMaxCachedStringEntries(final int maxCacheEntries) {
+        myMaxCachedStringEntries = maxCacheEntries;
     }
 
     /**

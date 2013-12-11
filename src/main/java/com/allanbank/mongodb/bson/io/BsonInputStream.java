@@ -51,10 +51,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 public class BsonInputStream extends InputStream {
 
     /** UTF-8 Character set for encoding strings. */
-    public final static Charset UTF8 = Charset.forName("UTF-8");
-
-    /** The byte value limit for a ASCII character. */
-    private static final int ASCII_LIMIT = 0x80;
+    public final static Charset UTF8 = StringDecoder.UTF8;
 
     /** The buffered data. */
     private byte[] myBuffer;
@@ -65,14 +62,14 @@ public class BsonInputStream extends InputStream {
     /** The offset into the current buffer. */
     private int myBufferOffset;
 
-    /** A builder for the ASCII strings. */
-    private final StringBuilder myBuilder = new StringBuilder(64);
-
     /** Tracks the number of bytes that have been read by the stream. */
     private long myBytesRead;
 
     /** The underlying input stream. */
     private final InputStream myInput;
+
+    /** The decoder for strings. */
+    private final StringDecoder myStringDecoder = new StringDecoder();
 
     /**
      * Creates a BSON document reader.
@@ -133,6 +130,28 @@ public class BsonInputStream extends InputStream {
      */
     public long getBytesRead() {
         return myBytesRead + myBufferOffset;
+    }
+
+    /**
+     * Returns the maximum number of strings that may have their encoded form
+     * cached.
+     * 
+     * @return The maximum number of strings that may have their encoded form
+     *         cached.
+     */
+    public int getMaxCachedStringEntries() {
+        return myStringDecoder.getMaxCacheEntries();
+    }
+
+    /**
+     * Returns the maximum length for a string that the stream is allowed to
+     * cache.
+     * 
+     * @return The maximum length for a string that the stream is allowed to
+     *         cache.
+     */
+    public int getMaxCachedStringLength() {
+        return myStringDecoder.getMaxCacheLength();
     }
 
     /**
@@ -239,33 +258,17 @@ public class BsonInputStream extends InputStream {
     public String readCString() throws EOFException, IOException {
 
         while (true) {
-
-            myBuilder.setLength(0);
-            boolean isAscii = true;
-
             for (int i = myBufferOffset; i < myBufferLimit; ++i) {
-                final int b = (myBuffer[i] & 0xFF);
+                final byte b = myBuffer[i];
                 if (b == 0) {
-                    // Done.
-                    String result;
-                    if (!isAscii) {
-                        result = new String(myBuffer, myBufferOffset, i
-                                - myBufferOffset, UTF8);
-                    }
-                    else {
-                        result = myBuilder.toString();
-                    }
+                    // Found the end.
+                    final int offset = myBufferOffset;
+                    final int length = (1 + i) - offset;
 
-                    myBuilder.setLength(0);
-                    myBufferOffset = (i + 1);
+                    // Advance the buffer.
+                    myBufferOffset = i + 1;
 
-                    return result;
-                }
-                else if ((b < ASCII_LIMIT) && isAscii) {
-                    myBuilder.append((char) b);
-                }
-                else {
-                    isAscii = false;
+                    return myStringDecoder.decode(myBuffer, offset, length);
                 }
             }
 
@@ -376,6 +379,32 @@ public class BsonInputStream extends InputStream {
     @Override
     public synchronized void reset() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Mark not supported.");
+    }
+
+    /**
+     * Sets the value of maximum number of strings that may have their encoded
+     * form cached.
+     * 
+     * @param maxCacheEntries
+     *            The new value for the maximum number of strings that may have
+     *            their encoded form cached.
+     */
+    public void setMaxCachedStringEntries(final int maxCacheEntries) {
+        myStringDecoder.setMaxCacheEntries(maxCacheEntries);
+    }
+
+    /**
+     * Sets the value of length for a string that the stream is allowed to cache
+     * to the new value. This can be used to stop a single long string from
+     * pushing useful values out of the cache.
+     * 
+     * @param maxlength
+     *            The new value for the length for a string that the encoder is
+     *            allowed to cache.
+     */
+    public void setMaxCachedStringLength(final int maxlength) {
+        myStringDecoder.setMaxCacheLength(maxlength);
+
     }
 
     /**
@@ -692,35 +721,12 @@ public class BsonInputStream extends InputStream {
             throw new EOFException();
         }
 
-        // Try to decode as ASCII.
-        // Remember to remove the null byte at the end of the string.
-        boolean isAscii = true;
-        for (int i = 0; i < (length - 1); ++i) {
-            final int b = (myBuffer[myBufferOffset + i] & 0xFF);
-            if (b < ASCII_LIMIT) {
-                myBuilder.append((char) b);
-            }
-            else {
-                isAscii = false;
-                break;
-            }
-        }
-
-        String result;
-        if (!isAscii) {
-            result = new String(myBuffer, myBufferOffset, length - 1, UTF8);
-        }
-        else {
-            result = myBuilder.toString();
-        }
+        final int offset = myBufferOffset;
 
         // Advance the buffer.
         myBufferOffset += length;
 
-        // Clear the String builder.
-        myBuilder.setLength(0);
-
-        return result;
+        return myStringDecoder.decode(myBuffer, offset, length);
     }
 
     /**

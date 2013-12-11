@@ -47,6 +47,28 @@ import com.allanbank.mongodb.bson.element.ObjectId;
     }
 
     /**
+     * Returns the maximum number of strings that may have their encoded form
+     * cached.
+     * 
+     * @return The maximum number of strings that may have their encoded form
+     *         cached.
+     */
+    public int getMaxCachedStringEntries() {
+        return myOutputBuffer.getMaxCachedStringEntries();
+    }
+
+    /**
+     * Returns the maximum length for a string that the stream is allowed to
+     * cache.
+     * 
+     * @return The maximum length for a string that the stream is allowed to
+     *         cache.
+     */
+    public int getMaxCachedStringLength() {
+        return myOutputBuffer.getMaxCachedStringLength();
+    }
+
+    /**
      * Return the current Size of the written document.
      * 
      * @return The current size of the encoded document.
@@ -60,6 +82,32 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     public void reset() {
         myOutputBuffer.reset();
+    }
+
+    /**
+     * Sets the value of maximum number of strings that may have their encoded
+     * form cached.
+     * 
+     * @param maxCacheEntries
+     *            The new value for the maximum number of strings that may have
+     *            their encoded form cached.
+     */
+    public void setMaxCachedStringEntries(final int maxCacheEntries) {
+        myOutputBuffer.setMaxCachedStringEntries(maxCacheEntries);
+    }
+
+    /**
+     * Sets the value of length for a string that the stream is allowed to cache
+     * to the new value. This can be used to stop a single long string from
+     * pushing useful values out of the cache.
+     * 
+     * @param maxlength
+     *            The new value for the length for a string that the encoder is
+     *            allowed to cache.
+     */
+    public void setMaxCachedStringLength(final int maxlength) {
+        myOutputBuffer.setMaxCachedStringLength(maxlength);
+
     }
 
     /**

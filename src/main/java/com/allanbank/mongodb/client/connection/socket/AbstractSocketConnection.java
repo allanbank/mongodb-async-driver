@@ -28,7 +28,7 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
-import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -68,7 +68,7 @@ public abstract class AbstractSocketConnection implements Connection {
     protected final BsonInputStream myBsonIn;
 
     /** The writer for BSON documents. Shares this objects {@link #myOutput}. */
-    protected final BsonOutputStream myBsonOut;
+    protected final BufferingBsonOutputStream myBsonOut;
 
     /** Support for emitting property change events. */
     protected final PropertyChangeSupport myEventSupport;
@@ -143,8 +143,10 @@ public abstract class AbstractSocketConnection implements Connection {
 
         myInput = mySocket.getInputStream();
         myBsonIn = new BsonInputStream(myInput);
+        myBsonIn.setMaxCachedStringEntries(myConfig.getMaxCachedStringEntries());
+        myBsonIn.setMaxCachedStringLength(myConfig.getMaxCachedStringLength());
 
-        // Careful with the size of the buffer here. Seems Java like to call
+        // Careful with the size of the buffer here. Seems Java likes to call
         // madvise(..., MADV_DONTNEED) for buffers over a certain size.
         // Net effect is that the performance of the system goes down the
         // drain. Some numbers using the
@@ -159,7 +161,10 @@ public abstract class AbstractSocketConnection implements Connection {
         // improve performance.
         myOutput = new BufferedOutputStream(mySocket.getOutputStream(),
                 32 * 1024);
-        myBsonOut = new BsonOutputStream(myOutput);
+        myBsonOut = new BufferingBsonOutputStream(myOutput);
+        myBsonOut.setMaxCachedStringEntries(myConfig
+                .getMaxCachedStringEntries());
+        myBsonOut.setMaxCachedStringLength(myConfig.getMaxCachedStringLength());
 
         myPendingQueue = new PendingMessageQueue(
                 config.getMaxPendingOperationsPerConnection(),

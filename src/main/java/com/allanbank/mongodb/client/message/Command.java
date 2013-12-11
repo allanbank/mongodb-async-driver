@@ -13,6 +13,7 @@ import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -219,10 +220,7 @@ public class Command extends AbstractMessage {
             throws IOException {
         final int numberToSkip = 0;
         final int numberToReturn = -1; // Unlimited
-        int flags = 0;
-        if (getReadPreference().isSecondaryOk()) {
-            flags += Query.REPLICA_OK_FLAG_BIT;
-        }
+        int flags = computeFlags();
 
         int size = HEADER_SIZE;
         size += 4; // flags;
@@ -239,4 +237,40 @@ public class Command extends AbstractMessage {
         out.writeDocument(myCommand);
     }
 
+    /**
+     * Computes the message flags bit field.
+     * 
+     * @return The message flags bit field.
+     */
+    private int computeFlags() {
+        int flags = 0;
+        if (getReadPreference().isSecondaryOk()) {
+            flags += Query.REPLICA_OK_FLAG_BIT;
+        }
+        return flags;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to write the Command as a {@link Operation#QUERY} message.
+     * </p>
+     */
+    @Override
+    public void write(final int messageId, final BufferingBsonOutputStream out)
+            throws IOException {
+        final int numberToSkip = 0;
+        final int numberToReturn = -1; // Unlimited
+        int flags = computeFlags();
+
+        final long start = writeHeader(out, messageId, 0, Operation.QUERY);
+        out.writeInt(flags);
+        out.writeCString(myDatabaseName, ".", myCollectionName);
+        out.writeInt(numberToSkip);
+        out.writeInt(numberToReturn);
+        out.writeDocument(myCommand);
+        finishHeader(out, start);
+
+        out.flushBuffer();
+    }
 }

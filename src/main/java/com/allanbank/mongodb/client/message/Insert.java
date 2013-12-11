@@ -14,6 +14,7 @@ import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -232,6 +233,19 @@ public class Insert extends AbstractMessage {
     }
 
     /**
+     * Computes the message flags bit field.
+     * 
+     * @return The message flags bit field.
+     */
+    private int computeFlags() {
+        int flags = 0;
+        if (myContinueOnError) {
+            flags += CONTINUE_ON_ERROR_BIT;
+        }
+        return flags;
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to write the insert message.
@@ -242,10 +256,7 @@ public class Insert extends AbstractMessage {
     @Override
     public void write(final int messageId, final BsonOutputStream out)
             throws IOException {
-        int flags = 0;
-        if (myContinueOnError) {
-            flags += CONTINUE_ON_ERROR_BIT;
-        }
+        final int flags = computeFlags();
 
         int size = HEADER_SIZE;
         size += 4; // flags
@@ -260,6 +271,30 @@ public class Insert extends AbstractMessage {
         for (final Document document : myDocuments) {
             out.writeDocument(document);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to write the insert message.
+     * </p>
+     * 
+     * @see Message#write(int, BsonOutputStream)
+     */
+    @Override
+    public void write(final int messageId, final BufferingBsonOutputStream out)
+            throws IOException {
+        final int flags = computeFlags();
+
+        long start = writeHeader(out, messageId, 0, Operation.INSERT);
+        out.writeInt(flags);
+        out.writeCString(myDatabaseName, ".", myCollectionName);
+        for (final Document document : myDocuments) {
+            out.writeDocument(document);
+        }
+        finishHeader(out, start);
+
+        out.flushBuffer();
     }
 
 }
