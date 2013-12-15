@@ -43,10 +43,85 @@ import com.allanbank.mongodb.builder.Aggregate.Builder;
  * AggregateBuilderTest provides tests of the {@link Aggregate.Builder} class.
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
- * @deprecated See deprecation of {@link Aggregate}.
  */
-@Deprecated
 public class AggregateBuilderTest extends Builder {
+    /**
+     * Test method for {@link Aggregate.Builder#allowDiskUsage}.
+     */
+    @Test
+    public void testAllowDiskUsage() {
+        final Aggregate.Builder b = new Aggregate.Builder();
+
+        b.allowDiskUsage();
+
+        Aggregate a = b.build();
+
+        final List<Element> pipeline = a.getPipeline();
+        assertEquals(0, pipeline.size());
+
+        assertThat(a.isUseCursor(), is(true));
+        assertThat(a.isAllowDiskUsage(), is(true));
+
+        b.reset();
+
+        a = b.build();
+
+        assertThat(a.isUseCursor(), is(false));
+        assertThat(a.isAllowDiskUsage(), is(false));
+
+    }
+
+    /**
+     * Test method for {@link Aggregate.Builder#batchSize(int)}.
+     */
+    @Test
+    public void testBatchSize() {
+        final Aggregate.Builder b = new Aggregate.Builder();
+
+        b.batchSize(100);
+
+        Aggregate a = b.build();
+
+        final List<Element> pipeline = a.getPipeline();
+        assertEquals(0, pipeline.size());
+
+        assertThat(a.isUseCursor(), is(true));
+        assertThat(a.getBatchSize(), is(100));
+
+        b.reset();
+
+        a = b.build();
+
+        assertThat(a.isUseCursor(), is(false));
+        assertThat(a.getBatchSize(), is(0));
+
+    }
+
+    /**
+     * Test method for {@link Aggregate.Builder#cursorLimit(int)}.
+     */
+    @Test
+    public void testCursorLimit() {
+        final Aggregate.Builder b = new Aggregate.Builder();
+
+        b.cursorLimit(100);
+
+        Aggregate a = b.build();
+
+        final List<Element> pipeline = a.getPipeline();
+        assertEquals(0, pipeline.size());
+
+        assertThat(a.isUseCursor(), is(true));
+        assertThat(a.getCursorLimit(), is(100));
+
+        b.reset();
+
+        a = b.build();
+
+        assertThat(a.isUseCursor(), is(false));
+        assertThat(a.getCursorLimit(), is(0));
+
+    }
 
     /**
      * Test method for
@@ -54,7 +129,7 @@ public class AggregateBuilderTest extends Builder {
      * .
      */
     @Test
-    public void testGroupAggregationGroupIdAggregationGroupFieldArray() {
+    public void testGroupAggregateGroupIdAggregateGroupFieldArray() {
         final Aggregate.Builder builder = Aggregate.builder();
         builder.group(id("a"), set("d").average("e"));
 
@@ -74,7 +149,7 @@ public class AggregateBuilderTest extends Builder {
      * .
      */
     @Test
-    public void testGroupBuilderAggregationGroupFieldArray() {
+    public void testGroupBuilderAggregateGroupFieldArray() {
 
         final Aggregate.Builder builder = new Aggregate.Builder();
         builder.group(id().addField("a").addField("b", "c"),
@@ -132,7 +207,7 @@ public class AggregateBuilderTest extends Builder {
      * .
      */
     @Test
-    public void testGroupDocumentAssignableAggregationGroupFieldArray() {
+    public void testGroupDocumentAssignableAggregateGroupFieldArray() {
         final Aggregate.Builder builder = new Aggregate.Builder();
         builder.group(id().addField("a").addField("b", "c").build(), set("d")
                 .average("e"));
@@ -324,7 +399,7 @@ public class AggregateBuilderTest extends Builder {
      * {@link Aggregate.Builder#project(AggregationProjectFields, Element[])} .
      */
     @Test
-    public void testProjectAggregationProjectFieldsElementArray() {
+    public void testProjectAggregateProjectFieldsElementArray() {
         final int interval = 100000;
 
         final Aggregate.Builder builder = new Aggregate.Builder();
@@ -823,5 +898,4 @@ public class AggregateBuilderTest extends Builder {
 
         assertFalse(iter.hasNext());
     }
-
 }

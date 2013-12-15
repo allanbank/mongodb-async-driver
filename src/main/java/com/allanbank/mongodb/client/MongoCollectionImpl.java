@@ -29,7 +29,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
-import com.allanbank.mongodb.builder.Aggregation;
+import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -49,7 +49,7 @@ import com.allanbank.mongodb.client.callback.ReplyLongCallback;
 import com.allanbank.mongodb.client.callback.ReplyResultCallback;
 import com.allanbank.mongodb.client.callback.SingleDocumentCallback;
 import com.allanbank.mongodb.client.callback.TextCallback;
-import com.allanbank.mongodb.client.message.AggregationCommand;
+import com.allanbank.mongodb.client.message.AggregateCommand;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.Insert;
@@ -90,13 +90,13 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * Overridden to construct a aggregate command and send it to the server.
      * </p>
      * 
-     * @see MongoCollection#aggregateAsync(Callback, Aggregation)
+     * @see MongoCollection#aggregateAsync(Callback, Aggregate)
      */
     @Override
     public void aggregateAsync(final Callback<MongoIterator<Document>> results,
-            final Aggregation command) throws MongoDbException {
+            final Aggregate command) throws MongoDbException {
 
-        final AggregationCommand commandMsg = toCommand(command, false);
+        final AggregateCommand commandMsg = toCommand(command, false);
 
         final CursorCallback callback = new CursorCallback(myClient,
                 commandMsg, true, results);
@@ -281,14 +281,14 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to send a {@link AggregationCommand} message to the server to
-     * explain the {@link Aggregation}.
+     * Overridden to send a {@link AggregateCommand} message to the server to
+     * explain the {@link Aggregate}.
      * </p>
      */
     @Override
     public void explainAsync(final Callback<Document> results,
-            final Aggregation aggregation) throws MongoDbException {
-        final AggregationCommand commandMsg = toCommand(aggregation, true);
+            final Aggregate aggregation) throws MongoDbException {
+        final AggregateCommand commandMsg = toCommand(aggregation, true);
 
         myClient.send(commandMsg, new SingleDocumentCallback(results));
     }
@@ -636,12 +636,12 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * implementations must override.
      * </p>
      * 
-     * @see MongoCollection#stream(StreamCallback, Aggregation)
+     * @see MongoCollection#stream(StreamCallback, Aggregate)
      */
     @Override
     public MongoCursorControl stream(final StreamCallback<Document> results,
-            final Aggregation aggregation) throws MongoDbException {
-        final AggregationCommand commandMsg = toCommand(aggregation, false);
+            final Aggregate aggregation) throws MongoDbException {
+        final AggregateCommand commandMsg = toCommand(aggregation, false);
 
         final CursorStreamingCallback callback = new CursorStreamingCallback(
                 myClient, commandMsg, true, results);
@@ -931,18 +931,18 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * Converts the {@link Aggregation} object to an {@link AggregationCommand}.
+     * Converts the {@link Aggregate} object to an {@link AggregateCommand}.
      * 
      * @param command
-     *            The {@link Aggregation} to convert.
+     *            The {@link Aggregate} to convert.
      * @param explain
      *            If rue then have the server explain the aggregation instead of
      *            performing the aggregation.
-     * @return The command to send to the server for the {@link Aggregation}.
+     * @return The command to send to the server for the {@link Aggregate}.
      */
-    protected AggregationCommand toCommand(final Aggregation command,
+    protected AggregateCommand toCommand(final Aggregate command,
             final boolean explain) {
-        Version minVersion = Aggregation.REQUIRED_VERSION;
+        Version minVersion = Aggregate.REQUIRED_VERSION;
 
         final DocumentBuilder builder = BuilderFactory.start();
 
@@ -978,7 +978,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         final ReadPreference readPreference = updateReadPreference(builder,
                 command.getReadPreference(), true);
 
-        final AggregationCommand commandMsg = new AggregationCommand(command,
+        final AggregateCommand commandMsg = new AggregateCommand(command,
                 getDatabaseName(), getName(), builder.build(), readPreference,
                 minVersion);
         return commandMsg;

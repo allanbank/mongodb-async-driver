@@ -8,7 +8,7 @@ package com.allanbank.mongodb.client.message;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.builder.Aggregation;
+import com.allanbank.mongodb.builder.Aggregate;
 
 /**
  * Helper class for the aggregation commands.
@@ -17,16 +17,16 @@ import com.allanbank.mongodb.builder.Aggregation;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class AggregationCommand extends Command implements CursorableMessage {
+public class AggregateCommand extends Command implements CursorableMessage {
 
     /** The original aggregation. */
-    private final Aggregation myAggregation;
+    private final Aggregate myAggregate;
 
     /** The name of the collection to run the aggregation on. */
-    private final String myAggregationCollectionName;
+    private final String myAggregateCollectionName;
 
     /**
-     * Create a new AggregationCommand.
+     * Create a new AggregateCommand.
      * 
      * @param aggregation
      *            The original aggregation.
@@ -43,7 +43,7 @@ public class AggregationCommand extends Command implements CursorableMessage {
      *            The required version of the server to support processing the
      *            message.
      */
-    public AggregationCommand(final Aggregation aggregation,
+    public AggregateCommand(final Aggregate aggregation,
             final String databaseName, final String collectionName,
             final Document commandDocument,
             final ReadPreference readPreference,
@@ -51,19 +51,19 @@ public class AggregationCommand extends Command implements CursorableMessage {
         super(databaseName, commandDocument, readPreference,
                 requiredServerVersion);
 
-        myAggregation = aggregation;
-        myAggregationCollectionName = collectionName;
+        myAggregate = aggregation;
+        myAggregateCollectionName = collectionName;
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to return the batch size from the {@link Aggregation}.
+     * Overridden to return the batch size from the {@link Aggregate}.
      * </p>
      */
     @Override
     public int getBatchSize() {
-        return myAggregation.getBatchSize();
+        return myAggregate.getBatchSize();
     }
 
     /**
@@ -75,18 +75,18 @@ public class AggregationCommand extends Command implements CursorableMessage {
      */
     @Override
     public String getCollectionName() {
-        return myAggregationCollectionName;
+        return myAggregateCollectionName;
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to return the limit from the {@link Aggregation}.
+     * Overridden to return the limit from the {@link Aggregate}.
      * </p>
      */
     @Override
     public int getLimit() {
-        return myAggregation.getCursorLimit();
+        return myAggregate.getCursorLimit();
     }
 
 }

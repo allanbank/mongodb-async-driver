@@ -14,29 +14,28 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.builder.Aggregation;
+import com.allanbank.mongodb.builder.Aggregate;
 
 /**
- * AggregationCommandTest provides tests for the {@link AggregationCommand}
- * class.
+ * AggregateCommandTest provides tests for the {@link AggregateCommand} class.
  * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class AggregationCommandTest {
+public class AggregateCommandTest {
 
     /**
      * Test method for
-     * {@link AggregationCommand#AggregationCommand(Aggregation, String, String, Document, ReadPreference, Version)}
+     * {@link AggregateCommand#AggregateCommand(Aggregate, String, String, Document, ReadPreference, Version)}
      * .
      */
     @Test
     public void testAggregationCommand() {
-        final Aggregation aggregation = Aggregation.builder().batchSize(1234)
+        final Aggregate aggregation = Aggregate.builder().batchSize(1234)
                 .cursorLimit(4567).build();
         final Document doc = BuilderFactory.start()
                 .add("aggregate", "collection").build();
 
-        final AggregationCommand command = new AggregationCommand(aggregation,
+        final AggregateCommand command = new AggregateCommand(aggregation,
                 "db", "collection", doc, ReadPreference.PREFER_PRIMARY,
                 Version.VERSION_2_4);
 

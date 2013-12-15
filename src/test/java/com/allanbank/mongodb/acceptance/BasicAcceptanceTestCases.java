@@ -92,7 +92,7 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.json.Json;
-import com.allanbank.mongodb.builder.Aggregation;
+import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.AggregationGeoNear;
 import com.allanbank.mongodb.builder.AggregationProjectFields;
 import com.allanbank.mongodb.builder.ConditionBuilder;
@@ -296,15 +296,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies the function of Aggregation framework.
+     * Verifies the function of Aggregate framework.
      * <p>
      * Using the drivers support classes: <blockquote>
      * 
      * <pre>
      * <code>
-     * import static {@link com.allanbank.mongodb.builder.AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
-     * import static {@link com.allanbank.mongodb.builder.AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
-     * import static {@link com.allanbank.mongodb.builder.AggregationProjectFields#includeWithoutId com.allanbank.mongodb.builder.AggregationProjectFields.includeWithoutId};
+     * import static {@link com.allanbank.mongodb.builder.AggregationGroupField#set com.allanbank.mongodb.builder.AggregateGroupField.set};
+     * import static {@link com.allanbank.mongodb.builder.AggregationGroupId#id com.allanbank.mongodb.builder.AggregateGroupId.id};
+     * import static {@link com.allanbank.mongodb.builder.AggregationProjectFields#includeWithoutId com.allanbank.mongodb.builder.AggregateProjectFields.includeWithoutId};
      * import static {@link com.allanbank.mongodb.builder.QueryBuilder#where com.allanbank.mongodb.builder.QueryBuilder.where};
      * import static {@link com.allanbank.mongodb.builder.Sort#asc com.allanbank.mongodb.builder.Sort.asc};
      * import static {@link com.allanbank.mongodb.builder.Sort#desc com.allanbank.mongodb.builder.Sort.desc};
@@ -421,7 +421,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      *      By</a>
      */
     @Test
-    public void testAggregation() {
+    public void testAggregate() {
         myConfig.setDefaultDurability(Durability.ACK);
 
         final DocumentBuilder doc = BuilderFactory.start();
@@ -483,7 +483,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         final DocumentBuilder b1 = BuilderFactory.start();
         final DocumentBuilder b2 = BuilderFactory.start();
-        final Aggregation.Builder builder = new Aggregation.Builder();
+        final Aggregate.Builder builder = new Aggregate.Builder();
 
         builder.match(where("state").notEqualTo("NZ"))
                 .group(id().addField("state").addField("city"),
@@ -543,7 +543,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Aggregation.REQUIRED_VERSION));
+                    greaterThanOrEqualTo(Aggregate.REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -551,15 +551,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies the {@link Aggregation} command will use a cursor.
+     * Verifies the {@link Aggregate} command will use a cursor.
      */
     @Test
-    public void testAggregationCursor() {
+    public void testAggregateCursor() {
         myConfig.setDefaultDurability(Durability.ACK);
 
         final MongoCollection collection = largeCollection(myMongo);
 
-        final Aggregation.Builder builder = new Aggregation.Builder();
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.match(Find.ALL);
         builder.project(AggregationProjectFields.include("a"));
 
@@ -596,17 +596,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies the function of Aggregation explain capability.
+     * Verifies the function of Aggregate explain capability.
      */
     @Test
-    public void testAggregationExplain() {
+    public void testAggregateExplain() {
         myConfig.setDefaultDurability(Durability.ACK);
 
         final MongoCollection aggregate = myDb.getCollection("aggregate");
 
         final DocumentBuilder b1 = BuilderFactory.start();
         final DocumentBuilder b2 = BuilderFactory.start();
-        final Aggregation.Builder builder = new Aggregation.Builder();
+        final Aggregate.Builder builder = new Aggregate.Builder();
 
         builder.match(where("state").notEqualTo("NZ"))
                 .group(id().addField("state").addField("city"),
@@ -647,15 +647,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies the {@link Aggregation} command will use a cursor.
+     * Verifies the {@link Aggregate} command will use a cursor.
      */
     @Test
-    public void testAggregationStream() {
+    public void testAggregateStream() {
         myConfig.setDefaultDurability(Durability.ACK);
 
         final MongoCollection collection = largeCollection(myMongo);
 
-        final Aggregation.Builder builder = new Aggregation.Builder();
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.match(Find.ALL);
         builder.project(AggregationProjectFields.include("a"));
 
@@ -665,7 +665,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         final MongoIterator<Document> iter = null;
         try {
-            final Aggregation command = builder.build();
+            final Aggregate command = builder.build();
             final DocumentCallback callback = new DocumentCallback();
             collection.stream(callback, command);
 
@@ -695,15 +695,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies the {@link Aggregation} command will timeout.
+     * Verifies the {@link Aggregate} command will timeout.
      */
     @Test
-    public void testAggregationTimeout() {
+    public void testAggregateTimeout() {
         myConfig.setDefaultDurability(Durability.ACK);
 
         final MongoCollection collection = largeCollection(myMongo);
 
-        final Aggregation.Builder builder = new Aggregation.Builder();
+        final Aggregate.Builder builder = new Aggregate.Builder();
 
         builder.maximumTime(1, TimeUnit.MILLISECONDS);
         builder.match(where("state").notEqualTo("NZ"));
@@ -727,11 +727,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies using the $geoNear with the Aggregation Framework.
+     * Verifies using the $geoNear with the Aggregate Framework.
      */
     @SuppressWarnings("boxing")
     @Test
-    public void testAggregationWithGeoNear() {
+    public void testAggregateWithGeoNear() {
         final double x = 5.1;
         final double y = 5.1;
 
@@ -753,7 +753,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         try {
             final List<Document> docs = new ArrayList<Document>();
             iter = getGeoCollection().aggregate(
-                    Aggregation.builder().geoNear(
+                    Aggregate.builder().geoNear(
                             AggregationGeoNear.builder().location(p(x, y))
                                     .distanceField("d")));
             while (iter.hasNext()) {
@@ -770,7 +770,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Aggregation.REQUIRED_VERSION));
+                    greaterThanOrEqualTo(Aggregate.REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;

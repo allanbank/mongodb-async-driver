@@ -59,7 +59,7 @@ import com.allanbank.mongodb.bson.element.DoubleElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
-import com.allanbank.mongodb.builder.Aggregation;
+import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -76,7 +76,7 @@ import com.allanbank.mongodb.client.callback.ReplyDocumentCallback;
 import com.allanbank.mongodb.client.callback.ReplyLongCallback;
 import com.allanbank.mongodb.client.callback.ReplyResultCallback;
 import com.allanbank.mongodb.client.callback.SingleDocumentCallback;
-import com.allanbank.mongodb.client.message.AggregationCommand;
+import com.allanbank.mongodb.client.message.AggregateCommand;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
@@ -136,14 +136,11 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for
-     * {@link AbstractMongoCollection#aggregate(com.allanbank.mongodb.builder.Aggregate)}
-     * .
+     * Test method for {@link AbstractMongoCollection#aggregate(Aggregate)} .
      */
     @Test
-    @Deprecated
     public void testAggregate() {
-        final com.allanbank.mongodb.builder.Aggregate.Builder builder = new com.allanbank.mongodb.builder.Aggregate.Builder();
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -154,411 +151,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("aggregate", "test");
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
 
-        final AggregationCommand message = new AggregationCommand(builder
-                .build().asAggregation(), "test", "test",
-                expectedCommand.build(), ReadPreference.PRIMARY,
-                Version.VERSION_2_4);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockDatabase.getReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
-
-        replay();
-
-        assertEquals(Collections.singletonList(value.build()),
-                myTestInstance.aggregate(builder));
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#aggregateAsync(com.allanbank.mongodb.builder.Aggregate)}
-     * .
-     * 
-     * @throws Exception
-     *             On a failure.
-     */
-    @Test
-    @Deprecated
-    public void testAggregateAsyncAggregate() throws Exception {
-        final com.allanbank.mongodb.builder.Aggregate.Builder builder = new com.allanbank.mongodb.builder.Aggregate.Builder();
-        builder.limit(5);
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.pushArray("result").push();
-        value.addInteger("foo", 1);
-
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("aggregate", "test");
-        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
-
-        final AggregationCommand message = new AggregationCommand(builder
-                .build().asAggregation(), "test", "test",
-                expectedCommand.build(), ReadPreference.PRIMARY,
-                Version.VERSION_2_4);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockDatabase.getReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
-
-        replay();
-
-        assertEquals(Collections.singletonList(value.build()), myTestInstance
-                .aggregateAsync(builder).get());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#aggregateAsync(Callback, com.allanbank.mongodb.builder.Aggregate)}
-     * .
-     */
-    @Test
-    @Deprecated
-    public void testAggregateAsyncCallbackOfListOfDocumentAggregate() {
-        final com.allanbank.mongodb.builder.Aggregate.Builder builder = new com.allanbank.mongodb.builder.Aggregate.Builder();
-        builder.limit(5);
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.pushArray("result").push();
-        value.addInteger("foo", 1);
-
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("aggregate", "test");
-        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
-
-        final AggregationCommand message = new AggregationCommand(builder
-                .build().asAggregation(), "test", "test",
-                expectedCommand.build(), ReadPreference.PRIMARY,
-                Version.VERSION_2_4);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockDatabase.getReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
-
-        replay(mockCallback);
-
-        myTestInstance.aggregateAsync(mockCallback, builder);
-
-        verify(mockCallback);
-    }
-
-    /**
-     * Test for the
-     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, com.allanbank.mongodb.builder.Aggregate)}
-     * method.
-     */
-    @Deprecated
-    @Test
-    public void testAggregateAsyncLambdaCallbackAggregate() {
-        final com.allanbank.mongodb.builder.Aggregate.Builder builder = new com.allanbank.mongodb.builder.Aggregate.Builder();
-        builder.limit(5);
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.pushArray("result").push();
-        value.addInteger("foo", 1);
-
-        final LambdaCallback<List<Document>> mockCallback = createMock(LambdaCallback.class);
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("aggregate", "test");
-        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
-
-        final AggregationCommand message = new AggregationCommand(builder
-                .build().asAggregation(), "test", "test",
-                expectedCommand.build(), ReadPreference.PRIMARY,
-                Version.VERSION_2_4);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockDatabase.getReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
-
-        replay(mockCallback);
-
-        myTestInstance.aggregateAsync(mockCallback, builder.build());
-
-        verify(mockCallback);
-    }
-
-    /**
-     * Test for the
-     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, com.allanbank.mongodb.builder.Aggregate.Builder)}
-     * method.
-     */
-    @Deprecated
-    @Test
-    public void testAggregateAsyncLambdaCallbackAggregateBuilder() {
-        final com.allanbank.mongodb.builder.Aggregate.Builder builder = new com.allanbank.mongodb.builder.Aggregate.Builder();
-        builder.limit(5);
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.pushArray("result").push();
-        value.addInteger("foo", 1);
-
-        final LambdaCallback<List<Document>> mockCallback = createMock(LambdaCallback.class);
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("aggregate", "test");
-        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
-
-        final AggregationCommand message = new AggregationCommand(builder
-                .build().asAggregation(), "test", "test",
-                expectedCommand.build(), ReadPreference.PRIMARY,
-                Version.VERSION_2_4);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockDatabase.getReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
-
-        replay(mockCallback);
-
-        myTestInstance.aggregateAsync(mockCallback, builder);
-
-        verify(mockCallback);
-    }
-
-    /**
-     * Test for the
-     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, Aggregation)}
-     * method.
-     */
-    @Test
-    public void testAggregateAsyncLambdaCallbackAggregation() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
-        builder.limit(5);
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.pushArray("result").push();
-        value.addInteger("foo", 1);
-
-        final LambdaCallback<MongoIterator<Document>> mockCallback = createMock(LambdaCallback.class);
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("aggregate", "test");
-        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
-
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockDatabase.getReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
-
-        replay(mockCallback);
-
-        myTestInstance.aggregateAsync(mockCallback, builder.build());
-
-        verify(mockCallback);
-    }
-
-    /**
-     * Test for the
-     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, Aggregation.Builder)}
-     * method.
-     */
-    @Test
-    public void testAggregateAsyncLambdaCallbackAggregationBuilder() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
-        builder.limit(5);
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.pushArray("result").push();
-        value.addInteger("foo", 1);
-
-        final LambdaCallback<MongoIterator<Document>> mockCallback = createMock(LambdaCallback.class);
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("aggregate", "test");
-        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
-
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockDatabase.getReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
-
-        replay(mockCallback);
-
-        myTestInstance.aggregateAsync(mockCallback, builder);
-
-        verify(mockCallback);
-    }
-
-    /**
-     * Test method for
-     * {@link AbstractMongoCollection#aggregateAsync(com.allanbank.mongodb.builder.Aggregate)}
-     * .
-     * 
-     * @throws Exception
-     *             On a failure.
-     */
-    @Test
-    @Deprecated
-    public void testAggregateWithMaxTime() throws Exception {
-        final com.allanbank.mongodb.builder.Aggregate.Builder builder = new com.allanbank.mongodb.builder.Aggregate.Builder();
-        builder.limit(5);
-        builder.maximumTime(10, TimeUnit.SECONDS);
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.pushArray("result").push();
-        value.addInteger("foo", 1);
-
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("aggregate", "test");
-        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
-        expectedCommand.add("maxTimeMS", 10000L);
-
-        final AggregationCommand message = new AggregationCommand(builder
-                .build().asAggregation(), "test", "test",
-                expectedCommand.build(), ReadPreference.PRIMARY,
-                Version.VERSION_2_4);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockDatabase.getReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
-
-        replay();
-
-        assertEquals(Collections.singletonList(value.build()), myTestInstance
-                .aggregateAsync(builder).get());
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link MongoCollectionImpl#aggregateAsync(Callback, com.allanbank.mongodb.builder.Aggregate)}
-     * .
-     */
-    @Test
-    @Deprecated
-    public void testAggregateWithReadPreference() {
-        final com.allanbank.mongodb.builder.Aggregate.Builder builder = new com.allanbank.mongodb.builder.Aggregate.Builder();
-        builder.limit(5);
-        builder.setReadPreference(ReadPreference.PREFER_PRIMARY);
-
-        final com.allanbank.mongodb.builder.Aggregate request = builder.build();
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.pushArray("result").push();
-        value.addInteger("foo", 1);
-
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        final DocumentBuilder queryBuilder = expectedCommand.push("$query");
-        queryBuilder.addString("aggregate", "test");
-        queryBuilder.pushArray("pipeline").push().addInteger("$limit", 5);
-        expectedCommand.add(ReadPreference.FIELD_NAME,
-                ReadPreference.PREFER_PRIMARY);
-
-        final AggregationCommand message = new AggregationCommand(builder
-                .build().asAggregation(), "test", "test",
-                expectedCommand.build(), ReadPreference.PREFER_PRIMARY,
-                Version.VERSION_2_4);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
-
-        replay(mockCallback);
-
-        myTestInstance.aggregateAsync(mockCallback, request);
-
-        verify(mockCallback);
-    }
-
-    /**
-     * Test method for
-     * {@link MongoCollectionImpl#aggregateAsync(Callback, com.allanbank.mongodb.builder.Aggregate)}
-     * .
-     */
-    @Test
-    @Deprecated
-    public void testAggregateWithReadPreferenceNonSharded() {
-        final com.allanbank.mongodb.builder.Aggregate.Builder builder = new com.allanbank.mongodb.builder.Aggregate.Builder();
-        builder.limit(5);
-        builder.setReadPreference(ReadPreference.PREFER_PRIMARY);
-
-        final com.allanbank.mongodb.builder.Aggregate request = builder.build();
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.pushArray("result").push();
-        value.addInteger("foo", 1);
-
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("aggregate", "test");
-        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
-
-        final AggregationCommand message = new AggregationCommand(builder
-                .build().asAggregation(), "test", "test",
-                expectedCommand.build(), ReadPreference.PREFER_PRIMARY,
-                Version.VERSION_2_4);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
-
-        replay(mockCallback);
-
-        myTestInstance.aggregateAsync(mockCallback, request);
-
-        verify(mockCallback);
-    }
-
-    /**
-     * Test method for {@link AbstractMongoCollection#aggregate(Aggregation)} .
-     */
-    @Test
-    public void testAggregation() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
-        builder.limit(5);
-
-        final DocumentBuilder result = BuilderFactory.start();
-        final DocumentBuilder value = result.pushArray("result").push();
-        value.addInteger("foo", 1);
-
-        final DocumentBuilder expectedCommand = BuilderFactory.start();
-        expectedCommand.addString("aggregate", "test");
-        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
-
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -578,15 +172,15 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for
-     * {@link AbstractMongoCollection#aggregateAsync(Aggregation)} .
+     * Test method for {@link AbstractMongoCollection#aggregateAsync(Aggregate)}
+     * .
      * 
      * @throws Exception
      *             On a failure.
      */
     @Test
-    public void testAggregationAsyncAggregation() throws Exception {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testAggregateAsyncAggregate() throws Exception {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -597,8 +191,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("aggregate", "test");
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -620,11 +214,11 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregation)} .
+     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregate)} .
      */
     @Test
-    public void testAggregationAsyncCallbackOfListOfDocumentAggregation() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testAggregateAsyncCallbackOfListOfDocumentAggregate() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -636,8 +230,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("aggregate", "test");
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -656,15 +250,91 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for
-     * {@link AbstractMongoCollection#aggregateAsync(Aggregation)} .
+     * Test for the
+     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, Aggregate)}
+     * method.
+     */
+    @Test
+    public void testAggregateAsyncLambdaCallbackAggregate() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final LambdaCallback<MongoIterator<Document>> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY, Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.aggregateAsync(mockCallback, builder.build());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, Aggregate.Builder)}
+     * method.
+     */
+    @Test
+    public void testAggregateAsyncLambdaCallbackAggregateBuilder() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final LambdaCallback<MongoIterator<Document>> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY, Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.aggregateAsync(mockCallback, builder);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link AbstractMongoCollection#aggregateAsync(Aggregate)}
+     * .
      * 
      * @throws Exception
      *             On a failure.
      */
     @Test
-    public void testAggregationWithMaxTime() throws Exception {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testAggregateWithMaxTime() throws Exception {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
         builder.maximumTime(10, TimeUnit.SECONDS);
 
@@ -677,8 +347,8 @@ public class MongoCollectionImplTest {
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
         expectedCommand.add("maxTimeMS", 10000L);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_6);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -700,15 +370,15 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregation)} .
+     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregate)} .
      */
     @Test
-    public void testAggregationWithReadPreference() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testAggregateWithReadPreference() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
         builder.setReadPreference(ReadPreference.PREFER_PRIMARY);
 
-        final Aggregation request = builder.build();
+        final Aggregate request = builder.build();
 
         final DocumentBuilder result = BuilderFactory.start();
         final DocumentBuilder value = result.pushArray("result").push();
@@ -722,9 +392,9 @@ public class MongoCollectionImplTest {
         expectedCommand.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_PRIMARY);
 
-        final AggregationCommand message = new AggregationCommand(request,
-                "test", "test", expectedCommand.build(),
-                ReadPreference.PREFER_PRIMARY, Version.VERSION_2_4);
+        final AggregateCommand message = new AggregateCommand(request, "test",
+                "test", expectedCommand.build(), ReadPreference.PREFER_PRIMARY,
+                Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
@@ -742,15 +412,15 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregation)} .
+     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregate)} .
      */
     @Test
-    public void testAggregationWithReadPreferenceNonSharded() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testAggregateWithReadPreferenceNonSharded() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
         builder.setReadPreference(ReadPreference.PREFER_PRIMARY);
 
-        final Aggregation request = builder.build();
+        final Aggregate request = builder.build();
 
         final DocumentBuilder result = BuilderFactory.start();
         final DocumentBuilder value = result.pushArray("result").push();
@@ -761,8 +431,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("aggregate", "test");
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PREFER_PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -2773,11 +2443,11 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#explain(Aggregation)} .
+     * Test method for {@link AbstractMongoCollection#explain(Aggregate)} .
      */
     @Test
-    public void testExplainAggregation() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testExplainAggregate() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -2789,8 +2459,8 @@ public class MongoCollectionImplTest {
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
         expectedCommand.add("explain", true);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -2808,15 +2478,14 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#explainAsync(Aggregation)}
-     * .
+     * Test method for {@link AbstractMongoCollection#explainAsync(Aggregate)} .
      * 
      * @throws Exception
      *             On a failure.
      */
     @Test
-    public void testExplainAggregationAsync() throws Exception {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testExplainAggregateAsync() throws Exception {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -2828,8 +2497,8 @@ public class MongoCollectionImplTest {
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
         expectedCommand.add("explain", true);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -2848,11 +2517,11 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#explainAsync(Callback, Aggregation)} .
+     * {@link MongoCollectionImpl#explainAsync(Callback, Aggregate)} .
      */
     @Test
-    public void testExplainAggregationAsyncCallback() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testExplainAggregateAsyncCallback() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -2865,8 +2534,8 @@ public class MongoCollectionImplTest {
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
         expectedCommand.add("explain", true);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -2920,12 +2589,12 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Aggregation)}
+     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Aggregate)}
      * method.
      */
     @Test
-    public void testExplainAsyncLambdaCallbackAggregation() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testExplainAsyncLambdaCallbackAggregate() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -2938,8 +2607,8 @@ public class MongoCollectionImplTest {
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
         expectedCommand.add("explain", true);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -2959,12 +2628,12 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Aggregation.Builder)}
+     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Aggregate.Builder)}
      * method.
      */
     @Test
-    public void testExplainAsyncLambdaCallbackAggregationBuilder() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testExplainAsyncLambdaCallbackAggregateBuilder() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -2977,8 +2646,8 @@ public class MongoCollectionImplTest {
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
         expectedCommand.add("explain", true);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -6655,12 +6324,11 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#stream(LambdaCallback, Aggregation)}
-     * method.
+     * {@link AbstractMongoCollection#stream(LambdaCallback, Aggregate)} method.
      */
     @Test
-    public void testStreamLambdaCallbackAggregation() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testStreamLambdaCallbackAggregate() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -6672,8 +6340,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("aggregate", "test");
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -6693,12 +6361,12 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#stream(LambdaCallback, Aggregation.Builder)}
+     * {@link AbstractMongoCollection#stream(LambdaCallback, Aggregate.Builder)}
      * method.
      */
     @Test
-    public void testStreamLambdaCallbackAggregationBuilder() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testStreamLambdaCallbackAggregateBuilder() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -6710,8 +6378,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("aggregate", "test");
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -6811,12 +6479,11 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#stream(StreamCallback, Aggregation)}
-     * method.
+     * {@link AbstractMongoCollection#stream(StreamCallback, Aggregate)} method.
      */
     @Test
-    public void testStreamStreamCallbackAggregation() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testStreamStreamCallbackAggregate() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -6828,8 +6495,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("aggregate", "test");
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -6849,12 +6516,12 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#stream(StreamCallback, Aggregation.Builder)}
+     * {@link AbstractMongoCollection#stream(StreamCallback, Aggregate.Builder)}
      * method.
      */
     @Test
-    public void testStreamStreamCallbackAggregationBuilder() {
-        final Aggregation.Builder builder = new Aggregation.Builder();
+    public void testStreamStreamCallbackAggregateBuilder() {
+        final Aggregate.Builder builder = new Aggregate.Builder();
         builder.limit(5);
 
         final DocumentBuilder result = BuilderFactory.start();
@@ -6866,8 +6533,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("aggregate", "test");
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
 
-        final AggregationCommand message = new AggregationCommand(
-                builder.build(), "test", "test", expectedCommand.build(),
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
                 ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
