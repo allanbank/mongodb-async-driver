@@ -39,6 +39,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.LambdaCallback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
@@ -215,7 +216,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#aggregateAsync(Callback, com.allanbank.mongodb.builder.Aggregate)}
+     * {@link AbstractMongoCollection#aggregateAsync(Callback, com.allanbank.mongodb.builder.Aggregate)}
      * .
      */
     @Test
@@ -237,6 +238,162 @@ public class MongoCollectionImplTest {
                 .build().asAggregation(), "test", "test",
                 expectedCommand.build(), ReadPreference.PRIMARY,
                 Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.aggregateAsync(mockCallback, builder);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, com.allanbank.mongodb.builder.Aggregate)}
+     * method.
+     */
+    @Deprecated
+    @Test
+    public void testAggregateAsyncLambdaCallbackAggregate() {
+        final com.allanbank.mongodb.builder.Aggregate.Builder builder = new com.allanbank.mongodb.builder.Aggregate.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final LambdaCallback<List<Document>> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final AggregationCommand message = new AggregationCommand(builder
+                .build().asAggregation(), "test", "test",
+                expectedCommand.build(), ReadPreference.PRIMARY,
+                Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.aggregateAsync(mockCallback, builder.build());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, com.allanbank.mongodb.builder.Aggregate.Builder)}
+     * method.
+     */
+    @Deprecated
+    @Test
+    public void testAggregateAsyncLambdaCallbackAggregateBuilder() {
+        final com.allanbank.mongodb.builder.Aggregate.Builder builder = new com.allanbank.mongodb.builder.Aggregate.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final LambdaCallback<List<Document>> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final AggregationCommand message = new AggregationCommand(builder
+                .build().asAggregation(), "test", "test",
+                expectedCommand.build(), ReadPreference.PRIMARY,
+                Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.aggregateAsync(mockCallback, builder);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, Aggregation)}
+     * method.
+     */
+    @Test
+    public void testAggregateAsyncLambdaCallbackAggregation() {
+        final Aggregation.Builder builder = new Aggregation.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final LambdaCallback<MongoIterator<Document>> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final AggregationCommand message = new AggregationCommand(
+                builder.build(), "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY, Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.aggregateAsync(mockCallback, builder.build());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, Aggregation.Builder)}
+     * method.
+     */
+    @Test
+    public void testAggregateAsyncLambdaCallbackAggregationBuilder() {
+        final Aggregation.Builder builder = new Aggregation.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final LambdaCallback<MongoIterator<Document>> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final AggregationCommand message = new AggregationCommand(
+                builder.build(), "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY, Version.VERSION_2_4);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -853,6 +1010,167 @@ public class MongoCollectionImplTest {
                 myTestInstance.countAsync(doc, ReadPreference.SECONDARY).get());
 
         verify();
+    }
+
+    /**
+     * Test for the {@link AbstractMongoCollection#countAsync(LambdaCallback)}
+     * method.
+     */
+    @Test
+    public void testCountAsyncLambdaCallback() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .build(), ReadPreference.PRIMARY)),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.countAsync(mockCountCallback);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#countAsync(LambdaCallback, Count)} method.
+     */
+    @Test
+    public void testCountAsyncLambdaCallbackCount() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .build(), ReadPreference.SECONDARY)),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.countAsync(mockCountCallback, Count.builder()
+                .readPreference(ReadPreference.SECONDARY).query(doc).build());
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#countAsync(LambdaCallback, Count.Builder)}
+     * method.
+     */
+    @Test
+    public void testCountAsyncLambdaCallbackCountBuilder() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .build(), ReadPreference.SECONDARY)),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.countAsync(mockCountCallback, Count.builder()
+                .readPreference(ReadPreference.SECONDARY).query(doc));
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#countAsync(LambdaCallback, DocumentAssignable)}
+     * method.
+     */
+    @Test
+    public void testCountAsyncLambdaCallbackDocumentAssignable() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .build(), ReadPreference.PRIMARY)),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.countAsync(mockCountCallback, doc);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#countAsync(LambdaCallback, DocumentAssignable, ReadPreference)}
+     * method.
+     */
+    @Test
+    public void testCountAsyncLambdaCallbackDocumentAssignableReadPreference() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .build(), ReadPreference.SECONDARY)),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.countAsync(mockCountCallback, doc,
+                ReadPreference.SECONDARY);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#countAsync(LambdaCallback, ReadPreference)}
+     * method.
+     */
+    @Test
+    public void testCountAsyncLambdaCallbackReadPreference() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(
+                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                        .addString("count", "test").addDocument("query", doc)
+                        .build(), ReadPreference.SECONDARY)),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.countAsync(mockCountCallback, ReadPreference.SECONDARY);
+
+        verify(mockCountCallback);
     }
 
     /**
@@ -1849,6 +2167,121 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test for the
+     * {@link AbstractMongoCollection#deleteAsync(LambdaCallback, DocumentAssignable)}
+     * method.
+     */
+    @Test
+    public void testDeleteAsyncLambdaCallbackDocumentAssignable() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Delete message = new Delete("test", "test", doc, false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
+
+        expect(myMockClient.send(eq(message), isNull(Callback.class)))
+                .andReturn(myAddress);
+
+        mockCountCallback.accept(null, Long.valueOf(-1L));
+        expectLastCall();
+
+        replay(mockCountCallback);
+
+        myTestInstance.deleteAsync(mockCountCallback, doc);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#deleteAsync(LambdaCallback, DocumentAssignable, boolean)}
+     * method.
+     */
+    @Test
+    public void testDeleteAsyncLambdaCallbackDocumentAssignableB() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Delete message = new Delete("test", "test", doc, true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.deleteAsync(mockCountCallback, doc, true);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#deleteAsync(LambdaCallback, DocumentAssignable, boolean, Durability)}
+     * method.
+     */
+    @Test
+    public void testDeleteAsyncLambdaCallbackDocumentAssignableBDurability() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Delete message = new Delete("test", "test", doc, true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance
+                .deleteAsync(mockCountCallback, doc, true, Durability.ACK);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#deleteAsync(LambdaCallback, DocumentAssignable, Durability)}
+     * method.
+     */
+    @Test
+    public void testDeleteAsyncLambdaCallbackDocumentAssignableDurability() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Delete message = new Delete("test", "test", doc, false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockClient.send(eq(message), isNull(Callback.class)))
+                .andReturn(myAddress);
+
+        mockCountCallback.accept(null, Long.valueOf(-1L));
+        expectLastCall();
+
+        replay(mockCountCallback);
+
+        myTestInstance.deleteAsync(mockCountCallback, doc, Durability.NONE);
+
+        verify(mockCountCallback);
+    }
+
+    /**
      * Test method for
      * {@link AbstractMongoCollection#delete(DocumentAssignable)} .
      */
@@ -2064,6 +2497,78 @@ public class MongoCollectionImplTest {
                 myTestInstance.distinctAsync(builder).get());
 
         verify();
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#distinctAsync(LambdaCallback, Distinct)}
+     * method.
+     */
+    @Test
+    public void testDistinctAsyncLambdaCallbackDistinct() {
+        final Distinct.Builder builder = new Distinct.Builder();
+        builder.setKey("foo");
+        builder.setQuery(BuilderFactory.start().build());
+
+        final Distinct request = builder.build();
+
+        final LambdaCallback<ArrayElement> mockCountCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("distinct", "test");
+        expectedCommand.addString("key", "foo");
+        expectedCommand.addDocument("query", request.getQuery());
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyArrayCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.distinctAsync(mockCountCallback, builder.build());
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#distinctAsync(LambdaCallback, Distinct.Builder)}
+     * method.
+     */
+    @Test
+    public void testDistinctAsyncLambdaCallbackDistinctBuilder() {
+        final Distinct.Builder builder = new Distinct.Builder();
+        builder.setKey("foo");
+        builder.setQuery(BuilderFactory.start().build());
+
+        final Distinct request = builder.build();
+
+        final LambdaCallback<ArrayElement> mockCountCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("distinct", "test");
+        expectedCommand.addString("key", "foo");
+        expectedCommand.addDocument("query", request.getQuery());
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyArrayCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.distinctAsync(mockCountCallback, builder);
+
+        verify(mockCountCallback);
     }
 
     /**
@@ -2414,6 +2919,154 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test for the
+     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Aggregation)}
+     * method.
+     */
+    @Test
+    public void testExplainAsyncLambdaCallbackAggregation() {
+        final Aggregation.Builder builder = new Aggregation.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+        expectedCommand.add("explain", true);
+
+        final AggregationCommand message = new AggregationCommand(
+                builder.build(), "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY, Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.explainAsync(mockCallback, builder.build());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Aggregation.Builder)}
+     * method.
+     */
+    @Test
+    public void testExplainAsyncLambdaCallbackAggregationBuilder() {
+        final Aggregation.Builder builder = new Aggregation.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+        expectedCommand.add("explain", true);
+
+        final AggregationCommand message = new AggregationCommand(
+                builder.build(), "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY, Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.explainAsync(mockCallback, builder);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Find)}
+     * method.
+     */
+    @Test
+    public void testExplainAsyncLambdaCallbackFind() {
+        final Document query = BuilderFactory.start().build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.query(query);
+
+        final Document doc = BuilderFactory.start().add("$query", query)
+                .add("$explain", true).build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.SECONDARY, false, false, false, false);
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.SECONDARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.explainAsync(mockCallback, builder.build());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Find.Builder)}
+     * method.
+     */
+    @Test
+    public void testExplainAsyncLambdaCallbackFindBuilder() {
+        final Document query = BuilderFactory.start().build();
+
+        final Find.Builder builder = new Find.Builder();
+        builder.query(query);
+
+        final Document doc = BuilderFactory.start().add("$query", query)
+                .add("$explain", true).build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.SECONDARY, false, false, false, false);
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.SECONDARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.explainAsync(mockCallback, builder);
+
+        verify(mockCallback);
+    }
+
+    /**
      * Test method for
      * {@link AbstractMongoCollection#explain(DocumentAssignable)} .
      */
@@ -2727,6 +3380,73 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test for the
+     * {@link AbstractMongoCollection#findAndModifyAsync(LambdaCallback, FindAndModify)}
+     * method.
+     */
+    public void testFindAndModifyAsyncLambdaCallbackFindAndModify() {
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
+
+        final FindAndModify request = builder.build();
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("findAndModify", "test");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.addDocument("update", request.getUpdate());
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyDocumentCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.findAndModifyAsync(mockCallback, builder.build());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#findAndModifyAsync(LambdaCallback, FindAndModify.Builder)}
+     * method.
+     */
+    @Test
+    public void testFindAndModifyAsyncLambdaCallbackFindAndModifyBuilder() {
+        final FindAndModify.Builder builder = new FindAndModify.Builder();
+        builder.setQuery(BuilderFactory.start().build());
+        builder.setUpdate(BuilderFactory.start().addInteger("foo", 3).build());
+
+        final FindAndModify request = builder.build();
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("findAndModify", "test");
+        expectedCommand.addDocument("query", request.getQuery());
+        expectedCommand.addDocument("update", request.getUpdate());
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyDocumentCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.findAndModifyAsync(mockCallback, builder);
+
+        verify(mockCallback);
+    }
+
+    /**
      * Test method for
      * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
      */
@@ -2913,7 +3633,7 @@ public class MongoCollectionImplTest {
      * {@link AbstractMongoCollection#findAsync(Callback, DocumentAssignable)} .
      */
     @Test
-    public void testFindAsyncCallbackOfClosableIteratorOfDocumentDocument() {
+    public void testFindAsyncCallbackDocument() {
         final Callback<MongoIterator<Document>> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory.start().build();
 
@@ -2939,7 +3659,7 @@ public class MongoCollectionImplTest {
      * .
      */
     @Test
-    public void testFindAsyncCallbackOfClosableIteratorOfDocumentFind() {
+    public void testFindAsyncCallbackFind() {
         final Callback<MongoIterator<Document>> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory.start().build();
 
@@ -3083,6 +3803,90 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test for the
+     * {@link AbstractMongoCollection#findAsync(LambdaCallback, DocumentAssignable)}
+     * method.
+     */
+    @Test
+    public void testFindAsyncLambdaCallbackDocumentAssignable() {
+        final LambdaCallback<MongoIterator<Document>> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(message), anyObject(CursorCallback.class)))
+                .andReturn(myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.findAsync(mockCountCallback, doc);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#findAsync(LambdaCallback, Find)} method.
+     */
+    @Test
+    public void testFindAsyncLambdaCallbackFind() {
+        final LambdaCallback<MongoIterator<Document>> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final Find.Builder findBuilder = new Find.Builder(doc);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(message), anyObject(CursorCallback.class)))
+                .andReturn(myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.findAsync(mockCountCallback, findBuilder.build());
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#findAsync(LambdaCallback, Find.Builder)}
+     * method.
+     */
+    @Test
+    public void testFindAsyncLambdaCallbackFindBuilder() {
+        final LambdaCallback<MongoIterator<Document>> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final Find.Builder findBuilder = new Find.Builder(doc);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.send(eq(message), anyObject(CursorCallback.class)))
+                .andReturn(myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.findAsync(mockCountCallback, findBuilder);
+
+        verify(mockCountCallback);
+    }
+
+    /**
      * Test method for {@link AbstractMongoCollection#find(DocumentAssignable)}
      * .
      */
@@ -3184,7 +3988,7 @@ public class MongoCollectionImplTest {
      * {@link AbstractMongoCollection#findOneAsync(Callback, Find)} .
      */
     @Test
-    public void testFindOneAsyncCallbackOfClosableIteratorOfDocumentFind() {
+    public void testFindOneAsyncCallbackFind() {
         final Callback<Document> mockCountCallback = createMock(Callback.class);
         final Document doc = BuilderFactory.start().build();
 
@@ -3297,6 +4101,96 @@ public class MongoCollectionImplTest {
         assertSame(result1, future.get());
 
         verify();
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#findAsync(LambdaCallback, DocumentAssignable)}
+     * method.
+     */
+    @Test
+    public void testFindOneAsyncLambdaCallbackDocumentAssignable() {
+        final LambdaCallback<Document> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(SingleDocumentCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.findOneAsync(mockCountCallback, doc);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#findAsync(LambdaCallback, Find)} method.
+     */
+    @Test
+    public void testFindOneAsyncLambdaCallbackFind() {
+        final LambdaCallback<Document> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final Find.Builder findBuilder = new Find.Builder(doc);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(SingleDocumentCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.findOneAsync(mockCountCallback, findBuilder.build());
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#findAsync(LambdaCallback, Find.Builder)}
+     * method.
+     */
+    @Test
+    public void testFindOneAsyncLambdaCallbackFindBuilder() {
+        final LambdaCallback<Document> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 1, 1, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final Find.Builder findBuilder = new Find.Builder(doc);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(SingleDocumentCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.findOneAsync(mockCountCallback, findBuilder);
+
+        verify(mockCountCallback);
     }
 
     /**
@@ -3890,6 +4784,74 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test for the
+     * {@link AbstractMongoCollection#groupByAsync(LambdaCallback, GroupBy)}
+     * method.
+     */
+    @Test
+    public void testGroupByAsyncLambdaCallbackGroupBy() {
+        final GroupBy.Builder builder = new GroupBy.Builder();
+        builder.setKeys(Collections.singleton("foo"));
+
+        final GroupBy request = builder.build();
+
+        final LambdaCallback<ArrayElement> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        final DocumentBuilder group = expectedCommand.push("group");
+        group.addString("ns", "test");
+        group.push("key").addBoolean("foo", true);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyArrayCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.groupByAsync(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#groupByAsync(LambdaCallback, GroupBy.Builder)}
+     * method.
+     */
+    @Test
+    public void testGroupByAsyncLambdaCallbackGroupByBuilder() {
+        final GroupBy.Builder builder = new GroupBy.Builder();
+        builder.setKeys(Collections.singleton("foo"));
+
+        final LambdaCallback<ArrayElement> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        final DocumentBuilder group = expectedCommand.push("group");
+        group.addString("ns", "test");
+        group.push("key").addBoolean("foo", true);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyArrayCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.groupByAsync(mockCallback, builder);
+
+        verify(mockCallback);
+    }
+
+    /**
      * Test method for
      * {@link MongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
      */
@@ -4244,6 +5206,121 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test for the
+     * {@link AbstractMongoCollection#insertAsync(LambdaCallback, boolean, DocumentAssignable[])}
+     * method.
+     */
+    @Test
+    public void testInsertAsyncLambdaCallbackBDocumentAssignable() {
+        final LambdaCallback<Integer> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.insertAsync(mockCountCallback, true, doc);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#insertAsync(LambdaCallback, boolean, Durability, DocumentAssignable[])}
+     * method.
+     */
+    @Test
+    public void testInsertAsyncLambdaCallbackBDurabilityDocumentAssignable() {
+        final LambdaCallback<Integer> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance
+                .insertAsync(mockCountCallback, true, Durability.ACK, doc);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#insertAsync(LambdaCallback, DocumentAssignable[])}
+     * method.
+     */
+    @Test
+    public void testInsertAsyncLambdaCallbackDocumentAssignable() {
+        final LambdaCallback<Integer> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.insertAsync(mockCountCallback, doc);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#insertAsync(LambdaCallback, Durability, DocumentAssignable[])}
+     * method.
+     */
+    @Test
+    public void testInsertAsyncLambdaCallbackDurabilityDocumentAssignable() {
+        final LambdaCallback<Integer> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.insertAsync(mockCountCallback, Durability.ACK, doc);
+
+        verify(mockCountCallback);
+    }
+
+    /**
      * Test method for
      * {@link AbstractMongoCollection#insert(boolean, DocumentAssignable...)} .
      */
@@ -4471,6 +5548,78 @@ public class MongoCollectionImplTest {
         builder.setOutputType(MapReduce.OutputType.INLINE);
 
         final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("mapreduce", "test");
+        expectedCommand.addJavaScript("map", "map");
+        expectedCommand.addJavaScript("reduce", "reduce");
+        expectedCommand.push("out").addInteger("inline", 1);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.mapReduceAsync(mockCallback, builder);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#mapReduceAsync(LambdaCallback, MapReduce)}
+     * method.
+     */
+    @Test
+    public void testMapReduceAsyncLambdaCallbackMapReduce() {
+        final MapReduce.Builder builder = new MapReduce.Builder();
+        builder.setMapFunction("map");
+        builder.setReduceFunction("reduce");
+        builder.setOutputType(MapReduce.OutputType.INLINE);
+
+        final LambdaCallback<List<Document>> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("mapreduce", "test");
+        expectedCommand.addJavaScript("map", "map");
+        expectedCommand.addJavaScript("reduce", "reduce");
+        expectedCommand.push("out").addInteger("inline", 1);
+
+        final Command message = new Command("test", expectedCommand.build());
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.mapReduceAsync(mockCallback, builder.build());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#mapReduceAsync(LambdaCallback, MapReduce.Builder)}
+     * method.
+     */
+    @Test
+    public void testMapReduceAsyncLambdaCallbackMapReduceBuilder() {
+        final MapReduce.Builder builder = new MapReduce.Builder();
+        builder.setMapFunction("map");
+        builder.setReduceFunction("reduce");
+        builder.setOutputType(MapReduce.OutputType.INLINE);
+
+        final LambdaCallback<List<Document>> mockCallback = createMock(LambdaCallback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5029,6 +6178,65 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test for the
+     * {@link AbstractMongoCollection#saveAsync(LambdaCallback, DocumentAssignable)}
+     * method.
+     */
+    @Test
+    public void testSaveAsyncLambdaCallbackDocumentAssignable() {
+        final LambdaCallback<Integer> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().add("_id", 1).build();
+        final Document update = doc;
+
+        final Update message = new Update("test", "test", doc, update, false,
+                true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.saveAsync(mockCountCallback, doc);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#saveAsync(LambdaCallback, DocumentAssignable, Durability)}
+     * method.
+     */
+    @Test
+    public void testSaveAsyncLambdaCallbackDocumentAssignableDurability() {
+        final LambdaCallback<Integer> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().add("_id", 1).build();
+        final Document update = doc;
+
+        final Update message = new Update("test", "test", doc, update, false,
+                true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.saveAsync(mockCountCallback, doc, Durability.ACK);
+
+        verify(mockCountCallback);
+    }
+
+    /**
      * Test method for {@link AbstractMongoCollection#save(DocumentAssignable)}
      * .
      */
@@ -5097,6 +6305,61 @@ public class MongoCollectionImplTest {
 
         assertSame(result, myTestInstance.stats());
         verify();
+    }
+
+    /**
+     * Test method for {@link MongoCollectionImpl#streamingFind(Callback, Find)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testStreamFindWithNonLegacyOptionsAndNonSharded()
+            throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder.build());
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+
+        final Find request = builder.build();
+
+        final Query message = new Query("test", "test", qBuilder.asDocument(),
+                request.getProjection(), request.getBatchSize(),
+                request.getLimit(), request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+        mockCallback.callback(result1);
+        expectLastCall();
+        mockCallback.callback(result2);
+        expectLastCall();
+        mockCallback.done();
+        expectLastCall();
+
+        replay(mockCallback);
+
+        myTestInstance.stream(mockCallback, request);
+
+        verify(mockCallback);
     }
 
     /**
@@ -5182,6 +6445,46 @@ public class MongoCollectionImplTest {
     }
 
     /**
+     * Test for the
+     * {@link AbstractMongoCollection#streamingFind(LambdaCallback, DocumentAssignable)}
+     * method.
+     */
+    @Test
+    public void testStreamingFindLambdaCallbackDocumentAssignable() {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        mockCallback.accept(null, result1);
+        expectLastCall();
+        mockCallback.accept(null, result2);
+        expectLastCall();
+        mockCallback.accept(null, null);
+        expectLastCall();
+
+        replay(mockCallback);
+
+        assertNotNull(myTestInstance.streamingFind(mockCallback, doc));
+
+        verify(mockCallback);
+    }
+
+    /**
      * Test method for
      * {@link AbstractMongoCollection#streamingFind(StreamCallback,DocumentAssignable)}
      * .
@@ -5217,109 +6520,6 @@ public class MongoCollectionImplTest {
         replay(mockCallback);
 
         assertNotNull(myTestInstance.streamingFind(mockCallback, doc));
-
-        verify(mockCallback);
-    }
-
-    /**
-     * Test method for
-     * {@link MongoCollectionImpl#streamingFind(StreamCallback,Find)} .
-     */
-    @Test
-    public void testStreamingFindStreamCallbackFind() {
-        final Document result1 = BuilderFactory.start().build();
-        final Document result2 = BuilderFactory.start().build();
-
-        final Document doc = BuilderFactory.start().build();
-
-        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
-                false, ReadPreference.PRIMARY, false, false, false, false);
-
-        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-
-        expect(myMockDatabase.getReadPreference()).andReturn(
-                ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
-
-        mockCallback.callback(result1);
-        expectLastCall();
-        mockCallback.callback(result2);
-        expectLastCall();
-        mockCallback.done();
-        expectLastCall();
-
-        replay();
-
-        myTestInstance.streamingFind(mockCallback, new Find.Builder(doc));
-
-        verify();
-    }
-
-    /**
-     * Test method for
-     * {@link MongoCollectionImpl#streamingFind(StreamCallback, Find)} .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testStreamingFindStreamCallbackWithAllOptionsNonSharded()
-            throws Exception {
-        final Document result1 = BuilderFactory.start().build();
-        final Document result2 = BuilderFactory.start().build();
-
-        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
-                "foo", 1);
-        final DocumentBuilder sort = BuilderFactory.start()
-                .addInteger("baz", 1);
-
-        final Find.Builder builder = new Find.Builder();
-        builder.setQuery(qBuilder);
-        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
-                .build());
-        builder.setBatchSize(101010);
-        builder.setLimit(202020);
-        builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
-        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
-        builder.setSort(sort);
-
-        final Find request = builder.build();
-
-        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
-        qRequestBuilder.add("$query", qBuilder);
-        qRequestBuilder.addDocument("$orderby", sort.asDocument());
-
-        final Query message = new Query("test", "test",
-                qRequestBuilder.build(), request.getProjection(),
-                request.getBatchSize(), request.getLimit(),
-                request.getNumberToSkip(), false,
-                ReadPreference.PREFER_SECONDARY, false, false, false, true);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
-
-        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
-        mockCallback.callback(result1);
-        expectLastCall();
-        mockCallback.callback(result2);
-        expectLastCall();
-        mockCallback.done();
-        expectLastCall();
-
-        replay(mockCallback);
-
-        myTestInstance.streamingFind(mockCallback, request);
 
         verify(mockCallback);
     }
@@ -5454,46 +6654,261 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#streamingFind(Callback, Find)}
-     * .
-     * 
-     * @throws Exception
-     *             On an error.
+     * Test for the
+     * {@link AbstractMongoCollection#stream(LambdaCallback, Aggregation)}
+     * method.
      */
     @Test
-    public void testStreamingFindWithNonLegacyOptionsAndNonSharded()
-            throws Exception {
+    public void testStreamLambdaCallbackAggregation() {
+        final Aggregation.Builder builder = new Aggregation.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final AggregationCommand message = new AggregationCommand(
+                builder.build(), "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY, Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.stream(mockCallback, builder.build());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#stream(LambdaCallback, Aggregation.Builder)}
+     * method.
+     */
+    @Test
+    public void testStreamLambdaCallbackAggregationBuilder() {
+        final Aggregation.Builder builder = new Aggregation.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final AggregationCommand message = new AggregationCommand(
+                builder.build(), "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY, Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.stream(mockCallback, builder);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#stream(LambdaCallback, Find.Builder)}
+     * method.
+     */
+    @Test
+    public void testStreamLambdaCallbackFind() {
         final Document result1 = BuilderFactory.start().build();
         final Document result2 = BuilderFactory.start().build();
 
-        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
-                "foo", 1);
-        final Find.Builder builder = new Find.Builder();
-        builder.setQuery(qBuilder.build());
-        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
-                .build());
-        builder.setBatchSize(101010);
-        builder.setLimit(202020);
-        builder.setNumberToSkip(123456);
-        builder.setPartialOk(true);
-        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        final Document doc = BuilderFactory.start().build();
 
-        final Find request = builder.build();
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
 
-        final Query message = new Query("test", "test", qBuilder.asDocument(),
-                request.getProjection(), request.getBatchSize(),
-                request.getLimit(), request.getNumberToSkip(), false,
-                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
         expect(
                 myMockClient.send(eq(message),
                         callback(reply(result1, result2))))
                 .andReturn(myAddress);
 
+        mockCallback.accept(null, result1);
+        expectLastCall();
+        mockCallback.accept(null, result2);
+        expectLastCall();
+        mockCallback.accept(null, null);
+        expectLastCall();
+
+        replay();
+
+        myTestInstance.stream(mockCallback, new Find.Builder(doc).build());
+
+        verify();
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#stream(LambdaCallback, Find.Builder)}
+     * method.
+     */
+    @Test
+    public void testStreamLambdaCallbackFindBuilder() {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        mockCallback.accept(null, result1);
+        expectLastCall();
+        mockCallback.accept(null, result2);
+        expectLastCall();
+        mockCallback.accept(null, null);
+        expectLastCall();
+
+        replay();
+
+        myTestInstance.stream(mockCallback, new Find.Builder(doc));
+
+        verify();
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#stream(StreamCallback, Aggregation)}
+     * method.
+     */
+    @Test
+    public void testStreamStreamCallbackAggregation() {
+        final Aggregation.Builder builder = new Aggregation.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final AggregationCommand message = new AggregationCommand(
+                builder.build(), "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY, Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.stream(mockCallback, builder.build());
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#stream(StreamCallback, Aggregation.Builder)}
+     * method.
+     */
+    @Test
+    public void testStreamStreamCallbackAggregationBuilder() {
+        final Aggregation.Builder builder = new Aggregation.Builder();
+        builder.limit(5);
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+
+        final AggregationCommand message = new AggregationCommand(
+                builder.build(), "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY, Version.VERSION_2_4);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        anyObject(ReplyResultCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCallback);
+
+        myTestInstance.stream(mockCallback, builder);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for {@link MongoCollectionImpl#stream(StreamCallback,Find)} .
+     */
+    @Test
+    public void testStreamStreamCallbackFind() {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
         mockCallback.callback(result1);
         expectLastCall();
         mockCallback.callback(result2);
@@ -5501,11 +6916,50 @@ public class MongoCollectionImplTest {
         mockCallback.done();
         expectLastCall();
 
-        replay(mockCallback);
+        replay();
 
-        myTestInstance.streamingFind(mockCallback, request);
+        myTestInstance.stream(mockCallback, new Find.Builder(doc).build());
 
-        verify(mockCallback);
+        verify();
+    }
+
+    /**
+     * Test for the {@link AbstractMongoCollection#stream(StreamCallback, Find)}
+     * method.
+     */
+    @Test
+    public void testStreamStreamCallbackFindBuilder() {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final Document doc = BuilderFactory.start().build();
+
+        final Query message = new Query("test", "test", doc, null, 0, 0, 0,
+                false, ReadPreference.PRIMARY, false, false, false, false);
+
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        mockCallback.callback(result1);
+        expectLastCall();
+        mockCallback.callback(result2);
+        expectLastCall();
+        mockCallback.done();
+        expectLastCall();
+
+        replay();
+
+        myTestInstance.stream(mockCallback, new Find.Builder(doc));
+
+        verify();
     }
 
     /**
@@ -5516,8 +6970,7 @@ public class MongoCollectionImplTest {
      *             On an error.
      */
     @Test
-    public void testStreamingStreamCallbackFindWithAllOptions()
-            throws Exception {
+    public void testStreamStreamCallbackFindWithAllOptions() throws Exception {
         final Document result1 = BuilderFactory.start().build();
         final Document result2 = BuilderFactory.start().build();
 
@@ -5568,7 +7021,71 @@ public class MongoCollectionImplTest {
 
         replay(mockCallback);
 
-        myTestInstance.streamingFind(mockCallback, request);
+        myTestInstance.stream(mockCallback, request);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoCollectionImpl#streamingFind(StreamCallback, Find)} .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testStreamStreamCallbackWithAllOptionsNonSharded()
+            throws Exception {
+        final Document result1 = BuilderFactory.start().build();
+        final Document result2 = BuilderFactory.start().build();
+
+        final DocumentBuilder qBuilder = BuilderFactory.start().addInteger(
+                "foo", 1);
+        final DocumentBuilder sort = BuilderFactory.start()
+                .addInteger("baz", 1);
+
+        final Find.Builder builder = new Find.Builder();
+        builder.setQuery(qBuilder);
+        builder.setProjection(BuilderFactory.start().addBoolean("_id", true)
+                .build());
+        builder.setBatchSize(101010);
+        builder.setLimit(202020);
+        builder.setNumberToSkip(123456);
+        builder.setPartialOk(true);
+        builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
+        builder.setSort(sort);
+
+        final Find request = builder.build();
+
+        final DocumentBuilder qRequestBuilder = BuilderFactory.start();
+        qRequestBuilder.add("$query", qBuilder);
+        qRequestBuilder.addDocument("$orderby", sort.asDocument());
+
+        final Query message = new Query("test", "test",
+                qRequestBuilder.build(), request.getProjection(),
+                request.getBatchSize(), request.getLimit(),
+                request.getNumberToSkip(), false,
+                ReadPreference.PREFER_SECONDARY, false, false, false, true);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        expect(
+                myMockClient.send(eq(message),
+                        callback(reply(result1, result2))))
+                .andReturn(myAddress);
+
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+        mockCallback.callback(result1);
+        expectLastCall();
+        mockCallback.callback(result2);
+        expectLastCall();
+        mockCallback.done();
+        expectLastCall();
+
+        replay(mockCallback);
+
+        myTestInstance.stream(mockCallback, request);
 
         verify(mockCallback);
     }
@@ -5909,6 +7426,130 @@ public class MongoCollectionImplTest {
                 myTestInstance.updateAsync(doc, update, Durability.ACK).get());
 
         verify();
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable)}
+     * method.
+     */
+    @Test
+    public void testUpdateAsyncLambdaCallbackDocumentAssignableDocumentAssignable() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().addInteger("foo", 1)
+                .build();
+
+        final Update message = new Update("test", "test", doc, update, false,
+                false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.updateAsync(mockCountCallback, doc, update);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable, boolean, boolean)}
+     * method.
+     */
+    @Test
+    public void testUpdateAsyncLambdaCallbackDocumentAssignableDocumentAssignableBB() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().addInteger("foo", 1)
+                .build();
+
+        final Update message = new Update("test", "test", doc, update, true,
+                true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.updateAsync(mockCountCallback, doc, update, true, true);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
+     * method.
+     */
+    @Test
+    public void testUpdateAsyncLambdaCallbackDocumentAssignableDocumentAssignableBBDurability() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().addInteger("foo", 1)
+                .build();
+
+        final Update message = new Update("test", "test", doc, update, true,
+                true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.updateAsync(mockCountCallback, doc, update, true, true,
+                Durability.ACK);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test for the
+     * {@link AbstractMongoCollection#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable, Durability)}
+     * method.
+     */
+    @Test
+    public void testUpdateAsyncLambdaCallbackDocumentAssignableDocumentAssignableDurability() {
+        final LambdaCallback<Long> mockCountCallback = createMock(LambdaCallback.class);
+        final Document doc = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().addInteger("foo", 1)
+                .build();
+
+        final Update message = new Update("test", "test", doc, update, false,
+                false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 0, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(
+                myMockClient.send(eq(message), eq(getLastError),
+                        anyObject(ReplyLongCallback.class))).andReturn(
+                myAddress);
+
+        replay(mockCountCallback);
+
+        myTestInstance.updateAsync(mockCountCallback, doc, update,
+                Durability.ACK);
+
+        verify(mockCountCallback);
     }
 
     /**

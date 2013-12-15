@@ -7,9 +7,12 @@ package com.allanbank.mongodb;
 
 /**
  * Interface for a callback with the result of a MongoDB operation.
+ * <p>
+ * For a lambda friendly version of this interface see {@link LambdaCallback}.
+ * </p>
  * 
  * @param <V>
- *            The type of the operations result.
+ *            The type of the operation's result.
  * 
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release

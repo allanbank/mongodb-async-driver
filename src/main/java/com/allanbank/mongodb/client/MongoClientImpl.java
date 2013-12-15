@@ -8,6 +8,7 @@ package com.allanbank.mongodb.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.allanbank.mongodb.LambdaCallback;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCursorControl;
@@ -155,6 +156,21 @@ public class MongoClientImpl implements MongoClient {
             final DocumentAssignable cursorDocument)
             throws IllegalArgumentException {
         return myClient.restart(cursorDocument);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #restart(StreamCallback, DocumentAssignable)}
+     * with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl restart(final LambdaCallback<Document> results,
+            final DocumentAssignable cursorDocument)
+            throws IllegalArgumentException {
+        return restart(new LambdaCallbackAdapter<Document>(results),
+                cursorDocument);
     }
 
     /**

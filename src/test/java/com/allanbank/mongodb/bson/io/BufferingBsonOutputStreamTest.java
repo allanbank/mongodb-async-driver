@@ -35,6 +35,52 @@ public class BufferingBsonOutputStreamTest {
      * @throws IOException
      *             On a failure reading the test document.
      */
+    @Test
+    public void testReadWriteBigDocument() throws IOException {
+        final DocumentBuilder builder = BuilderFactory.start();
+        final Document simple = builder.build();
+
+        // Over 16 megs.
+        for (int i = 0; i < 16000; ++i) {
+            builder.addBinary(i + "", new byte[1024]);
+            builder.add(i + "a", simple);
+        }
+
+        final Document doc = builder.build();
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
+                out);
+
+        writer.write(doc);
+
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        BsonInputStream reader = new BsonInputStream(in);
+        Document read = reader.readDocument();
+        reader.close();
+
+        assertTrue("Should be a RootDocument.", read instanceof RootDocument);
+        assertEquals("Should equal the orginal document.", doc, read);
+
+        out.reset();
+        writer.write(doc);
+
+        in = new ByteArrayInputStream(out.toByteArray());
+        reader = new BsonInputStream(in);
+        read = reader.readDocument();
+        reader.close();
+        writer.close();
+
+        assertTrue("Should be a RootDocument.", read instanceof RootDocument);
+        assertEquals("Should equal the orginal document.", doc, read);
+    }
+
+    /**
+     * Test method for {@link BufferingBsonOutputStream#write(Document)}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
     @SuppressWarnings("deprecation")
     @Test
     public void testReadWriteCompleteDocument() throws IOException {
@@ -125,81 +171,6 @@ public class BufferingBsonOutputStreamTest {
     }
 
     /**
-     * Test method for {@link BufferingBsonOutputStream#write(Document)}.
-     * 
-     * @throws IOException
-     *             On a failure reading the test document.
-     */
-    @Test
-    public void testReadWriteBigDocument() throws IOException {
-        DocumentBuilder builder = BuilderFactory.start();
-        final Document simple = builder.build();
-
-        // Over 16 megs.
-        for (int i = 0; i < 16000; ++i) {
-            builder.addBinary(i + "", new byte[1024]);
-            builder.add(i + "a", simple);
-        }
-
-        final Document doc = builder.build();
-
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
-                out);
-
-        writer.write(doc);
-
-        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        BsonInputStream reader = new BsonInputStream(in);
-        Document read = reader.readDocument();
-        reader.close();
-
-        assertTrue("Should be a RootDocument.", read instanceof RootDocument);
-        assertEquals("Should equal the orginal document.", doc, read);
-
-        out.reset();
-        writer.write(doc);
-
-        in = new ByteArrayInputStream(out.toByteArray());
-        reader = new BsonInputStream(in);
-        read = reader.readDocument();
-        reader.close();
-        writer.close();
-
-        assertTrue("Should be a RootDocument.", read instanceof RootDocument);
-        assertEquals("Should equal the orginal document.", doc, read);
-    }
-
-    /**
-     * Test method for {@link BufferingBsonOutputStream#write}.
-     * 
-     * @throws IOException
-     *             On a failure reading the test document.
-     */
-    @Test
-    public void testWriteHelloWorldDocument() throws IOException {
-        // From the BSON specification.
-        final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
-                (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
-                0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
-                (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
-
-        final DocumentBuilder builder = BuilderFactory.start();
-        builder.addString("hello", "world");
-
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
-                out);
-
-        writer.write(builder.build());
-
-        assertArrayEquals("{ 'hello' : 'world' } not the expected bytes.",
-                helloWorld, out.toByteArray());
-
-        writer.close();
-    }
-
-    /**
      * Test method for {@link BufferingBsonOutputStream#write}.
      * 
      * @throws IOException
@@ -230,6 +201,35 @@ public class BufferingBsonOutputStreamTest {
         assertArrayEquals(
                 " { 'BSON': ['awesome', 5.05, 1986] } not the expected bytes.",
                 arrayDocument, out.toByteArray());
+
+        writer.close();
+    }
+
+    /**
+     * Test method for {@link BufferingBsonOutputStream#write}.
+     * 
+     * @throws IOException
+     *             On a failure reading the test document.
+     */
+    @Test
+    public void testWriteHelloWorldDocument() throws IOException {
+        // From the BSON specification.
+        final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
+                (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
+                0x00, 0x06, 0x00, 0x00, 0x00, (byte) 'w', (byte) 'o',
+                (byte) 'r', (byte) 'l', (byte) 'd', 0x00, 0x00 };
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.addString("hello", "world");
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final BufferingBsonOutputStream writer = new BufferingBsonOutputStream(
+                out);
+
+        writer.write(builder.build());
+
+        assertArrayEquals("{ 'hello' : 'world' } not the expected bytes.",
+                helloWorld, out.toByteArray());
 
         writer.close();
     }

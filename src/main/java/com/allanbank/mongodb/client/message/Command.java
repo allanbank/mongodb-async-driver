@@ -220,7 +220,7 @@ public class Command extends AbstractMessage {
             throws IOException {
         final int numberToSkip = 0;
         final int numberToReturn = -1; // Unlimited
-        int flags = computeFlags();
+        final int flags = computeFlags();
 
         int size = HEADER_SIZE;
         size += 4; // flags;
@@ -238,19 +238,6 @@ public class Command extends AbstractMessage {
     }
 
     /**
-     * Computes the message flags bit field.
-     * 
-     * @return The message flags bit field.
-     */
-    private int computeFlags() {
-        int flags = 0;
-        if (getReadPreference().isSecondaryOk()) {
-            flags += Query.REPLICA_OK_FLAG_BIT;
-        }
-        return flags;
-    }
-
-    /**
      * {@inheritDoc}
      * <p>
      * Overridden to write the Command as a {@link Operation#QUERY} message.
@@ -261,7 +248,7 @@ public class Command extends AbstractMessage {
             throws IOException {
         final int numberToSkip = 0;
         final int numberToReturn = -1; // Unlimited
-        int flags = computeFlags();
+        final int flags = computeFlags();
 
         final long start = writeHeader(out, messageId, 0, Operation.QUERY);
         out.writeInt(flags);
@@ -272,5 +259,18 @@ public class Command extends AbstractMessage {
         finishHeader(out, start);
 
         out.flushBuffer();
+    }
+
+    /**
+     * Computes the message flags bit field.
+     * 
+     * @return The message flags bit field.
+     */
+    private int computeFlags() {
+        int flags = 0;
+        if (getReadPreference().isSecondaryOk()) {
+            flags += Query.REPLICA_OK_FLAG_BIT;
+        }
+        return flags;
     }
 }

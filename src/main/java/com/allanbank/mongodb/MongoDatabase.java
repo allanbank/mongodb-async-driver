@@ -369,6 +369,105 @@ public interface MongoDatabase {
     /**
      * Runs a command against the database.
      * 
+     * @param reply
+     *            {@link LambdaCallback} that will be notified of the command
+     *            results.
+     * @param command
+     *            The command document to run.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(LambdaCallback<Document> reply,
+            DocumentAssignable command) throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link LambdaCallback} that will be notified of the command
+     *            results.
+     * @param command
+     *            The command document to run.
+     * @param requiredServerVersion
+     *            The minimum required server version to support the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(LambdaCallback<Document> reply,
+            DocumentAssignable command, Version requiredServerVersion)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link LambdaCallback} that will be notified of the command
+     *            results.
+     * @param command
+     *            The name of the command to run.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(LambdaCallback<Document> reply, String command)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link LambdaCallback} that will be notified of the command
+     *            results.
+     * @param command
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(LambdaCallback<Document> reply, String command,
+            DocumentAssignable options) throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link LambdaCallback} that will be notified of the command
+     *            results.
+     * @param commandName
+     *            The name of the command to run.
+     * @param commandValue
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(LambdaCallback<Document> reply,
+            String commandName, int commandValue, DocumentAssignable options)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
+     * @param reply
+     *            {@link LambdaCallback} that will be notified of the command
+     *            results.
+     * @param commandName
+     *            The name of the command to run.
+     * @param commandValue
+     *            The name of the command to run.
+     * @param options
+     *            Optional (may be null) options for the command.
+     * @throws MongoDbException
+     *             On an error issuing the command or in running the command
+     */
+    public void runCommandAsync(LambdaCallback<Document> reply,
+            String commandName, String commandValue, DocumentAssignable options)
+            throws MongoDbException;
+
+    /**
+     * Runs a command against the database.
+     * 
      * @param command
      *            The name of the command to run.
      * @return The result of the command.

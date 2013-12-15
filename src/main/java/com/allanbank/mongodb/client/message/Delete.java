@@ -197,7 +197,7 @@ public class Delete extends AbstractMessage {
     @Override
     public void write(final int messageId, final BsonOutputStream out)
             throws IOException {
-        int flags = computeFlags();
+        final int flags = computeFlags();
 
         int size = HEADER_SIZE;
         size += 4; // reserved - 0;

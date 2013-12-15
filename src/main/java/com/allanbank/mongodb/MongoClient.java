@@ -88,6 +88,28 @@ public interface MongoClient extends Closeable {
 
     /**
      * Restarts a document stream from a cursor that was previously saved.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link LambdaCallback#accept(Throwable, Object) results.accept(...)}
+     * method with <code>null</code> for both parameters or by calling the
+     * method with an error for the first parameter.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the cursor.
+     * @param cursorDocument
+     *            The document containing the state of the cursor.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws IllegalArgumentException
+     *             If the document does not contain a valid cursor state.
+     */
+    public MongoCursorControl restart(final LambdaCallback<Document> results,
+            DocumentAssignable cursorDocument) throws IllegalArgumentException;
+
+    /**
+     * Restarts a document stream from a cursor that was previously saved.
      * 
      * @param results
      *            Callback that will be notified of the results of the cursor.

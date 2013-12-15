@@ -33,8 +33,9 @@ public class StringDecoderTest {
     @Test
     public void testDecode() throws IOException {
 
-        StringDecoder decoder = new StringDecoder();
-        assertThat(decoder.getMaxCacheLength(), is(StringDecoder.DEFAULT_MAX_CACHE_LENGTH));
+        final StringDecoder decoder = new StringDecoder();
+        assertThat(decoder.getMaxCacheLength(),
+                is(StringDecoder.DEFAULT_MAX_CACHE_LENGTH));
         assertThat(decoder.getMaxCacheEntries(),
                 is(StringDecoder.DEFAULT_MAX_CACHE_ENTRIES));
 
@@ -73,9 +74,9 @@ public class StringDecoderTest {
     @Test(expected = StreamCorruptedException.class)
     public void testDecodeThrowsIfNoTerminalNull() throws IOException {
 
-        StringDecoder decoder = new StringDecoder();
+        final StringDecoder decoder = new StringDecoder();
 
-        byte[] data = new byte[] { 'a', 'b' };
+        final byte[] data = new byte[] { 'a', 'b' };
         decoder.decode(data, 0, data.length);
     }
 
@@ -87,14 +88,15 @@ public class StringDecoderTest {
      */
     @Test
     public void testGetMaxDepth() throws IOException {
-        StringDecoder decoder = new StringDecoder();
-        assertThat(decoder.getMaxCacheLength(), is(StringDecoder.DEFAULT_MAX_CACHE_LENGTH));
+        final StringDecoder decoder = new StringDecoder();
+        assertThat(decoder.getMaxCacheLength(),
+                is(StringDecoder.DEFAULT_MAX_CACHE_LENGTH));
         assertThat(decoder.getMaxCacheEntries(),
                 is(StringDecoder.DEFAULT_MAX_CACHE_ENTRIES));
 
         // Simple.
-        byte[] data = new byte[] { 'a', 0 };
-        String result = decoder.decode(data, 0, data.length);
+        final byte[] data = new byte[] { 'a', 0 };
+        final String result = decoder.decode(data, 0, data.length);
         assertThat(result, is("a"));
         // And cached...
         assertThat(decoder.decode(data, 0, data.length), sameInstance(result));
@@ -112,7 +114,7 @@ public class StringDecoderTest {
 
         // And we are back to caching but not the original value still. (e.g.,
         // the cache was cleared before)
-        String result2 = decoder.decode(data, 0, data.length);
+        final String result2 = decoder.decode(data, 0, data.length);
         assertThat(result2, not(sameInstance(result)));
         assertThat(result2, is("a"));
         // And cached...
@@ -128,8 +130,9 @@ public class StringDecoderTest {
      */
     @Test
     public void testGetMaxNodeCount() throws IOException {
-        StringDecoder decoder = new StringDecoder();
-        assertThat(decoder.getMaxCacheLength(), is(StringDecoder.DEFAULT_MAX_CACHE_LENGTH));
+        final StringDecoder decoder = new StringDecoder();
+        assertThat(decoder.getMaxCacheLength(),
+                is(StringDecoder.DEFAULT_MAX_CACHE_LENGTH));
         assertThat(decoder.getMaxCacheEntries(),
                 is(StringDecoder.DEFAULT_MAX_CACHE_ENTRIES));
 
@@ -137,8 +140,8 @@ public class StringDecoderTest {
         decoder.setMaxCacheEntries(26 * 2);
 
         // Decode 512 bytes of data...
-        List<String> decoded = new ArrayList<String>();
-        byte[] data = new byte[3];
+        final List<String> decoded = new ArrayList<String>();
+        final byte[] data = new byte[3];
         for (int i = 'a'; i <= 'b'; ++i) {
             for (int j = 'a'; j <= 'z'; ++j) {
                 data[0] = (byte) i;
@@ -163,8 +166,8 @@ public class StringDecoderTest {
         }
 
         // Now add another entry.
-        byte[] extra = new byte[] { 'a', 0 };
-        String extraDecoded = decoder.decode(extra, 0, extra.length);
+        final byte[] extra = new byte[] { 'a', 0 };
+        final String extraDecoded = decoder.decode(extra, 0, extra.length);
         assertThat(extraDecoded, is("a"));
 
         // Everyone but the first node should be in the cache.

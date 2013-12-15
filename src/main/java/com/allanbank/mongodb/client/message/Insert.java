@@ -233,19 +233,6 @@ public class Insert extends AbstractMessage {
     }
 
     /**
-     * Computes the message flags bit field.
-     * 
-     * @return The message flags bit field.
-     */
-    private int computeFlags() {
-        int flags = 0;
-        if (myContinueOnError) {
-            flags += CONTINUE_ON_ERROR_BIT;
-        }
-        return flags;
-    }
-
-    /**
      * {@inheritDoc}
      * <p>
      * Overridden to write the insert message.
@@ -286,7 +273,7 @@ public class Insert extends AbstractMessage {
             throws IOException {
         final int flags = computeFlags();
 
-        long start = writeHeader(out, messageId, 0, Operation.INSERT);
+        final long start = writeHeader(out, messageId, 0, Operation.INSERT);
         out.writeInt(flags);
         out.writeCString(myDatabaseName, ".", myCollectionName);
         for (final Document document : myDocuments) {
@@ -295,6 +282,19 @@ public class Insert extends AbstractMessage {
         finishHeader(out, start);
 
         out.flushBuffer();
+    }
+
+    /**
+     * Computes the message flags bit field.
+     * 
+     * @return The message flags bit field.
+     */
+    private int computeFlags() {
+        int flags = 0;
+        if (myContinueOnError) {
+            flags += CONTINUE_ON_ERROR_BIT;
+        }
+        return flags;
     }
 
 }

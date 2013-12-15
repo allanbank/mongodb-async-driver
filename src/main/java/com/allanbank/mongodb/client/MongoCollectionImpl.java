@@ -660,9 +660,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public MongoCursorControl streamingFind(
-            final StreamCallback<Document> results, final Find query)
-            throws MongoDbException {
+    public MongoCursorControl stream(final StreamCallback<Document> results,
+            final Find query) throws MongoDbException {
         final Query queryMessage = createQuery(query, query.getLimit(),
                 query.getBatchSize(), query.isTailable(), query.isAwaitData(),
                 query.isImmortalCursor());

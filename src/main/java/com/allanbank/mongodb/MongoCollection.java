@@ -218,6 +218,69 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     * @deprecated Replaced with the
+     *             {@link #aggregateAsync(Callback, Aggregation)} to support
+     *             cursors. This method will be replaced after the 1.4 release.
+     */
+    @Deprecated
+    public void aggregateAsync(LambdaCallback<List<Document>> results,
+            com.allanbank.mongodb.builder.Aggregate command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     * @deprecated Replaced with the
+     *             {@link #aggregateAsync(Callback, Aggregation.Builder)} to
+     *             support cursors. This method will be replaced after the 1.4
+     *             release.
+     */
+    @Deprecated
+    public void aggregateAsync(LambdaCallback<List<Document>> results,
+            com.allanbank.mongodb.builder.Aggregate.Builder command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     */
+    public void aggregateAsync(LambdaCallback<MongoIterator<Document>> results,
+            Aggregation command) throws MongoDbException;
+
+    /**
+     * Invokes a aggregate command on the server.
+     * 
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     */
+    public void aggregateAsync(LambdaCallback<MongoIterator<Document>> results,
+            Aggregation.Builder command) throws MongoDbException;
+
+    /**
      * Counts the set of documents in the collection.
      * <p>
      * This is equivalent to calling {@link #countAsync() countAsync().get()}
@@ -462,6 +525,101 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public ListenableFuture<Long> countAsync(DocumentAssignable query,
+            ReadPreference readPreference) throws MongoDbException;
+
+    /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling
+     * {@link #countAsync(LambdaCallback, DocumentAssignable)
+     * countAsync(results, BuilderFactory.start())}
+     * </p>
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void countAsync(LambdaCallback<Long> results)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param count
+     *            The count command.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     */
+    public void countAsync(LambdaCallback<Long> results, Count count)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param count
+     *            The count command.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     */
+    public void countAsync(LambdaCallback<Long> results, Count.Builder count)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param query
+     *            The query document.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void countAsync(LambdaCallback<Long> results,
+            DocumentAssignable query) throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param query
+     *            The query document.
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void countAsync(LambdaCallback<Long> results,
+            DocumentAssignable query, ReadPreference readPreference)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents in the collection.
+     * <p>
+     * This is equivalent to calling
+     * {@link #countAsync(LambdaCallback, DocumentAssignable)
+     * countAsync(results, BuilderFactory.start(), readPreference)}
+     * </p>
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void countAsync(LambdaCallback<Long> results,
             ReadPreference readPreference) throws MongoDbException;
 
     /**
@@ -855,6 +1013,77 @@ public interface MongoCollection {
             Durability durability) throws MongoDbException;
 
     /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query. If
+     *            the durability of the operation is NONE then this will be -1.
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public void deleteAsync(LambdaCallback<Long> results,
+            DocumentAssignable query) throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query. If
+     *            the durability of the operation is NONE then this will be -1.
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param singleDelete
+     *            If true then only a single document will be deleted. If
+     *            running in a sharded environment then this field must be false
+     *            or the query must contain the shard key.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public void deleteAsync(LambdaCallback<Long> results,
+            DocumentAssignable query, boolean singleDelete)
+            throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query. If
+     *            the durability of the operation is NONE then this will be -1.
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param singleDelete
+     *            If true then only a single document will be deleted. If
+     *            running in a sharded environment then this field must be false
+     *            or the query must contain the shard key.
+     * @param durability
+     *            The durability for the delete.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public void deleteAsync(LambdaCallback<Long> results,
+            DocumentAssignable query, boolean singleDelete,
+            Durability durability) throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query. If
+     *            the durability of the operation is NONE then this will be -1.
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param durability
+     *            The durability for the delete.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public void deleteAsync(LambdaCallback<Long> results,
+            DocumentAssignable query, Durability durability)
+            throws MongoDbException;
+
+    /**
      * Invokes a distinct command on the server.
      * 
      * @param command
@@ -926,6 +1155,32 @@ public interface MongoCollection {
      */
     public ListenableFuture<ArrayElement> distinctAsync(Distinct.Builder command)
             throws MongoDbException;
+
+    /**
+     * Invokes a distinct command on the server.
+     * 
+     * @param results
+     *            Callback for the distinct results returned.
+     * @param command
+     *            The details of the distinct request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void distinctAsync(LambdaCallback<ArrayElement> results,
+            Distinct command) throws MongoDbException;
+
+    /**
+     * Invokes a distinct command on the server.
+     * 
+     * @param results
+     *            Callback for the distinct results returned.
+     * @param command
+     *            The details of the distinct request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void distinctAsync(LambdaCallback<ArrayElement> results,
+            Distinct.Builder command) throws MongoDbException;
 
     /**
      * Drops the collection from the database.
@@ -1157,6 +1412,60 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
+     * Explains the way that the aggregation will be performed.
+     * 
+     * @param aggregation
+     *            The aggregation details.
+     * @param results
+     *            Callback that will be notified of the results of the explain.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @since MongoDB 2.6
+     */
+    public void explainAsync(LambdaCallback<Document> results,
+            Aggregation aggregation) throws MongoDbException;
+
+    /**
+     * Explains the way that the aggregation will be performed.
+     * 
+     * @param aggregation
+     *            The aggregation details.
+     * @param results
+     *            Callback that will be notified of the results of the explain.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @since MongoDB 2.6
+     */
+    public void explainAsync(LambdaCallback<Document> results,
+            Aggregation.Builder aggregation) throws MongoDbException;
+
+    /**
+     * Explains the way that the query will be performed.
+     * 
+     * @param query
+     *            The query details.
+     * @param results
+     *            Callback that will be notified of the results of the explain.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void explainAsync(LambdaCallback<Document> results, Find query)
+            throws MongoDbException;
+
+    /**
+     * Explains the way that the query will be performed.
+     * 
+     * @param query
+     *            The query details.
+     * @param results
+     *            Callback that will be notified of the results of the explain.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void explainAsync(LambdaCallback<Document> results,
+            Find.Builder query) throws MongoDbException;
+
+    /**
      * Finds the set of documents matching the query document in the collection.
      * <p>
      * This is equivalent to calling {@link #findAsync(DocumentAssignable)
@@ -1284,6 +1593,34 @@ public interface MongoCollection {
             FindAndModify.Builder command) throws MongoDbException;
 
     /**
+     * Invokes a findAndModify command on the server. The <tt>query</tt> is used
+     * to locate a document to apply a set of <tt>update</tt>s to.
+     * 
+     * @param results
+     *            Callback for the the found document.
+     * @param command
+     *            The details of the find and modify request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void findAndModifyAsync(LambdaCallback<Document> results,
+            FindAndModify command) throws MongoDbException;
+
+    /**
+     * Invokes a findAndModify command on the server. The <tt>query</tt> is used
+     * to locate a document to apply a set of <tt>update</tt>s to.
+     * 
+     * @param results
+     *            Callback for the the found document.
+     * @param command
+     *            The details of the find and modify request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void findAndModifyAsync(LambdaCallback<Document> results,
+            FindAndModify.Builder command) throws MongoDbException;
+
+    /**
      * Finds the set of documents matching the query document in the collection.
      * 
      * @param results
@@ -1356,6 +1693,45 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public ListenableFuture<MongoIterator<Document>> findAsync(
+            Find.Builder query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query document in the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query document.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void findAsync(LambdaCallback<MongoIterator<Document>> results,
+            DocumentAssignable query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void findAsync(LambdaCallback<MongoIterator<Document>> results,
+            Find query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void findAsync(LambdaCallback<MongoIterator<Document>> results,
             Find.Builder query) throws MongoDbException;
 
     /**
@@ -1527,6 +1903,65 @@ public interface MongoCollection {
             throws MongoDbException;
 
     /**
+     * Finds a single matching document in the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public void findOneAsync(LambdaCallback<Document> results,
+            DocumentAssignable query) throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public void findOneAsync(LambdaCallback<Document> results, Find query)
+            throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public void findOneAsync(LambdaCallback<Document> results,
+            Find.Builder query) throws MongoDbException;
+
+    /**
      * Returns the name of the database.
      * 
      * @return The name of the database.
@@ -1640,6 +2075,32 @@ public interface MongoCollection {
      */
     public ListenableFuture<ArrayElement> groupByAsync(GroupBy.Builder command)
             throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
+     * @param results
+     *            Callback for the group results returned.
+     * @param command
+     *            The details of the group request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void groupByAsync(LambdaCallback<ArrayElement> results,
+            GroupBy command) throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
+     * @param results
+     *            Callback for the group results returned.
+     * @param command
+     *            The details of the group request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void groupByAsync(LambdaCallback<ArrayElement> results,
+            GroupBy.Builder command) throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -1890,6 +2351,91 @@ public interface MongoCollection {
             DocumentAssignable... documents) throws MongoDbException;
 
     /**
+     * Inserts a set of documents into the collection.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
+     * @param continueOnError
+     *            If the insert should continue if one of the documents causes
+     *            an error.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    public void insertAsync(LambdaCallback<Integer> results,
+            boolean continueOnError, DocumentAssignable... documents)
+            throws MongoDbException;
+
+    /**
+     * Inserts a set of documents into the collection.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
+     * @param continueOnError
+     *            If the insert should continue if one of the documents causes
+     *            an error.
+     * @param durability
+     *            The durability for the insert.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    public void insertAsync(LambdaCallback<Integer> results,
+            boolean continueOnError, Durability durability,
+            DocumentAssignable... documents) throws MongoDbException;
+
+    /**
+     * Inserts a set of documents into the collection.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    public void insertAsync(LambdaCallback<Integer> results,
+            DocumentAssignable... documents) throws MongoDbException;
+
+    /**
+     * Inserts a set of documents into the collection.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
+     * @param durability
+     *            The durability for the insert.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    public void insertAsync(LambdaCallback<Integer> results,
+            Durability durability, DocumentAssignable... documents)
+            throws MongoDbException;
+
+    /**
      * Returns true if the collection {@link #stats() statistics} indicate that
      * the collection is a capped collection.
      * 
@@ -1951,6 +2497,34 @@ public interface MongoCollection {
      *             On an error finding the documents.
      */
     public void mapReduceAsync(Callback<List<Document>> results,
+            MapReduce.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a mapReduce command on the server.
+     * 
+     * @param results
+     *            Callback for the map/reduce results returned. Note this might
+     *            be empty if the output type is not inline.
+     * @param command
+     *            The details of the map/reduce request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void mapReduceAsync(LambdaCallback<List<Document>> results,
+            MapReduce command) throws MongoDbException;
+
+    /**
+     * Invokes a mapReduce command on the server.
+     * 
+     * @param results
+     *            Callback for the map/reduce results returned. Note this might
+     *            be empty if the output type is not inline.
+     * @param command
+     *            The details of the map/reduce request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void mapReduceAsync(LambdaCallback<List<Document>> results,
             MapReduce.Builder command) throws MongoDbException;
 
     /**
@@ -2148,6 +2722,65 @@ public interface MongoCollection {
             Durability durability) throws MongoDbException;
 
     /**
+     * Saves the {@code document} to the collection.
+     * <p>
+     * If the {@code document} does not contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #insertAsync(Callback,DocumentAssignable...) insertAsync(results,
+     * document)}.
+     * </p>
+     * <p>
+     * If the {@code document} does contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #updateAsync(Callback,DocumentAssignable, DocumentAssignable, boolean, boolean)
+     * updateAsync(results, BuilderFactory.start().add(document.get("_id")),
+     * document, false, true)}.
+     * </p>
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. If the durability of the operation is NONE then this
+     *            will be -1.
+     * @param document
+     *            The document to save to the collection.
+     * @throws MongoDbException
+     *             On an error saving the documents.
+     */
+    public void saveAsync(LambdaCallback<Integer> results,
+            DocumentAssignable document) throws MongoDbException;
+
+    /**
+     * Saves the {@code document} to the collection.
+     * <p>
+     * If the {@code document} does not contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #insertAsync(Callback, Durability, DocumentAssignable...)
+     * insertAsync(results, durability, document)}.
+     * </p>
+     * <p>
+     * If the {@code document} does contain an {@code _id} field then this
+     * method is equivalent to:
+     * {@link #updateAsync(Callback,DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)
+     * updateAsync(results, BuilderFactory.start().add(document.get("_id")),
+     * document, false, true, durability)}.
+     * </p>
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. If the durability of the operation is NONE then this
+     *            will be -1.
+     * @param document
+     *            The document to save to the collection.
+     * @param durability
+     *            The durability for the save.
+     * @throws MongoDbException
+     *             On an error saving the documents.
+     */
+    public void saveAsync(LambdaCallback<Integer> results,
+            DocumentAssignable document, Durability durability)
+            throws MongoDbException;
+
+    /**
      * Sets the durability for write operations from this
      * {@link MongoCollection} instance.
      * <p>
@@ -2188,6 +2821,170 @@ public interface MongoCollection {
      *      Command Reference</a>
      */
     public Document stats() throws MongoDbException;
+
+    /**
+     * Performs an aggregation and streams them to the provided callback one at
+     * a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link LambdaCallback#accept(Throwable, Object) results.accept(...)}
+     * method with <code>null</code> for both parameters or by calling the
+     * method with an error for the first parameter.
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param aggregation
+     *            The aggregation details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            Aggregation aggregation) throws MongoDbException;
+
+    /**
+     * Performs an aggregation and streams them to the provided callback one at
+     * a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link LambdaCallback#accept(Throwable, Object) results.accept(...)}
+     * method with <code>null</code> for both parameters or by calling the
+     * method with an error for the first parameter.
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * <p>
+     * This method is equivalent to {@link #stream(StreamCallback, Aggregation)
+     * stream( results, aggregation.build() ) }.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param aggregation
+     *            The aggregation details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            Aggregation.Builder aggregation) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection and
+     * streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link LambdaCallback#accept(Throwable, Object) results.accept(...)}
+     * method with <code>null</code> for both parameters or by calling the
+     * method with an error for the first parameter.
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            Find query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection and
+     * streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link LambdaCallback#accept(Throwable, Object) results.accept(...)}
+     * method with <code>null</code> for both parameters or by calling the
+     * method with an error for the first parameter.
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            Find.Builder query) throws MongoDbException;
 
     /**
      * Performs an aggregation and streams them to the provided callback one at
@@ -2274,6 +3071,86 @@ public interface MongoCollection {
             Aggregation.Builder aggregation) throws MongoDbException;
 
     /**
+     * Finds the set of documents matching the query in the collection and
+     * streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            Find query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query in the collection and
+     * streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            Find.Builder query) throws MongoDbException;
+
+    /**
      * Finds the set of documents matching the query document in the collection
      * and streams them to the provided callback one at a time.
      * <p>
@@ -2352,12 +3229,52 @@ public interface MongoCollection {
      *         cursor and persist its state.
      * @throws MongoDbException
      *             On an error finding the documents.
-     * @deprecated Use the {@link #streamingFind(StreamCallback, Find)} method
-     *             instead. This method will be removed after the 1.3.0 release.
+     * @deprecated Use the {@link #stream(StreamCallback, Find)} method instead.
+     *             This method will be removed after the 1.3.0 release.
      */
     @Deprecated
     public MongoCursorControl streamingFind(Callback<Document> results,
             Find query) throws MongoDbException;
+
+    /**
+     * Finds the set of documents matching the query document in the collection
+     * and streams them to the provided callback one at a time.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link LambdaCallback#accept(Throwable, Object) results.accept(...)}
+     * method with <code>null</code> for both parameters or by calling the
+     * method with an error for the first parameter.
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query document.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl streamingFind(LambdaCallback<Document> results,
+            DocumentAssignable query) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection
@@ -2435,7 +3352,10 @@ public interface MongoCollection {
      *         cursor and persist its state.
      * @throws MongoDbException
      *             On an error finding the documents.
+     * @deprecated Use the {@link #stream(StreamCallback, Find)} method instead.
+     *             This method will be removed after the 1.4.0 release.
      */
+    @Deprecated
     public MongoCursorControl streamingFind(StreamCallback<Document> results,
             Find query) throws MongoDbException;
 
@@ -2475,7 +3395,10 @@ public interface MongoCollection {
      *         cursor and persist its state.
      * @throws MongoDbException
      *             On an error finding the documents.
+     * @deprecated Use the {@link #stream(StreamCallback, Find.Builder)} method
+     *             instead. This method will be removed after the 1.4.0 release.
      */
+    @Deprecated
     public MongoCursorControl streamingFind(StreamCallback<Document> results,
             Find.Builder query) throws MongoDbException;
 
@@ -2843,6 +3766,103 @@ public interface MongoCollection {
     public ListenableFuture<Long> updateAsync(DocumentAssignable query,
             DocumentAssignable update, Durability durability)
             throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param results
+     *            The {@link LambdaCallback} that will be notified of the number
+     *            of documents updated. If the durability of the operation is
+     *            NONE then this will be -1.
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public void updateAsync(LambdaCallback<Long> results,
+            DocumentAssignable query, DocumentAssignable update)
+            throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param results
+     *            The {@link LambdaCallback} that will be notified of the number
+     *            of documents updated. If the durability of the operation is
+     *            NONE then this will be -1.
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @param multiUpdate
+     *            If true then the update is applied to all of the matching
+     *            documents, otherwise only the first document found is updated.
+     * @param upsert
+     *            If true then if no document is found then a new document is
+     *            created and updated, otherwise no operation is performed.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public void updateAsync(LambdaCallback<Long> results,
+            DocumentAssignable query, DocumentAssignable update,
+            boolean multiUpdate, boolean upsert) throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param results
+     *            The {@link LambdaCallback} that will be notified of the number
+     *            of documents updated. If the durability of the operation is
+     *            NONE then this will be -1.
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @param multiUpdate
+     *            If true then the update is applied to all of the matching
+     *            documents, otherwise only the first document found is updated.
+     * @param upsert
+     *            If true then if no document is found then a new document is
+     *            created and updated, otherwise no operation is performed.
+     * @param durability
+     *            The durability for the update.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public void updateAsync(LambdaCallback<Long> results,
+            DocumentAssignable query, DocumentAssignable update,
+            boolean multiUpdate, boolean upsert, Durability durability)
+            throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param results
+     *            The {@link LambdaCallback} that will be notified of the number
+     *            of documents updated. If the durability of the operation is
+     *            NONE then this will be -1.
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @param durability
+     *            The durability for the update.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public void updateAsync(LambdaCallback<Long> results,
+            DocumentAssignable query, DocumentAssignable update,
+            Durability durability) throws MongoDbException;
 
     /**
      * Updates the collection's options or flags using the {@code collMod}

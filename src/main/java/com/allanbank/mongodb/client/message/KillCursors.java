@@ -181,7 +181,8 @@ public class KillCursors extends AbstractMessage {
     @Override
     public void write(final int messageId, final BufferingBsonOutputStream out)
             throws IOException {
-        long start = writeHeader(out, messageId, 0, Operation.KILL_CURSORS);
+        final long start = writeHeader(out, messageId, 0,
+                Operation.KILL_CURSORS);
         out.writeInt(0);
         out.writeInt(myCursorIds.length);
         for (final long myCursorId : myCursorIds) {

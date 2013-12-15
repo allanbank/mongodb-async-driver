@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.LambdaCallback;
 import com.allanbank.mongodb.ListenableFuture;
 import com.allanbank.mongodb.LockType;
 import com.allanbank.mongodb.MongoCollection;
@@ -507,6 +508,96 @@ public class MongoDatabaseImpl implements MongoDatabase {
         runCommandAsync(future, command);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #runCommandAsync(Callback, DocumentAssignable)}
+     * with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void runCommandAsync(final LambdaCallback<Document> reply,
+            final DocumentAssignable command) throws MongoDbException {
+        runCommandAsync(new LambdaCallbackAdapter<Document>(reply), command);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call
+     * {@link #runCommandAsync(Callback, DocumentAssignable, Version)} with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void runCommandAsync(final LambdaCallback<Document> reply,
+            final DocumentAssignable command,
+            final Version requiredServerVersion) throws MongoDbException {
+        runCommandAsync(new LambdaCallbackAdapter<Document>(reply), command,
+                requiredServerVersion);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #runCommandAsync(Callback, String)} with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void runCommandAsync(final LambdaCallback<Document> reply,
+            final String command) throws MongoDbException {
+        runCommandAsync(new LambdaCallbackAdapter<Document>(reply), command);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call
+     * {@link #runCommandAsync(Callback, String, DocumentAssignable)} with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void runCommandAsync(final LambdaCallback<Document> reply,
+            final String command, final DocumentAssignable options)
+            throws MongoDbException {
+        runCommandAsync(new LambdaCallbackAdapter<Document>(reply), command,
+                options);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call
+     * {@link #runCommandAsync(Callback, String, int, DocumentAssignable)} with
+     * an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void runCommandAsync(final LambdaCallback<Document> reply,
+            final String commandName, final int commandValue,
+            final DocumentAssignable options) throws MongoDbException {
+        runCommandAsync(new LambdaCallbackAdapter<Document>(reply),
+                commandName, commandValue, options);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call
+     * {@link #runCommandAsync(Callback, String, String, DocumentAssignable)}
+     * with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void runCommandAsync(final LambdaCallback<Document> reply,
+            final String commandName, final String commandValue,
+            final DocumentAssignable options) throws MongoDbException {
+        runCommandAsync(new LambdaCallbackAdapter<Document>(reply),
+                commandName, commandValue, options);
     }
 
     /**

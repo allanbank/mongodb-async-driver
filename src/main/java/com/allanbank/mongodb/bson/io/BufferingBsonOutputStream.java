@@ -27,10 +27,10 @@ import com.allanbank.mongodb.bson.Visitor;
  */
 public class BufferingBsonOutputStream extends FilterOutputStream {
     /** The {@link Visitor} to write the BSON documents. */
-    private final BufferingWriteVisitor myVisitor;
+    private final RandomAccessOutputStream myOutput;
 
     /** The {@link Visitor} to write the BSON documents. */
-    private final RandomAccessOutputStream myOutput;
+    private final BufferingWriteVisitor myVisitor;
 
     /**
      * Creates a new {@link BufferingBsonOutputStream}.
@@ -59,6 +59,23 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
     }
 
     /**
+     * Writes any pending data to the underlying stream.
+     * <p>
+     * Users should call this method after calling any of the
+     * {@link #writeInt(int) writeXXX(...)} methods.
+     * </p>
+     * 
+     * @throws IOException
+     *             On a failure to write to the underlying document.
+     */
+    public void flushBuffer() throws IOException {
+        if (out != myOutput) {
+            myVisitor.writeTo(out);
+            myVisitor.reset();
+        }
+    }
+
+    /**
      * Returns the maximum number of strings that may have their encoded form
      * cached.
      * 
@@ -78,6 +95,15 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      */
     public int getMaxCachedStringLength() {
         return myVisitor.getMaxCachedStringLength();
+    }
+
+    /**
+     * Returns the current position in the stream.
+     * 
+     * @return The current position in the stream.
+     */
+    public long getPosition() {
+        return myOutput.getPosition();
     }
 
     /**
@@ -107,15 +133,6 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Returns the current position in the stream.
-     * 
-     * @return The current position in the stream.
-     */
-    public long getPosition() {
-        return myOutput.getPosition();
-    }
-
-    /**
      * Writes the Document in BSON format to the underlying stream.
      * <p>
      * This method automatically calls {@link #flushBuffer()}.
@@ -136,68 +153,6 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
         flushBuffer();
 
         return position;
-    }
-
-    /**
-     * Writes the Document in BSON format to the underlying stream.
-     * <p>
-     * Users of this method must call {@link #flushBuffer()} or the contents
-     * will not be written to the wrapped stream.
-     * </p>
-     * 
-     * @param doc
-     *            The document to write.
-     * @throws IOException
-     *             On a failure to write to the underlying document.
-     */
-    public void writeDocument(final Document doc) throws IOException {
-        doc.accept(myVisitor);
-    }
-
-    /**
-     * Writes any pending data to the underlying stream.
-     * <p>
-     * Users should call this method after calling any of the
-     * {@link #writeInt(int) writeXXX(...)} methods.
-     * </p>
-     * 
-     * @throws IOException
-     *             On a failure to write to the underlying document.
-     */
-    public void flushBuffer() throws IOException {
-        if (out != myOutput) {
-            myVisitor.writeTo(out);
-            myVisitor.reset();
-        }
-    }
-
-    /**
-     * Writes the integer value in little-endian byte order to the output
-     * buffer.
-     * <p>
-     * Users of this method must call {@link #flushBuffer()} or the contents
-     * will not be written to the wrapped stream.
-     * </p>
-     * 
-     * @param value
-     *            The value to write.
-     */
-    public void writeInt(int value) {
-        myOutput.writeInt(value);
-    }
-
-    /**
-     * Write the long value in little-endian byte order to the output buffer.
-     * <p>
-     * Users of this method must call {@link #flushBuffer()} or the contents
-     * will not be written to the wrapped stream.
-     * </p>
-     * 
-     * @param value
-     *            The long to write.
-     */
-    public void writeLong(final long value) {
-        myOutput.writeLong(value);
     }
 
     /**
@@ -244,17 +199,34 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Writes a "string" to the output buffer.
+     * Writes the Document in BSON format to the underlying stream.
      * <p>
      * Users of this method must call {@link #flushBuffer()} or the contents
      * will not be written to the wrapped stream.
      * </p>
      * 
-     * @param string
-     *            The String to write.
+     * @param doc
+     *            The document to write.
+     * @throws IOException
+     *             On a failure to write to the underlying document.
      */
-    public void writeString(final String string) {
-        myOutput.writeString(string);
+    public void writeDocument(final Document doc) throws IOException {
+        doc.accept(myVisitor);
+    }
+
+    /**
+     * Writes the integer value in little-endian byte order to the output
+     * buffer.
+     * <p>
+     * Users of this method must call {@link #flushBuffer()} or the contents
+     * will not be written to the wrapped stream.
+     * </p>
+     * 
+     * @param value
+     *            The value to write.
+     */
+    public void writeInt(final int value) {
+        myOutput.writeInt(value);
     }
 
     /**
@@ -273,5 +245,33 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      */
     public void writeIntAt(final long position, final int value) {
         myOutput.writeIntAt(position, value);
+    }
+
+    /**
+     * Write the long value in little-endian byte order to the output buffer.
+     * <p>
+     * Users of this method must call {@link #flushBuffer()} or the contents
+     * will not be written to the wrapped stream.
+     * </p>
+     * 
+     * @param value
+     *            The long to write.
+     */
+    public void writeLong(final long value) {
+        myOutput.writeLong(value);
+    }
+
+    /**
+     * Writes a "string" to the output buffer.
+     * <p>
+     * Users of this method must call {@link #flushBuffer()} or the contents
+     * will not be written to the wrapped stream.
+     * </p>
+     * 
+     * @param string
+     *            The String to write.
+     */
+    public void writeString(final String string) {
+        myOutput.writeString(string);
     }
 }

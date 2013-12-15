@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.LambdaCallback;
 import com.allanbank.mongodb.ListenableFuture;
 import com.allanbank.mongodb.LockType;
 import com.allanbank.mongodb.MongoCollection;
@@ -25,6 +26,8 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.bson.impl.EmptyDocument;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.builder.Aggregation;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
@@ -60,15 +63,14 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public static final boolean DELETE_SINGLE_DELETE_DEFAULT = false;
 
     /** The default empty index options. */
-    public static final Document EMPTY_INDEX_OPTIONS = BuilderFactory.start()
-            .build();
+    public static final Document EMPTY_INDEX_OPTIONS = EmptyDocument.INSTANCE;
 
     /** The default for if an insert should continue on an error. */
     public static final boolean INSERT_CONTINUE_ON_ERROR_DEFAULT = false;
 
     /** The default for a UNIQUE index options. */
-    public static final Document UNIQUE_INDEX_OPTIONS = BuilderFactory.start()
-            .add("unique", true).build();
+    public static final Document UNIQUE_INDEX_OPTIONS = new ImmutableDocument(
+            BuilderFactory.start().add("unique", true));
 
     /** The default for doing a multiple-update on an update. */
     public static final boolean UPDATE_MULTIUPDATE_DEFAULT = false;
@@ -299,6 +301,71 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final com.allanbank.mongodb.builder.Aggregate.Builder command)
             throws MongoDbException {
         return aggregateAsync(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #aggregateAsync(Callback, com.allanbank.mongodb.builder.Aggregate)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    @Deprecated
+    public void aggregateAsync(final LambdaCallback<List<Document>> results,
+            final com.allanbank.mongodb.builder.Aggregate command)
+            throws MongoDbException {
+        aggregateAsync(new LambdaCallbackAdapter<List<Document>>(results),
+                command);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #aggregateAsync(Callback, com.allanbank.mongodb.builder.Aggregate.Builder)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    @Deprecated
+    public void aggregateAsync(final LambdaCallback<List<Document>> results,
+            final com.allanbank.mongodb.builder.Aggregate.Builder command)
+            throws MongoDbException {
+        aggregateAsync(new LambdaCallbackAdapter<List<Document>>(results),
+                command);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #aggregateAsync(Callback, Aggregation)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void aggregateAsync(
+            final LambdaCallback<MongoIterator<Document>> results,
+            final Aggregation command) throws MongoDbException {
+        aggregateAsync(new LambdaCallbackAdapter<MongoIterator<Document>>(
+                results), command);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #aggregateAsync(Callback, Aggregation.Builder)} method with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void aggregateAsync(
+            final LambdaCallback<MongoIterator<Document>> results,
+            final Aggregation.Builder command) throws MongoDbException {
+        aggregateAsync(new LambdaCallbackAdapter<MongoIterator<Document>>(
+                results), command);
     }
 
     /**
@@ -552,6 +619,88 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         countAsync(future, query, readPreference);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Callback)} method with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void countAsync(final LambdaCallback<Long> results)
+            throws MongoDbException {
+        countAsync(new LambdaCallbackAdapter<Long>(results));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Callback, Count)} method with
+     * an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void countAsync(final LambdaCallback<Long> results, final Count count)
+            throws MongoDbException {
+        countAsync(new LambdaCallbackAdapter<Long>(results), count);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Callback, Count.Builder)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void countAsync(final LambdaCallback<Long> results,
+            final Count.Builder count) throws MongoDbException {
+        countAsync(new LambdaCallbackAdapter<Long>(results), count);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Callback, DocumentAssignable)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void countAsync(final LambdaCallback<Long> results,
+            final DocumentAssignable query) throws MongoDbException {
+        countAsync(new LambdaCallbackAdapter<Long>(results), query);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #countAsync(Callback, DocumentAssignable, ReadPreference)} method
+     * with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void countAsync(final LambdaCallback<Long> results,
+            final DocumentAssignable query, final ReadPreference readPreference)
+            throws MongoDbException {
+        countAsync(new LambdaCallbackAdapter<Long>(results), query,
+                readPreference);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #countAsync(Callback, ReadPreference)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void countAsync(final LambdaCallback<Long> results,
+            final ReadPreference readPreference) throws MongoDbException {
+        countAsync(new LambdaCallbackAdapter<Long>(results), readPreference);
     }
 
     /**
@@ -868,6 +1017,66 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #deleteAsync(Callback, DocumentAssignable)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void deleteAsync(final LambdaCallback<Long> results,
+            final DocumentAssignable query) throws MongoDbException {
+        deleteAsync(new LambdaCallbackAdapter<Long>(results), query);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #deleteAsync(Callback, DocumentAssignable, boolean)} method with
+     * an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void deleteAsync(final LambdaCallback<Long> results,
+            final DocumentAssignable query, final boolean singleDelete)
+            throws MongoDbException {
+        deleteAsync(new LambdaCallbackAdapter<Long>(results), query,
+                singleDelete);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void deleteAsync(final LambdaCallback<Long> results,
+            final DocumentAssignable query, final boolean singleDelete,
+            final Durability durability) throws MongoDbException {
+        deleteAsync(new LambdaCallbackAdapter<Long>(results), query,
+                singleDelete, durability);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #deleteAsync(Callback, DocumentAssignable, Durability)} method
+     * with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void deleteAsync(final LambdaCallback<Long> results,
+            final DocumentAssignable query, final Durability durability)
+            throws MongoDbException {
+        deleteAsync(new LambdaCallbackAdapter<Long>(results), query, durability);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #distinctAsync(Distinct)}.
      * </p>
      */
@@ -939,6 +1148,32 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public ListenableFuture<ArrayElement> distinctAsync(
             final Distinct.Builder command) throws MongoDbException {
         return distinctAsync(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #distinctAsync(Callback, Distinct)} method
+     * with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void distinctAsync(final LambdaCallback<ArrayElement> results,
+            final Distinct command) throws MongoDbException {
+        distinctAsync(new LambdaCallbackAdapter<ArrayElement>(results), command);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #distinctAsync(Callback, Distinct.Builder)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void distinctAsync(final LambdaCallback<ArrayElement> results,
+            final Distinct.Builder command) throws MongoDbException {
+        distinctAsync(new LambdaCallbackAdapter<ArrayElement>(results), command);
     }
 
     /**
@@ -1144,6 +1379,59 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #explainAsync(Callback, Aggregation)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void explainAsync(final LambdaCallback<Document> results,
+            final Aggregation aggregation) throws MongoDbException {
+        explainAsync(new LambdaCallbackAdapter<Document>(results), aggregation);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #explainAsync(Callback, Aggregation.Builder)} method with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void explainAsync(final LambdaCallback<Document> results,
+            final Aggregation.Builder aggregation) throws MongoDbException {
+        explainAsync(new LambdaCallbackAdapter<Document>(results), aggregation);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #explainAsync(Callback, Find)} method with
+     * an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void explainAsync(final LambdaCallback<Document> results,
+            final Find query) throws MongoDbException {
+        explainAsync(new LambdaCallbackAdapter<Document>(results), query);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #explainAsync(Callback, Find.Builder)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void explainAsync(final LambdaCallback<Document> results,
+            final Find.Builder query) throws MongoDbException {
+        explainAsync(new LambdaCallbackAdapter<Document>(results), query);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #findAsync(DocumentAssignable)} method.
      * </p>
      * 
@@ -1268,6 +1556,36 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the
+     * {@link #findAndModifyAsync(Callback, FindAndModify)} method with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void findAndModifyAsync(final LambdaCallback<Document> results,
+            final FindAndModify command) throws MongoDbException {
+        findAndModifyAsync(new LambdaCallbackAdapter<Document>(results),
+                command);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #findAndModifyAsync(Callback, FindAndModify.Builder)} method with
+     * an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void findAndModifyAsync(final LambdaCallback<Document> results,
+            final FindAndModify.Builder command) throws MongoDbException {
+        findAndModifyAsync(new LambdaCallbackAdapter<Document>(results),
+                command);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #findAsync(Callback, Find)}.
      * </p>
      * 
@@ -1353,6 +1671,51 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public ListenableFuture<MongoIterator<Document>> findAsync(
             final Find.Builder query) throws MongoDbException {
         return findAsync(query.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findAsync(Callback, DocumentAssignable)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void findAsync(
+            final LambdaCallback<MongoIterator<Document>> results,
+            final DocumentAssignable query) throws MongoDbException {
+        findAsync(new LambdaCallbackAdapter<MongoIterator<Document>>(results),
+                query);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findAsync(Callback, Find)} method with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void findAsync(
+            final LambdaCallback<MongoIterator<Document>> results,
+            final Find query) throws MongoDbException {
+        findAsync(new LambdaCallbackAdapter<MongoIterator<Document>>(results),
+                query);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findAsync(Callback, Find.Builder)} method
+     * with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void findAsync(
+            final LambdaCallback<MongoIterator<Document>> results,
+            final Find.Builder query) throws MongoDbException {
+        findAsync(new LambdaCallbackAdapter<MongoIterator<Document>>(results),
+                query);
     }
 
     /**
@@ -1483,6 +1846,45 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findAsync(Callback, DocumentAssignable)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void findOneAsync(final LambdaCallback<Document> results,
+            final DocumentAssignable query) throws MongoDbException {
+        findOneAsync(new LambdaCallbackAdapter<Document>(results), query);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findAsync(Callback, Find)} method with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void findOneAsync(final LambdaCallback<Document> results,
+            final Find query) throws MongoDbException {
+        findOneAsync(new LambdaCallbackAdapter<Document>(results), query);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #findAsync(Callback, Find.Builder)} method
+     * with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void findOneAsync(final LambdaCallback<Document> results,
+            final Find.Builder query) throws MongoDbException {
+        findOneAsync(new LambdaCallbackAdapter<Document>(results), query);
+    }
+
+    /**
      * Returns the name of the database.
      * 
      * @return The name of the database.
@@ -1599,6 +2001,32 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public ListenableFuture<ArrayElement> groupByAsync(
             final GroupBy.Builder command) throws MongoDbException {
         return groupByAsync(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #groupByAsync(Callback, GroupBy)} method
+     * with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void groupByAsync(final LambdaCallback<ArrayElement> results,
+            final GroupBy command) throws MongoDbException {
+        groupByAsync(new LambdaCallbackAdapter<ArrayElement>(results), command);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #groupByAsync(Callback, GroupBy.Builder)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void groupByAsync(final LambdaCallback<ArrayElement> results,
+            final GroupBy.Builder command) throws MongoDbException {
+        groupByAsync(new LambdaCallbackAdapter<ArrayElement>(results), command);
     }
 
     /**
@@ -1838,6 +2266,68 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the
+     * {@link #insertAsync(Callback, boolean, DocumentAssignable[])} method with
+     * an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void insertAsync(final LambdaCallback<Integer> results,
+            final boolean continueOnError,
+            final DocumentAssignable... documents) throws MongoDbException {
+        insertAsync(new LambdaCallbackAdapter<Integer>(results),
+                continueOnError, documents);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable[])}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void insertAsync(final LambdaCallback<Integer> results,
+            final boolean continueOnError, final Durability durability,
+            final DocumentAssignable... documents) throws MongoDbException {
+        insertAsync(new LambdaCallbackAdapter<Integer>(results),
+                continueOnError, durability, documents);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #insertAsync(Callback, DocumentAssignable[])} method with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void insertAsync(final LambdaCallback<Integer> results,
+            final DocumentAssignable... documents) throws MongoDbException {
+        insertAsync(new LambdaCallbackAdapter<Integer>(results), documents);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #insertAsync(Callback, Durability, DocumentAssignable[])} method
+     * with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void insertAsync(final LambdaCallback<Integer> results,
+            final Durability durability, final DocumentAssignable... documents)
+            throws MongoDbException {
+        insertAsync(new LambdaCallbackAdapter<Integer>(results), durability,
+                documents);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #mapReduceAsync(MapReduce)}.
      * </p>
      * 
@@ -1884,6 +2374,35 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     public void mapReduceAsync(final Callback<List<Document>> results,
             final MapReduce.Builder command) throws MongoDbException {
         mapReduceAsync(results, command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #mapReduceAsync(Callback, MapReduce)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void mapReduceAsync(final LambdaCallback<List<Document>> results,
+            final MapReduce command) throws MongoDbException {
+        mapReduceAsync(new LambdaCallbackAdapter<List<Document>>(results),
+                command);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #mapReduceAsync(Callback, MapReduce.Builder)} method with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void mapReduceAsync(final LambdaCallback<List<Document>> results,
+            final MapReduce.Builder command) throws MongoDbException {
+        mapReduceAsync(new LambdaCallbackAdapter<List<Document>>(results),
+                command);
     }
 
     /**
@@ -2008,6 +2527,35 @@ public abstract class AbstractMongoCollection implements MongoCollection {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #saveAsync(Callback, DocumentAssignable)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void saveAsync(final LambdaCallback<Integer> results,
+            final DocumentAssignable document) throws MongoDbException {
+        saveAsync(new LambdaCallbackAdapter<Integer>(results), document);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #saveAsync(Callback, DocumentAssignable, Durability)} method with
+     * an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void saveAsync(final LambdaCallback<Integer> results,
+            final DocumentAssignable document, final Durability durability)
+            throws MongoDbException {
+        saveAsync(new LambdaCallbackAdapter<Integer>(results), document,
+                durability);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void setDurability(final Durability durability) {
@@ -2020,6 +2568,59 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     @Override
     public void setReadPreference(final ReadPreference readPreference) {
         myReadPreference = readPreference;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #stream(StreamCallback, Aggregation)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl stream(final LambdaCallback<Document> results,
+            final Aggregation aggregation) throws MongoDbException {
+        return stream(new LambdaCallbackAdapter<Document>(results), aggregation);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #stream(StreamCallback, Aggregation.Builder)} method with an
+     * adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl stream(final LambdaCallback<Document> results,
+            final Aggregation.Builder aggregation) throws MongoDbException {
+        return stream(new LambdaCallbackAdapter<Document>(results), aggregation);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #stream(StreamCallback, Find)} method with
+     * an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl stream(final LambdaCallback<Document> results,
+            final Find query) throws MongoDbException {
+        return stream(new LambdaCallbackAdapter<Document>(results), query);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #stream(StreamCallback, Find.Builder)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl stream(final LambdaCallback<Document> results,
+            final Find.Builder aggregation) throws MongoDbException {
+        return stream(new LambdaCallbackAdapter<Document>(results), aggregation);
     }
 
     /**
@@ -2052,6 +2653,29 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
+     * This is the canonical <code>stream</code> method for a find/query that
+     * implementations must override.
+     * </p>
+     */
+    @Override
+    public abstract MongoCursorControl stream(StreamCallback<Document> results,
+            Find query) throws MongoDbException;
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #stream(StreamCallback, Find)} method.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl stream(final StreamCallback<Document> results,
+            final Find.Builder query) throws MongoDbException {
+        return streamingFind(results, query.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #streamingFind(Callback, Find)}.
      * </p>
      * 
@@ -2067,16 +2691,16 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #streamingFind(StreamCallback, Find)}.
+     * Overridden to call the {@link #stream(StreamCallback, Find)}.
      * </p>
      * 
-     * @see #streamingFind(StreamCallback, Find)
+     * @see #stream(StreamCallback, Find)
      */
     @Deprecated
     @Override
     public MongoCursorControl streamingFind(final Callback<Document> results,
             final Find query) throws MongoDbException {
-        return streamingFind(
+        return stream(
                 new com.allanbank.mongodb.client.callback.LegacyStreamCallbackAdapter(
                         results), query);
     }
@@ -2084,29 +2708,49 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #streamingFind(StreamCallback, Find)}.
+     * Overridden to call the
+     * {@link #streamingFind(StreamCallback, DocumentAssignable)} method with an
+     * adapter for the {@link LambdaCallback}.
      * </p>
-     * 
-     * @see #streamingFind(StreamCallback, Find)
      */
     @Override
     public MongoCursorControl streamingFind(
-            final StreamCallback<Document> results,
+            final LambdaCallback<Document> results,
             final DocumentAssignable query) throws MongoDbException {
-        return streamingFind(results, new Find.Builder(query).build());
+        return streamingFind(new LambdaCallbackAdapter<Document>(results),
+                query);
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * This is the canonical <code>streamingFind</code> method that
-     * implementations must override.
+     * Overridden to call the {@link #stream(StreamCallback, Find)}.
      * </p>
+     * 
+     * @see #stream(StreamCallback, Find)
      */
     @Override
-    public abstract MongoCursorControl streamingFind(
-            StreamCallback<Document> results, Find query)
-            throws MongoDbException;
+    public MongoCursorControl streamingFind(
+            final StreamCallback<Document> results,
+            final DocumentAssignable query) throws MongoDbException {
+        return stream(results, new Find.Builder(query).build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #streamingFind(StreamCallback, Find)}.
+     * </p>
+     * 
+     * @see #stream(StreamCallback, Find)
+     */
+    @Deprecated
+    @Override
+    public MongoCursorControl streamingFind(
+            final StreamCallback<Document> results, final Find query)
+            throws MongoDbException {
+        return stream(results, query);
+    }
 
     /**
      * {@inheritDoc}
@@ -2115,6 +2759,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * method.
      * </p>
      */
+    @Deprecated
     @Override
     public MongoCursorControl streamingFind(
             final StreamCallback<Document> results, final Find.Builder query)
@@ -2451,6 +3096,71 @@ public abstract class AbstractMongoCollection implements MongoCollection {
                 UPDATE_UPSERT_DEFAULT, durability);
 
         return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void updateAsync(final LambdaCallback<Long> results,
+            final DocumentAssignable query, final DocumentAssignable update)
+            throws MongoDbException {
+        updateAsync(new LambdaCallbackAdapter<Long>(results), query, update);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void updateAsync(final LambdaCallback<Long> results,
+            final DocumentAssignable query, final DocumentAssignable update,
+            final boolean multiUpdate, final boolean upsert)
+            throws MongoDbException {
+        updateAsync(new LambdaCallbackAdapter<Long>(results), query, update,
+                multiUpdate, upsert);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void updateAsync(final LambdaCallback<Long> results,
+            final DocumentAssignable query, final DocumentAssignable update,
+            final boolean multiUpdate, final boolean upsert,
+            final Durability durability) throws MongoDbException {
+        updateAsync(new LambdaCallbackAdapter<Long>(results), query, update,
+                multiUpdate, upsert, durability);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, Durability)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void updateAsync(final LambdaCallback<Long> results,
+            final DocumentAssignable query, final DocumentAssignable update,
+            final Durability durability) throws MongoDbException {
+        updateAsync(new LambdaCallbackAdapter<Long>(results), query, update,
+                durability);
     }
 
     /**

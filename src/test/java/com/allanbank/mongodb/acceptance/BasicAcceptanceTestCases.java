@@ -7722,7 +7722,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final Find find = findBuilder.build();
 
         final DocumentCallback callback = new DocumentCallback();
-        collection.streamingFind(callback, find);
+        collection.stream(callback, find);
 
         callback.waitFor(TimeUnit.SECONDS.toMillis(60));
 

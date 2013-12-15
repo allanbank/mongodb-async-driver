@@ -199,7 +199,7 @@ public class GetMore extends AbstractMessage {
     public void write(final int messageId, final BufferingBsonOutputStream out)
             throws IOException {
 
-        long start = writeHeader(out, messageId, 0, Operation.GET_MORE);
+        final long start = writeHeader(out, messageId, 0, Operation.GET_MORE);
         out.writeInt(0);
         out.writeCString(myDatabaseName, ".", myCollectionName);
         out.writeInt(myNumberToReturn);

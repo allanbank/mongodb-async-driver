@@ -163,6 +163,34 @@ public abstract class AbstractMessage implements Message {
     }
 
     /**
+     * Writes the MsgHeader messageLengthField in the header <tt>stream</tt>.
+     * 
+     * <pre>
+     * <code>
+     * struct MsgHeader {
+     *     int32   messageLength; // total message size, including this
+     *     int32   requestID;     // identifier for this message
+     *     int32   responseTo;    // requestID from the original request
+     *                            //   (used in reponses from db)
+     *     int32   opCode;        // request type - see table below
+     * }
+     * </code>
+     * </pre>
+     * 
+     * @param stream
+     *            The stream to write to.
+     * @param start
+     *            The position of the start of the header for the message.
+     */
+    protected void finishHeader(final BufferingBsonOutputStream stream,
+            final long start) {
+
+        final long end = stream.getPosition();
+
+        stream.writeIntAt(start, (int) (end - start));
+    }
+
+    /**
      * Initializes the database and collection name from the full database name.
      * 
      * @param name
@@ -250,34 +278,6 @@ public abstract class AbstractMessage implements Message {
         stream.writeInt(op.getCode());
 
         return start;
-    }
-
-    /**
-     * Writes the MsgHeader messageLengthField in the header <tt>stream</tt>.
-     * 
-     * <pre>
-     * <code>
-     * struct MsgHeader {
-     *     int32   messageLength; // total message size, including this
-     *     int32   requestID;     // identifier for this message
-     *     int32   responseTo;    // requestID from the original request
-     *                            //   (used in reponses from db)
-     *     int32   opCode;        // request type - see table below
-     * }
-     * </code>
-     * </pre>
-     * 
-     * @param stream
-     *            The stream to write to.
-     * @param start
-     *            The position of the start of the header for the message.
-     */
-    protected void finishHeader(final BufferingBsonOutputStream stream,
-            final long start) {
-
-        final long end = stream.getPosition();
-
-        stream.writeIntAt(start, (int) (end - start));
     }
 
 }
