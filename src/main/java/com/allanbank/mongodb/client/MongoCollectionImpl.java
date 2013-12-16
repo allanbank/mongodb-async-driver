@@ -120,7 +120,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
         builder.addString("count", getName());
         builder.addDocument("query", count.getQuery());
         if (count.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            minVersion = Version.VERSION_2_6;
             builder.add("maxTimeMS", count.getMaximumTimeMilliseconds());
         }
 
@@ -224,7 +224,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             builder.addDocument("query", command.getQuery());
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            minVersion = Version.VERSION_2_6;
             builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 
@@ -364,7 +364,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             builder.addBoolean("upsert", true);
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            minVersion = Version.VERSION_2_6;
             builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 
@@ -451,7 +451,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             groupDocBuilder.addDocument("cond", command.getQuery());
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            minVersion = Version.VERSION_2_6;
             groupDocBuilder.add("maxTimeMS",
                     command.getMaximumTimeMilliseconds());
         }
@@ -552,7 +552,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
             builder.addBoolean("verbose", true);
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            minVersion = Version.VERSION_2_6;
             builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 

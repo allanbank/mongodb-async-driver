@@ -371,7 +371,7 @@ public class StringDecoder {
      *         driver.
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected class Node {
+    protected static class Node {
         /**
          * The children of the node. See the class javadoc for a description of
          * the structure.

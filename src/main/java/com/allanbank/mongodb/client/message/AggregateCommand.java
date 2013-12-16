@@ -56,6 +56,31 @@ public class AggregateCommand extends Command implements CursorableMessage {
     }
 
     /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     * 
+     * @param object
+     *            The object to compare to.
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final AggregateCommand other = (AggregateCommand) object;
+
+            result = myAggregateCollectionName
+                    .equals(other.myAggregateCollectionName)
+                    && super.equals(object);
+        }
+        return result;
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to return the batch size from the {@link Aggregate}.
@@ -89,4 +114,16 @@ public class AggregateCommand extends Command implements CursorableMessage {
         return myAggregate.getCursorLimit();
     }
 
+    /**
+     * Computes a reasonable hash code.
+     * 
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = (31 * result) + super.hashCode();
+        result = (31 * result) + myAggregateCollectionName.hashCode();
+        return result;
+    }
 }

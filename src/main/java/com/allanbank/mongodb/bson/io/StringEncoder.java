@@ -21,6 +21,7 @@ import java.util.Map;
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class StringEncoder {
+
     /** The default maximum number of strings to keep in the trie cache. */
     public static final int DEFAULT_MAX_CACHE_ENTRIES = 128;
 
@@ -29,6 +30,9 @@ public class StringEncoder {
 
     /** The byte value limit for a ASCII character. */
     /* package */static final int ASCII_LIMIT = 0x80;
+
+    /** An empty array of bytes. */
+    /* package */static final byte[] EMPTY = new byte[0];
 
     /** The byte value limit for a two byte encoded characters. */
     /* package */static final int TWO_BYTE_LIMIT = 0x800;
@@ -129,15 +133,18 @@ public class StringEncoder {
      */
     public void encode(final String string, final OutputStream out)
             throws IOException {
-        byte[] encoded = myCache.get(string);
-        if (encoded == null) {
-            encoded = fastEncode(string, out);
-            if (encoded != null) {
-                myCache.put(string, encoded);
+
+        if (!string.isEmpty()) {
+            byte[] encoded = myCache.get(string);
+            if (encoded == null) {
+                encoded = fastEncode(string, out);
+                if (encoded.length != 0) {
+                    myCache.put(string, encoded);
+                }
             }
-        }
-        else {
-            out.write(encoded);
+            else {
+                out.write(encoded);
+            }
         }
     }
 
@@ -165,6 +172,10 @@ public class StringEncoder {
      * @return The length of the string encoded as UTF8.
      */
     public int encodeSize(final String string) {
+        if (string.isEmpty()) {
+            return 0;
+        }
+
         final byte[] cached = myCache.get(string);
         if (cached != null) {
             return cached.length;
@@ -172,7 +183,7 @@ public class StringEncoder {
         else if (string.length() < myMaxCacheLength) {
             try {
                 final byte[] encoded = fastEncode(string, null);
-                if (encoded != null) {
+                if (encoded.length != 0) {
                     return encoded.length;
                 }
             }
@@ -295,6 +306,6 @@ public class StringEncoder {
         if (returnBytes) {
             return Arrays.copyOf(myBuffer, bufferOffset);
         }
-        return null;
+        return EMPTY;
     }
 }
