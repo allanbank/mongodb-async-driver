@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
+import com.allanbank.mongodb.client.SimpleMongoIteratorImpl;
 
 /**
  * TextCallback provides conversion from a {@link Text text} command's result
@@ -21,10 +23,10 @@ import com.allanbank.mongodb.builder.TextResult;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class TextCallback implements Callback<List<Document>> {
+public class TextCallback implements Callback<MongoIterator<Document>> {
 
     /** The delegate callback to receive the {@link TextResult}s. */
-    private final Callback<List<TextResult>> myDelegate;
+    private final Callback<MongoIterator<TextResult>> myDelegate;
 
     /**
      * Creates a new TextCallback.
@@ -32,7 +34,7 @@ public class TextCallback implements Callback<List<Document>> {
      * @param delegate
      *            The delegate callback to receive the {@link TextResult}s.
      */
-    public TextCallback(final Callback<List<TextResult>> delegate) {
+    public TextCallback(final Callback<MongoIterator<TextResult>> delegate) {
         myDelegate = delegate;
     }
 
@@ -44,15 +46,14 @@ public class TextCallback implements Callback<List<Document>> {
      * </p>
      */
     @Override
-    public void callback(final List<Document> result) {
-        final List<TextResult> results = new ArrayList<TextResult>(
-                result.size());
+    public void callback(final MongoIterator<Document> result) {
+        final List<TextResult> results = new ArrayList<TextResult>();
 
         for (final Document doc : result) {
             results.add(new TextResult(doc));
         }
 
-        myDelegate.callback(results);
+        myDelegate.callback(new SimpleMongoIteratorImpl<TextResult>(results));
     }
 
     /**

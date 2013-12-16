@@ -136,10 +136,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     public static final String GEO_TEST_COLLECTION_NAME = "geo";
 
     /** The name of the test Grid FS chunks collection to use. */
-    public static final String GRIDFS_CHUNKS_COLLECTION_NAME = "gridfs.chunks";
-
-    /** The name of the test Grid FS files collection to use. */
-    public static final String GRIDFS_FILES_COLLECTION_NAME = "gridfs.files";
+    public static final String GRIDFS_COLLECTION_ROOT_NAME = "gridfs_";
 
     /** One million - used when we want a large collection of document. */
     public static final int LARGE_COLLECTION_COUNT = 1000000;
@@ -265,10 +262,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
             // Other collections.
             if (myDb != null) {
-                for (final String name : Arrays.asList(
-                        GRIDFS_FILES_COLLECTION_NAME,
-                        GRIDFS_CHUNKS_COLLECTION_NAME)) {
-                    myDb.getCollection(name).drop();
+                for (final String name : myDb.listCollectionNames()) {
+                    if (name.startsWith(GRIDFS_COLLECTION_ROOT_NAME)) {
+                        myDb.getCollection(name).drop();
+                    }
                 }
 
                 myDb.drop();
@@ -1069,12 +1066,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("zip-code");
-        final ArrayElement items = myCollection.distinct(builder.build());
+        final List<Element> items = myCollection.distinct(builder.build())
+                .toList();
 
         final Set<String> actual = new HashSet<String>();
-        for (final StringElement element : items
-                .find(StringElement.class, ".*")) {
-            actual.add(element.getValue());
+        for (final Element element : items) {
+            actual.add(element.getValueAsString());
         }
 
         assertEquals(expected, actual);
@@ -1466,8 +1463,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testGridFs() {
 
-        shardCollection(GRIDFS_FILES_COLLECTION_NAME);
-        shardCollection(GRIDFS_CHUNKS_COLLECTION_NAME,
+        final String name = GRIDFS_COLLECTION_ROOT_NAME + "grid_fs";
+
+        shardCollection(name + GridFs.FILES_SUFFIX);
+        shardCollection(name + GridFs.CHUNKS_SUFFIX,
                 Index.asc(GridFs.FILES_ID_FIELD));
 
         myDb.setDurability(Durability.ACK);
@@ -1494,7 +1493,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             IOUtils.close(out);
             out = null;
 
-            final GridFs gridfs = new GridFs(myDb, "gridfs");
+            final GridFs gridfs = new GridFs(myDb, name);
             gridfs.createIndexes();
 
             in = new FileInputStream(inFile);
@@ -1548,8 +1547,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testGridFsFsck() {
 
-        shardCollection(GRIDFS_FILES_COLLECTION_NAME);
-        shardCollection(GRIDFS_CHUNKS_COLLECTION_NAME,
+        final String name = GRIDFS_COLLECTION_ROOT_NAME + "fsck";
+
+        shardCollection(name + GridFs.FILES_SUFFIX);
+        shardCollection(name + GridFs.CHUNKS_SUFFIX,
                 Index.asc(GridFs.FILES_ID_FIELD));
 
         myDb.setDurability(Durability.ACK);
@@ -1574,7 +1575,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             IOUtils.close(out);
             out = null;
 
-            final GridFs gridfs = new GridFs(myDb, "gridfs");
+            final GridFs gridfs = new GridFs(myDb, name);
 
             gridfs.createIndexes();
 
@@ -1585,8 +1586,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             in = null;
 
             // Now damage all of the 'n' values.
-            final MongoCollection chunks = myDb
-                    .getCollection(GRIDFS_CHUNKS_COLLECTION_NAME);
+            final MongoCollection chunks = myDb.getCollection(name
+                    + GridFs.CHUNKS_SUFFIX);
             final DocumentBuilder update = BuilderFactory.start();
             final DocumentBuilder query = BuilderFactory.start();
             for (int i = 0; i < 10; ++i) {
@@ -1643,8 +1644,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testGridFsVerify() {
 
-        shardCollection(GRIDFS_FILES_COLLECTION_NAME);
-        shardCollection(GRIDFS_CHUNKS_COLLECTION_NAME,
+        final String name = GRIDFS_COLLECTION_ROOT_NAME + "verify";
+
+        shardCollection(name + GridFs.FILES_SUFFIX);
+        shardCollection(name + GridFs.CHUNKS_SUFFIX,
                 Index.asc(GridFs.FILES_ID_FIELD));
 
         myDb.setDurability(Durability.ACK);
@@ -1669,7 +1672,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             IOUtils.close(out);
             out = null;
 
-            final GridFs gridfs = new GridFs(myDb, "gridfs");
+            final GridFs gridfs = new GridFs(myDb, name);
 
             gridfs.createIndexes();
 
@@ -1750,10 +1753,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         builder.setReduceFunction("function(doc, out){ out.count++; out.total_time+=doc.response_time }");
         builder.setFinalizeFunction("function(out){ out.avg_time = out.total_time / out.count }");
 
-        final ArrayElement results = myCollection.groupBy(builder.build());
+        final List<Element> results = myCollection.groupBy(builder.build())
+                .toList();
 
-        assertEquals(1, results.getEntries().size());
-        final Element entry = results.getEntries().get(0);
+        assertEquals(1, results.size());
+        final Element entry = results.get(0);
         assertThat(entry, instanceOf(DocumentElement.class));
 
         final DocumentElement result = (DocumentElement) entry;
@@ -7833,8 +7837,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Need the text index.
             myCollection.createIndex(Index.text("content"));
 
-            results = myCollection.textSearch(Text.builder().searchTerm(
-                    "coffee magic"));
+            results = myCollection.textSearch(
+                    Text.builder().searchTerm("coffee magic")).toList();
         }
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.

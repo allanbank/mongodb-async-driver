@@ -46,7 +46,6 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.builder.Aggregate;
@@ -334,12 +333,12 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         builder.setKey("zip-code");
         builder.setReadPreference(ReadPreference.SECONDARY);
 
-        final ArrayElement items = myCollection.distinct(builder.build());
+        final List<Element> items = myCollection.distinct(builder.build())
+                .toList();
 
         final Set<String> actual = new HashSet<String>();
-        for (final StringElement element : items
-                .find(StringElement.class, ".*")) {
-            actual.add(element.getValue());
+        for (final Element element : items) {
+            actual.add(element.getValueAsString());
         }
 
         assertEquals(expected, actual);
@@ -594,8 +593,8 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         mrBuilder.setOutputType(MapReduce.OutputType.INLINE);
         mrBuilder.setReadPreference(ReadPreference.SECONDARY);
 
-        final Set<Document> actual = new HashSet<Document>(
-                mr.mapReduce(mrBuilder.build()));
+        final Set<Document> actual = new HashSet<Document>(mr.mapReduce(
+                mrBuilder.build()).toList());
 
         final DocumentBuilder expected1 = BuilderFactory.start();
         expected1.addString("_id", "cat");

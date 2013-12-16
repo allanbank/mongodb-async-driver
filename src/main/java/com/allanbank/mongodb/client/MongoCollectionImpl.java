@@ -26,7 +26,6 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.builder.Aggregate;
@@ -212,7 +211,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void distinctAsync(final Callback<ArrayElement> results,
+    public void distinctAsync(final Callback<MongoIterator<Element>> results,
             final Distinct command) throws MongoDbException {
 
         Version minVersion = null;
@@ -419,7 +418,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * </p>
      */
     @Override
-    public void groupByAsync(final Callback<ArrayElement> results,
+    public void groupByAsync(final Callback<MongoIterator<Element>> results,
             final GroupBy command) throws MongoDbException {
         Version minVersion = null;
 
@@ -519,7 +518,7 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * @see MongoCollection#mapReduceAsync(Callback, MapReduce)
      */
     @Override
-    public void mapReduceAsync(final Callback<List<Document>> results,
+    public void mapReduceAsync(final Callback<MongoIterator<Document>> results,
             final MapReduce command) throws MongoDbException {
         Version minVersion = null;
 
@@ -684,7 +683,8 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
      * @see MongoCollection#textSearchAsync(Callback, Text)
      */
     @Override
-    public void textSearchAsync(final Callback<List<TextResult>> results,
+    public void textSearchAsync(
+            final Callback<MongoIterator<TextResult>> results,
             final Text command) throws MongoDbException {
         Version minVersion = Text.REQUIRED_VERSION;
         final DocumentBuilder builder = BuilderFactory.start();

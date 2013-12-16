@@ -5,12 +5,16 @@
 
 package com.allanbank.mongodb.client.callback;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.client.SimpleMongoIteratorImpl;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.ReplyException;
 
@@ -22,7 +26,8 @@ import com.allanbank.mongodb.error.ReplyException;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReplyArrayCallback extends AbstractReplyCallback<ArrayElement> {
+public class ReplyArrayCallback extends
+        AbstractReplyCallback<MongoIterator<Element>> {
 
     /** The default name for the values array. */
     public static final String DEFAULT_NAME = "values";
@@ -36,7 +41,7 @@ public class ReplyArrayCallback extends AbstractReplyCallback<ArrayElement> {
      * @param results
      *            The callback to notify of the reply document.
      */
-    public ReplyArrayCallback(final Callback<ArrayElement> results) {
+    public ReplyArrayCallback(final Callback<MongoIterator<Element>> results) {
         this(DEFAULT_NAME, results);
     }
 
@@ -49,7 +54,7 @@ public class ReplyArrayCallback extends AbstractReplyCallback<ArrayElement> {
      *            The callback to notify of the reply document.
      */
     public ReplyArrayCallback(final String name,
-            final Callback<ArrayElement> results) {
+            final Callback<MongoIterator<Element>> results) {
         super(results);
 
         myName = name;
@@ -93,10 +98,19 @@ public class ReplyArrayCallback extends AbstractReplyCallback<ArrayElement> {
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override
-    protected ArrayElement convert(final Reply reply) throws MongoDbException {
+    protected MongoIterator<Element> convert(final Reply reply)
+            throws MongoDbException {
         final List<Document> results = reply.getResults();
         if (results.size() == 1) {
-            return results.get(0).find(ArrayElement.class, myName).get(0);
+            List<Element> entries = Collections.emptyList();
+            final Document document = results.get(0);
+            final ArrayElement array = document.findFirst(ArrayElement.class,
+                    myName);
+            if (array != null) {
+                entries = array.getEntries();
+            }
+
+            return new SimpleMongoIteratorImpl<Element>(entries);
         }
 
         return null;

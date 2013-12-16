@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -2089,8 +2088,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(result.build().find(ArrayElement.class, "values").get(0),
-                myTestInstance.distinct(builder));
+        assertEquals(result.build().find(ArrayElement.class, "values").get(0)
+                .getEntries(), myTestInstance.distinct(builder).toList());
 
         verify();
     }
@@ -2100,14 +2099,14 @@ public class MongoCollectionImplTest {
      * {@link MongoCollectionImpl#distinctAsync(Callback, Distinct)} .
      */
     @Test
-    public void testDistinctAsyncCallbackOfArrayElementDistinct() {
+    public void testDistinctAsyncCallbackDistinct() {
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("foo");
         builder.setQuery(BuilderFactory.start().build());
 
         final Distinct request = builder.build();
 
-        final Callback<ArrayElement> mockCountCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCountCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("distinct", "test");
         expectedCommand.addString("key", "foo");
@@ -2163,8 +2162,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(result.build().find(ArrayElement.class, "values").get(0),
-                myTestInstance.distinctAsync(builder).get());
+        assertEquals(result.build().find(ArrayElement.class, "values").get(0)
+                .getEntries(), myTestInstance.distinctAsync(builder).get()
+                .toList());
 
         verify();
     }
@@ -2182,7 +2182,7 @@ public class MongoCollectionImplTest {
 
         final Distinct request = builder.build();
 
-        final LambdaCallback<ArrayElement> mockCountCallback = createMock(LambdaCallback.class);
+        final LambdaCallback<MongoIterator<Element>> mockCountCallback = createMock(LambdaCallback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("distinct", "test");
         expectedCommand.addString("key", "foo");
@@ -2218,7 +2218,7 @@ public class MongoCollectionImplTest {
 
         final Distinct request = builder.build();
 
-        final LambdaCallback<ArrayElement> mockCountCallback = createMock(LambdaCallback.class);
+        final LambdaCallback<MongoIterator<Element>> mockCountCallback = createMock(LambdaCallback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("distinct", "test");
         expectedCommand.addString("key", "foo");
@@ -2250,7 +2250,7 @@ public class MongoCollectionImplTest {
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("foo");
 
-        final Callback<ArrayElement> mockCountCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCountCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("distinct", "test");
         expectedCommand.addString("key", "foo");
@@ -2308,8 +2308,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(result.build().find(ArrayElement.class, "values").get(0),
-                myTestInstance.distinctAsync(builder).get());
+        assertEquals(result.build().find(ArrayElement.class, "values").get(0)
+                .getEntries(), myTestInstance.distinctAsync(builder).get()
+                .toList());
 
         verify();
     }
@@ -2324,7 +2325,7 @@ public class MongoCollectionImplTest {
         builder.setKey("foo");
         builder.setReadPreference(ReadPreference.CLOSEST);
 
-        final Callback<ArrayElement> mockCountCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCountCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.push("$query").addString("distinct", "test")
                 .addString("key", "foo");
@@ -2357,7 +2358,7 @@ public class MongoCollectionImplTest {
         builder.setKey("foo");
         builder.setReadPreference(ReadPreference.CLOSEST);
 
-        final Callback<ArrayElement> mockCountCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCountCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("distinct", "test");
         expectedCommand.addString("key", "foo");
@@ -4376,8 +4377,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(result.build().find(ArrayElement.class, "retval").get(0),
-                myTestInstance.groupBy(builder));
+        assertEquals(result.build().find(ArrayElement.class, "retval").get(0)
+                .getEntries(), myTestInstance.groupBy(builder).toList());
 
         verify();
     }
@@ -4387,13 +4388,13 @@ public class MongoCollectionImplTest {
      * {@link MongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
      */
     @Test
-    public void testGroupByAsyncCallbackOfArrayElementGroupBy() {
+    public void testGroupByAsyncCallbackGroupBy() {
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(Collections.singleton("foo"));
 
         final GroupBy request = builder.build();
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         final DocumentBuilder group = expectedCommand.push("group");
         group.addString("ns", "test");
@@ -4446,8 +4447,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(result.build().find(ArrayElement.class, "retval").get(0),
-                myTestInstance.groupByAsync(builder).get());
+        assertEquals(result.build().find(ArrayElement.class, "retval").get(0)
+                .getEntries(), myTestInstance.groupByAsync(builder).get()
+                .toList());
 
         verify();
     }
@@ -4464,7 +4466,7 @@ public class MongoCollectionImplTest {
 
         final GroupBy request = builder.build();
 
-        final LambdaCallback<ArrayElement> mockCallback = createMock(LambdaCallback.class);
+        final LambdaCallback<MongoIterator<Element>> mockCallback = createMock(LambdaCallback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         final DocumentBuilder group = expectedCommand.push("group");
         group.addString("ns", "test");
@@ -4497,7 +4499,7 @@ public class MongoCollectionImplTest {
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(Collections.singleton("foo"));
 
-        final LambdaCallback<ArrayElement> mockCallback = createMock(LambdaCallback.class);
+        final LambdaCallback<MongoIterator<Element>> mockCallback = createMock(LambdaCallback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         final DocumentBuilder group = expectedCommand.push("group");
         group.addString("ns", "test");
@@ -4536,7 +4538,7 @@ public class MongoCollectionImplTest {
 
         final GroupBy request = builder.build();
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         final DocumentBuilder group = expectedCommand.push("group");
         group.addString("ns", "test");
@@ -4576,7 +4578,7 @@ public class MongoCollectionImplTest {
 
         final GroupBy request = builder.build();
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         final DocumentBuilder group = expectedCommand.push("group");
         group.addString("ns", "test");
@@ -4610,7 +4612,7 @@ public class MongoCollectionImplTest {
         builder.setKeys(Collections.singleton("foo"));
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         final DocumentBuilder group = expectedCommand.push("group");
         group.addString("ns", "test");
@@ -5199,8 +5201,8 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(Collections.singletonList(value.build()),
-                myTestInstance.mapReduce(builder));
+        assertEquals(Collections.singletonList(value.build()), myTestInstance
+                .mapReduce(builder).toList());
 
         verify();
     }
@@ -5216,7 +5218,7 @@ public class MongoCollectionImplTest {
         builder.setReduceFunction("reduce");
         builder.setOutputType(MapReduce.OutputType.INLINE);
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5252,7 +5254,7 @@ public class MongoCollectionImplTest {
         builder.setReduceFunction("reduce");
         builder.setOutputType(MapReduce.OutputType.INLINE);
 
-        final LambdaCallback<List<Document>> mockCallback = createMock(LambdaCallback.class);
+        final LambdaCallback<MongoIterator<Document>> mockCallback = createMock(LambdaCallback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5288,7 +5290,7 @@ public class MongoCollectionImplTest {
         builder.setReduceFunction("reduce");
         builder.setOutputType(MapReduce.OutputType.INLINE);
 
-        final LambdaCallback<List<Document>> mockCallback = createMock(LambdaCallback.class);
+        final LambdaCallback<MongoIterator<Document>> mockCallback = createMock(LambdaCallback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5347,7 +5349,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(Collections.singletonList(value.build()), myTestInstance
-                .mapReduceAsync(builder).get());
+                .mapReduceAsync(builder).get().toList());
 
         verify();
     }
@@ -5374,7 +5376,7 @@ public class MongoCollectionImplTest {
 
         final MapReduce request = builder.build();
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5421,7 +5423,7 @@ public class MongoCollectionImplTest {
 
         final MapReduce request = builder.build();
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5460,7 +5462,7 @@ public class MongoCollectionImplTest {
 
         final MapReduce request = builder.build();
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5499,7 +5501,7 @@ public class MongoCollectionImplTest {
 
         final MapReduce request = builder.build();
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5538,7 +5540,7 @@ public class MongoCollectionImplTest {
 
         final MapReduce request = builder.build();
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5577,7 +5579,7 @@ public class MongoCollectionImplTest {
 
         final MapReduce request = builder.build();
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5616,7 +5618,7 @@ public class MongoCollectionImplTest {
 
         final MapReduce request = builder.build();
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -5657,7 +5659,7 @@ public class MongoCollectionImplTest {
 
         final MapReduce request = builder.build();
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.push("$query").addString("mapreduce", "test")
                 .addJavaScript("map", "map").addJavaScript("reduce", "reduce")
@@ -5699,7 +5701,7 @@ public class MongoCollectionImplTest {
 
         final MapReduce request = builder.build();
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("mapreduce", "test");
         expectedCommand.addJavaScript("map", "map");
@@ -6795,7 +6797,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(Collections.singletonList(new TextResult(value)),
-                myTestInstance.textSearch(command));
+                myTestInstance.textSearch(command).toList());
 
         verify();
     }
@@ -6827,7 +6829,7 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(Collections.singletonList(new TextResult(value)),
-                myTestInstance.textSearch(command));
+                myTestInstance.textSearch(command).toList());
 
         verify();
     }

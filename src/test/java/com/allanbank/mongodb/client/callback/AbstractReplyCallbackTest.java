@@ -26,8 +26,8 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
@@ -171,7 +171,7 @@ public class AbstractReplyCallbackTest {
                 .start().addInteger("ok", -23).build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 

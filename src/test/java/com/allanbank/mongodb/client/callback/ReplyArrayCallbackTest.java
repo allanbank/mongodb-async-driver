@@ -20,7 +20,9 @@ import java.util.List;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
@@ -46,7 +48,7 @@ public class ReplyArrayCallbackTest {
         final List<Document> docs = Collections.singletonList(db.build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
@@ -69,7 +71,7 @@ public class ReplyArrayCallbackTest {
         final List<Document> docs = Collections.singletonList(db.build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
@@ -92,7 +94,7 @@ public class ReplyArrayCallbackTest {
         final List<Document> docs = Collections.singletonList(db.build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
@@ -115,7 +117,7 @@ public class ReplyArrayCallbackTest {
         final List<Document> docs = Collections.singletonList(db.build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
@@ -139,7 +141,7 @@ public class ReplyArrayCallbackTest {
                 .start().build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
@@ -162,13 +164,14 @@ public class ReplyArrayCallbackTest {
         final List<Document> docs = Collections.singletonList(db.build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
         final ReplyArrayCallback callback = new ReplyArrayCallback("n",
                 mockCallback);
-        assertEquals(new ArrayElement("n"), callback.convert(reply));
+        assertEquals(new ArrayElement("n").getEntries(), callback
+                .convert(reply).toList());
 
         verify(mockCallback);
     }
@@ -184,7 +187,7 @@ public class ReplyArrayCallbackTest {
         final List<Document> docs = Arrays.asList(db.build(), db.build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<ArrayElement> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Element>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 

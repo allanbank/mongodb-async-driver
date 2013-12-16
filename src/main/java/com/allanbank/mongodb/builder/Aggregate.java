@@ -279,8 +279,8 @@ public class Aggregate {
     public static class Builder {
 
         /**
-         * Set to true if the aggregation results should be returned as a
-         * cursor.
+         * Set to true if the aggregation results should be allowed to spill to
+         * disk.
          */
         protected boolean myAllowDiskUsage;
 

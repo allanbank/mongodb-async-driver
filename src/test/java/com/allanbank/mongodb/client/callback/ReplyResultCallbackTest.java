@@ -18,6 +18,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -42,14 +43,14 @@ public class ReplyResultCallbackTest {
         final List<Document> docs = Collections.singletonList(db.build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
         final ReplyResultCallback callback = new ReplyResultCallback(
                 mockCallback);
         assertEquals(Collections.singletonList(BuilderFactory.start().build()),
-                callback.convert(reply));
+                callback.convert(reply).toList());
 
         verify(mockCallback);
     }
@@ -66,13 +67,13 @@ public class ReplyResultCallbackTest {
         final List<Document> docs = Collections.singletonList(db.build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
         final ReplyResultCallback callback = new ReplyResultCallback(
                 mockCallback);
-        assertEquals(Collections.emptyList(), callback.convert(reply));
+        assertEquals(Collections.emptyList(), callback.convert(reply).toList());
 
         verify(mockCallback);
     }
@@ -88,13 +89,13 @@ public class ReplyResultCallbackTest {
         final List<Document> docs = Arrays.asList(db.build(), db.build());
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, true);
 
-        final Callback<List<Document>> mockCallback = createMock(Callback.class);
+        final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
 
         replay(mockCallback);
 
         final ReplyResultCallback callback = new ReplyResultCallback(
                 mockCallback);
-        assertTrue(callback.convert(reply).isEmpty());
+        assertTrue(callback.convert(reply).toList().isEmpty());
 
         verify(mockCallback);
     }

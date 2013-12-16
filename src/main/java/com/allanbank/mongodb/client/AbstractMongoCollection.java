@@ -5,8 +5,6 @@
 
 package com.allanbank.mongodb.client;
 
-import java.util.List;
-
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.LambdaCallback;
@@ -24,7 +22,6 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
@@ -941,7 +938,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public ArrayElement distinct(final Distinct command)
+    public MongoIterator<Element> distinct(final Distinct command)
             throws MongoDbException {
         return FutureUtils.unwrap(distinctAsync(command));
     }
@@ -953,7 +950,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public ArrayElement distinct(final Distinct.Builder command)
+    public MongoIterator<Element> distinct(final Distinct.Builder command)
             throws MongoDbException {
         return distinct(command.build());
     }
@@ -966,8 +963,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public abstract void distinctAsync(Callback<ArrayElement> results,
-            Distinct command) throws MongoDbException;
+    public abstract void distinctAsync(
+            Callback<MongoIterator<Element>> results, Distinct command)
+            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -976,7 +974,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public void distinctAsync(final Callback<ArrayElement> results,
+    public void distinctAsync(final Callback<MongoIterator<Element>> results,
             final Distinct.Builder command) throws MongoDbException {
         distinctAsync(results, command.build());
     }
@@ -988,9 +986,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public ListenableFuture<ArrayElement> distinctAsync(final Distinct command)
-            throws MongoDbException {
-        final FutureCallback<ArrayElement> future = new FutureCallback<ArrayElement>(
+    public ListenableFuture<MongoIterator<Element>> distinctAsync(
+            final Distinct command) throws MongoDbException {
+        final FutureCallback<MongoIterator<Element>> future = new FutureCallback<MongoIterator<Element>>(
                 getLockType());
 
         distinctAsync(future, command);
@@ -1005,7 +1003,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public ListenableFuture<ArrayElement> distinctAsync(
+    public ListenableFuture<MongoIterator<Element>> distinctAsync(
             final Distinct.Builder command) throws MongoDbException {
         return distinctAsync(command.build());
     }
@@ -1018,9 +1016,12 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public void distinctAsync(final LambdaCallback<ArrayElement> results,
+    public void distinctAsync(
+            final LambdaCallback<MongoIterator<Element>> results,
             final Distinct command) throws MongoDbException {
-        distinctAsync(new LambdaCallbackAdapter<ArrayElement>(results), command);
+        distinctAsync(
+                new LambdaCallbackAdapter<MongoIterator<Element>>(results),
+                command);
     }
 
     /**
@@ -1031,9 +1032,12 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public void distinctAsync(final LambdaCallback<ArrayElement> results,
+    public void distinctAsync(
+            final LambdaCallback<MongoIterator<Element>> results,
             final Distinct.Builder command) throws MongoDbException {
-        distinctAsync(new LambdaCallbackAdapter<ArrayElement>(results), command);
+        distinctAsync(
+                new LambdaCallbackAdapter<MongoIterator<Element>>(results),
+                command);
     }
 
     /**
@@ -1791,7 +1795,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public ArrayElement groupBy(final GroupBy command) throws MongoDbException {
+    public MongoIterator<Element> groupBy(final GroupBy command)
+            throws MongoDbException {
         return FutureUtils.unwrap(groupByAsync(command));
     }
 
@@ -1802,7 +1807,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public ArrayElement groupBy(final GroupBy.Builder command)
+    public MongoIterator<Element> groupBy(final GroupBy.Builder command)
             throws MongoDbException {
         return groupBy(command.build());
     }
@@ -1815,7 +1820,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public abstract void groupByAsync(Callback<ArrayElement> results,
+    public abstract void groupByAsync(Callback<MongoIterator<Element>> results,
             GroupBy command) throws MongoDbException;
 
     /**
@@ -1825,7 +1830,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public void groupByAsync(final Callback<ArrayElement> results,
+    public void groupByAsync(final Callback<MongoIterator<Element>> results,
             final GroupBy.Builder command) throws MongoDbException {
         groupByAsync(results, command.build());
     }
@@ -1837,9 +1842,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public ListenableFuture<ArrayElement> groupByAsync(final GroupBy command)
-            throws MongoDbException {
-        final FutureCallback<ArrayElement> future = new FutureCallback<ArrayElement>(
+    public ListenableFuture<MongoIterator<Element>> groupByAsync(
+            final GroupBy command) throws MongoDbException {
+        final FutureCallback<MongoIterator<Element>> future = new FutureCallback<MongoIterator<Element>>(
                 getLockType());
 
         groupByAsync(future, command);
@@ -1854,7 +1859,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public ListenableFuture<ArrayElement> groupByAsync(
+    public ListenableFuture<MongoIterator<Element>> groupByAsync(
             final GroupBy.Builder command) throws MongoDbException {
         return groupByAsync(command.build());
     }
@@ -1867,9 +1872,12 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public void groupByAsync(final LambdaCallback<ArrayElement> results,
+    public void groupByAsync(
+            final LambdaCallback<MongoIterator<Element>> results,
             final GroupBy command) throws MongoDbException {
-        groupByAsync(new LambdaCallbackAdapter<ArrayElement>(results), command);
+        groupByAsync(
+                new LambdaCallbackAdapter<MongoIterator<Element>>(results),
+                command);
     }
 
     /**
@@ -1880,9 +1888,12 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public void groupByAsync(final LambdaCallback<ArrayElement> results,
+    public void groupByAsync(
+            final LambdaCallback<MongoIterator<Element>> results,
             final GroupBy.Builder command) throws MongoDbException {
-        groupByAsync(new LambdaCallbackAdapter<ArrayElement>(results), command);
+        groupByAsync(
+                new LambdaCallbackAdapter<MongoIterator<Element>>(results),
+                command);
     }
 
     /**
@@ -2190,7 +2201,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #mapReduceAsync(MapReduce)
      */
     @Override
-    public List<Document> mapReduce(final MapReduce command)
+    public MongoIterator<Document> mapReduce(final MapReduce command)
             throws MongoDbException {
         return FutureUtils.unwrap(mapReduceAsync(command));
     }
@@ -2202,7 +2213,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public List<Document> mapReduce(final MapReduce.Builder command)
+    public MongoIterator<Document> mapReduce(final MapReduce.Builder command)
             throws MongoDbException {
         return mapReduce(command.build());
     }
@@ -2217,8 +2228,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#mapReduceAsync(Callback, MapReduce)
      */
     @Override
-    public abstract void mapReduceAsync(Callback<List<Document>> results,
-            MapReduce command) throws MongoDbException;
+    public abstract void mapReduceAsync(
+            Callback<MongoIterator<Document>> results, MapReduce command)
+            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -2227,7 +2239,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public void mapReduceAsync(final Callback<List<Document>> results,
+    public void mapReduceAsync(final Callback<MongoIterator<Document>> results,
             final MapReduce.Builder command) throws MongoDbException {
         mapReduceAsync(results, command.build());
     }
@@ -2240,10 +2252,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public void mapReduceAsync(final LambdaCallback<List<Document>> results,
+    public void mapReduceAsync(
+            final LambdaCallback<MongoIterator<Document>> results,
             final MapReduce command) throws MongoDbException {
-        mapReduceAsync(new LambdaCallbackAdapter<List<Document>>(results),
-                command);
+        mapReduceAsync(new LambdaCallbackAdapter<MongoIterator<Document>>(
+                results), command);
     }
 
     /**
@@ -2255,10 +2268,11 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public void mapReduceAsync(final LambdaCallback<List<Document>> results,
+    public void mapReduceAsync(
+            final LambdaCallback<MongoIterator<Document>> results,
             final MapReduce.Builder command) throws MongoDbException {
-        mapReduceAsync(new LambdaCallbackAdapter<List<Document>>(results),
-                command);
+        mapReduceAsync(new LambdaCallbackAdapter<MongoIterator<Document>>(
+                results), command);
     }
 
     /**
@@ -2270,9 +2284,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #mapReduceAsync(Callback, MapReduce)
      */
     @Override
-    public ListenableFuture<List<Document>> mapReduceAsync(
+    public ListenableFuture<MongoIterator<Document>> mapReduceAsync(
             final MapReduce command) throws MongoDbException {
-        final FutureCallback<List<Document>> future = new FutureCallback<List<Document>>(
+        final FutureCallback<MongoIterator<Document>> future = new FutureCallback<MongoIterator<Document>>(
                 getLockType());
 
         mapReduceAsync(future, command);
@@ -2287,7 +2301,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public ListenableFuture<List<Document>> mapReduceAsync(
+    public ListenableFuture<MongoIterator<Document>> mapReduceAsync(
             final MapReduce.Builder command) throws MongoDbException {
         return mapReduceAsync(command.build());
     }
@@ -2631,7 +2645,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #textSearchAsync(Text)
      */
     @Override
-    public List<TextResult> textSearch(final Text command)
+    public MongoIterator<TextResult> textSearch(final Text command)
             throws MongoDbException {
         return FutureUtils.unwrap(textSearchAsync(command));
     }
@@ -2643,7 +2657,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public List<TextResult> textSearch(final Text.Builder command)
+    public MongoIterator<TextResult> textSearch(final Text.Builder command)
             throws MongoDbException {
         return textSearch(command.build());
     }
@@ -2658,8 +2672,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see MongoCollection#textSearchAsync(Callback, Text)
      */
     @Override
-    public abstract void textSearchAsync(Callback<List<TextResult>> results,
-            Text command) throws MongoDbException;
+    public abstract void textSearchAsync(
+            Callback<MongoIterator<TextResult>> results, Text command)
+            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -2668,7 +2683,8 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public void textSearchAsync(final Callback<List<TextResult>> results,
+    public void textSearchAsync(
+            final Callback<MongoIterator<TextResult>> results,
             final Text.Builder command) throws MongoDbException {
         textSearchAsync(results, command.build());
     }
@@ -2682,9 +2698,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @see #textSearchAsync(Callback, Text)
      */
     @Override
-    public ListenableFuture<List<TextResult>> textSearchAsync(final Text command)
-            throws MongoDbException {
-        final FutureCallback<List<TextResult>> future = new FutureCallback<List<TextResult>>(
+    public ListenableFuture<MongoIterator<TextResult>> textSearchAsync(
+            final Text command) throws MongoDbException {
+        final FutureCallback<MongoIterator<TextResult>> future = new FutureCallback<MongoIterator<TextResult>>(
                 getLockType());
 
         textSearchAsync(future, command);
@@ -2699,7 +2715,7 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * </p>
      */
     @Override
-    public ListenableFuture<List<TextResult>> textSearchAsync(
+    public ListenableFuture<MongoIterator<TextResult>> textSearchAsync(
             final Text.Builder command) throws MongoDbException {
         return textSearchAsync(command.build());
     }

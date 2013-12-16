@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.client;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -326,6 +327,49 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
     @Override
     public void stop() {
         myShutdown = true;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the remaining elements as a array.
+     * </p>
+     */
+    @Override
+    public Object[] toArray() {
+        final List<Document> remaining = toList();
+
+        return remaining.toArray();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the remaining elements as a array.
+     * </p>
+     */
+    @Override
+    public <S> S[] toArray(final S[] to) {
+        final List<Document> remaining = toList();
+
+        return remaining.toArray(to);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the remaining elements as a list.
+     * </p>
+     */
+    @Override
+    public List<Document> toList() {
+        final List<Document> remaining = new ArrayList<Document>();
+
+        while (hasNext()) {
+            remaining.add(next());
+        }
+
+        return remaining;
     }
 
     /**

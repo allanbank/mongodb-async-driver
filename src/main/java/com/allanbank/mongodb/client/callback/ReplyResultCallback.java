@@ -11,8 +11,10 @@ import java.util.List;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.DocumentElement;
+import com.allanbank.mongodb.client.SimpleMongoIteratorImpl;
 import com.allanbank.mongodb.client.message.Reply;
 
 /**
@@ -22,7 +24,8 @@ import com.allanbank.mongodb.client.message.Reply;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReplyResultCallback extends AbstractReplyCallback<List<Document>> {
+public class ReplyResultCallback extends
+        AbstractReplyCallback<MongoIterator<Document>> {
 
     /** The field in the reply holding the results. */
     private final String myReplyField;
@@ -33,7 +36,8 @@ public class ReplyResultCallback extends AbstractReplyCallback<List<Document>> {
      * @param forwardCallback
      *            The callback to forward the result documents to.
      */
-    public ReplyResultCallback(final Callback<List<Document>> forwardCallback) {
+    public ReplyResultCallback(
+            final Callback<MongoIterator<Document>> forwardCallback) {
         this("results", forwardCallback);
     }
 
@@ -46,7 +50,7 @@ public class ReplyResultCallback extends AbstractReplyCallback<List<Document>> {
      *            The callback to forward the result documents to.
      */
     public ReplyResultCallback(final String field,
-            final Callback<List<Document>> forwardCallback) {
+            final Callback<MongoIterator<Document>> forwardCallback) {
         super(forwardCallback);
         myReplyField = field;
     }
@@ -60,7 +64,8 @@ public class ReplyResultCallback extends AbstractReplyCallback<List<Document>> {
      * @see com.allanbank.mongodb.client.callback.AbstractReplyCallback#convert(com.allanbank.mongodb.client.message.Reply)
      */
     @Override
-    protected List<Document> convert(final Reply reply) throws MongoDbException {
+    protected MongoIterator<Document> convert(final Reply reply)
+            throws MongoDbException {
         List<Document> results = Collections.emptyList();
 
         final List<Document> replyDocs = reply.getResults();
@@ -77,7 +82,7 @@ public class ReplyResultCallback extends AbstractReplyCallback<List<Document>> {
             }
         }
 
-        return results;
+        return new SimpleMongoIteratorImpl<Document>(results);
     }
 
 }

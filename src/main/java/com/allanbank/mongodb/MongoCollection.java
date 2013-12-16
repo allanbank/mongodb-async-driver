@@ -5,12 +5,9 @@
 
 package com.allanbank.mongodb;
 
-import java.util.List;
-
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.builder.Aggregate;
@@ -951,7 +948,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public ArrayElement distinct(Distinct command) throws MongoDbException;
+    public MongoIterator<Element> distinct(Distinct command)
+            throws MongoDbException;
 
     /**
      * Invokes a distinct command on the server.
@@ -962,7 +960,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public ArrayElement distinct(Distinct.Builder command)
+    public MongoIterator<Element> distinct(Distinct.Builder command)
             throws MongoDbException;
 
     /**
@@ -975,57 +973,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void distinctAsync(Callback<ArrayElement> results, Distinct command)
-            throws MongoDbException;
-
-    /**
-     * Invokes a distinct command on the server.
-     * 
-     * @param results
-     *            Callback for the distinct results returned.
-     * @param command
-     *            The details of the distinct request.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public void distinctAsync(Callback<ArrayElement> results,
-            Distinct.Builder command) throws MongoDbException;
-
-    /**
-     * Invokes a distinct command on the server.
-     * 
-     * @param command
-     *            The details of the distinct request.
-     * @return ListenableFuture for the distinct results returned.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public ListenableFuture<ArrayElement> distinctAsync(Distinct command)
-            throws MongoDbException;
-
-    /**
-     * Invokes a distinct command on the server.
-     * 
-     * @param command
-     *            The details of the distinct request.
-     * @return ListenableFuture for the distinct results returned.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public ListenableFuture<ArrayElement> distinctAsync(Distinct.Builder command)
-            throws MongoDbException;
-
-    /**
-     * Invokes a distinct command on the server.
-     * 
-     * @param results
-     *            Callback for the distinct results returned.
-     * @param command
-     *            The details of the distinct request.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public void distinctAsync(LambdaCallback<ArrayElement> results,
+    public void distinctAsync(Callback<MongoIterator<Element>> results,
             Distinct command) throws MongoDbException;
 
     /**
@@ -1038,7 +986,57 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void distinctAsync(LambdaCallback<ArrayElement> results,
+    public void distinctAsync(Callback<MongoIterator<Element>> results,
+            Distinct.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a distinct command on the server.
+     * 
+     * @param command
+     *            The details of the distinct request.
+     * @return ListenableFuture for the distinct results returned.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public ListenableFuture<MongoIterator<Element>> distinctAsync(
+            Distinct command) throws MongoDbException;
+
+    /**
+     * Invokes a distinct command on the server.
+     * 
+     * @param command
+     *            The details of the distinct request.
+     * @return ListenableFuture for the distinct results returned.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public ListenableFuture<MongoIterator<Element>> distinctAsync(
+            Distinct.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a distinct command on the server.
+     * 
+     * @param results
+     *            Callback for the distinct results returned.
+     * @param command
+     *            The details of the distinct request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void distinctAsync(LambdaCallback<MongoIterator<Element>> results,
+            Distinct command) throws MongoDbException;
+
+    /**
+     * Invokes a distinct command on the server.
+     * 
+     * @param results
+     *            Callback for the distinct results returned.
+     * @param command
+     *            The details of the distinct request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void distinctAsync(LambdaCallback<MongoIterator<Element>> results,
             Distinct.Builder command) throws MongoDbException;
 
     /**
@@ -1871,7 +1869,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public ArrayElement groupBy(GroupBy command) throws MongoDbException;
+    public MongoIterator<Element> groupBy(GroupBy command)
+            throws MongoDbException;
 
     /**
      * Invokes a group command on the server.
@@ -1882,7 +1881,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public ArrayElement groupBy(GroupBy.Builder command)
+    public MongoIterator<Element> groupBy(GroupBy.Builder command)
             throws MongoDbException;
 
     /**
@@ -1895,57 +1894,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void groupByAsync(Callback<ArrayElement> results, GroupBy command)
-            throws MongoDbException;
-
-    /**
-     * Invokes a group command on the server.
-     * 
-     * @param results
-     *            Callback for the group results returned.
-     * @param command
-     *            The details of the group request.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public void groupByAsync(Callback<ArrayElement> results,
-            GroupBy.Builder command) throws MongoDbException;
-
-    /**
-     * Invokes a group command on the server.
-     * 
-     * @param command
-     *            The details of the group request.
-     * @return ListenableFuture for the group results returned.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public ListenableFuture<ArrayElement> groupByAsync(GroupBy command)
-            throws MongoDbException;
-
-    /**
-     * Invokes a group command on the server.
-     * 
-     * @param command
-     *            The details of the group request.
-     * @return ListenableFuture for the group results returned.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public ListenableFuture<ArrayElement> groupByAsync(GroupBy.Builder command)
-            throws MongoDbException;
-
-    /**
-     * Invokes a group command on the server.
-     * 
-     * @param results
-     *            Callback for the group results returned.
-     * @param command
-     *            The details of the group request.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public void groupByAsync(LambdaCallback<ArrayElement> results,
+    public void groupByAsync(Callback<MongoIterator<Element>> results,
             GroupBy command) throws MongoDbException;
 
     /**
@@ -1958,7 +1907,57 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void groupByAsync(LambdaCallback<ArrayElement> results,
+    public void groupByAsync(Callback<MongoIterator<Element>> results,
+            GroupBy.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
+     * @param command
+     *            The details of the group request.
+     * @return ListenableFuture for the group results returned.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public ListenableFuture<MongoIterator<Element>> groupByAsync(GroupBy command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
+     * @param command
+     *            The details of the group request.
+     * @return ListenableFuture for the group results returned.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public ListenableFuture<MongoIterator<Element>> groupByAsync(
+            GroupBy.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
+     * @param results
+     *            Callback for the group results returned.
+     * @param command
+     *            The details of the group request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void groupByAsync(LambdaCallback<MongoIterator<Element>> results,
+            GroupBy command) throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
+     * @param results
+     *            Callback for the group results returned.
+     * @param command
+     *            The details of the group request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void groupByAsync(LambdaCallback<MongoIterator<Element>> results,
             GroupBy.Builder command) throws MongoDbException;
 
     /**
@@ -2315,7 +2314,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public List<Document> mapReduce(MapReduce command) throws MongoDbException;
+    public MongoIterator<Document> mapReduce(MapReduce command)
+            throws MongoDbException;
 
     /**
      * Invokes a mapReduce command on the server.
@@ -2327,7 +2327,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public List<Document> mapReduce(MapReduce.Builder command)
+    public MongoIterator<Document> mapReduce(MapReduce.Builder command)
             throws MongoDbException;
 
     /**
@@ -2341,7 +2341,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void mapReduceAsync(Callback<List<Document>> results,
+    public void mapReduceAsync(Callback<MongoIterator<Document>> results,
             MapReduce command) throws MongoDbException;
 
     /**
@@ -2355,7 +2355,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void mapReduceAsync(Callback<List<Document>> results,
+    public void mapReduceAsync(Callback<MongoIterator<Document>> results,
             MapReduce.Builder command) throws MongoDbException;
 
     /**
@@ -2369,7 +2369,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void mapReduceAsync(LambdaCallback<List<Document>> results,
+    public void mapReduceAsync(LambdaCallback<MongoIterator<Document>> results,
             MapReduce command) throws MongoDbException;
 
     /**
@@ -2383,7 +2383,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public void mapReduceAsync(LambdaCallback<List<Document>> results,
+    public void mapReduceAsync(LambdaCallback<MongoIterator<Document>> results,
             MapReduce.Builder command) throws MongoDbException;
 
     /**
@@ -2396,8 +2396,8 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public ListenableFuture<List<Document>> mapReduceAsync(MapReduce command)
-            throws MongoDbException;
+    public ListenableFuture<MongoIterator<Document>> mapReduceAsync(
+            MapReduce command) throws MongoDbException;
 
     /**
      * Invokes a mapReduce command on the server.
@@ -2409,7 +2409,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public ListenableFuture<List<Document>> mapReduceAsync(
+    public ListenableFuture<MongoIterator<Document>> mapReduceAsync(
             MapReduce.Builder command) throws MongoDbException;
 
     /**
@@ -3274,7 +3274,8 @@ public interface MongoCollection {
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
      */
-    public List<TextResult> textSearch(Text command) throws MongoDbException;
+    public MongoIterator<TextResult> textSearch(Text command)
+            throws MongoDbException;
 
     /**
      * Invokes a {@code text} command on the server.
@@ -3289,7 +3290,7 @@ public interface MongoCollection {
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
      */
-    public List<TextResult> textSearch(Text.Builder command)
+    public MongoIterator<TextResult> textSearch(Text.Builder command)
             throws MongoDbException;
 
     /**
@@ -3306,8 +3307,8 @@ public interface MongoCollection {
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
      */
-    public void textSearchAsync(Callback<List<TextResult>> results, Text command)
-            throws MongoDbException;
+    public void textSearchAsync(Callback<MongoIterator<TextResult>> results,
+            Text command) throws MongoDbException;
 
     /**
      * Invokes a {@code text} command on the server.
@@ -3319,7 +3320,7 @@ public interface MongoCollection {
      * @throws MongoDbException
      *             On an error executing the {@code text} command.
      */
-    public void textSearchAsync(Callback<List<TextResult>> results,
+    public void textSearchAsync(Callback<MongoIterator<TextResult>> results,
             Text.Builder command) throws MongoDbException;
 
     /**
@@ -3335,8 +3336,8 @@ public interface MongoCollection {
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
      */
-    public ListenableFuture<List<TextResult>> textSearchAsync(Text command)
-            throws MongoDbException;
+    public ListenableFuture<MongoIterator<TextResult>> textSearchAsync(
+            Text command) throws MongoDbException;
 
     /**
      * Invokes a {@code text} command on the server.
@@ -3351,7 +3352,7 @@ public interface MongoCollection {
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
      */
-    public ListenableFuture<List<TextResult>> textSearchAsync(
+    public ListenableFuture<MongoIterator<TextResult>> textSearchAsync(
             Text.Builder command) throws MongoDbException;
 
     /**
