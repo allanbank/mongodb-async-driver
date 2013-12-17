@@ -201,7 +201,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                 final Connection primaryConn = myConnectionFactory.connect(
                         primary, myConfig);
 
-                return new ShardedConnection(primaryConn, myConfig);
+                return new ShardedConnection(primaryConn);
             }
             catch (final IOException e) {
                 lastError = e;

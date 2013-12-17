@@ -91,9 +91,7 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoIteratorImpl#MongoIteratorImpl(Query, Client, String, Reply)}
-     * .
+     * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
     @Test
     public void testAllDocsInFirstReply() {
@@ -227,9 +225,7 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoIteratorImpl#MongoIteratorImpl(Query, Client, String, Reply)}
-     * .
+     * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
     @Test
     public void testAskForMore() {
@@ -276,9 +272,7 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoIteratorImpl#MongoIteratorImpl(Query, Client, String, Reply)}
-     * .
+     * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
     @Test
     public void testAskForMoreGetCursorNotFound() {
@@ -322,9 +316,7 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoIteratorImpl#MongoIteratorImpl(Query, Client, String, Reply)}
-     * .
+     * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
     @Test
     public void testAskForMoreGetNone() {
@@ -366,9 +358,7 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoIteratorImpl#MongoIteratorImpl(Query, Client, String, Reply)}
-     * .
+     * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
     @Test
     public void testAskForMoreGetQueryFailed() {
@@ -412,9 +402,7 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoIteratorImpl#MongoIteratorImpl(Query, Client, String, Reply)}
-     * .
+     * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -460,9 +448,7 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoIteratorImpl#MongoIteratorImpl(Query, Client, String, Reply)}
-     * .
+     * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
     @Test
     public void testAskForMoreWhenNoMore() {
@@ -602,9 +588,7 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoIteratorImpl#MongoIteratorImpl(Query, Client, String, Reply)}
-     * .
+     * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -642,9 +626,7 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for
-     * {@link MongoIteratorImpl#MongoIteratorImpl(Query, Client, String, Reply)}
-     * .
+     * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
     @Test
     public void testOverLimitCursorAlreadyDead() {

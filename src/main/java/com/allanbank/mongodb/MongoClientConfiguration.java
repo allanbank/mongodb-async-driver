@@ -48,6 +48,15 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /** The default database. */
     public static final String DEFAULT_DB_NAME = "local";
 
+    /**
+     * The default maximum number of strings to keep in the string encoder and
+     * decoder cache.
+     */
+    public static final int DEFAULT_MAX_STRING_CACHE_ENTRIES = StringEncoder.DEFAULT_MAX_CACHE_ENTRIES;
+
+    /** The default maximum length byte array / string to cache. */
+    public static final int DEFAULT_MAX_STRING_CACHE_LENGTH = StringEncoder.DEFAULT_MAX_CACHE_LENGTH;
+
     /** The ASCII character encoding. */
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
@@ -136,20 +145,20 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * The maximum number of strings that may have their encoded form cached.
      * <p>
-     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_ENTRIES}.
+     * Defaults to {@value #DEFAULT_MAX_STRING_CACHE_ENTRIES}.
      * </p>
      */
-    private int myMaxCachedStringEntries = StringEncoder.DEFAULT_MAX_CACHE_ENTRIES;
+    private int myMaxCachedStringEntries = DEFAULT_MAX_STRING_CACHE_ENTRIES;
 
     /**
      * The maximum length for a string that the stream is allowed to cache.This
      * can be used to stop a single long string from pushing useful values out
      * of the cache. Setting this value to zero turns off the caching.
      * <p>
-     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_LENGTH}.
+     * Defaults to {@value #DEFAULT_MAX_STRING_CACHE_LENGTH}.
      * </p>
      */
-    private int myMaxCachedStringLength = StringEncoder.DEFAULT_MAX_CACHE_LENGTH;
+    private int myMaxCachedStringLength = DEFAULT_MAX_STRING_CACHE_LENGTH;
 
     /**
      * Determines the maximum number of connections to use.
@@ -785,7 +794,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Returns the maximum number of strings that may have their encoded form
      * cached.
      * <p>
-     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_ENTRIES}.
+     * Defaults to {@value #DEFAULT_MAX_STRING_CACHE_ENTRIES}.
      * </p>
      * <p>
      * Note: The caches are maintained per connection and there is a cache for
@@ -806,7 +815,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * values out of the cache. Setting this value to zero turns off the
      * caching.
      * <p>
-     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_LENGTH}.
+     * Defaults to {@value #DEFAULT_MAX_STRING_CACHE_LENGTH}.
      * </p>
      * <p>
      * Note: The caches are maintained per connection and there is a cache for
@@ -1230,7 +1239,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Sets the value of maximum number of strings that may have their encoded
      * form cached.
      * <p>
-     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_ENTRIES}.
+     * Defaults to {@value #DEFAULT_MAX_STRING_CACHE_ENTRIES}.
      * </p>
      * <p>
      * Note: The caches are maintained per connection and there is a cache for
@@ -1251,7 +1260,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * used to stop a single long string from pushing useful values out of the
      * cache. Setting this value to zero turns off the caching.
      * <p>
-     * Defaults to {@value StringEncoder#DEFAULT_MAX_CACHE_LENGTH}.
+     * Defaults to {@value #DEFAULT_MAX_STRING_CACHE_LENGTH}.
      * </p>
      * <p>
      * Note: The caches are maintained per connection and there is a cache for

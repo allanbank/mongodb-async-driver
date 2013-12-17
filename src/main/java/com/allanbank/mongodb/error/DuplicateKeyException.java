@@ -38,7 +38,7 @@ public class DuplicateKeyException extends ReplyException {
      */
     public DuplicateKeyException(final int okValue, final int errorNumber,
             final String errorMessage, final Message message, final Reply reply) {
-        super(okValue, errorNumber, errorMessage, reply);
+        super(okValue, errorNumber, errorMessage, message, reply);
     }
 
     /**

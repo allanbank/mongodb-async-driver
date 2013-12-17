@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * StringEncoder provides a single location for the string encoding and sizing
@@ -21,12 +22,15 @@ import java.util.Map;
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class StringEncoder {
-
     /** The default maximum number of strings to keep in the trie cache. */
     public static final int DEFAULT_MAX_CACHE_ENTRIES = 128;
 
     /** The default maximum length byte array to cache. */
     public static final int DEFAULT_MAX_CACHE_LENGTH = 25;
+
+    /** The logger for the {@link StringEncoder}. */
+    protected static final Logger LOG = Logger.getLogger(StringEncoder.class
+            .getCanonicalName());
 
     /** The byte value limit for a ASCII character. */
     /* package */static final int ASCII_LIMIT = 0x80;
@@ -188,7 +192,8 @@ public class StringEncoder {
                 }
             }
             catch (final IOException ioe) {
-                // No IO so should not happen. Fall through.
+                // No I/O so should not happen. Fall through.
+                LOG.warning("Error encoding the string '" + string + "'.");
             }
         }
         return utf8Size(string);

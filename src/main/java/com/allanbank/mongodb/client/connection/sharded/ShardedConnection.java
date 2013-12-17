@@ -5,7 +5,6 @@
 
 package com.allanbank.mongodb.client.connection.sharded;
 
-import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.proxy.AbstractProxyConnection;
 
@@ -18,16 +17,14 @@ import com.allanbank.mongodb.client.connection.proxy.AbstractProxyConnection;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedConnection extends AbstractProxyConnection {
+
     /**
      * Creates a new {@link ShardedConnection}.
      * 
      * @param proxiedConnection
      *            The connection being proxied.
-     * @param config
-     *            The MongoDB client configuration.
      */
-    public ShardedConnection(final Connection proxiedConnection,
-            final MongoClientConfiguration config) {
+    public ShardedConnection(final Connection proxiedConnection) {
         super(proxiedConnection);
     }
 
