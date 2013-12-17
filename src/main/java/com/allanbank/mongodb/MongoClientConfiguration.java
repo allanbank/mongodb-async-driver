@@ -48,17 +48,17 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /** The default database. */
     public static final String DEFAULT_DB_NAME = "local";
 
+    /** The ASCII character encoding. */
+    public static final Charset UTF8 = Charset.forName("UTF-8");
+
     /**
      * The default maximum number of strings to keep in the string encoder and
      * decoder cache.
      */
-    public static final int DEFAULT_MAX_STRING_CACHE_ENTRIES = StringEncoder.DEFAULT_MAX_CACHE_ENTRIES;
+    protected static final int DEFAULT_MAX_STRING_CACHE_ENTRIES = StringEncoder.DEFAULT_MAX_CACHE_ENTRIES;
 
     /** The default maximum length byte array / string to cache. */
-    public static final int DEFAULT_MAX_STRING_CACHE_LENGTH = StringEncoder.DEFAULT_MAX_CACHE_LENGTH;
-
-    /** The ASCII character encoding. */
-    public static final Charset UTF8 = Charset.forName("UTF-8");
+    protected static final int DEFAULT_MAX_STRING_CACHE_LENGTH = StringEncoder.DEFAULT_MAX_CACHE_LENGTH;
 
     /** The logger for the {@link MongoClientConfiguration}. */
     private static final Logger LOG = Logger
