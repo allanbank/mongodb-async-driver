@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.net.SocketFactory;
+
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
@@ -33,6 +35,7 @@ import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.connection.Connection;
+import com.allanbank.mongodb.client.connection.SocketConnectionListener;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.Header;
@@ -709,12 +712,22 @@ public abstract class AbstractSocketConnection implements Connection {
      */
     private Socket openSocket(final Server server,
             final MongoClientConfiguration config) throws IOException {
+        final SocketFactory factory = config.getSocketFactory();
+
         IOException last = null;
         Socket socket = null;
         for (final InetSocketAddress address : myServer.getAddresses()) {
             try {
-                socket = config.getSocketFactory().createSocket();
+
+                socket = factory.createSocket();
                 socket.connect(address, config.getConnectTimeout());
+
+                // If the factory wants to know about the connection then let it
+                // know first.
+                if (factory instanceof SocketConnectionListener) {
+                    ((SocketConnectionListener) factory).connected(address,
+                            socket);
+                }
 
                 // Let the server know the working connection.
                 server.connectionOpened(address);
@@ -734,6 +747,7 @@ public abstract class AbstractSocketConnection implements Connection {
                             + socket);
                 }
             }
+
         }
         if (last != null) {
             server.connectFailed();

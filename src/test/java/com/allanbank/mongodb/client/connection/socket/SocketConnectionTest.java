@@ -71,6 +71,7 @@ import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.connection.Connection;
+import com.allanbank.mongodb.client.connection.SocketConnectionListener;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
@@ -228,7 +229,6 @@ public class SocketConnectionTest {
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
-    @SuppressWarnings("null")
     @Test
     public void testClose() throws IOException {
 
@@ -1675,7 +1675,6 @@ public class SocketConnectionTest {
      * @throws TimeoutException
      *             On a failure to sleep.
      */
-    @SuppressWarnings("null")
     @Test
     public void testReadGarbage() throws IOException, InterruptedException,
             TimeoutException {
@@ -2296,7 +2295,6 @@ public class SocketConnectionTest {
      * @throws InterruptedException
      *             On a failure waiting for the threads to close.
      */
-    @SuppressWarnings("null")
     @Test
     public void testSendError() throws IOException, InterruptedException {
 
@@ -2339,7 +2337,6 @@ public class SocketConnectionTest {
      * @throws InterruptedException
      *             On a failure waiting for the threads to close.
      */
-    @SuppressWarnings("null")
     @Test
     public void testSendFailureClose() throws IOException, InterruptedException {
 
@@ -2382,7 +2379,6 @@ public class SocketConnectionTest {
      * @throws InterruptedException
      *             On a failure waiting for the threads to close.
      */
-    @SuppressWarnings("null")
     @Test
     public void testSendRuntimeException() throws IOException,
             InterruptedException {
@@ -2426,7 +2422,6 @@ public class SocketConnectionTest {
      * @throws InterruptedException
      *             On a failure waiting for the threads to close.
      */
-    @SuppressWarnings("null")
     @Test
     public void testServerClose() throws IOException, InterruptedException {
 
@@ -2686,6 +2681,98 @@ public class SocketConnectionTest {
                 .getAddress(), addr.getPort() + 1));
         myTestConnection = new SocketConnection(wrongPort,
                 new MongoClientConfiguration());
+    }
+
+    /**
+     * Test method for
+     * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
+     * .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testSocketConnectNotifiesFactoryOfConnect() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        final SocketFactoryWithConnectionListener mockFactory = createMock(SocketFactoryWithConnectionListener.class);
+        final Socket mockSocket = createMock(Socket.class);
+
+        final SocketException thrown = new SocketException("Injected.");
+        expect(mockFactory.createSocket()).andReturn(mockSocket);
+
+        mockSocket.connect(ourServer.getInetSocketAddress(),
+                config.getConnectTimeout());
+        expectLastCall();
+
+        mockFactory.connected(ourServer.getInetSocketAddress(), mockSocket);
+        expectLastCall();
+
+        // Shutdown the test...
+        mockSocket.setKeepAlive(true);
+        expectLastCall().andThrow(thrown);
+
+        replay(mockFactory, mockSocket);
+
+        config.setSocketFactory(mockFactory);
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(ourServer.getInetSocketAddress());
+
+        try {
+            myTestConnection = new SocketConnection(server, config);
+            fail("Should have thrown an SocketException");
+        }
+        catch (final SocketException good) {
+            assertThat(good, sameInstance(thrown));
+        }
+
+        verify(mockFactory, mockSocket);
+    }
+
+    /**
+     * Test method for
+     * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
+     * .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testSocketConnectNotifiesFactoryOfConnectWhichThrows()
+            throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        final SocketFactoryWithConnectionListener mockFactory = createMock(SocketFactoryWithConnectionListener.class);
+        final Socket mockSocket = createMock(Socket.class);
+
+        final SocketException thrown = new SocketException("Injected.");
+        expect(mockFactory.createSocket()).andReturn(mockSocket);
+
+        mockSocket.connect(ourServer.getInetSocketAddress(),
+                config.getConnectTimeout());
+        expectLastCall();
+
+        mockFactory.connected(ourServer.getInetSocketAddress(), mockSocket);
+        expectLastCall().andThrow(thrown);
+
+        mockSocket.close();
+        expectLastCall().andThrow(new IOException("Injected but just logged."));
+
+        replay(mockFactory, mockSocket);
+
+        config.setSocketFactory(mockFactory);
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(ourServer.getInetSocketAddress());
+
+        try {
+            myTestConnection = new SocketConnection(server, config);
+            fail("Should have thrown an SocketException");
+        }
+        catch (final SocketException good) {
+            assertThat(good, sameInstance(thrown));
+        }
+
+        verify(mockFactory, mockSocket);
     }
 
     /**
@@ -3147,5 +3234,16 @@ public class SocketConnectionTest {
         /** The serialization id for the class. */
         private static final long serialVersionUID = 1433767421262380441L;
 
+    }
+
+    /**
+     * SocketFactoryWithConnectionListener provides a test socket factory that
+     * also implements SocketConnectionListener.
+     * 
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public abstract class SocketFactoryWithConnectionListener extends
+            SocketFactory implements SocketConnectionListener {
+        // Nothing.
     }
 }

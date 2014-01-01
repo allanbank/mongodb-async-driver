@@ -5,12 +5,15 @@
 package com.allanbank.mongodb.client.connection.socket;
 
 import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.makeThreadSafe;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StreamCorruptedException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -59,6 +63,7 @@ import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.connection.Connection;
+import com.allanbank.mongodb.client.connection.socket.SocketConnectionTest.SocketFactoryWithConnectionListener;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.GetMore;
@@ -155,7 +160,6 @@ public class TwoThreadSocketConnectionTest {
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
-    @SuppressWarnings("null")
     @Test
     public void testClose() throws IOException {
 
@@ -1474,7 +1478,6 @@ public class TwoThreadSocketConnectionTest {
      * @throws InterruptedException
      *             On a failure to sleep.
      */
-    @SuppressWarnings("null")
     @Test
     public void testReadGarbage() throws IOException, InterruptedException {
 
@@ -1673,7 +1676,6 @@ public class TwoThreadSocketConnectionTest {
      * @throws InterruptedException
      *             On a failure waiting for the threads to close.
      */
-    @SuppressWarnings("null")
     @Test
     public void testSendError() throws IOException, InterruptedException {
 
@@ -1716,7 +1718,6 @@ public class TwoThreadSocketConnectionTest {
      * @throws InterruptedException
      *             On a failure waiting for the threads to close.
      */
-    @SuppressWarnings("null")
     @Test
     public void testSendFailureClose() throws IOException, InterruptedException {
 
@@ -1759,7 +1760,6 @@ public class TwoThreadSocketConnectionTest {
      * @throws InterruptedException
      *             On a failure waiting for the threads to close.
      */
-    @SuppressWarnings("null")
     @Test
     public void testSendRuntimeException() throws IOException,
             InterruptedException {
@@ -1803,7 +1803,6 @@ public class TwoThreadSocketConnectionTest {
      * @throws InterruptedException
      *             On a failure waiting for the threads to close.
      */
-    @SuppressWarnings("null")
     @Test
     public void testServerClose() throws IOException, InterruptedException {
 
@@ -1942,6 +1941,98 @@ public class TwoThreadSocketConnectionTest {
                 'o', '.', 'b', 'a', 'r', 0 },
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Flags should be one.", 1, EndianUtils.swap(asInts.get(7)));
+    }
+
+    /**
+     * Test method for
+     * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
+     * .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testSocketConnectNotifiesFactoryOfConnect() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        final SocketFactoryWithConnectionListener mockFactory = createMock(SocketFactoryWithConnectionListener.class);
+        final Socket mockSocket = createMock(Socket.class);
+
+        final SocketException thrown = new SocketException("Injected.");
+        expect(mockFactory.createSocket()).andReturn(mockSocket);
+
+        mockSocket.connect(ourServer.getInetSocketAddress(),
+                config.getConnectTimeout());
+        expectLastCall();
+
+        mockFactory.connected(ourServer.getInetSocketAddress(), mockSocket);
+        expectLastCall();
+
+        // Shutdown the test...
+        mockSocket.setKeepAlive(true);
+        expectLastCall().andThrow(thrown);
+
+        replay(mockFactory, mockSocket);
+
+        config.setSocketFactory(mockFactory);
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(ourServer.getInetSocketAddress());
+
+        try {
+            myTestConnection = new TwoThreadSocketConnection(server, config);
+            fail("Should have thrown an SocketException");
+        }
+        catch (final SocketException good) {
+            assertThat(good, sameInstance(thrown));
+        }
+
+        verify(mockFactory, mockSocket);
+    }
+
+    /**
+     * Test method for
+     * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
+     * .
+     * 
+     * @throws IOException
+     *             On a failure connecting to the Mock MongoDB server.
+     */
+    @Test
+    public void testSocketConnectNotifiesFactoryOfConnectWhichThrows()
+            throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        final SocketFactoryWithConnectionListener mockFactory = createMock(SocketFactoryWithConnectionListener.class);
+        final Socket mockSocket = createMock(Socket.class);
+
+        final SocketException thrown = new SocketException("Injected.");
+        expect(mockFactory.createSocket()).andReturn(mockSocket);
+
+        mockSocket.connect(ourServer.getInetSocketAddress(),
+                config.getConnectTimeout());
+        expectLastCall();
+
+        mockFactory.connected(ourServer.getInetSocketAddress(), mockSocket);
+        expectLastCall().andThrow(thrown);
+
+        mockSocket.close();
+        expectLastCall().andThrow(new IOException("Injected but just logged."));
+
+        replay(mockFactory, mockSocket);
+
+        config.setSocketFactory(mockFactory);
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add(ourServer.getInetSocketAddress());
+
+        try {
+            myTestConnection = new TwoThreadSocketConnection(server, config);
+            fail("Should have thrown an SocketException");
+        }
+        catch (final SocketException good) {
+            assertThat(good, sameInstance(thrown));
+        }
+
+        verify(mockFactory, mockSocket);
     }
 
     /**
