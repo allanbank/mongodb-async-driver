@@ -19,6 +19,33 @@ import org.junit.Test;
 public class ServerNameUtilsTest {
 
     /**
+     * Test method for {@link ServerNameUtils#normalize(InetSocketAddress)}.
+     */
+    @Test
+    public void testNormalizeInetSocketAddress() {
+        assertEquals("foo:27017",
+                ServerNameUtils.normalize(ServerNameUtils.parse("foo")));
+        assertEquals("foo:27018",
+                ServerNameUtils.normalize(ServerNameUtils.parse("foo:27018")));
+
+        assertEquals("foo:abot:27017",
+                ServerNameUtils.normalize(ServerNameUtils.parse("foo:abot")));
+
+        assertEquals("192.168.0.1:27017",
+                ServerNameUtils.normalize(ServerNameUtils.parse("192.168.0.1")));
+        assertEquals("192.168.0.1:27018",
+                ServerNameUtils.normalize(ServerNameUtils
+                        .parse("192.168.0.1:27018")));
+
+        assertEquals("[fe80:0:0:0:868f:69ff:feb2:95d4]:27018",
+                ServerNameUtils.normalize(new InetSocketAddress(
+                        "fe80::868f:69ff:feb2:95d4", 27018)));
+        assertEquals("[fe80:0:0:0:868f:69ff:feb2:95d4]:27018",
+                ServerNameUtils.normalize(new InetSocketAddress(
+                        "[fe80::868f:69ff:feb2:95d4]", 27018)));
+    }
+
+    /**
      * Test method for {@link ServerNameUtils#normalize(String)}.
      */
     @Test
@@ -33,10 +60,14 @@ public class ServerNameUtilsTest {
         assertEquals("192.168.0.1:27018",
                 ServerNameUtils.normalize("192.168.0.1:27018"));
 
-        assertEquals("fe80::868f:69ff:feb2:95d4:27017",
+        assertEquals("[fe80::868f:69ff:feb2:95d4]:27017",
                 ServerNameUtils.normalize("fe80::868f:69ff:feb2:95d4"));
-        assertEquals("fe80::868f:69ff:feb2:95d4:27017",
-                ServerNameUtils.normalize("fe80::868f:69ff:feb2:95d4:27017"));
+        assertEquals("[fe80::868f:69ff:feb2:95d4]:27018",
+                ServerNameUtils.normalize("fe80::868f:69ff:feb2:95d4:27018"));
+        assertEquals("[fe80::868f:69ff:feb2:95d4]:27018",
+                ServerNameUtils.normalize("[fe80::868f:69ff:feb2:95d4]:27018"));
+        assertEquals("[fe80::868f:69ff:feb2:95d4]:27017",
+                ServerNameUtils.normalize("[fe80::868f:69ff:feb2:95d4]"));
     }
 
     /**
@@ -50,5 +81,11 @@ public class ServerNameUtilsTest {
                 ServerNameUtils.parse("foo:27018"));
         assertEquals(new InetSocketAddress("fe80::868f:69ff:feb2:95d4", 27018),
                 ServerNameUtils.parse("fe80::868f:69ff:feb2:95d4:27018"));
+        assertEquals(new InetSocketAddress("fe80::868f:69ff:feb2:95d4", 27018),
+                ServerNameUtils.parse("[fe80::868f:69ff:feb2:95d4]:27018"));
+        assertEquals(new InetSocketAddress("fe80::868f:69ff:feb2:95d4", 27017),
+                ServerNameUtils.parse("[fe80::868f:69ff:feb2:95d4]"));
+        assertEquals(new InetSocketAddress("fe80::868f:69ff:feb2:95d4", 27017),
+                ServerNameUtils.parse("fe80::868f:69ff:feb2:95d4"));
     }
 }

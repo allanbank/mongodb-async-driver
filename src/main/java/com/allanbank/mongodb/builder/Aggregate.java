@@ -19,6 +19,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.builder.expression.Expressions;
 
@@ -1082,6 +1083,16 @@ public class Aggregate {
         public Builder step(final String operator, final String value) {
             myPipeline.push().addString(operator, value);
             return this;
+        }
+
+        /**
+         * Return the JSON for the current pipeline that would be constructed by
+         * the builder.
+         */
+        @Override
+        public String toString() {
+            return new ArrayElement("$pipeline", build().getPipeline())
+                    .toString();
         }
 
         /**

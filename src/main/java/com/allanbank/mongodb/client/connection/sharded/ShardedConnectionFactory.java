@@ -47,20 +47,20 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     protected static final Logger LOG = Logger
             .getLogger(ShardedConnectionFactory.class.getCanonicalName());
 
+    /** The state of the cluster. */
+    protected final Cluster myCluster;
+
+    /** The MongoDB client configuration. */
+    protected final MongoClientConfiguration myConfig;
+
     /** The factory to create proxied connections. */
     protected final ProxiedConnectionFactory myConnectionFactory;
 
-    /** The state of the cluster. */
-    private final Cluster myCluster;
-
-    /** The MongoDB client configuration. */
-    private final MongoClientConfiguration myConfig;
-
     /** Pings the servers in the cluster collecting latency and tags. */
-    private final ClusterPinger myPinger;
+    protected final ClusterPinger myPinger;
 
-    /** The slector for the mongos instance to use. */
-    private final ServerSelector mySelector;
+    /** The selector for the mongos instance to use. */
+    protected final ServerSelector mySelector;
 
     /**
      * Creates a new {@link ShardedConnectionFactory}.
@@ -74,10 +74,9 @@ public class ShardedConnectionFactory implements ConnectionFactory {
             final MongoClientConfiguration config) {
         myConnectionFactory = factory;
         myConfig = config;
-        myCluster = new Cluster(config);
-        mySelector = new LatencyServerSelector(myCluster, true);
-        myPinger = new ClusterPinger(myCluster, ClusterType.SHARDED, factory,
-                config);
+        myCluster = createCluster(config);
+        mySelector = createSelector();
+        myPinger = createClusterPinger(factory, config);
 
         // Add all of the servers to the cluster.
         for (final InetSocketAddress address : config.getServerAddresses()) {
@@ -89,59 +88,21 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Finds the mongos servers.
-     * <p>
-     * Performs a find on the <tt>config</tt> database's <tt>mongos</tt>
-     * collection to return the id for all of the mongos servers in the cluster.
-     * </p>
-     * <p>
-     * A single mongos entry looks like: <blockquote>
-     * 
-     * <pre>
-     * <code>
-     * { 
-     *     "_id" : "mongos.example.com:27017", 
-     *     "ping" : ISODate("2011-12-05T23:54:03.122Z"), 
-     *     "up" : 330 
-     * }
-     * </code>
-     * </pre>
-     * 
-     * </blockquote>
      */
     public void bootstrap() {
-        if (myConfig.isAutoDiscoverServers()) {
-            // Create a query to pull all of the mongos servers out of the
-            // config database.
-            final Query query = new Query("config", "mongos", BuilderFactory
-                    .start().build(), /* fields= */null, /* batchSize= */0,
-            /* limit= */0, /* numberToSkip= */0, /* tailable= */false,
-                    ReadPreference.PRIMARY, /* noCursorTimeout= */false,
-                    /* awaitData= */false, /* exhaust= */false, /* partial= */
-                    false);
-
+        final BootstrapState state = createBootstrapState();
+        if (!state.done()) {
             for (final String addr : myConfig.getServers()) {
                 Connection conn = null;
-                final FutureCallback<Reply> future = new FutureCallback<Reply>();
                 try {
                     // Send the request...
                     conn = myConnectionFactory.connect(myCluster.add(addr),
                             myConfig);
-                    conn.send(query, future);
 
-                    // Receive the response.
-                    final Reply reply = future.get();
+                    update(state, conn);
 
-                    // Validate and pull out the response information.
-                    final List<Document> docs = reply.getResults();
-                    for (final Document doc : docs) {
-                        final Element idElem = doc.get("_id");
-                        if (idElem instanceof StringElement) {
-                            final StringElement id = (StringElement) idElem;
-
-                            myCluster.add(id.getValue());
-
-                            LOG.fine("Adding shard mongos: " + id.getValue());
-                        }
+                    if (state.done()) {
+                        break;
                     }
                 }
                 catch (final IOException ioe) {
@@ -171,8 +132,10 @@ public class ShardedConnectionFactory implements ConnectionFactory {
             }
         }
 
-        // Last thing is to get the status of each server we discovered.
+        // Last thing is to start the ping of servers. This will get the tags
+        // and latencies updated.
         myPinger.initialSweep();
+        myPinger.start(); // TODO - Needed?
     }
 
     /**
@@ -196,12 +159,12 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     @Override
     public Connection connect() throws IOException {
         IOException lastError = null;
-        for (final Server primary : myCluster.getWritableServers()) {
+        for (final Server server : mySelector.pickServers()) {
             try {
                 final Connection primaryConn = myConnectionFactory.connect(
-                        primary, myConfig);
+                        server, myConfig);
 
-                return new ShardedConnection(primaryConn);
+                return wrap(primaryConn, server);
             }
             catch (final IOException e) {
                 lastError = e;
@@ -247,11 +210,210 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     }
 
     /**
+     * Creates a new {@link BootstrapState}.
+     * 
+     * @return The {@link BootstrapState} to track state of loading the cluster
+     *         information.
+     */
+    protected BootstrapState createBootstrapState() {
+        return new BootstrapState();
+    }
+
+    /**
+     * Creates a {@link Cluster} object to track the state of the servers across
+     * the cluster.
+     * 
+     * @param config
+     *            The configuration for the cluster.
+     * @return The {@link Cluster} to track the servers across the cluster.
+     */
+    protected Cluster createCluster(final MongoClientConfiguration config) {
+        return new Cluster(config);
+    }
+
+    /**
+     * Creates a {@link ClusterPinger} object to periodically update the status
+     * of the servers.
+     * 
+     * @param factory
+     *            The factory for creating the connections to the servers.
+     * @param config
+     *            The configuration for the client.
+     * 
+     * @return The {@link ClusterPinger} object to periodically update the
+     *         status of the servers.
+     */
+    protected ClusterPinger createClusterPinger(
+            final ProxiedConnectionFactory factory,
+            final MongoClientConfiguration config) {
+        return new ClusterPinger(myCluster, ClusterType.SHARDED, factory,
+                config);
+    }
+
+    /**
+     * Creates a {@link ServerSelector} object to select the (presumed) optimal
+     * server to handle a request.
+     * <p>
+     * For a sharded cluster this defaults to the {@link LatencyServerSelector}.
+     * </p>
+     * 
+     * @return The {@link ServerSelector} object to select the (presumed)
+     *         optimal server to handle a request.
+     */
+    protected ServerSelector createSelector() {
+        return new LatencyServerSelector(myCluster, true);
+    }
+
+    /**
+     * Performs a find on the <tt>config</tt> database's <tt>mongos</tt>
+     * collection to return the id for all of the mongos servers in the cluster.
+     * <p>
+     * A single mongos entry looks like: <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * { 
+     *     "_id" : "mongos.example.com:27017", 
+     *     "ping" : ISODate("2011-12-05T23:54:03.122Z"), 
+     *     "up" : 330 
+     * }
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * 
+     * @param conn
+     *            The connection to request from.
+     * @return True if the configuration servers have been determined.
+     * @throws ExecutionException
+     *             On a failure to recover the response from the server.
+     * @throws InterruptedException
+     *             On a failure to receive a response from the server.
+     */
+    protected boolean findMongosServers(final Connection conn)
+            throws InterruptedException, ExecutionException {
+        final boolean found = false;
+
+        // Create a query to pull all of the mongos servers out of the
+        // config database.
+        final Query query = new Query("config", "mongos", BuilderFactory
+                .start().build(), /* fields= */null, /* batchSize= */0,
+        /* limit= */0, /* numberToSkip= */0, /* tailable= */false,
+                ReadPreference.PRIMARY, /* noCursorTimeout= */false,
+                /* awaitData= */false, /* exhaust= */false, /* partial= */
+                false);
+
+        // Send the request...
+        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        conn.send(query, future);
+
+        // Receive the response.
+        final Reply reply = future.get();
+
+        // Validate and pull out the response information.
+        final List<Document> docs = reply.getResults();
+        for (final Document doc : docs) {
+            final Element idElem = doc.get("_id");
+            if (idElem instanceof StringElement) {
+                final StringElement id = (StringElement) idElem;
+
+                myCluster.add(id.getValue());
+
+                LOG.fine("Adding shard mongos: " + id.getValue());
+            }
+        }
+
+        // TODO - Cursor?
+
+        return found;
+    }
+
+    /**
      * Returns the clusterState value.
      * 
      * @return The clusterState value.
      */
     protected Cluster getCluster() {
         return myCluster;
+    }
+
+    /**
+     * Queries for the addresses for the {@code mongos} servers via the
+     * {@link #findMongosServers(Connection)} method.
+     * 
+     * @param state
+     *            The state of the bootstrap to be updated.
+     * @param conn
+     *            The connection to use to locate the {@code mongos} servers
+     * @throws InterruptedException
+     *             On a failure to wait for the reply to the query due to the
+     *             thread being interrupted.
+     * @throws ExecutionException
+     *             On a failure to execute the query.
+     */
+    protected void update(final BootstrapState state, final Connection conn)
+            throws InterruptedException, ExecutionException {
+        if (state.isMongosFound() || findMongosServers(conn)) {
+            state.setMongosFound(true);
+        }
+    }
+
+    /**
+     * Wraps the connection in a shard-aware connection.
+     * 
+     * @param primaryConn
+     *            The primary shard connection.
+     * @param server
+     *            The server the connection is connected to.
+     * @return The wrapped connection.
+     */
+    protected Connection wrap(final Connection primaryConn, final Server server) {
+        return new ShardedConnection(primaryConn, server, myCluster,
+                mySelector, myConnectionFactory, myConfig);
+    }
+
+    /**
+     * BootstrapState provides the ability to track the state of the bootstrap
+     * for the sharded cluster.
+     * 
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected class BootstrapState {
+        /** Tracks if the {@code mongos} servers have been located. */
+        private boolean myMongosFound = !myConfig.isAutoDiscoverServers();
+
+        /**
+         * Indicates when the bootstrap is complete.
+         * <p>
+         * This method returns true if auto discovery is turned off or (if on)
+         * when all of the {@code mongos} servers have been located.
+         * 
+         * @return True once the boot strap is complete.
+         */
+        public boolean done() {
+            return myMongosFound;
+        }
+
+        /**
+         * Returns true if the {@code mongos} servers have been found, false
+         * otherwise.
+         * 
+         * @return True if the {@code mongos} servers have been found, false
+         *         otherwise.
+         */
+        public boolean isMongosFound() {
+            return myMongosFound;
+        }
+
+        /**
+         * Sets if the the {@code mongos} servers have been found.
+         * 
+         * @param mongosFound
+         *            If true, the {@code mongos} servers have been found, false
+         *            otherwise.
+         */
+        public void setMongosFound(final boolean mongosFound) {
+            myMongosFound = mongosFound;
+        }
     }
 }

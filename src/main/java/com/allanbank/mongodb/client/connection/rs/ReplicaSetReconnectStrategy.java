@@ -28,6 +28,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
+import com.allanbank.mongodb.client.connection.proxy.ConnectionInfo;
 import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.state.AbstractReconnectStrategy;
@@ -96,10 +97,10 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      */
     @Override
     public ReplicaSetConnection reconnect(final Connection oldConnection) {
-        final ReplicaSetConnectionInfo info = reconnectPrimary();
+        final ConnectionInfo<Server> info = reconnectPrimary();
         if (info != null) {
             return new ReplicaSetConnection(info.getConnection(),
-                    info.getPrimaryServer(), getState(),
+                    info.getConnectionKey(), getState(),
                     getConnectionFactory(), getConfig(), this);
         }
         return null;
@@ -113,7 +114,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * @return The information for the primary connection or null if the
      *         reconnect fails.
      */
-    public synchronized ReplicaSetConnectionInfo reconnectPrimary() {
+    public synchronized ConnectionInfo<Server> reconnectPrimary() {
         LOG.fine("Trying replica set reconnect.");
         final Cluster state = getState();
 
@@ -147,8 +148,8 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                     sendIsPrimary(answers, connections, server, false);
 
                     // Anyone replied yet?
-                    final ReplicaSetConnectionInfo newConn = checkForReply(
-                            state, answers, connections, deadline);
+                    final ConnectionInfo<Server> newConn = checkForReply(state,
+                            answers, connections, deadline);
                     if (newConn != null) {
                         return newConn;
                     }
@@ -163,7 +164,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                         + pauseTime);
 
                 // Check again for replies before trying to reconnect.
-                final ReplicaSetConnectionInfo newConn = checkForReply(state,
+                final ConnectionInfo<Server> newConn = checkForReply(state,
                         answers, connections, deadline);
                 if (newConn != null) {
                     return newConn;
@@ -200,7 +201,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * @return The new connection if there was a reply and that server confirmed
      *         it was the primary.
      */
-    protected ReplicaSetConnectionInfo checkForReply(final Cluster state,
+    protected ConnectionInfo<Server> checkForReply(final Cluster state,
             final Map<Server, Future<Reply>> answers,
             final Map<Server, Connection> connections, final long deadline) {
         final Map<Server, Future<Reply>> copy = new HashMap<Server, Future<Reply>>(
@@ -415,12 +416,12 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      *            The primary server.
      * @return The {@link ReplicaSetConnection}.
      */
-    private ReplicaSetConnectionInfo createReplicaSetConnection(
+    private ConnectionInfo<Server> createReplicaSetConnection(
             final Map<Server, Connection> connections,
             final Server primaryServer) {
         final Connection primaryConn = connections.remove(primaryServer);
 
-        return new ReplicaSetConnectionInfo(primaryConn, primaryServer);
+        return new ConnectionInfo<Server>(primaryConn, primaryServer);
     }
 
     /**

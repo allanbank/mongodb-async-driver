@@ -41,6 +41,7 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
+import com.allanbank.mongodb.client.connection.proxy.ConnectionInfo;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.message.Query;
@@ -134,7 +135,7 @@ public class ReplicaSetConnectionTest {
         expectLastCall();
 
         expect(mockStrategy.reconnectPrimary()).andReturn(
-                new ReplicaSetConnectionInfo(mockConnection2, myServer));
+                new ConnectionInfo<Server>(mockConnection2, myServer));
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();

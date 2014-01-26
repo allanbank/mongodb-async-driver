@@ -252,8 +252,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
                         conn = myConnectionFactory.connect(server, myConfig);
 
-                        // Ping to update the latency and tags.
-                        PINGER.pingAsync(myClusterType, server, conn);
+                        pingAsync(server, conn);
 
                         // Sleep a little between the servers.
                         Thread.sleep(TimeUnit.MILLISECONDS
@@ -273,7 +272,7 @@ public class ClusterPinger implements Runnable, Closeable {
                 }
             }
             catch (final InterruptedException ok) {
-                LOG.fine("Closing pinger on interrupt.");
+                LOG.fine("Pinger interrupted.");
             }
         }
     }
@@ -311,6 +310,30 @@ public class ClusterPinger implements Runnable, Closeable {
      */
     public void stop() {
         close();
+    }
+
+    /**
+     * Starts the background pinger.
+     */
+    public void wakeUp() {
+        myPingThread.interrupt();
+    }
+
+    /**
+     * Performs a ping of the server.
+     * <p>
+     * This method also serves as an extension point for derived classes to do
+     * other periodic work.
+     * </p>
+     * 
+     * @param server
+     *            The server to ping.
+     * @param conn
+     *            The connection to use to ping the server.
+     */
+    protected void pingAsync(final Server server, final Connection conn) {
+        // Ping to update the latency and tags.
+        PINGER.pingAsync(myClusterType, server, conn);
     }
 
     /**
