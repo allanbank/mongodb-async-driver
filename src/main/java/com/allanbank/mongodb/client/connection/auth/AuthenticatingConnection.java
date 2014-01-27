@@ -98,11 +98,11 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
      * </p>
      */
     @Override
-    public String send(final Message message,
-            final Callback<Reply> replyCallback) throws MongoDbException {
+    public void send(final Message message, final Callback<Reply> replyCallback)
+            throws MongoDbException {
         ensureAuthenticated(message);
 
-        return super.send(message, replyCallback);
+        super.send(message, replyCallback);
     }
 
     /**
@@ -113,12 +113,12 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
      * </p>
      */
     @Override
-    public String send(final Message message1, final Message message2,
+    public void send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
         ensureAuthenticated(message1);
         ensureAuthenticated(message2);
 
-        return super.send(message1, message2, replyCallback);
+        super.send(message1, message2, replyCallback);
     }
 
     /**

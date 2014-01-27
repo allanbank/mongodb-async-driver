@@ -184,13 +184,13 @@ public class ShardedConnectionFactoryTest {
                 .andReturn(mockConnection).times(2);
 
         // Query for servers.
-        expect(
-                mockConnection.send(anyObject(Query.class), cb(new IOException(
-                        "Injected.")))).andReturn("localhost:6547");
+        mockConnection.send(anyObject(Query.class), cb(new IOException(
+                "Injected.")));
+        expectLastCall();
 
         // Ping.
-        expect(mockConnection.send(anyObject(IsMaster.class), cb())).andReturn(
-                "localhost:6547");
+        mockConnection.send(anyObject(IsMaster.class), cb());
+        expectLastCall();
 
         mockConnection.shutdown(false);
         expectLastCall();
@@ -229,18 +229,18 @@ public class ShardedConnectionFactoryTest {
                 .andReturn(mockConnection).times(2);
 
         // Query for servers.
-        expect(mockConnection.send(anyObject(Query.class), cb())).andAnswer(
-                new IAnswer<String>() {
-                    @Override
-                    public String answer() throws Throwable {
-                        Thread.currentThread().interrupt();
-                        return "localhost:6547";
-                    }
-                });
+        mockConnection.send(anyObject(Query.class), cb());
+        expectLastCall().andAnswer(new IAnswer<String>() {
+            @Override
+            public String answer() throws Throwable {
+                Thread.currentThread().interrupt();
+                return null;
+            }
+        });
 
         // Ping.
-        expect(mockConnection.send(anyObject(IsMaster.class), cb())).andReturn(
-                "localhost:6547");
+        mockConnection.send(anyObject(IsMaster.class), cb());
+        expectLastCall();
 
         mockConnection.shutdown(false);
         expectLastCall();
@@ -306,8 +306,9 @@ public class ShardedConnectionFactoryTest {
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection).times(2);
 
-        expect(mockConnection.send(anyObject(IsMaster.class), cb())).andThrow(
-                new MongoDbException("This is a test")).times(2);
+        mockConnection.send(anyObject(IsMaster.class), cb());
+        expectLastCall().andThrow(new MongoDbException("This is a test"))
+                .times(2);
 
         mockConnection.shutdown(false);
         expectLastCall();
@@ -534,16 +535,15 @@ public class ShardedConnectionFactoryTest {
                 .andReturn(mockConnection).times(2);
 
         // Query for servers.
-        expect(mockConnection.send(anyObject(Query.class), cb())).andReturn(
-                "localhost:6547");
+        mockConnection.send(anyObject(Query.class), cb());
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // Ping.
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cb(BuilderFactory.start(PRIMARY_UPDATE)))).andReturn(
-                "localhost:6547");
+        mockConnection.send(anyObject(IsMaster.class),
+                cb(BuilderFactory.start(PRIMARY_UPDATE)));
+        expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();

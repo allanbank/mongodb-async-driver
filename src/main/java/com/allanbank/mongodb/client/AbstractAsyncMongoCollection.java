@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.client;
 
+import com.allanbank.mongodb.AsyncMongoCollection;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.LambdaCallback;
@@ -20,11 +21,7 @@ import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.bson.element.IntegerElement;
-import com.allanbank.mongodb.bson.impl.EmptyDocument;
-import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
@@ -34,8 +31,6 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
-import com.allanbank.mongodb.client.message.GetLastError;
-import com.allanbank.mongodb.util.FutureUtils;
 
 /**
  * Helper class for forward all methods to the canonical version (which is
@@ -50,47 +45,11 @@ import com.allanbank.mongodb.util.FutureUtils;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractMongoCollection implements MongoCollection {
+public abstract class AbstractAsyncMongoCollection extends
+        AbstractMongoOperations implements AsyncMongoCollection {
 
     /**
-     * The default for if a delete should only delete the first document it
-     * matches.
-     */
-    public static final boolean DELETE_SINGLE_DELETE_DEFAULT = false;
-
-    /** The default empty index options. */
-    public static final Document EMPTY_INDEX_OPTIONS = EmptyDocument.INSTANCE;
-
-    /** The default for if an insert should continue on an error. */
-    public static final boolean INSERT_CONTINUE_ON_ERROR_DEFAULT = false;
-
-    /** The default for a UNIQUE index options. */
-    public static final Document UNIQUE_INDEX_OPTIONS = new ImmutableDocument(
-            BuilderFactory.start().add("unique", true));
-
-    /** The default for doing a multiple-update on an update. */
-    public static final boolean UPDATE_MULTIUPDATE_DEFAULT = false;
-
-    /** The default for doing an upsert on an update. */
-    public static final boolean UPDATE_UPSERT_DEFAULT = false;
-
-    /** The client for interacting with MongoDB. */
-    protected final Client myClient;
-
-    /** The name of the database we interact with. */
-    protected final MongoDatabase myDatabase;
-
-    /** The name of the collection we interact with. */
-    protected final String myName;
-
-    /** The {@link Durability} for writes from this database instance. */
-    private Durability myDurability;
-
-    /** The {@link ReadPreference} for reads from this database instance. */
-    private ReadPreference myReadPreference;
-
-    /**
-     * Create a new AbstractMongoCollection.
+     * Create a new AbstractAsyncMongoCollection.
      * 
      * @param client
      *            The client for interacting with MongoDB.
@@ -99,41 +58,9 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * @param name
      *            The name of the collection we interact with.
      */
-    public AbstractMongoCollection(final Client client,
+    public AbstractAsyncMongoCollection(final Client client,
             final MongoDatabase database, final String name) {
-        super();
-
-        myClient = client;
-        myDatabase = database;
-        myName = name;
-        myDurability = null;
-        myReadPreference = null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #aggregateAsync(Aggregate)}.
-     * </p>
-     * 
-     * @see #aggregateAsync(Aggregate)
-     */
-    @Override
-    public MongoIterator<Document> aggregate(final Aggregate command)
-            throws MongoDbException {
-        return FutureUtils.unwrap(aggregateAsync(command));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #aggregate(Aggregate)}.
-     * </p>
-     */
-    @Override
-    public MongoIterator<Document> aggregate(final Aggregate.Builder command)
-            throws MongoDbException {
-        return aggregate(command.build());
+        super(client, database, name);
     }
 
     /**
@@ -167,20 +94,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final Aggregate.Builder command) throws MongoDbException {
         return aggregateAsync(command.build());
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>aggregate</code> method that implementations
-     * must override.
-     * </p>
-     * 
-     * @see MongoCollection#aggregateAsync(Callback, Aggregate)
-     */
-    @Override
-    public abstract void aggregateAsync(
-            Callback<MongoIterator<Document>> results, Aggregate command)
-            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -228,85 +141,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #count(DocumentAssignable,ReadPreference)}
-     * method with {@link #getReadPreference()} as the <tt>readPreference</tt>
-     * argument and an empty {@code query} document.
-     * </p>
-     */
-    @Override
-    public long count() throws MongoDbException {
-        return count(BuilderFactory.start(), getReadPreference());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #countAsync(Count)} and unwrap the result.
-     * </p>
-     */
-    @Override
-    public long count(final Count count) throws MongoDbException {
-        final ListenableFuture<Long> future = countAsync(count);
-
-        return FutureUtils.unwrap(future).longValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #count(Count) count(count.build())}.
-     * </p>
-     */
-    @Override
-    public long count(final Count.Builder count) throws MongoDbException {
-        return count(count.build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #count(DocumentAssignable, ReadPreference)}
-     * method with {@link #getReadPreference()} as the <tt>readPreference</tt>
-     * argument.
-     * </p>
-     */
-    @Override
-    public long count(final DocumentAssignable query) throws MongoDbException {
-        return count(query, getReadPreference());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #countAsync(DocumentAssignable, ReadPreference)} method.
-     * </p>
-     */
-    @Override
-    public long count(final DocumentAssignable query,
-            final ReadPreference readPreference) throws MongoDbException {
-
-        final ListenableFuture<Long> future = countAsync(query, readPreference);
-
-        return FutureUtils.unwrap(future).longValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #count(DocumentAssignable,ReadPreference)}
-     * method with an empty {@code query} document.
-     * </p>
-     */
-    @Override
-    public long count(final ReadPreference readPreference)
-            throws MongoDbException {
-        return count(BuilderFactory.start(), readPreference);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the
      * {@link #countAsync(DocumentAssignable,ReadPreference)} method with
      * {@link #getReadPreference()} as the <tt>readPreference</tt> argument and
@@ -332,17 +166,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             throws MongoDbException {
         countAsync(results, BuilderFactory.start(), getReadPreference());
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>count</code> method that implementations must
-     * override.
-     * </p>
-     */
-    @Override
-    public abstract void countAsync(Callback<Long> results, Count count)
-            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -577,151 +400,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #createIndex(String, boolean, Element...)}
-     * method with <code>null</code> for the name.
-     * </p>
-     * 
-     * @see #createIndex(String, boolean, Element...)
-     */
-    @Override
-    public void createIndex(final boolean unique, final Element... keys)
-            throws MongoDbException {
-        createIndex(null, unique, keys);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #createIndex(String,DocumentAssignable,Element...)} method with
-     * <code>null</code> for <tt>name</tt>.
-     * </p>
-     * 
-     * @see #createIndex(String,DocumentAssignable,Element...)
-     */
-    @Override
-    public void createIndex(final DocumentAssignable options,
-            final Element... keys) throws MongoDbException {
-        createIndex(null, options, keys);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #createIndex(DocumentAssignable, Element...)} method with
-     * {@link #EMPTY_INDEX_OPTIONS} for <tt>options</tt>.
-     * </p>
-     * 
-     * @see #createIndex(DocumentAssignable, Element...)
-     */
-    @Override
-    public void createIndex(final Element... keys) throws MongoDbException {
-        createIndex(EMPTY_INDEX_OPTIONS, keys);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #createIndex(String,DocumentAssignable,Element...)} method with
-     * {@link #UNIQUE_INDEX_OPTIONS} if {@code unique} is <code>true</code> or
-     * {@link #EMPTY_INDEX_OPTIONS} id {@code unique} is <code>false</code>.
-     * </p>
-     * 
-     * @see #createIndex(String, DocumentAssignable, Element...)
-     */
-    @Override
-    public void createIndex(final String name, final boolean unique,
-            final Element... keys) throws MongoDbException {
-        createIndex(name, unique ? UNIQUE_INDEX_OPTIONS : EMPTY_INDEX_OPTIONS,
-                keys);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>createIndex</code> method that
-     * implementations must override.
-     * </p>
-     * 
-     * @see MongoCollection#createIndex(String,DocumentAssignable,Element...)
-     */
-    @Override
-    public abstract void createIndex(String name, DocumentAssignable options,
-            final Element... keys) throws MongoDbException;
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #delete(DocumentAssignable, boolean, Durability)} method with
-     * false as the <tt>singleDelete</tt> argument and the
-     * {@link #getDurability() default durability}.
-     * </p>
-     * 
-     * @see #delete(DocumentAssignable, boolean, Durability)
-     */
-    @Override
-    public long delete(final DocumentAssignable query) throws MongoDbException {
-        return delete(query, DELETE_SINGLE_DELETE_DEFAULT, getDurability());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #delete(DocumentAssignable, boolean, Durability)} method with the
-     * {@link #getDurability() default durability}.
-     * </p>
-     * 
-     * @see #delete(DocumentAssignable, boolean, Durability)
-     */
-    @Override
-    public long delete(final DocumentAssignable query,
-            final boolean singleDelete) throws MongoDbException {
-        return delete(query, singleDelete, getDurability());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #deleteAsync(DocumentAssignable, boolean, Durability)} method.
-     * </p>
-     * 
-     * @see #deleteAsync(DocumentAssignable, boolean, Durability)
-     */
-    @Override
-    public long delete(final DocumentAssignable query,
-            final boolean singleDelete, final Durability durability)
-            throws MongoDbException {
-
-        final ListenableFuture<Long> future = deleteAsync(query, singleDelete,
-                durability);
-
-        return FutureUtils.unwrap(future).longValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #deleteAsync(DocumentAssignable, boolean, Durability)} method with
-     * false as the <tt>singleDelete</tt> argument.
-     * </p>
-     * 
-     * @see #delete(DocumentAssignable, boolean, Durability)
-     */
-    @Override
-    public long delete(final DocumentAssignable query,
-            final Durability durability) throws MongoDbException {
-        return delete(query, DELETE_SINGLE_DELETE_DEFAULT, durability);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * method with false as the <tt>singleDelete</tt> argument and the
@@ -753,21 +431,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             throws MongoDbException {
         deleteAsync(results, query, singleDelete, getDurability());
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>delete</code> method that implementations
-     * must override.
-     * </p>
-     * 
-     * @see MongoCollection#deleteAsync(Callback, DocumentAssignable, boolean,
-     *      Durability)
-     */
-    @Override
-    public abstract void deleteAsync(final Callback<Long> results,
-            final DocumentAssignable query, final boolean singleDelete,
-            final Durability durability) throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -934,42 +597,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #distinctAsync(Distinct)}.
-     * </p>
-     */
-    @Override
-    public MongoIterator<Element> distinct(final Distinct command)
-            throws MongoDbException {
-        return FutureUtils.unwrap(distinctAsync(command));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #distinct(Distinct)}.
-     * </p>
-     */
-    @Override
-    public MongoIterator<Element> distinct(final Distinct.Builder command)
-            throws MongoDbException {
-        return distinct(command.build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>disitnct</code> method that implementations
-     * must override.
-     * </p>
-     */
-    @Override
-    public abstract void distinctAsync(
-            Callback<MongoIterator<Element>> results, Distinct command)
-            throws MongoDbException;
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the {@link #distinctAsync(Callback, Distinct)}.
      * </p>
      */
@@ -1043,91 +670,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * To generate the name of the index and then drop it.
-     * </p>
-     */
-    @Override
-    public boolean dropIndex(final IntegerElement... keys)
-            throws MongoDbException {
-        return dropIndex(buildIndexName(keys));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>dropIndex</code> method that implementations
-     * must override.
-     * </p>
-     */
-    @Override
-    public abstract boolean dropIndex(String name) throws MongoDbException;
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #explainAsync(Aggregate)} method.
-     * </p>
-     */
-    @Override
-    public Document explain(final Aggregate aggregation)
-            throws MongoDbException {
-        return FutureUtils.unwrap(explainAsync(aggregation));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #explainAsync(Aggregate)} method.
-     * </p>
-     */
-    @Override
-    public Document explain(final Aggregate.Builder aggregation)
-            throws MongoDbException {
-        return FutureUtils.unwrap(explainAsync(aggregation.build()));
-
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #explain(Find)} method.
-     * </p>
-     * 
-     * @see #explain(Find)
-     */
-    @Override
-    public Document explain(final DocumentAssignable query)
-            throws MongoDbException {
-        return explain(new Find.Builder(query).build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #explainAsync(Find)} method.
-     * </p>
-     * 
-     * @see #explainAsync(Find)
-     */
-    @Override
-    public Document explain(final Find query) throws MongoDbException {
-        return FutureUtils.unwrap(explainAsync(query));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #explain(Find)} method.
-     * </p>
-     */
-    @Override
-    public Document explain(final Find.Builder query) throws MongoDbException {
-        return explain(query.build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the {@link #explainAsync(Callback,Aggregate)} method.
      * </p>
      */
@@ -1163,17 +705,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * This is the canonical <code>explain*(Aggregate)</code> method that
-     * implementations must override.
-     * </p>
-     */
-    @Override
-    public abstract void explainAsync(Callback<Document> results,
-            Aggregate aggregation) throws MongoDbException;
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the {@link #explainAsync(Callback,Aggregate)} method.
      * </p>
      */
@@ -1182,17 +713,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final Aggregate.Builder aggregation) throws MongoDbException {
         explainAsync(results, aggregation.build());
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>explain*(Find)</code> method that
-     * implementations must override.
-     * </p>
-     */
-    @Override
-    public abstract void explainAsync(Callback<Document> results, Find query)
-            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -1292,85 +812,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #findAsync(DocumentAssignable)} method.
-     * </p>
-     * 
-     * @see #findAsync(DocumentAssignable)
-     */
-    @Override
-    public MongoIterator<Document> find(final DocumentAssignable query)
-            throws MongoDbException {
-        return FutureUtils.unwrap(findAsync(query));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #findAsync(Find)} method.
-     * </p>
-     * 
-     * @see #findAsync(Find)
-     */
-    @Override
-    public MongoIterator<Document> find(final Find query)
-            throws MongoDbException {
-        return FutureUtils.unwrap(findAsync(query));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #find(Find)} method.
-     * </p>
-     */
-    @Override
-    public MongoIterator<Document> find(final Find.Builder query)
-            throws MongoDbException {
-        return find(query.build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #findAndModifyAsync(FindAndModify)}.
-     * </p>
-     * 
-     * @see #findAndModifyAsync(FindAndModify)
-     */
-    @Override
-    public Document findAndModify(final FindAndModify command)
-            throws MongoDbException {
-        return FutureUtils.unwrap(findAndModifyAsync(command));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #findAndModify(FindAndModify)}.
-     * </p>
-     */
-    @Override
-    public Document findAndModify(final FindAndModify.Builder command)
-            throws MongoDbException {
-        return findAndModify(command.build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>findAndModify</code> method that
-     * implementations must override.
-     * </p>
-     * 
-     * @see MongoCollection#findAndModifyAsync(Callback, FindAndModify)
-     */
-    @Override
-    public abstract void findAndModifyAsync(Callback<Document> results,
-            FindAndModify command) throws MongoDbException;
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the
      * {@link #findAndModifyAsync(Callback,FindAndModify)}.
      * </p>
@@ -1456,20 +897,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final DocumentAssignable query) throws MongoDbException {
         findAsync(results, new Find.Builder(query).build());
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>find</code> method that implementations must
-     * override.
-     * </p>
-     * 
-     * @see MongoCollection#findAsync(Callback, Find)
-     */
-    @Override
-    public abstract void findAsync(
-            final Callback<MongoIterator<Document>> results, final Find query)
-            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -1581,43 +1008,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #findOneAsync(DocumentAssignable)}.
-     * </p>
-     * 
-     * @see #findOneAsync(DocumentAssignable)
-     */
-    @Override
-    public Document findOne(final DocumentAssignable query)
-            throws MongoDbException {
-        return FutureUtils.unwrap(findOneAsync(query));
-    }
-
-    /**
-     * <p>
-     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
-     * </p>
-     * 
-     * @see #findOneAsync(Callback, Find)
-     */
-    @Override
-    public Document findOne(final Find query) throws MongoDbException {
-        return FutureUtils.unwrap(findOneAsync(query));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #findOne(Find)} method.
-     * </p>
-     */
-    @Override
-    public Document findOne(final Find.Builder query) throws MongoDbException {
-        return findOne(query.build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the {@link #findOneAsync(Callback, Find)}.
      * </p>
      * 
@@ -1628,19 +1018,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final DocumentAssignable query) throws MongoDbException {
         findOneAsync(results, new Find.Builder(query).build());
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>findOne</code> method that implementations
-     * must override.
-     * </p>
-     * 
-     * @see MongoCollection#findOneAsync(Callback, Find)
-     */
-    @Override
-    public abstract void findOneAsync(Callback<Document> results, Find query)
-            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -1745,85 +1122,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     }
 
     /**
-     * Returns the name of the database.
-     * 
-     * @return The name of the database.
-     */
-    @Override
-    public String getDatabaseName() {
-        return myDatabase.getName();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Durability getDurability() {
-        Durability result = myDurability;
-        if (result == null) {
-            result = myDatabase.getDurability();
-        }
-        return result;
-    }
-
-    /**
-     * Returns the name of the collection.
-     * 
-     * @return The name of the collection.
-     */
-    @Override
-    public String getName() {
-        return myName;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ReadPreference getReadPreference() {
-        ReadPreference result = myReadPreference;
-        if (result == null) {
-            result = myDatabase.getReadPreference();
-        }
-        return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #groupByAsync(GroupBy)}.
-     * </p>
-     */
-    @Override
-    public MongoIterator<Element> groupBy(final GroupBy command)
-            throws MongoDbException {
-        return FutureUtils.unwrap(groupByAsync(command));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #groupBy(GroupBy)}.
-     * </p>
-     */
-    @Override
-    public MongoIterator<Element> groupBy(final GroupBy.Builder command)
-            throws MongoDbException {
-        return groupBy(command.build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>groupBy</code> method that implementations
-     * must override.
-     * </p>
-     */
-    @Override
-    public abstract void groupByAsync(Callback<MongoIterator<Element>> results,
-            GroupBy command) throws MongoDbException;
-
-    /**
      * {@inheritDoc}
      * <p>
      * Overridden to call the {@link #groupByAsync(Callback,GroupBy)}.
@@ -1900,76 +1198,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #insert(boolean, Durability, DocumentAssignable...)} method with
-     * the {@link #getDurability() default durability}.
-     * </p>
-     * 
-     * @see #insert(boolean, Durability, DocumentAssignable[])
-     */
-    @Override
-    public int insert(final boolean continueOnError,
-            final DocumentAssignable... documents) throws MongoDbException {
-        return insert(continueOnError, getDurability(), documents);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #insertAsync(boolean, Durability, DocumentAssignable...)} method.
-     * </p>
-     * 
-     * @see #insertAsync(boolean, Durability, DocumentAssignable[])
-     */
-    @Override
-    public int insert(final boolean continueOnError,
-            final Durability durability, final DocumentAssignable... documents)
-            throws MongoDbException {
-        final ListenableFuture<Integer> future = insertAsync(continueOnError,
-                durability, documents);
-
-        return FutureUtils.unwrap(future).intValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #insert(boolean, Durability, DocumentAssignable...)} method with
-     * <tt>continueOnError</tt> set to false and the {@link #getDurability()
-     * default durability}.
-     * </p>
-     * 
-     * @see MongoCollection#insertAsync(boolean, Durability,
-     *      DocumentAssignable[])
-     */
-    @Override
-    public int insert(final DocumentAssignable... documents)
-            throws MongoDbException {
-        return insert(INSERT_CONTINUE_ON_ERROR_DEFAULT, getDurability(),
-                documents);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #insert(boolean, Durability, DocumentAssignable...)} method with
-     * <tt>continueOnError</tt> set to false.
-     * </p>
-     * 
-     * @see #insert(boolean, Durability, DocumentAssignable[])
-     */
-    @Override
-    public int insert(final Durability durability,
-            final DocumentAssignable... documents) throws MongoDbException {
-        return insert(INSERT_CONTINUE_ON_ERROR_DEFAULT, durability, documents);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method with the {@link #getDurability() default durability}.
      * </p>
@@ -2029,21 +1257,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final DocumentAssignable... documents) throws MongoDbException {
         insertAsync(results, continueOnError, getDurability(), documents);
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>insert</code> method that implementations
-     * must override.
-     * </p>
-     * 
-     * @see MongoCollection#insertAsync(Callback, boolean, Durability,
-     *      DocumentAssignable[])
-     */
-    @Override
-    public abstract void insertAsync(final Callback<Integer> results,
-            final boolean continueOnError, final Durability durability,
-            final DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -2195,46 +1408,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #mapReduceAsync(MapReduce)}.
-     * </p>
-     * 
-     * @see #mapReduceAsync(MapReduce)
-     */
-    @Override
-    public MongoIterator<Document> mapReduce(final MapReduce command)
-            throws MongoDbException {
-        return FutureUtils.unwrap(mapReduceAsync(command));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #mapReduce(MapReduce)}.
-     * </p>
-     */
-    @Override
-    public MongoIterator<Document> mapReduce(final MapReduce.Builder command)
-            throws MongoDbException {
-        return mapReduce(command.build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>mapReduce</code> method that implementations
-     * must override.
-     * </p>
-     * 
-     * @see MongoCollection#mapReduceAsync(Callback, MapReduce)
-     */
-    @Override
-    public abstract void mapReduceAsync(
-            Callback<MongoIterator<Document>> results, MapReduce command)
-            throws MongoDbException;
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the {@link #mapReduceAsync(Callback,MapReduce)}.
      * </p>
      */
@@ -2309,31 +1482,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #save(DocumentAssignable, Durability)}
-     * using the {@link #getDurability() default durability}.
-     * </p>
-     */
-    @Override
-    public int save(final DocumentAssignable document) throws MongoDbException {
-        return save(document, getDurability());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #saveAsync(DocumentAssignable, Durability)}
-     * .
-     * </p>
-     */
-    @Override
-    public int save(final DocumentAssignable document,
-            final Durability durability) throws MongoDbException {
-        return FutureUtils.unwrap(saveAsync(document, durability)).intValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the
      * {@link #saveAsync(Callback, DocumentAssignable, Durability)} using the
      * {@link #getDurability() default durability}.
@@ -2344,18 +1492,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final DocumentAssignable document) throws MongoDbException {
         saveAsync(results, document, getDurability());
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>save</code> method that implementations must
-     * override.
-     * </p>
-     */
-    @Override
-    public abstract void saveAsync(Callback<Integer> results,
-            DocumentAssignable document, Durability durability)
-            throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -2426,22 +1562,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public void setDurability(final Durability durability) {
-        myDurability = durability;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setReadPreference(final ReadPreference readPreference) {
-        myReadPreference = readPreference;
-    }
-
-    /**
-     * {@inheritDoc}
      * <p>
      * Overridden to call the {@link #stream(StreamCallback, Aggregate)} method
      * with an adapter for the {@link LambdaCallback}.
@@ -2495,19 +1615,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * This is the canonical <code>stream(Aggregate)</code> method that
-     * implementations must override.
-     * </p>
-     * 
-     * @see MongoCollection#stream(StreamCallback, Aggregate)
-     */
-    @Override
-    public abstract MongoCursorControl stream(StreamCallback<Document> results,
-            Aggregate aggregation) throws MongoDbException;
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the {@link #stream(StreamCallback, Aggregate)}.
      * </p>
      * 
@@ -2518,17 +1625,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
             final Aggregate.Builder aggregation) throws MongoDbException {
         return stream(results, aggregation.build());
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>stream</code> method for a find/query that
-     * implementations must override.
-     * </p>
-     */
-    @Override
-    public abstract MongoCursorControl stream(StreamCallback<Document> results,
-            Find query) throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -2639,46 +1735,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #textSearchAsync(Text)}.
-     * </p>
-     * 
-     * @see #textSearchAsync(Text)
-     */
-    @Override
-    public MongoIterator<TextResult> textSearch(final Text command)
-            throws MongoDbException {
-        return FutureUtils.unwrap(textSearchAsync(command));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the {@link #textSearch(Text)}.
-     * </p>
-     */
-    @Override
-    public MongoIterator<TextResult> textSearch(final Text.Builder command)
-            throws MongoDbException {
-        return textSearch(command.build());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>textSearch</code> method that implementations
-     * must override.
-     * </p>
-     * 
-     * @see MongoCollection#textSearchAsync(Callback, Text)
-     */
-    @Override
-    public abstract void textSearchAsync(
-            Callback<MongoIterator<TextResult>> results, Text command)
-            throws MongoDbException;
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to call the {@link #textSearchAsync(Callback, Text)}.
      * </p>
      */
@@ -2724,85 +1780,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
      * {@inheritDoc}
      * <p>
      * Overridden to call the
-     * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
-     * method with multiUpdate set to true, upsert set to false, and using the
-     * {@link #getDurability() default durability}.
-     * </p>
-     * 
-     * @see #update(DocumentAssignable, DocumentAssignable, boolean, boolean,
-     *      Durability)
-     */
-    @Override
-    public long update(final DocumentAssignable query,
-            final DocumentAssignable update) throws MongoDbException {
-        return update(query, update, UPDATE_MULTIUPDATE_DEFAULT,
-                UPDATE_UPSERT_DEFAULT, getDurability());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
-     * method with the {@link #getDurability() default durability}.
-     * </p>
-     * 
-     * @see #update(DocumentAssignable, DocumentAssignable, boolean, boolean,
-     *      Durability)
-     */
-    @Override
-    public long update(final DocumentAssignable query,
-            final DocumentAssignable update, final boolean multiUpdate,
-            final boolean upsert) throws MongoDbException {
-        return update(query, update, multiUpdate, upsert, getDurability());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
-     * method.
-     * </p>
-     * 
-     * @see #updateAsync(DocumentAssignable, DocumentAssignable, boolean,
-     *      boolean, Durability)
-     */
-    @Override
-    public long update(final DocumentAssignable query,
-            final DocumentAssignable update, final boolean multiUpdate,
-            final boolean upsert, final Durability durability)
-            throws MongoDbException {
-
-        final ListenableFuture<Long> future = updateAsync(query, update,
-                multiUpdate, upsert, durability);
-
-        return FutureUtils.unwrap(future).longValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
-     * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
-     * method with multiUpdate set to true, and upsert set to false.
-     * </p>
-     * 
-     * @see #update(DocumentAssignable, DocumentAssignable, boolean, boolean,
-     *      Durability)
-     */
-    @Override
-    public long update(final DocumentAssignable query,
-            final DocumentAssignable update, final Durability durability)
-            throws MongoDbException {
-        return update(query, update, UPDATE_MULTIUPDATE_DEFAULT,
-                UPDATE_UPSERT_DEFAULT, durability);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to call the
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * with multiUpdate set to true, upsert set to false, and using the
      * {@link #getDurability() default durability}.
@@ -2838,22 +1815,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
         updateAsync(results, query, update, multiUpdate, upsert,
                 getDurability());
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>update</code> method that implementations
-     * must override.
-     * </p>
-     * 
-     * @see MongoCollection#updateAsync(Callback, DocumentAssignable,
-     *      DocumentAssignable, boolean, boolean, Durability)
-     */
-    @Override
-    public abstract void updateAsync(final Callback<Long> results,
-            final DocumentAssignable query, final DocumentAssignable update,
-            final boolean multiUpdate, final boolean upsert,
-            final Durability durability) throws MongoDbException;
 
     /**
      * {@inheritDoc}
@@ -3035,42 +1996,6 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     }
 
     /**
-     * Converts the {@link Durability} into a {@link GetLastError} command.
-     * 
-     * @param durability
-     *            The {@link Durability} to convert.
-     * @return The {@link GetLastError} command.
-     */
-    protected GetLastError asGetLastError(final Durability durability) {
-        return new GetLastError(getDatabaseName(), durability);
-    }
-
-    /**
-     * Generates a name for the index based on the keys.
-     * 
-     * @param keys
-     *            The keys for the index.
-     * @return The name for the index.
-     */
-    protected String buildIndexName(final Element... keys) {
-        final StringBuilder nameBuilder = new StringBuilder();
-        for (final Element key : keys) {
-            if (nameBuilder.length() > 0) {
-                nameBuilder.append('_');
-            }
-            nameBuilder.append(key.getName().replace(' ', '_'));
-            nameBuilder.append("_");
-            if (key instanceof NumericElement) {
-                nameBuilder.append(((NumericElement) key).getIntValue());
-            }
-            else {
-                nameBuilder.append(key.getValueAsString());
-            }
-        }
-        return nameBuilder.toString();
-    }
-
-    /**
      * Returns the type of lock to use.
      * 
      * @return The type of lock to use.
@@ -3078,4 +2003,5 @@ public abstract class AbstractMongoCollection implements MongoCollection {
     protected LockType getLockType() {
         return myClient.getConfig().getLockType();
     }
+
 }

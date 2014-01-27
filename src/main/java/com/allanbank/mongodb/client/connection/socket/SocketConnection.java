@@ -13,6 +13,7 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.AddressAware;
 import com.allanbank.mongodb.client.message.BuildInfo;
 import com.allanbank.mongodb.client.message.PendingMessage;
 import com.allanbank.mongodb.client.message.Reply;
@@ -114,20 +115,25 @@ public class SocketConnection extends AbstractSocketConnection {
      * {@inheritDoc}
      */
     @Override
-    public String send(final Message message,
-            final Callback<Reply> replyCallback) throws MongoDbException {
+    public void send(final Message message, final Callback<Reply> replyCallback)
+            throws MongoDbException {
 
-        return send(message, null, replyCallback);
+        send(message, null, replyCallback);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String send(final Message message1, final Message message2,
+    public void send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
 
         validate(message1, message2);
+
+        if (replyCallback instanceof AddressAware) {
+            ((AddressAware) replyCallback).setAddress(myServer
+                    .getCanonicalName());
+        }
 
         final int count = (message2 == null) ? 1 : 2;
         final long seq = mySendSequence.reserve(count);
@@ -197,8 +203,6 @@ public class SocketConnection extends AbstractSocketConnection {
                 }
             }
         }
-
-        return myServer.getCanonicalName();
     }
 
     /**

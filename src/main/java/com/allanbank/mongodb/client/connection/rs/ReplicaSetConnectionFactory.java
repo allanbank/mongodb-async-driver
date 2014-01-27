@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.client.ClusterType;
@@ -171,6 +172,26 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
     @Override
     public ClusterType getClusterType() {
         return ClusterType.REPLICA_SET;
+    }
+
+    /**
+     * Returns the maximum server version within the cluster.
+     * 
+     * @return The maximum server version within the cluster.
+     */
+    @Override
+    public Version getMaximumServerVersion() {
+        return myCluster.getMaximumServerVersion();
+    }
+
+    /**
+     * Returns the minimum server version within the cluster.
+     * 
+     * @return The minimum server version within the cluster.
+     */
+    @Override
+    public Version getMinimumServerVersion() {
+        return myCluster.getMinimumServerVersion();
     }
 
     /**

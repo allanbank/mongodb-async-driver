@@ -86,16 +86,13 @@ import com.allanbank.mongodb.client.message.Update;
 import com.allanbank.mongodb.error.ReplyException;
 
 /**
- * MongoCollectionImplTest provides tests for the {@link MongoCollectionImpl}
- * class.
+ * MongoCollectionImplTest provides tests for the
+ * {@link SynchronousMongoCollectionImpl} class.
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("unchecked")
 public class MongoCollectionImplTest {
-
-    /** The address for the test. */
-    private String myAddress = null;
 
     /** The client the collection interacts with. */
     private Client myMockClient = null;
@@ -104,7 +101,7 @@ public class MongoCollectionImplTest {
     private MongoDatabase myMockDatabase = null;
 
     /** The instance under test. */
-    private AbstractMongoCollection myTestInstance = null;
+    private SynchronousMongoCollectionImpl myTestInstance = null;
 
     /**
      * Creates the base set of objects for the test.
@@ -114,9 +111,8 @@ public class MongoCollectionImplTest {
         myMockClient = EasyMock.createMock(Client.class);
         myMockDatabase = EasyMock.createMock(MongoDatabase.class);
 
-        myTestInstance = new MongoCollectionImpl(myMockClient, myMockDatabase,
-                "test");
-        myAddress = "localhost:21017";
+        myTestInstance = new SynchronousMongoCollectionImpl(myMockClient,
+                myMockDatabase, "test");
 
         expect(myMockClient.getConfig()).andReturn(
                 new MongoClientConfiguration()).anyTimes();
@@ -131,11 +127,11 @@ public class MongoCollectionImplTest {
         myMockDatabase = null;
 
         myTestInstance = null;
-        myAddress = null;
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#aggregate(Aggregate)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#aggregate(Aggregate)} .
      */
     @Test
     public void testAggregate() {
@@ -157,8 +153,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -171,8 +167,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#aggregateAsync(Aggregate)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#aggregateAsync(Aggregate)} .
      * 
      * @throws Exception
      *             On a failure.
@@ -197,8 +193,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -213,7 +209,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregate)} .
+     * {@link SynchronousMongoCollectionImpl#aggregateAsync(Callback, Aggregate)}
+     * .
      */
     @Test
     public void testAggregateAsyncCallbackOfListOfDocumentAggregate() {
@@ -236,10 +233,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -250,7 +245,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, Aggregate)}
+     * {@link SynchronousMongoCollectionImpl#aggregateAsync(LambdaCallback, Aggregate)}
      * method.
      */
     @Test
@@ -274,10 +269,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -288,7 +281,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#aggregateAsync(LambdaCallback, Aggregate.Builder)}
+     * {@link SynchronousMongoCollectionImpl#aggregateAsync(LambdaCallback, Aggregate.Builder)}
      * method.
      */
     @Test
@@ -312,10 +305,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -325,8 +316,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#aggregateAsync(Aggregate)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#aggregateAsync(Aggregate)} .
      * 
      * @throws Exception
      *             On a failure.
@@ -353,8 +344,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -369,7 +360,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregate)} .
+     * {@link SynchronousMongoCollectionImpl#aggregateAsync(Callback, Aggregate)}
+     * .
      */
     @Test
     public void testAggregateWithReadPreference() {
@@ -397,10 +389,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -411,7 +401,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#aggregateAsync(Callback, Aggregate)} .
+     * {@link SynchronousMongoCollectionImpl#aggregateAsync(Callback, Aggregate)}
+     * .
      */
     @Test
     public void testAggregateWithReadPreferenceNonSharded() {
@@ -437,11 +428,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
-
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
         replay(mockCallback);
 
         myTestInstance.aggregateAsync(mockCallback, request);
@@ -451,7 +439,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#buildIndexName(Element...)} .
+     * {@link SynchronousMongoCollectionImpl#buildIndexName(Element...)} .
      */
     @Test
     public void testBuildIndexName() {
@@ -467,7 +455,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#count()} .
+     * Test method for {@link SynchronousMongoCollectionImpl#count()} .
      */
     @Test
     public void testCount() {
@@ -479,12 +467,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.PRIMARY)),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
-
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.PRIMARY)), callback(reply(replyDoc)));
+        expectLastCall();
         replay();
 
         assertEquals(1L, myTestInstance.count());
@@ -493,7 +479,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#countAsync()} .
+     * Test method for {@link SynchronousMongoCollectionImpl#countAsync()} .
      */
     @Test
     public void testCountAsync() {
@@ -503,12 +489,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.PRIMARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay();
 
@@ -518,7 +502,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#countAsync(Callback)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#countAsync(Callback)} .
      */
     @Test
     public void testCountAsyncCallbackOfLong() {
@@ -529,12 +514,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.PRIMARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -545,7 +528,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#countAsync(Callback, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#countAsync(Callback, DocumentAssignable)}
      * .
      */
     @Test
@@ -557,12 +540,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.PRIMARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -573,7 +554,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#countAsync(Callback, DocumentAssignable, ReadPreference)}
+     * {@link SynchronousMongoCollectionImpl#countAsync(Callback, DocumentAssignable, ReadPreference)}
      * .
      */
     @Test
@@ -584,12 +565,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -601,7 +580,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#countAsync(Callback, ReadPreference)} .
+     * {@link SynchronousMongoCollectionImpl#countAsync(Callback, ReadPreference)}
+     * .
      */
     @Test
     public void testCountAsyncCallbackOfLongReadPreference() {
@@ -611,12 +591,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -627,7 +605,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#countAsync(DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#countAsync(DocumentAssignable)} .
      */
     @Test
     public void testCountAsyncDocument() {
@@ -637,12 +615,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.PRIMARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay();
 
@@ -653,7 +629,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#countAsync(DocumentAssignable, ReadPreference)}
+     * {@link SynchronousMongoCollectionImpl#countAsync(DocumentAssignable, ReadPreference)}
      * .
      * 
      * @throws Exception
@@ -667,12 +643,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
-
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)), callback(reply(replyDoc)));
+        expectLastCall();
         replay();
 
         assertEquals(Long.valueOf(1),
@@ -682,8 +656,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test for the {@link AbstractMongoCollection#countAsync(LambdaCallback)}
-     * method.
+     * Test for the
+     * {@link SynchronousMongoCollectionImpl#countAsync(LambdaCallback)} method.
      */
     @Test
     public void testCountAsyncLambdaCallback() {
@@ -694,12 +668,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.PRIMARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -710,7 +682,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#countAsync(LambdaCallback, Count)} method.
+     * {@link SynchronousMongoCollectionImpl#countAsync(LambdaCallback, Count)}
+     * method.
      */
     @Test
     public void testCountAsyncLambdaCallbackCount() {
@@ -719,12 +692,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -736,7 +707,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#countAsync(LambdaCallback, Count.Builder)}
+     * {@link SynchronousMongoCollectionImpl#countAsync(LambdaCallback, Count.Builder)}
      * method.
      */
     @Test
@@ -746,12 +717,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -763,7 +732,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#countAsync(LambdaCallback, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#countAsync(LambdaCallback, DocumentAssignable)}
      * method.
      */
     @Test
@@ -775,12 +744,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.PRIMARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -791,7 +758,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#countAsync(LambdaCallback, DocumentAssignable, ReadPreference)}
+     * {@link SynchronousMongoCollectionImpl#countAsync(LambdaCallback, DocumentAssignable, ReadPreference)}
      * method.
      */
     @Test
@@ -801,12 +768,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -818,7 +783,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#countAsync(LambdaCallback, ReadPreference)}
+     * {@link SynchronousMongoCollectionImpl#countAsync(LambdaCallback, ReadPreference)}
      * method.
      */
     @Test
@@ -828,12 +793,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -843,8 +806,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#countAsync(Count.Builder)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#countAsync(Count.Builder)} .
      * 
      * @throws Exception
      *             On an error
@@ -862,13 +825,12 @@ public class MongoCollectionImplTest {
         builder.setMaximumTimeMilliseconds(1234L);
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(
+                eq(new Command("test", BuilderFactory.start()
                         .addString("count", "test").addDocument("query", doc)
                         .add("maxTimeMS", 1234L).build(),
-                        ReadPreference.SECONDARY)), callback(reply(replyDoc))))
-                .andReturn(myAddress);
+                        ReadPreference.SECONDARY)), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -879,7 +841,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#countAsync(ReadPreference)} .
+     * {@link SynchronousMongoCollectionImpl#countAsync(ReadPreference)} .
      * 
      * @throws Exception
      *             On an error
@@ -900,8 +862,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(myMockClient.send(eq(command), callback(reply(replyDoc))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(command), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -913,8 +875,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#count(DocumentAssignable)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#count(DocumentAssignable)} .
      */
     @Test
     public void testCountDocument() {
@@ -926,12 +888,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.PRIMARY)),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
-
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.PRIMARY)), callback(reply(replyDoc)));
+        expectLastCall();
         replay();
 
         assertEquals(1L, myTestInstance.count(doc));
@@ -941,7 +901,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#count(DocumentAssignable, ReadPreference)}
+     * {@link SynchronousMongoCollectionImpl#count(DocumentAssignable, ReadPreference)}
      * .
      */
     @Test
@@ -952,11 +912,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -967,7 +926,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#count(DocumentAssignable, ReadPreference)}
+     * {@link SynchronousMongoCollectionImpl#count(DocumentAssignable, ReadPreference)}
      * .
      */
     @Test
@@ -976,11 +935,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        callback(Reply.class))).andReturn(myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)), callback(Reply.class));
+        expectLastCall();
 
         replay();
 
@@ -996,7 +954,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#count(DocumentAssignable, ReadPreference)}
+     * {@link SynchronousMongoCollectionImpl#count(DocumentAssignable, ReadPreference)}
      * .
      */
     @Test
@@ -1005,12 +963,11 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        callback(Reply.class, new IOException()))).andReturn(
-                myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)),
+                callback(Reply.class, new IOException()));
+        expectLastCall();
 
         replay();
 
@@ -1026,7 +983,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#count(DocumentAssignable, ReadPreference)}
+     * {@link SynchronousMongoCollectionImpl#count(DocumentAssignable, ReadPreference)}
      * .
      */
     @Test
@@ -1037,11 +994,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(
-                myMockClient.send(eq(new Command("test", BuilderFactory.start()
-                        .addString("count", "test").addDocument("query", doc)
-                        .build(), ReadPreference.SECONDARY)),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+                .addString("count", "test").addDocument("query", doc).build(),
+                ReadPreference.SECONDARY)), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1055,7 +1011,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#count(ReadPreference)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#count(ReadPreference)} .
      * 
      * @throws Exception
      *             On an error
@@ -1076,8 +1033,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(myMockClient.send(eq(command), callback(reply(replyDoc))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(command), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1088,7 +1045,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#countAsync(DocumentAssignable, ReadPreference)}
+     * {@link SynchronousMongoCollectionImpl#countAsync(DocumentAssignable, ReadPreference)}
      * .
      * 
      * @throws Exception
@@ -1110,8 +1067,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(myMockClient.send(eq(command), callback(reply(replyDoc))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(command), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1124,7 +1081,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#countAsync(DocumentAssignable, ReadPreference)}
+     * {@link SynchronousMongoCollectionImpl#countAsync(DocumentAssignable, ReadPreference)}
      * .
      * 
      * @throws Exception
@@ -1144,8 +1101,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(myMockClient.send(eq(command), callback(reply(replyDoc))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(command), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1157,7 +1114,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#createIndex(Element...)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#createIndex(Element...)} .
      */
     @Test
     public void testCreateIndexLinkedHashMapOfStringInteger() {
@@ -1177,10 +1135,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(queryMessage),
-                        callback(reply(indexDocBuilder.build())))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(queryMessage),
+                callback(reply(indexDocBuilder.build())));
+        expectLastCall();
 
         replay();
 
@@ -1191,7 +1149,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#createIndex(boolean, Element...)} .
+     * {@link SynchronousMongoCollectionImpl#createIndex(boolean, Element...)} .
      */
     @Test
     public void testCreateIndexLinkedHashMapOfStringIntegerBoolean() {
@@ -1212,10 +1170,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(queryMessage),
-                        callback(reply(indexDocBuilder.build())))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(queryMessage),
+                callback(reply(indexDocBuilder.build())));
+        expectLastCall();
 
         replay();
 
@@ -1226,7 +1184,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
+     * {@link SynchronousMongoCollectionImpl#createIndex(String, boolean, Element...)}
+     * .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBoolean() {
@@ -1255,12 +1214,12 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(queryMessage), callback(reply())))
-                .andReturn(myAddress);
-        expect(
-                myMockClient.send(anyObject(Insert.class),
-                        eq(expectedLastError), callback(reply(replyDoc))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(queryMessage), callback(reply()));
+        expectLastCall();
+
+        myMockClient.send(anyObject(Insert.class), eq(expectedLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1271,7 +1230,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
+     * {@link SynchronousMongoCollectionImpl#createIndex(String, boolean, Element...)}
+     * .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExists() {
@@ -1291,10 +1251,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(queryMessage),
-                        callback(reply(indexDocBuilder.build())))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(queryMessage),
+                callback(reply(indexDocBuilder.build())));
+        expectLastCall();
 
         replay();
 
@@ -1305,7 +1265,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
+     * {@link SynchronousMongoCollectionImpl#createIndex(String, boolean, Element...)}
+     * .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExistsEmptyName() {
@@ -1325,10 +1286,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(queryMessage),
-                        callback(reply(indexDocBuilder.build())))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(queryMessage),
+                callback(reply(indexDocBuilder.build())));
+        expectLastCall();
 
         replay();
 
@@ -1339,7 +1300,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
+     * {@link SynchronousMongoCollectionImpl#createIndex(String, boolean, Element...)}
+     * .
      */
     @Test
     public void testCreateIndexStringLinkedHashMapOfStringIntegerBooleanAlreadyExistsNullName() {
@@ -1359,10 +1321,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(queryMessage),
-                        callback(reply(indexDocBuilder.build())))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(queryMessage),
+                callback(reply(indexDocBuilder.build())));
+        expectLastCall();
 
         replay();
 
@@ -1374,7 +1336,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#createIndex(boolean, Element...)} .
+     * {@link SynchronousMongoCollectionImpl#createIndex(boolean, Element...)} .
      */
     @Test
     public void testCreateIndexWithOptions() {
@@ -1395,15 +1357,15 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(queryMessage),
-                        callback(reply(indexDocBuilder.build())))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(queryMessage),
+                callback(reply(indexDocBuilder.build())));
+        expectLastCall();
 
         replay();
 
         myTestInstance.createIndex(
-                AbstractMongoCollection.UNIQUE_INDEX_OPTIONS, Index.asc("k"),
+                AbstractMongoOperations.UNIQUE_INDEX_OPTIONS, Index.asc("k"),
                 Index.desc("l"));
 
         verify();
@@ -1411,7 +1373,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#createIndex(boolean, Element...)} .
+     * {@link SynchronousMongoCollectionImpl#createIndex(boolean, Element...)} .
      */
     @Test
     public void testCreateIndexWithUniqueFalse() {
@@ -1431,10 +1393,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(queryMessage),
-                        callback(reply(indexDocBuilder.build())))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(queryMessage),
+                callback(reply(indexDocBuilder.build())));
+        expectLastCall();
 
         replay();
 
@@ -1445,7 +1407,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
+     * {@link SynchronousMongoCollectionImpl#createIndex(String, boolean, Element...)}
+     * .
      */
     @Test
     public void testCreateIndexWithVersionFor2DShpere() {
@@ -1474,13 +1437,14 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(queryMessage), callback(reply())))
-                .andReturn(myAddress);
+        myMockClient.send(eq(queryMessage), callback(reply()));
+        expectLastCall();
 
         final Capture<Insert> insert = new Capture<Insert>();
-        expect(
-                myMockClient.send(capture(insert), eq(expectedLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(capture(insert), eq(expectedLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1494,7 +1458,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
+     * {@link SynchronousMongoCollectionImpl#createIndex(String, boolean, Element...)}
+     * .
      */
     @Test
     public void testCreateIndexWithVersionForHashed() {
@@ -1523,13 +1488,14 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(queryMessage), callback(reply())))
-                .andReturn(myAddress);
+        myMockClient.send(eq(queryMessage), callback(reply()));
+        expectLastCall();
 
         final Capture<Insert> insert = new Capture<Insert>();
-        expect(
-                myMockClient.send(capture(insert), eq(expectedLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(capture(insert), eq(expectedLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1543,7 +1509,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#createIndex(String, boolean, Element...)} .
+     * {@link SynchronousMongoCollectionImpl#createIndex(String, boolean, Element...)}
+     * .
      */
     @Test
     public void testCreateIndexWithVersionForText() {
@@ -1572,13 +1539,14 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(queryMessage), callback(reply())))
-                .andReturn(myAddress);
+        myMockClient.send(eq(queryMessage), callback(reply()));
+        expectLastCall();
 
         final Capture<Insert> insert = new Capture<Insert>();
-        expect(
-                myMockClient.send(capture(insert), eq(expectedLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(capture(insert), eq(expectedLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1592,7 +1560,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(Callback, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(Callback, DocumentAssignable)}
      * .
      */
     @Test
@@ -1607,8 +1575,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
 
-        expect(myMockClient.send(eq(message), isNull(Callback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), isNull(Callback.class));
+        expectLastCall();
 
         mockCountCallback.callback(Long.valueOf(-1L));
         expectLastCall();
@@ -1622,7 +1590,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(Callback, DocumentAssignable, boolean)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(Callback, DocumentAssignable, boolean)}
      * .
      */
     @Test
@@ -1639,10 +1607,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -1653,7 +1620,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * .
      */
     @Test
@@ -1668,10 +1635,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -1683,7 +1649,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(Callback, DocumentAssignable, Durability)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(Callback, DocumentAssignable, Durability)}
      * .
      */
     @Test
@@ -1696,8 +1662,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(myMockClient.send(eq(message), isNull(Callback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), isNull(Callback.class));
+        expectLastCall();
 
         mockCountCallback.callback(Long.valueOf(-1L));
         expectLastCall();
@@ -1711,7 +1677,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(DocumentAssignable)} .
      * 
      * @throws Exception
      *             On an error.
@@ -1731,9 +1697,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1744,7 +1710,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(DocumentAssignable, boolean)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(DocumentAssignable, boolean)}
      * .
      * 
      * @throws Exception
@@ -1764,9 +1730,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1778,7 +1744,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(DocumentAssignable, boolean, Durability)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(DocumentAssignable, boolean, Durability)}
      * .
      * 
      * @throws Exception
@@ -1796,9 +1762,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1810,7 +1776,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#deleteAsync(DocumentAssignable, Durability)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(DocumentAssignable, Durability)}
      * .
      * 
      * @throws Exception
@@ -1824,8 +1790,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(myMockClient.send(eq(message), isNull(Callback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), isNull(Callback.class));
+        expectLastCall();
 
         replay();
 
@@ -1837,7 +1803,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#deleteAsync(LambdaCallback, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(LambdaCallback, DocumentAssignable)}
      * method.
      */
     @Test
@@ -1851,8 +1817,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
 
-        expect(myMockClient.send(eq(message), isNull(Callback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), isNull(Callback.class));
+        expectLastCall();
 
         mockCountCallback.accept(null, Long.valueOf(-1L));
         expectLastCall();
@@ -1866,7 +1832,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#deleteAsync(LambdaCallback, DocumentAssignable, boolean)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(LambdaCallback, DocumentAssignable, boolean)}
      * method.
      */
     @Test
@@ -1882,10 +1848,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -1896,7 +1861,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#deleteAsync(LambdaCallback, DocumentAssignable, boolean, Durability)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(LambdaCallback, DocumentAssignable, boolean, Durability)}
      * method.
      */
     @Test
@@ -1910,10 +1875,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -1925,7 +1889,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#deleteAsync(LambdaCallback, DocumentAssignable, Durability)}
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(LambdaCallback, DocumentAssignable, Durability)}
      * method.
      */
     @Test
@@ -1937,8 +1901,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(myMockClient.send(eq(message), isNull(Callback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), isNull(Callback.class));
+        expectLastCall();
 
         mockCountCallback.accept(null, Long.valueOf(-1L));
         expectLastCall();
@@ -1952,7 +1916,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#delete(DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#delete(DocumentAssignable)} .
      */
     @Test
     public void testDeleteDocument() {
@@ -1968,9 +1932,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -1981,7 +1945,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#delete(DocumentAssignable, boolean)} .
+     * {@link SynchronousMongoCollectionImpl#delete(DocumentAssignable, boolean)}
+     * .
      */
     @Test
     public void testDeleteDocumentBoolean() {
@@ -1997,9 +1962,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -2010,7 +1975,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#delete(DocumentAssignable, boolean, Durability)}
+     * {@link SynchronousMongoCollectionImpl#delete(DocumentAssignable, boolean, Durability)}
      * .
      */
     @Test
@@ -2025,9 +1990,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -2038,7 +2003,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#delete(DocumentAssignable, Durability)} .
+     * {@link SynchronousMongoCollectionImpl#delete(DocumentAssignable, Durability)}
+     * .
      */
     @Test
     public void testDeleteDocumentDurability() {
@@ -2048,8 +2014,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(myMockClient.send(eq(message), isNull(Callback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), isNull(Callback.class));
+        expectLastCall();
 
         replay();
 
@@ -2059,7 +2025,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#distinct(Distinct)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#distinct(Distinct)}
+     * .
      */
     @Test
     public void testDistinct() {
@@ -2083,8 +2050,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -2096,7 +2063,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#distinctAsync(Callback, Distinct)} .
+     * {@link SynchronousMongoCollectionImpl#distinctAsync(Callback, Distinct)}
+     * .
      */
     @Test
     public void testDistinctAsyncCallbackDistinct() {
@@ -2117,10 +2085,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -2130,7 +2097,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#distinctAsync(Distinct)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#distinctAsync(Distinct)} .
      * 
      * @throws Exception
      *             On a failure.
@@ -2157,8 +2125,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -2171,7 +2139,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#distinctAsync(LambdaCallback, Distinct)}
+     * {@link SynchronousMongoCollectionImpl#distinctAsync(LambdaCallback, Distinct)}
      * method.
      */
     @Test
@@ -2193,10 +2161,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -2207,7 +2174,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#distinctAsync(LambdaCallback, Distinct.Builder)}
+     * {@link SynchronousMongoCollectionImpl#distinctAsync(LambdaCallback, Distinct.Builder)}
      * method.
      */
     @Test
@@ -2229,10 +2196,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -2243,7 +2209,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#distinctAsync(Callback, Distinct)} .
+     * {@link SynchronousMongoCollectionImpl#distinctAsync(Callback, Distinct)}
+     * .
      */
     @Test
     public void testDistinctAsyncNoQuery() {
@@ -2260,10 +2227,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -2273,7 +2239,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#distinctAsync(Distinct)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#distinctAsync(Distinct)} .
      * 
      * @throws Exception
      *             On a failure.
@@ -2303,8 +2270,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -2317,7 +2284,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#distinctAsync(Callback, Distinct)} .
+     * {@link SynchronousMongoCollectionImpl#distinctAsync(Callback, Distinct)}
+     * .
      */
     @Test
     public void testDistinctWithReadPreference() {
@@ -2336,10 +2304,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -2350,7 +2317,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#distinctAsync(Callback, Distinct)} .
+     * {@link SynchronousMongoCollectionImpl#distinctAsync(Callback, Distinct)}
+     * .
      */
     @Test
     public void testDistinctWithReadPreferenceNonSharded() {
@@ -2369,10 +2337,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.STAND_ALONE);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -2382,7 +2349,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#drop()}.
+     * Test method for {@link SynchronousMongoCollectionImpl#drop()}.
      */
     @Test
     public void testDrop() {
@@ -2410,7 +2377,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#dropIndex(String)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#dropIndex(String)}
+     * .
      */
     @Test
     public void testDropIndex() {
@@ -2428,6 +2396,7 @@ public class MongoCollectionImplTest {
                 .andReturn(badResult);
         expect(myMockDatabase.runCommand("deleteIndexes", "test", options))
                 .andReturn(missingOkResult);
+
         expect(
                 myMockDatabase.runCommand("deleteIndexes", "test",
                         BuilderFactory.start().addString("index", "f_1")
@@ -2444,7 +2413,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#explain(Aggregate)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#explain(Aggregate)}
+     * .
      */
     @Test
     public void testExplainAggregate() {
@@ -2467,8 +2437,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -2479,7 +2449,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#explainAsync(Aggregate)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#explainAsync(Aggregate)} .
      * 
      * @throws Exception
      *             On a failure.
@@ -2505,8 +2476,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -2518,7 +2489,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#explainAsync(Callback, Aggregate)} .
+     * {@link SynchronousMongoCollectionImpl#explainAsync(Callback, Aggregate)}
+     * .
      */
     @Test
     public void testExplainAggregateAsyncCallback() {
@@ -2542,10 +2514,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -2555,7 +2526,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#explainAsync(Find)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#explainAsync(Find)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -2576,8 +2548,8 @@ public class MongoCollectionImplTest {
         findBuilder.setReadPreference(ReadPreference.SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result1)));
+        expectLastCall();
 
         replay();
 
@@ -2590,7 +2562,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Aggregate)}
+     * {@link SynchronousMongoCollectionImpl#explainAsync(LambdaCallback, Aggregate)}
      * method.
      */
     @Test
@@ -2615,10 +2587,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -2629,7 +2600,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Aggregate.Builder)}
+     * {@link SynchronousMongoCollectionImpl#explainAsync(LambdaCallback, Aggregate.Builder)}
      * method.
      */
     @Test
@@ -2654,10 +2625,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -2668,7 +2638,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Find)}
+     * {@link SynchronousMongoCollectionImpl#explainAsync(LambdaCallback, Find)}
      * method.
      */
     @Test
@@ -2689,10 +2659,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.SECONDARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -2703,7 +2672,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#explainAsync(LambdaCallback, Find.Builder)}
+     * {@link SynchronousMongoCollectionImpl#explainAsync(LambdaCallback, Find.Builder)}
      * method.
      */
     @Test
@@ -2724,10 +2693,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.SECONDARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -2738,7 +2706,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#explain(DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#explain(DocumentAssignable)} .
      */
     @Test
     public void testExplainDocument() {
@@ -2756,8 +2724,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result1)));
+        expectLastCall();
 
         replay();
 
@@ -2768,7 +2736,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#explain(Find)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#explain(Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -2789,8 +2757,8 @@ public class MongoCollectionImplTest {
         findBuilder.setReadPreference(ReadPreference.SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result1)));
+        expectLastCall();
 
         replay();
 
@@ -2801,8 +2769,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#explainAsync(Callback, Find)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#explainAsync(Callback, Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -2840,10 +2808,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         replay();
 
@@ -2854,8 +2821,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#explainAsync(Callback, Find)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#explainAsync(Callback, Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -2895,10 +2862,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.STAND_ALONE);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         mockCallback.callback(result1);
         expectLastCall();
@@ -2912,7 +2878,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     * {@link SynchronousMongoCollectionImpl#findAndModify(FindAndModify)} .
      */
     @Test
     public void testFindAndModify() {
@@ -2934,8 +2900,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -2946,7 +2912,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     * {@link SynchronousMongoCollectionImpl#findAndModify(FindAndModify)} .
      */
     @Test
     public void testFindAndModifyAsRemove() {
@@ -2968,8 +2934,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -2980,7 +2946,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
+     * {@link SynchronousMongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)}
+     * .
      */
     @Test
     public void testFindAndModifyAsyncCallbackOfDocumentFindAndModify() {
@@ -2999,10 +2966,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyDocumentCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyDocumentCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -3013,7 +2979,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAndModifyAsync(FindAndModify)} .
+     * {@link SynchronousMongoCollectionImpl#findAndModifyAsync(FindAndModify)}
+     * .
      * 
      * @throws Exception
      *             On a failure.
@@ -3038,8 +3005,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -3051,7 +3018,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#findAndModifyAsync(LambdaCallback, FindAndModify)}
+     * {@link SynchronousMongoCollectionImpl#findAndModifyAsync(LambdaCallback, FindAndModify)}
      * method.
      */
     public void testFindAndModifyAsyncLambdaCallbackFindAndModify() {
@@ -3070,10 +3037,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyDocumentCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyDocumentCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -3084,7 +3050,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#findAndModifyAsync(LambdaCallback, FindAndModify.Builder)}
+     * {@link SynchronousMongoCollectionImpl#findAndModifyAsync(LambdaCallback, FindAndModify.Builder)}
      * method.
      */
     @Test
@@ -3104,10 +3070,9 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyDocumentCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyDocumentCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -3118,7 +3083,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     * {@link SynchronousMongoCollectionImpl#findAndModify(FindAndModify)} .
      */
     @Test
     public void testFindAndModifyWithFields() {
@@ -3143,8 +3108,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -3155,7 +3120,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     * {@link SynchronousMongoCollectionImpl#findAndModify(FindAndModify)} .
      */
     @Test
     public void testFindAndModifyWithMaxTime() {
@@ -3180,8 +3145,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -3192,7 +3157,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     * {@link SynchronousMongoCollectionImpl#findAndModify(FindAndModify)} .
      */
     @Test
     public void testFindAndModifyWithNew() {
@@ -3216,8 +3181,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -3228,7 +3193,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     * {@link SynchronousMongoCollectionImpl#findAndModify(FindAndModify)} .
      */
     @Test
     public void testFindAndModifyWithSort() {
@@ -3252,8 +3217,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -3264,7 +3229,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAndModify(FindAndModify)} .
+     * {@link SynchronousMongoCollectionImpl#findAndModify(FindAndModify)} .
      */
     @Test
     public void testFindAndModifyWithUpsert() {
@@ -3288,8 +3253,8 @@ public class MongoCollectionImplTest {
         final Command message = new Command("test", expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -3300,7 +3265,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAsync(Callback, DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#findAsync(Callback, DocumentAssignable)}
+     * .
      */
     @Test
     public void testFindAsyncCallbackDocument() {
@@ -3314,8 +3280,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), anyObject(CursorCallback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), anyObject(CursorCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3325,8 +3291,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#findAsync(Callback, Find)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#findAsync(Callback, Find)} .
      */
     @Test
     public void testFindAsyncCallbackFind() {
@@ -3342,8 +3308,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), anyObject(CursorCallback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), anyObject(CursorCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3354,7 +3320,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findAsync(DocumentAssignable)}.
+     * {@link SynchronousMongoCollectionImpl#findAsync(DocumentAssignable)}.
      * 
      * @throws Exception
      *             On an error.
@@ -3374,10 +3340,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         replay();
 
@@ -3394,7 +3359,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#findAsync(Find)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#findAsync(Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -3413,10 +3378,9 @@ public class MongoCollectionImplTest {
         findBuilder.setReadPreference(ReadPreference.SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         replay();
 
@@ -3433,7 +3397,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#findAsync(Find)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#findAsync(Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -3453,10 +3417,9 @@ public class MongoCollectionImplTest {
         findBuilder.tailable();
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         replay();
 
@@ -3474,7 +3437,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#findAsync(LambdaCallback, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#findAsync(LambdaCallback, DocumentAssignable)}
      * method.
      */
     @Test
@@ -3489,8 +3452,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), anyObject(CursorCallback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), anyObject(CursorCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3501,7 +3464,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#findAsync(LambdaCallback, Find)} method.
+     * {@link SynchronousMongoCollectionImpl#findAsync(LambdaCallback, Find)}
+     * method.
      */
     @Test
     public void testFindAsyncLambdaCallbackFind() {
@@ -3517,8 +3481,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), anyObject(CursorCallback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), anyObject(CursorCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3529,7 +3493,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#findAsync(LambdaCallback, Find.Builder)}
+     * {@link SynchronousMongoCollectionImpl#findAsync(LambdaCallback, Find.Builder)}
      * method.
      */
     @Test
@@ -3546,8 +3510,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), anyObject(CursorCallback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), anyObject(CursorCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3557,8 +3521,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#find(DocumentAssignable)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#find(DocumentAssignable)} .
      */
     @Test
     public void testFindDocument() {
@@ -3574,10 +3538,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         replay();
 
@@ -3592,7 +3555,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#find(Find)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#find(Find)} .
      */
     @Test
     public void testFindDocumentBoolean() {
@@ -3608,10 +3571,9 @@ public class MongoCollectionImplTest {
         findBuilder.setReadPreference(ReadPreference.PRIMARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         replay();
 
@@ -3627,7 +3589,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findOne(DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#findOne(DocumentAssignable)} .
      */
     @Test
     public void testFindOne() {
@@ -3643,8 +3605,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(replyDoc))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3655,7 +3617,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findOneAsync(Callback, Find)} .
+     * {@link SynchronousMongoCollectionImpl#findOneAsync(Callback, Find)} .
      */
     @Test
     public void testFindOneAsyncCallbackFind() {
@@ -3671,10 +3633,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(SingleDocumentCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(SingleDocumentCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3685,7 +3646,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#findOneAsync(Callback, DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#findOneAsync(Callback, DocumentAssignable)}
+     * .
      */
     @Test
     public void testFindOneAsyncCallbackOfDocumentDocument() {
@@ -3699,10 +3661,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(SingleDocumentCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(SingleDocumentCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3713,7 +3674,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findOneAsync(DocumentAssignable)}.
+     * {@link SynchronousMongoCollectionImpl#findOneAsync(DocumentAssignable)}.
      * 
      * @throws Exception
      *             On an error.
@@ -3732,8 +3693,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(replyDoc))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3743,7 +3704,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#findOneAsync(Find)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#findOneAsync(Find)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -3761,8 +3723,8 @@ public class MongoCollectionImplTest {
         findBuilder.setReadPreference(ReadPreference.SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result1)));
+        expectLastCall();
 
         replay();
 
@@ -3775,7 +3737,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#findAsync(LambdaCallback, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#findAsync(LambdaCallback, DocumentAssignable)}
      * method.
      */
     @Test
@@ -3790,10 +3752,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(SingleDocumentCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(SingleDocumentCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3804,7 +3765,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#findAsync(LambdaCallback, Find)} method.
+     * {@link SynchronousMongoCollectionImpl#findAsync(LambdaCallback, Find)}
+     * method.
      */
     @Test
     public void testFindOneAsyncLambdaCallbackFind() {
@@ -3820,10 +3782,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(SingleDocumentCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(SingleDocumentCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3834,7 +3795,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#findAsync(LambdaCallback, Find.Builder)}
+     * {@link SynchronousMongoCollectionImpl#findAsync(LambdaCallback, Find.Builder)}
      * method.
      */
     @Test
@@ -3851,10 +3812,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(SingleDocumentCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(SingleDocumentCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3865,7 +3825,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findOne(DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#findOne(DocumentAssignable)} .
      */
     @Test
     public void testFindOneNonLegacyOptions() {
@@ -3887,8 +3847,8 @@ public class MongoCollectionImplTest {
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PREFER_SECONDARY);
-        expect(myMockClient.send(eq(message), callback(reply(replyDoc))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3899,7 +3859,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#findOne(DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#findOne(DocumentAssignable)} .
      */
     @Test
     public void testFindOneNonSharded() {
@@ -3918,8 +3878,8 @@ public class MongoCollectionImplTest {
                 .andReturn(ClusterType.REPLICA_SET);
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PREFER_SECONDARY);
-        expect(myMockClient.send(eq(message), callback(reply(replyDoc))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -3929,7 +3889,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#findOne(Find)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#findOne(Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -3969,8 +3929,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result1)));
+        expectLastCall();
 
         replay();
 
@@ -3981,7 +3941,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#findAsync(Find)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#findAsync(Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -4020,8 +3980,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result1)));
+        expectLastCall();
 
         replay();
 
@@ -4032,7 +3992,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#findOneAsync(Find)}
+     * Test method for {@link SynchronousMongoCollectionImpl#findOneAsync(Find)}
      * 
      * @throws Exception
      *             On an error.
@@ -4063,8 +4023,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(myMockClient.send(eq(message), callback(reply(result1))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result1)));
+        expectLastCall();
 
         replay();
 
@@ -4075,7 +4035,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)} .
+     * {@link SynchronousMongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -4117,10 +4078,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         replay();
 
@@ -4137,7 +4097,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#findAsync(Find)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#findAsync(Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -4178,10 +4138,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         replay();
 
@@ -4198,7 +4157,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#findOneAsync(Find)}
+     * Test method for {@link SynchronousMongoCollectionImpl#findOneAsync(Find)}
      * 
      * @throws Exception
      *             On an error.
@@ -4230,10 +4189,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         replay();
 
@@ -4250,7 +4208,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#getDatabaseName()} .
+     * Test method for {@link SynchronousMongoCollectionImpl#getDatabaseName()}
+     * .
      */
     @Test
     public void testGetDatabaseName() {
@@ -4261,7 +4220,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#getDurability()}.
+     * Test method for {@link SynchronousMongoCollectionImpl#getDurability()}.
      */
     @Test
     public void testGetDurabilityFromDatabase() {
@@ -4278,7 +4237,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#getDurability()}.
+     * Test method for {@link SynchronousMongoCollectionImpl#getDurability()}.
      */
     @Test
     public void testGetDurabilitySet() {
@@ -4299,7 +4258,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#getName()}.
+     * Test method for {@link SynchronousMongoCollectionImpl#getName()}.
      */
     @Test
     public void testGetName() {
@@ -4309,7 +4268,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#getReadPreference()}.
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#getReadPreference()}.
      */
     @Test
     public void testGetReadPreferenceFromDatabase() {
@@ -4328,7 +4288,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#getReadPreference()}.
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#getReadPreference()}.
      */
     @Test
     public void testGetReadPreferenceSet() {
@@ -4351,7 +4312,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#groupBy(GroupBy)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#groupBy(GroupBy)} .
      */
     @Test
     public void testGroupBy() {
@@ -4372,8 +4333,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -4385,7 +4346,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
+     * {@link SynchronousMongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
      */
     @Test
     public void testGroupByAsyncCallbackGroupBy() {
@@ -4405,10 +4366,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -4418,7 +4378,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#groupByAsync(GroupBy)}.
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#groupByAsync(GroupBy)}.
      * 
      * @throws Exception
      *             On a failure.
@@ -4442,8 +4403,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -4456,7 +4417,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#groupByAsync(LambdaCallback, GroupBy)}
+     * {@link SynchronousMongoCollectionImpl#groupByAsync(LambdaCallback, GroupBy)}
      * method.
      */
     @Test
@@ -4477,10 +4438,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -4491,7 +4451,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#groupByAsync(LambdaCallback, GroupBy.Builder)}
+     * {@link SynchronousMongoCollectionImpl#groupByAsync(LambdaCallback, GroupBy.Builder)}
      * method.
      */
     @Test
@@ -4510,10 +4470,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -4524,7 +4483,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
+     * {@link SynchronousMongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
      */
     @Test
     public void testGroupByAsyncWithAllOptions() {
@@ -4554,10 +4513,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -4568,7 +4526,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
+     * {@link SynchronousMongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
      */
     @Test
     public void testGroupByWithReadPreference() {
@@ -4590,10 +4548,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -4604,7 +4561,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
+     * {@link SynchronousMongoCollectionImpl#groupByAsync(Callback, GroupBy)} .
      */
     @Test
     public void testGroupByWithReadPreferenceNonSharded() {
@@ -4624,10 +4581,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyArrayCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -4638,7 +4594,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(boolean, DocumentAssignable...)}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(boolean, DocumentAssignable...)}
      * .
      * 
      * @throws Exception
@@ -4658,9 +4614,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -4672,7 +4629,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(boolean, Durability, DocumentAssignable...)}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(boolean, Durability, DocumentAssignable...)}
      * .
      * 
      * @throws Exception
@@ -4691,9 +4648,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -4705,7 +4663,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Callback, boolean, DocumentAssignable...)}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(Callback, boolean, DocumentAssignable...)}
      * .
      */
     @Test
@@ -4720,10 +4678,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -4734,7 +4692,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * .
      */
     @Test
@@ -4748,10 +4706,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -4763,7 +4721,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Callback, DocumentAssignable...)}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(Callback, DocumentAssignable...)}
      * .
      */
     @Test
@@ -4778,10 +4736,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -4792,7 +4750,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Callback, Durability, DocumentAssignable...)}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(Callback, Durability, DocumentAssignable...)}
      * .
      */
     @Test
@@ -4806,10 +4764,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -4820,7 +4778,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(DocumentAssignable...)} .
+     * {@link SynchronousMongoCollectionImpl#insertAsync(DocumentAssignable...)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -4834,8 +4793,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
-        expect(myMockClient.send(eq(message), isNull(Callback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), isNull(Callback.class));
+        expectLastCall();
 
         replay();
 
@@ -4846,7 +4805,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insertAsync(Durability, DocumentAssignable...)}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(Durability, DocumentAssignable...)}
      * .
      * 
      * @throws Exception
@@ -4864,9 +4823,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -4878,7 +4838,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#insertAsync(LambdaCallback, boolean, DocumentAssignable[])}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(LambdaCallback, boolean, DocumentAssignable[])}
      * method.
      */
     @Test
@@ -4893,10 +4853,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -4907,7 +4867,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#insertAsync(LambdaCallback, boolean, Durability, DocumentAssignable[])}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(LambdaCallback, boolean, Durability, DocumentAssignable[])}
      * method.
      */
     @Test
@@ -4921,10 +4881,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -4936,7 +4896,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#insertAsync(LambdaCallback, DocumentAssignable[])}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(LambdaCallback, DocumentAssignable[])}
      * method.
      */
     @Test
@@ -4951,10 +4911,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -4965,7 +4925,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#insertAsync(LambdaCallback, Durability, DocumentAssignable[])}
+     * {@link SynchronousMongoCollectionImpl#insertAsync(LambdaCallback, Durability, DocumentAssignable[])}
      * method.
      */
     @Test
@@ -4979,10 +4939,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -4993,7 +4953,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(boolean, DocumentAssignable...)} .
+     * {@link SynchronousMongoCollectionImpl#insert(boolean, DocumentAssignable...)}
+     * .
      */
     @Test
     public void testInsertBooleanDocumentArray() {
@@ -5008,9 +4969,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -5021,7 +4983,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(boolean, Durability, DocumentAssignable...)}
+     * {@link SynchronousMongoCollectionImpl#insert(boolean, Durability, DocumentAssignable...)}
      * .
      */
     @Test
@@ -5036,9 +4998,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -5049,7 +5012,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(Durability, DocumentAssignable...)}
+     * {@link SynchronousMongoCollectionImpl#insert(Durability, DocumentAssignable...)}
      * .
      */
     @Test
@@ -5065,9 +5028,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -5079,7 +5043,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(DocumentAssignable...)} .
+     * {@link SynchronousMongoCollectionImpl#insert(DocumentAssignable...)} .
      */
     @Test
     public void testInsertDocumentArray() {
@@ -5094,9 +5058,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -5107,7 +5072,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#insert(Durability, DocumentAssignable...)}
+     * {@link SynchronousMongoCollectionImpl#insert(Durability, DocumentAssignable...)}
      * .
      */
     @Test
@@ -5122,9 +5087,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -5172,7 +5138,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#mapReduce(MapReduce)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#mapReduce(MapReduce)} .
      */
     @Test
     public void testMapReduce() {
@@ -5196,8 +5163,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -5209,7 +5176,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(Callback, MapReduce)}
+     * .
      */
     @Test
     public void testMapReduceAsyncCallbackOfListOfDocumentMapReduce() {
@@ -5230,10 +5198,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5244,7 +5211,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#mapReduceAsync(LambdaCallback, MapReduce)}
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(LambdaCallback, MapReduce)}
      * method.
      */
     @Test
@@ -5266,10 +5233,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5280,7 +5246,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#mapReduceAsync(LambdaCallback, MapReduce.Builder)}
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(LambdaCallback, MapReduce.Builder)}
      * method.
      */
     @Test
@@ -5302,10 +5268,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5315,8 +5280,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#mapReduceAsync(MapReduce)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(MapReduce)} .
      * 
      * @throws Exception
      *             On a failure.
@@ -5343,8 +5308,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -5356,7 +5321,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(Callback, MapReduce)}
+     * .
      */
     @Test
     public void testMapReduceAsyncWithAllOptions() {
@@ -5397,10 +5363,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5411,7 +5376,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(Callback, MapReduce)}
+     * .
      */
     @Test
     public void testMapReduceAsyncWithOutputMerge() {
@@ -5435,10 +5401,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5449,7 +5414,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(Callback, MapReduce)}
+     * .
      */
     @Test
     public void testMapReduceAsyncWithOutputMergeAndDB() {
@@ -5475,10 +5441,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5489,7 +5454,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(Callback, MapReduce)}
+     * .
      */
     @Test
     public void testMapReduceAsyncWithOutputReduce() {
@@ -5513,10 +5479,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5527,7 +5492,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(Callback, MapReduce)}
+     * .
      */
     @Test
     public void testMapReduceAsyncWithOutputReduceAndDB() {
@@ -5553,10 +5519,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5567,7 +5532,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(Callback, MapReduce)}
+     * .
      */
     @Test
     public void testMapReduceAsyncWithOutputReplace() {
@@ -5591,10 +5557,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5605,7 +5570,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(Callback, MapReduce)}
+     * .
      */
     @Test
     public void testMapReduceAsyncWithOutputReplaceAndDB() {
@@ -5631,10 +5597,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5645,7 +5610,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(Callback, MapReduce)}
+     * .
      */
     @Test
     public void testMapReduceAsyncWithReadPreference() {
@@ -5673,10 +5639,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5687,7 +5652,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#mapReduceAsync(Callback, MapReduce)} .
+     * {@link SynchronousMongoCollectionImpl#mapReduceAsync(Callback, MapReduce)}
+     * .
      */
     @Test
     public void testMapReduceAsyncWithReadPreferenceNotSharded() {
@@ -5715,10 +5681,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -5729,7 +5694,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#saveAsync(Callback, DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#saveAsync(Callback, DocumentAssignable)}
+     * .
      */
     @Test
     public void testSaveAsyncCallbackOfIntegerDocumentAssignable() {
@@ -5744,10 +5710,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -5758,7 +5724,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#saveAsync(Callback, DocumentAssignable, Durability)}
+     * {@link SynchronousMongoCollectionImpl#saveAsync(Callback, DocumentAssignable, Durability)}
      * .
      */
     @Test
@@ -5773,10 +5739,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -5787,7 +5753,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#saveAsync(DocumentAssignable)} .
+     * {@link SynchronousMongoCollectionImpl#saveAsync(DocumentAssignable)} .
      * 
      * @throws Exception
      *             On an error.
@@ -5805,9 +5771,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -5818,7 +5785,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#saveAsync(DocumentAssignable,Durability)}
+     * {@link SynchronousMongoCollectionImpl#saveAsync(DocumentAssignable,Durability)}
      * .
      * 
      * @throws Exception
@@ -5836,9 +5803,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -5850,7 +5818,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#saveAsync(LambdaCallback, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#saveAsync(LambdaCallback, DocumentAssignable)}
      * method.
      */
     @Test
@@ -5866,10 +5834,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -5880,7 +5848,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#saveAsync(LambdaCallback, DocumentAssignable, Durability)}
+     * {@link SynchronousMongoCollectionImpl#saveAsync(LambdaCallback, DocumentAssignable, Durability)}
      * method.
      */
     @Test
@@ -5895,10 +5863,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -5908,8 +5876,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#save(DocumentAssignable)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#save(DocumentAssignable)} .
      */
     @Test
     public void testSaveDocumentAssignable() {
@@ -5924,9 +5892,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -5937,7 +5906,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#save(DocumentAssignable, Durability)} .
+     * {@link SynchronousMongoCollectionImpl#save(DocumentAssignable, Durability)}
+     * .
      */
     @Test
     public void testSaveDocumentAssignableDurability() {
@@ -5951,9 +5921,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -5979,8 +5950,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#streamingFind(Callback, Find)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#streamingFind(Callback, Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -6013,10 +5984,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
         mockCallback.callback(result1);
@@ -6035,7 +6005,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#streamingFind(Callback,DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#streamingFind(Callback,DocumentAssignable)}
      * .
      */
     @Deprecated
@@ -6055,10 +6025,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         mockCallback.callback(result1);
         expectLastCall();
@@ -6075,8 +6044,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#streamingFind(Callback,Find)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#streamingFind(Callback,Find)} .
      */
     @Deprecated
     @Test
@@ -6095,10 +6064,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         mockCallback.callback(result1);
         expectLastCall();
@@ -6117,7 +6085,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#streamingFind(LambdaCallback, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#streamingFind(LambdaCallback, DocumentAssignable)}
      * method.
      */
     @Test
@@ -6136,10 +6104,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         mockCallback.accept(null, result1);
         expectLastCall();
@@ -6157,7 +6124,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#streamingFind(StreamCallback,DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#streamingFind(StreamCallback,DocumentAssignable)}
      * .
      */
     @Test
@@ -6176,10 +6143,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         mockCallback.callback(result1);
         expectLastCall();
@@ -6196,8 +6162,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#streamingFind(Callback, Find)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#streamingFind(Callback, Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -6240,10 +6206,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         final Callback<Document> mockCallback = createMock(Callback.class);
         mockCallback.callback(result1);
@@ -6261,8 +6226,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#streamingFind(Callback, Find)}
-     * .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#streamingFind(Callback, Find)} .
      * 
      * @throws Exception
      *             On an error.
@@ -6304,10 +6269,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         final Callback<Document> mockCallback = createMock(Callback.class);
         mockCallback.callback(result1);
@@ -6326,7 +6290,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#stream(LambdaCallback, Aggregate)} method.
+     * {@link SynchronousMongoCollectionImpl#stream(LambdaCallback, Aggregate)}
+     * method.
      */
     @Test
     public void testStreamLambdaCallbackAggregate() {
@@ -6349,10 +6314,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -6363,7 +6327,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#stream(LambdaCallback, Aggregate.Builder)}
+     * {@link SynchronousMongoCollectionImpl#stream(LambdaCallback, Aggregate.Builder)}
      * method.
      */
     @Test
@@ -6387,10 +6351,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -6401,7 +6364,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#stream(LambdaCallback, Find.Builder)}
+     * {@link SynchronousMongoCollectionImpl#stream(LambdaCallback, Find.Builder)}
      * method.
      */
     @Test
@@ -6420,10 +6383,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         mockCallback.accept(null, result1);
         expectLastCall();
@@ -6441,7 +6403,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#stream(LambdaCallback, Find.Builder)}
+     * {@link SynchronousMongoCollectionImpl#stream(LambdaCallback, Find.Builder)}
      * method.
      */
     @Test
@@ -6460,10 +6422,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         mockCallback.accept(null, result1);
         expectLastCall();
@@ -6481,7 +6442,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#stream(StreamCallback, Aggregate)} method.
+     * {@link SynchronousMongoCollectionImpl#stream(StreamCallback, Aggregate)}
+     * method.
      */
     @Test
     public void testStreamStreamCallbackAggregate() {
@@ -6504,10 +6466,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -6518,7 +6479,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#stream(StreamCallback, Aggregate.Builder)}
+     * {@link SynchronousMongoCollectionImpl#stream(StreamCallback, Aggregate.Builder)}
      * method.
      */
     @Test
@@ -6542,10 +6503,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        anyObject(ReplyResultCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
+        expectLastCall();
 
         replay(mockCallback);
 
@@ -6555,7 +6515,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link MongoCollectionImpl#stream(StreamCallback,Find)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#stream(StreamCallback,Find)} .
      */
     @Test
     public void testStreamStreamCallbackFind() {
@@ -6573,10 +6534,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         mockCallback.callback(result1);
         expectLastCall();
@@ -6593,7 +6553,8 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test for the {@link AbstractMongoCollection#stream(StreamCallback, Find)}
+     * Test for the
+     * {@link SynchronousMongoCollectionImpl#stream(StreamCallback, Find)}
      * method.
      */
     @Test
@@ -6612,10 +6573,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         mockCallback.callback(result1);
         expectLastCall();
@@ -6633,7 +6593,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#streamingFind(StreamCallback, Find)} .
+     * {@link SynchronousMongoCollectionImpl#streamingFind(StreamCallback, Find)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -6675,10 +6636,9 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
         mockCallback.callback(result1);
@@ -6697,7 +6657,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#streamingFind(StreamCallback, Find)} .
+     * {@link SynchronousMongoCollectionImpl#streamingFind(StreamCallback, Find)}
+     * .
      * 
      * @throws Exception
      *             On an error.
@@ -6739,10 +6700,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(
-                myMockClient.send(eq(message),
-                        callback(reply(result1, result2))))
-                .andReturn(myAddress);
+
+        myMockClient.send(eq(message), callback(reply(result1, result2)));
+        expectLastCall();
 
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
         mockCallback.callback(result1);
@@ -6760,7 +6720,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#textSearch(Text)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#textSearch(Text)} .
      */
     @Test
     public void testTextSearchFull() {
@@ -6791,8 +6751,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
                 .andReturn(ClusterType.REPLICA_SET);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -6803,7 +6763,7 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link AbstractMongoCollection#textSearch(Text)} .
+     * Test method for {@link SynchronousMongoCollectionImpl#textSearch(Text)} .
      */
     @Test
     public void testTextSearchMinimal() {
@@ -6823,8 +6783,8 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        expect(myMockClient.send(eq(message), callback(reply(result.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
 
         replay();
 
@@ -6836,7 +6796,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(Callback, DocumentAssignable, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(Callback, DocumentAssignable, DocumentAssignable)}
      * .
      */
     @Test
@@ -6853,10 +6813,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -6867,7 +6827,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean)}
      * .
      */
     @Test
@@ -6884,10 +6844,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -6898,7 +6858,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link MongoCollectionImpl#updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * .
      */
     @Test
@@ -6915,10 +6875,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -6930,7 +6890,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(Callback, DocumentAssignable, DocumentAssignable, Durability)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(Callback, DocumentAssignable, DocumentAssignable, Durability)}
      * .
      */
     @Test
@@ -6946,10 +6906,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -6961,7 +6921,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(DocumentAssignable, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable)}
      * .
      * 
      * @throws Exception
@@ -6978,8 +6938,8 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
-        expect(myMockClient.send(eq(message), isNull(Callback.class)))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), isNull(Callback.class));
+        expectLastCall();
 
         replay();
 
@@ -6991,7 +6951,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean)}
      * .
      * 
      * @throws Exception
@@ -7013,9 +6973,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -7027,7 +6988,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * .
      * 
      * @throws Exception
@@ -7049,9 +7010,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -7065,7 +7027,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateAsync(DocumentAssignable, DocumentAssignable, Durability)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable, Durability)}
      * .
      * 
      * @throws Exception
@@ -7085,9 +7047,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -7099,7 +7062,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable)}
      * method.
      */
     @Test
@@ -7116,10 +7079,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -7130,7 +7093,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable, boolean, boolean)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable, boolean, boolean)}
      * method.
      */
     @Test
@@ -7147,10 +7110,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -7161,7 +7124,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * method.
      */
     @Test
@@ -7177,10 +7140,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -7192,7 +7155,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test for the
-     * {@link AbstractMongoCollection#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable, Durability)}
+     * {@link SynchronousMongoCollectionImpl#updateAsync(LambdaCallback, DocumentAssignable, DocumentAssignable, Durability)}
      * method.
      */
     @Test
@@ -7208,10 +7171,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        anyObject(ReplyLongCallback.class))).andReturn(
-                myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
 
         replay(mockCountCallback);
 
@@ -7223,7 +7186,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#update(DocumentAssignable, DocumentAssignable)}
+     * {@link SynchronousMongoCollectionImpl#update(DocumentAssignable, DocumentAssignable)}
      * .
      */
     @Test
@@ -7241,9 +7204,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -7254,7 +7218,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#update(DocumentAssignable, DocumentAssignable, boolean, boolean)}
+     * {@link SynchronousMongoCollectionImpl#update(DocumentAssignable, DocumentAssignable, boolean, boolean)}
      * .
      */
     @Test
@@ -7272,9 +7236,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -7285,7 +7250,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
+     * {@link SynchronousMongoCollectionImpl#update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * .
      */
     @Test
@@ -7302,9 +7267,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -7316,7 +7282,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#update(DocumentAssignable, DocumentAssignable, Durability)}
+     * {@link SynchronousMongoCollectionImpl#update(DocumentAssignable, DocumentAssignable, Durability)}
      * .
      */
     @Test
@@ -7333,9 +7299,10 @@ public class MongoCollectionImplTest {
                 false, 0, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
-        expect(
-                myMockClient.send(eq(message), eq(getLastError),
-                        callback(reply(replyDoc)))).andReturn(myAddress);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
 
@@ -7346,7 +7313,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#updateOptions(DocumentAssignable)}.
+     * {@link SynchronousMongoCollectionImpl#updateOptions(DocumentAssignable)}.
      */
     @Test
     public void testUpdateOptions() {
@@ -7371,7 +7338,8 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link AbstractMongoCollection#validate(MongoCollection.ValidateMode)} .
+     * {@link SynchronousMongoCollectionImpl#validate(MongoCollection.ValidateMode)}
+     * .
      */
     @Test
     public void testValidate() {

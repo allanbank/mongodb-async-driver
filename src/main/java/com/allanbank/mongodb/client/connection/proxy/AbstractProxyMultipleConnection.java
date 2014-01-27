@@ -258,9 +258,9 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * </p>
      */
     @Override
-    public String send(final Message message,
-            final Callback<Reply> replyCallback) throws MongoDbException {
-        return send(message, null, replyCallback);
+    public void send(final Message message, final Callback<Reply> replyCallback)
+            throws MongoDbException {
+        send(message, null, replyCallback);
     }
 
     /**
@@ -273,7 +273,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * </p>
      */
     @Override
-    public String send(final Message message1, final Message message2,
+    public void send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
 
         if (!isAvailable()) {
@@ -281,17 +281,10 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
         }
 
         final List<K> servers = findPotentialKeys(message1, message2);
-
-        // First we try and send to a server with a connection already open.
-        final String result = trySend(servers, message1, message2,
-                replyCallback);
-
-        if (result == null) {
+        if (!trySend(servers, message1, message2, replyCallback)) {
             throw new MongoDbException(
                     "Could not send the messages to any of the potential servers.");
         }
-
-        return result;
     }
 
     /**
@@ -398,18 +391,19 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      *            The second message to send, may be <code>null</code>.
      * @param reply
      *            The reply {@link Callback}.
-     * @return The server the message was sent to.
      */
-    protected String doSend(final Connection conn, final Message message1,
+    protected void doSend(final Connection conn, final Message message1,
             final Message message2, final Callback<Reply> reply) {
 
         // Use the connection for metrics etc.
         myLastUsedConnection.lazySet(conn);
 
         if (message2 == null) {
-            return conn.send(message1, reply);
+            conn.send(message1, reply);
         }
-        return conn.send(message1, message2, reply);
+        else {
+            conn.send(message1, message2, reply);
+        }
 
     }
 
@@ -561,10 +555,9 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      *            The second message to send. May be <code>null</code>.
      * @param reply
      *            The callback for the replies.
-     * @return The token for the server that the messages were sent to or
-     *         <code>null</code> if the messages could not be sent.
+     * @return The true if the message was sent.
      */
-    protected String trySend(final List<K> servers, final Message message1,
+    protected boolean trySend(final List<K> servers, final Message message1,
             final Message message2, final Callback<Reply> reply) {
         for (final K server : servers) {
 
@@ -588,11 +581,12 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
             }
 
             if (conn != null) {
-                return doSend(conn, message1, message2, reply);
+                doSend(conn, message1, message2, reply);
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 
     /**

@@ -8,6 +8,7 @@ package com.allanbank.mongodb.client.connection;
 import java.io.Closeable;
 import java.io.IOException;
 
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.bootstrap.BootstrapConnectionFactory;
 import com.allanbank.mongodb.client.connection.socket.SocketConnection;
@@ -46,6 +47,20 @@ public interface ConnectionFactory extends Closeable {
      * @return The type of cluster the connection factory connects to.
      */
     public ClusterType getClusterType();
+
+    /**
+     * Returns the maximum server version within the cluster.
+     * 
+     * @return The maximum server version within the cluster.
+     */
+    public Version getMaximumServerVersion();
+
+    /**
+     * Returns the minimum server version within the cluster.
+     * 
+     * @return The minimum server version within the cluster.
+     */
+    public Version getMinimumServerVersion();
 
     /**
      * Returns the reconnection strategy for the type of connections.

@@ -9,7 +9,7 @@ import static com.allanbank.mongodb.client.connection.CallbackReply.cb;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isNull;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
@@ -236,8 +236,8 @@ public class MongoIteratorTest {
         final Reply reply2 = new Reply(0, 0, 0, myDocs, false, false, false,
                 false);
 
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
-                .andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        expectLastCall();
 
         replay(mockClient);
 
@@ -283,8 +283,8 @@ public class MongoIteratorTest {
                 false);
         final Reply reply2 = new Reply(0, 0, 0, empty, false, true, false,
                 false);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
-                .andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        expectLastCall();
 
         replay(mockClient);
 
@@ -330,10 +330,10 @@ public class MongoIteratorTest {
         final Reply reply3 = new Reply(0, 0, 0, empty, false, false, false,
                 false);
 
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
-                .andReturn(myAddress);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply3)))
-                .andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        expectLastCall();
+        mockClient.send(anyObject(GetMore.class), cb(reply3));
+        expectLastCall();
 
         replay(mockClient);
 
@@ -369,8 +369,8 @@ public class MongoIteratorTest {
                 false);
         final Reply reply2 = new Reply(0, 0, 0, empty, false, false, true,
                 false);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
-                .andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        expectLastCall();
 
         replay(mockClient);
 
@@ -410,12 +410,10 @@ public class MongoIteratorTest {
         final Client mockClient = createMock(Client.class);
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
-        expect(
-                mockClient.send(anyObject(GetMore.class),
-                        anyObject(Callback.class))).andReturn(myAddress);
-        expect(
-                mockClient.send(anyObject(KillCursors.class),
-                        isNull(Callback.class))).andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), anyObject(Callback.class));
+        expectLastCall();
+        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        expectLastCall();
 
         replay(mockClient);
 
@@ -497,9 +495,8 @@ public class MongoIteratorTest {
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        expect(
-                mockClient.send(anyObject(KillCursors.class),
-                        isNull(Callback.class))).andReturn(myAddress);
+        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        expectLastCall();
 
         replay(mockClient);
 
@@ -523,11 +520,10 @@ public class MongoIteratorTest {
         final Reply reply2 = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
-                .andReturn(myAddress);
-        expect(
-                mockClient.send(anyObject(KillCursors.class),
-                        isNull(Callback.class))).andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        expectLastCall();
+        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        expectLastCall();
 
         replay(mockClient);
 
@@ -603,9 +599,8 @@ public class MongoIteratorTest {
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        expect(
-                mockClient.send(anyObject(KillCursors.class),
-                        isNull(Callback.class))).andReturn(myAddress);
+        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        expectLastCall();
 
         replay(mockClient);
 
@@ -773,21 +768,21 @@ public class MongoIteratorTest {
         final Reply reply2 = new Reply(0, 1234, 0, myDocs, false, false, false,
                 false);
 
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
-                .andReturn(myAddress).times(100);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
-                .andReturn(myAddress);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
-                .andReturn(myAddress).times(100);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
-                .andReturn(myAddress); // To load data for the last assertTrue
-                                       // hasNext.
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
-                .andReturn(myAddress); // Request for more data after reading
-                                       // the last batch.
-        expect(
-                mockClient.send(anyObject(KillCursors.class),
-                        (Callback<Reply>) isNull())).andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), cb(reply0));
+        expectLastCall().times(100);
+        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        expectLastCall();
+        mockClient.send(anyObject(GetMore.class), cb(reply0));
+        expectLastCall().times(100);
+        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        expectLastCall(); // To load data for the last assertTrue
+        // hasNext.
+        mockClient.send(anyObject(GetMore.class), cb(reply0));
+        expectLastCall(); // Request for more data after reading
+        // the last batch.
+        mockClient.send(anyObject(KillCursors.class),
+                (Callback<Reply>) isNull());
+        expectLastCall();
 
         replay(mockClient);
 
@@ -842,21 +837,21 @@ public class MongoIteratorTest {
         final Reply reply2 = new Reply(0, 1234, 0, myDocs, false, false, false,
                 false);
 
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
-                .andReturn(myAddress).times(1000000);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
-                .andReturn(myAddress);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
-                .andReturn(myAddress).times(100);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
-                .andReturn(myAddress); // To load data for the last assertTrue
-                                       // hasNext.
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
-                .andReturn(myAddress); // Request for more data after reading
-                                       // the last batch.
-        expect(
-                mockClient.send(anyObject(KillCursors.class),
-                        (Callback<Reply>) isNull())).andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), cb(reply0));
+        expectLastCall().times(1000000);
+        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        expectLastCall();
+        mockClient.send(anyObject(GetMore.class), cb(reply0));
+        expectLastCall().times(100);
+        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        expectLastCall(); // To load data for the last assertTrue
+        // hasNext.
+        mockClient.send(anyObject(GetMore.class), cb(reply0));
+        expectLastCall(); // Request for more data after reading
+        // the last batch.
+        mockClient.send(anyObject(KillCursors.class),
+                (Callback<Reply>) isNull());
+        expectLastCall();
 
         replay(mockClient);
 
@@ -912,14 +907,14 @@ public class MongoIteratorTest {
         final Reply replyDone = new Reply(0, 0, 0, empty, false, false, false,
                 false);
 
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
-                .andReturn(myAddress).times(100);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply2)))
-                .andReturn(myAddress);
-        expect(mockClient.send(anyObject(GetMore.class), cb(reply0)))
-                .andReturn(myAddress).times(100);
-        expect(mockClient.send(anyObject(GetMore.class), cb(replyDone)))
-                .andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), cb(reply0));
+        expectLastCall().times(100);
+        mockClient.send(anyObject(GetMore.class), cb(reply2));
+        expectLastCall();
+        mockClient.send(anyObject(GetMore.class), cb(reply0));
+        expectLastCall().times(100);
+        mockClient.send(anyObject(GetMore.class), cb(replyDone));
+        expectLastCall();
 
         replay(mockClient);
 

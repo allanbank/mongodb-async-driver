@@ -213,10 +213,10 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public String send(final Message message,
-            final Callback<Reply> replyCallback) throws MongoDbException {
+    public void send(final Message message, final Callback<Reply> replyCallback)
+            throws MongoDbException {
         try {
-            return myProxiedConnection.send(message, replyCallback);
+            myProxiedConnection.send(message, replyCallback);
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -231,10 +231,10 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public String send(final Message message1, final Message message2,
+    public void send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
         try {
-            return myProxiedConnection.send(message1, message2, replyCallback);
+            myProxiedConnection.send(message1, message2, replyCallback);
         }
         catch (final MongoDbException error) {
             onExceptin(error);

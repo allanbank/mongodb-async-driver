@@ -7,7 +7,7 @@ package com.allanbank.mongodb.client.connection.auth;
 
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.Matchers.instanceOf;
@@ -59,12 +59,11 @@ public class MongoDbAuthenticatorTest {
 
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(
-                mockConnection.send(capture(getNonceCapture),
-                        capture(getNonceReplyCapture))).andReturn("foo");
-        expect(
-                mockConnection.send(capture(authCapture),
-                        capture(authReplyCapture))).andReturn("foo");
+        mockConnection.send(capture(getNonceCapture),
+                capture(getNonceReplyCapture));
+        expectLastCall();
+        mockConnection.send(capture(authCapture), capture(authReplyCapture));
+        expectLastCall();
 
         replay(mockConnection);
 
@@ -137,12 +136,11 @@ public class MongoDbAuthenticatorTest {
 
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(
-                mockConnection.send(capture(getNonceCapture),
-                        capture(getNonceReplyCapture))).andReturn("foo");
-        expect(
-                mockConnection.send(capture(authCapture),
-                        capture(authReplyCapture))).andReturn("foo");
+        mockConnection.send(capture(getNonceCapture),
+                capture(getNonceReplyCapture));
+        expectLastCall();
+        mockConnection.send(capture(authCapture), capture(authReplyCapture));
+        expectLastCall();
 
         replay(mockConnection);
 
@@ -213,9 +211,9 @@ public class MongoDbAuthenticatorTest {
 
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(
-                mockConnection.send(capture(getNonceCapture),
-                        capture(getNonceReplyCapture))).andReturn("foo");
+        mockConnection.send(capture(getNonceCapture),
+                capture(getNonceReplyCapture));
+        expectLastCall();
 
         replay(mockConnection);
 
@@ -270,9 +268,9 @@ public class MongoDbAuthenticatorTest {
 
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(
-                mockConnection.send(capture(getNonceCapture),
-                        capture(getNonceReplyCapture))).andReturn("foo");
+        mockConnection.send(capture(getNonceCapture),
+                capture(getNonceReplyCapture));
+        expectLastCall();
 
         replay(mockConnection);
 
@@ -326,9 +324,9 @@ public class MongoDbAuthenticatorTest {
 
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(
-                mockConnection.send(capture(getNonceCapture),
-                        capture(getNonceReplyCapture))).andReturn("foo");
+        mockConnection.send(capture(getNonceCapture),
+                capture(getNonceReplyCapture));
+        expectLastCall();
 
         replay(mockConnection);
 
@@ -384,12 +382,11 @@ public class MongoDbAuthenticatorTest {
 
         final Connection mockConnection = createMock(Connection.class);
 
-        expect(
-                mockConnection.send(capture(getNonceCapture),
-                        capture(getNonceReplyCapture))).andReturn("foo");
-        expect(
-                mockConnection.send(capture(authCapture),
-                        capture(authReplyCapture))).andReturn("foo");
+        mockConnection.send(capture(getNonceCapture),
+                capture(getNonceReplyCapture));
+        expectLastCall();
+        mockConnection.send(capture(authCapture), capture(authReplyCapture));
+        expectLastCall();
 
         replay(mockConnection);
 

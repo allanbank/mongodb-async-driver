@@ -9,6 +9,7 @@ import static com.allanbank.mongodb.client.connection.CallbackReply.cb;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertNull;
@@ -20,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -45,25 +44,6 @@ public class SimpleReconnectStrategyTest {
     /** Update document to mark servers as the primary. */
     private static final Document PRIMARY_UPDATE = new ImmutableDocument(
             BuilderFactory.start().add("ismaster", true));
-
-    /** The address for the test. */
-    private String myAddress = null;
-
-    /**
-     * Creates the basic test objects.
-     */
-    @Before
-    public void setUp() {
-        myAddress = "localhost:27017";
-    }
-
-    /**
-     * Cleans up the test.
-     */
-    @After
-    public void tearDown() {
-        myAddress = null;
-    }
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
@@ -94,10 +74,9 @@ public class SimpleReconnectStrategyTest {
         expect(mockFactory.connect(server, config))
                 .andReturn(mockNewConnection);
 
-        expect(
-                mockNewConnection.send(anyObject(IsMaster.class),
-                        cb(BuilderFactory.start(PRIMARY_UPDATE)))).andReturn(
-                myAddress);
+        mockNewConnection.send(anyObject(IsMaster.class),
+                cb(BuilderFactory.start(PRIMARY_UPDATE)));
+        expectLastCall();
 
         replay(mockOldConnection, mockNewConnection, mockFactory, mockSelector);
 
@@ -136,10 +115,9 @@ public class SimpleReconnectStrategyTest {
         expect(mockOldConnection.getServerName()).andReturn("foo:27017");
         expect(mockFactory.connect(server, config))
                 .andReturn(mockNewConnection);
-        expect(
-                mockNewConnection.send(anyObject(IsMaster.class),
-                        cb(BuilderFactory.start(PRIMARY_UPDATE)))).andReturn(
-                myAddress);
+        mockNewConnection.send(anyObject(IsMaster.class),
+                cb(BuilderFactory.start(PRIMARY_UPDATE)));
+        expectLastCall();
 
         replay(mockOldConnection, mockNewConnection, mockFactory, mockSelector);
 
@@ -224,10 +202,9 @@ public class SimpleReconnectStrategyTest {
         expect(mockFactory.connect(server, config))
                 .andReturn(mockNewConnection);
 
-        expect(
-                mockNewConnection.send(anyObject(ServerStatus.class),
-                        cb(BuilderFactory.start(PRIMARY_UPDATE)))).andReturn(
-                myAddress);
+        mockNewConnection.send(anyObject(ServerStatus.class),
+                cb(BuilderFactory.start(PRIMARY_UPDATE)));
+        expectLastCall();
 
         replay(mockOldConnection, mockNewConnection, mockFactory, mockSelector);
 
@@ -273,10 +250,9 @@ public class SimpleReconnectStrategyTest {
                 Collections.singletonList(server));
         expect(mockFactory.connect(server, config))
                 .andReturn(mockNewConnection);
-        expect(
-                mockNewConnection.send(anyObject(ServerStatus.class),
-                        cb(new MongoDbException("Injected")))).andReturn(
-                myAddress);
+        mockNewConnection.send(anyObject(ServerStatus.class),
+                cb(new MongoDbException("Injected")));
+        expectLastCall();
 
         mockNewConnection.close();
 

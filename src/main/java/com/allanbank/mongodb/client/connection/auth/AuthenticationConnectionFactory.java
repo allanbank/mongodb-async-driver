@@ -8,6 +8,7 @@ package com.allanbank.mongodb.client.connection.auth;
 import java.io.IOException;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
@@ -96,6 +97,26 @@ public class AuthenticationConnectionFactory implements
     @Override
     public ClusterType getClusterType() {
         return myProxiedConnectionFactory.getClusterType();
+    }
+
+    /**
+     * Returns the maximum server version within the cluster.
+     * 
+     * @return The maximum server version within the cluster.
+     */
+    @Override
+    public Version getMaximumServerVersion() {
+        return myProxiedConnectionFactory.getMaximumServerVersion();
+    }
+
+    /**
+     * Returns the minimum server version within the cluster.
+     * 
+     * @return The minimum server version within the cluster.
+     */
+    @Override
+    public Version getMinimumServerVersion() {
+        return myProxiedConnectionFactory.getMinimumServerVersion();
     }
 
     /**

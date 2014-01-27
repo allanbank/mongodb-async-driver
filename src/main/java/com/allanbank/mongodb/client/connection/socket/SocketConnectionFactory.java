@@ -175,6 +175,26 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     }
 
     /**
+     * Returns the maximum server version within the cluster.
+     * 
+     * @return The maximum server version within the cluster.
+     */
+    @Override
+    public Version getMaximumServerVersion() {
+        return myState.getMaximumServerVersion();
+    }
+
+    /**
+     * Returns the minimum server version within the cluster.
+     * 
+     * @return The minimum server version within the cluster.
+     */
+    @Override
+    public Version getMinimumServerVersion() {
+        return myState.getMinimumServerVersion();
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to return a {@link SimpleReconnectStrategy}.

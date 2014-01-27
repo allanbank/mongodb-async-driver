@@ -8,6 +8,8 @@ package com.allanbank.mongodb;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 
+import com.allanbank.mongodb.client.callback.AddressAware;
+
 /**
  * AnswerCallback provides the ability to provide replies to callbacks.
  * 
@@ -122,6 +124,9 @@ public class AnswerCallback<R> implements IArgumentMatcher {
     @SuppressWarnings("unchecked")
     @Override
     public boolean matches(final Object argument) {
+        if (argument instanceof AddressAware) {
+            ((AddressAware) argument).setAddress("localhost:27017");
+        }
         if (argument instanceof Callback<?>) {
             if (myError != null) {
                 ((Callback<R>) argument).exception(myError);

@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.StringElement;
@@ -182,6 +183,26 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     @Override
     public ClusterType getClusterType() {
         return getDelegate().getClusterType();
+    }
+
+    /**
+     * Returns the maximum server version within the cluster.
+     * 
+     * @return The maximum server version within the cluster.
+     */
+    @Override
+    public Version getMaximumServerVersion() {
+        return getDelegate().getMaximumServerVersion();
+    }
+
+    /**
+     * Returns the minimum server version within the cluster.
+     * 
+     * @return The minimum server version within the cluster.
+     */
+    @Override
+    public Version getMinimumServerVersion() {
+        return getDelegate().getMinimumServerVersion();
     }
 
     /**

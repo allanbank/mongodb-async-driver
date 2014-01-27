@@ -45,9 +45,6 @@ import com.allanbank.mongodb.client.message.Reply;
  */
 public class MongoClientImplTest {
 
-    /** The address for the test. */
-    private String myAddress = null;
-
     /** The client the collection interacts with. */
     private Client myMockClient = null;
 
@@ -62,7 +59,6 @@ public class MongoClientImplTest {
         myMockClient = EasyMock.createMock(Client.class);
 
         myTestInstance = new MongoClientImpl(myMockClient);
-        myAddress = "localhost:21017";
     }
 
     /**
@@ -73,7 +69,6 @@ public class MongoClientImplTest {
         myMockClient = null;
 
         myTestInstance = null;
-        myAddress = null;
     }
 
     /**
@@ -150,8 +145,8 @@ public class MongoClientImplTest {
 
         expect(myMockClient.getConfig()).andReturn(
                 new MongoClientConfiguration());
-        expect(myMockClient.send(eq(message), callback(reply(reply.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(reply.build())));
+        expectLastCall();
 
         replay();
 
@@ -178,8 +173,8 @@ public class MongoClientImplTest {
 
         expect(myMockClient.getConfig()).andReturn(
                 new MongoClientConfiguration());
-        expect(myMockClient.send(eq(message), callback(reply(reply.build()))))
-                .andReturn(myAddress);
+        myMockClient.send(eq(message), callback(reply(reply.build())));
+        expectLastCall();
 
         replay();
 

@@ -18,6 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
@@ -47,6 +48,12 @@ public class Cluster {
 
     /** The property name for if there is a writable server. */
     public static final String WRITABLE_PROP = "writable";
+
+    /** The maximum server version within the cluster. */
+    protected Version myMaximumServerVersion;
+
+    /** The minimum server version within the cluster. */
+    protected Version myMinimumServerVersion;
 
     /** The complete list of servers. */
     protected final ConcurrentMap<String, Server> myServers;
@@ -79,6 +86,8 @@ public class Cluster {
         myWritableServers = new CopyOnWriteArrayList<Server>();
         myNonWritableServers = new CopyOnWriteArrayList<Server>();
         myListener = new ServerListener();
+        myMaximumServerVersion = Version.parse("0");
+        myMinimumServerVersion = myMaximumServerVersion;
     }
 
     /**
@@ -199,6 +208,24 @@ public class Cluster {
      */
     public Server get(final String address) {
         return add(address);
+    }
+
+    /**
+     * Returns the maximum server version within the cluster.
+     * 
+     * @return The maximum server version within the cluster.
+     */
+    public Version getMaximumServerVersion() {
+        return myMaximumServerVersion;
+    }
+
+    /**
+     * Returns the minimum server version within the cluster.
+     * 
+     * @return The minimum server version within the cluster.
+     */
+    public Version getMinimumServerVersion() {
+        return myMinimumServerVersion;
     }
 
     /**
@@ -461,6 +488,22 @@ public class Cluster {
     }
 
     /**
+     * Updates the min/max versions across all servers.
+     */
+    protected void updateVersions() {
+        Version min = null;
+        Version max = null;
+
+        for (final Server server : myServers.values()) {
+            min = Version.earlier(min, server.getVersion());
+            max = Version.later(max, server.getVersion());
+        }
+
+        myMaximumServerVersion = max;
+        myMinimumServerVersion = min;
+    }
+
+    /**
      * Returns true if the server is recent enough to be queried.
      * 
      * @param secondsBehind
@@ -553,6 +596,18 @@ public class Cluster {
 
                     myChangeSupport.firePropertyChange(SERVER_PROP, server,
                             null);
+                }
+            }
+            else if (Server.VERSION_PROP.equals(propertyName)) {
+                // If the old version is either the high or low for the cluster
+                // (or the version is UNKNOWN) then recompute the high/low
+                // versions.
+                final Version old = (Version) evt.getOldValue();
+
+                if (Version.UNKNOWN.equals(old)
+                        || (myMaximumServerVersion.compareTo(old) <= 0)
+                        || (myMinimumServerVersion.compareTo(old) >= 0)) {
+                    updateVersions();
                 }
             }
         }

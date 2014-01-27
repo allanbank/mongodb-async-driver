@@ -34,7 +34,8 @@ import com.allanbank.mongodb.error.ReplyException;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class CursorStreamingCallback extends
-        AbstractValidatingReplyCallback implements MongoCursorControl {
+        AbstractValidatingReplyCallback implements MongoCursorControl,
+        AddressAware {
 
     /** The server the original request was sent to. */
     private volatile String myAddress;
@@ -286,6 +287,7 @@ public final class CursorStreamingCallback extends
      * @param address
      *            The new value for the server the original request was sent to.
      */
+    @Override
     public void setAddress(final String address) {
         myAddress = address;
         // For races make sure that the push has the server name.

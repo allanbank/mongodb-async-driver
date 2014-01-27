@@ -114,11 +114,10 @@ public interface Connection extends Closeable, Flushable {
      * @param replyCallback
      *            The callback to notify of responses to the messages. May be
      *            <code>null</code>.
-     * @return The server that was sent the request.
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public String send(Message message, Callback<Reply> replyCallback)
+    public void send(Message message, Callback<Reply> replyCallback)
             throws MongoDbException;
 
     /**
@@ -131,11 +130,10 @@ public interface Connection extends Closeable, Flushable {
      * @param replyCallback
      *            The callback to notify of responses to the {@code message2}.
      *            May be <code>null</code>.
-     * @return The server that was sent the request.
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public String send(Message message1, Message message2,
+    public void send(Message message1, Message message2,
             Callback<Reply> replyCallback) throws MongoDbException;
 
     /**

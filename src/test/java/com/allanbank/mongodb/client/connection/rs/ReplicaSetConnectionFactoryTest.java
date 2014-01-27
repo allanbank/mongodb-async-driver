@@ -497,19 +497,18 @@ public class ReplicaSetConnectionFactoryTest {
         // The request to find the cluster.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // Now the ping sweep.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
-        expect(
-                mockConnection.send(eq(new ReplicaSetStatus()),
-                        cb(replStatusBuilder))).andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
+        mockConnection.send(eq(new ReplicaSetStatus()), cb(replStatusBuilder));
+        expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();
@@ -522,16 +521,16 @@ public class ReplicaSetConnectionFactoryTest {
         // Any empty reply.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb())).andReturn(
-                serverName);
+        mockConnection.send(eq(new IsMaster()), cb());
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // Locate the primary...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
@@ -545,51 +544,49 @@ public class ReplicaSetConnectionFactoryTest {
                         return mockConnection;
                     }
                 });
-        expect(
-                mockConnection.send(eq(new IsMaster()),
-                        anyObject(Callback.class))).andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), anyObject(Callback.class));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // Locate the primary...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // Execution error.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(
-                mockConnection.send(eq(new IsMaster()), cb(new IOException(
-                        "Injected.")))).andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()),
+                cb(new IOException("Injected.")));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // Locate the primary...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // No primary field in reply.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(
-                mockConnection.send(eq(new IsMaster()),
-                        cb(start(PRIMARY_UPDATE)))).andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(start(PRIMARY_UPDATE)));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // Locate the primary...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
@@ -599,8 +596,8 @@ public class ReplicaSetConnectionFactoryTest {
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
         expect(mockConnection.getServerName()).andReturn(serverName);
 
         // A clean close.
@@ -725,19 +722,18 @@ public class ReplicaSetConnectionFactoryTest {
         // The request to find the cluster.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // Now the ping sweep.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
-        expect(
-                mockConnection.send(eq(new ReplicaSetStatus()),
-                        cb(replStatusBuilder))).andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
+        mockConnection.send(eq(new ReplicaSetStatus()), cb(replStatusBuilder));
+        expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();
@@ -840,20 +836,19 @@ public class ReplicaSetConnectionFactoryTest {
         // The request to find the cluster.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(
-                mockConnection.send(eq(new IsMaster()), cb(new IOException(
-                        "Injected.")))).andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()),
+                cb(new IOException("Injected.")));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // Now the ping sweep.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
-        expect(
-                mockConnection.send(eq(new ReplicaSetStatus()),
-                        cb(replStatusBuilder))).andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
+        mockConnection.send(eq(new ReplicaSetStatus()), cb(replStatusBuilder));
+        expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();
@@ -972,20 +967,18 @@ public class ReplicaSetConnectionFactoryTest {
         // The request to find the cluster.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(
-                mockConnection.send(eq(new IsMaster()),
-                        anyObject(Callback.class))).andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), anyObject(Callback.class));
+        expectLastCall();
         mockConnection.close();
         expectLastCall();
 
         // Now the ping sweep.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        expect(mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder)))
-                .andReturn(serverName);
-        expect(
-                mockConnection.send(eq(new ReplicaSetStatus()),
-                        cb(replStatusBuilder))).andReturn(serverName);
+        mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
+        expectLastCall();
+        mockConnection.send(eq(new ReplicaSetStatus()), cb(replStatusBuilder));
+        expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();

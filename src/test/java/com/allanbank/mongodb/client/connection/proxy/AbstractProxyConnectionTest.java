@@ -651,15 +651,14 @@ public class AbstractProxyConnectionTest {
      */
     @Test
     public void testSendCallbackOfReplyMessageArray() throws IOException {
-        final String address = "localhost:27017";
-
         final Message msg = new Delete("db", "collection", EMPTY_DOC, true);
         final FutureCallback<Reply> callback = new FutureCallback<Reply>();
 
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        expect(mockConnetion.send(msg, callback)).andReturn(address);
+        mockConnetion.send(msg, callback);
+        expectLastCall();
 
         mockConnetion.close();
         expectLastCall();
@@ -722,15 +721,14 @@ public class AbstractProxyConnectionTest {
      */
     @Test
     public void testSendMessageArray() throws IOException {
-        final String address = "localhost:27017";
-
         final Message msg = new Delete("db", "collection", EMPTY_DOC, true);
         final GetLastError msg2 = new GetLastError("db", Durability.ACK);
 
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        expect(mockConnetion.send(msg, msg2, null)).andReturn(address);
+        mockConnetion.send(msg, msg2, null);
+        expectLastCall();
 
         mockConnetion.close();
         expectLastCall();

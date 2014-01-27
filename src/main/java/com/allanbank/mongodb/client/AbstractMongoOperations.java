@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -8,9 +8,9 @@ package com.allanbank.mongodb.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.allanbank.mongodb.AsyncMongoCollection;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
@@ -21,12 +21,11 @@ import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.ElementType;
-import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.bson.element.BooleanElement;
+import com.allanbank.mongodb.bson.impl.EmptyDocument;
+import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.Count;
@@ -34,7 +33,6 @@ import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
-import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
@@ -51,47 +49,94 @@ import com.allanbank.mongodb.client.callback.TextCallback;
 import com.allanbank.mongodb.client.message.AggregateCommand;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
+import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.Insert;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Update;
-import com.allanbank.mongodb.util.FutureUtils;
 
 /**
- * Implementation of the {@link MongoCollection} interface.
+ * AbstractMongoOperations provides the core functionality for the operations on
+ * a MongoDB collection.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoCollectionImpl extends AbstractMongoCollection {
+public abstract class AbstractMongoOperations {
+
+    /**
+     * The default for if a delete should only delete the first document it
+     * matches.
+     */
+    public static final boolean DELETE_SINGLE_DELETE_DEFAULT = false;
+
+    /** The default empty index options. */
+    public static final Document EMPTY_INDEX_OPTIONS = EmptyDocument.INSTANCE;
 
     /** The name of the canonical id field for MongoDB. */
     public static final String ID_FIELD_NAME = "_id";
 
+    /** The default for if an insert should continue on an error. */
+    public static final boolean INSERT_CONTINUE_ON_ERROR_DEFAULT = false;
+
+    /** The default for a UNIQUE index options. */
+    public static final Document UNIQUE_INDEX_OPTIONS = new ImmutableDocument(
+            BuilderFactory.start().add("unique", true));
+
+    /** The default for doing a multiple-update on an update. */
+    public static final boolean UPDATE_MULTIUPDATE_DEFAULT = false;
+
+    /** The default for doing an upsert on an update. */
+    public static final boolean UPDATE_UPSERT_DEFAULT = false;
+
+    /** The client for interacting with MongoDB. */
+    protected final Client myClient;
+
+    /** The name of the database we interact with. */
+    protected final MongoDatabase myDatabase;
+
+    /** The name of the collection we interact with. */
+    protected final String myName;
+
+    /** The {@link Durability} for writes from this database instance. */
+    private Durability myDurability;
+
+    /** The {@link ReadPreference} for reads from this database instance. */
+    private ReadPreference myReadPreference;
+
     /**
-     * Create a new MongoDatabaseClient.
+     * Create a new AbstractAsyncMongoCollection.
      * 
      * @param client
      *            The client for interacting with MongoDB.
      * @param database
-     *            The database the collection is a part of.
+     *            The database we interact with.
      * @param name
      *            The name of the collection we interact with.
      */
-    public MongoCollectionImpl(final Client client,
+    public AbstractMongoOperations(final Client client,
             final MongoDatabase database, final String name) {
-        super(client, database, name);
+        super();
+
+        myClient = client;
+        myDatabase = database;
+        myName = name;
+        myDurability = null;
+        myReadPreference = null;
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to construct a aggregate command and send it to the server.
-     * </p>
+     * Constructs a {@code aggregate} command and sends it to the server via the
+     * {@link Client}.
      * 
-     * @see MongoCollection#aggregateAsync(Callback, Aggregate)
+     * @param results
+     *            Callback for the aggregation results returned.
+     * @param command
+     *            The details of the aggregation request.
+     * @throws MongoDbException
+     *             On an error executing the aggregate command.
+     * @see AsyncMongoCollection#aggregateAsync(Callback, Aggregate)
      */
-    @Override
     public void aggregateAsync(final Callback<MongoIterator<Document>> results,
             final Aggregate command) throws MongoDbException {
 
@@ -99,19 +144,22 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final CursorCallback callback = new CursorCallback(myClient,
                 commandMsg, true, results);
-        final String address = myClient.send(commandMsg, callback);
 
-        callback.setAddress(address);
+        myClient.send(commandMsg, callback);
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>count</code> method that implementations must
-     * override.
-     * </p>
+     * Constructs a {@code count} command and sends it to the server via the
+     * {@link Client}.
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param count
+     *            The count command.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     * @see AsyncMongoCollection#countAsync(Callback, Count)
      */
-    @Override
     public void countAsync(final Callback<Long> results, final Count count)
             throws MongoDbException {
         Version minVersion = null;
@@ -135,62 +183,29 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to insert the index document into the 'system.indexes'
-     * collection.
-     * </p>
+     * Constructs a {@link Delete} message and sends it to the server via the
+     * {@link Client}.
      * 
-     * @see MongoCollection#createIndex(String,DocumentAssignable,Element...)
+     * @param results
+     *            Callback that will be notified of the results of the query. If
+     *            the durability of the operation is NONE then this will be -1.
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param singleDelete
+     *            If true then only a single document will be deleted. If
+     *            running in a sharded environment then this field must be false
+     *            or the query must contain the shard key.
+     * @param durability
+     *            The durability for the delete.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     * @see AsyncMongoCollection#deleteAsync(Callback, DocumentAssignable,
+     *      boolean, Durability)
      */
-    @Override
-    public void createIndex(final String name,
-            final DocumentAssignable options, final Element... keys)
-            throws MongoDbException {
-
-        String indexName = name;
-        if ((name == null) || name.isEmpty()) {
-            indexName = buildIndexName(keys);
-        }
-
-        final DocumentBuilder indexEntryBuilder = BuilderFactory.start();
-        indexEntryBuilder.addString("name", indexName);
-        indexEntryBuilder.addString("ns", getDatabaseName() + "." + getName());
-
-        final DocumentBuilder keyBuilder = indexEntryBuilder.push("key");
-        for (final Element key : keys) {
-            keyBuilder.add(key);
-        }
-
-        for (final Element option : options.asDocument()) {
-            indexEntryBuilder.add(option);
-        }
-
-        final MongoCollectionImpl indexCollection = new MongoCollectionImpl(
-                myClient, myDatabase, "system.indexes");
-        final Document indexDocument = indexEntryBuilder.build();
-        if (indexCollection.findOne(indexDocument) == null) {
-
-            final Version requiredServerVersion = determineIndexServerVersion(keys);
-
-            final FutureCallback<Integer> callback = new FutureCallback<Integer>();
-            indexCollection.doInsertAsync(callback, false, Durability.ACK,
-                    requiredServerVersion, indexDocument);
-
-            FutureUtils.unwrap(callback);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@link Delete} message to the server.
-     * </p>
-     */
-    @Override
     public void deleteAsync(final Callback<Long> results,
             final DocumentAssignable query, final boolean singleDelete,
             final Durability durability) throws MongoDbException {
+
         final Delete deleteMessage = new Delete(getDatabaseName(), myName,
                 query.asDocument(), singleDelete);
 
@@ -205,12 +220,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to construct a 'distinct' command and send it to the server.
-     * </p>
+     * Constructs a {@code distinct} command and sends it to the server via the
+     * {@link Client}.
+     * 
+     * @param results
+     *            Callback for the distinct results returned.
+     * @param command
+     *            The details of the distinct request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @see AsyncMongoCollection#distinctAsync(Callback, Distinct)
      */
-    @Override
     public void distinctAsync(final Callback<MongoIterator<Element>> results,
             final Distinct command) throws MongoDbException {
 
@@ -240,51 +260,18 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to issue a { "drop" : <collection_name> } command.
-     * </p>
+     * Constructs a {@link AggregateCommand} and sends it to the server via the
+     * {@link Client}.
      * 
-     * @see MongoCollection#drop()
+     * @param aggregation
+     *            The aggregation details.
+     * @param results
+     *            Callback that will be notified of the results of the explain.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @since MongoDB 2.6
+     * @see AsyncMongoCollection#explainAsync(Callback, Aggregate)
      */
-    @Override
-    public boolean drop() {
-        final Document result = myDatabase.runCommand("drop", myName, null);
-        final List<NumericElement> okElem = result.find(NumericElement.class,
-                "ok");
-
-        return ((okElem.size() > 0) && (okElem.get(0).getIntValue() > 0));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to issue a { "deleteIndexes" : <collection_name>, index :
-     * <name> } command.
-     * </p>
-     */
-    @Override
-    public boolean dropIndex(final String name) throws MongoDbException {
-
-        final DocumentBuilder options = BuilderFactory.start();
-        options.addString("index", name);
-
-        final Document result = myDatabase.runCommand("deleteIndexes", myName,
-                options.build());
-        final List<NumericElement> okElem = result.find(NumericElement.class,
-                "ok");
-
-        return ((okElem.size() > 0) && (okElem.get(0).getIntValue() > 0));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@link AggregateCommand} message to the server to
-     * explain the {@link Aggregate}.
-     * </p>
-     */
-    @Override
     public void explainAsync(final Callback<Document> results,
             final Aggregate aggregation) throws MongoDbException {
         final AggregateCommand commandMsg = toCommand(aggregation, true);
@@ -293,13 +280,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@link Query} message to the server to explain the
-     * {@link Find}'s query.
-     * </p>
+     * Constructs a {@link Query} message and sends it to the server via the
+     * {@link Client}.
+     * 
+     * @param query
+     *            The query details.
+     * @param results
+     *            Callback that will be notified of the results of the explain.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @see AsyncMongoCollection#explainAsync(Callback, Find)
      */
-    @Override
     public void explainAsync(final Callback<Document> results, final Find query)
             throws MongoDbException {
 
@@ -328,15 +319,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send an {@link Command} findAndModify message to the
-     * server.
-     * </p>
+     * Constructs a {@code findAndModify} command and sends it to the server via
+     * the {@link Client}.
      * 
-     * @see MongoCollection#findAndModifyAsync(Callback, FindAndModify)
+     * @param results
+     *            Callback for the the found document.
+     * @param command
+     *            The details of the find and modify request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @see AsyncMongoCollection#findAndModifyAsync(Callback, FindAndModify)
      */
-    @Override
     public void findAndModifyAsync(final Callback<Document> results,
             final FindAndModify command) throws MongoDbException {
         Version minVersion = null;
@@ -375,12 +368,17 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@link Query} message to the server.
-     * </p>
+     * Constructs a {@link Query} message and sends it to the server via the
+     * {@link Client}.
+     * 
+     * @param query
+     *            The query details.
+     * @param results
+     *            Callback that will be notified of the results of the find.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @see AsyncMongoCollection#findAsync(Callback, Find)
      */
-    @Override
     public void findAsync(final Callback<MongoIterator<Document>> results,
             final Find query) throws MongoDbException {
 
@@ -390,20 +388,22 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final CursorCallback callback = new CursorCallback(myClient,
                 queryMessage, false, results);
-        final String address = myClient.send(queryMessage, callback);
 
-        callback.setAddress(address);
+        myClient.send(queryMessage, callback);
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@link Query} message to the server.
-     * </p>
+     * Constructs a {@link Query} message and sends it to the server via the
+     * {@link Client}.
      * 
-     * @see MongoCollection#findOneAsync(Callback, DocumentAssignable)
+     * @param query
+     *            The query details.
+     * @param results
+     *            Callback that will be notified of the results of the find.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @see AsyncMongoCollection#findOneAsync(Callback, Find)
      */
-    @Override
     public void findOneAsync(final Callback<Document> results, final Find query)
             throws MongoDbException {
         final Query queryMessage = createQuery(query, 1, 1, false, false, false);
@@ -412,12 +412,65 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to construct a group command and send it to the server.
-     * </p>
+     * Returns the name of the database.
+     * 
+     * @return The name of the database.
      */
-    @Override
+    public String getDatabaseName() {
+        return myDatabase.getName();
+    }
+
+    /**
+     * Returns the durability to use when no durability is specified for the
+     * write operation.
+     * 
+     * @return The durability to use when no durability is specified for the
+     *         write operation.
+     */
+    public Durability getDurability() {
+        Durability result = myDurability;
+        if (result == null) {
+            result = myDatabase.getDurability();
+        }
+        return result;
+    }
+
+    /**
+     * Returns the name of the collection.
+     * 
+     * @return The name of the collection.
+     */
+    public String getName() {
+        return myName;
+    }
+
+    /**
+     * Returns the read preference to use when no read preference is specified
+     * for the read operation.
+     * 
+     * @return The read preference to use when no read preference is specified
+     *         for the read operation.
+     */
+    public ReadPreference getReadPreference() {
+        ReadPreference result = myReadPreference;
+        if (result == null) {
+            result = myDatabase.getReadPreference();
+        }
+        return result;
+    }
+
+    /**
+     * Constructs a {@code group} command and sends it to the server via the
+     * {@link Client}.
+     * 
+     * @param results
+     *            Callback for the group results returned.
+     * @param command
+     *            The details of the group request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @see AsyncMongoCollection#groupByAsync(Callback, GroupBy)
+     */
     public void groupByAsync(final Callback<MongoIterator<Element>> results,
             final GroupBy command) throws MongoDbException {
         Version minVersion = null;
@@ -466,12 +519,28 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send an {@link Insert} message to the server.
-     * </p>
+     * Constructs a {@link Insert} message and sends it to the server via the
+     * {@link Client}.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
+     * @param continueOnError
+     *            If the insert should continue if one of the documents causes
+     *            an error.
+     * @param durability
+     *            The durability for the insert.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     * @see AsyncMongoCollection#insertAsync(Callback, boolean, Durability,
+     *      DocumentAssignable...)
      */
-    @Override
     public void insertAsync(final Callback<Integer> results,
             final boolean continueOnError, final Durability durability,
             final DocumentAssignable... documents) throws MongoDbException {
@@ -480,44 +549,18 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@code collStats} command to the MongoDB server and
-     * look for the {@code capped} field to determine if the collection is
-     * capped or not.
-     * </p>
+     * Constructs a {@code mapreduce} command and sends it to the server via the
+     * {@link Client}.
      * 
-     * @see MongoCollection#isCapped
+     * @param results
+     *            Callback for the map/reduce results returned. Note this might
+     *            be empty if the output type is not inline.
+     * @param command
+     *            The details of the map/reduce request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @see AsyncMongoCollection#mapReduceAsync(Callback, MapReduce)
      */
-    @Override
-    public boolean isCapped() throws MongoDbException {
-        final Document statistics = stats();
-
-        final NumericElement numeric = statistics.get(NumericElement.class,
-                "capped");
-        if (numeric != null) {
-            return (numeric.getIntValue() != 0);
-        }
-
-        final BooleanElement bool = statistics.get(BooleanElement.class,
-                "capped");
-        if (bool != null) {
-            return bool.getValue();
-        }
-
-        // Not found implies not capped.
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to construct a mapReduce command and send it to the server.
-     * </p>
-     * 
-     * @see MongoCollection#mapReduceAsync(Callback, MapReduce)
-     */
-    @Override
     public void mapReduceAsync(final Callback<MongoIterator<Document>> results,
             final MapReduce command) throws MongoDbException {
         Version minVersion = null;
@@ -595,12 +638,23 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to save the document.
-     * </p>
+     * Constructs a {@link Insert} of {@link Update} message based on if the
+     * document contains a {@link #ID_FIELD_NAME} and sends it to the server via
+     * the {@link Client}.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. If the durability of the operation is NONE then this
+     *            will be -1.
+     * @param document
+     *            The document to save to the collection.
+     * @param durability
+     *            The durability for the save.
+     * @throws MongoDbException
+     *             On an error saving the documents.
+     * @see AsyncMongoCollection#saveAsync(Callback, DocumentAssignable,
+     *      Durability)
      */
-    @Override
     public void saveAsync(final Callback<Integer> results,
             final DocumentAssignable document, final Durability durability)
             throws MongoDbException {
@@ -611,54 +665,77 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                     .add(doc.get(ID_FIELD_NAME)), doc, false, true, durability);
         }
         else {
-            insertAsync(results, durability, doc);
+            insertAsync(results, INSERT_CONTINUE_ON_ERROR_DEFAULT, durability,
+                    doc);
         }
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@code collStats} command to the MongoDB server.
-     * </p>
+     * Sets the durability to use when no durability is specified for the write
+     * operation.
      * 
-     * @see MongoCollection#stats
+     * @param durability
+     *            The durability to use when no durability is specified for the
+     *            write operation.
      */
-    @Override
-    public Document stats() throws MongoDbException {
-        return myDatabase.runCommand("collStats", getName(), null);
+    public void setDurability(final Durability durability) {
+        myDurability = durability;
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * This is the canonical <code>stream(Aggregation)</code> method that
-     * implementations must override.
-     * </p>
+     * Sets the read preference to use when no read preference is specified for
+     * the read operation.
      * 
-     * @see MongoCollection#stream(StreamCallback, Aggregate)
+     * @param readPreference
+     *            The read preference to use when no read preference is
+     *            specified for the read operation.
      */
-    @Override
+    public void setReadPreference(final ReadPreference readPreference) {
+        myReadPreference = readPreference;
+    }
+
+    /**
+     * Constructs a {@code aggregate} command and sends it to the server via the
+     * {@link Client}.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param aggregation
+     *            The aggregation details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @see AsyncMongoCollection#stream(StreamCallback, Aggregate)
+     */
     public MongoCursorControl stream(final StreamCallback<Document> results,
             final Aggregate aggregation) throws MongoDbException {
         final AggregateCommand commandMsg = toCommand(aggregation, false);
 
         final CursorStreamingCallback callback = new CursorStreamingCallback(
                 myClient, commandMsg, true, results);
-        final String address = myClient.send(commandMsg, callback);
 
-        callback.setAddress(address);
+        myClient.send(commandMsg, callback);
 
         return callback;
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@link Query} message to the server and setup the
-     * streaming query callback.
-     * </p>
+     * Constructs a {@link Query} message and sends it to the server via the
+     * {@link Client}.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @see AsyncMongoCollection#stream(StreamCallback, Find)
      */
-    @Override
     public MongoCursorControl stream(final StreamCallback<Document> results,
             final Find query) throws MongoDbException {
         final Query queryMessage = createQuery(query, query.getLimit(),
@@ -667,22 +744,28 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
 
         final CursorStreamingCallback callback = new CursorStreamingCallback(
                 myClient, queryMessage, false, results);
-        final String address = myClient.send(queryMessage, callback);
 
-        callback.setAddress(address);
+        myClient.send(queryMessage, callback);
 
         return callback;
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to construct a text command and send it to the server.
-     * </p>
+     * Constructs a {@code text} command and sends it to the server via the
+     * {@link Client}.
      * 
-     * @see MongoCollection#textSearchAsync(Callback, Text)
+     * @param results
+     *            Callback for the {@code text} results returned.
+     * @param command
+     *            The details of the {@code text} request.
+     * @throws MongoDbException
+     *             On an error executing the {@code text} command.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
+     *      MongoDB Text Queries</a>
+     * @since MongoDB 2.4
+     * @see AsyncMongoCollection#textSearchAsync(Callback, Text)
      */
-    @Override
     public void textSearchAsync(
             final Callback<MongoIterator<TextResult>> results,
             final Text command) throws MongoDbException {
@@ -719,12 +802,30 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send an {@link Update} message to the server.
-     * </p>
+     * Constructs a {@link Update} message and sends it to the server via the
+     * {@link Client}.
+     * 
+     * @param results
+     *            The {@link Callback} that will be notified of the number of
+     *            documents updated. If the durability of the operation is NONE
+     *            then this will be -1.
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @param multiUpdate
+     *            If true then the update is applied to all of the matching
+     *            documents, otherwise only the first document found is updated.
+     * @param upsert
+     *            If true then if no document is found then a new document is
+     *            created and updated, otherwise no operation is performed.
+     * @param durability
+     *            The durability for the update.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     * @see AsyncMongoCollection#updateAsync(Callback, DocumentAssignable,
+     *      DocumentAssignable, boolean, boolean, Durability)
      */
-    @Override
     public void updateAsync(final Callback<Long> results,
             final DocumentAssignable query, final DocumentAssignable update,
             final boolean multiUpdate, final boolean upsert,
@@ -744,73 +845,14 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@code collMod} command to the server.
-     * </p>
-     */
-    @Override
-    public Document updateOptions(final DocumentAssignable options)
-            throws MongoDbException {
-        final FutureCallback<Document> future = new FutureCallback<Document>(
-                getLockType());
-
-        final DocumentBuilder commandDoc = BuilderFactory.start();
-        commandDoc.add("collMod", getName());
-        addOptions("collMod", options, commandDoc);
-
-        myDatabase.runCommandAsync(future, commandDoc.build(),
-                Version.VERSION_2_2);
-
-        return FutureUtils.unwrap(future);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to send a {@code validate} command to the server.
-     * </p>
-     */
-    @Override
-    public Document validate(final ValidateMode mode) throws MongoDbException {
-        Document result = null;
-
-        switch (mode) {
-        case INDEX_ONLY:
-            result = myDatabase.runCommand("validate", getName(),
-                    BuilderFactory.start().add("scandata", false).build());
-            break;
-        case NORMAL:
-            result = myDatabase.runCommand("validate", getName(), null);
-            break;
-        case FULL:
-            result = myDatabase.runCommand("validate", getName(),
-                    BuilderFactory.start().add("full", true).build());
-            break;
-        }
-
-        return result;
-    }
-
-    /**
-     * Adds the options to the document builder.
+     * Converts the {@link Durability} into a {@link GetLastError} command.
      * 
-     * @param command
-     *            The command to make sure is removed from the options.
-     * @param options
-     *            The options to be added. May be <code>null</code>.
-     * @param builder
-     *            The builder to add the options to.
+     * @param durability
+     *            The {@link Durability} to convert.
+     * @return The {@link GetLastError} command.
      */
-    protected void addOptions(final String command,
-            final DocumentAssignable options, final DocumentBuilder builder) {
-        if (options != null) {
-            for (final Element element : options.asDocument()) {
-                if (!command.equals(element.getName())) {
-                    builder.add(element);
-                }
-            }
-        }
+    protected GetLastError asGetLastError(final Durability durability) {
+        return new GetLastError(getDatabaseName(), durability);
     }
 
     /**
@@ -852,35 +894,6 @@ public class MongoCollectionImpl extends AbstractMongoCollection {
                 query.getProjection(), batchSize, limit,
                 query.getNumberToSkip(), tailable, readPreference, immortal,
                 awaitData, false /* exhaust */, query.isPartialOk());
-    }
-
-    /**
-     * Determines the minimum server version required to support the provided
-     * index keys and options.
-     * 
-     * @param keys
-     *            The index keys.
-     * @return The version required for the index. May be null.
-     */
-    protected Version determineIndexServerVersion(final Element[] keys) {
-        Version result = null;
-
-        for (final Element key : keys) {
-            if (key.getType() == ElementType.STRING) {
-                final String type = key.getValueAsString();
-                if (Index.GEO_2DSPHERE_INDEX_NAME.equals(type)) {
-                    result = Version.later(result, Version.VERSION_2_4);
-                }
-                else if (Index.HASHED_INDEX_NAME.equals(type)) {
-                    result = Version.later(result, Version.VERSION_2_4);
-                }
-                else if (Index.TEXT_INDEX_NAME.equals(type)) {
-                    result = Version.later(result, Version.VERSION_2_4);
-                }
-            }
-        }
-
-        return result;
     }
 
     /**

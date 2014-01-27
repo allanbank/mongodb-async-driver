@@ -92,8 +92,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
-                .andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cb(reply));
+        expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();
@@ -139,10 +139,9 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cbAndCloseWithConn(reply, state, mockConnection)))
-                .andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class),
+                cbAndCloseWithConn(reply, state, mockConnection));
+        expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();
@@ -187,9 +186,9 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cb(new MongoDbException("Error")))).andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cb(new MongoDbException(
+                "Error")));
+        expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();
@@ -235,11 +234,10 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
-                .andReturn(address);
-        expect(
-                mockConnection.send(anyObject(ReplicaSetStatus.class),
-                        cb(reply))).andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cb(reply));
+        expectLastCall();
+        mockConnection.send(anyObject(ReplicaSetStatus.class), cb(reply));
+        expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();
@@ -322,10 +320,9 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        anyObject(ServerUpdateCallback.class))).andThrow(
-                new MongoDbException("Injected - 5"));
+        mockConnection.send(anyObject(IsMaster.class),
+                anyObject(ServerUpdateCallback.class));
+        expectLastCall().andThrow(new MongoDbException("Injected - 5"));
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();
@@ -376,9 +373,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        capture(catureReply))).andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), capture(catureReply));
+        expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
         mockConnection.close();
@@ -439,9 +435,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cbAndClose(reply))).andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
+        expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
 
@@ -479,8 +474,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(mockConnection.send(anyObject(IsMaster.class), cbAndClose()))
-                .andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cbAndClose());
+        expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
 
@@ -529,10 +524,9 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cbAndCloseWithConn(reply, state, mockConnection)))
-                .andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class),
+                cbAndCloseWithConn(reply, state, mockConnection));
+        expectLastCall();
 
         // Have to shutdown the connection since state won't accept it.
         mockConnection.shutdown(true);
@@ -585,8 +579,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
-                .andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cb(reply));
+        expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
 
@@ -631,9 +625,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cbAndClose(reply))).andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
+        expectLastCall();
 
         mockConnection.shutdown(true);
         expectLastCall();
@@ -673,9 +666,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cbAndCloseError())).andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cbAndCloseError());
+        expectLastCall();
 
         mockConnection.shutdown(true);
         expectLastCall();
@@ -728,8 +720,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
-                .andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cb(reply));
+        expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
 
@@ -738,9 +730,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cbAndClose(reply))).andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
+        expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
 
@@ -789,8 +780,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(mockConnection.send(anyObject(IsMaster.class), cb(reply)))
-                .andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cb(reply));
+        expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
 
@@ -799,9 +790,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cbAndClose(reply))).andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
+        expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
 
@@ -850,10 +840,9 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cbWithConn(reply, state, mockConnection))).andReturn(
-                address);
+        mockConnection.send(anyObject(IsMaster.class),
+                cbWithConn(reply, state, mockConnection));
+        expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
 
@@ -862,9 +851,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cbAndClose(reply))).andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
+        expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
 
@@ -937,10 +925,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        cbAndCloseError())).andAnswer(
-                throwA(new MongoDbException("Injected - 2")));
+        mockConnection.send(anyObject(IsMaster.class), cbAndCloseError());
+        expectLastCall().andThrow(new MongoDbException("Injected - 2"));
         mockConnection.shutdown(true);
         expectLastCall();
 
@@ -993,9 +979,8 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        expect(
-                mockConnection.send(anyObject(IsMaster.class),
-                        capture(catureReply))).andReturn(address);
+        mockConnection.send(anyObject(IsMaster.class), capture(catureReply));
+        expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
 

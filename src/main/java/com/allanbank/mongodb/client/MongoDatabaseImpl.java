@@ -125,14 +125,14 @@ public class MongoDatabaseImpl implements MongoDatabase {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to create a new {@link MongoCollectionImpl}.
+     * Overridden to create a new {@link SynchronousMongoCollectionImpl}.
      * </p>
      * 
      * @see MongoDatabase#getCollection(String)
      */
     @Override
     public MongoCollection getCollection(final String name) {
-        return new MongoCollectionImpl(myClient, this, name);
+        return new SynchronousMongoCollectionImpl(myClient, this, name);
     }
 
     /**
@@ -227,8 +227,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
         final CursorCallback callback = new CursorCallback(myClient, query,
                 false, iterFuture);
 
-        final String addr = myClient.send(query, callback);
-        callback.setAddress(addr);
+        myClient.send(query, callback);
 
         final List<String> names = new ArrayList<String>();
         final Iterator<Document> iter = FutureUtils.unwrap(iterFuture);

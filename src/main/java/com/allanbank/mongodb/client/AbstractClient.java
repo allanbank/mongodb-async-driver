@@ -55,12 +55,12 @@ public abstract class AbstractClient implements Client {
      * </p>
      */
     @Override
-    public String send(final Message message,
-            final Callback<Reply> replyCallback) throws MongoDbException {
+    public void send(final Message message, final Callback<Reply> replyCallback)
+            throws MongoDbException {
 
         assertOpen(message);
 
-        return findConnection(message, null).send(message, replyCallback);
+        findConnection(message, null).send(message, replyCallback);
     }
 
     /**
@@ -71,12 +71,12 @@ public abstract class AbstractClient implements Client {
      * </p>
      */
     @Override
-    public String send(final Message message1, final Message message2,
+    public void send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
 
         assertOpen(message1);
 
-        return findConnection(message1, message2).send(message1, message2,
+        findConnection(message1, message2).send(message1, message2,
                 replyCallback);
     }
 

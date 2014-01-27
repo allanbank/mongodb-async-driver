@@ -208,9 +208,9 @@ public final class GeoJson {
      * Helper method to construct a {@link Point2D} from the (x, y) coordinates.
      * 
      * @param x
-     *            The point's x position
+     *            The point's x position or longitude.
      * @param y
-     *            The point's y position
+     *            The point's y position or latitude.
      * @return A Point for the coordinates provided.
      */
     public static Point2D p(final double x, final double y) {
@@ -221,9 +221,9 @@ public final class GeoJson {
      * Helper method to construct a {@link Point} from the (x, y) coordinates.
      * 
      * @param x
-     *            The point's x position
+     *            The point's x position or longitude.
      * @param y
-     *            The point's y position
+     *            The point's y position or latitude.
      * @return A Point for the coordinates provided.
      */
     public static Point p(final int x, final int y) {

@@ -247,7 +247,8 @@ public class ReplicaSetConnectionTest {
         expectLastCall();
 
         expect(mockFactory.connect(s1, myConfig)).andReturn(mockConnection2);
-        expect(mockConnection2.send(q, null)).andReturn("foo");
+        mockConnection2.send(q, null);
+        expectLastCall();
 
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -271,7 +272,7 @@ public class ReplicaSetConnectionTest {
                 mockStrategy);
 
         // Open the connection.
-        assertEquals("foo", testConnection.send(q, null));
+        testConnection.send(q, null);
 
         listenerCapture.getValue().propertyChange(
                 new PropertyChangeEvent(mockConnection,
@@ -342,7 +343,8 @@ public class ReplicaSetConnectionTest {
                 new IOException("Oops.")).times(0, 1);
 
         expect(mockFactory.connect(s6, myConfig)).andReturn(mockConnection2);
-        expect(mockConnection2.send(q, null)).andReturn("foo");
+        mockConnection2.send(q, null);
+        expectLastCall();
 
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -360,7 +362,7 @@ public class ReplicaSetConnectionTest {
                 null);
 
         // Open the connection.
-        assertEquals("foo", testConnection.send(q, null));
+        testConnection.send(q, null);
 
         // Give the s6 server the same name as once of the other servers.
         // That will cause the connection to be shutdown.
@@ -429,7 +431,8 @@ public class ReplicaSetConnectionTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection2.send(q, null)).andReturn("foo");
+        mockConnection2.send(q, null);
+        expectLastCall();
 
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -452,7 +455,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig,
                 null);
 
-        assertEquals("foo", testConnection.send(q, null));
+        testConnection.send(q, null);
 
         testConnection.close();
 
@@ -504,7 +507,8 @@ public class ReplicaSetConnectionTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection2.send(q, null)).andReturn("foo");
+        mockConnection2.send(q, null);
+        expectLastCall();
 
         mockConnection.flush();
         expectLastCall();
@@ -532,7 +536,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig,
                 null);
 
-        assertEquals("foo", testConnection.send(q, null));
+        testConnection.send(q, null);
 
         testConnection.flush();
         testConnection.close();
@@ -585,7 +589,8 @@ public class ReplicaSetConnectionTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection2.send(q, null)).andReturn("foo");
+        mockConnection2.send(q, null);
+        expectLastCall();
 
         mockConnection.flush();
         expectLastCall();
@@ -613,7 +618,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig,
                 null);
 
-        assertEquals("foo", testConnection.send(q, null));
+        testConnection.send(q, null);
 
         testConnection.flush();
         testConnection.close();
@@ -674,8 +679,8 @@ public class ReplicaSetConnectionTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         expect(mockConnection.isAvailable()).andReturn(true);
-        expect(mockConnection.send(eq(msg), isNull(Callback.class))).andReturn(
-                "foo");
+        mockConnection.send(eq(msg), isNull(Callback.class));
+        expectLastCall();
         mockConnection
                 .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
@@ -688,7 +693,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig,
                 null);
 
-        assertEquals("foo", testConnection.send(msg, null));
+        testConnection.send(msg, null);
 
         testConnection.close();
 
@@ -714,8 +719,8 @@ public class ReplicaSetConnectionTest {
         expectLastCall();
 
         expect(mockConnection.isAvailable()).andReturn(true);
-        expect(mockConnection.send(eq(msg), eq(msg), isNull(Callback.class)))
-                .andReturn("foo");
+        mockConnection.send(eq(msg), eq(msg), isNull(Callback.class));
+        expectLastCall();
 
         mockConnection
                 .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -729,7 +734,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig,
                 null);
 
-        assertEquals("foo", testConnection.send(msg, msg, null));
+        testConnection.send(msg, msg, null);
 
         testConnection.close();
 
@@ -924,7 +929,8 @@ public class ReplicaSetConnectionTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection2.send(q, q, null)).andReturn("foo");
+        mockConnection2.send(q, q, null);
+        expectLastCall();
 
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -947,7 +953,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig,
                 null);
 
-        assertEquals("foo", testConnection.send(q, q, null));
+        testConnection.send(q, q, null);
 
         testConnection.close();
 
@@ -1059,7 +1065,8 @@ public class ReplicaSetConnectionTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection2.send(q, null)).andReturn("foo");
+        mockConnection2.send(q, null);
+        expectLastCall();
 
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -1082,7 +1089,7 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig,
                 null);
 
-        assertEquals("foo", testConnection.send(q, null));
+        testConnection.send(q, null);
 
         testConnection.close();
 
@@ -1136,9 +1143,11 @@ public class ReplicaSetConnectionTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection2.send(q, null)).andReturn("foo");
+        mockConnection2.send(q, null);
+        expectLastCall();
         expect(mockConnection2.isAvailable()).andReturn(true);
-        expect(mockConnection2.send(q, null)).andReturn("bar");
+        mockConnection2.send(q, null);
+        expectLastCall();
 
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -1161,8 +1170,8 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig,
                 null);
 
-        assertEquals("foo", testConnection.send(q, null));
-        assertEquals("bar", testConnection.send(q, null));
+        testConnection.send(q, null);
+        testConnection.send(q, null);
 
         testConnection.close();
 
@@ -1218,7 +1227,8 @@ public class ReplicaSetConnectionTest {
         mockConnection2
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
-        expect(mockConnection2.send(q, null)).andReturn("foo");
+        mockConnection2.send(q, null);
+        expectLastCall();
 
         // Second message.
         expect(mockConnection2.isAvailable()).andReturn(false);
@@ -1235,7 +1245,8 @@ public class ReplicaSetConnectionTest {
         mockConnection2.shutdown(true);
         expectLastCall();
 
-        expect(mockConnection3.send(q, null)).andReturn("bar");
+        mockConnection3.send(q, null);
+        expectLastCall();
 
         mockConnection
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -1259,8 +1270,8 @@ public class ReplicaSetConnectionTest {
                 mockConnection, myServer, myCluster, mockFactory, myConfig,
                 null);
 
-        assertEquals("foo", testConnection.send(q, null));
-        assertEquals("bar", testConnection.send(q, null));
+        testConnection.send(q, null);
+        testConnection.send(q, null);
 
         testConnection.close();
 

@@ -13,6 +13,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.client.message.Reply;
@@ -67,6 +68,20 @@ public interface Client {
     public ReadPreference getDefaultReadPreference();
 
     /**
+     * Returns the maximum server version within the cluster.
+     * 
+     * @return The maximum server version within the cluster.
+     */
+    public Version getMaximumServerVersion();
+
+    /**
+     * Returns the minimum server version within the cluster.
+     * 
+     * @return The minimum server version within the cluster.
+     */
+    public Version getMinimumServerVersion();
+
+    /**
      * Restarts an iterator that was previously saved.
      * 
      * @param cursorDocument
@@ -102,11 +117,10 @@ public interface Client {
      * @param replyCallback
      *            The callback to notify of responses to the messages. May be
      *            <code>null</code>.
-     * @return The server that was sent the request.
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public String send(Message message, Callback<Reply> replyCallback)
+    public void send(Message message, Callback<Reply> replyCallback)
             throws MongoDbException;
 
     /**
@@ -119,10 +133,9 @@ public interface Client {
      * @param replyCallback
      *            The callback to notify of responses to the {@code message2}.
      *            May be <code>null</code>.
-     * @return The server that was sent the request.
      * @throws MongoDbException
      *             On an error sending the message.
      */
-    public String send(Message message1, Message message2,
+    public void send(Message message1, Message message2,
             Callback<Reply> replyCallback) throws MongoDbException;
 }

@@ -15,6 +15,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -31,6 +32,7 @@ public class SerialClientImpl extends AbstractClient {
 
     /** If true then assertions have been enabled for the class. */
     protected static final boolean ASSERTIONS_ENABLED;
+
     /** The logger for the {@link SerialClientImpl}. */
     protected static final Logger LOG = Logger.getLogger(SerialClientImpl.class
             .getCanonicalName());
@@ -119,6 +121,26 @@ public class SerialClientImpl extends AbstractClient {
     @Override
     public ReadPreference getDefaultReadPreference() {
         return myDelegate.getDefaultReadPreference();
+    }
+
+    /**
+     * Returns the maximum server version within the cluster.
+     * 
+     * @return The maximum server version within the cluster.
+     */
+    @Override
+    public Version getMaximumServerVersion() {
+        return myDelegate.getMaximumServerVersion();
+    }
+
+    /**
+     * Returns the minimum server version within the cluster.
+     * 
+     * @return The minimum server version within the cluster.
+     */
+    @Override
+    public Version getMinimumServerVersion() {
+        return myDelegate.getMinimumServerVersion();
     }
 
     /**

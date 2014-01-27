@@ -8,7 +8,6 @@ package com.allanbank.mongodb.client.callback;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isNull;
 import static org.easymock.EasyMock.notNull;
@@ -150,11 +149,11 @@ public class CursorStreamingCallbackTest {
             expectLastCall();
         }
 
-        expect(mockClient.send(anyObject(Message.class), eq(qsCallback)))
-                .andReturn(myAddress);
-        expect(
-                mockClient.send(anyObject(KillCursors.class),
-                        isNull(Callback.class))).andReturn(myAddress);
+        mockClient.send(anyObject(Message.class), eq(qsCallback));
+        expectLastCall();
+
+        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        expectLastCall();
 
         replay(mockClient, mockCallback);
 
@@ -250,8 +249,9 @@ public class CursorStreamingCallbackTest {
             mockCallback.callback(doc);
             expectLastCall();
         }
-        expect(mockClient.send(anyObject(GetMore.class), eq(qsCallback)))
-                .andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), eq(qsCallback));
+        expectLastCall();
+
         for (final Document doc : myDocs) {
             mockCallback.callback(doc);
             expectLastCall();
@@ -294,10 +294,10 @@ public class CursorStreamingCallbackTest {
             mockCallback.callback(doc);
             expectLastCall();
         }
-        expect(mockClient.send(anyObject(GetMore.class), eq(qsCallback)))
-                .andReturn(myAddress);
-        expect(mockClient.send(anyObject(GetMore.class), eq(qsCallback)))
-                .andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), eq(qsCallback));
+        expectLastCall();
+        mockClient.send(anyObject(GetMore.class), eq(qsCallback));
+        expectLastCall();
         mockCallback.done();
         expectLastCall();
 
@@ -328,9 +328,8 @@ public class CursorStreamingCallbackTest {
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        expect(
-                mockClient.send(anyObject(KillCursors.class),
-                        isNull(Callback.class))).andReturn(myAddress);
+        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        expectLastCall();
 
         replay(mockClient, mockCallback);
 
@@ -509,9 +508,8 @@ public class CursorStreamingCallbackTest {
         expectLastCall();
         mockCallback.done();
         expectLastCall();
-        expect(
-                mockClient.send(anyObject(KillCursors.class),
-                        isNull(Callback.class))).andReturn(myAddress);
+        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        expectLastCall();
 
         replay(mockClient, mockCallback);
 
@@ -689,8 +687,8 @@ public class CursorStreamingCallbackTest {
             mockCallback.callback(doc);
             expectLastCall();
         }
-        expect(mockClient.send(anyObject(GetMore.class), eq(qsCallback)))
-                .andReturn(myAddress);
+        mockClient.send(anyObject(GetMore.class), eq(qsCallback));
+        expectLastCall();
         mockCallback.callback(myDocs.get(0));
         expectLastCall();
         mockCallback.callback(myDocs.get(1));
@@ -725,9 +723,8 @@ public class CursorStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        expect(
-                mockClient.send(anyObject(KillCursors.class),
-                        isNull(Callback.class))).andReturn(myAddress);
+        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        expectLastCall();
 
         replay(mockClient, mockCallback);
 

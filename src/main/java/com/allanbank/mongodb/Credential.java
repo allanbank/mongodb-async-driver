@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import com.allanbank.mongodb.client.connection.auth.Authenticator;
+import com.allanbank.mongodb.client.connection.auth.MongoDbAuthenticator;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**
@@ -57,18 +58,29 @@ public final class Credential implements Serializable {
      */
     public static final String KERBEROS;
 
-    /** Constant for traditional MongoDB Chllenge/Response. */
+    /** Constant for traditional MongoDB Challenge/Response. */
     public static final String MONGODB_CR;
 
     /** An empty password array. */
     public static final char[] NO_PASSWORD = new char[0];
+
+    /** Constant for PLAIN SASL. */
+    public static final String PLAIN_SASL;
+
+    /**
+     * Constant for authentication using X.509 client certificates passed at
+     * connection establishment.
+     */
+    public static final String X509;
 
     /** Serialization version of the class. */
     private static final long serialVersionUID = -6251469373336569336L;
 
     static {
         KERBEROS = "com.allanbank.mongodb.extensions.authentication.KerberosAuthenticator";
-        MONGODB_CR = "com.allanbank.mongodb.client.connection.auth.MongoDbAuthenticator";
+        MONGODB_CR = MongoDbAuthenticator.class.getName();
+        PLAIN_SASL = "com.allanbank.mongodb.extensions.authentication.PlainSaslAuthenticator";
+        X509 = "com.allanbank.mongodb.extensions.authentication.X509Authenticator";
     }
 
     /**
@@ -454,7 +466,7 @@ public final class Credential implements Serializable {
          * setAuthenticationType(KERBEROS)}.
          * </p>
          * <p>
-         * <em>Note:</em> Use of the Kerberos for authentication requires the
+         * <em>Note:</em> Use of Kerberos for authentication requires the
          * driver's extensions. See the <a href=
          * "http://www.allanbank.com/mongodb-async-driver/userguide/kerberos.html"
          * >Kerberos Usage Guide</a> for details.
@@ -496,6 +508,30 @@ public final class Credential implements Serializable {
          */
         public Builder password(final char[] password) {
             return setPassword(password);
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
+         * should be used with to PLAIN SASL.
+         * <p>
+         * This method delegates to {@link #setAuthenticationType(String)
+         * setAuthenticationType(PLAIN_SASL)}.
+         * </p>
+         * <p>
+         * <em>Note:</em> Use of Plain SASL for authentication requires the
+         * driver's extensions. See the <a href=
+         * "http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html"
+         * >Plain SASL Usage Guide</a> for details.
+         * </p>
+         * 
+         * @see <a
+         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html">Plain
+         *      SASL Usage Guide</a>
+         * 
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder plainSasl() {
+            return setAuthenticationType(PLAIN_SASL);
         }
 
         /**
@@ -619,6 +655,31 @@ public final class Credential implements Serializable {
          */
         public Builder userName(final String userName) {
             return setUserName(userName);
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
+         * should be used with to X.509 client certificates exchanged via the
+         * TLS connection.
+         * <p>
+         * This method delegates to {@link #setAuthenticationType(String)
+         * setAuthenticationType(X509)}.
+         * </p>
+         * <p>
+         * <em>Note:</em> Use of X.509 for authentication requires the driver's
+         * extensions. See the <a href=
+         * "http://www.allanbank.com/mongodb-async-driver/userguide/tls.html">
+         * TLS Usage Guide</a> for details.
+         * </p>
+         * 
+         * @return This {@link Builder} for method chaining.
+         * 
+         * @see <a href=
+         *      "http://www.allanbank.com/mongodb-async-driver/userguide/tls.html">
+         *      TLS Usage Guide</a>
+         */
+        public Builder x509() {
+            return setAuthenticationType(X509);
         }
     }
 }

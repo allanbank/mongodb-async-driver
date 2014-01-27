@@ -12,6 +12,7 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.AddressAware;
 import com.allanbank.mongodb.client.message.BuildInfo;
 import com.allanbank.mongodb.client.message.PendingMessage;
 import com.allanbank.mongodb.client.message.PendingMessageQueue;
@@ -159,10 +160,15 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
      * {@inheritDoc}
      */
     @Override
-    public String send(final Message message,
-            final Callback<Reply> replyCallback) throws MongoDbException {
+    public void send(final Message message, final Callback<Reply> replyCallback)
+            throws MongoDbException {
 
         validate(message, null);
+
+        if (replyCallback instanceof AddressAware) {
+            ((AddressAware) replyCallback).setAddress(myServer
+                    .getCanonicalName());
+        }
 
         try {
             myToSendQueue.put(message, replyCallback);
@@ -170,18 +176,21 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
         catch (final InterruptedException e) {
             throw new MongoDbException(e);
         }
-
-        return myServer.getCanonicalName();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String send(final Message message1, final Message message2,
+    public void send(final Message message1, final Message message2,
             final Callback<Reply> replyCallback) throws MongoDbException {
 
         validate(message1, message2);
+
+        if (replyCallback instanceof AddressAware) {
+            ((AddressAware) replyCallback).setAddress(myServer
+                    .getCanonicalName());
+        }
 
         try {
             myToSendQueue.put(message1, null, message2, replyCallback);
@@ -189,8 +198,6 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
         catch (final InterruptedException e) {
             throw new MongoDbException(e);
         }
-
-        return myServer.getCanonicalName();
     }
 
     /**
