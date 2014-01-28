@@ -39,7 +39,13 @@ public final class Expressions {
     public static final String ADD = "$add";
 
     /** The {@value} operator token */
+    public static final String ALL_ELEMENTS_TRUE = "$allElementsTrue";
+
+    /** The {@value} operator token */
     public static final String AND = "$and";
+
+    /** The {@value} operator token */
+    public static final String ANY_ELEMENT_TRUE = "$anyElementTrue";
 
     /** The {@value} operator token */
     public static final String COMPARE = "$cmp";
@@ -84,6 +90,9 @@ public final class Expressions {
     public static final String LESS_THAN_OR_EQUAL = "$lte";
 
     /** The {@value} operator token */
+    public static final String LITERAL = "$literal";
+
+    /** The {@value} operator token */
     public static final String MILLISECOND = "$millisecond";
 
     /** The {@value} operator token */
@@ -109,6 +118,24 @@ public final class Expressions {
 
     /** The {@value} operator token */
     public static final String SECOND = "$second";
+
+    /** The {@value} operator token */
+    public static final String SET_DIFFERENCE = "$setDifference";
+
+    /** The {@value} operator token */
+    public static final String SET_EQUALS = "$setEquals";
+
+    /** The {@value} operator token */
+    public static final String SET_INTERSECTION = "$setIntersection";
+
+    /** The {@value} operator token */
+    public static final String SET_IS_SUBSET = "$setIsSubset";
+
+    /** The {@value} operator token */
+    public static final String SET_UNION = "$setUnion";
+
+    /** The {@value} operator token */
+    public static final String SIZE = "$size";
 
     /** The {@value} operator token */
     public static final String STRING_CASE_INSENSITIVE_COMPARE = "$strcasecmp";
@@ -143,6 +170,19 @@ public final class Expressions {
     }
 
     /**
+     * Returns a {@link UnaryExpression} {@value #ALL_ELEMENTS_TRUE} expression.
+     * 
+     * @param expression
+     *            The expression that will be evaluated to create the set to
+     *            inspect for a true element.
+     * @return The {@link UnaryExpression} {@value #ALL_ELEMENTS_TRUE}
+     *         expression.
+     */
+    public static UnaryExpression allElementsTrue(final Expression expression) {
+        return new UnaryExpression(ALL_ELEMENTS_TRUE, expression);
+    }
+
+    /**
      * Returns an {@link NaryExpression} {@value #AND} expression.
      * 
      * @param expressions
@@ -151,6 +191,19 @@ public final class Expressions {
      */
     public static NaryExpression and(final Expression... expressions) {
         return new NaryExpression(AND, expressions);
+    }
+
+    /**
+     * Returns a {@link UnaryExpression} {@value #ANY_ELEMENT_TRUE} expression.
+     * 
+     * @param expression
+     *            The expression that will be evaluated to create the set to
+     *            inspect for a true element.
+     * @return The {@link UnaryExpression} {@value #ANY_ELEMENT_TRUE}
+     *         expression.
+     */
+    public static UnaryExpression anyElementTrue(final Expression expression) {
+        return new UnaryExpression(ANY_ELEMENT_TRUE, expression);
     }
 
     /**
@@ -226,6 +279,18 @@ public final class Expressions {
      */
     public static Constant constant(final double value) {
         return new Constant(new DoubleElement("", value));
+    }
+
+    /**
+     * Returns a {@link Constant} expression wrapping the provided
+     * <tt>element</tt>.
+     * 
+     * @param element
+     *            The element value.
+     * @return The {@link Constant} expression.
+     */
+    public static Expression constant(final Element element) {
+        return new Constant(element);
     }
 
     /**
@@ -433,6 +498,19 @@ public final class Expressions {
     }
 
     /**
+     * Returns a {@link Constant} expression wrapping the <tt>value</tt> in a
+     * {@value #LITERAL} sub-document.
+     * 
+     * @param value
+     *            The constants value.
+     * @return The {@link Constant} expression.
+     */
+    public static Constant literal(final String value) {
+        return new Constant(new DocumentElement("", new StringElement(
+                "$literal", value)));
+    }
+
+    /**
      * Returns a {@link NaryExpression} {@value #LESS_THAN} expression.
      * 
      * @param lhs
@@ -599,6 +677,94 @@ public final class Expressions {
      */
     public static Element set(final String name, final Expression expression) {
         return expression.toElement(name);
+    }
+
+    /**
+     * Returns a {@link NaryExpression} {@value #SET_DIFFERENCE} expression.
+     * 
+     * @param lhs
+     *            The expression that will be evaluated to create the first set.
+     * @param rhs
+     *            The expression that will be evaluated to create the second
+     *            set.
+     * @return The {@link NaryExpression} {@value #SET_DIFFERENCE} expression.
+     */
+    public static NaryExpression setDifference(final Expression lhs,
+            final Expression rhs) {
+        return new NaryExpression(SET_DIFFERENCE, lhs, rhs);
+    }
+
+    /**
+     * Returns a {@link NaryExpression} {@value #SET_EQUALS} expression.
+     * 
+     * @param lhs
+     *            The expression that will be evaluated to create the first set.
+     * @param rhs
+     *            The expression that will be evaluated to create the second
+     *            set.
+     * @return The {@link NaryExpression} {@value #SET_EQUALS} expression.
+     */
+    public static NaryExpression setEquals(final Expression lhs,
+            final Expression rhs) {
+        return new NaryExpression(SET_EQUALS, lhs, rhs);
+    }
+
+    /**
+     * Returns a {@link NaryExpression} {@value #SET_INTERSECTION} expression.
+     * 
+     * @param lhs
+     *            The expression that will be evaluated to create the first set.
+     * @param rhs
+     *            The expression that will be evaluated to create the second
+     *            set.
+     * @return The {@link NaryExpression} {@value #SET_INTERSECTION} expression.
+     */
+    public static NaryExpression setIntersection(final Expression lhs,
+            final Expression rhs) {
+        return new NaryExpression(SET_INTERSECTION, lhs, rhs);
+    }
+
+    /**
+     * Returns a {@link NaryExpression} {@value #SET_IS_SUBSET} expression.
+     * 
+     * @param subSet
+     *            The expression that will be tested to see if it is a subset of
+     *            the {@code completeSet}.
+     * @param completeSet
+     *            The expression that will be evaluated to construct the
+     *            complete set of values.
+     * @return The {@link NaryExpression} {@value #SET_IS_SUBSET} expression.
+     */
+    public static NaryExpression setIsSubset(final Expression subSet,
+            final Expression completeSet) {
+        return new NaryExpression(SET_IS_SUBSET, subSet, completeSet);
+    }
+
+    /**
+     * Returns a {@link NaryExpression} {@value #SET_UNION} expression.
+     * 
+     * @param lhs
+     *            The expression that will be evaluated to create the first set.
+     * @param rhs
+     *            The expression that will be evaluated to create the second
+     *            set.
+     * @return The {@link NaryExpression} {@value #SET_UNION} expression.
+     */
+    public static NaryExpression setUnion(final Expression lhs,
+            final Expression rhs) {
+        return new NaryExpression(SET_UNION, lhs, rhs);
+    }
+
+    /**
+     * Returns a {@link UnaryExpression} {@value #SIZE} expression.
+     * 
+     * @param expression
+     *            The expression that will be evaluated to create the set to
+     *            inspect for a true element.
+     * @return The {@link UnaryExpression} {@value #SIZE} expression.
+     */
+    public static UnaryExpression size(final Expression expression) {
+        return new UnaryExpression(SIZE, expression);
     }
 
     /**

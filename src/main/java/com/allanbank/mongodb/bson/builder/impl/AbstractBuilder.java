@@ -64,50 +64,6 @@ public abstract class AbstractBuilder implements Builder {
         ASSERTIONS_ENABLED = AbstractBuilder.class.desiredAssertionStatus();
     }
 
-    /** The list of elements in the builder. */
-    protected final List<Element> myElements;
-
-    /** The outer scope to this builder. */
-    private final AbstractBuilder myOuterBuilder;
-
-    /**
-     * Creates a new builder.
-     * 
-     * @param outerBuilder
-     *            The outer scoped builder.
-     */
-    public AbstractBuilder(final AbstractBuilder outerBuilder) {
-        super();
-        myOuterBuilder = outerBuilder;
-        myElements = new ArrayList<Element>(32);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Builder pop() {
-        return myOuterBuilder;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Builder reset() {
-        myElements.clear();
-        return this;
-    }
-
-    /**
-     * Constructs the final form of the element being constructed.
-     * 
-     * @param name
-     *            The name of the element.
-     * @return The Element constructed by the builder.
-     */
-    protected abstract Element build(String name);
-
     /**
      * Performs type coersion on the value into the best possible element type.
      * If the coersion fails then an {@link IllegalArgumentException} is thrown.
@@ -124,7 +80,7 @@ public abstract class AbstractBuilder implements Builder {
      * @throws IllegalArgumentException
      *             If the {@code value} cannot be coerced into an element type.
      */
-    protected Element coerse(final String name, final Object value)
+    public static Element coerse(final String name, final Object value)
             throws IllegalArgumentException {
         if (value == null) {
             return new NullElement(name);
@@ -196,6 +152,50 @@ public abstract class AbstractBuilder implements Builder {
                 + value.getClass().getName()
                 + "' into a valid BSON element type.");
     }
+
+    /** The list of elements in the builder. */
+    protected final List<Element> myElements;
+
+    /** The outer scope to this builder. */
+    private final AbstractBuilder myOuterBuilder;
+
+    /**
+     * Creates a new builder.
+     * 
+     * @param outerBuilder
+     *            The outer scoped builder.
+     */
+    public AbstractBuilder(final AbstractBuilder outerBuilder) {
+        super();
+        myOuterBuilder = outerBuilder;
+        myElements = new ArrayList<Element>(32);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Builder pop() {
+        return myOuterBuilder;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Builder reset() {
+        myElements.clear();
+        return this;
+    }
+
+    /**
+     * Constructs the final form of the element being constructed.
+     * 
+     * @param name
+     *            The name of the element.
+     * @return The Element constructed by the builder.
+     */
+    protected abstract Element build(String name);
 
     /**
      * Pushes a context for constructing a sub-document.

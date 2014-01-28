@@ -20,7 +20,9 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
+import com.allanbank.mongodb.builder.expression.Expression;
 import com.allanbank.mongodb.builder.expression.Expressions;
 
 /**
@@ -775,6 +777,57 @@ public class Aggregate {
          */
         public Builder project(final DocumentAssignable projection) {
             return step("$project", projection);
+        }
+
+        /**
+         * Adds a <tt>$redact</tt> operation to potentially prune sub-documents
+         * from the results.
+         * 
+         * @param ifExpression
+         *            The expression to evaluate to determine if the current
+         *            sub-document should be pruned or not.
+         * @param thenOption
+         *            Operation to apply if the {@code ifExpression} evaluates
+         *            to true.
+         * @param elseOption
+         *            Operation to apply if the {@code ifExpression} evaluates
+         *            to false.
+         */
+        public void redact(final DocumentAssignable ifExpression,
+                final RedactOption thenOption, final RedactOption elseOption) {
+
+            final DocumentBuilder doc = BuilderFactory.start();
+            doc.push(Expressions.CONDITION)
+                    .add(new DocumentElement("if", ifExpression.asDocument()))
+                    .add("then", thenOption.getToken())
+                    .add("else", elseOption.getToken());
+
+            step("$redact", doc);
+        }
+
+        /**
+         * Adds a <tt>$redact</tt> operation to potentially prune sub-documents
+         * from the results.
+         * 
+         * @param ifExpression
+         *            The expression to evaluate to determine if the current
+         *            sub-document should be pruned or not.
+         * @param thenOption
+         *            Operation to apply if the {@code ifExpression} evaluates
+         *            to true.
+         * @param elseOption
+         *            Operation to apply if the {@code ifExpression} evaluates
+         *            to false.
+         */
+        public void redact(final Expression ifExpression,
+                final RedactOption thenOption, final RedactOption elseOption) {
+
+            final DocumentBuilder doc = BuilderFactory.start();
+            doc.push(Expressions.CONDITION).add(ifExpression.toElement("if"))
+                    .add("then", thenOption.getToken())
+                    .add("else", elseOption.getToken());
+
+            step("$redact", doc);
         }
 
         /**
