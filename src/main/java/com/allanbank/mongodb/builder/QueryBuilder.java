@@ -17,6 +17,8 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.DocumentElement;
+import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
 
 /**
@@ -199,6 +201,9 @@ public class QueryBuilder implements DocumentAssignable {
     /** The set of conditions created for the query. */
     private final Map<String, ConditionBuilder> myConditions;
 
+    /** The text search expression. */
+    private Element myTextQuery;
+
     /** The ad-hoc JavaScript condition. */
     private String myWhere;
 
@@ -229,6 +234,11 @@ public class QueryBuilder implements DocumentAssignable {
      */
     public Document build() {
         final DocumentBuilder builder = BuilderFactory.start();
+
+        if (myTextQuery != null) {
+            builder.add(myTextQuery);
+        }
+
         for (final ConditionBuilder condBuilder : myConditions.values()) {
             final Element condElement = condBuilder.buildFieldCondition();
 
@@ -250,6 +260,61 @@ public class QueryBuilder implements DocumentAssignable {
      */
     public void reset() {
         myConditions.clear();
+    }
+
+    /**
+     * Adds a text query to the query builder.
+     * <p>
+     * Only a single {@link #text} condition can be used. Calling multiple
+     * <tt>text(...)</tt> methods overwrites previous values.
+     * </p>
+     * 
+     * @param textSearchExpression
+     *            The text search expression.
+     * @return This builder for call chaining.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/tutorial/search-for-text/">Text
+     *      Search Expressions</a>
+     */
+    public QueryBuilder text(final String textSearchExpression) {
+        myTextQuery = new DocumentElement(
+                MiscellaneousOperator.TEXT.getToken(), new StringElement(
+                        MiscellaneousOperator.SEARCH_MODIFIER,
+                        textSearchExpression));
+
+        return this;
+    }
+
+    /**
+     * Adds a text query to the query builder.
+     * <p>
+     * Only a single {@link #text} condition can be used. Calling multiple
+     * <tt>text(...)</tt> methods overwrites previous values.
+     * </p>
+     * 
+     * @param textSearchExpression
+     *            The text search expression.
+     * @param language
+     *            The language of the text search expression.
+     * @return This builder for call chaining.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/tutorial/search-for-text/">Text
+     *      Search Expressions</a>
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/text/#text-search-languages">Text
+     *      Search Languages</a>
+     */
+    public QueryBuilder text(final String textSearchExpression,
+            final String language) {
+        myTextQuery = new DocumentElement(
+                MiscellaneousOperator.TEXT.getToken(), new StringElement(
+                        MiscellaneousOperator.SEARCH_MODIFIER,
+                        textSearchExpression), new StringElement(
+                        MiscellaneousOperator.LANGUAGE_MODIFIER, language));
+
+        return this;
     }
 
     /**

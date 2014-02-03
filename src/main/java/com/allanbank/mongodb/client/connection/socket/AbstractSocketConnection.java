@@ -34,6 +34,7 @@ import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
+import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.SocketConnectionListener;
 import com.allanbank.mongodb.client.message.Delete;
@@ -770,12 +771,10 @@ public abstract class AbstractSocketConnection implements Connection {
      */
     private void validateVersion(final Message message,
             final Version serverVersion) throws ServerVersionException {
-        final Version messageVersion = message.getRequiredServerVersion();
-        if ((messageVersion != null)
-                && (messageVersion.compareTo(serverVersion) > 0)) {
-
-            throw new ServerVersionException(message.getOperationName(),
-                    messageVersion, serverVersion, message);
+        final VersionRange range = message.getRequiredVersionRange();
+        if ((range != null) && !range.contains(serverVersion)) {
+            throw new ServerVersionException(message.getOperationName(), range,
+                    serverVersion, message);
         }
     }
 

@@ -49,7 +49,7 @@ public final class Index {
      * </p>
      * 
      * @param field
-     *            The field to create the
+     *            The field to create the ascending index on.
      * @return The ascending sort specification.
      */
     public static IntegerElement asc(final String field) {
@@ -64,7 +64,7 @@ public final class Index {
      * </p>
      * 
      * @param field
-     *            The field to create the
+     *            The field to create the descending index on.
      * @return The descending sort specification.
      */
     public static IntegerElement desc(final String field) {
@@ -76,7 +76,7 @@ public final class Index {
      * <tt>{ &lt;field&gt; : "2d" }</tt>.
      * 
      * @param field
-     *            The field to create the
+     *            The field to create the '2d' index on.
      * @return The 2D index specification.
      */
     public static StringElement geo2d(final String field) {
@@ -88,7 +88,7 @@ public final class Index {
      * <tt>{ &lt;field&gt; : "2dsphere" }</tt>.
      * 
      * @param field
-     *            The field to create the
+     *            The field to create the '2dsphere' index on.
      * @return The 2D Sphere index specification.
      * @since MongoDB 2.4
      */
@@ -101,7 +101,7 @@ public final class Index {
      * <tt>{ &lt;field&gt; : "geoHaystack" }</tt>.
      * 
      * @param field
-     *            The field to create the
+     *            The field to create the 'geoHaystack' index on.
      * @return The 2D Sphere index specification.
      * @see <a
      *      href="http://docs.mongodb.org/manual/applications/geohaystack/">Haystack
@@ -116,7 +116,7 @@ public final class Index {
      * <tt>{ &lt;field&gt; : "hashed" }</tt>.
      * 
      * @param field
-     *            The field to create the
+     *            The field to create the 'hashed' index on.
      * @return The 'hashed' index specification.
      * @since MongoDB 2.4
      */
@@ -136,7 +136,7 @@ public final class Index {
      * </p>
      * 
      * @param field
-     *            The field to create the
+     *            The field to create the 'text' index on.
      * @return The 'text' index specification.
      * @since MongoDB 2.4
      * @see <a

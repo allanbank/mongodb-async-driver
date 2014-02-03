@@ -9,8 +9,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.Future;
 
 import com.allanbank.mongodb.BatchedAsyncMongoCollection;
 import com.allanbank.mongodb.Callback;
@@ -55,11 +58,36 @@ public class BatchedAsyncMongoCollectionImpl extends
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to clear any pending messages without sending them to MongoDB.
+     * </p>
+     */
+    @Override
+    public void cancel() {
+        final InvocationHandler handler = Proxy.getInvocationHandler(myClient);
+        if (handler instanceof CaptureClientHandler) {
+            ((CaptureClientHandler) handler).clear();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to flush any pending messages to a real serialized client.
      * </p>
      */
     @Override
     public void close() throws MongoDbException {
+        flush();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to flush any pending messages to a real serialized client.
+     * </p>
+     */
+    @Override
+    public void flush() throws MongoDbException {
         final InvocationHandler handler = Proxy.getInvocationHandler(myClient);
         if (handler instanceof CaptureClientHandler) {
             ((CaptureClientHandler) handler).flush();
@@ -103,6 +131,26 @@ public class BatchedAsyncMongoCollectionImpl extends
         }
 
         /**
+         * Clears the pending messages without sending them to MongoDB.
+         */
+        public void clear() {
+            final List<Object[]> copy = new ArrayList<Object[]>(mySendArgs);
+            mySendArgs.clear();
+
+            for (final Object[] args : copy) {
+                final Object lastArg = args[args.length - 1];
+                if (lastArg instanceof Future<?>) {
+                    ((Future<?>) lastArg).cancel(false);
+                }
+                else if (lastArg instanceof Callback<?>) {
+                    ((Callback<?>) lastArg)
+                            .exception(new CancellationException(
+                                    "Batch request cancelled."));
+                }
+            }
+        }
+
+        /**
          * Flushes the pending messages to a serialized client.
          */
         @SuppressWarnings("unchecked")
@@ -135,7 +183,7 @@ public class BatchedAsyncMongoCollectionImpl extends
         /**
          * {@inheritDoc}
          * <p>
-         * Overriden to TODO Finish.
+         * Overridden to batch all {@link Client#send} operations.
          * </p>
          */
         @Override
@@ -160,6 +208,10 @@ public class BatchedAsyncMongoCollectionImpl extends
          */
         private List<Object[]> optimize() {
 
+            if (mySendArgs.isEmpty()) {
+                return Collections.emptyList();
+            }
+
             final Version version = myRealClient.getMinimumServerVersion();
             final boolean supportsBatch = BATCH_WRITE_VERSION
                     .compareTo(version) <= 0;
@@ -179,7 +231,7 @@ public class BatchedAsyncMongoCollectionImpl extends
                     }
                 }
                 else if (supportsBatch && (args[0] instanceof Update)) {
-                    // TODO: Implement the batch insert command.
+                    // TODO: Implement the batch update command.
                     results.add(args);
                     while (!mySendArgs.isEmpty()
                             && (mySendArgs.get(0)[0] instanceof Update)) {
@@ -189,7 +241,7 @@ public class BatchedAsyncMongoCollectionImpl extends
                     }
                 }
                 else if (supportsBatch && (args[0] instanceof Delete)) {
-                    // TODO: Implement the batch insert command.
+                    // TODO: Implement the batch delete command.
                     results.add(args);
                     while (!mySendArgs.isEmpty()
                             && (mySendArgs.get(0)[0] instanceof Delete)) {

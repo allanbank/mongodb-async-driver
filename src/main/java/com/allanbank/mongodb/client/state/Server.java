@@ -139,7 +139,7 @@ public class Server {
     private final AtomicLong myTotalLatency;
 
     /** The version of the server. */
-    private Version myVersion = Version.UNKNOWN;
+    private Version myVersion;
 
     /**
      * The socket address being actively used. This will be re-created using the
@@ -170,6 +170,8 @@ public class Server {
         myAverageLatency = Double.MAX_VALUE;
         mySecondsBehind = Double.MAX_VALUE;
         myTags = null;
+
+        myVersion = Version.UNKNOWN;
     }
 
     /**
@@ -696,6 +698,26 @@ public class Server {
         if (!versionElements.isEmpty()) {
             myVersion = Version.parse(versionElements);
             myLastVersionUpdate = System.currentTimeMillis();
+        }
+        else {
+            // Use the wire version if present.
+            final NumericElement wireVersion = buildInfoReply.findFirst(
+                    NUMERIC_TYPE, "maxWireVersion");
+            if (wireVersion != null) {
+                final Version version = Version.forWireVersion(wireVersion
+                        .getIntValue());
+
+                // Don't want to update the version if we are getting the value
+                // some other way since the wire protocol version requires
+                // interpretation and really just provides a "floor" version.
+                // Check for an unknown or lower version.
+                if (oldValue.equals(Version.UNKNOWN)
+                        || (oldValue.compareTo(version) < 0)) {
+                    myVersion = version;
+                    // Don't update the myLastVersionUpdate time so we still try
+                    // and get the precise version.
+                }
+            }
         }
 
         myEventSupport.firePropertyChange(VERSION_PROP, oldValue, myVersion);

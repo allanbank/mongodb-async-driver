@@ -414,7 +414,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
             throws MongoDbException {
         final Command commandMessage = new Command(myName,
                 command.asDocument(), ReadPreference.PRIMARY,
-                requireServerVersion);
+                VersionRange.minimum(requireServerVersion));
 
         myClient.send(commandMessage, new ReplyCommandCallback(reply));
     }

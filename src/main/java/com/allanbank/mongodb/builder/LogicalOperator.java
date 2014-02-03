@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import com.allanbank.mongodb.Version;
+
 /**
  * LogicalOperator provides the set of logical operators.
  * 
@@ -31,6 +33,9 @@ public enum LogicalOperator implements Operator {
     /** The operator's token to use when sending to the server. */
     private final String myToken;
 
+    /** The first MongoDB version to support the operator. */
+    private final Version myVersion;
+
     /**
      * Creates a new LogicalOperator.
      * 
@@ -38,7 +43,20 @@ public enum LogicalOperator implements Operator {
      *            The token to use when sending to the server.
      */
     private LogicalOperator(final String token) {
+        this(token, null);
+    }
+
+    /**
+     * Creates a new LogicalOperator.
+     * 
+     * @param token
+     *            The token to use when sending to the server.
+     * @param version
+     *            The first MongoDB version to support the operator.
+     */
+    private LogicalOperator(final String token, final Version version) {
         myToken = token;
+        myVersion = version;
     }
 
     /**
@@ -49,5 +67,17 @@ public enum LogicalOperator implements Operator {
     @Override
     public String getToken() {
         return myToken;
+    }
+
+    /**
+     * Returns the first MongoDB version to support the operator.
+     * 
+     * @return The first MongoDB version to support the operator. If
+     *         <code>null</code> then the version is not known and can be
+     *         assumed to be all currently supported versions.
+     */
+    @Override
+    public Version getVersion() {
+        return myVersion;
     }
 }

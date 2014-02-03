@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -101,6 +102,7 @@ import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GeoJson;
+import com.allanbank.mongodb.builder.GeospatialOperator;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
@@ -582,7 +584,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(Aggregate.CURSOR_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -636,7 +638,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(Aggregate.EXPLAIN_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -681,7 +683,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(Aggregate.MAX_TIMEOUT_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -862,7 +864,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(Count.MAX_TIMEOUT_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -1100,7 +1102,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(Distinct.MAX_TIMEOUT_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -1260,7 +1262,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(FindAndModify.MAX_TIMEOUT_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -1384,7 +1386,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(Find.MAX_TIMEOUT_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -1803,7 +1805,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(GroupBy.MAX_TIMEOUT_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -2130,7 +2132,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(MapReduce.MAX_TIMEOUT_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -3433,8 +3435,61 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Test method for {@link ConditionBuilder#geoWithin(DocumentAssignable)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithGeoWithinUniqueDocsFalse() {
+        final Document doc2 = Json
+                .parse("{_id: 'P2', p: {type: 'Point', coordinates: [1,1] } } )");
+        final Document doc3 = Json
+                .parse("{_id: 'Poly1', p: {type: 'Polygon', coordinates: ["
+                        + "[ [3,1], [1,2], [5,6], [9,2], [4,3], [3,1] ]] } } )");
+        final Document doc4 = Json
+                .parse("{_id: 'LS1', p: {type: 'LineString', "
+                        + "coordinates: [ [5,2], [7,3], [7,5], [9,4] ] } } )");
+
+        MongoIterator<Document> iter = null;
+        try {
+            // Will create and index the collection if it does not exist.
+            getGeoSphereCollection().insert(Durability.ACK, doc2, doc3, doc4);
+
+            iter = getGeoSphereCollection().find(
+                    where("p").geoWithin(
+                            GeoJson.polygon(Arrays.asList(p(0, 0), p(3, 0),
+                                    p(3, 3), p(0, 3), p(0, 0))), false));
+
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc2);
+
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
+            iter.close();
+        }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+        finally {
+            if (iter != null) {
+                iter.close();
+            }
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#geoWithin(DocumentAssignable)}.
+     */
+    @Test
+    public void testQueryWithGeoWithinWithMultiPointField() {
         final Document doc1 = BuilderFactory.start().add("_id", "P1")
                 .add("p", GeoJson.multiPoint(p(2, 2), p(1, 1))).build();
         final Document doc2 = Json
@@ -3455,10 +3510,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             iter = getGeoSphereCollection().find(
                     where("p").geoWithin(
                             GeoJson.polygon(Arrays.asList(p(0, 0), p(3, 0),
-                                    p(3, 3), p(0, 3), p(0, 0))), false));
+                                    p(3, 3), p(0, 3), p(0, 0)))));
 
             final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1);
             expected.add(doc1);
 
             assertTrue(iter.hasNext());
@@ -3474,13 +3528,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(GeoJson.MULTI_SUPPORT_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
         }
         catch (final ReplyException re) {
-            // See if we fail to insert the MultiPoint document.
+            // See if we failed to insert the MultiPoint document.
             assumeThat(re.getMessage(),
                     not(containsString("Can't extract geo keys from object, "
                             + "malformed geometry?:{ type: \"MultiPoint\"")));
@@ -3489,9 +3543,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             throw re;
         }
         finally {
-            if (iter != null) {
-                iter.close();
-            }
+            IOUtils.close(iter);
         }
     }
 
@@ -6409,6 +6461,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {@link ConditionBuilder#within(boolean, Point2D, Point2D, Point2D, Point2D[])}
      * .
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinBooleanPoint2DPoint2DPoint2DPoint2DArray() {
         final double x1 = 5.1;
@@ -6442,12 +6495,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
         // Find on a slightly deformed square
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").within(false, new Point2D.Double(minx - 0.5, miny),
-                        new Point2D.Double(maxx, miny),
-                        new Point2D.Double(maxx, maxy + 0.75),
-                        new Point2D.Double(minx, maxy)));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").within(false,
+                            new Point2D.Double(minx - 0.5, miny),
+                            new Point2D.Double(maxx, miny),
+                            new Point2D.Double(maxx, maxy + 0.75),
+                            new Point2D.Double(minx, maxy)));
+
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
             expected.add(doc1.build());
@@ -6462,8 +6518,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            IOUtils.close(iter);
         }
     }
 
@@ -6544,6 +6610,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Test method for
      * {@link ConditionBuilder#within(double, double, double, double, boolean)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinDocumentAssignableBoolean() {
         final double x1 = 16.8;
@@ -6595,19 +6662,21 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertEquals(0, expected.size());
         }
         catch (final ServerVersionException sve) {
-            // See if a version prior to 2.4
+            // See if a version prior to 2.4 (no GeoJson support)
+            // or after 2.6 (no $uniqueDocs support)
 
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
                     greaterThanOrEqualTo(Version.VERSION_2_4));
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
         }
         finally {
-            if (iter != null) {
-                iter.close();
-            }
+            IOUtils.close(iter);
         }
     }
 
@@ -6659,6 +6728,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Test method for
      * {@link ConditionBuilder#within(double, double, double, boolean)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinDoubleDoubleDoubleBoolean() {
         final double x = 5.1;
@@ -6681,9 +6751,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").within(x, y, radius, false));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").within(x, y, radius, false));
+
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
             expected.add(doc1.build());
@@ -6698,8 +6770,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            IOUtils.close(iter);
         }
     }
 
@@ -6760,6 +6842,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Test method for
      * {@link ConditionBuilder#within(double, double, double, double, boolean)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinDoubleDoubleDoubleDoubleBoolean() {
         final double x1 = 5.1;
@@ -6790,9 +6873,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").within(x1, y1, x2, y2, false));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").within(x1, y1, x2, y2, false));
+
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
             expected.add(doc1.build());
@@ -6807,8 +6892,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            IOUtils.close(iter);
         }
     }
 
@@ -6859,6 +6954,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Test method for {@link ConditionBuilder#within(int, int, int, boolean)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinIntIntIntBoolean() {
         final int x = 3;
@@ -6881,9 +6977,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").within(x, y, radius, false));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").within(x, y, radius, false));
+
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
             expected.add(doc1.build());
@@ -6898,8 +6996,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            IOUtils.close(iter);
         }
     }
 
@@ -6959,6 +7067,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Test method for
      * {@link ConditionBuilder#within(int, int, int, int, boolean)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinIntIntIntIntBoolean() {
         final int x1 = 3;
@@ -6989,9 +7098,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").within(x1, y1, x2, y2, false));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").within(x1, y1, x2, y2, false));
+
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
             expected.add(doc1.build());
@@ -7006,8 +7117,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            IOUtils.close(iter);
         }
     }
 
@@ -7059,6 +7180,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Test method for
      * {@link ConditionBuilder#within(long, long, long, boolean)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinLongLongLongBoolean() {
         final long x = 5;
@@ -7081,9 +7203,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").within(x, y, radius, false));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").within(x, y, radius, false));
+
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
             expected.add(doc1.build());
@@ -7098,8 +7222,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            IOUtils.close(iter);
         }
     }
 
@@ -7159,6 +7293,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Test method for
      * {@link ConditionBuilder#within(long, long, long, long, boolean)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinLongLongLongLongBoolean() {
         final long x1 = 5;
@@ -7189,9 +7324,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").within(x1, y1, x2, y2, false));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").within(x1, y1, x2, y2, false));
+
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
             expected.add(doc1.build());
@@ -7206,8 +7343,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            IOUtils.close(iter);
         }
     }
 
@@ -7260,6 +7407,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Test method for
      * {@link ConditionBuilder#withinOnSphere(double, double, double, boolean)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinOnSphereDoubleDoubleDoubleBoolean() {
         final double x = 0.34;
@@ -7282,9 +7430,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").withinOnSphere(x, y, radius, false));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").withinOnSphere(x, y, radius, false));
+
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
             expected.add(doc1.build());
@@ -7299,8 +7449,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            IOUtils.close(iter);
         }
     }
 
@@ -7352,6 +7512,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Test method for
      * {@link ConditionBuilder#withinOnSphere(int, int, int, boolean)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinOnSphereIntIntIntBoolean() {
         final int x = 1;
@@ -7374,9 +7535,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").withinOnSphere(x, y, radius, false));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").withinOnSphere(x, y, radius, false));
+
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
             expected.add(doc1.build());
@@ -7391,8 +7554,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            IOUtils.close(iter);
         }
     }
 
@@ -7445,6 +7618,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Test method for
      * {@link ConditionBuilder#withinOnSphere(long, long, long, boolean)}.
      */
+    @Deprecated
     @Test
     public void testQueryWithWithinOnSphereLongLongLongBoolean() {
         final long x = 1;
@@ -7467,9 +7641,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
 
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").withinOnSphere(x, y, radius, false));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").withinOnSphere(x, y, radius, false));
+
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1.build());
             expected.add(doc1.build());
@@ -7484,8 +7660,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.5 which removed $uniqueDocs support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    lessThan(GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            IOUtils.close(iter);
         }
     }
 
@@ -7906,7 +8092,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(Text.MAX_TIMEOUT_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;

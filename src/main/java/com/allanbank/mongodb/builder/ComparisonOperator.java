@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import com.allanbank.mongodb.Version;
+
 /**
  * ComparisonOperator provides an enumeration of all possible comparison
  * operators.
@@ -37,6 +39,9 @@ public enum ComparisonOperator implements Operator {
     /** The operator's token to use when sending to the server. */
     private final String myToken;
 
+    /** The first MongoDB version to support the operator. */
+    private final Version myVersion;
+
     /**
      * Creates a new ComparisonOperator.
      * 
@@ -44,7 +49,20 @@ public enum ComparisonOperator implements Operator {
      *            The token to use when sending to the server.
      */
     private ComparisonOperator(final String token) {
+        this(token, null);
+    }
+
+    /**
+     * Creates a new ComparisonOperator.
+     * 
+     * @param token
+     *            The token to use when sending to the server.
+     * @param version
+     *            The first MongoDB version to support the operator.
+     */
+    private ComparisonOperator(final String token, final Version version) {
         myToken = token;
+        myVersion = version;
     }
 
     /**
@@ -55,6 +73,18 @@ public enum ComparisonOperator implements Operator {
     @Override
     public String getToken() {
         return myToken;
+    }
+
+    /**
+     * Returns the first MongoDB version to support the operator.
+     * 
+     * @return The first MongoDB version to support the operator. If
+     *         <code>null</code> then the version is not known and can be
+     *         assumed to be all currently supported versions.
+     */
+    @Override
+    public Version getVersion() {
+        return myVersion;
     }
 
 }

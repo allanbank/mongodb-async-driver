@@ -9,13 +9,13 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.allanbank.mongodb.ReadPreference;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Operation;
+import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
@@ -84,7 +84,7 @@ public class Command extends AbstractMessage {
      */
     public Command(final String databaseName, final Document commandDocument,
             final ReadPreference readPreference,
-            final Version requiredServerVersion) {
+            final VersionRange requiredServerVersion) {
         super(databaseName, COMMAND_COLLECTION, readPreference,
                 requiredServerVersion);
 
@@ -174,9 +174,9 @@ public class Command extends AbstractMessage {
             builder.append(", readPreference=");
             builder.append(getReadPreference());
         }
-        if (getRequiredServerVersion() != null) {
-            builder.append(", requiredServerVersion=");
-            builder.append(getRequiredServerVersion());
+        if (getRequiredVersionRange() != null) {
+            builder.append(", requiredVersionRange=");
+            builder.append(getRequiredVersionRange());
         }
         builder.append("]: ");
         builder.append(myCommand);

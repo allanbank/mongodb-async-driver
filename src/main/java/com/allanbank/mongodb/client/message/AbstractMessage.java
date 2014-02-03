@@ -5,11 +5,11 @@
 package com.allanbank.mongodb.client.message;
 
 import com.allanbank.mongodb.ReadPreference;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
+import com.allanbank.mongodb.client.VersionRange;
 
 /**
  * Base class for a MongoDB message.
@@ -33,7 +33,7 @@ public abstract class AbstractMessage implements Message {
     private final ReadPreference myReadPreference;
 
     /** The required version of the server to support processing the message. */
-    private final Version myRequiredServerVersion;
+    private final VersionRange myRequiredServerVersionRange;
 
     /**
      * Create a new AbstractMessage.
@@ -42,7 +42,7 @@ public abstract class AbstractMessage implements Message {
         myDatabaseName = "";
         myCollectionName = "";
         myReadPreference = ReadPreference.PRIMARY;
-        myRequiredServerVersion = null;
+        myRequiredServerVersionRange = null;
     }
 
     /**
@@ -60,11 +60,11 @@ public abstract class AbstractMessage implements Message {
         myDatabaseName = databaseName;
         myCollectionName = collectionName;
         myReadPreference = readPreference;
-        myRequiredServerVersion = null;
+        myRequiredServerVersionRange = null;
     }
 
     /**
-     * Create a new AbstractMessage.
+     * Creates a new AbstractMessage.
      * 
      * @param databaseName
      *            The name of the database.
@@ -72,17 +72,17 @@ public abstract class AbstractMessage implements Message {
      *            The name of the collection.
      * @param readPreference
      *            The preferences for which servers to send the message.
-     * @param requiredServerVersion
-     *            The required version of the server to support processing the
-     *            message.
+     * @param versionRange
+     *            The required range of versions of the server to support
+     *            processing the message.
      */
     public AbstractMessage(final String databaseName,
             final String collectionName, final ReadPreference readPreference,
-            final Version requiredServerVersion) {
+            final VersionRange versionRange) {
         myDatabaseName = databaseName;
         myCollectionName = collectionName;
         myReadPreference = readPreference;
-        myRequiredServerVersion = requiredServerVersion;
+        myRequiredServerVersionRange = versionRange;
     }
 
     /**
@@ -144,8 +144,8 @@ public abstract class AbstractMessage implements Message {
      * {@inheritDoc}
      */
     @Override
-    public Version getRequiredServerVersion() {
-        return myRequiredServerVersion;
+    public VersionRange getRequiredVersionRange() {
+        return myRequiredServerVersionRange;
     }
 
     /**

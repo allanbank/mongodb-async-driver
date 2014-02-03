@@ -32,6 +32,6 @@ public class IsMasterTest {
         assertEquals(Command.COMMAND_COLLECTION, isMaster.getCollectionName());
         assertEquals(IsMaster.IS_MASTER, isMaster.getCommand());
         assertSame(ReadPreference.PRIMARY, isMaster.getReadPreference());
-        assertThat(isMaster.getRequiredServerVersion(), nullValue());
+        assertThat(isMaster.getRequiredVersionRange(), nullValue());
     }
 }

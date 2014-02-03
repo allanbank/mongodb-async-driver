@@ -34,7 +34,6 @@ public class ServerStatusTest {
                 serverStatus.getCollectionName());
         assertEquals(ServerStatus.SERVER_STATUS, serverStatus.getCommand());
         assertSame(ReadPreference.PRIMARY, serverStatus.getReadPreference());
-        assertThat(serverStatus.getRequiredServerVersion(), nullValue());
+        assertThat(serverStatus.getRequiredVersionRange(), nullValue());
     }
-
 }

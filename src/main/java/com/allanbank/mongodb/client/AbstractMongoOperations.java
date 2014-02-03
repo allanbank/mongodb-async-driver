@@ -168,7 +168,7 @@ public abstract class AbstractMongoOperations {
         builder.addString("count", getName());
         builder.addDocument("query", count.getQuery());
         if (count.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.VERSION_2_6;
+            minVersion = Count.MAX_TIMEOUT_VERSION;
             builder.add("maxTimeMS", count.getMaximumTimeMilliseconds());
         }
 
@@ -177,7 +177,8 @@ public abstract class AbstractMongoOperations {
                 count.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), finalPreference, minVersion);
+                builder.build(), finalPreference,
+                VersionRange.minimum(minVersion));
 
         myClient.send(commandMsg, new ReplyLongCallback(results));
     }
@@ -244,7 +245,7 @@ public abstract class AbstractMongoOperations {
             builder.addDocument("query", command.getQuery());
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.VERSION_2_6;
+            minVersion = Distinct.MAX_TIMEOUT_VERSION;
             builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 
@@ -253,7 +254,8 @@ public abstract class AbstractMongoOperations {
                 command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference, minVersion);
+                builder.build(), readPreference,
+                VersionRange.minimum(minVersion));
 
         myClient.send(commandMsg, new ReplyArrayCallback(results));
 
@@ -357,13 +359,14 @@ public abstract class AbstractMongoOperations {
             builder.addBoolean("upsert", true);
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.VERSION_2_6;
+            minVersion = FindAndModify.MAX_TIMEOUT_VERSION;
             builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 
         // Must be the primary since this is a write.
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), ReadPreference.PRIMARY, minVersion);
+                builder.build(), ReadPreference.PRIMARY,
+                VersionRange.minimum(minVersion));
         myClient.send(commandMsg, new ReplyDocumentCallback(results));
     }
 
@@ -504,7 +507,7 @@ public abstract class AbstractMongoOperations {
             groupDocBuilder.addDocument("cond", command.getQuery());
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.VERSION_2_6;
+            minVersion = GroupBy.MAX_TIMEOUT_VERSION;
             groupDocBuilder.add("maxTimeMS",
                     command.getMaximumTimeMilliseconds());
         }
@@ -514,7 +517,8 @@ public abstract class AbstractMongoOperations {
                 groupDocBuilder, command.getReadPreference(), false);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference, minVersion);
+                builder.build(), readPreference,
+                VersionRange.minimum(minVersion));
         myClient.send(commandMsg, new ReplyArrayCallback("retval", results));
     }
 
@@ -595,7 +599,7 @@ public abstract class AbstractMongoOperations {
             builder.addBoolean("verbose", true);
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.VERSION_2_6;
+            minVersion = MapReduce.MAX_TIMEOUT_VERSION;
             builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 
@@ -633,7 +637,8 @@ public abstract class AbstractMongoOperations {
                 command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference, minVersion);
+                builder.build(), readPreference,
+                VersionRange.minimum(minVersion));
         myClient.send(commandMsg, new ReplyResultCallback(results));
     }
 
@@ -787,7 +792,7 @@ public abstract class AbstractMongoOperations {
             builder.add("language", command.getLanguage());
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            minVersion = Version.later(minVersion, Text.MAX_TIMEOUT_VERSION);
             builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 
@@ -796,7 +801,8 @@ public abstract class AbstractMongoOperations {
                 command.getReadPreference(), true);
 
         final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), readPreference, minVersion);
+                builder.build(), readPreference,
+                VersionRange.minimum(minVersion));
         myClient.send(commandMsg, new ReplyResultCallback(new TextCallback(
                 results)));
     }
@@ -932,7 +938,8 @@ public abstract class AbstractMongoOperations {
         }
 
         final Insert insertMessage = new Insert(getDatabaseName(), myName,
-                docs, continueOnError, requiredServerVersion);
+                docs, continueOnError,
+                VersionRange.minimum(requiredServerVersion));
         if (Durability.NONE == durability) {
             myClient.send(insertMessage, null);
             results.callback(Integer.valueOf(-1));
@@ -969,11 +976,12 @@ public abstract class AbstractMongoOperations {
 
         // Options - 2.6 on...
         if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            minVersion = Version.later(minVersion,
+                    Aggregate.MAX_TIMEOUT_VERSION);
             builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
         if (command.isUseCursor()) {
-            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            minVersion = Version.later(minVersion, Aggregate.CURSOR_VERSION);
             final DocumentBuilder cursor = builder.push("cursor");
             if (command.getBatchSize() > 0) {
                 cursor.add("batchSize", command.getBatchSize());
@@ -983,7 +991,7 @@ public abstract class AbstractMongoOperations {
             }
         }
         if (explain) {
-            minVersion = Version.later(minVersion, Version.VERSION_2_6);
+            minVersion = Version.later(minVersion, Aggregate.EXPLAIN_VERSION);
             builder.add("explain", true);
         }
 
@@ -993,7 +1001,7 @@ public abstract class AbstractMongoOperations {
 
         final AggregateCommand commandMsg = new AggregateCommand(command,
                 getDatabaseName(), getName(), builder.build(), readPreference,
-                minVersion);
+                VersionRange.minimum(minVersion));
         return commandMsg;
     }
 

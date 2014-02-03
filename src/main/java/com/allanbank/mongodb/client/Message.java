@@ -7,7 +7,6 @@ package com.allanbank.mongodb.client;
 import java.io.IOException;
 
 import com.allanbank.mongodb.ReadPreference;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
@@ -47,7 +46,7 @@ public interface Message {
     public ReadPreference getReadPreference();
 
     /**
-     * Returns the required version for the message.
+     * Returns the required version range for the message.
      * <p>
      * This may be {@code null} which should be interpreted to mean that all
      * versions of the server support the message's operation. In reality that
@@ -57,7 +56,7 @@ public interface Message {
      * @return The version of the server that introduced support for the
      *         operation.
      */
-    public Version getRequiredServerVersion();
+    public VersionRange getRequiredVersionRange();
 
     /**
      * Validates that the documents with the message do not exceed the maximum

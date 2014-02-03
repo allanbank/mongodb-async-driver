@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.ReadPreference;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
@@ -18,6 +17,7 @@ import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
+import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
@@ -127,7 +127,7 @@ public class Insert extends AbstractMessage {
      */
     public Insert(final String databaseName, final String collectionName,
             final List<Document> documents, final boolean continueOnError,
-            final Version requiredServerVersion) {
+            final VersionRange requiredServerVersion) {
         super(databaseName, collectionName, ReadPreference.PRIMARY,
                 requiredServerVersion);
 

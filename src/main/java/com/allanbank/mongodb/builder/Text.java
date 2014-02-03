@@ -75,6 +75,12 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  * @since MongoDB 2.4
  */
 public class Text {
+    /**
+     * The first version of MongoDB to support the {@code text} command with the
+     * ability to limit the execution time on the server.
+     */
+    public static final Version MAX_TIMEOUT_VERSION = Version.parse("2.5.4");
+
     /** The first version of MongoDB to support the text command. */
     public static final Version REQUIRED_VERSION = Version.parse("2.4.0");
 

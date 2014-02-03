@@ -33,7 +33,7 @@ public class BuildInfoTest {
         assertEquals(Command.COMMAND_COLLECTION, buildInfo.getCollectionName());
         assertEquals(BuildInfo.BUILD_INFO, buildInfo.getCommand());
         assertSame(ReadPreference.PRIMARY, buildInfo.getReadPreference());
-        assertThat(buildInfo.getRequiredServerVersion(), nullValue());
+        assertThat(buildInfo.getRequiredVersionRange(), nullValue());
         assertThat(buildInfo.getOperationName(), is("buildinfo"));
     }
 

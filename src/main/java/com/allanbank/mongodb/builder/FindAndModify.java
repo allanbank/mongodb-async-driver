@@ -11,6 +11,7 @@ import static com.allanbank.mongodb.util.Assertions.assertThat;
 import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -30,6 +31,12 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
 public class FindAndModify {
     /** An (empty) query document to find all documents. */
     public static final Document ALL = MongoCollection.ALL;
+
+    /**
+     * The first version of MongoDB to support the {@code findAndModify} command
+     * with the ability to limit the execution time on the server.
+     */
+    public static final Version MAX_TIMEOUT_VERSION = Version.parse("2.5.4");
 
     /** An (empty) update document to perform no actual modifications. */
     public static final Document NONE = MongoCollection.NONE;

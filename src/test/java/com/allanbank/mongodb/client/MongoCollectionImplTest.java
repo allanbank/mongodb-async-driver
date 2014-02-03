@@ -148,7 +148,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -188,7 +189,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -228,7 +230,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -264,7 +267,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -300,7 +304,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -339,7 +344,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_6);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Aggregate.MAX_TIMEOUT_VERSION));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -385,7 +391,7 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(request, "test",
                 "test", expectedCommand.build(), ReadPreference.PREFER_PRIMARY,
-                Version.VERSION_2_4);
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
@@ -423,7 +429,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PREFER_PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PREFER_PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
@@ -1450,7 +1457,8 @@ public class MongoCollectionImplTest {
 
         myTestInstance.createIndex("name", false, Index.geo2dSphere("k"));
 
-        assertThat(insert.getValue().getRequiredServerVersion(),
+        assertThat(
+                insert.getValue().getRequiredVersionRange().getLowerBounds(),
                 is(Version.VERSION_2_4));
 
         verify();
@@ -1501,7 +1509,8 @@ public class MongoCollectionImplTest {
 
         myTestInstance.createIndex("name", false, Index.hashed("k"));
 
-        assertThat(insert.getValue().getRequiredServerVersion(),
+        assertThat(
+                insert.getValue().getRequiredVersionRange().getLowerBounds(),
                 is(Version.VERSION_2_4));
 
         verify();
@@ -1552,7 +1561,8 @@ public class MongoCollectionImplTest {
 
         myTestInstance.createIndex("name", false, Index.text("k"));
 
-        assertThat(insert.getValue().getRequiredServerVersion(),
+        assertThat(
+                insert.getValue().getRequiredVersionRange().getLowerBounds(),
                 is(Version.VERSION_2_4));
 
         verify();
@@ -2432,7 +2442,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2471,7 +2482,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2509,7 +2521,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2582,7 +2595,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2620,7 +2634,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -6309,7 +6324,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -6346,7 +6362,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -6461,7 +6478,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -6498,7 +6516,8 @@ public class MongoCollectionImplTest {
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
-                ReadPreference.PRIMARY, Version.VERSION_2_4);
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Version.VERSION_2_4));
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(

@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import com.allanbank.mongodb.Version;
+
 /**
  * MiscellaneousOperator provides the set of miscellaneous operators.
  * 
@@ -45,14 +47,40 @@ public enum MiscellaneousOperator implements Operator {
     /** Compares the length of the array field. */
     SIZE("$size"),
 
+    /**
+     * Support for text searches.
+     * 
+     * @since MongoDB 2.6
+     */
+    TEXT("$text", Version.VERSION_2_6),
+
     /** Check if a value's type matches the expected type. */
     TYPE("$type"),
 
     /** Support for an ad-hoc JavaScript expression. */
     WHERE("$where");
 
+    /**
+     * The modifier for the {@link #TEXT} operator to specify the language of
+     * the query terms.
+     * 
+     * @since MongoDB 2.6
+     */
+    public static final String LANGUAGE_MODIFIER = "$language";
+
+    /**
+     * The modifier for the {@link #TEXT} operator to specify the the query
+     * terms.
+     * 
+     * @since MongoDB 2.6
+     */
+    public static final String SEARCH_MODIFIER = "$search";
+
     /** The operator's token to use when sending to the server. */
     private final String myToken;
+
+    /** The first MongoDB version to support the operator. */
+    private final Version myVersion;
 
     /**
      * Creates a new MiscellaneousOperator.
@@ -61,7 +89,20 @@ public enum MiscellaneousOperator implements Operator {
      *            The token to use when sending to the server.
      */
     private MiscellaneousOperator(final String token) {
+        this(token, null);
+    }
+
+    /**
+     * Creates a new MiscellaneousOperator.
+     * 
+     * @param token
+     *            The token to use when sending to the server.
+     * @param version
+     *            The first MongoDB version to support the operator.
+     */
+    private MiscellaneousOperator(final String token, final Version version) {
         myToken = token;
+        myVersion = version;
     }
 
     /**
@@ -72,6 +113,18 @@ public enum MiscellaneousOperator implements Operator {
     @Override
     public String getToken() {
         return myToken;
+    }
+
+    /**
+     * Returns the first MongoDB version to support the operator.
+     * 
+     * @return The first MongoDB version to support the operator. If
+     *         <code>null</code> then the version is not known and can be
+     *         assumed to be all currently supported versions.
+     */
+    @Override
+    public Version getVersion() {
+        return myVersion;
     }
 
 }

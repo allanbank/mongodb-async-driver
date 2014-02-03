@@ -9,6 +9,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.List;
 
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -60,6 +61,10 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class GeoJson {
+
+    /** The version of MongoDB that provided support for Multi* GeoJSON objects. */
+    public static final Version MULTI_SUPPORT_VERSION = Version.VERSION_2_6;
+
     /** The class for an integer {@link Point} */
     private static final Class<Point> POINT_CLASS = Point.class;
 

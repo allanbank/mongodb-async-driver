@@ -12,6 +12,7 @@ import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -29,9 +30,14 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class Find {
-
     /** An (empty) query document to find all documents. */
     public static final Document ALL = MongoCollection.ALL;
+
+    /**
+     * The first version of MongoDB to support the queries with the ability to
+     * limit the execution time on the server.
+     */
+    public static final Version MAX_TIMEOUT_VERSION = Version.parse("2.5.4");
 
     /**
      * Creates a new builder for a {@link Find}.

@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
@@ -283,7 +284,19 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression wrapping the provided
-     * <tt>element</tt>.
+     * <tt>element</tt>. This method is intended mainly for wrapping arrays
+     * using the {@link BuilderFactory#a} method.<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static {@link BuilderFactory#a com.allanbank.mongodb.bson.builder.BuilderFactory.a}
+     * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant}
+     * 
+     * constant( a( "This", "is", "an", "array" ) );
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
      * 
      * @param element
      *            The element value.

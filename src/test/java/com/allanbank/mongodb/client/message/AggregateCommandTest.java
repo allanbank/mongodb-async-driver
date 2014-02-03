@@ -15,6 +15,7 @@ import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.client.VersionRange;
 
 /**
  * AggregateCommandTest provides tests for the {@link AggregateCommand} class.
@@ -25,7 +26,7 @@ public class AggregateCommandTest {
 
     /**
      * Test method for
-     * {@link AggregateCommand#AggregateCommand(Aggregate, String, String, Document, ReadPreference, Version)}
+     * {@link AggregateCommand#AggregateCommand(Aggregate, String, String, Document, ReadPreference, VersionRange)}
      * .
      */
     @Test
@@ -37,7 +38,7 @@ public class AggregateCommandTest {
 
         final AggregateCommand command = new AggregateCommand(aggregation,
                 "db", "collection", doc, ReadPreference.PREFER_PRIMARY,
-                Version.VERSION_2_4);
+                VersionRange.minimum(Version.VERSION_2_4));
 
         assertThat(command.getOperationName(), is("aggregate"));
         assertThat(command.getDatabaseName(), is("db"));

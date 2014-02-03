@@ -70,6 +70,7 @@ import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
+import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.SocketConnectionListener;
 import com.allanbank.mongodb.client.message.Command;
@@ -285,7 +286,8 @@ public class SocketConnectionTest {
         final Document commandDoc = builder.build();
 
         final Message command = new Command("db", commandDoc,
-                ReadPreference.PRIMARY, Version.parse("99.99.99"));
+                ReadPreference.PRIMARY, VersionRange.minimum(Version
+                        .parse("99.99.99")));
 
         // Tell the server our max size is actually small.
         builder.reset().pushArray("versionArray").add(1).add(1).add(1);

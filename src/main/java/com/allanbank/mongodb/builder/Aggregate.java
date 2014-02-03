@@ -87,7 +87,25 @@ import com.allanbank.mongodb.builder.expression.Expressions;
  */
 public class Aggregate {
 
-    /** The first version of MongoDB to support the aggregate command. */
+    /**
+     * The first version of MongoDB to support the {@code aggregate} command
+     * using a cursor.
+     */
+    public static final Version CURSOR_VERSION = Version.parse("2.5.2");
+
+    /**
+     * The first version of MongoDB to support the {@code aggregate} command
+     * with the explain option.
+     */
+    public static final Version EXPLAIN_VERSION = Version.parse("2.5.3");
+
+    /**
+     * The first version of MongoDB to support the {@code aggregate} command
+     * with the ability to limit the execution time on the server.
+     */
+    public static final Version MAX_TIMEOUT_VERSION = Version.parse("2.5.4");
+
+    /** The first version of MongoDB to support the {@code aggregate} command. */
     public static final Version REQUIRED_VERSION = Version.parse("2.1.0");
 
     /**

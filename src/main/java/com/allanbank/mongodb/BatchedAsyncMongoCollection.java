@@ -23,10 +23,24 @@ import java.io.Closeable;
 public interface BatchedAsyncMongoCollection extends AsyncMongoCollection,
         Closeable {
     /**
-     * Closes this batch and submits all of the pending requests to the server.
+     * Cancels the pending batch of operations without sending them to the
+     * server.
      * <p>
-     * Note that this class implements the {@link Closeable} interface to
-     * support try-with-resource.
+     * After canceling the current batch you may continue to accumulate
+     * additional operations to be sent in a different batch.
+     * </p>
+     * 
+     * @throws MongoDbException
+     *             If there is an error submitting the batched requests.
+     */
+    public void cancel() throws MongoDbException;
+
+    /**
+     * Flushes the pending batch and submits all of the pending requests to the
+     * server.
+     * <p>
+     * This method is equivalent to {@link #flush()} and is only provided to
+     * implement the {@link Closeable} interface to support try-with-resource.
      * </p>
      * 
      * @throws MongoDbException
@@ -34,5 +48,18 @@ public interface BatchedAsyncMongoCollection extends AsyncMongoCollection,
      */
     @Override
     public void close() throws MongoDbException;
+
+    /**
+     * Flushes the pending batch and submits all of the pending requests to the
+     * server.
+     * <p>
+     * After flushing the current batch you may continue to accumulate
+     * additional operations to be sent in a different batch.
+     * </p>
+     * 
+     * @throws MongoDbException
+     *             If there is an error submitting the batched requests.
+     */
+    public void flush() throws MongoDbException;
 
 }

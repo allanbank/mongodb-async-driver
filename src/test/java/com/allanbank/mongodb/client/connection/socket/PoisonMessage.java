@@ -9,11 +9,11 @@ import java.io.IOException;
 
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
@@ -65,7 +65,7 @@ public class PoisonMessage implements Message {
      * {@inheritDoc}
      */
     @Override
-    public Version getRequiredServerVersion() {
+    public VersionRange getRequiredVersionRange() {
         return null;
     }
 

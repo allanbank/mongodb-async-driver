@@ -39,7 +39,7 @@ public final class Sort {
      * </p>
      * 
      * @param field
-     *            The field to create the
+     *            The field to create the ascending sort on.
      * @return The ascending sort specification.
      */
     public static IntegerElement asc(final String field) {
@@ -54,7 +54,7 @@ public final class Sort {
      * </p>
      * 
      * @param field
-     *            The field to create the
+     *            The field to create the descending sort on.
      * @return The descending sort specification.
      */
     public static IntegerElement desc(final String field) {
@@ -66,7 +66,7 @@ public final class Sort {
      * <tt>{ &lt;field&gt; : "2d" }</tt>.
      * 
      * @param field
-     *            The field to create the
+     *            The field to create the '2d' sort on.
      * @return The 2D index specification.
      * @deprecated Moved to the {@link Index} class as {@link Index#geo2d} to
      *             live with the other other index types. This method will be

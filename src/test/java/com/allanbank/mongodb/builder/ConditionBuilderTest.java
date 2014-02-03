@@ -1068,6 +1068,7 @@ public class ConditionBuilderTest {
     /**
      * Test method for {@link ConditionBuilder#geoWithin(DocumentAssignable)}.
      */
+    @Deprecated
     @Test
     public void testGeoWithinUnique() {
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -3940,6 +3941,7 @@ public class ConditionBuilderTest {
      * {@link ConditionBuilder#within(boolean, Point2D, Point2D, Point2D, Point2D[])}
      * .
      */
+    @Deprecated
     @Test
     public void testWithinBooleanPoint2DPoint2DPoint2DPoint2DArray() {
         final ConditionBuilder b = QueryBuilder.where("f");
@@ -4016,6 +4018,7 @@ public class ConditionBuilderTest {
      * Test method for
      * {@link ConditionBuilder#within(DocumentAssignable, boolean)}.
      */
+    @Deprecated
     @Test
     public void testWithinDocumentAssignableBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4070,7 +4073,6 @@ public class ConditionBuilderTest {
         final ArrayBuilder region = wb.pushArray(GeospatialOperator.CIRCLE);
         region.pushArray().addDouble(x).addDouble(y);
         region.addDouble(radius);
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -4079,6 +4081,7 @@ public class ConditionBuilderTest {
      * Test method for
      * {@link ConditionBuilder#within(double, double, double, boolean)}.
      */
+    @Deprecated
     @Test
     public void testWithinDoubleDoubleDoubleBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4132,7 +4135,6 @@ public class ConditionBuilderTest {
         final ArrayBuilder region = wb.pushArray(GeospatialOperator.BOX);
         region.pushArray().addDouble(x1).addDouble(y1);
         region.pushArray().addDouble(x2).addDouble(y2);
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -4141,6 +4143,7 @@ public class ConditionBuilderTest {
      * Test method for
      * {@link ConditionBuilder#within(double, double, double, double, boolean)}.
      */
+    @Deprecated
     @Test
     public void testWithinDoubleDoubleDoubleDoubleBoolean() {
 
@@ -4195,7 +4198,6 @@ public class ConditionBuilderTest {
         final ArrayBuilder region = wb.pushArray(GeospatialOperator.CIRCLE);
         region.pushArray().addInteger(x).addInteger(y);
         region.addInteger(radius);
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -4203,6 +4205,7 @@ public class ConditionBuilderTest {
     /**
      * Test method for {@link ConditionBuilder#within(int, int, int, boolean)}.
      */
+    @Deprecated
     @Test
     public void testWithinIntIntIntBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4256,7 +4259,6 @@ public class ConditionBuilderTest {
         final ArrayBuilder region = wb.pushArray(GeospatialOperator.BOX);
         region.pushArray().addInteger(x1).addInteger(y1);
         region.pushArray().addInteger(x2).addInteger(y2);
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -4265,6 +4267,7 @@ public class ConditionBuilderTest {
      * Test method for
      * {@link ConditionBuilder#within(int, int, int, int, boolean)}.
      */
+    @Deprecated
     @Test
     public void testWithinIntIntIntIntBoolean() {
 
@@ -4318,7 +4321,6 @@ public class ConditionBuilderTest {
         final ArrayBuilder region = wb.pushArray(GeospatialOperator.CIRCLE);
         region.pushArray().addLong(x).addLong(y);
         region.addLong(radius);
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -4327,6 +4329,7 @@ public class ConditionBuilderTest {
      * Test method for
      * {@link ConditionBuilder#within(long, long, long, boolean)}.
      */
+    @Deprecated
     @Test
     public void testWithinLongLongLongBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4357,6 +4360,7 @@ public class ConditionBuilderTest {
     /**
      * Test method for {@link ConditionBuilder#within(long, long, long, long)}.
      */
+    @Deprecated
     @Test
     public void testWithinLongLongLongLong() {
 
@@ -4380,7 +4384,6 @@ public class ConditionBuilderTest {
         final ArrayBuilder region = wb.pushArray(GeospatialOperator.BOX);
         region.pushArray().addLong(x1).addLong(y1);
         region.pushArray().addLong(x2).addLong(y2);
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -4389,6 +4392,7 @@ public class ConditionBuilderTest {
      * Test method for
      * {@link ConditionBuilder#within(long, long, long, long, boolean)}.
      */
+    @Deprecated
     @Test
     public void testWithinLongLongLongLongBoolean() {
 
@@ -4444,7 +4448,6 @@ public class ConditionBuilderTest {
                 .pushArray(GeospatialOperator.SPHERICAL_CIRCLE);
         region.pushArray().addDouble(x).addDouble(y);
         region.addDouble(radius);
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -4453,6 +4456,7 @@ public class ConditionBuilderTest {
      * Test method for
      * {@link ConditionBuilder#withinOnSphere(double, double, double, boolean)}.
      */
+    @Deprecated
     @Test
     public void testWithinOnSphereDoubleDoubleDoubleBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4484,6 +4488,7 @@ public class ConditionBuilderTest {
     /**
      * Test method for {@link ConditionBuilder#withinOnSphere(int, int, int)}.
      */
+    @Deprecated
     @Test
     public void testWithinOnSphereIntIntInt() {
 
@@ -4507,7 +4512,6 @@ public class ConditionBuilderTest {
                 .pushArray(GeospatialOperator.SPHERICAL_CIRCLE);
         region.pushArray().addInteger(x).addInteger(y);
         region.addInteger(radius);
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -4516,6 +4520,7 @@ public class ConditionBuilderTest {
      * Test method for
      * {@link ConditionBuilder#withinOnSphere(int, int, int, boolean)}.
      */
+    @Deprecated
     @Test
     public void testWithinOnSphereIntIntIntBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4570,7 +4575,6 @@ public class ConditionBuilderTest {
                 .pushArray(GeospatialOperator.SPHERICAL_CIRCLE);
         region.pushArray().addLong(x).addLong(y);
         region.addLong(radius);
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -4579,6 +4583,7 @@ public class ConditionBuilderTest {
      * Test method for
      * {@link ConditionBuilder#withinOnSphere(long, long, long, boolean)}.
      */
+    @Deprecated
     @Test
     public void testWithinOnSphereLongLongLongBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4646,7 +4651,6 @@ public class ConditionBuilderTest {
             region.pushArray().addDouble(points[i].getX())
                     .addDouble(points[i].getY());
         }
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -4680,7 +4684,6 @@ public class ConditionBuilderTest {
         region.pushArray().addDouble(p1.getX()).addDouble(p1.getY());
         region.pushArray().addDouble(p2.getX()).addDouble(p2.getY());
         region.pushArray().addDouble(p3.getX()).addDouble(p3.getY());
-        wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, true);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }

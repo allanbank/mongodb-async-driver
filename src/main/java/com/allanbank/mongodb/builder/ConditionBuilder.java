@@ -1240,7 +1240,11 @@ public class ConditionBuilder implements DocumentAssignable {
      * @return The condition builder for chaining method calls.
      * 
      * @since MongoDB 2.4
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder geoWithin(final DocumentAssignable geoJsonDoc,
             final boolean unique) {
         myEqualsComparison = null;
@@ -4453,10 +4457,64 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Adds a text query to the query.
+     * <p>
+     * Note that the {@value MiscellaneousOperator#TEXT $text} operator does not
+     * apply to a specific field but applies to the document as a whole. For
+     * this reason only a single {@link #text} condition can be used. Calling
+     * multiple <tt>text(...)</tt> methods overwrites previous values.
+     * </p>
+     * 
+     * @param textSearchExpression
+     *            The text search expression.
+     * @return This builder for call chaining.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/tutorial/search-for-text/">Text
+     *      Search Expressions</a>
+     */
+    public ConditionBuilder text(final String textSearchExpression) {
+        myParent.text(textSearchExpression);
+
+        return this;
+    }
+
+    /**
+     * Adds a text query to the query.
+     * <p>
+     * Note that the {@value MiscellaneousOperator#TEXT $text} operator does not
+     * apply to a specific field but applies to the document as a whole. For
+     * this reason only a single {@link #text} condition can be used. Calling
+     * multiple <tt>text(...)</tt> methods overwrites previous values.
+     * </p>
+     * 
+     * @param textSearchExpression
+     *            The text search expression.
+     * @param language
+     *            The language of the text search expression.
+     * @return This builder for call chaining.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/tutorial/search-for-text/">Text
+     *      Search Expressions</a>
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/text/#text-search-languages">Text
+     *      Search Languages</a>
+     */
+    public ConditionBuilder text(final String textSearchExpression,
+            final String language) {
+        myParent.text(textSearchExpression, language);
+
+        return this;
+    }
+
+    /**
      * Adds an ad-hoc JavaScript condition to the query.
      * <p>
-     * Only a single {@link #where(String)} condition can be used. Calling
-     * multiple <tt>where(...)</tt> methods overwrites previous values.
+     * Note that the {@value MiscellaneousOperator#WHERE $where} operator does
+     * not apply to a specific field but applies to the document as a whole. For
+     * this reason only a single {@link #where(String)} condition can be used.
+     * Calling multiple <tt>where(...)</tt> methods overwrites previous values.
      * </p>
      * 
      * @param javaScript
@@ -4495,7 +4553,11 @@ public class ConditionBuilder implements DocumentAssignable {
      * @param points
      *            The remaining points in the polygon.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder within(final boolean uniqueDocs, final Point2D p1,
             final Point2D p2, final Point2D p3, final Point2D... points) {
         myEqualsComparison = null;
@@ -4625,7 +4687,11 @@ public class ConditionBuilder implements DocumentAssignable {
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder within(final DocumentAssignable geoJsonDoc,
             final boolean uniqueDocs) {
         myEqualsComparison = null;
@@ -4663,7 +4729,17 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder within(final double x, final double y,
             final double radius) {
-        return within(x, y, radius, true);
+        myEqualsComparison = null;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder box = builder.pushArray(GeospatialOperator.CIRCLE);
+        box.pushArray().addDouble(x).addDouble(y);
+        box.addDouble(radius);
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), builder.build()));
+
+        return this;
     }
 
     /**
@@ -4690,7 +4766,11 @@ public class ConditionBuilder implements DocumentAssignable {
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder within(final double x, final double y,
             final double radius, final boolean uniqueDocs) {
         myEqualsComparison = null;
@@ -4733,7 +4813,17 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder within(final double x1, final double y1,
             final double x2, final double y2) {
-        return within(x1, y1, x2, y2, true);
+        myEqualsComparison = null;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder box = builder.pushArray(GeospatialOperator.BOX);
+        box.pushArray().addDouble(Math.min(x1, x2)).addDouble(Math.min(y1, y2));
+        box.pushArray().addDouble(Math.max(x1, x2)).addDouble(Math.max(y1, y2));
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), builder.build()));
+
+        return this;
     }
 
     /**
@@ -4762,7 +4852,11 @@ public class ConditionBuilder implements DocumentAssignable {
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder within(final double x1, final double y1,
             final double x2, final double y2, final boolean uniqueDocs) {
         myEqualsComparison = null;
@@ -4802,7 +4896,17 @@ public class ConditionBuilder implements DocumentAssignable {
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder within(final int x, final int y, final int radius) {
-        return within(x, y, radius, true);
+        myEqualsComparison = null;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder box = builder.pushArray(GeospatialOperator.CIRCLE);
+        box.pushArray().addInteger(x).addInteger(y);
+        box.addInteger(radius);
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), builder.build()));
+
+        return this;
     }
 
     /**
@@ -4829,7 +4933,11 @@ public class ConditionBuilder implements DocumentAssignable {
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder within(final int x, final int y, final int radius,
             final boolean uniqueDocs) {
         myEqualsComparison = null;
@@ -4872,7 +4980,19 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder within(final int x1, final int y1, final int x2,
             final int y2) {
-        return within(x1, y1, x2, y2, true);
+        myEqualsComparison = null;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder box = builder.pushArray(GeospatialOperator.BOX);
+        box.pushArray().addInteger(Math.min(x1, x2))
+                .addInteger(Math.min(y1, y2));
+        box.pushArray().addInteger(Math.max(x1, x2))
+                .addInteger(Math.max(y1, y2));
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), builder.build()));
+
+        return this;
     }
 
     /**
@@ -4901,7 +5021,11 @@ public class ConditionBuilder implements DocumentAssignable {
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder within(final int x1, final int y1, final int x2,
             final int y2, final boolean uniqueDocs) {
         myEqualsComparison = null;
@@ -4943,7 +5067,17 @@ public class ConditionBuilder implements DocumentAssignable {
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder within(final long x, final long y, final long radius) {
-        return within(x, y, radius, true);
+        myEqualsComparison = null;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder box = builder.pushArray(GeospatialOperator.CIRCLE);
+        box.pushArray().addLong(x).addLong(y);
+        box.addLong(radius);
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), builder.build()));
+
+        return this;
     }
 
     /**
@@ -4970,7 +5104,11 @@ public class ConditionBuilder implements DocumentAssignable {
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder within(final long x, final long y,
             final long radius, final boolean uniqueDocs) {
         myEqualsComparison = null;
@@ -5013,7 +5151,17 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder within(final long x1, final long y1, final long x2,
             final long y2) {
-        return within(x1, y1, x2, y2, true);
+        myEqualsComparison = null;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder box = builder.pushArray(GeospatialOperator.BOX);
+        box.pushArray().addLong(Math.min(x1, x2)).addLong(Math.min(y1, y2));
+        box.pushArray().addLong(Math.max(x1, x2)).addLong(Math.max(y1, y2));
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), builder.build()));
+
+        return this;
     }
 
     /**
@@ -5042,7 +5190,11 @@ public class ConditionBuilder implements DocumentAssignable {
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder within(final long x1, final long y1, final long x2,
             final long y2, final boolean uniqueDocs) {
         myEqualsComparison = null;
@@ -5085,7 +5237,22 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder within(final Point2D p1, final Point2D p2,
             final Point2D p3, final Point2D... points) {
-        return within(true, p1, p2, p3, points);
+        myEqualsComparison = null;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder box = builder.pushArray(GeospatialOperator.POLYGON);
+
+        box.pushArray().addDouble(p1.getX()).addDouble(p1.getY());
+        box.pushArray().addDouble(p2.getX()).addDouble(p2.getY());
+        box.pushArray().addDouble(p3.getX()).addDouble(p3.getY());
+        for (final Point2D p : points) {
+            box.pushArray().addDouble(p.getX()).addDouble(p.getY());
+        }
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), builder.build()));
+
+        return this;
     }
 
     /**
@@ -5117,7 +5284,18 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder withinOnSphere(final double x, final double y,
             final double radius) {
-        return withinOnSphere(x, y, radius, true);
+        myEqualsComparison = null;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder box = builder
+                .pushArray(GeospatialOperator.SPHERICAL_CIRCLE);
+        box.pushArray().addDouble(x).addDouble(y);
+        box.addDouble(radius);
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), builder.build()));
+
+        return this;
     }
 
     /**
@@ -5149,7 +5327,11 @@ public class ConditionBuilder implements DocumentAssignable {
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder withinOnSphere(final double x, final double y,
             final double radius, final boolean uniqueDocs) {
         myEqualsComparison = null;
@@ -5196,7 +5378,18 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder withinOnSphere(final int x, final int y,
             final int radius) {
-        return withinOnSphere(x, y, radius, true);
+        myEqualsComparison = null;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder box = builder
+                .pushArray(GeospatialOperator.SPHERICAL_CIRCLE);
+        box.pushArray().addInteger(x).addInteger(y);
+        box.addInteger(radius);
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), builder.build()));
+
+        return this;
     }
 
     /**
@@ -5228,7 +5421,11 @@ public class ConditionBuilder implements DocumentAssignable {
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder withinOnSphere(final int x, final int y,
             final int radius, final boolean uniqueDocs) {
         myEqualsComparison = null;
@@ -5275,7 +5472,18 @@ public class ConditionBuilder implements DocumentAssignable {
      */
     public ConditionBuilder withinOnSphere(final long x, final long y,
             final long radius) {
-        return withinOnSphere(x, y, radius, true);
+        myEqualsComparison = null;
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        final ArrayBuilder box = builder
+                .pushArray(GeospatialOperator.SPHERICAL_CIRCLE);
+        box.pushArray().addLong(x).addLong(y);
+        box.addLong(radius);
+
+        myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
+                GeospatialOperator.WITHIN.getToken(), builder.build()));
+
+        return this;
     }
 
     /**
@@ -5307,7 +5515,11 @@ public class ConditionBuilder implements DocumentAssignable {
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
      * @return The condition builder for chaining method calls.
+     * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
+     *             will not be removed until two releases after the MongoDB 2.6
+     *             release (e.g. 2.10 if the releases are 2.8 and 2.10).
      */
+    @Deprecated
     public ConditionBuilder withinOnSphere(final long x, final long y,
             final long radius, final boolean uniqueDocs) {
         myEqualsComparison = null;

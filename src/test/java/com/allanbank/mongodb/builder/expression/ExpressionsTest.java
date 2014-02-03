@@ -5,8 +5,11 @@
 
 package com.allanbank.mongodb.builder.expression;
 
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.a;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -15,8 +18,10 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.DoubleElement;
@@ -58,6 +63,25 @@ public class ExpressionsTest {
     }
 
     /**
+     * Test method for {@link Expressions#allElementsTrue(Expression)}.
+     */
+    @Test
+    public void testAllElementsTrue() {
+
+        final UnaryExpression e = Expressions.allElementsTrue(Expressions
+                .constant(a(true, false)));
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.push("f").pushArray(Expressions.ALL_ELEMENTS_TRUE).add(true)
+                .add(false);
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+        assertEquals(b.build().find("f", "\\" + Expressions.ALL_ELEMENTS_TRUE)
+                .get(0), e.asElement());
+    }
+
+    /**
      * Test method for {@link Expressions#and(Expression[])}.
      */
     @Test
@@ -74,6 +98,25 @@ public class ExpressionsTest {
         b.push("f").pushArray("$and").addInteger(1).addInteger(2).addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\$and").get(0), e.asElement());
+    }
+
+    /**
+     * Test method for {@link Expressions#anyElementTrue(Expression)}.
+     */
+    @Test
+    public void testAnyElementTrue() {
+
+        final UnaryExpression e = Expressions.anyElementTrue(Expressions
+                .constant(a(true, false)));
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.push("f").pushArray(Expressions.ANY_ELEMENT_TRUE).add(true)
+                .add(false);
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+        assertEquals(b.build().find("f", "\\" + Expressions.ANY_ELEMENT_TRUE)
+                .get(0), e.asElement());
     }
 
     /**
@@ -162,6 +205,16 @@ public class ExpressionsTest {
     public void testConstantDouble() {
         assertEquals(new DoubleElement("f", 1234), Expressions.constant(1234D)
                 .toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#constant(Element)}.
+     */
+    @Test
+    public void testConstantElement() {
+        assertThat(Expressions.constant(BuilderFactory.a(true, false))
+                .toElement("f"), is((Element) new ArrayElement("f",
+                new BooleanElement("0", true), new BooleanElement("1", false))));
     }
 
     /**
@@ -404,6 +457,21 @@ public class ExpressionsTest {
     }
 
     /**
+     * Test method for {@link Expressions#literal(String)}.
+     */
+    @Test
+    public void testLiteral() {
+
+        final Constant e = Expressions.literal("$foo");
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.push("f").add(Expressions.LITERAL, "$foo");
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+    }
+
+    /**
      * Test method for {@link Expressions#lt(Expression, Expression)}.
      */
     @Test
@@ -602,6 +670,96 @@ public class ExpressionsTest {
     }
 
     /**
+     * Test method for {@link Expressions#setDifference(Expression, Expression)}
+     * .
+     */
+    @Test
+    public void testSetDifference() {
+
+        final Constant e1 = new Constant(a("a", "b"));
+        final Constant e2 = new Constant(a("a", "b", "c"));
+
+        final NaryExpression e = Expressions.setDifference(e1, e2);
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        final ArrayBuilder arrays = b.push("f").pushArray(
+                Expressions.SET_DIFFERENCE);
+        arrays.pushArray().add("a").add("b");
+        arrays.pushArray().add("a").add("b").add("c");
+
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#setEquals(Expression, Expression)} .
+     */
+    @Test
+    public void testSetEquals() {
+
+        final Constant e1 = new Constant(a("a", "b"));
+        final Constant e2 = new Constant(a("a", "b", "c"));
+
+        final NaryExpression e = Expressions.setEquals(e1, e2);
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        final ArrayBuilder arrays = b.push("f").pushArray(
+                Expressions.SET_EQUALS);
+        arrays.pushArray().add("a").add("b");
+        arrays.pushArray().add("a").add("b").add("c");
+
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+    }
+
+    /**
+     * Test method for
+     * {@link Expressions#setIntersection(Expression, Expression)} .
+     */
+    @Test
+    public void testSetIntersection() {
+
+        final Constant e1 = new Constant(a("a", "b"));
+        final Constant e2 = new Constant(a("a", "b", "c"));
+
+        final NaryExpression e = Expressions.setIntersection(e1, e2);
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        final ArrayBuilder arrays = b.push("f").pushArray(
+                Expressions.SET_INTERSECTION);
+        arrays.pushArray().add("a").add("b");
+        arrays.pushArray().add("a").add("b").add("c");
+
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#setIsSubset(Expression, Expression)} .
+     */
+    @Test
+    public void testSetIsSubset() {
+
+        final Constant e1 = new Constant(a("a", "b"));
+        final Constant e2 = new Constant(a("a", "b", "c"));
+
+        final NaryExpression e = Expressions.setIsSubset(e1, e2);
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        final ArrayBuilder arrays = b.push("f").pushArray(
+                Expressions.SET_IS_SUBSET);
+        arrays.pushArray().add("a").add("b");
+        arrays.pushArray().add("a").add("b").add("c");
+
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+    }
+
+    /**
      * Test method for {@link Expressions#set(String, DocumentAssignable)} .
      */
     @Test
@@ -631,6 +789,47 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").addTimestamp("$second", 1);
         assertEquals(b.build().iterator().next(), e);
+    }
+
+    /**
+     * Test method for {@link Expressions#setUnion(Expression, Expression)} .
+     */
+    @Test
+    public void testSetUnion() {
+
+        final Constant e1 = new Constant(a("a", "b"));
+        final Constant e2 = new Constant(a("a", "b", "c"));
+
+        final NaryExpression e = Expressions.setUnion(e1, e2);
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        final ArrayBuilder arrays = b.push("f")
+                .pushArray(Expressions.SET_UNION);
+        arrays.pushArray().add("a").add("b");
+        arrays.pushArray().add("a").add("b").add("c");
+
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#size(Expression)} .
+     */
+    @Test
+    public void testSize() {
+
+        final Constant e2 = new Constant(a("a", "b", "c"));
+
+        final UnaryExpression e = Expressions.size(e2);
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        final ArrayBuilder arrays = b.push("f").pushArray(Expressions.SIZE);
+        arrays.add("a").add("b").add("c");
+
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
     }
 
     /**

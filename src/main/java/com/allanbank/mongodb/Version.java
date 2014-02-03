@@ -33,6 +33,9 @@ public class Version implements Serializable, Comparable<Version> {
     /** The driver's version. */
     public static final Version VERSION;
 
+    /** The "zero" version which should be before all other versions. */
+    public static final Version VERSION_0 = Version.parse("0");
+
     /** Version 2.0 */
     public static final Version VERSION_2_0 = Version.parse("2.0");
 
@@ -43,7 +46,13 @@ public class Version implements Serializable, Comparable<Version> {
     public static final Version VERSION_2_4 = Version.parse("2.4");
 
     /** Version 2.6 */
-    public static final Version VERSION_2_6 = Version.parse("2.5.4");
+    public static final Version VERSION_2_6 = Version.parse("2.6");
+
+    /** Version 2.5.2 - Wire Protocol version = 1. */
+    protected static final Version VERSION_2_5_2 = Version.parse("2.5.2");
+
+    /** Version 2.5.4 - Wire Protocol version = 2. */
+    protected static final Version VERSION_2_5_4 = Version.parse("2.5.4");
 
     /** The logger for the {@link Version}. */
     private static final Logger LOG = Logger.getLogger(Version.class
@@ -92,6 +101,32 @@ public class Version implements Serializable, Comparable<Version> {
         }
 
         return lhs;
+    }
+
+    /**
+     * Returns the best guess at the version of the server based on the wire
+     * protocol version number. Returns the first version of the server to
+     * support the wire protocol version.
+     * 
+     * @param wireVersion
+     *            Wire protocol version.
+     * @return The best guess at the version of the server based on the wire
+     *         protocol version number. Returns <code>null</code> if the version
+     *         cannot be determined.
+     */
+    public static Version forWireVersion(final int wireVersion) {
+        Version result = null;
+        if (wireVersion >= 2) {
+            result = VERSION_2_5_4;
+        }
+        else if (wireVersion == 1) {
+            result = VERSION_2_5_2;
+        }
+        else if (wireVersion == 0) {
+            result = VERSION_2_4;
+        }
+
+        return result;
     }
 
     /**

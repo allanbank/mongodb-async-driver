@@ -6,9 +6,9 @@
 package com.allanbank.mongodb.client.message;
 
 import com.allanbank.mongodb.ReadPreference;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.client.VersionRange;
 
 /**
  * Helper class for the aggregation commands.
@@ -47,7 +47,7 @@ public class AggregateCommand extends Command implements CursorableMessage {
             final String databaseName, final String collectionName,
             final Document commandDocument,
             final ReadPreference readPreference,
-            final Version requiredServerVersion) {
+            final VersionRange requiredServerVersion) {
         super(databaseName, commandDocument, readPreference,
                 requiredServerVersion);
 

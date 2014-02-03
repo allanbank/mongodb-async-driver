@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import com.allanbank.mongodb.Version;
+
 /**
  * Operator provides an enumeration of all possible operators.
  * 
@@ -22,4 +24,13 @@ public interface Operator {
      * @return The token for the operator.
      */
     public String getToken();
+
+    /**
+     * Returns the first MongoDB version to support the operator.
+     * 
+     * @return The first MongoDB version to support the operator. If
+     *         <code>null</code> then the version is not known and can be
+     *         assumed to be all currently supported versions.
+     */
+    public Version getVersion();
 }

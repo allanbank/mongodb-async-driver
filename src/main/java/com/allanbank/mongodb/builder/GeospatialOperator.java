@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder;
 
+import com.allanbank.mongodb.Version;
+
 /**
  * GeospatialOperator provides the enumeration of geospatial operators.
  * 
@@ -21,14 +23,14 @@ public enum GeospatialOperator implements Operator {
      * 
      * @since MongoDB 2.4
      */
-    GEO_WITHIN("$geoWithin"),
+    GEO_WITHIN("$geoWithin", Version.VERSION_2_4),
 
     /**
      * Operator to return documents that intersect the GeoJSON shape.
      * 
      * @since MongoDB 2.4
      */
-    INTERSECT("$geoIntersects"),
+    INTERSECT("$geoIntersects", Version.VERSION_2_4),
 
     /**
      * The modifier for the {@link #NEAR} operator to limit the documents
@@ -66,11 +68,24 @@ public enum GeospatialOperator implements Operator {
     /**
      * The modifier for the {@link #WITHIN} operator to determine if duplicate
      * documents should be returned.
+     * 
+     * @deprecated Support for {@value} was removed in MongoDB 2.6.
      */
+    @Deprecated
     public static final String UNIQUE_DOCS_MODIFIER = "$uniqueDocs";
+
+    /**
+     * The version (2.5) of the MongoDB server that removed support for the
+     * {@value #UNIQUE_DOCS_MODIFIER} modifier.
+     */
+    public static final Version UNIQUE_DOCS_REMOVED_VERSION = Version
+            .parse("2.5");
 
     /** The operator's token to use when sending to the server. */
     private final String myToken;
+
+    /** The first MongoDB version to support the operator. */
+    private final Version myVersion;
 
     /**
      * Creates a new GeospatialOperator.
@@ -79,7 +94,20 @@ public enum GeospatialOperator implements Operator {
      *            The token to use when sending to the server.
      */
     private GeospatialOperator(final String token) {
+        this(token, null);
+    }
+
+    /**
+     * Creates a new GeospatialOperator.
+     * 
+     * @param token
+     *            The token to use when sending to the server.
+     * @param version
+     *            The first MongoDB version to support the operator.
+     */
+    private GeospatialOperator(final String token, final Version version) {
         myToken = token;
+        myVersion = version;
     }
 
     /**
@@ -90,5 +118,17 @@ public enum GeospatialOperator implements Operator {
     @Override
     public String getToken() {
         return myToken;
+    }
+
+    /**
+     * Returns the first MongoDB version to support the operator.
+     * 
+     * @return The first MongoDB version to support the operator. If
+     *         <code>null</code> then the version is not known and can be
+     *         assumed to be all currently supported versions.
+     */
+    @Override
+    public Version getVersion() {
+        return myVersion;
     }
 }

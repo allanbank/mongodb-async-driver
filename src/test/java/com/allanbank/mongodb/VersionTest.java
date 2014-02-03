@@ -159,6 +159,23 @@ public class VersionTest {
     }
 
     /**
+     * Test method for {@link Version#forWireVersion(int)}.
+     */
+    @Test
+    public void testForWireVersion() {
+        assertThat(Version.forWireVersion(Integer.MIN_VALUE), nullValue());
+        assertThat(Version.forWireVersion(-1), nullValue());
+
+        assertThat(Version.forWireVersion(0), is(Version.VERSION_2_4));
+        assertThat(Version.forWireVersion(1), is(Version.VERSION_2_5_2));
+        assertThat(Version.forWireVersion(2), is(Version.VERSION_2_5_4));
+
+        assertThat(Version.forWireVersion(3), is(Version.VERSION_2_5_4));
+        assertThat(Version.forWireVersion(Integer.MAX_VALUE),
+                is(Version.VERSION_2_5_4));
+    }
+
+    /**
      * Test method for {@link Version#later}.
      */
     @Test
