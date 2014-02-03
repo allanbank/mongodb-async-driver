@@ -14,6 +14,7 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.BinaryElement;
@@ -167,7 +168,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
      */
     @Override
     public ArrayBuilder add(final Object value) throws IllegalArgumentException {
-        myElements.add(coerse(nextIndex(), value));
+        myElements.add(BuilderFactory.e(nextIndex(), value));
         return this;
     }
 

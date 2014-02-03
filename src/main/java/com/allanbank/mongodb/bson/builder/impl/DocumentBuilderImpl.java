@@ -15,6 +15,7 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.BinaryElement;
 import com.allanbank.mongodb.bson.element.BooleanElement;
@@ -184,7 +185,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder add(final String name, final Object value)
             throws IllegalArgumentException {
-        add(coerse(name, value));
+        add(BuilderFactory.e(name, value));
         return this;
     }
 

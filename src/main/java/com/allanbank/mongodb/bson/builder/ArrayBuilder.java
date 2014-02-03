@@ -168,7 +168,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds the value to the array after trying to coerce the value into the
-     * best possible element type. If the coersion fails then an
+     * best possible element type. If the coercion fails then an
      * {@link IllegalArgumentException} is thrown.
      * <p>
      * This method does type inspection which can be slow. It is generally much
