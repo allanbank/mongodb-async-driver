@@ -6,7 +6,6 @@
 package com.allanbank.mongodb.client;
 
 import java.io.Closeable;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -31,10 +30,7 @@ public class SerialClientImpl extends AbstractClient {
 
     /** If true then assertions have been enabled for the class. */
     protected static final boolean ASSERTIONS_ENABLED;
-    /** The logger for the {@link SerialClientImpl}. */
-    protected static final Logger LOG = Logger.getLogger(SerialClientImpl.class
-            .getCanonicalName());
-
+    
     static {
         ASSERTIONS_ENABLED = SerialClientImpl.class.desiredAssertionStatus();
     }

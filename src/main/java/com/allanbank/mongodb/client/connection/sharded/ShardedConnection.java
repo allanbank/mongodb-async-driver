@@ -23,6 +23,8 @@ import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerSelector;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Provides a {@link Connection} implementation for connecting to a sharded
@@ -34,194 +36,193 @@ import com.allanbank.mongodb.client.state.ServerSelector;
  */
 public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
 
-    /** The selector for the server when we need to reconnect. */
-    private final ServerSelector mySelector;
+	/** The logger for the {@link ShardedConnection}. */
+	protected static final Log LOG = LogFactory.getLog(ShardedConnection.class);
 
-    /**
-     * Creates a new {@link ShardedConnection}.
-     * 
-     * @param proxiedConnection
-     *            The connection being proxied.
-     * @param server
-     *            The primary server this connection is connected to.
-     * @param cluster
-     *            The state of the cluster for finding secondary connections.
-     * @param selector
-     *            The selector for servers when we need to reconnect.
-     * @param factory
-     *            The connection factory for opening secondary connections.
-     * @param config
-     *            The MongoDB client configuration.
-     */
-    public ShardedConnection(final Connection proxiedConnection,
-            final Server server, final Cluster cluster,
-            final ServerSelector selector,
-            final ProxiedConnectionFactory factory,
-            final MongoClientConfiguration config) {
-        super(proxiedConnection, server, cluster, factory, config);
+	/** The selector for the server when we need to reconnect. */
+	private final ServerSelector mySelector;
 
-        mySelector = selector;
-    }
+	/**
+	 * Creates a new {@link ShardedConnection}.
+	 * 
+	 * @param proxiedConnection
+	 *            The connection being proxied.
+	 * @param server
+	 *            The primary server this connection is connected to.
+	 * @param cluster
+	 *            The state of the cluster for finding secondary connections.
+	 * @param selector
+	 *            The selector for servers when we need to reconnect.
+	 * @param factory
+	 *            The connection factory for opening secondary connections.
+	 * @param config
+	 *            The MongoDB client configuration.
+	 */
+	public ShardedConnection(final Connection proxiedConnection,
+			final Server server, final Cluster cluster,
+			final ServerSelector selector,
+			final ProxiedConnectionFactory factory,
+			final MongoClientConfiguration config) {
+		super(proxiedConnection, server, cluster, factory, config);
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return the canonical name of the primary.
-     * </p>
-     */
-    @Override
-    public String getServerName() {
-        if (myMainKey != null) {
-            return myMainKey.getCanonicalName();
-        }
-        return "UNKNOWN";
-    }
+		mySelector = selector;
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return the socket information.
-     * </p>
-     */
-    @Override
-    public String toString() {
-        return "Sharded(" + myLastUsedConnection.get() + ")";
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to return the canonical name of the primary.
+	 * </p>
+	 */
+	@Override
+	public String getServerName() {
+		if (myMainKey != null) {
+			return myMainKey.getCanonicalName();
+		}
+		return "UNKNOWN";
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to create a connection to the server.
-     * </p>
-     */
-    @Override
-    protected Connection connect(final Server server) {
-        Connection conn = null;
-        try {
-            conn = myFactory.connect(server, myConfig);
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to return the socket information.
+	 * </p>
+	 */
+	@Override
+	public String toString() {
+		return "Sharded(" + myLastUsedConnection.get() + ")";
+	}
 
-            conn = cacheConnection(server, conn);
-        }
-        catch (final IOException e) {
-            LOG.info("Could not connect to the server '"
-                    + server.getCanonicalName() + "': " + e.getMessage());
-        }
-        return conn;
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to create a connection to the server.
+	 * </p>
+	 */
+	@Override
+	protected Connection connect(final Server server) {
+		Connection conn = null;
+		try {
+			conn = myFactory.connect(server, myConfig);
 
-    /**
-     * Locates the set of servers that can be used to send the specified
-     * messages. This method will attempt to connect to the primary server if
-     * there is not a current connection to the primary.
-     * 
-     * @param message1
-     *            The first message to send.
-     * @param message2
-     *            The second message to send. May be <code>null</code>.
-     * @return The servers that can be used.
-     * @throws MongoDbException
-     *             On a failure to locate a server that all messages can be sent
-     *             to.
-     */
-    @Override
-    protected List<Server> findPotentialKeys(final Message message1,
-            final Message message2) throws MongoDbException {
-        List<Server> servers = doFindPotentialServers(message1, message2);
+			conn = cacheConnection(server, conn);
+		} catch (final IOException e) {
+			LOG.info(e, "Could not connect to the server '{}': {}",
+					server.getCanonicalName(), e.getMessage());
+		}
+		return conn;
+	}
 
-        if (servers.isEmpty()) {
-            // If we get here and a reconnect is in progress then
-            // block for the reconnect. Once the reconnect is complete, try
-            // again.
-            if (myMainKey == null) {
-                // Wait for a reconnect.
-                final ConnectionInfo<Server> newConnInfo = reconnectMain();
-                if (newConnInfo != null) {
-                    updateMain(newConnInfo);
-                    servers = doFindPotentialServers(message1, message2);
-                }
-            }
+	/**
+	 * Locates the set of servers that can be used to send the specified
+	 * messages. This method will attempt to connect to the primary server if
+	 * there is not a current connection to the primary.
+	 * 
+	 * @param message1
+	 *            The first message to send.
+	 * @param message2
+	 *            The second message to send. May be <code>null</code>.
+	 * @return The servers that can be used.
+	 * @throws MongoDbException
+	 *             On a failure to locate a server that all messages can be sent
+	 *             to.
+	 */
+	@Override
+	protected List<Server> findPotentialKeys(final Message message1,
+			final Message message2) throws MongoDbException {
+		List<Server> servers = doFindPotentialServers(message1, message2);
 
-            if (servers.isEmpty()) {
-                final StringBuilder builder = new StringBuilder();
-                builder.append("Could not find any servers for the following set of read preferences: ");
-                final Set<ReadPreference> seen = new HashSet<ReadPreference>();
-                for (final Message message : Arrays.asList(message1, message2)) {
-                    if (message != null) {
-                        final ReadPreference prefs = message
-                                .getReadPreference();
-                        if (seen.add(prefs)) {
-                            if (seen.size() > 1) {
-                                builder.append(", ");
-                            }
-                            builder.append(prefs);
-                        }
-                    }
-                }
+		if (servers.isEmpty()) {
+			// If we get here and a reconnect is in progress then
+			// block for the reconnect. Once the reconnect is complete, try
+			// again.
+			if (myMainKey == null) {
+				// Wait for a reconnect.
+				final ConnectionInfo<Server> newConnInfo = reconnectMain();
+				if (newConnInfo != null) {
+					updateMain(newConnInfo);
+					servers = doFindPotentialServers(message1, message2);
+				}
+			}
 
-                builder.append('.');
+			if (servers.isEmpty()) {
+				final StringBuilder builder = new StringBuilder();
+				builder.append("Could not find any servers for the following set of read preferences: ");
+				final Set<ReadPreference> seen = new HashSet<ReadPreference>();
+				for (final Message message : Arrays.asList(message1, message2)) {
+					if (message != null) {
+						final ReadPreference prefs = message
+								.getReadPreference();
+						if (seen.add(prefs)) {
+							if (seen.size() > 1) {
+								builder.append(", ");
+							}
+							builder.append(prefs);
+						}
+					}
+				}
 
-                throw new MongoDbException(builder.toString());
-            }
-        }
+				builder.append('.');
 
-        return servers;
-    }
+				throw new MongoDbException(builder.toString());
+			}
+		}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden creates a connection back to the primary server.
-     * </p>
-     */
-    @Override
-    protected ConnectionInfo<Server> reconnectMain() {
-        for (final Server server : mySelector.pickServers()) {
-            try {
-                final Connection conn = myFactory.connect(server, myConfig);
+		return servers;
+	}
 
-                return new ConnectionInfo<Server>(conn, server);
-            }
-            catch (final IOException ioe) {
-                // Ignored. Will return null.
-                LOG.fine("Could not connect to '" + server + "': "
-                        + ioe.getMessage());
-            }
-        }
-        return null;
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden creates a connection back to the primary server.
+	 * </p>
+	 */
+	@Override
+	protected ConnectionInfo<Server> reconnectMain() {
+		for (final Server server : mySelector.pickServers()) {
+			try {
+				final Connection conn = myFactory.connect(server, myConfig);
 
-    /**
-     * Locates the set of servers that can be used to send the specified
-     * messages.
-     * 
-     * @param message1
-     *            The first message to send.
-     * @param message2
-     *            The second message to send. May be <code>null</code>.
-     * @return The servers that can be used.
-     */
-    private List<Server> doFindPotentialServers(final Message message1,
-            final Message message2) {
+				return new ConnectionInfo<Server>(conn, server);
+			} catch (final IOException ioe) {
+				// Ignored. Will return null.
+				LOG.debug(ioe, "Could not connect to '{}': {}",
+						server.getCanonicalName(), ioe.getMessage());
+			}
+		}
+		return null;
+	}
 
-        final Server main = myMainKey;
-        List<Server> servers = Collections.emptyList();
-        if (message1 != null) {
-            ReadPreference pref = message1.getReadPreference();
-            if (pref.getServer() != null) {
-                servers = Collections.singletonList(myCluster.get(pref
-                        .getServer()));
-            }
-            else {
-                pref = message2.getReadPreference();
-                if (pref.getServer() != null) {
-                    servers = Collections.singletonList(myCluster.get(pref
-                            .getServer()));
-                }
-                else if (main != null) {
-                    servers = Collections.singletonList(main);
-                }
-            }
-        }
-        return servers;
-    }
+	/**
+	 * Locates the set of servers that can be used to send the specified
+	 * messages.
+	 * 
+	 * @param message1
+	 *            The first message to send.
+	 * @param message2
+	 *            The second message to send. May be <code>null</code>.
+	 * @return The servers that can be used.
+	 */
+	private List<Server> doFindPotentialServers(final Message message1,
+			final Message message2) {
+
+		final Server main = myMainKey;
+		List<Server> servers = Collections.emptyList();
+		if (message1 != null) {
+			ReadPreference pref = message1.getReadPreference();
+			if (pref.getServer() != null) {
+				servers = Collections.singletonList(myCluster.get(pref
+						.getServer()));
+			} else {
+				pref = message2.getReadPreference();
+				if (pref.getServer() != null) {
+					servers = Collections.singletonList(myCluster.get(pref
+							.getServer()));
+				} else if (main != null) {
+					servers = Collections.singletonList(main);
+				}
+			}
+		}
+		return servers;
+	}
 }

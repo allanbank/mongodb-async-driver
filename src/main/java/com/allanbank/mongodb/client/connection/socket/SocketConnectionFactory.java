@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.Version;
@@ -27,6 +25,8 @@ import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerSelector;
 import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.client.state.SimpleReconnectStrategy;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * {@link ConnectionFactory} to create direct socket connections to the servers.
@@ -37,166 +37,161 @@ import com.allanbank.mongodb.client.state.SimpleReconnectStrategy;
  */
 public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
-    /** The logger for the factory. */
-    private static final Logger LOG = Logger
-            .getLogger(SocketConnectionFactory.class.getName());
+	/** The logger for the factory. */
+	private static final Log LOG = LogFactory
+			.getLog(SocketConnectionFactory.class);
 
-    /** The MongoDB client configuration. */
-    private final MongoClientConfiguration myConfig;
+	/** The MongoDB client configuration. */
+	private final MongoClientConfiguration myConfig;
 
-    /** The server selector. */
-    private final ServerSelector myServerSelector;
+	/** The server selector. */
+	private final ServerSelector myServerSelector;
 
-    /** The state of the cluster. */
-    private final Cluster myState;
+	/** The state of the cluster. */
+	private final Cluster myState;
 
-    /**
-     * Creates a new {@link SocketConnectionFactory}.
-     * 
-     * @param config
-     *            The MongoDB client configuration.
-     */
-    public SocketConnectionFactory(final MongoClientConfiguration config) {
-        super();
-        myConfig = config;
-        myState = new Cluster(config);
-        myServerSelector = new LatencyServerSelector(myState, true);
-    }
+	/**
+	 * Creates a new {@link SocketConnectionFactory}.
+	 * 
+	 * @param config
+	 *            The MongoDB client configuration.
+	 */
+	public SocketConnectionFactory(final MongoClientConfiguration config) {
+		super();
+		myConfig = config;
+		myState = new Cluster(config);
+		myServerSelector = new LatencyServerSelector(myState, true);
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to do nothing.
-     * </p>
-     */
-    @Override
-    public void close() {
-        // Nothing.
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to do nothing.
+	 * </p>
+	 */
+	@Override
+	public void close() {
+		// Nothing.
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Returns a new {@link SocketConnection}.
-     * </p>
-     * 
-     * @see ConnectionFactory#connect()
-     */
-    @Override
-    public Connection connect() throws IOException {
-        final List<InetSocketAddress> servers = new ArrayList<InetSocketAddress>(
-                myConfig.getServerAddresses());
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Returns a new {@link SocketConnection}.
+	 * </p>
+	 * 
+	 * @see ConnectionFactory#connect()
+	 */
+	@Override
+	public Connection connect() throws IOException {
+		final List<InetSocketAddress> servers = new ArrayList<InetSocketAddress>(
+				myConfig.getServerAddresses());
 
-        // Shuffle the servers and try to connect to each until one works.
-        IOException last = null;
-        Collections.shuffle(servers);
-        for (final InetSocketAddress address : servers) {
-            try {
-                final Server server = myState.add(address);
-                final Connection conn = connect(server, myConfig);
+		// Shuffle the servers and try to connect to each until one works.
+		IOException last = null;
+		Collections.shuffle(servers);
+		for (final InetSocketAddress address : servers) {
+			try {
+				final Server server = myState.add(address);
+				final Connection conn = connect(server, myConfig);
 
-                // Get the state of the server updated.
-                final ServerUpdateCallback cb = new ServerUpdateCallback(server);
-                conn.send(new IsMaster(), cb);
+				// Get the state of the server updated.
+				final ServerUpdateCallback cb = new ServerUpdateCallback(server);
+				conn.send(new IsMaster(), cb);
 
-                if (Version.UNKNOWN.equals(server.getVersion())) {
-                    // If we don't know the version then wait for that response.
-                    try {
-                        cb.get();
-                    }
-                    catch (final ExecutionException e) {
-                        // Probably not in a good state...
-                        LOG.log(Level.FINE,
-                                "Could not execute a 'ismaster' command.", e);
-                    }
-                    catch (final InterruptedException e) {
-                        // Probably not in a good state...
-                        LOG.log(Level.FINE,
-                                "Could not execute a 'ismaster' command.", e);
-                    }
-                }
+				if (Version.UNKNOWN.equals(server.getVersion())) {
+					// If we don't know the version then wait for that response.
+					try {
+						cb.get();
+					} catch (final ExecutionException e) {
+						// Probably not in a good state...
+						LOG.debug(e, "Could not execute an 'ismaster' command.");
+					} catch (final InterruptedException e) {
+						// Probably not in a good state...
+						LOG.debug(e, "Could not execute an 'ismaster' command.");
+					}
+				}
 
-                return conn;
-            }
-            catch (final IOException error) {
-                last = error;
-            }
-        }
+				return conn;
+			} catch (final IOException error) {
+				last = error;
+			}
+		}
 
-        if (last != null) {
-            throw last;
-        }
-        throw new IOException("Could not connect to any server: " + servers);
-    }
+		if (last != null) {
+			throw last;
+		}
+		throw new IOException("Could not connect to any server: " + servers);
+	}
 
-    /**
-     * Creates a connection to the address provided.
-     * 
-     * @param server
-     *            The MongoDB server to connect to.
-     * @param config
-     *            The configuration for the Connection to the MongoDB server.
-     * @return The Connection to MongoDB.
-     * @throws IOException
-     *             On a failure connecting to the server.
-     */
-    @Override
-    public Connection connect(final Server server,
-            final MongoClientConfiguration config) throws IOException {
+	/**
+	 * Creates a connection to the address provided.
+	 * 
+	 * @param server
+	 *            The MongoDB server to connect to.
+	 * @param config
+	 *            The configuration for the Connection to the MongoDB server.
+	 * @return The Connection to MongoDB.
+	 * @throws IOException
+	 *             On a failure connecting to the server.
+	 */
+	@Override
+	public Connection connect(final Server server,
+			final MongoClientConfiguration config) throws IOException {
 
-        final AbstractSocketConnection connection;
+		final AbstractSocketConnection connection;
 
-        switch (myConfig.getConnectionModel()) {
-        case SENDER_RECEIVER_THREAD: {
-            connection = new TwoThreadSocketConnection(server, myConfig);
-            break;
-        }
-        default: { // and RECEIVER_THREAD
-            connection = new SocketConnection(server, myConfig);
-            break;
-        }
-        }
+		switch (myConfig.getConnectionModel()) {
+		case SENDER_RECEIVER_THREAD: {
+			connection = new TwoThreadSocketConnection(server, myConfig);
+			break;
+		}
+		default: { // and RECEIVER_THREAD
+			connection = new SocketConnection(server, myConfig);
+			break;
+		}
+		}
 
-        // Start the connection.
-        connection.start();
+		// Start the connection.
+		connection.start();
 
-        return connection;
-    }
+		return connection;
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return {@link ClusterType#STAND_ALONE} cluster type.
-     * </p>
-     */
-    @Override
-    public ClusterType getClusterType() {
-        return ClusterType.STAND_ALONE;
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to return {@link ClusterType#STAND_ALONE} cluster type.
+	 * </p>
+	 */
+	@Override
+	public ClusterType getClusterType() {
+		return ClusterType.STAND_ALONE;
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return a {@link SimpleReconnectStrategy}.
-     * </p>
-     */
-    @Override
-    public ReconnectStrategy getReconnectStrategy() {
-        final SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
-        strategy.setConfig(myConfig);
-        strategy.setConnectionFactory(this);
-        strategy.setSelector(myServerSelector);
-        strategy.setState(myState);
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to return a {@link SimpleReconnectStrategy}.
+	 * </p>
+	 */
+	@Override
+	public ReconnectStrategy getReconnectStrategy() {
+		final SimpleReconnectStrategy strategy = new SimpleReconnectStrategy();
+		strategy.setConfig(myConfig);
+		strategy.setConnectionFactory(this);
+		strategy.setSelector(myServerSelector);
+		strategy.setState(myState);
 
-        return strategy;
-    }
+		return strategy;
+	}
 
-    /**
-     * Returns the cluster state.
-     * 
-     * @return The cluster state.
-     */
-    protected Cluster getState() {
-        return myState;
-    }
+	/**
+	 * Returns the cluster state.
+	 * 
+	 * @return The cluster state.
+	 */
+	protected Cluster getState() {
+		return myState;
+	}
 }
