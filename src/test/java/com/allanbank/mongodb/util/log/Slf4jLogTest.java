@@ -81,8 +81,8 @@ public class Slf4jLogTest {
 
 			Class<?> clazz = systemLoader
 					.loadClass("com.allanbank.mongodb.util.log.Slf4jLogFactory");
-			ourFactoryMethod = clazz.getMethod("getLog", Class.class);
-
+			ourFactoryMethod = clazz.getDeclaredMethod("doGetLog", Class.class);
+			ourFactoryMethod.setAccessible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 			assumeNoException(e);
@@ -123,7 +123,6 @@ public class Slf4jLogTest {
 
 			out.flush();
 		} catch (Exception e) {
-			e.printStackTrace();
 			assumeNoException(e);
 		} finally {
 			IOUtils.close(out);
@@ -151,7 +150,8 @@ public class Slf4jLogTest {
 		myJulLog.setLevel(Level.FINEST);
 
 		LogFactory.reset();
-		myTestLog = (Log) ourFactoryMethod.invoke(null, Slf4jLogTest.class);
+		myTestLog = (Log) ourFactoryMethod.invoke(ourFactoryMethod
+				.getDeclaringClass().newInstance(), Slf4jLogTest.class);
 	}
 
 	@After
@@ -167,6 +167,16 @@ public class Slf4jLogTest {
 		myTestLog = null;
 
 		LogFactory.reset();
+	}
+
+	/**
+	 * Test for the {@link LogFactory#getLog(Class)} method.
+	 */
+	@Test
+	public void testGetLog() {
+		Log log = LogFactory.getLog(getClass());
+
+		assertThat(log, instanceOf(Slf4jLog.class));
 	}
 
 	/**

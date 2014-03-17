@@ -4,6 +4,8 @@
  */
 package com.allanbank.mongodb.util.log;
 
+import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -43,7 +45,7 @@ public class JulLogTest {
 		myJulLog.setUseParentHandlers(false);
 		myJulLog.setLevel(Level.FINEST);
 
-		myTestLog = LogFactory.getLog(JulLogTest.class);
+		myTestLog = new JulLogFactory().doGetLog(JulLogTest.class);
 	}
 
 	@After
@@ -59,6 +61,18 @@ public class JulLogTest {
 		myTestLog = null;
 
 		LogFactory.reset();
+	}
+
+	/**
+	 * Test for the {@link LogFactory#getLog(Class)} method.
+	 */
+	@Test
+	public void testGetLog() {
+		Log log = LogFactory.getLog(getClass());
+
+		// If the SLF4J test runs first we get and Slf4jLog.
+		assertThat(log,
+				either(instanceOf(JulLog.class)).or(instanceOf(Slf4jLog.class)));
 	}
 
 	/**
