@@ -4,7 +4,7 @@
  */
 
 /**
- * Provides provides a micro logging framework for the driver that will 
+ * Provides a micro logging framework for the driver that will 
  * use the SLF4J logging facade if it is present and Java Util Logging 
  * if it is not. 
  * 

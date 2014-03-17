@@ -37,219 +37,271 @@ import com.allanbank.mongodb.client.connection.auth.MongoDbAuthenticator;
  */
 public class CredentialTest {
 
-    /**
-     * Test method for {@link Credential#authenticator()}.
-     */
-    @Test
-    public void testAuthenticator() {
-        final MongoDbAuthenticator auth = new MongoDbAuthenticator();
+	/**
+	 * Test method for {@link Credential#authenticator()}.
+	 */
+	@Test
+	public void testAuthenticator() {
+		final MongoDbAuthenticator auth = new MongoDbAuthenticator();
 
-        final Credential c = Credential.builder().userName("user")
-                .password(new char[1]).database("foo").authenticator(auth)
-                .build();
+		final Credential c = Credential.builder().userName("user")
+				.password(new char[1]).database("foo").authenticator(auth)
+				.build();
 
-        assertEquals("user", c.getUserName());
-        assertArrayEquals(new char[1], c.getPassword());
-        assertEquals("foo", c.getDatabase());
-        assertEquals(MongoDbAuthenticator.class.getName(),
-                c.getAuthenticationType());
-        assertSame(auth, c.getAuthenticator());
-        assertNotSame(auth, c.authenticator());
-        assertTrue(c.authenticator() instanceof MongoDbAuthenticator);
-    }
+		assertEquals("user", c.getUserName());
+		assertArrayEquals(new char[1], c.getPassword());
+		assertEquals("foo", c.getDatabase());
+		assertEquals(MongoDbAuthenticator.class.getName(),
+				c.getAuthenticationType());
+		assertSame(auth, c.getAuthenticator());
+		assertNotSame(auth, c.authenticator());
+		assertTrue(c.authenticator() instanceof MongoDbAuthenticator);
+	}
 
-    /**
-     * Test method for {@link Credential#authenticator()}.
-     */
-    @Test(expected = MongoDbException.class)
-    public void testAuthenticatorFails() {
-        final Credential c = Credential.builder().userName("user")
-                .password(new char[1]).database("foo")
-                .authenticationType("fail").build();
+	/**
+	 * Test method for {@link Credential#authenticator()}.
+	 */
+	@Test(expected = MongoDbException.class)
+	public void testAuthenticatorFails() {
+		final Credential c = Credential.builder().userName("user")
+				.password(new char[1]).database("foo")
+				.authenticationType("fail").build();
 
-        c.authenticator();
-    }
+		c.authenticator();
+	}
 
-    /**
-     * Test method for {@link Credential#authenticator()}.
-     */
-    @Test
-    public void testDefaultDB() {
-        final Credential c = Credential.builder().userName("user")
-                .password(new char[1]).database(null)
-                .authenticationType("fail").build();
+	/**
+	 * Test method for {@link Credential#authenticator()}.
+	 */
+	@Test
+	public void testDefaultDB() {
+		final Credential c = Credential.builder().userName("user")
+				.password(new char[1]).database(null)
+				.authenticationType("fail").build();
 
-        assertEquals(Credential.ADMIN_DB, c.getDatabase());
-    }
+		assertEquals(Credential.ADMIN_DB, c.getDatabase());
+	}
 
-    /**
-     * Test method for {@link Credential#equals(Object)}.
-     */
-    @Test
-    public void testEqualsObject() {
+	/**
+	 * Test method for {@link Credential#equals(Object)}.
+	 */
+	@Test
+	public void testEqualsObject() {
 
-        final List<Credential> objs1 = new ArrayList<Credential>();
-        final List<Credential> objs2 = new ArrayList<Credential>();
+		final List<Credential> objs1 = new ArrayList<Credential>();
+		final List<Credential> objs2 = new ArrayList<Credential>();
 
-        final File file1 = new File("a");
-        final File file2 = new File("b");
+		final File file1 = new File("a");
+		final File file2 = new File("b");
 
-        for (final String user : Arrays.asList("a", "b", "c", null)) {
-            for (final String passwd : Arrays.asList("a", "b", "c", null)) {
-                for (final String db : Arrays.asList("a", "b", "c", null)) {
-                    for (final File file : Arrays.asList(file1, file2, null)) {
-                        for (final String type : Arrays.asList("a", "b", "c",
-                                null)) {
-                            if (passwd == null) {
-                                objs1.add(Credential.builder().userName(user)
-                                        .password(null).database(db).file(file)
-                                        .authenticationType(type).build());
-                                objs2.add(Credential.builder().userName(user)
-                                        .password(null).database(db).file(file)
-                                        .authenticationType(type).build());
+		for (final String user : Arrays.asList("a", "b", "c", null)) {
+			for (final String passwd : Arrays.asList("a", "b", "c", null)) {
+				for (final String db : Arrays.asList("a", "b", "c", null)) {
+					for (final File file : Arrays.asList(file1, file2, null)) {
+						for (final String type : Arrays.asList("a", "b", "c",
+								null)) {
+							if (passwd == null) {
+								objs1.add(Credential.builder().userName(user)
+										.password(null).database(db).file(file)
+										.authenticationType(type).build());
+								objs2.add(Credential.builder().userName(user)
+										.password(null).database(db).file(file)
+										.authenticationType(type).build());
 
-                            }
-                            else {
-                                objs1.add(Credential.builder().userName(user)
-                                        .password(passwd.toCharArray())
-                                        .database(db).file(file)
-                                        .authenticationType(type).build());
-                                objs2.add(Credential.builder().userName(user)
-                                        .password(passwd.toCharArray())
-                                        .database(db).file(file)
-                                        .authenticationType(type).build());
-                            }
-                        }
-                    }
-                }
-            }
-        }
+							} else {
+								objs1.add(Credential.builder().userName(user)
+										.password(passwd.toCharArray())
+										.database(db).file(file)
+										.authenticationType(type).build());
+								objs2.add(Credential.builder().userName(user)
+										.password(passwd.toCharArray())
+										.database(db).file(file)
+										.authenticationType(type).build());
 
-        // Sanity check.
-        assertEquals(objs1.size(), objs2.size());
+								objs1.add(Credential.builder().userName(user)
+										.password(passwd.toCharArray())
+										.database(db).file(file)
+										.addOption("f", "g")
+										.authenticationType(type).build());
+								objs2.add(Credential.builder().userName(user)
+										.addOption("f", "g")
+										.password(passwd.toCharArray())
+										.database(db).file(file)
+										.authenticationType(type).build());
+							}
+						}
+					}
+				}
+			}
+		}
 
-        for (int i = 0; i < objs1.size(); ++i) {
-            final Credential obj1 = objs1.get(i);
-            Credential obj2 = objs2.get(i);
+		// Sanity check.
+		assertEquals(objs1.size(), objs2.size());
 
-            assertTrue(obj1.equals(obj1));
-            assertEquals(obj1, obj2);
+		for (int i = 0; i < objs1.size(); ++i) {
+			final Credential obj1 = objs1.get(i);
+			Credential obj2 = objs2.get(i);
 
-            assertEquals(obj1.hashCode(), obj2.hashCode());
+			assertTrue(obj1.equals(obj1));
+			assertEquals(obj1, obj2);
 
-            for (int j = i + 1; j < objs1.size(); ++j) {
-                obj2 = objs2.get(j);
+			assertEquals(obj1.hashCode(), obj2.hashCode());
 
-                assertFalse(obj1.equals(obj2));
-                assertFalse(obj1.hashCode() == obj2.hashCode());
-            }
+			for (int j = i + 1; j < objs1.size(); ++j) {
+				obj2 = objs2.get(j);
 
-            assertFalse(obj1.equals("foo"));
-            assertFalse(obj1.equals(null));
-        }
-    }
+				assertFalse(obj1.equals(obj2));
+				assertFalse(obj1.hashCode() == obj2.hashCode());
+			}
 
-    /**
-     * Test method for {@link Credential#hasPassword()}.
-     */
-    @Test
-    public void testHasPassword() {
-        Credential c = Credential.builder().userName("user")
-                .password(new char[1]).database(null)
-                .authenticationType("fail").build();
-        assertTrue(c.hasPassword());
+			assertFalse(obj1.equals("foo"));
+			assertFalse(obj1.equals(null));
+		}
+	}
 
-        c = Credential.builder().userName("user").password(new char[0])
-                .database(null).authenticationType("fail").build();
-        assertFalse(c.hasPassword());
-    }
+	/**
+	 * Test method for {@link Credential#hasPassword()}.
+	 */
+	@Test
+	public void testHasPassword() {
+		Credential c = Credential.builder().userName("user")
+				.password(new char[1]).database(null)
+				.authenticationType("fail").build();
+		assertTrue(c.hasPassword());
 
-    /**
-     * Test method for {@link Credential#authenticator()}.
-     * 
-     * @throws IOException
-     *             On a test failure.
-     * @throws ClassNotFoundException
-     *             On a test failure.
-     */
-    @Test
-    public void testSerialization() throws IOException, ClassNotFoundException {
-        final MongoDbAuthenticator auth = new MongoDbAuthenticator();
+		c = Credential.builder().userName("user").password(new char[0])
+				.database(null).authenticationType("fail").build();
+		assertFalse(c.hasPassword());
+	}
 
-        final Credential c = Credential.builder().userName("user")
-                .password(new char[1]).database("foo").authenticator(auth)
-                .build();
+	/**
+	 * Test method for {@link Credential#getOption(String, String)}.
+	 */
+	@Test
+	public void testGetOptionString() {
+		Credential c = Credential.builder().userName("user")
+				.password(new char[1]).database(null).addOption("f", "g")
+				.addOption("h", "i").authenticationType("fail").build();
 
-        assertEquals("user", c.getUserName());
-        assertArrayEquals(new char[1], c.getPassword());
-        assertEquals("foo", c.getDatabase());
-        assertEquals(MongoDbAuthenticator.class.getName(),
-                c.getAuthenticationType());
-        assertSame(auth, c.getAuthenticator());
-        assertNotSame(auth, c.authenticator());
-        assertTrue(c.authenticator() instanceof MongoDbAuthenticator);
+		assertThat(c.getOption("f", "other"), is("g"));
+		assertThat(c.getOption("h", "other"), is("i"));
+		assertThat(c.getOption("j", "other"), is("other"));
+	}
 
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final ObjectOutputStream oout = new ObjectOutputStream(out);
+	/**
+	 * Test method for {@link Credential#getOption(String, int)}.
+	 */
+	@Test
+	public void testGetOptionInt() {
+		Credential c = Credential.builder().userName("user")
+				.password(new char[1]).database(null).addOption("f", 1)
+				.addOption("h", "i").authenticationType("fail").build();
 
-        oout.writeObject(c);
-        oout.flush();
+		assertThat(c.getOption("f", 10), is(1));
+		assertThat(c.getOption("h", 10), is(10));
+		assertThat(c.getOption("j", 10), is(10));
+	}
 
-        final ObjectInputStream oin = new ObjectInputStream(
-                new ByteArrayInputStream(out.toByteArray()));
+	/**
+	 * Test method for {@link Credential#getOption(String, int)}.
+	 */
+	@Test
+	public void testGetOptionBoolean() {
+		Credential c = Credential.builder().userName("user")
+				.password(new char[1]).database(null).addOption("f", true)
+				.addOption("h", "True").authenticationType("fail").build();
 
-        final Object obj = oin.readObject();
-        assertThat(obj, instanceOf(Credential.class));
+		assertThat(c.getOption("f", false), is(true));
+		assertThat(c.getOption("h", false), is(true));
+		assertThat(c.getOption("j", false), is(false));
+	}
 
-        final Credential other = (Credential) obj;
-        assertThat(other, is(c));
+	/**
+	 * Test method for {@link Credential#authenticator()}.
+	 * 
+	 * @throws IOException
+	 *             On a test failure.
+	 * @throws ClassNotFoundException
+	 *             On a test failure.
+	 */
+	@Test
+	public void testSerialization() throws IOException, ClassNotFoundException {
+		final MongoDbAuthenticator auth = new MongoDbAuthenticator();
 
-        assertEquals("user", other.getUserName());
-        assertArrayEquals(new char[1], other.getPassword());
-        assertEquals("foo", other.getDatabase());
-        assertEquals(MongoDbAuthenticator.class.getName(),
-                other.getAuthenticationType());
-        assertNull(other.getAuthenticator());
-        assertNotSame(auth, other.authenticator());
-        assertTrue(c.authenticator() instanceof MongoDbAuthenticator);
-    }
+		final Credential c = Credential.builder().userName("user")
+				.password(new char[1]).database("foo").authenticator(auth)
+				.build();
 
-    /**
-     * Test method for {@link Credential#toString()}.
-     */
-    @Test
-    public void testToString() {
-        final MongoDbAuthenticator auth = new MongoDbAuthenticator();
-        Credential c = Credential.builder().userName("user")
-                .password(new char[1]).database("foo").authenticator(auth)
-                .build();
+		assertEquals("user", c.getUserName());
+		assertArrayEquals(new char[1], c.getPassword());
+		assertEquals("foo", c.getDatabase());
+		assertEquals(MongoDbAuthenticator.class.getName(),
+				c.getAuthenticationType());
+		assertSame(auth, c.getAuthenticator());
+		assertNotSame(auth, c.authenticator());
+		assertTrue(c.authenticator() instanceof MongoDbAuthenticator);
 
-        assertThat(
-                c.toString(),
-                is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'MONGODB-CR' }"));
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		final ObjectOutputStream oout = new ObjectOutputStream(out);
 
-        c = Credential.builder().userName("user").password(new char[1])
-                .database("foo").kerberos().build();
-        assertThat(
-                c.toString(),
-                is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'KERBEROS' }"));
+		oout.writeObject(c);
+		oout.flush();
 
-        c = Credential.builder().userName("user").password(new char[1])
-                .database("foo").mongodbCR().build();
-        assertThat(
-                c.toString(),
-                is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'MONGODB-CR' }"));
+		final ObjectInputStream oin = new ObjectInputStream(
+				new ByteArrayInputStream(out.toByteArray()));
 
-        c = Credential.builder().userName("user").password(new char[1])
-                .database("foo").authenticationType("bar").build();
-        assertThat(
-                c.toString(),
-                is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'bar' }"));
+		final Object obj = oin.readObject();
+		assertThat(obj, instanceOf(Credential.class));
 
-        c = Credential.builder().userName("user").password(new char[1])
-                .file(new File("a")).database("foo").kerberos().build();
-        assertThat(
-                c.toString(),
-                is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'KERBEROS' }"));
-    }
+		final Credential other = (Credential) obj;
+		assertThat(other, is(c));
+
+		assertEquals("user", other.getUserName());
+		assertArrayEquals(new char[1], other.getPassword());
+		assertEquals("foo", other.getDatabase());
+		assertEquals(MongoDbAuthenticator.class.getName(),
+				other.getAuthenticationType());
+		assertNull(other.getAuthenticator());
+		assertNotSame(auth, other.authenticator());
+		assertTrue(c.authenticator() instanceof MongoDbAuthenticator);
+	}
+
+	/**
+	 * Test method for {@link Credential#toString()}.
+	 */
+	@Test
+	public void testToString() {
+		final MongoDbAuthenticator auth = new MongoDbAuthenticator();
+		Credential c = Credential.builder().userName("user")
+				.password(new char[1]).database("foo").authenticator(auth)
+				.build();
+
+		assertThat(
+				c.toString(),
+				is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'MONGODB-CR' }"));
+
+		c = Credential.builder().userName("user").password(new char[1])
+				.database("foo").kerberos().build();
+		assertThat(
+				c.toString(),
+				is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'KERBEROS' }"));
+
+		c = Credential.builder().userName("user").password(new char[1])
+				.database("foo").mongodbCR().build();
+		assertThat(
+				c.toString(),
+				is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'MONGODB-CR' }"));
+
+		c = Credential.builder().userName("user").password(new char[1])
+				.database("foo").authenticationType("bar").build();
+		assertThat(
+				c.toString(),
+				is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'bar' }"));
+
+		c = Credential.builder().userName("user").password(new char[1])
+				.file(new File("a")).database("foo").kerberos().build();
+		assertThat(
+				c.toString(),
+				is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'KERBEROS' }"));
+	}
 }
