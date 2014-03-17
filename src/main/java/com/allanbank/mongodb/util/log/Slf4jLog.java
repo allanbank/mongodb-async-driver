@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 /**
  * Slf4jLog is the simplified logging implementation for SLF4J logging facade.
@@ -62,11 +63,14 @@ public class Slf4jLog extends AbstractLog implements Log {
 			myLogMethod.invoke(myDelegate, new Object[] { null, CLASS_NAME,
 					toInt(level), template, args, thrown });
 		} catch (IllegalArgumentException e) {
-			// TODO: What now?
+			Logger.getLogger(Slf4jLog.class.getName()).log(Level.WARNING,
+					"Failed to log a message: " + e.getMessage(), e);
 		} catch (IllegalAccessException e) {
-			// TODO: What now?
+			Logger.getLogger(Slf4jLog.class.getName()).log(Level.WARNING,
+					"Failed to log a message: " + e.getMessage(), e);
 		} catch (InvocationTargetException e) {
-			// TODO: What now?
+			Logger.getLogger(Slf4jLog.class.getName()).log(Level.WARNING,
+					"Failed to log a message: " + e.getMessage(), e);
 		}
 	}
 

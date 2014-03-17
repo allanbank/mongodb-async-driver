@@ -6,6 +6,8 @@ package com.allanbank.mongodb.util.log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Slf4jLogFactory provides factory to create {@link Slf4jLog} instances.
@@ -31,8 +33,15 @@ public class Slf4jLogFactory extends LogFactory {
 	private final Class<?> myLocationAwareLoggerClass;
 
 	public Slf4jLogFactory() throws RuntimeException {
+		Class<?> logFactoryClass;
 		try {
-			Class<?> logFactoryClass = Class.forName("org.slf4j.LoggerFactory");
+			logFactoryClass = Class.forName("org.slf4j.LoggerFactory");
+		} catch (ClassNotFoundException e) {
+			// Don't log. SLF4J is not on the classpath to use.
+			throw new RuntimeException(e);
+		}
+
+		try {
 			myLogFactoryMethod = logFactoryClass.getMethod("getLogger",
 					Class.class);
 
@@ -43,8 +52,14 @@ public class Slf4jLogFactory extends LogFactory {
 					markerClass, String.class, int.class, String.class,
 					Object[].class, Throwable.class);
 		} catch (ClassNotFoundException e) {
+			Logger.getLogger(Slf4jLogFactory.class.getName()).log(
+					Level.WARNING,
+					"Failed bootstrap the SLF4J logger: " + e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (NoSuchMethodException e) {
+			Logger.getLogger(Slf4jLogFactory.class.getName()).log(
+					Level.WARNING,
+					"Failed bootstrap the SLF4J logger: " + e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -74,6 +89,8 @@ public class Slf4jLogFactory extends LogFactory {
 
 		// Fall back to JUL logging.
 		if (log == null) {
+			Logger.getLogger(Slf4jLogFactory.class.getName()).warning(
+					"Falling back to the JUL logger.");
 			log = new JulLog(clazz);
 		}
 
