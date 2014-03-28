@@ -18,6 +18,7 @@ import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.LambdaCallback;
 import com.allanbank.mongodb.ListenableFuture;
 import com.allanbank.mongodb.LockType;
+import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
@@ -56,8 +57,14 @@ public class MongoDatabaseImpl implements MongoDatabase {
     /** The 'admin' database. */
     private MongoDatabase myAdminDatabase;
 
+    /** The set of databases in use. */
+    private final ConcurrentMap<String, Reference<MongoCollection>> myCollections;
+
     /** The {@link Durability} for writes from this database instance. */
     private Durability myDurability;
+
+    /** The {@link MongoClient}. */
+    private final MongoClient myMongoClient;
 
     /** The name of the database we interact with. */
     private final String myName;
@@ -68,18 +75,19 @@ public class MongoDatabaseImpl implements MongoDatabase {
     /** The queue of references to the collections that have been reclaimed. */
     private final ReferenceQueue<MongoCollection> myReferenceQueue = new ReferenceQueue<MongoCollection>();
 
-    /** The set of databases in use. */
-    private final ConcurrentMap<String, Reference<MongoCollection>> myCollections;
-
     /**
      * Create a new MongoDatabaseClient.
      * 
+     * @param mongoClient
+     *            The {@link MongoClient}.
      * @param client
      *            The client for interacting with MongoDB.
      * @param name
      *            The name of the database we interact with.
      */
-    public MongoDatabaseImpl(final Client client, final String name) {
+    public MongoDatabaseImpl(final MongoClient mongoClient,
+            final Client client, final String name) {
+        myMongoClient = mongoClient;
         myClient = client;
         myName = name;
         myDurability = null;
@@ -135,6 +143,14 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public boolean exists() {
+        return myMongoClient.listDatabaseNames().contains(getName());
+    }
+
+    /**
+     * {@inheritDoc}
      * <p>
      * Overridden to create a new {@link SynchronousMongoCollectionImpl}.
      * </p>
@@ -160,10 +176,10 @@ public class MongoDatabaseImpl implements MongoDatabase {
             ref = new NamedReference<MongoCollection>(name, collection,
                     myReferenceQueue);
 
-            Reference<MongoCollection> existing = myCollections.putIfAbsent(
-                    name, ref);
+            final Reference<MongoCollection> existing = myCollections
+                    .putIfAbsent(name, ref);
             if (existing != null) {
-                MongoCollection existingCollection = existing.get();
+                final MongoCollection existingCollection = existing.get();
                 if (existingCollection != null) {
                     collection = existingCollection;
                 }
@@ -849,7 +865,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
                 myAdminDatabase = this;
             }
             else {
-                myAdminDatabase = new MongoDatabaseImpl(myClient, "admin");
+                myAdminDatabase = myMongoClient.getDatabase("admin");
             }
         }
 

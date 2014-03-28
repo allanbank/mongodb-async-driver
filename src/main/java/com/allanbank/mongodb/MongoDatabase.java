@@ -75,6 +75,20 @@ public interface MongoDatabase {
     public boolean drop() throws MongoDbException;
 
     /**
+     * Returns true if this database already exists on the server.
+     * <p>
+     * This method is simply a helper name to check if this database's name
+     * appears in the parent {@link MongoClient client's} list of databases.
+     * </p>
+     * 
+     * @return True if the parent client's returns this database's name in its
+     *         list of database's names.
+     * @throws MongoDbException
+     *             On an error retrieving the list of database's.
+     */
+    public boolean exists() throws MongoDbException;
+
+    /**
      * Returns the MongoCollection with the specified name. This method does not
      * validate that the collection already exists in the MongoDB database.
      * 

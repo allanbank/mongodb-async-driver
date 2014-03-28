@@ -35,11 +35,11 @@ public class MongoClientImpl implements MongoClient {
     /** The client to interact with MongoDB. */
     private final Client myClient;
 
-    /** The queue of references to the databases that have been reclaimed. */
-    private final ReferenceQueue<MongoDatabase> myReferenceQueue = new ReferenceQueue<MongoDatabase>();
-
     /** The set of databases in use. */
     private final ConcurrentMap<String, Reference<MongoDatabase>> myDatabases;
+
+    /** The queue of references to the databases that have been reclaimed. */
+    private final ReferenceQueue<MongoDatabase> myReferenceQueue = new ReferenceQueue<MongoDatabase>();
 
     /**
      * Create a new MongoClient.
@@ -131,14 +131,14 @@ public class MongoClientImpl implements MongoClient {
 
         // Create a new one.
         if (database == null) {
-            database = new MongoDatabaseImpl(myClient, name);
+            database = new MongoDatabaseImpl(this, myClient, name);
             ref = new NamedReference<MongoDatabase>(name, database,
                     myReferenceQueue);
 
-            Reference<MongoDatabase> existing = myDatabases.putIfAbsent(name,
-                    ref);
+            final Reference<MongoDatabase> existing = myDatabases.putIfAbsent(
+                    name, ref);
             if (existing != null) {
-                MongoDatabase existingDb = existing.get();
+                final MongoDatabase existingDb = existing.get();
                 if (existingDb != null) {
                     database = existingDb;
                 }

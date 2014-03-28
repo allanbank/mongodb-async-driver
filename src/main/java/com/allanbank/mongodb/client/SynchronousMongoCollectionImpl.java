@@ -424,6 +424,14 @@ public class SynchronousMongoCollectionImpl extends
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public boolean exists() throws MongoDbException {
+        return myDatabase.listCollectionNames().contains(getName());
+    }
+
+    /**
+     * {@inheritDoc}
      * <p>
      * Overridden to call the {@link #explainAsync(Aggregate)} method.
      * </p>

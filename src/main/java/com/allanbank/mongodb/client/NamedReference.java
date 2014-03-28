@@ -33,8 +33,8 @@ import java.lang.ref.SoftReference;
      * @param q
      *            The queue to add the reference to when reclaimed.
      */
-    protected NamedReference(String name, T referent,
-            ReferenceQueue<? super T> q) {
+    protected NamedReference(final String name, final T referent,
+            final ReferenceQueue<? super T> q) {
         super(referent, q);
         myName = name;
     }

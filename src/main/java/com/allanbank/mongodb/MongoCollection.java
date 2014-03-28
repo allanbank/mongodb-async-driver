@@ -468,6 +468,21 @@ public interface MongoCollection extends AsyncMongoCollection {
     public boolean dropIndex(String name) throws MongoDbException;
 
     /**
+     * Returns true if this collection already exists on the server.
+     * <p>
+     * This method is simply a helper name to check if this collection's name
+     * appears in the parent {@link MongoDatabase database's} list of
+     * collections.
+     * </p>
+     * 
+     * @return True if the parent database returns this collection's name in its
+     *         list of collection names.
+     * @throws MongoDbException
+     *             On an error retrieving the list of collections.
+     */
+    public boolean exists() throws MongoDbException;
+
+    /**
      * Explains the way that the aggregation will be performed.
      * <p>
      * This is equivalent to calling {@link #explainAsync(Aggregate)

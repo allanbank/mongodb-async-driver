@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ProfilingStatus;
@@ -50,6 +51,9 @@ public class MongoDatabaseImplTest {
     /** The client the collection interacts with. */
     private Client myMockClient = null;
 
+    /** The client the collection interacts with. */
+    private MongoClient myMockMongoClient = null;
+
     /** The instance under test. */
     private MongoDatabaseImpl myTestInstance = null;
 
@@ -58,9 +62,11 @@ public class MongoDatabaseImplTest {
      */
     @Before
     public void setUp() {
+        myMockMongoClient = EasyMock.createMock(MongoClient.class);
         myMockClient = EasyMock.createMock(Client.class);
 
-        myTestInstance = new MongoDatabaseImpl(myMockClient, "test");
+        myTestInstance = new MongoDatabaseImpl(myMockMongoClient, myMockClient,
+                "test");
 
         expect(myMockClient.getConfig()).andReturn(
                 new MongoClientConfiguration()).anyTimes();
@@ -370,7 +376,8 @@ public class MongoDatabaseImplTest {
      */
     @Test
     public void testRunAdminCommandString() {
-        myTestInstance = new MongoDatabaseImpl(myMockClient, "admin");
+        myTestInstance = new MongoDatabaseImpl(myMockMongoClient, myMockClient,
+                "admin");
 
         final Document reply = BuilderFactory.start().build();
 
@@ -406,6 +413,11 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("admin", commandDoc.build());
 
+        expect(myMockMongoClient.getDatabase("admin"))
+                .andReturn(
+                        new MongoDatabaseImpl(myMockMongoClient, myMockClient,
+                                "admin"));
+
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
         myMockClient.send(eq(message), callback(reply(reply)));
@@ -435,6 +447,10 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("admin", commandDoc.build());
 
+        expect(myMockMongoClient.getDatabase("admin"))
+                .andReturn(
+                        new MongoDatabaseImpl(myMockMongoClient, myMockClient,
+                                "admin"));
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
 
@@ -850,7 +866,7 @@ public class MongoDatabaseImplTest {
      */
     private void replay(final Object... mocks) {
         EasyMock.replay(mocks);
-        EasyMock.replay(myMockClient);
+        EasyMock.replay(myMockClient, myMockMongoClient);
     }
 
     /**
@@ -874,6 +890,6 @@ public class MongoDatabaseImplTest {
      */
     private void verify(final Object... mocks) {
         EasyMock.verify(mocks);
-        EasyMock.verify(myMockClient);
+        EasyMock.verify(myMockClient, myMockMongoClient);
     }
 }
