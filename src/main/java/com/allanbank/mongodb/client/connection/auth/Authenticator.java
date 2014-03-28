@@ -28,7 +28,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 public interface Authenticator extends Cloneable {
 
     /**
-     * Privides the ability to clone the authenticator. A new
+     * Provides the ability to clone the authenticator. A new
      * {@link Authenticator} instance is created for each physical connection in
      * use.
      * <p>
