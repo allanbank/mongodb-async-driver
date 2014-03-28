@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.easymock.EasyMock;
 import org.junit.Test;
@@ -68,6 +69,24 @@ public class GridFsTest {
         assertEquals(GridFs.DEFAULT_CHUNK_SIZE, fs.getChunkSize());
         fs.setChunkSize(1024);
         assertEquals(1024, fs.getChunkSize());
+    }
+
+    /**
+     * Test method for {@link GridFs#getChunkSize}.
+     */
+    @Test
+    public void testOverhead() {
+        final Random random = new Random(System.currentTimeMillis());
+        final byte[] data = new byte[random.nextInt(GridFs.DEFAULT_CHUNK_SIZE) + 1];
+
+        DocumentBuilder doc = BuilderFactory.start();
+        doc.addObjectId(GridFs.ID_FIELD, new ObjectId());
+        doc.addObjectId(GridFs.FILES_ID_FIELD, new ObjectId());
+        doc.addInteger(GridFs.CHUNK_NUMBER_FIELD, 0);
+        doc.addBinary(GridFs.DATA_FIELD, data);
+
+        assertThat((long) GridFs.CHUNK_OVERHEAD, is(doc.build().size()
+                - data.length));
     }
 
     /**

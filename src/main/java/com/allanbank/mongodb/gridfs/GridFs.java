@@ -81,8 +81,14 @@ public class GridFs {
      */
     public static final String DATA_FIELD = "data";
 
-    /** The default chunk size. */
-    public static final int DEFAULT_CHUNK_SIZE = 256 * 1024;
+    /** The amount of overhead in a chunk document in bytes: {@value} */
+    public static final int CHUNK_OVERHEAD = 58;
+
+    /**
+     * The default chunk size. This is slightly less than 256K to allow for the
+     * {@link #CHUNK_OVERHEAD} when using the power of two allocator.
+     */
+    public static final int DEFAULT_CHUNK_SIZE;
 
     /** The suffix for the files collection. */
     public static final String DEFAULT_ROOT = "fs";
@@ -122,6 +128,10 @@ public class GridFs {
      * file's upload date.
      */
     public static final String UPLOAD_DATE_FIELD = "uploadDate";
+
+    static {
+        DEFAULT_CHUNK_SIZE = 256 * 1024 - CHUNK_OVERHEAD;
+    }
 
     /** The GridFS chunks collection. */
     private final MongoCollection myChunksCollection;
