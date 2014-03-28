@@ -103,7 +103,7 @@ public class Aggregate {
      * The first version of MongoDB to support the {@code aggregate} command
      * with the ability to limit the execution time on the server.
      */
-    public static final Version MAX_TIMEOUT_VERSION = Version.parse("2.5.4");
+    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
 
     /** The first version of MongoDB to support the {@code aggregate} command. */
     public static final Version REQUIRED_VERSION = Version.parse("2.1.0");
@@ -740,7 +740,7 @@ public class Aggregate {
          * {@link AggregationProjectFields} and
          * {@link com.allanbank.mongodb.builder.expression.Expressions
          * Expressions} static helper methods.
-         * <p>
+         * </p>
          * <blockquote>
          * 
          * <pre>

@@ -8,6 +8,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON (signed 64-bit) integer or long.
@@ -26,6 +27,21 @@ public class LongElement extends AbstractElement implements NumericElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = -2599658746763036474L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name) {
+        long result = 10; // type (1) + name null byte (1) + value (8).
+        result += StringEncoder.utf8Size(name);
+
+        return result;
+    }
+
     /** The BSON long value. */
     private final long myValue;
 
@@ -40,7 +56,25 @@ public class LongElement extends AbstractElement implements NumericElement {
      *             If the {@code name} is <code>null</code>.
      */
     public LongElement(final String name, final long value) {
-        super(name);
+        this(name, value, computeSize(name));
+    }
+
+    /**
+     * Constructs a new {@link LongElement}.
+     * 
+     * @param name
+     *            The name for the BSON long.
+     * @param value
+     *            The BSON integer value.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the {@link LongElement#LongElement(String, long)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     */
+    public LongElement(final String name, final long value, final long size) {
+        super(name, size);
 
         myValue = value;
     }

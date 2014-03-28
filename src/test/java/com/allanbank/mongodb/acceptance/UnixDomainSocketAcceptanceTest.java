@@ -164,6 +164,7 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
     public void connect() {
         myConfig = new MongoClientConfiguration();
         myConfig.addServer(ourSocketAddress);
+        // myConfig.setConnectionModel(ConnectionModel.SENDER_RECEIVER_THREAD);
         myConfig.setSocketFactory(new UnixDomainSocketFactory());
 
         super.connect();

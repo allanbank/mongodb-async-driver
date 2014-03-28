@@ -8,6 +8,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON double.
@@ -26,6 +27,21 @@ public class DoubleElement extends AbstractElement implements NumericElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = -7373717629447356968L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name) {
+        long result = 10; // type (1) + name null byte (1) + value (8).
+        result += StringEncoder.utf8Size(name);
+
+        return result;
+    }
+
     /** The BSON double value. */
     private final double myValue;
 
@@ -40,7 +56,26 @@ public class DoubleElement extends AbstractElement implements NumericElement {
      *             If the {@code name} is <code>null</code>.
      */
     public DoubleElement(final String name, final double value) {
-        super(name);
+        this(name, value, computeSize(name));
+    }
+
+    /**
+     * Constructs a new {@link DoubleElement}.
+     * 
+     * @param name
+     *            The name for the BSON double.
+     * @param value
+     *            The BSON double value.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link DoubleElement#DoubleElement(String, double)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     */
+    public DoubleElement(final String name, final double value, final long size) {
+        super(name, size);
 
         myValue = value;
     }

@@ -66,7 +66,7 @@ public class StringEncoder {
      * @return The length of the string encoded as UTF8.
      */
     public static int utf8Size(final String string) {
-        final int strLength = string.length();
+        final int strLength = (string == null) ? 0 : string.length();
 
         int length = 0;
         int codePoint;

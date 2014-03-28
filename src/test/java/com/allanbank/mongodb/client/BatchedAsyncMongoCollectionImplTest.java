@@ -1,11 +1,14 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
 package com.allanbank.mongodb.client;
 
 import static com.allanbank.mongodb.AnswerCallback.callback;
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.a;
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.d;
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.e;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
@@ -31,19 +34,26 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDatabase;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.builder.BatchedWrite;
+import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.Insert;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.message.Update;
+import com.allanbank.mongodb.client.state.Server;
 
 /**
- * BatchedAsyncMongoCollectionImplTest provides TODO - Finish
+ * BatchedAsyncMongoCollectionImplTest provides tests for the
+ * {@link BatchedAsyncMongoCollectionImpl} class.
  * 
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedAsyncMongoCollectionImplTest {
 
@@ -151,7 +161,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      *             On a test failure.
      */
     @Test
-    public void testCloseNoDeleteCommand() throws InterruptedException,
+    public void testCloseNoBatchDeleteCommand() throws InterruptedException,
             ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
@@ -159,7 +169,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
@@ -197,7 +207,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      *             On a test failure.
      */
     @Test
-    public void testCloseNoUpdateCommand() throws InterruptedException,
+    public void testCloseNoBatchUpdateCommand() throws InterruptedException,
             ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
@@ -208,7 +218,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
 
@@ -245,15 +255,23 @@ public class BatchedAsyncMongoCollectionImplTest {
      *             On a test failure.
      */
     @Test
-    public void testCloseWithDeleteCommand() throws InterruptedException,
+    public void testCloseWithBatchDeleteCommand() throws InterruptedException,
             ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
                 .build();
 
-        final Delete message = new Delete("test", "test", doc, false);
-        final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+        final DocumentAssignable deleteCommand = d(
+                e("delete", "test"),
+                e("ordered", false),
+                e("writeConcern", d(e("w", 1))),
+                e("deletes",
+                        a(d(e("q", doc), e("limit", 0)),
+                                d(e("q", doc), e("limit", 0)),
+                                d(e("q", doc), e("limit", 0)))));
+        final Command deleteMessage = new Command("test",
+                deleteCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
@@ -270,11 +288,15 @@ public class BatchedAsyncMongoCollectionImplTest {
         reset();
         expect(myMockClient.getMinimumServerVersion()).andReturn(
                 Version.VERSION_2_6);
-        // TODO: Add delete command.
-        myMockClient.send(eq(message), eq(getLastError),
-                callback(reply(replyDoc)));
-        expectLastCall().times(3);
+        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+                Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
+        expect(myMockDatabase.getName()).andReturn("test");
+        myMockClient.send(eq(deleteMessage), callback(reply(replyDoc)));
+        expectLastCall();
         replay();
+        myTestInstance.setBatchDeletes(true);
         myTestInstance.close();
         verify();
 
@@ -292,7 +314,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      *             On a test failure.
      */
     @Test
-    public void testCloseWithUpdateCommand() throws InterruptedException,
+    public void testCloseWithBatchUpdateCommand() throws InterruptedException,
             ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
@@ -300,10 +322,17 @@ public class BatchedAsyncMongoCollectionImplTest {
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
                 .build();
 
-        final Update message = new Update("test", "test", doc, update, false,
-                false);
-        final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+        final DocumentAssignable updateCommand = d(
+                e("update", "test"),
+                e("ordered", false),
+                e("writeConcern", d(e("w", 1))),
+                e("updates",
+                        a(d(e("q", doc), e("u", update)),
+                                d(e("q", doc), e("u", update)),
+                                d(e("q", doc), e("u", update)))));
+        final Command updateMessage = new Command("test",
+                updateCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
 
@@ -319,11 +348,15 @@ public class BatchedAsyncMongoCollectionImplTest {
         reset();
         expect(myMockClient.getMinimumServerVersion()).andReturn(
                 Version.VERSION_2_6);
-        // TODO: Update with update command.
-        myMockClient.send(eq(message), eq(getLastError),
-                callback(reply(replyDoc)));
-        expectLastCall().times(3);
+        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+                Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
+        expect(myMockDatabase.getName()).andReturn("test");
+        myMockClient.send(eq(updateMessage), callback(reply(replyDoc)));
+        expectLastCall();
         replay();
+        myTestInstance.setBatchUpdates(true);
         myTestInstance.close();
         verify();
 
@@ -341,7 +374,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      *             On a test failure.
      */
     @Test
-    public void testFlushNoInsertCommand() throws InterruptedException,
+    public void testFlushNoBatchInsertCommand() throws InterruptedException,
             ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
@@ -350,7 +383,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
@@ -392,16 +425,19 @@ public class BatchedAsyncMongoCollectionImplTest {
      *             On a test failure.
      */
     @Test
-    public void testFlushWithInsertCommand() throws InterruptedException,
+    public void testFlushWithBatchInsertCommand() throws InterruptedException,
             ExecutionException {
-        final Document doc = BuilderFactory.start().build();
+        final Document doc = BuilderFactory.start().add("_id", new ObjectId())
+                .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
                 .build();
 
-        final Insert message = new Insert("test", "test",
-                Collections.singletonList(doc), false);
-        final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+        final DocumentAssignable insertCommand = d(e("insert", "test"),
+                e("ordered", false), e("writeConcern", d(e("w", 1))),
+                e("documents", a(doc, doc, doc)));
+        final Command insertMessage = new Command("test",
+                insertCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
@@ -419,18 +455,21 @@ public class BatchedAsyncMongoCollectionImplTest {
 
         expect(myMockClient.getMinimumServerVersion()).andReturn(
                 Version.VERSION_2_6);
-        // TODO: Update with insert command.
-        myMockClient.send(eq(message), eq(getLastError),
-                callback(reply(replyDoc)));
-        expectLastCall().times(3);
+        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+                Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
+        expect(myMockDatabase.getName()).andReturn("test");
+        myMockClient.send(eq(insertMessage), callback(reply(replyDoc)));
+        expectLastCall();
 
         replay();
         myTestInstance.flush();
         verify();
 
-        assertThat(future1.get(), is(2));
-        assertThat(future2.get(), is(2));
-        assertThat(future3.get(), is(2));
+        assertThat(future1.get(), is(1));
+        assertThat(future2.get(), is(1));
+        assertThat(future3.get(), is(1));
     }
 
     /**
@@ -442,20 +481,26 @@ public class BatchedAsyncMongoCollectionImplTest {
      *             On a test failure.
      */
     @Test
-    public void testFlushWithInterleavedCommands() throws InterruptedException,
-            ExecutionException {
-        final Document doc = BuilderFactory.start().build();
+    public void testFlushWithBatchInterleavedCommands()
+            throws InterruptedException, ExecutionException {
+        final Document doc = BuilderFactory.start().add("_id", new ObjectId())
+                .build();
         final Document update = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
                 .build();
 
-        final Insert insertMessage = new Insert("test", "test",
-                Collections.singletonList(doc), false);
+        final DocumentAssignable insertCommand = d(e("insert", "test"),
+                e("ordered", false), e("writeConcern", d(e("w", 1))),
+                e("documents", a(doc)));
+        final Command insertMessage = new Command("test",
+                insertCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+
         final Update updateMessage = new Update("test", "test", doc, update,
                 false, false);
         final Delete deleteMessage = new Delete("test", "test", doc, false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
@@ -473,8 +518,14 @@ public class BatchedAsyncMongoCollectionImplTest {
 
         expect(myMockClient.getMinimumServerVersion()).andReturn(
                 Version.VERSION_2_6);
-        myMockClient.send(eq(insertMessage), eq(getLastError),
-                callback(reply(replyDoc)));
+
+        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE).times(3);
+        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+                Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT).times(3);
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        myMockClient.send(eq(insertMessage), callback(reply(replyDoc)));
         expectLastCall();
         myMockClient.send(eq(updateMessage), eq(getLastError),
                 callback(reply(replyDoc)));
@@ -487,7 +538,241 @@ public class BatchedAsyncMongoCollectionImplTest {
         myTestInstance.flush();
         verify();
 
-        assertThat(future1.get(), is(2));
+        assertThat(future1.get(), is(1)); // Note - fixed to Match the number of
+                                          // documents.
+
+        assertThat(future2.get(), is(2L));
+        assertThat(future3.get(), is(2L));
+    }
+
+    /**
+     * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
+     * 
+     * @throws ExecutionException
+     *             On a test failure.
+     * @throws InterruptedException
+     *             On a test failure.
+     */
+    @Test
+    public void testFlushWithBatchInterleavedCommandsAndCanBatchDeleteWithMultipleDeletes()
+            throws InterruptedException, ExecutionException {
+        final Document doc = BuilderFactory.start().add("_id", new ObjectId())
+                .build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
+                .build();
+
+        final DocumentAssignable insertCommand = d(e("insert", "test"),
+                e("ordered", false), e("writeConcern", d(e("w", 1))),
+                e("documents", a(doc)));
+        final Command insertMessage = new Command("test",
+                insertCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+
+        final DocumentAssignable deleteCommand = d(
+                e("delete", "test"),
+                e("ordered", false),
+                e("writeConcern", d(e("w", 1))),
+                e("deletes",
+                        a(d(e("q", doc), e("limit", 0)),
+                                d(e("q", doc), e("limit", 0)))));
+        final Command deleteMessage = new Command("test",
+                deleteCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+
+        expect(myMockDatabase.getName()).andReturn("test").times(6);
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
+                3);
+
+        replay();
+
+        final Future<Integer> future1 = myTestInstance.insertAsync(doc);
+        final Future<Long> future2 = myTestInstance.deleteAsync(doc);
+        final Future<Long> future3 = myTestInstance.deleteAsync(doc);
+
+        verify();
+
+        reset();
+
+        expect(myMockClient.getMinimumServerVersion()).andReturn(
+                Version.VERSION_2_6);
+
+        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+                Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        myMockClient.send(eq(insertMessage), callback(reply(replyDoc)));
+        expectLastCall();
+        myMockClient.send(eq(deleteMessage), callback(reply(replyDoc)));
+        expectLastCall();
+
+        replay();
+        myTestInstance.setBatchDeletes(true);
+        myTestInstance.setBatchUpdates(true);
+        myTestInstance.flush();
+        verify();
+
+        assertThat(future1.get(), is(1)); // Note - fixed to Match the number of
+                                          // documents.
+
+        assertThat(future2.get(), is(2L));
+        assertThat(future3.get(), is(2L));
+    }
+
+    /**
+     * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
+     * 
+     * @throws ExecutionException
+     *             On a test failure.
+     * @throws InterruptedException
+     *             On a test failure.
+     */
+    @Test
+    public void testFlushWithBatchInterleavedCommandsAndCanBatchUpdateAndDelete()
+            throws InterruptedException, ExecutionException {
+        final Document doc = BuilderFactory.start().add("_id", new ObjectId())
+                .build();
+        final Document update = BuilderFactory.start().build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
+                .build();
+
+        final DocumentAssignable insertCommand = d(e("insert", "test"),
+                e("ordered", false), e("writeConcern", d(e("w", 1))),
+                e("documents", a(doc)));
+        final Command insertMessage = new Command("test",
+                insertCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+
+        final DocumentAssignable updateCommand = d(e("update", "test"),
+                e("ordered", false), e("writeConcern", d(e("w", 1))),
+                e("updates", a(d(e("q", doc), e("u", update)))));
+        final Command updateMessage = new Command("test",
+                updateCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+
+        final DocumentAssignable deleteCommand = d(e("delete", "test"),
+                e("ordered", false), e("writeConcern", d(e("w", 1))),
+                e("deletes", a(d(e("q", doc), e("limit", 0)))));
+        final Command deleteMessage = new Command("test",
+                deleteCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+
+        expect(myMockDatabase.getName()).andReturn("test").times(6);
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
+                3);
+
+        replay();
+
+        final Future<Integer> future1 = myTestInstance.insertAsync(doc);
+        final Future<Long> future2 = myTestInstance.updateAsync(doc, update);
+        final Future<Long> future3 = myTestInstance.deleteAsync(doc);
+
+        verify();
+
+        reset();
+
+        expect(myMockClient.getMinimumServerVersion()).andReturn(
+                Version.VERSION_2_6);
+
+        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+                Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        myMockClient.send(eq(insertMessage), callback(reply(replyDoc)));
+        expectLastCall();
+        myMockClient.send(eq(updateMessage), callback(reply(replyDoc)));
+        expectLastCall();
+        myMockClient.send(eq(deleteMessage), callback(reply(replyDoc)));
+        expectLastCall();
+
+        replay();
+        myTestInstance.setBatchDeletes(true);
+        myTestInstance.setBatchUpdates(true);
+        myTestInstance.flush();
+        verify();
+
+        assertThat(future1.get(), is(1)); // Note - fixed to Match the number of
+                                          // documents.
+
+        assertThat(future2.get(), is(2L));
+        assertThat(future3.get(), is(2L));
+    }
+
+    /**
+     * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
+     * 
+     * @throws ExecutionException
+     *             On a test failure.
+     * @throws InterruptedException
+     *             On a test failure.
+     */
+    @Test
+    public void testFlushWithBatchInterleavedCommandsAndCanBatchUpdateWithMultipleUpdates()
+            throws InterruptedException, ExecutionException {
+        final Document doc = BuilderFactory.start().add("_id", new ObjectId())
+                .build();
+        final Document update = BuilderFactory.start().build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
+                .build();
+
+        final DocumentAssignable insertCommand = d(e("insert", "test"),
+                e("ordered", false), e("writeConcern", d(e("w", 1))),
+                e("documents", a(doc)));
+        final Command insertMessage = new Command("test",
+                insertCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+
+        final DocumentAssignable updateCommand = d(
+                e("update", "test"),
+                e("ordered", false),
+                e("writeConcern", d(e("w", 1))),
+                e("updates",
+                        a(d(e("q", doc), e("u", update)),
+                                d(e("q", doc), e("u", update)))));
+        final Command updateMessage = new Command("test",
+                updateCommand.asDocument(), ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+
+        expect(myMockDatabase.getName()).andReturn("test").times(6);
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
+                3);
+
+        replay();
+
+        final Future<Integer> future1 = myTestInstance.insertAsync(doc);
+        final Future<Long> future2 = myTestInstance.updateAsync(doc, update);
+        final Future<Long> future3 = myTestInstance.updateAsync(doc, update);
+
+        verify();
+
+        reset();
+
+        expect(myMockClient.getMinimumServerVersion()).andReturn(
+                Version.VERSION_2_6);
+
+        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+                Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        myMockClient.send(eq(insertMessage), callback(reply(replyDoc)));
+        expectLastCall();
+        myMockClient.send(eq(updateMessage), callback(reply(replyDoc)));
+        expectLastCall();
+
+        replay();
+        myTestInstance.setBatchDeletes(true);
+        myTestInstance.setBatchUpdates(true);
+        myTestInstance.flush();
+        verify();
+
+        assertThat(future1.get(), is(1)); // Note - fixed to match the number of
+                                          // documents.
+
         assertThat(future2.get(), is(2L));
         assertThat(future3.get(), is(2L));
     }

@@ -704,8 +704,8 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * Removes all {@link Element}s that have the provided name from the
      * document being built.
      * <p>
-     * Note that adding a new element with the same name add that element to the
-     * end of document's element list.
+     * Note that adding a new element with the same name adds that element to
+     * the end of document's element list.
      * </p>
      * 
      * @param name

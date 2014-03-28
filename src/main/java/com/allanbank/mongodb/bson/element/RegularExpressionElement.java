@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON regular expression.
@@ -214,6 +215,29 @@ public class RegularExpressionElement extends AbstractElement {
         return optInt;
     }
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @param pattern
+     *            The BSON regular expression pattern.
+     * @param options
+     *            The BSON regular expression options.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name, final String pattern,
+            final int options) {
+        long result = 4; // type (1) + name null byte (1) +
+                         // pattern null byte (1) + options null byte (1).
+        result += StringEncoder.utf8Size(name);
+        result += StringEncoder.utf8Size(pattern);
+        result += OPTIONS[options & OPTION_MASK].length(); // ASCII
+
+        return result;
+    }
+
     /** The BSON regular expression options. */
     private final int myOptions;
 
@@ -249,7 +273,35 @@ public class RegularExpressionElement extends AbstractElement {
      */
     public RegularExpressionElement(final String name, final String pattern,
             final int options) {
-        super(name);
+        super(name, computeSize(name, pattern, options));
+
+        assertNotNull(pattern,
+                "Regular Expression element's pattern cannot be null.");
+
+        myPattern = pattern;
+        myOptions = options;
+    }
+
+    /**
+     * Constructs a new {@link RegularExpressionElement}.
+     * 
+     * @param name
+     *            The name for the BSON string.
+     * @param pattern
+     *            The BSON regular expression pattern.
+     * @param options
+     *            The BSON regular expression options.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link RegularExpressionElement#RegularExpressionElement(String, String, int)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code pattern} is <code>null</code>.
+     */
+    public RegularExpressionElement(final String name, final String pattern,
+            final int options, final long size) {
+        super(name, size);
 
         assertNotNull(pattern,
                 "Regular Expression element's pattern cannot be null.");
@@ -273,6 +325,28 @@ public class RegularExpressionElement extends AbstractElement {
     public RegularExpressionElement(final String name, final String pattern,
             final String options) {
         this(name, pattern, optionsAsInt(options));
+    }
+
+    /**
+     * Constructs a new {@link RegularExpressionElement}.
+     * 
+     * @param name
+     *            The name for the BSON string.
+     * @param pattern
+     *            The BSON regular expression pattern.
+     * @param options
+     *            The BSON regular expression options.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link RegularExpressionElement#RegularExpressionElement(String, String, String)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code pattern} is <code>null</code>.
+     */
+    public RegularExpressionElement(final String name, final String pattern,
+            final String options, final long size) {
+        this(name, pattern, optionsAsInt(options), size);
     }
 
     /**

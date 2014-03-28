@@ -233,6 +233,30 @@ public class ClientImpl extends AbstractClient {
     }
 
     /**
+     * Returns smallest value for the maximum number of write operations allowed
+     * in a single write command.
+     * 
+     * @return The smallest value for maximum number of write operations allowed
+     *         in a single write command.
+     */
+    @Override
+    public int getSmallestMaxBatchedWriteOperations() {
+        return myConnectionFactory.getSmallestMaxBatchedWriteOperations();
+    }
+
+    /**
+     * Returns the lowest value for the maximum BSON object size within the
+     * cluster.
+     * 
+     * @return The lowest value for the maximum BSON object size within the
+     *         cluster.
+     */
+    @Override
+    public long getSmallestMaxBsonObjectSize() {
+        return myConnectionFactory.getSmallestMaxBsonObjectSize();
+    }
+
+    /**
      * Returns true if the document looks like a cursor restart document. e.g.,
      * one that is created by {@link MongoIteratorImpl#asDocument()}.
      * 

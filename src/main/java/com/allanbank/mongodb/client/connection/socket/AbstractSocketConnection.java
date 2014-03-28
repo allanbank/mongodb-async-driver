@@ -20,6 +20,7 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -113,6 +114,9 @@ public abstract class AbstractSocketConnection implements Connection {
     /** The {@link PendingMessage} used for the local cached copy. */
     private final PendingMessage myPendingMessage = new PendingMessage();
 
+    /** Set to true when the sender discovers they are the receive thread. */
+    private final AtomicInteger myReaderNeedsToFlush = new AtomicInteger(0);
+
     /**
      * Creates a new AbstractSocketConnection.
      * 
@@ -191,6 +195,7 @@ public abstract class AbstractSocketConnection implements Connection {
      */
     @Override
     public void flush() throws IOException {
+        myReaderNeedsToFlush.set(0);
         myOutput.flush();
     }
 
@@ -429,6 +434,21 @@ public abstract class AbstractSocketConnection implements Connection {
      * Receives and process a single message.
      */
     protected void doReceiveOne() {
+
+        // Check if the handler for a message dropped data in the send buffer
+        // that it did not flush to avoid a deadlock with the server.
+        try {
+            final int unflushedMessages = myReaderNeedsToFlush.get();
+            if ((unflushedMessages != 0)
+                    && (myPendingQueue.size() <= unflushedMessages)) {
+                flush();
+            }
+        }
+        catch (final IOException ignored) {
+            myLog.warning("Error flushing data to the server: "
+                    + ignored.getMessage());
+        }
+
         final Message received = doReceive();
         if (received instanceof Reply) {
             myIdleTicks = 0;
@@ -472,6 +492,7 @@ public abstract class AbstractSocketConnection implements Connection {
         }
         else {
             myIdleTicks += 1;
+
             if (myConfig.getMaxIdleTickCount() <= myIdleTicks) {
                 // Shutdown the connection., nicely.
                 shutdown(false);
@@ -493,6 +514,16 @@ public abstract class AbstractSocketConnection implements Connection {
             throws IOException {
         message.write(messageId, myBsonOut);
         myServer.incrementMessagesSent();
+    }
+
+    /**
+     * Should be called when the send of a message happens on the receive
+     * thread. The sender should not flush the {@link #myOutput}. Instead the
+     * receive thread will {@link #flush()} once it has consumed all of the
+     * pending messages to be received.
+     */
+    protected void markReaderNeedsToFlush() {
+        myReaderNeedsToFlush.incrementAndGet();
     }
 
     /**

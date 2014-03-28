@@ -7,6 +7,7 @@ package com.allanbank.mongodb.bson.element;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON (signed 64-bit) Mongo timestamp as 4 byte increment and
@@ -26,6 +27,21 @@ public class MongoTimestampElement extends AbstractElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = -402083578422199042L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name) {
+        long result = 10; // type (1) + name null byte (1) + value (8).
+        result += StringEncoder.utf8Size(name);
+
+        return result;
+    }
+
     /** The BSON timestamp value as 4 byte increment and 4 byte timestamp. */
     private final long myTimestamp;
 
@@ -41,7 +57,28 @@ public class MongoTimestampElement extends AbstractElement {
      *             If the {@code name} is <code>null</code>.
      */
     public MongoTimestampElement(final String name, final long value) {
-        super(name);
+        this(name, value, computeSize(name));
+    }
+
+    /**
+     * Constructs a new {@link MongoTimestampElement}.
+     * 
+     * @param name
+     *            The name for the BSON long.
+     * @param value
+     *            The BSON timestamp value as 4 byte increment and 4 byte
+     *            timestamp.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link MongoTimestampElement#MongoTimestampElement(String, long)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     */
+    public MongoTimestampElement(final String name, final long value,
+            final long size) {
+        super(name, size);
 
         myTimestamp = value;
     }

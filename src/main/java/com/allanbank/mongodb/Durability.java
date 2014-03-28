@@ -53,7 +53,7 @@ import com.allanbank.mongodb.error.JsonParseException;
 public class Durability implements Serializable {
 
     /** The durability that says no durability is required. */
-    public final static Durability ACK = new Durability(true, false, false, 0,
+    public final static Durability ACK = new Durability(true, false, false, 1,
             null, 0);
 
     /**

@@ -8,6 +8,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON (signed 32-bit) integer.
@@ -26,6 +27,21 @@ public class IntegerElement extends AbstractElement implements NumericElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = 3738845320555958508L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name) {
+        long result = 6; // type (1) + name null byte (1) + value (4).
+        result += StringEncoder.utf8Size(name);
+
+        return result;
+    }
+
     /** The BSON integer value. */
     private final int myValue;
 
@@ -40,7 +56,26 @@ public class IntegerElement extends AbstractElement implements NumericElement {
      *             If the {@code name} is <code>null</code>.
      */
     public IntegerElement(final String name, final int value) {
-        super(name);
+        this(name, value, computeSize(name));
+    }
+
+    /**
+     * Constructs a new {@link IntegerElement}.
+     * 
+     * @param name
+     *            The name for the BSON integer.
+     * @param value
+     *            The BSON integer value.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link IntegerElement#IntegerElement(String, int)} constructor
+     *            instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     */
+    public IntegerElement(final String name, final int value, final long size) {
+        super(name, size);
 
         myValue = value;
     }

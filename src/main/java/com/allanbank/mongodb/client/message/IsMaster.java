@@ -16,7 +16,9 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
  * command.
  * <p>
  * This is a helper class for retrieving the status of replica sets. The results
- * of this command will look like: <blockquote>
+ * of this command will look like:
+ * </p>
+ * <blockquote>
  * 
  * <pre>
  * <code>
@@ -42,7 +44,7 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
  * </pre>
  * 
  * </blockquote>
- * </p>
+ * 
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.

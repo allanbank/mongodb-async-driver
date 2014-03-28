@@ -9,6 +9,7 @@ import java.util.Date;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON timestamp as the milliseconds since the epoch.
@@ -27,6 +28,21 @@ public class TimestampElement extends AbstractElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = 949598909338399091L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name) {
+        long result = 10; // type (1) + name null byte (1) + value (8).
+        result += StringEncoder.utf8Size(name);
+
+        return result;
+    }
+
     /** The BSON timestamp value as the milliseconds since the epoch. */
     private final long myTimestamp;
 
@@ -41,7 +57,26 @@ public class TimestampElement extends AbstractElement {
      *             If the {@code name} is <code>null</code>.
      */
     public TimestampElement(final String name, final long value) {
-        super(name);
+        this(name, value, computeSize(name));
+    }
+
+    /**
+     * Constructs a new {@link TimestampElement}.
+     * 
+     * @param name
+     *            The name for the BSON long.
+     * @param value
+     *            The BSON timestamp value as the milliseconds since the epoch.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link TimestampElement#TimestampElement(String, long)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     */
+    public TimestampElement(final String name, final long value, final long size) {
+        super(name, size);
 
         myTimestamp = value;
     }

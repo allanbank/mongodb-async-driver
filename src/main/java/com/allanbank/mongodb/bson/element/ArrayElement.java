@@ -15,6 +15,7 @@ import java.util.regex.PatternSyntaxException;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.util.PatternUtils;
 
 /**
@@ -60,6 +61,30 @@ public class ArrayElement extends AbstractElement {
     }
 
     /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the BSON array.
+     * @param entries
+     *            The entries in the array.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name,
+            final List<Element> entries) {
+        long result = 7; // type (1) + name null byte (1) + int length (4) +
+                         // elements null byte (1).
+        result += StringEncoder.utf8Size(name);
+        if ((entries != null) && !entries.isEmpty()) {
+            for (final Element element : entries) {
+                result += element.size();
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * The entries in the array. The name attribute will be ignored when
      * encoding the elements.
      */
@@ -77,16 +102,7 @@ public class ArrayElement extends AbstractElement {
      */
     public ArrayElement(final String name, final Element... entries)
             throws IllegalArgumentException {
-        super(name);
-
-        // The names of the elements have to be a specific value.
-        final int length = entries.length;
-        final List<Element> elements = new ArrayList<Element>(length);
-        for (int i = 0; i < length; ++i) {
-            elements.add(entries[i].withName(nameFor(i)));
-        }
-
-        myEntries = Collections.unmodifiableList(elements);
+        this(name, Arrays.asList(entries));
     }
 
     /**
@@ -101,7 +117,26 @@ public class ArrayElement extends AbstractElement {
      */
     public ArrayElement(final String name, final List<Element> entries)
             throws IllegalArgumentException {
-        super(name);
+        this(name, entries, computeSize(name, entries));
+    }
+
+    /**
+     * Constructs a new {@link ArrayElement}.
+     * 
+     * @param name
+     *            The name for the BSON array.
+     * @param entries
+     *            The entries in the array.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the {@link ArrayElement#ArrayElement(String, List)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     */
+    public ArrayElement(final String name, final List<Element> entries,
+            final long size) throws IllegalArgumentException {
+        super(name, size);
 
         if ((entries != null) && !entries.isEmpty()) {
             // The names of the elements have to be a specific value.

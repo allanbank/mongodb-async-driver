@@ -217,6 +217,30 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     }
 
     /**
+     * Returns smallest value for the maximum number of write operations allowed
+     * in a single write command.
+     * 
+     * @return The smallest value for maximum number of write operations allowed
+     *         in a single write command.
+     */
+    @Override
+    public int getSmallestMaxBatchedWriteOperations() {
+        return getDelegate().getSmallestMaxBatchedWriteOperations();
+    }
+
+    /**
+     * Returns the smallest value for the maximum BSON object within the
+     * cluster.
+     * 
+     * @return The smallest value for the maximum BSON object within the
+     *         cluster.
+     */
+    @Override
+    public long getSmallestMaxBsonObjectSize() {
+        return getDelegate().getSmallestMaxBsonObjectSize();
+    }
+
+    /**
      * Returns the underlying delegate factory.
      * 
      * @return The underlying delegate factory.

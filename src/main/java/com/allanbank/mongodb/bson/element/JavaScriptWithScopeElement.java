@@ -14,6 +14,7 @@ import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON JavaScript with Scope.
@@ -33,6 +34,31 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = -5697976862389984453L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @param javaScript
+     *            The BSON JavaScript value.
+     * @param scope
+     *            The scope for the JavaScript
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name, final String javaScript,
+            final Document scope) {
+        long result = 11; // type (1) + name null byte (1) + length (4)
+                          // javaScript length and null byte (5)
+        result += StringEncoder.utf8Size(name);
+        result += StringEncoder.utf8Size(javaScript);
+        if (scope != null) {
+            result += scope.size();
+        }
+
+        return result;
+    }
+
     /** The BSON scope value. */
     private final Document myScope;
 
@@ -51,7 +77,32 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
      */
     public JavaScriptWithScopeElement(final String name,
             final String javaScript, final Document scope) {
-        super(name, javaScript);
+        this(name, javaScript, scope, computeSize(name, javaScript, scope));
+
+        assertNotNull(scope, "JavaScript element's scope cannot be null.");
+    }
+
+    /**
+     * Constructs a new {@link JavaScriptWithScopeElement}.
+     * 
+     * @param name
+     *            The name for the BSON string.
+     * @param javaScript
+     *            The BSON JavaScript value.
+     * @param scope
+     *            The scope for the JavaScript
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link JavaScriptWithScopeElement#JavaScriptWithScopeElement(String, String, Document)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name}, {@code javaScript}, or {@code scope} is
+     *             <code>null</code>.
+     */
+    public JavaScriptWithScopeElement(final String name,
+            final String javaScript, final Document scope, final long size) {
+        super(name, javaScript, size);
 
         assertNotNull(scope, "JavaScript element's scope cannot be null.");
 

@@ -21,7 +21,7 @@ public class ManagedProcess {
     /**
      * Boolean to control if the output from the MongoDB processes are written
      * to the console. This is normally false but can be turned on with a system
-     * property or, more likely, at the start of a test (hence no static
+     * property or, more likely, at the start of a test (hence no final
      * modifier).
      */
     public static boolean ourWriteMongoDbOutput = Boolean

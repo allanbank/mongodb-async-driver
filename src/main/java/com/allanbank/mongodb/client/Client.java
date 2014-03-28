@@ -82,6 +82,24 @@ public interface Client {
     public Version getMinimumServerVersion();
 
     /**
+     * Returns smallest value for the maximum number of write operations allowed
+     * in a single write command.
+     * 
+     * @return The smallest value for maximum number of write operations allowed
+     *         in a single write command.
+     */
+    public int getSmallestMaxBatchedWriteOperations();
+
+    /**
+     * Returns the smallest value for the maximum BSON object size within the
+     * cluster.
+     * 
+     * @return The smallest value for the maximum BSON object size within the
+     *         cluster.
+     */
+    public long getSmallestMaxBsonObjectSize();
+
+    /**
      * Restarts an iterator that was previously saved.
      * 
      * @param cursorDocument

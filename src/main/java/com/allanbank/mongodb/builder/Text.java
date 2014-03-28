@@ -7,8 +7,6 @@ package com.allanbank.mongodb.builder;
 
 import static com.allanbank.mongodb.util.Assertions.assertNotEmpty;
 
-import java.util.concurrent.TimeUnit;
-
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
@@ -68,21 +66,21 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  *         This class <b>WILL</b>, eventually, be part of the driver's API.
  *         Until 10gen finalizes the text query interface we are keeping this
  *         class out of the Public API so we can track any changes more closely.
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  * @see <a
  *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
  *      MongoDB Text Queries</a>
  * @since MongoDB 2.4
+ * @deprecated Support for the {@code text} command was deprecated in the 2.6
+ *             version of MongoDB. Use the {@link ConditionBuilder#text(String)
+ *             $text} query operator instead. This class will not be removed
+ *             until two releases after the MongoDB 2.6 release (e.g. 2.10 if
+ *             the releases are 2.8 and 2.10).
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Deprecated
 public class Text {
-    /**
-     * The first version of MongoDB to support the {@code text} command with the
-     * ability to limit the execution time on the server.
-     */
-    public static final Version MAX_TIMEOUT_VERSION = Version.parse("2.5.4");
-
     /** The first version of MongoDB to support the text command. */
-    public static final Version REQUIRED_VERSION = Version.parse("2.4.0");
+    public static final Version REQUIRED_VERSION = Version.VERSION_2_4;
 
     /**
      * Creates a new builder for a {@link Text} command.
@@ -98,9 +96,6 @@ public class Text {
 
     /** Maximum number of document to return. */
     private final int myLimit;
-
-    /** The maximum amount of time to allow the command to run. */
-    private final long myMaximumTimeMilliseconds;
 
     /** A standard MongoDB query document to limit the final results. */
     private final Document myQuery;
@@ -132,7 +127,6 @@ public class Text {
         myReadPreference = builder.myReadPreference;
         myReturnFields = builder.myReturnFields;
         mySearchTerm = builder.mySearchTerm;
-        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
     }
 
     /**
@@ -151,19 +145,6 @@ public class Text {
      */
     public int getLimit() {
         return myLimit;
-    }
-
-    /**
-     * Returns the maximum amount of time to allow the command to run on the
-     * Server before it is aborted.
-     * 
-     * @return The maximum amount of time to allow the command to run on the
-     *         Server before it is aborted.
-     * 
-     * @since MongoDB 2.6
-     */
-    public long getMaximumTimeMilliseconds() {
-        return myMaximumTimeMilliseconds;
     }
 
     /**
@@ -219,16 +200,20 @@ public class Text {
      *         are keeping this class out of the Public API so we can track any
      *         changes more closely.
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This class will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     public static class Builder {
         /** The language to use when stemming the search terms. */
         protected String myLanguage;
 
         /** Maximum number of document to return. */
         protected int myLimit;
-
-        /** The maximum amount of time to allow the command to run. */
-        protected long myMaximumTimeMilliseconds;
 
         /** A standard MongoDB query document to limit the final results. */
         protected Document myQuery;
@@ -292,31 +277,6 @@ public class Text {
         }
 
         /**
-         * Sets the maximum number of milliseconds to allow the command to run
-         * before aborting the request on the server.
-         * <p>
-         * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
-         * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
-         * </p>
-         * 
-         * @param timeLimit
-         *            The new maximum amount of time to allow the command to
-         *            run.
-         * @param timeLimitUnits
-         *            The units for the maximum amount of time to allow the
-         *            command to run.
-         * 
-         * @return This {@link Builder} for method call chaining.
-         * 
-         * @since MongoDB 2.6
-         */
-        public Builder maximumTime(final long timeLimit,
-                final TimeUnit timeLimitUnits) {
-            return setMaximumTimeMilliseconds(timeLimitUnits
-                    .toMillis(timeLimit));
-        }
-
-        /**
          * Sets the standard MongoDB query document to limit the final results
          * to the new value.
          * <p>
@@ -362,7 +322,6 @@ public class Text {
         public Builder reset() {
             myLanguage = null;
             myLimit = 0;
-            myMaximumTimeMilliseconds = 0;
             myQuery = null;
             myReadPreference = null;
             myReturnFields = null;
@@ -423,23 +382,6 @@ public class Text {
          */
         public Builder setLimit(final int limit) {
             myLimit = limit;
-            return this;
-        }
-
-        /**
-         * Sets the maximum number of milliseconds to allow the command to run
-         * before aborting the request on the server.
-         * 
-         * @param maximumTimeMilliseconds
-         *            The new maximum number of milliseconds to allow the
-         *            command to run.
-         * @return This {@link Builder} for method call chaining.
-         * 
-         * @since MongoDB 2.6
-         */
-        public Builder setMaximumTimeMilliseconds(
-                final long maximumTimeMilliseconds) {
-            myMaximumTimeMilliseconds = maximumTimeMilliseconds;
             return this;
         }
 

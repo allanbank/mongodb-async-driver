@@ -8,6 +8,7 @@ package com.allanbank.mongodb.client.message;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.VisitorAdapter;
+import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.GeospatialOperator;
 import com.allanbank.mongodb.builder.MiscellaneousOperator;
 import com.allanbank.mongodb.client.VersionRange;
@@ -96,7 +97,7 @@ public class QueryVersionVisitor extends VisitorAdapter {
         }
         else if ("$maxTimeMS".equals(name)) {
             myRequiredServerVersion = Version.later(myRequiredServerVersion,
-                    Version.VERSION_2_6);
+                    Find.MAX_TIMEOUT_VERSION);
         }
         else if (MiscellaneousOperator.TEXT.getToken().equals(name)) {
             myRequiredServerVersion = Version.later(myRequiredServerVersion,

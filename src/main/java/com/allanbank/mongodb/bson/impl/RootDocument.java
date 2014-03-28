@@ -29,6 +29,25 @@ public class RootDocument extends AbstractDocument {
     /** Serialization version for the class. */
     private static final long serialVersionUID = -2875918328146027036L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * document.
+     * 
+     * @param entries
+     *            The entries in the document.
+     * @return The size of the document when encoded in bytes.
+     */
+    private static long computeSize(final List<Element> entries) {
+        long result = 5; // int length (4) + terminal null byte (1).
+        if ((entries != null) && !entries.isEmpty()) {
+            for (final Element element : entries) {
+                result += element.size();
+            }
+        }
+
+        return result;
+    }
+
     /** The elements of the document. */
     final AtomicReference<List<Element>> myElements;
 
@@ -44,6 +63,9 @@ public class RootDocument extends AbstractDocument {
      */
     private final AtomicReference<Map<String, Element>> myElementMap;
 
+    /** The size of the document when encoded as bytes. */
+    private transient long mySize;
+
     /**
      * Constructs a new {@link RootDocument}.
      * 
@@ -51,16 +73,7 @@ public class RootDocument extends AbstractDocument {
      *            The elements for the BSON document.
      */
     public RootDocument(final Element... elements) {
-        myElements = new AtomicReference<List<Element>>();
-        myElementMap = new AtomicReference<Map<String, Element>>();
-        if (elements.length > 0) {
-            myElements.set(Collections.unmodifiableList(new ArrayList<Element>(
-                    Arrays.asList(elements))));
-        }
-        else {
-            myElements.set(EMPTY_ELEMENTS);
-        }
-        myIdKnownPresent = false;
+        this(Arrays.asList(elements), false);
     }
 
     /**
@@ -82,6 +95,23 @@ public class RootDocument extends AbstractDocument {
      *            If true then there is an _id element in the list of elements.
      */
     public RootDocument(final List<Element> elements, final boolean idPresent) {
+        this(elements, idPresent, computeSize(elements));
+    }
+
+    /**
+     * Constructs a new {@link RootDocument}.
+     * 
+     * @param elements
+     *            The elements for the BSON document.
+     * @param idPresent
+     *            If true then there is an _id element in the list of elements.
+     * @param size
+     *            The size of the document when encoded in bytes. If not known
+     *            then use the {@link RootDocument#RootDocument(List, boolean)}
+     *            constructor instead.
+     */
+    public RootDocument(final List<Element> elements, final boolean idPresent,
+            final long size) {
         myElements = new AtomicReference<List<Element>>();
         myElementMap = new AtomicReference<Map<String, Element>>();
         if ((elements != null) && !elements.isEmpty()) {
@@ -92,6 +122,7 @@ public class RootDocument extends AbstractDocument {
             myElements.set(EMPTY_ELEMENTS);
         }
         myIdKnownPresent = idPresent;
+        mySize = size;
     }
 
     /**
@@ -121,14 +152,29 @@ public class RootDocument extends AbstractDocument {
         if (!contains("_id")) {
             final List<Element> old = myElements.get();
 
-            final List<Element> newElements = new ArrayList<Element>();
-            newElements.add(new ObjectIdElement("_id", new ObjectId()));
+            final ObjectIdElement toAdd = new ObjectIdElement("_id",
+                    new ObjectId());
+
+            final List<Element> newElements = new ArrayList<Element>(
+                    old.size() + 1);
+            newElements.add(toAdd);
             newElements.addAll(old);
 
             if (myElements.compareAndSet(old, newElements)) {
                 myElementMap.set(null);
+                mySize += toAdd.size();
             }
         }
+    }
+
+    /**
+     * Returns the size of the document when encoded as bytes.
+     * 
+     * @return The size of the document when encoded as bytes.
+     */
+    @Override
+    public long size() {
+        return mySize;
     }
 
     /**

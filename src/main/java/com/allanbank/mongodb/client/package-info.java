@@ -5,7 +5,7 @@
 
 /**
  * Provides implementations of the main client interfaces and classes to translate the 
- * {@link com.allanbank.mongodb.client.message.Reply}(s) from the server.</p>
+ * {@link com.allanbank.mongodb.client.message.Reply}(s) from the server.
  *
  * <h2>Usage</h2>
  * <p>

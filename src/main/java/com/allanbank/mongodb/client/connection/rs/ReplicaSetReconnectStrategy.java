@@ -52,7 +52,6 @@ import com.allanbank.mongodb.util.IOUtils;
  * <li>If the putative primary does not concur then the search continues
  * scanning each server in turn for the primary server.</li>
  * </ol>
- * </ol>
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
@@ -109,7 +108,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
     /**
      * Overridden to search for the primary server in the replica set. This will
      * only continue until the
-     * {@link MongoClientConfiguration#getReconnectTimeout()} has expired. </p>
+     * {@link MongoClientConfiguration#getReconnectTimeout()} has expired.
      * 
      * @return The information for the primary connection or null if the
      *         reconnect fails.

@@ -154,6 +154,43 @@ public class ServerTest {
      * Test method for {@link Server#getTags()}.
      */
     @Test
+    public void testUpdateWithMaxBatchedWriteOperations() {
+
+        final DocumentBuilder builder = BuilderFactory.start();
+        builder.add(Server.MAX_BATCHED_WRITE_OPERATIONS_PROP, 123456);
+
+        final Server server = new Server(new InetSocketAddress("foo", 27017));
+
+        // Default is null/empty.
+        assertThat(server.getMaxBatchedWriteOperations(),
+                is(Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT));
+
+        // Set the tags.
+        server.update(builder.build());
+        assertThat(server.getMaxBatchedWriteOperations(), is(123456));
+
+        // Clear the tags.
+        builder.reset();
+        builder.addNull(Server.MAX_BATCHED_WRITE_OPERATIONS_PROP);
+        server.update(builder.build());
+        assertThat(server.getMaxBatchedWriteOperations(), is(123456));
+
+        // Set them again.
+        builder.reset();
+        builder.add(Server.MAX_BATCHED_WRITE_OPERATIONS_PROP, 654321L);
+        server.update(builder.build());
+        assertThat(server.getMaxBatchedWriteOperations(), is(654321));
+
+        // A document without tags has no effect (still set).
+        builder.reset();
+        server.update(builder.build());
+        assertThat(server.getMaxBatchedWriteOperations(), is(654321));
+    }
+
+    /**
+     * Test method for {@link Server#getTags()}.
+     */
+    @Test
     public void testUpdateWithMaxBsonObjectSize() {
 
         final DocumentBuilder builder = BuilderFactory.start();

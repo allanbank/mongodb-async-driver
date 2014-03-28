@@ -23,7 +23,9 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.bson.impl.RootDocument;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.util.PatternUtils;
 
 /**
@@ -47,6 +49,48 @@ public class DocumentElement extends AbstractElement implements Document {
     private static final long serialVersionUID = -564259598403040796L;
 
     /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the BSON array.
+     * @param entries
+     *            The entries in the array.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name,
+            final Collection<Element> entries) {
+        long result = 7; // type (1) + name null byte (1) + int length (4) +
+                         // element null byte (1).
+        result += StringEncoder.utf8Size(name);
+        if ((entries != null) && !entries.isEmpty()) {
+            for (final Element element : entries) {
+                result += element.size();
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the BSON array.
+     * @param documentSize
+     *            The size of the document used to construct the element.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name, final long documentSize) {
+        long result = 2; // type (1) + name null byte (1)
+        result += StringEncoder.utf8Size(name);
+        result += documentSize;
+
+        return result;
+    }
+
+    /**
      * Constructed when a user tries to access the elements of the document by
      * name.
      */
@@ -67,15 +111,8 @@ public class DocumentElement extends AbstractElement implements Document {
      */
     public DocumentElement(final String name, final Collection<Element> elements) {
 
-        super(name);
-
-        if ((elements != null) && !elements.isEmpty()) {
-            myElements = Collections.unmodifiableList(new ArrayList<Element>(
-                    elements));
-        }
-        else {
-            myElements = EMPTY_ELEMENTS;
-        }
+        this(name, (elements != null) ? new ArrayList<Element>(elements)
+                : EMPTY_ELEMENTS, true);
     }
 
     /**
@@ -89,15 +126,11 @@ public class DocumentElement extends AbstractElement implements Document {
      *             If the {@code name} or {@code value} is <code>null</code>.
      */
     public DocumentElement(final String name, final Document value) {
-        super(name);
+        this(name, (value == null) ? EMPTY_ELEMENTS : value.getElements(),
+                false, computeSize(name, (value == null) ? EmptyDocument.SIZE
+                        : value.size()));
 
         assertNotNull(value, "Document element's sub-document cannot be null.");
-
-        final List<Element> elements = new ArrayList<Element>();
-        for (final Element element : value) {
-            elements.add(element);
-        }
-        myElements = Collections.unmodifiableList(elements);
     }
 
     /**
@@ -112,12 +145,10 @@ public class DocumentElement extends AbstractElement implements Document {
      *             If the {@code name} or {@code value} is <code>null</code>.
      */
     public DocumentElement(final String name, final DocumentElement value) {
-        super(name);
+        this(name, (value != null) ? Collections.singletonList((Element) value)
+                : EMPTY_ELEMENTS, true);
 
         assertNotNull(value, "Document element's sub-document cannot be null.");
-
-        myElements = Collections.unmodifiableList(Collections
-                .singletonList((Element) value));
     }
 
     /**
@@ -131,15 +162,7 @@ public class DocumentElement extends AbstractElement implements Document {
      *             If the {@code name} is <code>null</code>.
      */
     public DocumentElement(final String name, final Element... elements) {
-        super(name);
-
-        if (elements.length > 0) {
-            myElements = Collections.unmodifiableList(new ArrayList<Element>(
-                    Arrays.asList(elements)));
-        }
-        else {
-            myElements = EMPTY_ELEMENTS;
-        }
+        this(name, Arrays.asList(elements));
     }
 
     /**
@@ -169,8 +192,29 @@ public class DocumentElement extends AbstractElement implements Document {
      */
     public DocumentElement(final String name, final List<Element> elements,
             final boolean takeOwnership) {
+        this(name, elements, takeOwnership, computeSize(name, elements));
+    }
 
-        super(name);
+    /**
+     * Constructs a new {@link DocumentElement}.
+     * 
+     * @param name
+     *            The name for the BSON document.
+     * @param elements
+     *            The sub-elements for the document.
+     * @param takeOwnership
+     *            If true this element takes ownership of the list to avoid a
+     *            copy of the list.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link DocumentElement#DocumentElement(String, List, boolean)}
+     *            constructor instead.
+     */
+    public DocumentElement(final String name, final List<Element> elements,
+            final boolean takeOwnership, final long size) {
+
+        super(name, size);
 
         if ((elements != null) && !elements.isEmpty()) {
             if (takeOwnership) {

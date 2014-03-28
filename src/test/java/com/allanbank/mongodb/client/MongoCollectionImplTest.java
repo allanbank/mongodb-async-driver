@@ -59,6 +59,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -67,8 +68,6 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.Sort;
-import com.allanbank.mongodb.builder.Text;
-import com.allanbank.mongodb.builder.TextResult;
 import com.allanbank.mongodb.client.callback.CursorCallback;
 import com.allanbank.mongodb.client.callback.ReplyArrayCallback;
 import com.allanbank.mongodb.client.callback.ReplyDocumentCallback;
@@ -1611,7 +1610,7 @@ public class MongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -1641,7 +1640,7 @@ public class MongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -1701,7 +1700,7 @@ public class MongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -1734,7 +1733,7 @@ public class MongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -1768,7 +1767,7 @@ public class MongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -1852,7 +1851,7 @@ public class MongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -1881,7 +1880,7 @@ public class MongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -1936,7 +1935,7 @@ public class MongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -1966,7 +1965,7 @@ public class MongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -1996,7 +1995,7 @@ public class MongoCollectionImplTest {
 
         final Delete message = new Delete("test", "test", doc, true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -4521,7 +4520,7 @@ public class MongoCollectionImplTest {
         group.addJavaScript("$reduce", request.getReduceFunction());
         group.addJavaScript("finalize", request.getFinalizeFunction());
         group.addDocument("cond", request.getQuery());
-        group.add("maxTimeMS", 1000L);
+        expectedCommand.add("maxTimeMS", 1000L);
 
         final Command message = new Command("test", expectedCommand.build());
 
@@ -4625,7 +4624,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -4660,7 +4659,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -4689,7 +4688,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -4718,7 +4717,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -4747,7 +4746,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -4776,7 +4775,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -4835,7 +4834,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -4864,7 +4863,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -4893,7 +4892,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -4922,7 +4921,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -4951,7 +4950,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -4980,7 +4979,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -5010,7 +5009,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -5040,7 +5039,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -5069,7 +5068,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -5099,7 +5098,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -5721,7 +5720,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -5751,7 +5750,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -5782,7 +5781,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -5815,7 +5814,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -5845,7 +5844,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -5875,7 +5874,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -5903,7 +5902,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -5933,7 +5932,7 @@ public class MongoCollectionImplTest {
         final Insert message = new Insert("test", "test",
                 Collections.singletonList(doc), false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -6739,15 +6738,26 @@ public class MongoCollectionImplTest {
     }
 
     /**
-     * Test method for {@link SynchronousMongoCollectionImpl#textSearch(Text)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#textSearch(com.allanbank.mongodb.builder.Text)}
+     * .
+     * 
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This test will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     @Test
     public void testTextSearchFull() {
-        final Text command = Text.builder().searchTerm("bar").language("l")
-                .limit(10).query(where("f").equals(false))
+        final com.allanbank.mongodb.builder.Text command = com.allanbank.mongodb.builder.Text
+                .builder().searchTerm("bar").language("l").limit(10)
+                .query(where("f").equals(false))
                 .readPreference(ReadPreference.PREFER_SECONDARY)
                 .returnFields(BuilderFactory.start().add("f", 1).add("_id", 0))
-                .maximumTime(5432, TimeUnit.MILLISECONDS).build();
+                .build();
 
         final DocumentBuilder result = BuilderFactory.start();
         final DocumentBuilder value = result.pushArray("results").push();
@@ -6762,7 +6772,6 @@ public class MongoCollectionImplTest {
         expectedCommand.add("project",
                 BuilderFactory.start().add("f", 1).add("_id", 0).build());
         expectedCommand.addString("language", "l");
-        expectedCommand.add("maxTimeMS", 5432L);
 
         final Command message = new Command("test", expectedCommand.build(),
                 ReadPreference.PREFER_SECONDARY);
@@ -6775,18 +6784,30 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(Collections.singletonList(new TextResult(value)),
-                myTestInstance.textSearch(command).toList());
+        assertEquals(
+                Collections.singletonList(new com.allanbank.mongodb.builder.TextResult(
+                        value)), myTestInstance.textSearch(command).toList());
 
         verify();
     }
 
     /**
-     * Test method for {@link SynchronousMongoCollectionImpl#textSearch(Text)} .
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#textSearch(com.allanbank.mongodb.builder.Text)}
+     * .
+     * 
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This test will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     @Test
     public void testTextSearchMinimal() {
-        final Text command = Text.builder().searchTerm("foo").build();
+        final com.allanbank.mongodb.builder.Text command = com.allanbank.mongodb.builder.Text
+                .builder().searchTerm("foo").build();
 
         final DocumentBuilder result = BuilderFactory.start();
         final DocumentBuilder value = result.pushArray("results").push();
@@ -6807,8 +6828,9 @@ public class MongoCollectionImplTest {
 
         replay();
 
-        assertEquals(Collections.singletonList(new TextResult(value)),
-                myTestInstance.textSearch(command).toList());
+        assertEquals(
+                Collections.singletonList(new com.allanbank.mongodb.builder.TextResult(
+                        value)), myTestInstance.textSearch(command).toList());
 
         verify();
     }
@@ -6828,7 +6850,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -6859,7 +6881,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, true,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -6891,7 +6913,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, true,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -6922,7 +6944,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -6988,7 +7010,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, true,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -7026,7 +7048,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, true,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -7063,7 +7085,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -7094,7 +7116,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -7125,7 +7147,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, true,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -7156,7 +7178,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, true,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -7187,7 +7209,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -7219,7 +7241,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -7251,7 +7273,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, true,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
@@ -7283,7 +7305,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, true,
                 true);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -7315,7 +7337,7 @@ public class MongoCollectionImplTest {
         final Update message = new Update("test", "test", doc, update, false,
                 false);
         final GetLastError getLastError = new GetLastError("test", false,
-                false, 0, 0);
+                false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 

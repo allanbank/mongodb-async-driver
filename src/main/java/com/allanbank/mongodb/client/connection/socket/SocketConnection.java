@@ -159,7 +159,12 @@ public class SocketConnection extends AbstractSocketConnection {
 
             // If no-one is waiting we need to flush the message.
             if (mySendSequence.noWaiter(end)) {
-                flush();
+                if (myReceiver != Thread.currentThread()) {
+                    flush();
+                }
+                else {
+                    markReaderNeedsToFlush();
+                }
             }
         }
         catch (final InterruptedException ie) {

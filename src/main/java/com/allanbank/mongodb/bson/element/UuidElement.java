@@ -122,6 +122,33 @@ public class UuidElement extends BinaryElement {
      * @param subType
      *            The subtype for the UUID element.
      * @param value
+     *            The UUID bytes for the element.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link UuidElement#UuidElement(String, byte, byte[])}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code value} is <code>null</code>. If
+     *             the subType is not {@link #UUID_SUBTTYPE} or
+     *             {@link #LEGACY_UUID_SUBTTYPE}. If the value is not a 16 bytes
+     *             long.
+     */
+    public UuidElement(final String name, final byte subType,
+            final byte[] value, final long size) {
+        super(name, subType, value, size);
+
+        myUuid = toUuid(subType, value);
+    }
+
+    /**
+     * Creates a new UuidElement.
+     * 
+     * @param name
+     *            The name for the element.
+     * @param subType
+     *            The subtype for the UUID element.
+     * @param value
      *            The UUID value for the element.
      * @throws IllegalArgumentException
      *             If the {@code name} or {@code value} is <code>null</code>.

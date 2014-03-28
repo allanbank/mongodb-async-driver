@@ -49,6 +49,7 @@ public class DurabilityTest {
 
         builder.reset();
         builder.add("getlasterror", 1);
+        builder.add("w", 1);
         assertEquals(builder.asDocument(), Durability.ACK.asDocument());
 
         builder.reset();

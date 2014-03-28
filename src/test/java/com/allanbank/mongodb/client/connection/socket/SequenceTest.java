@@ -41,7 +41,8 @@ public class SequenceTest {
             }
         };
 
-        final Thread[] threads = new Thread[1000];
+        final int threadCount = 100;
+        final Thread[] threads = new Thread[threadCount];
         for (int i = 0; i < threads.length; ++i) {
             threads[i] = new Thread(runMe);
         }
@@ -53,7 +54,7 @@ public class SequenceTest {
         }
 
         assertThat(sequence.isIdle(), is(true));
-        assertThat(sequence.noWaiter(1000), is(true));
+        assertThat(sequence.noWaiter(threadCount), is(true));
     }
 
     /**

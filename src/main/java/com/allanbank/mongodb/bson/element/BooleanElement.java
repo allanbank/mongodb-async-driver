@@ -7,6 +7,7 @@ package com.allanbank.mongodb.bson.element;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON boolean.
@@ -25,6 +26,21 @@ public class BooleanElement extends AbstractElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = -3534279865960686134L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name) {
+        long result = 3; // type (1) + name null byte (1) + value (1).
+        result += StringEncoder.utf8Size(name);
+
+        return result;
+    }
+
     /** The boolean value */
     private final boolean myValue;
 
@@ -39,7 +55,27 @@ public class BooleanElement extends AbstractElement {
      *             If the {@code name} is <code>null</code>.
      */
     public BooleanElement(final String name, final boolean value) {
-        super(name);
+        this(name, value, computeSize(name));
+    }
+
+    /**
+     * Constructs a new {@link BooleanElement}.
+     * 
+     * @param name
+     *            The name for the BSON boolean.
+     * @param value
+     *            The BSON boolean value.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link BooleanElement#BooleanElement(String, boolean)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     */
+    public BooleanElement(final String name, final boolean value,
+            final long size) {
+        super(name, size);
         myValue = value;
     }
 

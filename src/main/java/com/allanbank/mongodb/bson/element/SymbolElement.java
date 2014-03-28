@@ -9,6 +9,7 @@ import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON symbol.
@@ -27,6 +28,25 @@ public class SymbolElement extends AbstractElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = -3181997000292958333L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @param symbol
+     *            The BSON symbol value.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name, final String symbol) {
+        long result = 7; // type (1) + name null byte (1) +
+                         // symbol length (4) + symbol null byte (1)
+        result += StringEncoder.utf8Size(name);
+        result += StringEncoder.utf8Size(symbol);
+
+        return result;
+    }
+
     /** The BSON string value. */
     private final String mySymbol;
 
@@ -41,7 +61,26 @@ public class SymbolElement extends AbstractElement {
      *             If the {@code name} or {@code symbol} is <code>null</code>.
      */
     public SymbolElement(final String name, final String symbol) {
-        super(name);
+        this(name, symbol, computeSize(name, symbol));
+    }
+
+    /**
+     * Constructs a new {@link SymbolElement}.
+     * 
+     * @param name
+     *            The name for the BSON string.
+     * @param symbol
+     *            The BSON symbol value.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link StringElement#StringElement(String, String)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code symbol} is <code>null</code>.
+     */
+    public SymbolElement(final String name, final String symbol, final long size) {
+        super(name, size);
 
         assertNotNull(symbol, "Symbol element's symbol cannot be null.");
 

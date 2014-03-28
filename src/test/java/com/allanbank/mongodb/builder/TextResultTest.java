@@ -28,8 +28,14 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 /**
  * TextResultTest provides tests for the {@link TextResult} class.
  * 
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @deprecated Support for the {@code text} command was deprecated in the 2.6
+ *             version of MongoDB. Use the {@link ConditionBuilder#text(String)
+ *             $text} query operator instead. This class will not be removed
+ *             until two releases after the MongoDB 2.6 release (e.g. 2.10 if
+ *             the releases are 2.8 and 2.10).
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Deprecated
 @SuppressWarnings("boxing")
 public class TextResultTest {
 

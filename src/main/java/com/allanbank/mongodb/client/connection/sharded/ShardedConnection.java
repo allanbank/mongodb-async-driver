@@ -204,21 +204,18 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
             final Message message2) {
 
         final Server main = myMainKey;
-        List<Server> servers = Collections.emptyList();
+        List<Server> servers = Collections.singletonList(main);
         if (message1 != null) {
             ReadPreference pref = message1.getReadPreference();
             if (pref.getServer() != null) {
                 servers = Collections.singletonList(myCluster.get(pref
                         .getServer()));
             }
-            else {
+            else if (message2 != null) {
                 pref = message2.getReadPreference();
                 if (pref.getServer() != null) {
                     servers = Collections.singletonList(myCluster.get(pref
                             .getServer()));
-                }
-                else if (main != null) {
-                    servers = Collections.singletonList(main);
                 }
             }
         }

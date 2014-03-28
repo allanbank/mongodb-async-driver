@@ -139,6 +139,13 @@ public interface Element extends Serializable, ElementAssignable,
     public String getValueAsString();
 
     /**
+     * Returns the number of bytes that are used to encode the element.
+     * 
+     * @return The bytes that are used to encode the element.
+     */
+    public long size();
+
+    /**
      * Creates a new element with the same type and value as this element but
      * with the specified name. This is useful when creating a query across a
      * set of collections where the filed name changes in the collections but
@@ -149,4 +156,5 @@ public interface Element extends Serializable, ElementAssignable,
      * @return The created element.
      */
     public Element withName(String name);
+
 }

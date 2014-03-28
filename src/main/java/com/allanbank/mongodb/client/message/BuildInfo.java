@@ -15,7 +15,9 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
  * "http://docs.mongodb.org/manual/reference/command/buildInfo/" >buildinfo</a>
  * command.
  * <p>
- * This is a helper class for retrieving the version of the server: <blockquote>
+ * This is a helper class for retrieving the version of the server:
+ * </p>
+ * <blockquote>
  * 
  * <pre>
  * <code>
@@ -38,7 +40,6 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
  * </pre>
  * 
  * </blockquote>
- * </p>
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.

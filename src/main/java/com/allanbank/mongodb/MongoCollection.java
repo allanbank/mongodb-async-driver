@@ -11,14 +11,14 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.BatchedWrite;
+import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
-import com.allanbank.mongodb.builder.Text;
-import com.allanbank.mongodb.builder.TextResult;
 
 /**
  * Interface for interacting with a MongoDB collection.
@@ -980,9 +980,16 @@ public interface MongoCollection extends AsyncMongoCollection {
      *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
-    public MongoIterator<TextResult> textSearch(Text command)
-            throws MongoDbException;
+    @Deprecated
+    public MongoIterator<com.allanbank.mongodb.builder.TextResult> textSearch(
+            com.allanbank.mongodb.builder.Text command) throws MongoDbException;
 
     /**
      * Invokes a {@code text} command on the server.
@@ -996,8 +1003,16 @@ public interface MongoCollection extends AsyncMongoCollection {
      *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
-    public MongoIterator<TextResult> textSearch(Text.Builder command)
+    @Deprecated
+    public MongoIterator<com.allanbank.mongodb.builder.TextResult> textSearch(
+            com.allanbank.mongodb.builder.Text.Builder command)
             throws MongoDbException;
 
     /**
@@ -1127,6 +1142,60 @@ public interface MongoCollection extends AsyncMongoCollection {
      *      Command Reference</a>
      */
     public Document validate(ValidateMode mode) throws MongoDbException;
+
+    /**
+     * Constructs the appropriate set of write commands to send to the server.
+     * <p>
+     * If connected to a cluster where all servers can accept write commands
+     * then the operations will be sent to the server using the write commands.
+     * If the cluster does not support the write command then the operations
+     * will be converted to a series of native write operations.
+     * </p>
+     * <p>
+     * Since this method may use the write commands a {@link Durability} of
+     * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
+     * </p>
+     * 
+     * @param write
+     *            The batched writes
+     * @return The results of the inserts, updates, and deletes. If this method
+     *         falls back to the native write commands then the notice for the
+     *         {@code return} for the {@link #insert(DocumentAssignable...)}
+     *         method applies.
+     * @throws MongoDbException
+     *             On an error submitting the write operations.
+     * 
+     * @since MongoDB 2.6
+     * @see BatchedWrite#REQUIRED_VERSION
+     */
+    public long write(final BatchedWrite write) throws MongoDbException;
+
+    /**
+     * Constructs the appropriate set of write commands to send to the server.
+     * <p>
+     * If connected to a cluster where all servers can accept write commands
+     * then the operations will be sent to the server using the write commands.
+     * If the cluster does not support the write command then the operations
+     * will be converted to a series of native write operations.
+     * </p>
+     * <p>
+     * Since this method may use the write commands a {@link Durability} of
+     * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
+     * </p>
+     * 
+     * @param write
+     *            The batched writes
+     * @return The results of the inserts, updates, and deletes. If this method
+     *         falls back to the native write commands then the notice for the
+     *         {@code return} for the {@link #insert(DocumentAssignable...)}
+     *         method applies.
+     * @throws MongoDbException
+     *             On an error submitting the write operations.
+     * 
+     * @since MongoDB 2.6
+     * @see BatchedWrite#REQUIRED_VERSION
+     */
+    public long write(final BatchedWrite.Builder write) throws MongoDbException;
 
     /**
      * ValidateMode provides an enumeration of the validation modes.

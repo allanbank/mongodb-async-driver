@@ -7,6 +7,7 @@ package com.allanbank.mongodb.bson.element;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON null.
@@ -26,6 +27,21 @@ public class NullElement extends AbstractElement {
     private static final long serialVersionUID = -4974513577366947524L;
 
     /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name) {
+        long result = 2; // type (1) + name null byte (1).
+        result += StringEncoder.utf8Size(name);
+
+        return result;
+    }
+
+    /**
      * Constructs a new {@link NullElement}.
      * 
      * @param name
@@ -34,7 +50,23 @@ public class NullElement extends AbstractElement {
      *             If the {@code name} is <code>null</code>.
      */
     public NullElement(final String name) {
-        super(name);
+        this(name, computeSize(name));
+    }
+
+    /**
+     * Constructs a new {@link NullElement}.
+     * 
+     * @param name
+     *            The name for the BSON null.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the {@link NullElement#NullElement(String)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     */
+    public NullElement(final String name, final long size) {
+        super(name, size);
     }
 
     /**

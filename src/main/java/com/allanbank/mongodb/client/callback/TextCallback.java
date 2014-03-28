@@ -11,6 +11,7 @@ import java.util.List;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Text;
 import com.allanbank.mongodb.builder.TextResult;
 import com.allanbank.mongodb.client.SimpleMongoIteratorImpl;
@@ -21,8 +22,14 @@ import com.allanbank.mongodb.client.SimpleMongoIteratorImpl;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
+ * @deprecated Support for the {@code text} command was deprecated in the 2.6
+ *             version of MongoDB. Use the {@link ConditionBuilder#text(String)
+ *             $text} query operator instead. This class will not be removed
+ *             until two releases after the MongoDB 2.6 release (e.g. 2.10 if
+ *             the releases are 2.8 and 2.10).
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Deprecated
 public class TextCallback implements Callback<MongoIterator<Document>> {
 
     /** The delegate callback to receive the {@link TextResult}s. */

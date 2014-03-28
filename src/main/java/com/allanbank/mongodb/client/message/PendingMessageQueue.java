@@ -28,7 +28,7 @@ import com.allanbank.mongodb.client.Message;
  * 
  * <pre>
  * <code>
- * take < readyBefore <= reserve
+ * take &lt; readyBefore &lt;= reserve
  * </code>
  * </pre>
  * 
@@ -274,7 +274,7 @@ public final class PendingMessageQueue {
     }
 
     /**
-     * Returns the next message from the queue without blocking.
+     * Returns the next message from the queue without blocking. <blockquote>
      * 
      * <pre>
      * <code>

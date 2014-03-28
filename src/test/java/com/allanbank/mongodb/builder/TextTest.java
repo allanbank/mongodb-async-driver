@@ -11,9 +11,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Test;
 
 import com.allanbank.mongodb.ReadPreference;
@@ -22,8 +19,14 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 /**
  * TextTest provides tests for the {@link Text} class.
  * 
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @deprecated Support for the {@code text} command was deprecated in the 2.6
+ *             version of MongoDB. Use the {@link ConditionBuilder#text(String)
+ *             $text} query operator instead. This class will not be removed
+ *             until two releases after the MongoDB 2.6 release (e.g. 2.10 if
+ *             the releases are 2.8 and 2.10).
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Deprecated
 @SuppressWarnings("boxing")
 public class TextTest {
 
@@ -47,49 +50,6 @@ public class TextTest {
         assertThat(command.getReadPreference(), is(ReadPreference.SECONDARY));
         assertThat(command.getReturnFields(),
                 is(BuilderFactory.start().add("f", 1).add("_id", 0).build()));
-    }
-
-    /**
-     * Test method for {@link Text.Builder#setMaximumTimeMilliseconds(long)} .
-     */
-    @Test
-    public void testMaximumTimeMillisecondsDefault() {
-        final Text.Builder b = Text.builder().searchTerm("foo");
-        final Text command = b.build();
-
-        assertThat(command.getMaximumTimeMilliseconds(), is(0L));
-    }
-
-    /**
-     * Test method for {@link Text.Builder#setMaximumTimeMilliseconds(long)} .
-     */
-    @Test
-    public void testMaximumTimeMillisecondsViaFluent() {
-        final Random random = new Random(System.currentTimeMillis());
-        final Text.Builder b = Text.builder().searchTerm("foo");
-
-        final long value = random.nextLong();
-        b.maximumTime(value, TimeUnit.MILLISECONDS);
-
-        final Text command = b.build();
-
-        assertThat(command.getMaximumTimeMilliseconds(), is(value));
-    }
-
-    /**
-     * Test method for {@link Text.Builder#setMaximumTimeMilliseconds(long)} .
-     */
-    @Test
-    public void testMaximumTimeMillisecondsViaSetter() {
-        final Random random = new Random(System.currentTimeMillis());
-        final Text.Builder b = Text.builder().searchTerm("foo");
-
-        final long value = random.nextLong();
-        b.setMaximumTimeMilliseconds(value);
-
-        final Text command = b.build();
-
-        assertThat(command.getMaximumTimeMilliseconds(), is(value));
     }
 
     /**

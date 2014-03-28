@@ -77,7 +77,7 @@
 		<dependency>
 			<groupId>org.easymock</groupId>
 			<artifactId>easymock</artifactId>
-			<version>3.1</version>
+			<version>3.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -121,17 +121,17 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.7</version>
+					<version>2.8.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>2.13</version>
+					<version>2.17</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
-					<version>2.4</version>
+					<version>2.5.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -141,7 +141,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>2.4</version>
+					<version>2.5</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -156,12 +156,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.13</version>
+					<version>2.17</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>cobertura-maven-plugin</artifactId>
-					<version>2.5.2</version>
+					<version>2.6</version>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
@@ -234,6 +234,9 @@
 						<exclude>**/*ITest.java</exclude>
 						<exclude>**/*AcceptanceTest.java</exclude>
 					</excludes>
+					<systemProperties>
+						<java.util.logging.config.file>src/test/resources/jul_logging.props</java.util.logging.config.file>
+					</systemProperties>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -312,14 +315,15 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>3.2</version>
+				<version>3.3</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9</version>
+				<version>2.9.1</version>
 				<configuration>
 					<quiet>true</quiet>
+					<failOnError>false</failOnError>
 					<tags>
 						<tag>
 							<name>api.yes</name>
@@ -374,7 +378,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>2.16</version>
+				<version>2.17</version>
 				<configuration>
 					<linkXRef>false</linkXRef>
 				</configuration>
@@ -398,10 +402,13 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
-				<version>2.7.1</version>
+				<version>3.1</version>
 				<configuration>
 					<targetJdk>1.6</targetJdk>
 					<linkXRef>false</linkXRef>
+					<rulesets>
+						<ruleset>src/pmd-ruleset.xml</ruleset>
+					</rulesets>
 					<excludes>
 						<!-- JavaCC generated Classes. -->
 						<exclude>**/JavaCharStream.java</exclude>

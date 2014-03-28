@@ -58,6 +58,12 @@ public class Cluster {
     /** The complete list of servers. */
     protected final ConcurrentMap<String, Server> myServers;
 
+    /** The smallest maximum number of operations in a batch in the cluster. */
+    protected int mySmallestMaxBatchedWriteOperations;
+
+    /** The smallest maximum document size in the cluster. */
+    protected long mySmallestMaxBsonObjectSize;
+
     /** Support for firing property change events. */
     /* package */final PropertyChangeSupport myChangeSupport;
 
@@ -249,6 +255,28 @@ public class Cluster {
     }
 
     /**
+     * Returns smallest value for the maximum number of write operations allowed
+     * in a single write command.
+     * 
+     * @return The smallest value for maximum number of write operations allowed
+     *         in a single write command.
+     */
+    public int getSmallestMaxBatchedWriteOperations() {
+        return mySmallestMaxBatchedWriteOperations;
+    }
+
+    /**
+     * Returns the smallest value for the maximum BSON object size within the
+     * cluster.
+     * 
+     * @return The smallest value for the maximum BSON object size within the
+     *         cluster.
+     */
+    public long getSmallestMaxBsonObjectSize() {
+        return mySmallestMaxBsonObjectSize;
+    }
+
+    /**
      * Returns a copy of the list of writable servers. The list returned is a
      * copy of the internal list and can be modified by the caller.
      * 
@@ -276,7 +304,9 @@ public class Cluster {
      * <p>
      * The latency of each server is used to create a strict ordering of servers
      * from lowest latency to highest. The relative latency of the i'th server
-     * is then calculated based on the function: <blockquote>
+     * is then calculated based on the function:
+     * </p>
+     * <blockquote>
      * 
      * <pre>
      *                                       latency[0]
@@ -285,10 +315,11 @@ public class Cluster {
      * </pre>
      * 
      * </blockquote>
-     * </p>
      * <p>
      * The relative latencies are then then summed and the probability of
-     * selecting each server is then calculated by:<blockquote>
+     * selecting each server is then calculated by:
+     * </p>
+     * <blockquote>
      * 
      * <pre>
      *                                  relative_latency[i]
@@ -297,7 +328,7 @@ public class Cluster {
      * </pre>
      * 
      * </blockquote>
-     * </p>
+     * 
      * <p>
      * The CDF over these probabilities is returned.
      * </p>
@@ -488,19 +519,31 @@ public class Cluster {
     }
 
     /**
-     * Updates the min/max versions across all servers.
+     * Updates the min/max versions across all servers. Since the max BSON
+     * object size is tied to the version we also update that value.
      */
     protected void updateVersions() {
         Version min = null;
         Version max = null;
 
+        long smallestMaxBsonObjectSize = Long.MAX_VALUE;
+        int smallestMaxBatchedWriteOperations = Integer.MAX_VALUE;
+
         for (final Server server : myServers.values()) {
             min = Version.earlier(min, server.getVersion());
             max = Version.later(max, server.getVersion());
+
+            smallestMaxBsonObjectSize = Math.min(smallestMaxBsonObjectSize,
+                    server.getMaxBsonObjectSize());
+            smallestMaxBatchedWriteOperations = Math.min(
+                    smallestMaxBatchedWriteOperations,
+                    server.getMaxBatchedWriteOperations());
         }
 
         myMaximumServerVersion = max;
         myMinimumServerVersion = min;
+        mySmallestMaxBsonObjectSize = smallestMaxBsonObjectSize;
+        mySmallestMaxBatchedWriteOperations = smallestMaxBatchedWriteOperations;
     }
 
     /**

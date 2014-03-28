@@ -10,6 +10,7 @@ import com.allanbank.mongodb.bson.DocumentReference;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a deprecated BSON DB Pointer element.
@@ -29,6 +30,30 @@ public class DBPointerElement extends AbstractElement {
 
     /** Serialization version for the class. */
     private static final long serialVersionUID = 2736569317385382748L;
+
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the BSON Object Id.
+     * @param dbName
+     *            The database name.
+     * @param collectionName
+     *            The name of the collection.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name, final String dbName,
+            final String collectionName) {
+        long result = 16; // type (1) + name null byte (1) + dbName "." (1)
+                          // + collectionName null byte (1)
+                          // + ObjectId length (12) .
+        result += StringEncoder.utf8Size(name);
+        result += StringEncoder.utf8Size(dbName);
+        result += StringEncoder.utf8Size(collectionName);
+
+        return result;
+    }
 
     /** The name of the collection containing the document. */
     private final String myCollectionName;
@@ -56,7 +81,33 @@ public class DBPointerElement extends AbstractElement {
      */
     public DBPointerElement(final String name, final String dbName,
             final String collectionName, final ObjectId id) {
-        super(name);
+        this(name, dbName, collectionName, id, computeSize(name, dbName,
+                collectionName));
+    }
+
+    /**
+     * Constructs a new {@link DBPointerElement}.
+     * 
+     * @param name
+     *            The name for the BSON Object Id.
+     * @param dbName
+     *            The database name.
+     * @param collectionName
+     *            The name of the collection.
+     * @param id
+     *            The object id.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link DBPointerElement#DBPointerElement(String, String, String, ObjectId)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name}, {@code dbName}, {@code collectionName},
+     *             or {@code id} is <code>null</code>.
+     */
+    public DBPointerElement(final String name, final String dbName,
+            final String collectionName, final ObjectId id, final long size) {
+        super(name, size);
 
         assertNotNull(dbName,
                 "DBPointer element's database name cannot be null.");
@@ -67,7 +118,6 @@ public class DBPointerElement extends AbstractElement {
         myDatabaseName = dbName;
         myCollectionName = collectionName;
         myId = id;
-
     }
 
     /**

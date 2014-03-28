@@ -191,7 +191,7 @@ public class MockMongoDBServer extends Thread {
         }
         catch (final IOException error) {
             // Exit.
-            error.printStackTrace();
+            return;
         }
     }
 

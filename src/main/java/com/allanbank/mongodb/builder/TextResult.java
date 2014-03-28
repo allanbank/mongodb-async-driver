@@ -62,12 +62,18 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
  *         This class <b>WILL</b>, eventually, be part of the driver's API.
  *         Until 10gen finalizes the text query interface we are keeping this
  *         class out of the Public API so we can track any changes more closely.
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  * @see <a
  *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
  *      MongoDB Text Queries</a>
  * @since MongoDB 2.4
+ * @deprecated Support for the {@code text} command was deprecated in the 2.6
+ *             version of MongoDB. Use the {@link ConditionBuilder#text(String)
+ *             $text} query operator instead. This class will not be removed
+ *             until two releases after the MongoDB 2.6 release (e.g. 2.10 if
+ *             the releases are 2.8 and 2.10).
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Deprecated
 public class TextResult {
     /** The document. */
     private final Document myDocument;

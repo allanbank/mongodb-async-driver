@@ -10,14 +10,14 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.BatchedWrite;
+import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
-import com.allanbank.mongodb.builder.Text;
-import com.allanbank.mongodb.builder.TextResult;
 
 /**
  * Interface for asynchronously interacting with a MongoDB collection.
@@ -2405,10 +2405,17 @@ public interface AsyncMongoCollection {
      *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     public abstract void textSearchAsync(
-            Callback<MongoIterator<TextResult>> results, Text command)
-            throws MongoDbException;
+            Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
+            com.allanbank.mongodb.builder.Text command) throws MongoDbException;
 
     /**
      * Invokes a {@code text} command on the server.
@@ -2419,9 +2426,17 @@ public interface AsyncMongoCollection {
      *            The details of the {@code text} request.
      * @throws MongoDbException
      *             On an error executing the {@code text} command.
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     public abstract void textSearchAsync(
-            Callback<MongoIterator<TextResult>> results, Text.Builder command)
+            Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
+            com.allanbank.mongodb.builder.Text.Builder command)
             throws MongoDbException;
 
     /**
@@ -2436,9 +2451,16 @@ public interface AsyncMongoCollection {
      *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
-    public abstract ListenableFuture<MongoIterator<TextResult>> textSearchAsync(
-            Text command) throws MongoDbException;
+    @Deprecated
+    public abstract ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
+            com.allanbank.mongodb.builder.Text command) throws MongoDbException;
 
     /**
      * Invokes a {@code text} command on the server.
@@ -2452,9 +2474,17 @@ public interface AsyncMongoCollection {
      *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
-    public abstract ListenableFuture<MongoIterator<TextResult>> textSearchAsync(
-            Text.Builder command) throws MongoDbException;
+    @Deprecated
+    public abstract ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
+            com.allanbank.mongodb.builder.Text.Builder command)
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2742,5 +2772,185 @@ public interface AsyncMongoCollection {
     public abstract void updateAsync(LambdaCallback<Long> results,
             DocumentAssignable query, DocumentAssignable update,
             Durability durability) throws MongoDbException;
+
+    /**
+     * Constructs the appropriate set of write commands to send to the server.
+     * <p>
+     * If connected to a cluster where all servers can accept write commands
+     * then the operations will be sent to the server using the write commands.
+     * If the cluster does not support the write command then the operations
+     * will be converted to a series of native write operations.
+     * </p>
+     * <p>
+     * Since this method may use the write commands a {@link Durability} of
+     * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
+     * </p>
+     * 
+     * @param write
+     *            The batched writes
+     * @return ListenableFuture that will be updated with the results of the
+     *         inserts, updates, and deletes. If this method falls back to the
+     *         native write commands then the notice for the {@code return} for
+     *         the {@link #insertAsync(DocumentAssignable...)} method applies.
+     * @throws MongoDbException
+     *             On an error submitting the write operations.
+     * 
+     * @since MongoDB 2.6
+     * @see BatchedWrite#REQUIRED_VERSION
+     */
+    public ListenableFuture<Long> writeAsync(BatchedWrite write)
+            throws MongoDbException;
+
+    /**
+     * Constructs the appropriate set of write commands to send to the server.
+     * <p>
+     * If connected to a cluster where all servers can accept write commands
+     * then the operations will be sent to the server using the write commands.
+     * If the cluster does not support the write command then the operations
+     * will be converted to a series of native write operations.
+     * </p>
+     * <p>
+     * Since this method may use the write commands a {@link Durability} of
+     * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
+     * </p>
+     * 
+     * @param write
+     *            The batched writes
+     * @return ListenableFuture that will be updated with the results of the
+     *         inserts, updates, and deletes. If this method falls back to the
+     *         native write commands then the notice for the {@code return} for
+     *         the {@link #insertAsync(DocumentAssignable...)} method applies.
+     * @throws MongoDbException
+     *             On an error submitting the write operations.
+     * 
+     * @since MongoDB 2.6
+     * @see BatchedWrite#REQUIRED_VERSION
+     */
+    public ListenableFuture<Long> writeAsync(BatchedWrite.Builder write)
+            throws MongoDbException;
+
+    /**
+     * Constructs the appropriate set of write commands to send to the server.
+     * <p>
+     * If connected to a cluster where all servers can accept write commands
+     * then the operations will be sent to the server using the write commands.
+     * If the cluster does not support the write command then the operations
+     * will be converted to a series of native write operations.
+     * </p>
+     * <p>
+     * Since this method may use the write commands a {@link Durability} of
+     * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
+     * </p>
+     * 
+     * @param results
+     *            The {@link Callback} that will be notified of the number of
+     *            documents inserted, updated, and deleted. If this method falls
+     *            back to the native write commands then the notice for the
+     *            {@code results} parameter for the
+     *            {@link #insertAsync(Callback, DocumentAssignable...)} method
+     *            applies.
+     * @param write
+     *            The batched writes
+     * @throws MongoDbException
+     *             On an error submitting the write operations.
+     * 
+     * @since MongoDB 2.6
+     * @see BatchedWrite#REQUIRED_VERSION
+     */
+    public void writeAsync(Callback<Long> results, BatchedWrite write)
+            throws MongoDbException;
+
+    /**
+     * Constructs the appropriate set of write commands to send to the server.
+     * <p>
+     * If connected to a cluster where all servers can accept write commands
+     * then the operations will be sent to the server using the write commands.
+     * If the cluster does not support the write command then the operations
+     * will be converted to a series of native write operations.
+     * </p>
+     * <p>
+     * Since this method may use the write commands a {@link Durability} of
+     * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
+     * </p>
+     * 
+     * @param results
+     *            The {@link Callback} that will be notified of the number of
+     *            documents inserted, updated, and deleted. If this method falls
+     *            back to the native write commands then the notice for the
+     *            {@code results} parameter for the
+     *            {@link #insertAsync(Callback, DocumentAssignable...)} method
+     *            applies.
+     * @param write
+     *            The batched writes
+     * @throws MongoDbException
+     *             On an error submitting the write operations.
+     * 
+     * @since MongoDB 2.6
+     * @see BatchedWrite#REQUIRED_VERSION
+     */
+    public void writeAsync(Callback<Long> results, BatchedWrite.Builder write)
+            throws MongoDbException;
+
+    /**
+     * Constructs the appropriate set of write commands to send to the server.
+     * <p>
+     * If connected to a cluster where all servers can accept write commands
+     * then the operations will be sent to the server using the write commands.
+     * If the cluster does not support the write command then the operations
+     * will be converted to a series of native write operations.
+     * </p>
+     * <p>
+     * Since this method may use the write commands a {@link Durability} of
+     * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
+     * </p>
+     * 
+     * @param results
+     *            The {@link Callback} that will be notified of the number of
+     *            documents inserted, updated, and deleted. If this method falls
+     *            back to the native write commands then the notice for the
+     *            {@code results} parameter for the
+     *            {@link #insertAsync(Callback, DocumentAssignable...)} method
+     *            applies.
+     * @param write
+     *            The batched writes
+     * @throws MongoDbException
+     *             On an error submitting the write operations.
+     * 
+     * @since MongoDB 2.6
+     * @see BatchedWrite#REQUIRED_VERSION
+     */
+    public void writeAsync(LambdaCallback<Long> results, BatchedWrite write)
+            throws MongoDbException;
+
+    /**
+     * Constructs the appropriate set of write commands to send to the server.
+     * <p>
+     * If connected to a cluster where all servers can accept write commands
+     * then the operations will be sent to the server using the write commands.
+     * If the cluster does not support the write command then the operations
+     * will be converted to a series of native write operations.
+     * </p>
+     * <p>
+     * Since this method may use the write commands a {@link Durability} of
+     * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
+     * </p>
+     * 
+     * @param results
+     *            The {@link Callback} that will be notified of the number of
+     *            documents inserted, updated, and deleted. If this method falls
+     *            back to the native write commands then the notice for the
+     *            {@code results} parameter for the
+     *            {@link #insertAsync(Callback, DocumentAssignable...)} method
+     *            applies.
+     * @param write
+     *            The batched writes
+     * @throws MongoDbException
+     *             On an error submitting the write operations.
+     * 
+     * @since MongoDB 2.6
+     * @see BatchedWrite#REQUIRED_VERSION
+     */
+    public void writeAsync(LambdaCallback<Long> results,
+            BatchedWrite.Builder write) throws MongoDbException;
 
 }

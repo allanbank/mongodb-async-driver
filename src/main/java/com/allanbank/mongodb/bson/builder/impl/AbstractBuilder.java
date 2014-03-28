@@ -43,6 +43,9 @@ public abstract class AbstractBuilder implements Builder {
     /** The list of elements in the builder. */
     protected final List<Element> myElements;
 
+    /** The size of the document added. */
+    protected long mySize;
+
     /** The outer scope to this builder. */
     private final AbstractBuilder myOuterBuilder;
 
@@ -56,6 +59,7 @@ public abstract class AbstractBuilder implements Builder {
         super();
         myOuterBuilder = outerBuilder;
         myElements = new ArrayList<Element>(32);
+        mySize = 0;
     }
 
     /**
@@ -167,7 +171,7 @@ public abstract class AbstractBuilder implements Builder {
          *            The Builder doing the building.
          */
         public BuilderElement(final String name, final AbstractBuilder builder) {
-            super(name);
+            super(name, 0);
             myBuilder = builder;
         }
 

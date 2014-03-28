@@ -290,14 +290,14 @@ public class BsonInputStream extends InputStream {
      * @throws IOException
      *             On a failure reading the document.
      */
-    public Document readDocument() throws EOFException, IOException {
+    public Document readDocument() throws IOException {
 
         // The total length of the document.
-        final int fetch = readInt();
+        final int size = readInt();
 
-        prefetch(fetch - 4);
+        prefetch(size - 4);
 
-        return new RootDocument(readElements());
+        return new RootDocument(readElements(), false, size);
     }
 
     /**
@@ -451,15 +451,17 @@ public class BsonInputStream extends InputStream {
      * @throws IOException
      *             On a failure reading the document.
      */
-    protected ArrayElement readArrayElement() throws EOFException, IOException {
+    protected ArrayElement readArrayElement() throws IOException {
+
+        final long start = getBytesRead() - 1; // Token already read.
 
         final String name = readCString();
-
-        // The total length of the document. Not used.
-        final int fetch = readInt();
+        final int fetch = readInt(); // The total length of the array elements.
         prefetch(fetch - 4);
+        final List<Element> elements = readElements();
+        final long size = getBytesRead() - start;
 
-        return new ArrayElement(name, readElements());
+        return new ArrayElement(name, elements, size);
     }
 
     /**
@@ -475,13 +477,12 @@ public class BsonInputStream extends InputStream {
      * </code>
      * 
      * @return The {@link BinaryElement}.
-     * @throws EOFException
-     *             On insufficient data for the binary data.
      * @throws IOException
      *             On a failure reading the binary data.
      */
-    protected BinaryElement readBinaryElement() throws EOFException,
-            IOException {
+    protected BinaryElement readBinaryElement() throws IOException {
+
+        final long start = getBytesRead() - 1; // Token already read.
 
         final String name = readCString();
         int length = readInt();
@@ -504,17 +505,71 @@ public class BsonInputStream extends InputStream {
                 || (subType == UuidElement.UUID_SUBTTYPE)) {
 
             final byte[] binary = new byte[length];
+            readFully(binary);
+
+            final long size = getBytesRead() - start;
             try {
-                readFully(binary);
-                return new UuidElement(name, (byte) subType, binary);
+                return new UuidElement(name, (byte) subType, binary, size);
             }
             catch (final IllegalArgumentException iae) {
                 // Just use the vanilla BinaryElement.
-                return new BinaryElement(name, (byte) subType, binary);
+                return new BinaryElement(name, (byte) subType, binary, size);
             }
         }
 
-        return new BinaryElement(name, (byte) subType, this, length);
+        final long size = getBytesRead() - start;
+        return new BinaryElement(name, (byte) subType, this, length, size
+                + length);
+    }
+
+    /**
+     * Reads a {@link BooleanElement} from the stream.
+     * 
+     * @return The {@link BooleanElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link BooleanElement}.
+     */
+    protected BooleanElement readBooleanElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final boolean value = (read() == 1);
+
+        final long size = getBytesRead() - start;
+
+        return new BooleanElement(name, value, size);
+    }
+
+    /**
+     * Reads a {@code DBPointerElement} from the stream.
+     * 
+     * @return The {@code DBPointerElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@code DBPointerElement}.
+     * @deprecated Per the BSON specification.
+     */
+    @Deprecated
+    protected Element readDBPointerElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final String dbDotCollection = readString();
+        final int timestamp = EndianUtils.swap(readInt());
+        final long machineId = EndianUtils.swap(readLong());
+
+        final long size = getBytesRead() - start;
+
+        String db = dbDotCollection;
+        String collection = "";
+        final int firstDot = dbDotCollection.indexOf('.');
+        if (0 <= firstDot) {
+            db = dbDotCollection.substring(0, firstDot);
+            collection = dbDotCollection.substring(firstDot + 1);
+        }
+        return new com.allanbank.mongodb.bson.element.DBPointerElement(name,
+                db, collection, new ObjectId(timestamp, machineId), size);
     }
 
     /**
@@ -525,20 +580,40 @@ public class BsonInputStream extends InputStream {
      * </code>
      * 
      * @return The {@link ArrayElement}.
-     * @throws EOFException
-     *             On insufficient data for the document.
      * @throws IOException
      *             On a failure reading the document.
      */
-    protected DocumentElement readDocumentElement() throws EOFException,
-            IOException {
+    protected DocumentElement readDocumentElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
 
         final String name = readCString();
+        final int fetch = readInt(); // The total length of the sub-document
+                                     // elements.
+        prefetch(fetch - 4);
+        final List<Element> elements = readElements();
 
-        // The total length of the document. Not used.
-        readInt();
+        final long size = getBytesRead() - start;
 
-        return new DocumentElement(name, readElements(), true);
+        return new DocumentElement(name, elements, true, size);
+    }
+
+    /**
+     * Reads a {@link DoubleElement} from the stream.
+     * 
+     * @return The {@link DoubleElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link DoubleElement}.
+     */
+    protected DoubleElement readDoubleElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final double value = Double.longBitsToDouble(readLong());
+
+        final long size = getBytesRead() - start;
+
+        return new DoubleElement(name, value, size);
     }
 
     /**
@@ -572,9 +647,9 @@ public class BsonInputStream extends InputStream {
      *            The element's token.
      * @return The Element.
      * @throws EOFException
-     *             On insufficient data for the binary data.
+     *             On insufficient data for the element.
      * @throws IOException
-     *             On a failure reading the binary data.
+     *             On a failure reading the element.
      */
     @SuppressWarnings("deprecation")
     protected Element readElement(final byte token) throws EOFException,
@@ -592,76 +667,55 @@ public class BsonInputStream extends InputStream {
             return readBinaryElement();
         }
         case DB_POINTER: {
-            final String name = readCString();
-            final String dbDotCollection = readString();
-            String db = dbDotCollection;
-            String collection = "";
-            final int firstDot = dbDotCollection.indexOf('.');
-            if (0 <= firstDot) {
-                db = dbDotCollection.substring(0, firstDot);
-                collection = dbDotCollection.substring(firstDot + 1);
-            }
-            return new com.allanbank.mongodb.bson.element.DBPointerElement(
-                    name, db, collection, new ObjectId(
-                            EndianUtils.swap(readInt()),
-                            EndianUtils.swap(readLong())));
+            return readDBPointerElement();
         }
         case DOCUMENT: {
             return readDocumentElement();
         }
         case DOUBLE: {
-            return new DoubleElement(readCString(),
-                    Double.longBitsToDouble(readLong()));
+            return readDoubleElement();
         }
         case BOOLEAN: {
-            return new BooleanElement(readCString(), (read() == 1));
+            return readBooleanElement();
         }
         case INTEGER: {
-            return new IntegerElement(readCString(), readInt());
+            return readIntegerElement();
         }
         case JAVA_SCRIPT: {
-            return new JavaScriptElement(readCString(), readString());
+            return readJavaScriptElement();
         }
         case JAVA_SCRIPT_WITH_SCOPE: {
-            final String name = readCString();
-
-            // Total length - not used.
-            readInt();
-
-            return new JavaScriptWithScopeElement(name, readString(),
-                    readDocument());
+            return readJavaScriptWithScopeElement();
         }
         case LONG: {
-            return new LongElement(readCString(), readLong());
+            return readLongElement();
         }
         case MAX_KEY: {
-            return new MaxKeyElement(readCString());
+            return readMaxKeyElement();
         }
         case MIN_KEY: {
-            return new MinKeyElement(readCString());
+            return readMinKeyElement();
         }
         case MONGO_TIMESTAMP: {
-            return new MongoTimestampElement(readCString(), readLong());
+            return readMongoTimestampElement();
         }
         case NULL: {
-            return new NullElement(readCString());
+            return readNullElement();
         }
         case OBJECT_ID: {
-            return new ObjectIdElement(readCString(), new ObjectId(
-                    EndianUtils.swap(readInt()), EndianUtils.swap(readLong())));
+            return readObjectIdElement();
         }
         case REGEX: {
-            return new RegularExpressionElement(readCString(), readCString(),
-                    readCString());
+            return readRegularExpressionElement();
         }
         case STRING: {
-            return new StringElement(readCString(), readString());
+            return readStringElement();
         }
         case SYMBOL: {
-            return new SymbolElement(readCString(), readString());
+            return readSymbolElement();
         }
         case UTC_TIMESTAMP: {
-            return new TimestampElement(readCString(), readLong());
+            return readTimestampElement();
         }
         }
 
@@ -697,6 +751,199 @@ public class BsonInputStream extends InputStream {
     }
 
     /**
+     * Reads a {@link IntegerElement} from the stream.
+     * 
+     * @return The {@link IntegerElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link IntegerElement}.
+     */
+    protected IntegerElement readIntegerElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final int value = readInt();
+
+        final long size = getBytesRead() - start;
+
+        return new IntegerElement(name, value, size);
+    }
+
+    /**
+     * Reads a {@link JavaScriptElement} from the stream.
+     * 
+     * @return The {@link JavaScriptElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link JavaScriptElement}.
+     */
+    protected JavaScriptElement readJavaScriptElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final String javascript = readString();
+
+        final long size = getBytesRead() - start;
+
+        return new JavaScriptElement(name, javascript, size);
+    }
+
+    /**
+     * Reads a {@link JavaScriptWithScopeElement} from the stream.
+     * 
+     * @return The {@link JavaScriptWithScopeElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link JavaScriptWithScopeElement}.
+     */
+    protected JavaScriptWithScopeElement readJavaScriptWithScopeElement()
+            throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        readInt(); // Total length - not used.
+        final String javascript = readString();
+        final Document scope = readDocument();
+
+        final long size = getBytesRead() - start;
+
+        return new JavaScriptWithScopeElement(name, javascript, scope, size);
+    }
+
+    /**
+     * Reads a {@link LongElement} from the stream.
+     * 
+     * @return The {@link LongElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the {@link LongElement}.
+     */
+    protected LongElement readLongElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final long value = readLong();
+
+        final long size = getBytesRead() - start;
+
+        return new LongElement(name, value, size);
+    }
+
+    /**
+     * Reads a {@link MaxKeyElement} from the stream.
+     * 
+     * @return The {@link MaxKeyElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link MaxKeyElement}.
+     */
+    protected MaxKeyElement readMaxKeyElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+
+        final long size = getBytesRead() - start;
+
+        return new MaxKeyElement(name, size);
+    }
+
+    /**
+     * Reads a {@link MinKeyElement} from the stream.
+     * 
+     * @return The {@link MinKeyElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link MinKeyElement}.
+     */
+    protected MinKeyElement readMinKeyElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+
+        final long size = getBytesRead() - start;
+
+        return new MinKeyElement(name, size);
+    }
+
+    /**
+     * Reads a {@link MongoTimestampElement} from the stream.
+     * 
+     * @return The {@link MongoTimestampElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link MongoTimestampElement}.
+     */
+    protected MongoTimestampElement readMongoTimestampElement()
+            throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final long timestamp = readLong();
+
+        final long size = getBytesRead() - start;
+
+        return new MongoTimestampElement(name, timestamp, size);
+    }
+
+    /**
+     * Reads a {@link NullElement} from the stream.
+     * 
+     * @return The {@link NullElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the {@link NullElement}.
+     */
+    protected NullElement readNullElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+
+        final long size = getBytesRead() - start;
+
+        return new NullElement(name, size);
+    }
+
+    /**
+     * Reads a {@link ObjectIdElement} from the stream.
+     * 
+     * @return The {@link ObjectIdElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link ObjectIdElement}.
+     */
+    protected ObjectIdElement readObjectIdElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final int timestamp = EndianUtils.swap(readInt());
+        final long machineId = EndianUtils.swap(readLong());
+
+        final long size = getBytesRead() - start;
+
+        return new ObjectIdElement(name, new ObjectId(timestamp, machineId),
+                size);
+    }
+
+    /**
+     * Reads a {@link RegularExpressionElement} from the stream.
+     * 
+     * @return The {@link RegularExpressionElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link RegularExpressionElement}.
+     */
+    protected RegularExpressionElement readRegularExpressionElement()
+            throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final String pattern = readCString();
+        final String options = readCString();
+
+        final long size = getBytesRead() - start;
+
+        return new RegularExpressionElement(name, pattern, options, size);
+    }
+
+    /**
      * Reads a "string" value from the stream:<code>
      * <pre>
      * string 	::= 	int32 (byte*) "\x00"
@@ -727,6 +974,63 @@ public class BsonInputStream extends InputStream {
         myBufferOffset += length;
 
         return myStringDecoder.decode(myBuffer, offset, length);
+    }
+
+    /**
+     * Reads a {@link StringElement} from the stream.
+     * 
+     * @return The {@link StringElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link StringElement}.
+     */
+    protected StringElement readStringElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final String value = readString();
+
+        final long size = getBytesRead() - start;
+
+        return new StringElement(name, value, size);
+    }
+
+    /**
+     * Reads a {@link SymbolElement} from the stream.
+     * 
+     * @return The {@link SymbolElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link SymbolElement}.
+     */
+    protected SymbolElement readSymbolElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final String symbol = readString();
+
+        final long size = getBytesRead() - start;
+
+        return new SymbolElement(name, symbol, size);
+    }
+
+    /**
+     * Reads a {@link TimestampElement} from the stream.
+     * 
+     * @return The {@link TimestampElement}.
+     * @throws IOException
+     *             On a failure to read the contents of the
+     *             {@link TimestampElement}.
+     */
+    protected TimestampElement readTimestampElement() throws IOException {
+        final long start = getBytesRead() - 1; // Token already read.
+
+        final String name = readCString();
+        final long time = readLong();
+
+        final long size = getBytesRead() - start;
+
+        return new TimestampElement(name, time, size);
     }
 
     /**

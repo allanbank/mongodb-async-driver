@@ -23,14 +23,14 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.BatchedWrite;
+import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
-import com.allanbank.mongodb.builder.Text;
-import com.allanbank.mongodb.builder.TextResult;
 
 /**
  * Helper class for forward all methods to the canonical version (which is
@@ -1735,28 +1735,48 @@ public abstract class AbstractAsyncMongoCollection extends
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #textSearchAsync(Callback, Text)}.
+     * Overridden to call the
+     * {@link #textSearchAsync(Callback, com.allanbank.mongodb.builder.Text)}.
      * </p>
+     * 
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     @Override
     public void textSearchAsync(
-            final Callback<MongoIterator<TextResult>> results,
-            final Text.Builder command) throws MongoDbException {
+            final Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
+            final com.allanbank.mongodb.builder.Text.Builder command)
+            throws MongoDbException {
         textSearchAsync(results, command.build());
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #textSearchAsync(Callback, Text)}.
+     * Overridden to call the
+     * {@link #textSearchAsync(Callback, com.allanbank.mongodb.builder.Text)}.
      * </p>
      * 
-     * @see #textSearchAsync(Callback, Text)
+     * @see #textSearchAsync(Callback, com.allanbank.mongodb.builder.Text)
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     @Override
-    public ListenableFuture<MongoIterator<TextResult>> textSearchAsync(
-            final Text command) throws MongoDbException {
-        final FutureCallback<MongoIterator<TextResult>> future = new FutureCallback<MongoIterator<TextResult>>(
+    public ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
+            final com.allanbank.mongodb.builder.Text command)
+            throws MongoDbException {
+        final FutureCallback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> future;
+        future = new FutureCallback<MongoIterator<com.allanbank.mongodb.builder.TextResult>>(
                 getLockType());
 
         textSearchAsync(future, command);
@@ -1767,12 +1787,22 @@ public abstract class AbstractAsyncMongoCollection extends
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #textSearchAsync(Text)}.
+     * Overridden to call the
+     * {@link #textSearchAsync(com.allanbank.mongodb.builder.Text)}.
      * </p>
+     * 
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     @Override
-    public ListenableFuture<MongoIterator<TextResult>> textSearchAsync(
-            final Text.Builder command) throws MongoDbException {
+    public ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
+            final com.allanbank.mongodb.builder.Text.Builder command)
+            throws MongoDbException {
         return textSearchAsync(command.build());
     }
 
@@ -1993,6 +2023,85 @@ public abstract class AbstractAsyncMongoCollection extends
             final Durability durability) throws MongoDbException {
         updateAsync(new LambdaCallbackAdapter<Long>(results), query, update,
                 durability);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #writeAsync(Callback, BatchedWrite)}
+     * method.
+     * </p>
+     * 
+     * @see #writeAsync(Callback, BatchedWrite)
+     */
+    @Override
+    public ListenableFuture<Long> writeAsync(final BatchedWrite write)
+            throws MongoDbException {
+        final FutureCallback<Long> future = new FutureCallback<Long>(
+                getLockType());
+
+        writeAsync(future, write);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #writeAsync(BatchedWrite)} method.
+     * </p>
+     * 
+     * @see #writeAsync(BatchedWrite)
+     */
+    @Override
+    public ListenableFuture<Long> writeAsync(final BatchedWrite.Builder write)
+            throws MongoDbException {
+        return writeAsync(write.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #writeAsync(Callback, BatchedWrite)}
+     * method.
+     * </p>
+     * 
+     * @see #writeAsync(Callback, BatchedWrite)
+     */
+    @Override
+    public void writeAsync(final Callback<Long> results,
+            final BatchedWrite.Builder write) throws MongoDbException {
+        writeAsync(results, write.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #writeAsync(Callback, BatchedWrite)}
+     * method.
+     * </p>
+     * 
+     * @see #writeAsync(Callback, BatchedWrite)
+     */
+    @Override
+    public void writeAsync(final LambdaCallback<Long> results,
+            final BatchedWrite write) throws MongoDbException {
+        writeAsync(new LambdaCallbackAdapter<Long>(results), write);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #writeAsync(LambdaCallback, BatchedWrite)}
+     * method.
+     * </p>
+     * 
+     * @see #writeAsync(LambdaCallback, BatchedWrite)
+     */
+    @Override
+    public void writeAsync(final LambdaCallback<Long> results,
+            final BatchedWrite.Builder write) throws MongoDbException {
+        writeAsync(results, write.build());
     }
 
     /**

@@ -63,6 +63,9 @@ public class ImmutableDocument extends AbstractDocument {
     /** The elements of the document. */
     private final List<Element> myElements;
 
+    /** The size of the document when encoded as bytes. */
+    private final long mySize;
+
     /**
      * Constructs a new {@link ImmutableDocument}.
      * 
@@ -76,6 +79,28 @@ public class ImmutableDocument extends AbstractDocument {
         myElements = Collections.unmodifiableList(new ArrayList<Element>(
                 elements));
         myElementMap = null;
+        mySize = computeSize();
+    }
+
+    /**
+     * Constructs a new {@link ImmutableDocument}.
+     * 
+     * @param document
+     *            The elements for the BSON document.
+     * @param size
+     *            The size of the document when encoded in bytes. If not known
+     *            then use the
+     *            {@link ImmutableDocument#ImmutableDocument(DocumentAssignable)}
+     *            constructor instead.
+     */
+    public ImmutableDocument(final DocumentAssignable document, final long size) {
+
+        final List<Element> elements = document.asDocument().getElements();
+
+        myElements = Collections.unmodifiableList(new ArrayList<Element>(
+                elements));
+        myElementMap = null;
+        mySize = size;
     }
 
     /**
@@ -86,6 +111,16 @@ public class ImmutableDocument extends AbstractDocument {
     @Override
     public List<Element> getElements() {
         return myElements;
+    }
+
+    /**
+     * Returns the size of the document when encoded as bytes.
+     * 
+     * @return The size of the document when encoded as bytes.
+     */
+    @Override
+    public long size() {
+        return mySize;
     }
 
     /**
@@ -109,5 +144,19 @@ public class ImmutableDocument extends AbstractDocument {
         }
 
         return myElementMap;
+    }
+
+    /**
+     * Computes and returns the length of the document in bytes.
+     * 
+     * @return The length of the document in bytes.
+     */
+    private long computeSize() {
+        long result = 5; // int length (4) + terminal null byte (1).
+        for (final Element element : myElements) {
+            result += element.size();
+        }
+
+        return result;
     }
 }

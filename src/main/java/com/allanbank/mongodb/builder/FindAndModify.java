@@ -36,7 +36,7 @@ public class FindAndModify {
      * The first version of MongoDB to support the {@code findAndModify} command
      * with the ability to limit the execution time on the server.
      */
-    public static final Version MAX_TIMEOUT_VERSION = Version.parse("2.5.4");
+    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
 
     /** An (empty) update document to perform no actual modifications. */
     public static final Document NONE = MongoCollection.NONE;

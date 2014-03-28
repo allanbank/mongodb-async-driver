@@ -9,6 +9,7 @@ import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON string.
@@ -27,6 +28,25 @@ public class StringElement extends AbstractElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = 2279503881395893379L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @param value
+     *            The BSON string value.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name, final String value) {
+        long result = 7; // type (1) + name null byte (1) +
+                         // value length (4) + value null byte (1)
+        result += StringEncoder.utf8Size(name);
+        result += StringEncoder.utf8Size(value);
+
+        return result;
+    }
+
     /** The BSON string value. */
     private final String myValue;
 
@@ -41,7 +61,26 @@ public class StringElement extends AbstractElement {
      *             If the {@code name} or {@code value} is <code>null</code>.
      */
     public StringElement(final String name, final String value) {
-        super(name);
+        this(name, value, computeSize(name, value));
+    }
+
+    /**
+     * Constructs a new {@link StringElement}.
+     * 
+     * @param name
+     *            The name for the BSON string.
+     * @param value
+     *            The BSON string value.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link StringElement#StringElement(String, String)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code value} is <code>null</code>.
+     */
+    public StringElement(final String name, final String value, final long size) {
+        super(name, size);
 
         assertNotNull(value, "String element's value cannot be null.");
 

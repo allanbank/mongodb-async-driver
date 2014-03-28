@@ -11,8 +11,8 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.GeoJson;
 import com.allanbank.mongodb.builder.GeospatialOperator;
 import com.allanbank.mongodb.builder.MiscellaneousOperator;
@@ -55,7 +55,7 @@ public class QueryVersionVisitorTest {
         assertThat(
                 QueryVersionVisitor.version(BuilderFactory.start()
                         .add("$maxTimeMS", 1).build()),
-                is(VersionRange.range(Version.VERSION_2_6, null)));
+                is(VersionRange.range(Find.MAX_TIMEOUT_VERSION, null)));
 
     }
 

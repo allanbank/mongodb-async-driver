@@ -231,6 +231,30 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     }
 
     /**
+     * Returns smallest value for the maximum number of write operations allowed
+     * in a single write command.
+     * 
+     * @return The smallest value for maximum number of write operations allowed
+     *         in a single write command.
+     */
+    @Override
+    public int getSmallestMaxBatchedWriteOperations() {
+        return myCluster.getSmallestMaxBatchedWriteOperations();
+    }
+
+    /**
+     * Returns the smallest value for the maximum BSON object within the
+     * cluster.
+     * 
+     * @return The smallest value for the maximum BSON object within the
+     *         cluster.
+     */
+    @Override
+    public long getSmallestMaxBsonObjectSize() {
+        return myCluster.getSmallestMaxBsonObjectSize();
+    }
+
+    /**
      * Creates a new {@link BootstrapState}.
      * 
      * @return The {@link BootstrapState} to track state of loading the cluster

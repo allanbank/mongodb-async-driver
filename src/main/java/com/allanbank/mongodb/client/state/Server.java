@@ -51,6 +51,12 @@ public class Server {
     /** The document element type. */
     public static final Class<DocumentElement> DOCUMENT_TYPE = DocumentElement.class;
 
+    /** The default number of max batched write operations. */
+    public static final int MAX_BATCHED_WRITE_OPERATIONS_DEFAULT = 1000;
+
+    /** The name for the Server's maximum BSON object size property: {@value} . */
+    public static final String MAX_BATCHED_WRITE_OPERATIONS_PROP = "maxWriteBatchSize";
+
     /** The name for the Server's maximum BSON object size property: {@value} . */
     public static final String MAX_BSON_OBJECT_SIZE_PROP = "maxBsonObjectSize";
 
@@ -110,6 +116,12 @@ public class Server {
 
     /** The time of the last version update. */
     private long myLastVersionUpdate = 0;
+
+    /**
+     * The maximum number of write operations allowed in a single write command.
+     * Defaults to {@value #MAX_BATCHED_WRITE_OPERATIONS_DEFAULT}.
+     */
+    private volatile int myMaxBatchedWriteOperations = MAX_BATCHED_WRITE_OPERATIONS_DEFAULT;
 
     /**
      * The maximum BSON object size the server will accept. Defaults to
@@ -287,6 +299,17 @@ public class Server {
      */
     public String getCanonicalName() {
         return myCanonicalName;
+    }
+
+    /**
+     * Returns the maximum number of write operations allowed in a single write
+     * command. Defaults to {@value #MAX_BATCHED_WRITE_OPERATIONS_DEFAULT}.
+     * 
+     * @return The maximum number of write operations allowed in a single write
+     *         command.
+     */
+    public int getMaxBatchedWriteOperations() {
+        return myMaxBatchedWriteOperations;
     }
 
     /**
@@ -487,6 +510,7 @@ public class Server {
         updateName(document);
         updateVersion(document);
         updateMaxBsonObjectSize(document);
+        updateMaxWriteOperations(document);
     }
 
     /**
@@ -516,13 +540,13 @@ public class Server {
     /**
      * Extract any {@code maxBsonObjectSize} from the reply.
      * 
-     * @param buildInfoReply
-     *            The reply to the {@code buildinfo} command.
+     * @param isMasterReply
+     *            The reply to the {@code ismaster} command.
      */
-    private void updateMaxBsonObjectSize(final Document buildInfoReply) {
+    private void updateMaxBsonObjectSize(final Document isMasterReply) {
         final int oldValue = myMaxBsonObjectSize;
 
-        final NumericElement maxSize = buildInfoReply.findFirst(NUMERIC_TYPE,
+        final NumericElement maxSize = isMasterReply.findFirst(NUMERIC_TYPE,
                 MAX_BSON_OBJECT_SIZE_PROP);
         if (maxSize != null) {
             myMaxBsonObjectSize = maxSize.getIntValue();
@@ -530,6 +554,25 @@ public class Server {
 
         myEventSupport.firePropertyChange(MAX_BSON_OBJECT_SIZE_PROP, oldValue,
                 myMaxBsonObjectSize);
+    }
+
+    /**
+     * Extract any {@code maxWriteBatchSize} from the reply.
+     * 
+     * @param isMasterReply
+     *            The reply to the {@code ismaster} command.
+     */
+    private void updateMaxWriteOperations(final Document isMasterReply) {
+        final int oldValue = myMaxBatchedWriteOperations;
+
+        final NumericElement maxSize = isMasterReply.findFirst(NUMERIC_TYPE,
+                MAX_BATCHED_WRITE_OPERATIONS_PROP);
+        if (maxSize != null) {
+            myMaxBatchedWriteOperations = maxSize.getIntValue();
+        }
+
+        myEventSupport.firePropertyChange(MAX_BATCHED_WRITE_OPERATIONS_PROP,
+                oldValue, myMaxBatchedWriteOperations);
     }
 
     /**

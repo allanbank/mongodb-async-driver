@@ -27,6 +27,8 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.BooleanElement;
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.BatchedWrite;
+import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
@@ -34,8 +36,6 @@ import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
-import com.allanbank.mongodb.builder.Text;
-import com.allanbank.mongodb.builder.TextResult;
 import com.allanbank.mongodb.util.FutureUtils;
 
 /**
@@ -766,7 +766,7 @@ public class SynchronousMongoCollectionImpl extends
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to TODO Finish.
+     * Overridden to return a {@link BatchedAsyncMongoCollection}.
      * </p>
      */
     @Override
@@ -790,13 +790,22 @@ public class SynchronousMongoCollectionImpl extends
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #textSearchAsync(Text)}.
+     * Overridden to call the
+     * {@link #textSearchAsync(com.allanbank.mongodb.builder.Text)}.
      * </p>
      * 
-     * @see #textSearchAsync(Text)
+     * @see #textSearchAsync(com.allanbank.mongodb.builder.Text)
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     @Override
-    public MongoIterator<TextResult> textSearch(final Text command)
+    public MongoIterator<com.allanbank.mongodb.builder.TextResult> textSearch(
+            final com.allanbank.mongodb.builder.Text command)
             throws MongoDbException {
         return FutureUtils.unwrap(textSearchAsync(command));
     }
@@ -804,11 +813,21 @@ public class SynchronousMongoCollectionImpl extends
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to call the {@link #textSearch(Text)}.
+     * Overridden to call the
+     * {@link #textSearch(com.allanbank.mongodb.builder.Text)}.
      * </p>
+     * 
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     @Override
-    public MongoIterator<TextResult> textSearch(final Text.Builder command)
+    public MongoIterator<com.allanbank.mongodb.builder.TextResult> textSearch(
+            final com.allanbank.mongodb.builder.Text.Builder command)
             throws MongoDbException {
         return textSearch(command.build());
     }
@@ -939,6 +958,34 @@ public class SynchronousMongoCollectionImpl extends
         }
 
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #writeAsync(BatchedWrite)}.
+     * </p>
+     * 
+     * @see #writeAsync(BatchedWrite)
+     */
+    @Override
+    public long write(final BatchedWrite write) throws MongoDbException {
+        final ListenableFuture<Long> future = writeAsync(write);
+
+        return FutureUtils.unwrap(future).longValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #write(BatchedWrite)}.
+     * </p>
+     * 
+     * @see #write(BatchedWrite)
+     */
+    @Override
+    public long write(final BatchedWrite.Builder write) throws MongoDbException {
+        return write(write.build());
     }
 
     /**

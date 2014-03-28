@@ -144,6 +144,30 @@ public class SerialClientImpl extends AbstractClient {
     }
 
     /**
+     * Returns smallest value for the maximum number of write operations allowed
+     * in a single write command.
+     * 
+     * @return The smallest value for maximum number of write operations allowed
+     *         in a single write command.
+     */
+    @Override
+    public int getSmallestMaxBatchedWriteOperations() {
+        return myDelegate.getSmallestMaxBatchedWriteOperations();
+    }
+
+    /**
+     * Returns the lowest value for the maximum BSON object size within the
+     * cluster.
+     * 
+     * @return The lowest value for the maximum BSON object size within the
+     *         cluster.
+     */
+    @Override
+    public long getSmallestMaxBsonObjectSize() {
+        return myDelegate.getSmallestMaxBsonObjectSize();
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to forward to the delegate client.

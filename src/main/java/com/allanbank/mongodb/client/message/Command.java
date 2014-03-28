@@ -32,6 +32,15 @@ public class Command extends AbstractMessage {
     /** The collection to use when issuing commands to the database. */
     public static final String COMMAND_COLLECTION = "$cmd";
 
+    /** The amount of headroom for jumbo documents. */
+    private static final int HEADROOM = 16 * 1024;
+
+    /**
+     * If true then the command document is allowed to slightly exceed the
+     * document size limit.
+     */
+    private boolean myAllowJumbo = false;
+
     /** The command's document. */
     private final Document myCommand;
 
@@ -156,6 +165,30 @@ public class Command extends AbstractMessage {
     }
 
     /**
+     * Returns true if the command document is allowed to slightly exceed the
+     * document size limit.
+     * 
+     * @return True if the command document is allowed to slightly exceed the
+     *         document size limit.
+     */
+    public boolean isAllowJumbo() {
+        return myAllowJumbo;
+    }
+
+    /**
+     * If set to true then the command document is allowed to slightly exceed
+     * the document size limit. This allows us to pack a full size document in a
+     * insert command.
+     * 
+     * @param allowJumbo
+     *            If true then the command document is allowed to slightly
+     *            exceed the document size limit.
+     */
+    public void setAllowJumbo(final boolean allowJumbo) {
+        myAllowJumbo = allowJumbo;
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to return a human readable form of the command.
@@ -203,7 +236,13 @@ public class Command extends AbstractMessage {
             myMessageSize = visitor.getSize();
         }
 
-        if (maxDocumentSize < myMessageSize) {
+        if (isAllowJumbo()) {
+            if ((maxDocumentSize + HEADROOM) < myMessageSize) {
+                throw new DocumentToLargeException(myMessageSize,
+                        maxDocumentSize + HEADROOM, myCommand);
+            }
+        }
+        else if (maxDocumentSize < myMessageSize) {
             throw new DocumentToLargeException(myMessageSize, maxDocumentSize,
                     myCommand);
         }

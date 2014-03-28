@@ -1,0 +1,2 @@
+# Turn the logging off.
+com.allanbank.mongodb.level: OFF

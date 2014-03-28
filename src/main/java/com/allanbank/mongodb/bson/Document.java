@@ -127,4 +127,11 @@ public interface Document extends Iterable<Element>, DocumentAssignable,
      * @return The array of elements that create this document.
      */
     public List<Element> getElements();
+
+    /**
+     * Returns the size of the document when encoded as bytes.
+     * 
+     * @return The size of the document when encoded as bytes.
+     */
+    public long size();
 }

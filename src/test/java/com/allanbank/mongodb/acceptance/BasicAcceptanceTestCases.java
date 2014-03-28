@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.acceptance;
 
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.d;
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.e;
 import static com.allanbank.mongodb.builder.AggregationGroupField.set;
 import static com.allanbank.mongodb.builder.AggregationGroupId.id;
 import static com.allanbank.mongodb.builder.AggregationProjectFields.includeWithoutId;
@@ -18,6 +20,7 @@ import static com.allanbank.mongodb.builder.expression.Expressions.field;
 import static com.allanbank.mongodb.builder.expression.Expressions.set;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -58,12 +61,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.allanbank.mongodb.BatchedAsyncMongoCollection;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClient;
@@ -75,6 +80,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoFactory;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ProfilingStatus;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.Version;
@@ -96,6 +102,8 @@ import com.allanbank.mongodb.bson.json.Json;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.AggregationGeoNear;
 import com.allanbank.mongodb.builder.AggregationProjectFields;
+import com.allanbank.mongodb.builder.BatchedWrite;
+import com.allanbank.mongodb.builder.BatchedWriteMode;
 import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
@@ -107,9 +115,11 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
-import com.allanbank.mongodb.builder.Text;
-import com.allanbank.mongodb.builder.TextResult;
+import com.allanbank.mongodb.builder.write.InsertOperation;
+import com.allanbank.mongodb.builder.write.WriteOperation;
+import com.allanbank.mongodb.builder.write.WriteOperationType;
 import com.allanbank.mongodb.client.Client;
+import com.allanbank.mongodb.error.BatchedWriteException;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
@@ -196,13 +206,37 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Creates a large collection of documents that test should only read from.
+     */
+    protected static void disableBalancer() {
+
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        config.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
+
+        final MongoClient mongoClient = MongoFactory.createClient(config);
+        try {
+            // Turn off the balancer - Can confuse the test counts.
+            final boolean upsert = true;
+            mongoClient
+                    .getDatabase("config")
+                    .getCollection("settings")
+                    .update(where("_id").equals("balancer"),
+                            d(e("$set", d(e("stopped", true)))), false, upsert);
+        }
+        finally {
+            IOUtils.close(mongoClient);
+        }
+    }
+
+    /**
      * Returns the large collection handle.
      * 
      * @param mongoClient
      *            The client to connect to the collection.
      * @return The handle to the large collection.
      */
-    private static MongoCollection largeCollection(final MongoClient mongoClient) {
+    protected static MongoCollection largeCollection(
+            final MongoClient mongoClient) {
         return mongoClient.getDatabase(TEST_DB_NAME + "_large").getCollection(
                 TEST_COLLECTION_NAME);
     }
@@ -777,6 +811,290 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies the ability to submit batched operations.
+     * <p>
+     * Batching requests is accomplished via the
+     * {@link BatchedAsyncMongoCollection} interface which we get from the
+     * {@link MongoCollection#startBatch()} method. The batch needs to always be
+     * closed to submit the requests so we use a try-finally. In Java 1.7 we
+     * could use a try-with-resources.
+     * </p>
+     * 
+     * @throws ExecutionException
+     *             On a test failure.
+     * @throws InterruptedException
+     *             On a test failure.
+     * @throws IllegalArgumentException
+     *             On a test failure.
+     */
+    @Test
+    public void testBatchedOperations() throws IllegalArgumentException,
+            InterruptedException, ExecutionException {
+        final List<Future<Integer>> insertResults = new ArrayList<Future<Integer>>();
+        Future<Document> found = null;
+        Future<Long> update = null;
+        Future<Long> delete = null;
+        Future<Long> count = null;
+        Future<Document> found2 = null;
+        BatchedAsyncMongoCollection batch = null;
+        try {
+            batch = myCollection.startBatch();
+
+            // Now we can do as many CRUD operations we want. Even commands like
+            // are supported.
+
+            // We need some data. Lets create a documents with the _id field 'a'
+            // thru 'z'.
+            final DocumentBuilder builder = BuilderFactory.start();
+            for (char c = 'a'; c <= 'z'; ++c) {
+                builder.reset().add("_id", String.valueOf(c));
+
+                // Returns a Future that will only complete once the batch
+                // completes.
+                insertResults.add(batch.insertAsync(builder));
+            }
+
+            // A query works.
+            final Find.Builder find = Find.builder();
+            find.query(where("_id").equals("a"));
+            found = batch.findOneAsync(find);
+
+            // An update too.
+            final DocumentBuilder updateDoc = BuilderFactory.start();
+            updateDoc.push("$set").add("marked", true);
+            update = batch.updateAsync(Find.ALL, updateDoc, true, false);
+
+            // Delete should work.
+            delete = batch.deleteAsync(where("_id").equals("b"));
+
+            // Commands... It is all there.
+            count = batch.countAsync(Find.ALL);
+
+            // Lets look at the 'a' doc one more time. It should have the
+            // "marked" field now.
+            found2 = batch.findOneAsync(find);
+
+            // At this point nothing has been sent to the server. All of the
+            // messages have been "spooled" waiting to be sent.
+            // All of the messages will use the same connection
+            // (unless a read preference directs a query to a different
+            // server).
+
+            // Lets prove it by waiting (not too long) on the first insert's
+            // Future.
+            try {
+                insertResults.get(0).get(1, TimeUnit.SECONDS);
+                fail("The insert should not finish until we close the batch.");
+            }
+            catch (final TimeoutException good) {
+                // Good.
+            }
+        }
+        finally {
+            // Send the batch.
+            if (batch != null) {
+                batch.flush(); // Could also use batch.close().
+            }
+        }
+
+        // Check out the results.
+        final DocumentBuilder expected = BuilderFactory.start();
+
+        // The inserts...
+        for (final Future<Integer> insert : insertResults) {
+            // Just checking for an error.
+            assertThat(insert.get(), either(is(1)).or(is(0)));
+        }
+        assertThat(found.get(), is(expected.reset().add("_id", "a").build()));
+        assertThat(update.get(), is(26L));
+        assertThat(delete.get(), is(1L));
+        assertThat(count.get(), is(25L));
+        assertThat(
+                found2.get(),
+                is(expected.reset().add("_id", "a").add("marked", true).build()));
+    }
+
+    /**
+     * Verifies the ability to submit batched writes. This should run on any
+     * server just much faster on 2.6.
+     */
+    @Test
+    public void testBatchedWriteReordered() {
+        // Trigger the connection to set versions, etc.
+        myCollection.count();
+        myCollection.setReadPreference(ReadPreference.PRIMARY);
+
+        final BatchedWrite.Builder write = BatchedWrite.builder();
+
+        write.setMode(BatchedWriteMode.REORDERED);
+        write.setDurability(Durability.ACK);
+        final DocumentBuilder builder = BuilderFactory.start();
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            builder.reset()
+                    .add("_id", i)
+                    .add("t",
+                            "Now is the time for all good men to come to the aid.");
+
+            write.insert(builder);
+        }
+
+        long result = myCollection.write(write);
+        // Zero for before 2.6 and LARGE_COLLECTION_COUNT for after.
+        assertThat(result, either(is((long) LARGE_COLLECTION_COUNT)).or(is(0L)));
+        assertThat(myCollection.count(), is((long) LARGE_COLLECTION_COUNT));
+
+        write.reset();
+        write.setMode(BatchedWriteMode.REORDERED);
+        write.setDurability(Durability.ACK);
+        final DocumentBuilder update = BuilderFactory.start();
+        update.push("$set").add("t", "Turns out it was not the time.");
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            builder.reset().add("_id", i);
+
+            write.update(builder, update);
+        }
+        result = myCollection.write(write);
+        assertThat(result, is((long) LARGE_COLLECTION_COUNT));
+        assertThat(myCollection.count(), is((long) LARGE_COLLECTION_COUNT));
+
+        write.reset();
+        write.setMode(BatchedWriteMode.REORDERED);
+        write.setDurability(Durability.ACK);
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            builder.reset().add("_id", i);
+
+            write.delete(builder);
+        }
+        result = myCollection.write(write);
+        assertThat(result, is((long) LARGE_COLLECTION_COUNT));
+        assertThat(myCollection.count(), is(0L));
+    }
+
+    /**
+     * Verifies the ability to submit batched writes. This should run on any
+     * server just much faster on 2.6.
+     */
+    @Test
+    public void testBatchedWriteSerialized() {
+        // Trigger the connection to set versions.
+        myCollection.count();
+        myCollection.setReadPreference(ReadPreference.PRIMARY);
+
+        final BatchedWrite.Builder write = BatchedWrite.builder();
+
+        write.setMode(BatchedWriteMode.SERIALIZE_AND_CONTINUE);
+        write.setDurability(Durability.ACK);
+        final DocumentBuilder builder = BuilderFactory.start();
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            builder.reset()
+                    .add("_id", i)
+                    .add("t",
+                            "Now is the time for all good men to come to the aid.");
+
+            write.insert(builder);
+        }
+
+        final DocumentBuilder update = BuilderFactory.start();
+        update.push("$set").add("t", "Turns out it was not the time.");
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            builder.reset().add("_id", i);
+
+            write.update(builder, update);
+        }
+
+        for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
+            builder.reset().add("_id", i);
+
+            write.delete(builder);
+        }
+
+        final long result = myCollection.write(write);
+        assertThat(
+                result,
+                either(is(LARGE_COLLECTION_COUNT * 3L)).or(
+                        is(LARGE_COLLECTION_COUNT * 2L)));
+        assertThat(myCollection.count(), is(0L));
+    }
+
+    /**
+     * Verifies the ability to submit batched writes. This should run on any
+     * server just much faster on 2.6.
+     */
+    @Test
+    public void testBatchedWriteSerializedAndStop() {
+        // Trigger the connection to set versions.
+        myCollection.count();
+
+        final int count = 100;
+
+        final BatchedWrite.Builder write = BatchedWrite.builder();
+
+        write.setMode(BatchedWriteMode.SERIALIZE_AND_STOP);
+        write.setDurability(Durability.ACK);
+        final DocumentBuilder builder = BuilderFactory.start();
+        for (int i = 0; i < count; ++i) {
+            builder.reset()
+                    .add("_id", i)
+                    .add("t",
+                            "Now is the time for all good men to come to the aid.");
+
+            write.insert(builder);
+        }
+
+        final DocumentBuilder update = BuilderFactory.start();
+        update.push("$set").add("t", "Turns out it was not the time.");
+        for (int i = 0; i < count; ++i) {
+            builder.reset().add("_id", i);
+
+            write.update(builder, update);
+        }
+
+        // Try and insert with the same id.
+        builder.reset().add("_id", 10);
+        write.insert(builder);
+
+        // This one would have worked...
+        builder.reset().add("_id", count + 1);
+        write.insert(builder);
+
+        for (int i = 0; i < count; ++i) {
+            builder.reset().add("_id", i);
+
+            write.delete(builder);
+        }
+
+        try {
+            myCollection.write(write);
+            fail("Should have thrown a BatchedWriteException");
+        }
+        catch (final BatchedWriteException error) {
+            // Good.
+
+            final Map<WriteOperation, Throwable> errors = error.getErrors();
+            assertThat(errors.size(), is(1));
+            final WriteOperation errorOp = errors.keySet().iterator().next();
+            final Throwable errorThrown = errors.values().iterator().next();
+
+            assertThat(errorOp.getType(), is(WriteOperationType.INSERT));
+            assertThat(((InsertOperation) errorOp).getDocument(), is(builder
+                    .reset().add("_id", 10).build()));
+            assertThat(errorThrown, instanceOf(DuplicateKeyException.class));
+
+            // Check the skipped items.
+            final List<WriteOperation> skipped = error.getSkipped();
+            assertThat(skipped.size(), is(count + 1));
+
+            assertThat(skipped.get(0).getType(), is(WriteOperationType.INSERT));
+            for (int i = 0; i < count; ++i) {
+                assertThat(skipped.get(i + 1).getType(),
+                        is(WriteOperationType.DELETE));
+            }
+        }
+
+        assertThat(myCollection.count(), is((long) count));
+    }
+
+    /**
      * Verifies the ability to get the collection statistics.
      */
     @Test
@@ -842,11 +1160,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies counting the number of documents in the collection.
+     * Verifies counting the number of documents in the collection will timeout
+     * if it takes too long.
+     * 
+     * @throws ExecutionException
+     *             On a test failure.
+     * @throws InterruptedException
+     *             On a test failure.
      */
     @Test
-    public void testCountTimeout() {
-        final MongoCollection collection = largeCollection(myMongo);
+    public void testCountTimeout() throws ExecutionException,
+            InterruptedException {
 
         final Count.Builder builder = new Count.Builder();
         // Need a query do it does not use an index of the collection meta-data.
@@ -854,8 +1178,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         builder.maximumTime(1, TimeUnit.MILLISECONDS);
 
         try {
-            collection.count(builder.build());
-            fail("Should have thrown a timeout exception.");
+            final long before = System.currentTimeMillis();
+            largeCollection(myMongo).count(builder.build());
+            final long after = System.currentTimeMillis();
+
+            assertThat("Should have thrown a timeout exception. Elapsed time: "
+                    + (after - before) + " ms", after - before, lessThan(50L));
         }
         catch (final MaximumTimeLimitExceededException expected) {
             // Good.
@@ -1231,11 +1559,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testFindAndModifyTimeout() {
-        final DocumentBuilder doc = BuilderFactory.start();
-        doc.addString("zip-code", "10010");
-        for (int i = 0; i < 10000; ++i) {
-            myCollection.insert(Durability.ACK, doc);
-        }
 
         final DocumentBuilder query = BuilderFactory.start();
         query.addInteger("g", 0);
@@ -1246,14 +1569,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.setQuery(query.build());
         builder.setUpdate(update.build());
-        builder.upsert();
         builder.setReturnNew(true);
 
         builder.maximumTime(1, TimeUnit.MILLISECONDS);
 
         try {
-            myCollection.findAndModify(builder.build());
-            fail("Should have thrown a timeout exception.");
+            final long before = System.currentTimeMillis();
+            largeCollection(myMongo).findAndModify(builder.build());
+            final long after = System.currentTimeMillis();
+            assertThat("Should have thrown a timeout exception. Elapsed time: "
+                    + (after - before) + " ms", after - before, lessThan(50L));
         }
         catch (final MaximumTimeLimitExceededException expected) {
             // Good.
@@ -1795,8 +2120,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         try {
             final MongoCollection collection = largeCollection(myMongo);
+            final long before = System.currentTimeMillis();
             collection.groupBy(builder.build());
-            fail("Should have thrown a timeout exception.");
+            final long after = System.currentTimeMillis();
+            assertThat("Should have thrown a timeout exception. Elapsed time: "
+                    + (after - before) + " ms", after - before, lessThan(50L));
         }
         catch (final MaximumTimeLimitExceededException expected) {
             // Good.
@@ -1809,9 +2137,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
-        }
-        catch (final ReplyException re) {
-            System.out.println(re.getErrorNumber());
         }
     }
 
@@ -3462,8 +3787,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
             iter.close();
@@ -3515,8 +3838,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final List<Document> expected = new ArrayList<Document>();
             expected.add(doc1);
 
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
             assertFalse(iter.hasNext());
@@ -6262,13 +6583,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         MongoIterator<Document> iter = null;
         try {
             iter = myCollection.find(where("a").notEqualTo(v2));
-            fail("Expect a QueryFailedException.");
+            // fail("Expect a QueryFailedException."); // Up to 2.5.5
             assertTrue(iter.hasNext());
             assertEquals(doc1.build(), iter.next());
             assertFalse(iter.hasNext());
         }
         catch (final QueryFailedException qfe) {
-            // Bug in MongoDB?
+            // Bug in MongoDB - Discovered fixed in 2.5.5
         }
         finally {
             if (iter != null) {
@@ -7706,10 +8027,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             iter = getGeoCollection().find(
                     where("p").withinOnSphere(x, y, radius));
 
-            fail("$withinSphere wrapping now works!");
+            final List<Document> expected = new ArrayList<Document>();
+            expected.add(doc1.build());
+            expected.add(doc2.build());
+
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertTrue(iter.hasNext());
+            assertTrue(expected.remove(iter.next()));
+            assertFalse(iter.hasNext());
+            assertEquals(0, expected.size());
         }
         catch (final QueryFailedException expected) {
-            // OK, I guess.
+            // OK, I guess. Would fail pre-2.5.5.
         }
         finally {
             if (iter != null) {
@@ -7959,7 +8289,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies the function of the {@link Text text} command.
+     * Verifies the function of the {@link com.allanbank.mongodb.builder.Text
+     * text} command.
      * 
      * <pre>
      * <code>
@@ -7998,7 +8329,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * }
      * </code>
      * </pre>
+     * 
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This test will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     @SuppressWarnings("boxing")
     @Test
     public void testTextSearch() {
@@ -8018,18 +8357,21 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 builder.reset().add("content",
                         "Coffee is full of magical powers."));
 
-        List<TextResult> results = Collections.emptyList();
+        List<com.allanbank.mongodb.builder.TextResult> results = Collections
+                .emptyList();
         try {
             // Need the text index.
             myCollection.createIndex(Index.text("content"));
 
             results = myCollection.textSearch(
-                    Text.builder().searchTerm("coffee magic")).toList();
+                    com.allanbank.mongodb.builder.Text.builder().searchTerm(
+                            "coffee magic")).toList();
         }
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
-            assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Text.REQUIRED_VERSION));
+            assumeThat(
+                    sve.getActualVersion(),
+                    greaterThanOrEqualTo(com.allanbank.mongodb.builder.Text.REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -8037,66 +8379,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         assertThat(results.size(), is(2));
 
-        final TextResult first = results.get(0);
+        final com.allanbank.mongodb.builder.TextResult first = results.get(0);
         assertThat(first.getDocument().get(StringElement.class, "content"),
                 is(new StringElement("content",
                         "Coffee is full of magical powers.")));
-        final TextResult second = results.get(1);
+        final com.allanbank.mongodb.builder.TextResult second = results.get(1);
         assertThat(second.getDocument().get(StringElement.class, "content"),
                 is(new StringElement("content",
                         "Now is the time to drink all of the coffee.")));
-    }
-
-    /**
-     * Verifies the function of the {@link Text text} command timeing out.
-     */
-    @SuppressWarnings("boxing")
-    @Test
-    public void testTextSearchTimeout() {
-        final DocumentBuilder builder = BuilderFactory.start();
-
-        // Some content, a bit more than the default to make the query take
-        // longer.
-        for (int i = 0; i < 10000; ++i) {
-            myCollection.insert(
-                    Durability.ACK,
-                    builder.reset().add("content",
-                            "Now is the time to drink all of the coffee."));
-            myCollection.insert(
-                    Durability.ACK,
-                    builder.reset().add("content",
-                            "Now is the time to drink all of the tea!"));
-            myCollection.insert(
-                    Durability.ACK,
-                    builder.reset().add("content",
-                            "Coffee is full of magical powers."));
-        }
-
-        try {
-            // Need the text index.
-            myCollection.createIndex(Index.text("content"));
-
-            final Text.Builder command = Text.builder().searchTerm(
-                    "coffee magic");
-
-            // Shortest possible timeout.
-            command.maximumTime(1, TimeUnit.MILLISECONDS);
-
-            myCollection.textSearch(command);
-            fail("Should have thrown a timeout exception.");
-        }
-        catch (final MaximumTimeLimitExceededException expected) {
-            // Good.
-        }
-        catch (final ServerVersionException sve) {
-            // Check if we are talking to a recent MongoDB instance
-            // That supports the maximum time attribute.
-            assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Text.MAX_TIMEOUT_VERSION));
-
-            // Humm - Should have worked. Rethrow the error.
-            throw sve;
-        }
     }
 
     /**
@@ -8185,8 +8475,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 Document result = myCollection.updateOptions(BuilderFactory
                         .start().add("usePowerOf2Sizes", true));
 
-                assertEquals(new BooleanElement("usePowerOf2Sizes_old", false),
-                        result.get("usePowerOf2Sizes_old"));
+                // 2.6 just returns { ok : 1.0 }
+                assertThat(
+                        result.get("usePowerOf2Sizes_old"),
+                        anyOf(is((Element) new BooleanElement(
+                                "usePowerOf2Sizes_old", false)),
+                                nullValue(Element.class)));
 
                 result = myCollection.updateOptions(BuilderFactory.start().add(
                         "usePowerOf2Sizes", true));
@@ -8444,7 +8738,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 myDb.runAdminCommand("split", fullName, options);
 
                 // Add some more chunks and move around the shards.
-                final int index = 0;
+                int index = 0;
                 final MongoCollection shards = myMongo.getDatabase("config")
                         .getCollection("shards");
                 for (final Document shard : shards.find(BuilderFactory.start())) {
@@ -8456,6 +8750,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     options.push("find").add(shardKey.getName(), index);
                     options.add(shard.get("_id").withName("to"));
                     myDb.runAdminCommand("moveChunk", fullName, options);
+
+                    index += 1;
                 }
             }
         }

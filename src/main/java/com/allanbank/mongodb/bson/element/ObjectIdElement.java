@@ -9,6 +9,7 @@ import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON Object Id.
@@ -30,6 +31,21 @@ public class ObjectIdElement extends AbstractElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = -3563737127052573642L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name) {
+        long result = 14; // type (1) + name null byte (1) + id value 12
+        result += StringEncoder.utf8Size(name);
+
+        return result;
+    }
+
     /** The BSON Object id. */
     private final ObjectId myId;
 
@@ -44,7 +60,26 @@ public class ObjectIdElement extends AbstractElement {
      *             If the {@code name} or {@code id} is <code>null</code>.
      */
     public ObjectIdElement(final String name, final ObjectId id) {
-        super(name);
+        this(name, id, computeSize(name));
+    }
+
+    /**
+     * Constructs a new {@link ObjectIdElement}.
+     * 
+     * @param name
+     *            The name for the BSON Object Id.
+     * @param id
+     *            The object id.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link ObjectIdElement#ObjectIdElement(String, ObjectId)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code id} is <code>null</code>.
+     */
+    public ObjectIdElement(final String name, final ObjectId id, final long size) {
+        super(name, size);
 
         assertNotNull(id, "ObjectId element's id cannot be null.");
 

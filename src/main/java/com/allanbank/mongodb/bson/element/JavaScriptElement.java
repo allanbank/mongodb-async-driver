@@ -10,6 +10,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON JavaScript.
@@ -28,6 +29,25 @@ public class JavaScriptElement extends AbstractElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = -180121123367519947L;
 
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the element.
+     * @param javaScript
+     *            The BSON JavaScript value.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name, final String javaScript) {
+        long result = 7; // type (1) + name null byte (1) +
+                         // javaScript size and null byte (5).
+        result += StringEncoder.utf8Size(name);
+        result += StringEncoder.utf8Size(javaScript);
+
+        return result;
+    }
+
     /** The BSON string value. */
     private final String myJavaScript;
 
@@ -43,13 +63,33 @@ public class JavaScriptElement extends AbstractElement {
      *             <code>null</code>.
      */
     public JavaScriptElement(final String name, final String javaScript) {
-        super(name);
+        this(name, javaScript, computeSize(name, javaScript));
+    }
+
+    /**
+     * Constructs a new {@link JavaScriptElement}.
+     * 
+     * @param name
+     *            The name for the BSON string.
+     * @param javaScript
+     *            The BSON JavaScript value.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link JavaScriptElement#JavaScriptElement(String, String)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code javaScript} is
+     *             <code>null</code>.
+     */
+    public JavaScriptElement(final String name, final String javaScript,
+            final long size) {
+        super(name, size);
 
         assertNotNull(javaScript,
                 "JavaScript element's code block cannot be null.");
 
         myJavaScript = javaScript;
-
     }
 
     /**

@@ -13,6 +13,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON binary.
@@ -33,6 +34,32 @@ public class BinaryElement extends AbstractElement {
 
     /** Serialization version for the class. */
     private static final long serialVersionUID = 5864918707454038001L;
+
+    /**
+     * Computes and returns the number of bytes that are used to encode the
+     * element.
+     * 
+     * @param name
+     *            The name for the BSON array.
+     * @param subType
+     *            The sub-type of the binary data.
+     * @param bytesLength
+     *            The length of the binary array.
+     * @return The size of the element when encoded in bytes.
+     */
+    private static long computeSize(final String name, final byte subType,
+            final int bytesLength) {
+        long result = 3; // type (1) + name null byte (1) + subtype (1).
+        result += StringEncoder.utf8Size(name);
+        result += bytesLength;
+
+        if (subType == 2) {
+            // Extra length field in subtype 2.
+            result += 4;
+        }
+
+        return result;
+    }
 
     /** The sub-type of the binary data. */
     private final byte mySubType;
@@ -58,7 +85,34 @@ public class BinaryElement extends AbstractElement {
      */
     public BinaryElement(final String name, final byte subType,
             final BsonInputStream input, final int length) throws IOException {
-        super(name);
+        this(name, subType, input, length, computeSize(name, subType, length));
+    }
+
+    /**
+     * Constructs a new {@link BinaryElement}.
+     * 
+     * @param name
+     *            The name for the BSON binary.
+     * @param subType
+     *            The sub-type of the binary data.
+     * @param input
+     *            The stream to read the data from.
+     * @param length
+     *            The number of bytes of data to read.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link BinaryElement#BinaryElement(String, byte, BsonInputStream, int)}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} is <code>null</code>.
+     * @throws IOException
+     *             If there is an error reading from {@code input} stream.
+     */
+    public BinaryElement(final String name, final byte subType,
+            final BsonInputStream input, final int length, final long size)
+            throws IOException {
+        super(name, size);
 
         mySubType = subType;
         myValue = new byte[length];
@@ -80,7 +134,30 @@ public class BinaryElement extends AbstractElement {
      */
     public BinaryElement(final String name, final byte subType,
             final byte[] value) {
-        super(name);
+        this(name, subType, value, computeSize(name, subType,
+                (value == null) ? 0 : value.length));
+    }
+
+    /**
+     * Constructs a new {@link BinaryElement}.
+     * 
+     * @param name
+     *            The name for the BSON binary.
+     * @param subType
+     *            The sub-type of the binary data.
+     * @param value
+     *            The BSON binary value.
+     * @param size
+     *            The size of the element when encoded in bytes. If not known
+     *            then use the
+     *            {@link BinaryElement#BinaryElement(String, byte, byte[])}
+     *            constructor instead.
+     * @throws IllegalArgumentException
+     *             If the {@code name} or {@code value} is <code>null</code>.
+     */
+    public BinaryElement(final String name, final byte subType,
+            final byte[] value, final long size) {
+        super(name, size);
 
         assertNotNull(value,
                 "Binary element's value cannot be null.  Add a null element instead.");

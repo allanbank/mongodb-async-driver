@@ -32,18 +32,25 @@ public abstract class AbstractElement implements Element {
     /** The name for the BSON type. */
     private final String myName;
 
+    /** The size of the element when encoded in bytes. */
+    private final long mySize;
+
     /**
      * Constructs a new {@link AbstractElement}.
      * 
      * @param name
      *            The name for the BSON type.
+     * @param size
+     *            The size of the element when encoded in bytes.
      * @throws IllegalArgumentException
      *             If the {@code name} is <code>null</code>.
      */
-    public AbstractElement(final String name) throws IllegalArgumentException {
+    public AbstractElement(final String name, final long size)
+            throws IllegalArgumentException {
         assertNotNull(name, "Cannot have an null name on an element.");
 
         myName = name;
+        mySize = size;
     }
 
     /**
@@ -211,6 +218,16 @@ public abstract class AbstractElement implements Element {
         int result = 1;
         result = (31 * result) + ((myName == null) ? 0 : myName.hashCode());
         return result;
+    }
+
+    /**
+     * Returns the number of bytes that are used to encode the element.
+     * 
+     * @return The bytes that are used to encode the element.
+     */
+    @Override
+    public long size() {
+        return mySize;
     }
 
     /**

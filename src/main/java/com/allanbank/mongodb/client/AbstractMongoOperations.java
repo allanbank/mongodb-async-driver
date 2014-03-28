@@ -28,14 +28,16 @@ import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.BatchedWrite;
+import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
-import com.allanbank.mongodb.builder.Text;
-import com.allanbank.mongodb.builder.TextResult;
+import com.allanbank.mongodb.builder.write.WriteOperation;
+import com.allanbank.mongodb.client.callback.BatchedWriteCallback;
 import com.allanbank.mongodb.client.callback.CursorCallback;
 import com.allanbank.mongodb.client.callback.CursorStreamingCallback;
 import com.allanbank.mongodb.client.callback.LongToIntCallback;
@@ -45,7 +47,6 @@ import com.allanbank.mongodb.client.callback.ReplyIntegerCallback;
 import com.allanbank.mongodb.client.callback.ReplyLongCallback;
 import com.allanbank.mongodb.client.callback.ReplyResultCallback;
 import com.allanbank.mongodb.client.callback.SingleDocumentCallback;
-import com.allanbank.mongodb.client.callback.TextCallback;
 import com.allanbank.mongodb.client.message.AggregateCommand;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
@@ -508,8 +509,9 @@ public abstract class AbstractMongoOperations {
         }
         if (command.getMaximumTimeMilliseconds() > 0) {
             minVersion = GroupBy.MAX_TIMEOUT_VERSION;
-            groupDocBuilder.add("maxTimeMS",
-                    command.getMaximumTimeMilliseconds());
+            // maxTimeMS is not in the "group" sub-doc.
+            // See SERVER-12595 commands.
+            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 
         // Should be last since might wrap command in a $query element.
@@ -769,12 +771,21 @@ public abstract class AbstractMongoOperations {
      *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
      *      MongoDB Text Queries</a>
      * @since MongoDB 2.4
-     * @see AsyncMongoCollection#textSearchAsync(Callback, Text)
+     * @see AsyncMongoCollection#textSearchAsync(Callback,
+     *      com.allanbank.mongodb.builder.Text)
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This method will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
+    @Deprecated
     public void textSearchAsync(
-            final Callback<MongoIterator<TextResult>> results,
-            final Text command) throws MongoDbException {
-        Version minVersion = Text.REQUIRED_VERSION;
+            final Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
+            final com.allanbank.mongodb.builder.Text command)
+            throws MongoDbException {
+        final Version minVersion = com.allanbank.mongodb.builder.Text.REQUIRED_VERSION;
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("text", getName());
@@ -791,10 +802,6 @@ public abstract class AbstractMongoOperations {
         if (command.getLanguage() != null) {
             builder.add("language", command.getLanguage());
         }
-        if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.later(minVersion, Text.MAX_TIMEOUT_VERSION);
-            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
-        }
 
         // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(builder,
@@ -803,8 +810,10 @@ public abstract class AbstractMongoOperations {
         final Command commandMsg = new Command(getDatabaseName(),
                 builder.build(), readPreference,
                 VersionRange.minimum(minVersion));
-        myClient.send(commandMsg, new ReplyResultCallback(new TextCallback(
-                results)));
+        myClient.send(commandMsg,
+                new ReplyResultCallback(
+                        new com.allanbank.mongodb.client.callback.TextCallback(
+                                results)));
     }
 
     /**
@@ -848,6 +857,54 @@ public abstract class AbstractMongoOperations {
             myClient.send(updateMessage, asGetLastError(durability),
                     new ReplyLongCallback(results));
         }
+    }
+
+    /**
+     * Constructs the appropriate set of write commands to send to the server.
+     * 
+     * @param results
+     *            The {@link Callback} that will be notified of the number of
+     *            documents inserted, updated, and deleted. If the durability of
+     *            the operation is NONE then this will be -1.
+     * @param write
+     *            The batched writes
+     * @throws MongoDbException
+     *             On an error submitting the write operations.
+     * 
+     * @since MongoDB 2.6
+     * @see AsyncMongoCollection#writeAsync(Callback,BatchedWrite)
+     */
+    public void writeAsync(final Callback<Long> results,
+            final BatchedWrite write) throws MongoDbException {
+        BatchedWriteCallback callback;
+
+        if (BatchedWrite.REQUIRED_VERSION.compareTo(myClient
+                .getMinimumServerVersion()) <= 0) {
+
+            final List<BatchedWrite.Bundle> bundles = write.toBundles(
+                    getName(), myClient.getSmallestMaxBsonObjectSize(),
+                    myClient.getSmallestMaxBatchedWriteOperations());
+            if (bundles.isEmpty()) {
+                results.callback(Long.valueOf(0));
+                return;
+            }
+
+            callback = new BatchedWriteCallback(getDatabaseName(), results,
+                    write, myClient, bundles);
+        }
+        else {
+            final List<WriteOperation> operations = write.getWrites();
+            if (operations.isEmpty()) {
+                results.callback(Long.valueOf(0));
+                return;
+            }
+
+            callback = new BatchedWriteCallback(getDatabaseName(), results,
+                    write, this, operations);
+        }
+
+        // Push the messages out.
+        callback.send();
     }
 
     /**

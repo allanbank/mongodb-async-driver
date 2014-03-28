@@ -24,6 +24,12 @@ public class EmptyDocument extends AbstractDocument {
     /** An instance of the Empty Document. */
     public static final EmptyDocument INSTANCE = new EmptyDocument();
 
+    /**
+     * The bytes to encode an empty document. Length (4) + terminal null (1) =
+     * 5.
+     */
+    public static final int SIZE = 5;
+
     /** Serialization version for the class. */
     private static final long serialVersionUID = -2775918328146027036L;
 
@@ -45,6 +51,17 @@ public class EmptyDocument extends AbstractDocument {
     @Override
     public List<Element> getElements() {
         return Collections.emptyList();
+    }
+
+    /**
+     * Returns the size of the empty document when encoded as bytes. This is
+     * always 5 bytes.
+     * 
+     * @return The size of the document when encoded as bytes.
+     */
+    @Override
+    public long size() {
+        return SIZE; // length (4) + terminal null (1).
     }
 
     /**

@@ -136,8 +136,6 @@ public class ReplicaSetReconnectStrategyTest {
     @After
     public void tearDown() throws IOException {
 
-        System.out.println(myTestConnection);
-        System.out.println("new: " + myNewTestConnection);
         IOUtils.close(myTestConnection);
         IOUtils.close(myNewTestConnection);
         IOUtils.close(myTestFactory);

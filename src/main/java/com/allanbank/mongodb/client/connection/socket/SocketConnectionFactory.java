@@ -212,6 +212,30 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     }
 
     /**
+     * Returns smallest value for the maximum number of write operations allowed
+     * in a single write command.
+     * 
+     * @return The smallest value for maximum number of write operations allowed
+     *         in a single write command.
+     */
+    @Override
+    public int getSmallestMaxBatchedWriteOperations() {
+        return myState.getSmallestMaxBatchedWriteOperations();
+    }
+
+    /**
+     * Returns the smallest value for the maximum BSON object size within the
+     * cluster.
+     * 
+     * @return The smallest value for the maximum BSON object within the
+     *         cluster.
+     */
+    @Override
+    public long getSmallestMaxBsonObjectSize() {
+        return myState.getSmallestMaxBsonObjectSize();
+    }
+
+    /**
      * Returns the cluster state.
      * 
      * @return The cluster state.
