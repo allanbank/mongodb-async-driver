@@ -21,8 +21,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.net.SocketFactory;
 
@@ -55,6 +53,8 @@ import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.ServerVersionException;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * AbstractSocketConnection provides the basic functionality for a socket
@@ -85,7 +85,7 @@ public abstract class AbstractSocketConnection implements Connection {
     protected final InputStream myInput;
 
     /** The logger for the connection. */
-    protected final Logger myLog;
+    protected final Log myLog;
 
     /** Holds if the connection is open. */
     protected final AtomicBoolean myOpen;
@@ -137,7 +137,7 @@ public abstract class AbstractSocketConnection implements Connection {
         myServer = server;
         myConfig = config;
 
-        myLog = Logger.getLogger(getClass().getCanonicalName());
+        myLog = LogFactory.getLog(getClass());
 
         myExecutor = config.getExecutor();
         myEventSupport = new PropertyChangeSupport(this);
@@ -445,7 +445,7 @@ public abstract class AbstractSocketConnection implements Connection {
             }
         }
         catch (final IOException ignored) {
-            myLog.warning("Error flushing data to the server: "
+            myLog.warn("Error flushing data to the server: "
                     + ignored.getMessage());
         }
 
@@ -477,8 +477,8 @@ public abstract class AbstractSocketConnection implements Connection {
                     reply(reply, myPendingMessage);
                 }
                 else {
-                    myLog.warning("Could not find the callback for reply '"
-                            + replyId + "'.");
+                    myLog.warn("Could not find the callback for reply '{}'.",
+                            +replyId);
                 }
             }
             finally {
@@ -486,7 +486,7 @@ public abstract class AbstractSocketConnection implements Connection {
             }
         }
         else if (received != null) {
-            myLog.warning("Received a non-Reply message: " + received);
+            myLog.warn("Received a non-Reply message: {}.", received);
             shutdown(new ConnectionLostException(new StreamCorruptedException(
                     "Received a non-Reply message: " + received)), false);
         }
@@ -726,8 +726,7 @@ public abstract class AbstractSocketConnection implements Connection {
             close();
         }
         catch (final IOException e) {
-            myLog.log(Level.WARNING,
-                    "I/O exception trying to shutdown the connection.", e);
+            myLog.warn(e, "I/O exception trying to shutdown the connection.");
         }
     }
 
@@ -775,8 +774,9 @@ public abstract class AbstractSocketConnection implements Connection {
                     }
                 }
                 catch (final IOException ignore) {
-                    myLog.info("Could not close the defunct socket connection: "
-                            + socket);
+                    myLog.info(
+                            "Could not close the defunct socket connection: {}",
+                            socket);
                 }
             }
 

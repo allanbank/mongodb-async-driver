@@ -9,7 +9,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * IOUtils provides helper methods for dealing with I/O operations.
@@ -44,8 +46,7 @@ public final class IOUtils {
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
     /** The logger for the {@link IOUtils}. */
-    private static final Logger LOG = Logger.getLogger(IOUtils.class
-            .getCanonicalName());
+    private static final Log LOG = LogFactory.getLog(IOUtils.class);
 
     static {
         CHAR_TO_HEX_NIBBLE = new byte[128];

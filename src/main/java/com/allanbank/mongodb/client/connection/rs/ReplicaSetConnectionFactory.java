@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
@@ -32,6 +31,8 @@ import com.allanbank.mongodb.client.state.LatencyServerSelector;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Provides the ability to create connections to a replica-set environment.
@@ -43,8 +44,8 @@ import com.allanbank.mongodb.util.IOUtils;
 public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
     /** The logger for the {@link ReplicaSetConnectionFactory}. */
-    protected static final Logger LOG = Logger
-            .getLogger(ReplicaSetConnectionFactory.class.getCanonicalName());
+    protected static final Log LOG = LogFactory
+            .getLog(ReplicaSetConnectionFactory.class);
 
     /** The factory to create proxied connections. */
     protected final ProxiedConnectionFactory myConnectionFactory;
@@ -144,8 +145,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                     break servers;
                 }
                 catch (final IOException e) {
-                    LOG.finer("Error connecting to presumptive primary: "
-                            + e.getMessage());
+                    LOG.debug(e, "Error connecting to presumptive primary: {}",
+                            e.getMessage());
                 }
                 finally {
                     IOUtils.close(primaryConn);
@@ -272,13 +273,13 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
         }
         catch (final InterruptedException e) {
             // Just ignore the reply.
-            LOG.finest("Failure testing if a connection is writable: "
-                    + e.getMessage());
+            LOG.debug(e, "Failure testing if a connection is writable: {}",
+                    e.getMessage());
         }
         catch (final ExecutionException e) {
             // Just ignore the reply.
-            LOG.finest("Failure testing if a connection is writable: "
-                    + e.getMessage());
+            LOG.debug(e, "Failure testing if a connection is writable: {}",
+                    e.getMessage());
         }
         return false;
     }
@@ -325,23 +326,20 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                 }
             }
             catch (final IOException ioe) {
-                LOG.log(Level.WARNING,
-                        "I/O error during replica-set bootstrap to " + addr
-                                + ".", ioe);
+                LOG.warn(ioe, "I/O error during replica-set bootstrap to {}.",
+                        addr);
             }
             catch (final MongoDbException me) {
-                LOG.log(Level.WARNING,
-                        "MongoDB error during replica-set bootstrap to " + addr
-                                + ".", me);
+                LOG.warn(me,
+                        "MongoDB error during replica-set bootstrap to {}.",
+                        addr);
             }
             catch (final InterruptedException e) {
-                LOG.log(Level.WARNING,
-                        "Interrupted during replica-set bootstrap to " + addr
-                                + ".", e);
+                LOG.warn(e, "Interrupted during replica-set bootstrap to {}.",
+                        addr);
             }
             catch (final ExecutionException e) {
-                LOG.log(Level.WARNING, "Error during replica-set bootstrap to "
-                        + addr + ".", e);
+                LOG.warn(e, "Error during replica-set bootstrap to {}.", addr);
             }
             finally {
                 IOUtils.close(conn, Level.WARNING,

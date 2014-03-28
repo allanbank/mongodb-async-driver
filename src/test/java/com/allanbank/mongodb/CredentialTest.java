@@ -118,6 +118,17 @@ public class CredentialTest {
                                         .password(passwd.toCharArray())
                                         .database(db).file(file)
                                         .authenticationType(type).build());
+
+                                objs1.add(Credential.builder().userName(user)
+                                        .password(passwd.toCharArray())
+                                        .database(db).file(file)
+                                        .addOption("f", "g")
+                                        .authenticationType(type).build());
+                                objs2.add(Credential.builder().userName(user)
+                                        .addOption("f", "g")
+                                        .password(passwd.toCharArray())
+                                        .database(db).file(file)
+                                        .authenticationType(type).build());
                             }
                         }
                     }
@@ -147,6 +158,48 @@ public class CredentialTest {
             assertFalse(obj1.equals("foo"));
             assertFalse(obj1.equals(null));
         }
+    }
+
+    /**
+     * Test method for {@link Credential#getOption(String, int)}.
+     */
+    @Test
+    public void testGetOptionBoolean() {
+        final Credential c = Credential.builder().userName("user")
+                .password(new char[1]).database(null).addOption("f", true)
+                .addOption("h", "True").authenticationType("fail").build();
+
+        assertThat(c.getOption("f", false), is(true));
+        assertThat(c.getOption("h", false), is(true));
+        assertThat(c.getOption("j", false), is(false));
+    }
+
+    /**
+     * Test method for {@link Credential#getOption(String, int)}.
+     */
+    @Test
+    public void testGetOptionInt() {
+        final Credential c = Credential.builder().userName("user")
+                .password(new char[1]).database(null).addOption("f", 1)
+                .addOption("h", "i").authenticationType("fail").build();
+
+        assertThat(c.getOption("f", 10), is(1));
+        assertThat(c.getOption("h", 10), is(10));
+        assertThat(c.getOption("j", 10), is(10));
+    }
+
+    /**
+     * Test method for {@link Credential#getOption(String, String)}.
+     */
+    @Test
+    public void testGetOptionString() {
+        final Credential c = Credential.builder().userName("user")
+                .password(new char[1]).database(null).addOption("f", "g")
+                .addOption("h", "i").authenticationType("fail").build();
+
+        assertThat(c.getOption("f", "other"), is("g"));
+        assertThat(c.getOption("h", "other"), is("i"));
+        assertThat(c.getOption("j", "other"), is("other"));
     }
 
     /**

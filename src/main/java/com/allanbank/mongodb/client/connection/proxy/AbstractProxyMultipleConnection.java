@@ -16,8 +16,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -29,6 +27,8 @@ import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * AbstractProxyMultipleConnection provides the core functionality for a
@@ -41,8 +41,8 @@ import com.allanbank.mongodb.util.IOUtils;
 public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
     /** The logger for the {@link AbstractProxyMultipleConnection}. */
-    protected static final Logger LOG = Logger
-            .getLogger(AbstractProxyMultipleConnection.class.getCanonicalName());
+    private static final Log LOG = LogFactory
+            .getLog(AbstractProxyMultipleConnection.class);
 
     /** The state of the cluster for finding secondary connections. */
     protected final Cluster myCluster;
@@ -140,8 +140,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
                 conn.close();
             }
             catch (final IOException ioe) {
-                LOG.log(Level.WARNING, "Could not close the connection: "
-                        + conn, ioe);
+                LOG.warn(ioe, "Could not close the connection: {}", conn);
             }
         }
     }
@@ -161,8 +160,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
                 conn.flush();
             }
             catch (final IOException ioe) {
-                LOG.log(Level.WARNING, "Could not flush the connection: "
-                        + conn, ioe);
+                LOG.warn(ioe, "Could not flush the connection: {}", conn);
             }
         }
     }
@@ -404,7 +402,6 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
         else {
             conn.send(message1, message2, reply);
         }
-
     }
 
     /**
@@ -462,8 +459,8 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
                 // Not sure who is primary any more.
                 myMainKey = null;
 
-                LOG.info("Primary MongoDB Connection closed: ReplicaSet("
-                        + connection + "). Will try to reconnect.");
+                LOG.info("Primary MongoDB Connection closed: ReplicaSet({}). "
+                        + "Will try to reconnect.", connection);
 
                 // Need to use the reconnect logic to find the new primary.
                 final ConnectionInfo<K> newConn = reconnectMain();
@@ -485,8 +482,8 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
             }
             // Just remove the connection (above).
             else {
-                LOG.fine("MongoDB Connection closed: ReplicaSet(" + connection
-                        + ").");
+                LOG.debug("MongoDB Connection closed: ReplicaSet({}).",
+                        connection);
             }
         }
         finally {

@@ -7,7 +7,6 @@ package com.allanbank.mongodb.client.connection.socket;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.logging.Level;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -117,7 +116,6 @@ public class SocketConnection extends AbstractSocketConnection {
     @Override
     public void send(final Message message, final Callback<Reply> replyCallback)
             throws MongoDbException {
-
         send(message, null, replyCallback);
     }
 
@@ -173,17 +171,17 @@ public class SocketConnection extends AbstractSocketConnection {
             raiseError(ie, pendingMessage.getReplyCallback());
         }
         catch (final IOException ioe) {
-            myLog.log(Level.WARNING, "I/O Error sending a message.", ioe);
+            myLog.warn(ioe, "I/O Error sending a message.");
             raiseError(ioe, pendingMessage.getReplyCallback());
             sawError = true;
         }
         catch (final RuntimeException re) {
-            myLog.log(Level.WARNING, "Runtime error sending a message.", re);
+            myLog.warn(re, "Runtime error sending a message.");
             raiseError(re, pendingMessage.getReplyCallback());
             sawError = true;
         }
         catch (final Error error) {
-            myLog.log(Level.SEVERE, "Error sending a message.", error);
+            myLog.error(error, "Error sending a message.");
             raiseError(error, pendingMessage.getReplyCallback());
             sawError = true;
         }
@@ -199,8 +197,7 @@ public class SocketConnection extends AbstractSocketConnection {
                     }
                 }
                 catch (final IOException ioe) {
-                    myLog.log(Level.WARNING,
-                            "I/O Error on final flush of messages.", ioe);
+                    myLog.warn(ioe, "I/O Error on final flush of messages.");
                 }
                 finally {
                     // Make sure we get shutdown completely.

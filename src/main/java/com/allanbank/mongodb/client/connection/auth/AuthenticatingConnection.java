@@ -9,8 +9,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Credential;
@@ -21,6 +19,8 @@ import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.proxy.AbstractProxyConnection;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * AuthenticatingConnection provides a connection that authenticated with the
@@ -36,8 +36,8 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
     public static final String ADMIN_DB_NAME = MongoClientConfiguration.ADMIN_DB_NAME;
 
     /** The logger for the authenticator. */
-    public static final Logger LOG = Logger
-            .getLogger(AuthenticatingConnection.class.getName());
+    public static final Log LOG = LogFactory
+            .getLog(AuthenticatingConnection.class);
 
     /** Map of the authenticators. */
     private final Map<String, Authenticator> myAuthenticators;
@@ -174,9 +174,8 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
                 }
                 catch (final MongoDbException error) {
                     // Just log the error here.
-                    LOG.log(Level.WARNING,
-                            "Authentication failed: " + error.getMessage(),
-                            error);
+                    LOG.warn(error, "Authentication failed: []",
+                            error.getMessage());
                     // Re-throw if our DB.
                     myFailures.put(authenticator.getKey(), error);
                 }

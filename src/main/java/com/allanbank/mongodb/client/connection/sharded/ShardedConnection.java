@@ -23,6 +23,8 @@ import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerSelector;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Provides a {@link Connection} implementation for connecting to a sharded
@@ -33,6 +35,9 @@ import com.allanbank.mongodb.client.state.ServerSelector;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
+
+    /** The logger for the {@link ShardedConnection}. */
+    protected static final Log LOG = LogFactory.getLog(ShardedConnection.class);
 
     /** The selector for the server when we need to reconnect. */
     private final ServerSelector mySelector;
@@ -103,8 +108,8 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
             conn = cacheConnection(server, conn);
         }
         catch (final IOException e) {
-            LOG.info("Could not connect to the server '"
-                    + server.getCanonicalName() + "': " + e.getMessage());
+            LOG.info(e, "Could not connect to the server '{}': {}",
+                    server.getCanonicalName(), e.getMessage());
         }
         return conn;
     }
@@ -183,8 +188,8 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
             }
             catch (final IOException ioe) {
                 // Ignored. Will return null.
-                LOG.fine("Could not connect to '" + server + "': "
-                        + ioe.getMessage());
+                LOG.debug(ioe, "Could not connect to '{}': {}",
+                        server.getCanonicalName(), ioe.getMessage());
             }
         }
         return null;

@@ -23,6 +23,8 @@ import com.allanbank.mongodb.client.connection.proxy.ConnectionInfo;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Provides a {@link Connection} implementation for connecting to a replica-set
@@ -34,6 +36,10 @@ import com.allanbank.mongodb.client.state.Server;
  */
 public class ReplicaSetConnection extends
         AbstractProxyMultipleConnection<Server> {
+
+    /** The logger for the {@link ReplicaSetConnection}. */
+    private static final Log LOG = LogFactory
+            .getLog(ReplicaSetConnection.class);
 
     /** The strategy for reconnecting/finding the primary. */
     private volatile ReplicaSetReconnectStrategy myReconnectStrategy;

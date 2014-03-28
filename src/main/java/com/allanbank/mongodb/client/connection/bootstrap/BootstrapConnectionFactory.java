@@ -9,7 +9,6 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.Version;
@@ -31,6 +30,8 @@ import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Provides the ability to bootstrap into the appropriate
@@ -44,8 +45,8 @@ import com.allanbank.mongodb.util.IOUtils;
 public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /** The logger for the {@link BootstrapConnectionFactory}. */
-    protected static final Logger LOG = Logger
-            .getLogger(BootstrapConnectionFactory.class.getCanonicalName());
+    protected static final Log LOG = LogFactory
+            .getLog(BootstrapConnectionFactory.class);
 
     /** The configuration for the connections to be created. */
     private final MongoClientConfiguration myConfig;
@@ -109,18 +110,17 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                         final Document doc = results.get(0);
 
                         if (isMongos(doc)) {
-                            LOG.fine("Sharded bootstrap to " + addr + ".");
+                            LOG.debug("Sharded bootstrap to {}.", addr);
                             myDelegate = new ShardedConnectionFactory(factory,
                                     myConfig);
                         }
                         else if (isReplicationSet(doc)) {
-                            LOG.fine("Replica-set bootstrap to " + addr + ".");
+                            LOG.debug("Replica-set bootstrap to {}.", addr);
                             myDelegate = new ReplicaSetConnectionFactory(
                                     factory, myConfig);
                         }
                         else {
-                            LOG.fine("Simple MongoDB bootstrap to " + addr
-                                    + ".");
+                            LOG.debug("Simple MongoDB bootstrap to {}.", addr);
                             myDelegate = factory;
                         }
                         factory = null; // Don't close.
@@ -128,16 +128,13 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
                     }
                 }
                 catch (final IOException ioe) {
-                    LOG.log(Level.WARNING, "I/O error during bootstrap to "
-                            + addr + ".", ioe);
+                    LOG.warn(ioe, "I/O error during bootstrap to {}.", addr);
                 }
                 catch (final InterruptedException e) {
-                    LOG.log(Level.WARNING, "Interrupted during bootstrap to "
-                            + addr + ".", e);
+                    LOG.warn(e, "Interrupted during bootstrap to {}.", addr);
                 }
                 catch (final ExecutionException e) {
-                    LOG.log(Level.WARNING, "Error during bootstrap to " + addr
-                            + ".", e);
+                    LOG.warn(e, "Error during bootstrap to {}.", addr);
                 }
                 finally {
                     IOUtils.close(conn, Level.WARNING,
@@ -249,8 +246,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
         if (myDelegate == null) {
             bootstrap();
             if (myDelegate == null) {
-                LOG.log(Level.WARNING,
-                        "Could not bootstrap a connection to the MongoDB servers.");
+                LOG.warn("Could not bootstrap a connection to the MongoDB servers.");
                 throw new CannotConnectException(
                         "Could not bootstrap a connection to the MongoDB servers.");
             }

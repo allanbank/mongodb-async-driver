@@ -19,7 +19,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.Document;
@@ -36,6 +35,8 @@ import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * ReplicaSetReconnectStrategy provides a {@link ReconnectStrategy} designed for
@@ -72,8 +73,8 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
     public static final int MAX_RECONNECT_PAUSE_TIME_MS = 1000;
 
     /** The logger for the {@link ReplicaSetReconnectStrategy}. */
-    protected static final Logger LOG = Logger
-            .getLogger(ReplicaSetReconnectStrategy.class.getCanonicalName());
+    protected static final Log LOG = LogFactory
+            .getLog(ReplicaSetReconnectStrategy.class);
 
     /** The set of servers we cannot connect to. */
     private final Set<Server> myDeadServers = Collections
@@ -114,7 +115,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      *         reconnect fails.
      */
     public synchronized ConnectionInfo<Server> reconnectPrimary() {
-        LOG.fine("Trying replica set reconnect.");
+        LOG.debug("Trying replica set reconnect.");
         final Cluster state = getState();
 
         // Figure out a deadline for the reconnect.
@@ -131,8 +132,8 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
             // First try a simple reconnect.
             for (final Server writable : state.getWritableServers()) {
                 if (verifyPutative(answers, connections, writable, deadline)) {
-                    LOG.fine("New primary for replica set: "
-                            + writable.getCanonicalName());
+                    LOG.debug("New primary for replica set: {}.",
+                            writable.getCanonicalName());
                     return createReplicaSetConnection(connections, writable);
                 }
             }
@@ -227,7 +228,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                         // Phase 3 - Setup a new replica set connection to the
                         // primary and seed it with a secondary if there is a
                         // suitable server.
-                        LOG.info("New primary for replica set: " + putative);
+                        LOG.info("New primary for replica set: {}", putative);
                         updateUnknown(state, answers, connections);
                         return createReplicaSetConnection(connections,
                                 putativeServer);
@@ -235,7 +236,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                 }
             }
             else {
-                LOG.fine("No reply yet from " + server);
+                LOG.debug("No reply yet from {}.", server);
             }
         }
 
@@ -326,8 +327,8 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
             // request.
             reply = answers.get(server);
             if (reply == null) {
-                LOG.fine("Sending reconnect(rs) query to "
-                        + server.getCanonicalName());
+                LOG.debug("Sending reconnect(rs) query to {}.",
+                        server.getCanonicalName());
 
                 final FutureCallback<Reply> replyCallback = new ServerUpdateCallback(
                         server);
@@ -345,7 +346,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
             // before)
             final Level level = (isPrimary && myDeadServers.add(server)) ? Level.WARNING
                     : Level.FINE;
-            LOG.log(level, "Cannot create a connection to '" + server + "'.", e);
+            LOG.log(level, e, "Cannot create a connection to '{}'.", server);
         }
 
         return reply;
@@ -386,8 +387,8 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
             final Map<Server, Connection> connections,
             final Server putativePrimary, final long deadline) {
 
-        LOG.fine("Verify putative server (" + putativePrimary
-                + ") on reconnect(rs).");
+        LOG.debug("Verify putative server ({}) on reconnect(rs).",
+                putativePrimary);
 
         // Make sure we send a new request. The old reply might have been
         // before becoming the primary.

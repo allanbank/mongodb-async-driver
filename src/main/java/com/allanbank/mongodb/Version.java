@@ -11,10 +11,11 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Version provides a class to handle version numbers and provide the version of
@@ -55,8 +56,7 @@ public class Version implements Serializable, Comparable<Version> {
     protected static final Version VERSION_2_5_4 = Version.parse("2.5.4");
 
     /** The logger for the {@link Version}. */
-    private static final Logger LOG = Logger.getLogger(Version.class
-            .getCanonicalName());
+    private static final Log LOG = LogFactory.getLog(Version.class);
 
     /** The serialization version for the class. */
     private static final long serialVersionUID = 4726973040107711788L;
@@ -193,8 +193,9 @@ public class Version implements Serializable, Comparable<Version> {
                 versions[i] = Integer.parseInt(token);
             }
             catch (final NumberFormatException nfe) {
-                LOG.fine("Could not parse version string token ('" + token
-                        + "') from version '" + version + "'.");
+                LOG.debug(
+                        "Could not parse version string token ('{}') from version '{}'.",
+                        token, version);
             }
         }
 

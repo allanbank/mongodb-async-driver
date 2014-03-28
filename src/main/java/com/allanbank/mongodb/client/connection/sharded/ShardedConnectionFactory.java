@@ -9,7 +9,6 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
@@ -33,6 +32,8 @@ import com.allanbank.mongodb.client.state.LatencyServerSelector;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerSelector;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Provides the ability to create connections to a shard configuration via
@@ -45,8 +46,8 @@ import com.allanbank.mongodb.util.IOUtils;
 public class ShardedConnectionFactory implements ConnectionFactory {
 
     /** The logger for the {@link ShardedConnectionFactory}. */
-    protected static final Logger LOG = Logger
-            .getLogger(ShardedConnectionFactory.class.getCanonicalName());
+    protected static final Log LOG = LogFactory
+            .getLog(ShardedConnectionFactory.class);
 
     /** The state of the cluster. */
     protected final Cluster myCluster;
@@ -107,23 +108,20 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                     }
                 }
                 catch (final IOException ioe) {
-                    LOG.log(Level.WARNING,
-                            "I/O error during sharded bootstrap to " + addr
-                                    + ".", ioe);
+                    LOG.warn(ioe, "I/O error during sharded bootstrap to {}.",
+                            addr);
                 }
                 catch (final MongoDbException me) {
-                    LOG.log(Level.WARNING,
-                            "MongoDB error during sharded bootstrap to " + addr
-                                    + ".", me);
+                    LOG.warn(me,
+                            "MongoDB error during sharded bootstrap to {}.",
+                            addr);
                 }
                 catch (final InterruptedException e) {
-                    LOG.log(Level.WARNING,
-                            "Interrupted during sharded bootstrap to " + addr
-                                    + ".", e);
+                    LOG.warn(e, "Interrupted during sharded bootstrap to {}.",
+                            addr);
                 }
                 catch (final ExecutionException e) {
-                    LOG.log(Level.WARNING, "Error during sharded bootstrap to "
-                            + addr + ".", e);
+                    LOG.warn(e, "Error during sharded bootstrap to {}.", addr);
                 }
                 finally {
                     IOUtils.close(conn, Level.WARNING,
@@ -364,7 +362,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
                 myCluster.add(id.getValue());
 
-                LOG.fine("Adding shard mongos: " + id.getValue());
+                LOG.debug("Adding shard mongos: {}", id.getValue());
             }
         }
 

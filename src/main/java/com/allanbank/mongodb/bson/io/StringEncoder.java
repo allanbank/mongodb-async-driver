@@ -11,7 +11,9 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Logger;
+
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * StringEncoder provides a single location for the string encoding and sizing
@@ -29,8 +31,7 @@ public class StringEncoder {
     public static final int DEFAULT_MAX_CACHE_LENGTH = 25;
 
     /** The logger for the {@link StringEncoder}. */
-    protected static final Logger LOG = Logger.getLogger(StringEncoder.class
-            .getCanonicalName());
+    protected static final Log LOG = LogFactory.getLog(StringEncoder.class);
 
     /** The byte value limit for a ASCII character. */
     /* package */static final int ASCII_LIMIT = 0x80;
@@ -193,7 +194,7 @@ public class StringEncoder {
             }
             catch (final IOException ioe) {
                 // No I/O so should not happen. Fall through.
-                LOG.warning("Error encoding the string '" + string + "'.");
+                LOG.warn("Error encoding the string '{}'.", string);
             }
         }
         return utf8Size(string);

@@ -22,7 +22,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import javax.net.SocketFactory;
 
@@ -30,6 +29,8 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Contains the configuration for the connection(s) to the MongoDB servers.
@@ -61,8 +62,8 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     protected static final int DEFAULT_MAX_STRING_CACHE_LENGTH = StringEncoder.DEFAULT_MAX_CACHE_LENGTH;
 
     /** The logger for the {@link MongoClientConfiguration}. */
-    private static final Logger LOG = Logger
-            .getLogger(MongoClientConfiguration.class.getCanonicalName());
+    private static final Log LOG = LogFactory
+            .getLog(MongoClientConfiguration.class);
 
     /** The serialization version for the class. */
     private static final long serialVersionUID = 2964127883934086500L;
@@ -431,8 +432,8 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
             try {
                 if ("replicaSet".equalsIgnoreCase(property)) {
-                    LOG.info("Not validating the replica set name is '" + value
-                            + "'.");
+                    LOG.info("Not validating the replica set name is '{}'.",
+                            value);
                 }
                 else if ("slaveOk".equalsIgnoreCase(property)) {
                     if (Boolean.parseBoolean(value)) {
@@ -496,8 +497,8 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
                     myUsingSoKeepalive = Boolean.parseBoolean(value);
                 }
                 else {
-                    LOG.info("Unknown property '" + property + "' and value '"
-                            + value + "'.");
+                    LOG.info("Unknown property '{}' and value '{}'.", property,
+                            value);
                 }
             }
             catch (final NumberFormatException nfe) {

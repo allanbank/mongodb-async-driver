@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.allanbank.mongodb.client.connection.auth.Authenticator;
 import com.allanbank.mongodb.client.connection.auth.MongoDbAuthenticator;
@@ -106,6 +109,9 @@ public final class Credential implements Serializable {
     /** The file containing the full credentials. */
     private final File myFile;
 
+    /** Other options for the credentials. */
+    private final Map<String, String> myOptions;
+
     /** The password for the credential set. */
     private final char[] myPassword;
 
@@ -125,6 +131,8 @@ public final class Credential implements Serializable {
         myAuthenticationType = builder.myAuthenticationType;
         myAuthenticator = builder.myAuthenticator;
         myPassword = builder.myPassword.clone();
+        myOptions = Collections.unmodifiableMap(new HashMap<String, String>(
+                builder.myOptions));
     }
 
     /**
@@ -173,6 +181,7 @@ public final class Credential implements Serializable {
                     && nullSafeEquals(myDatabase, other.myDatabase)
                     && nullSafeEquals(myUserName, other.myUserName)
                     && nullSafeEquals(myFile, other.myFile)
+                    && nullSafeEquals(myOptions, other.myOptions)
                     && Arrays.equals(myPassword, other.myPassword);
         }
         return result;
@@ -219,6 +228,65 @@ public final class Credential implements Serializable {
     }
 
     /**
+     * Returns the option value.
+     * 
+     * @param optionName
+     *            The name of the option to set.
+     * @param defaultValue
+     *            The value of the option if it is not set or cannot be parsed
+     *            via {@link Boolean#parseBoolean(String)}.
+     * @return The option value.
+     */
+    public boolean getOption(final String optionName, final boolean defaultValue) {
+        final String value = myOptions.get(optionName);
+        if (value != null) {
+            return Boolean.parseBoolean(value);
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Returns the option value.
+     * 
+     * @param optionName
+     *            The name of the option to set.
+     * @param defaultValue
+     *            The value of the option if it is not set or cannot be parsed
+     *            via {@link Integer#parseInt(String)}.
+     * @return The option value.
+     */
+    public int getOption(final String optionName, final int defaultValue) {
+        final String value = myOptions.get(optionName);
+        if (value != null) {
+            try {
+                return Integer.parseInt(value);
+            }
+            catch (final NumberFormatException nfe) {
+                return defaultValue;
+            }
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Returns the option value.
+     * 
+     * @param optionName
+     *            The name of the option to set.
+     * @param defaultValue
+     *            The value of the option if it is not set.
+     * @return The option value.
+     */
+    public String getOption(final String optionName, final String defaultValue) {
+        String value = myOptions.get(optionName);
+        if (value == null) {
+            value = defaultValue;
+        }
+
+        return value;
+    }
+
+    /**
      * Returns the password for the credential set. A clone of the internal
      * array is returns that should be cleared when it is done being used via
      * something like {@link java.util.Arrays#fill(char[], char)
@@ -254,6 +322,7 @@ public final class Credential implements Serializable {
                         .hashCode());
         result = (31 * result)
                 + ((myDatabase == null) ? 0 : myDatabase.hashCode());
+        result = (31 * result) + myOptions.hashCode();
         result = (31 * result) + Arrays.hashCode(myPassword);
         result = (31 * result)
                 + ((myUserName == null) ? 0 : myUserName.hashCode());
@@ -298,6 +367,13 @@ public final class Credential implements Serializable {
         }
         else if (myAuthenticationType != null) {
             builder.append(myAuthenticationType);
+        }
+
+        for (final Map.Entry<String, String> option : myOptions.entrySet()) {
+            builder.append("', '");
+            builder.append(option.getKey());
+            builder.append("' : '");
+            builder.append(option.getValue());
         }
 
         builder.append("' }");
@@ -374,6 +450,9 @@ public final class Credential implements Serializable {
         /** The file containing the full credentials. */
         protected File myFile;
 
+        /** Other options for the credentials. */
+        protected final Map<String, String> myOptions;
+
         /** The password for the credential set. */
         protected char[] myPassword;
 
@@ -384,7 +463,55 @@ public final class Credential implements Serializable {
          * Creates a new Builder.
          */
         public Builder() {
+            myOptions = new HashMap<String, String>();
             reset();
+        }
+
+        /**
+         * Adds an option to the built credentials.
+         * 
+         * @param optionName
+         *            The name of the option to set.
+         * @param optionValue
+         *            The value of the option to set.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder addOption(final String optionName,
+                final boolean optionValue) {
+            myOptions.put(optionName, String.valueOf(optionValue));
+
+            return this;
+        }
+
+        /**
+         * Adds an option to the built credentials.
+         * 
+         * @param optionName
+         *            The name of the option to set.
+         * @param optionValue
+         *            The value of the option to set.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder addOption(final String optionName, final int optionValue) {
+            myOptions.put(optionName, String.valueOf(optionValue));
+
+            return this;
+        }
+
+        /**
+         * Adds an option to the built credentials.
+         * 
+         * @param optionName
+         *            The name of the option to set.
+         * @param optionValue
+         *            The value of the option to set.
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder addOption(final String optionName,
+                final String optionValue) {
+            myOptions.put(optionName, optionValue);
+
+            return this;
         }
 
         /**
@@ -550,6 +677,7 @@ public final class Credential implements Serializable {
             myFile = null;
             myPassword = NO_PASSWORD;
             myUserName = null;
+            myOptions.clear();
 
             return this;
         }

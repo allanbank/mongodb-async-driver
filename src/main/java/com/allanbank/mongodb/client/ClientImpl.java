@@ -18,8 +18,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -41,6 +39,8 @@ import com.allanbank.mongodb.client.connection.bootstrap.BootstrapConnectionFact
 import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Implementation of the internal {@link Client} interface which all requests to
@@ -59,8 +59,7 @@ public class ClientImpl extends AbstractClient {
     public static final int MAX_CONNECTION_SCAN = 5;
 
     /** The logger for the {@link ClientImpl}. */
-    protected static final Logger LOG = Logger.getLogger(ClientImpl.class
-            .getCanonicalName());
+    protected static final Log LOG = LogFactory.getLog(ClientImpl.class);
 
     /** Counter for the number of reconnects currently being attempted. */
     private int myActiveReconnects;
@@ -389,12 +388,13 @@ public class ClientImpl extends AbstractClient {
             if (connection.isShuttingDown() && myConnections.remove(connection)) {
 
                 if (myConnections.size() < myConfig.getMinConnectionCount()) {
-                    LOG.fine("MongoDB Connection closed: " + connection
-                            + ". Will try to reconnect.");
+                    LOG.debug(
+                            "MongoDB Connection closed: {}. Will try to reconnect.",
+                            connection);
                     reconnect(connection);
                 }
                 else {
-                    LOG.info("MongoDB Connection closed: " + connection);
+                    LOG.info("MongoDB Connection closed: {}", connection);
                     connection
                             .removePropertyChangeListener(myConnectionListener);
                     connection.raiseErrors(new ConnectionLostException(
@@ -409,11 +409,11 @@ public class ClientImpl extends AbstractClient {
             }
         }
         else if (myConnectionsToClose.remove(connection)) {
-            LOG.fine("MongoDB Connection closed: " + connection);
+            LOG.debug("MongoDB Connection closed: {}", connection);
             connection.removePropertyChangeListener(myConnectionListener);
         }
         else {
-            LOG.info("Unknown MongoDB Connection closed: " + connection);
+            LOG.info("Unknown MongoDB Connection closed: {}", connection);
             connection.removePropertyChangeListener(myConnectionListener);
         }
     }
@@ -521,8 +521,7 @@ public class ClientImpl extends AbstractClient {
             conn.close();
         }
         catch (final IOException ioe) {
-            LOG.log(Level.WARNING, "Error closing connection to MongoDB: "
-                    + conn, ioe);
+            LOG.warn(ioe, "Error closing connection to MongoDB: {}", conn);
         }
         finally {
             myConnections.remove(conn);
@@ -634,8 +633,7 @@ public class ClientImpl extends AbstractClient {
                         return conn;
                     }
                     catch (final IOException ioe) {
-                        LOG.log(Level.WARNING,
-                                "Could not create a connection.", ioe);
+                        LOG.warn(ioe, "Could not create a connection.");
                     }
                 }
             }
@@ -672,7 +670,7 @@ public class ClientImpl extends AbstractClient {
 
                 while ((now < deadline) && (0 < myActiveReconnects)) {
                     try {
-                        LOG.fine("Waiting for reconnect to MongoDB.");
+                        LOG.debug("Waiting for reconnect to MongoDB.");
                         wait(deadline - now);
 
                         now = System.currentTimeMillis();

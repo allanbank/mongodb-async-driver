@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.Version;
@@ -27,6 +25,8 @@ import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerSelector;
 import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.client.state.SimpleReconnectStrategy;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * {@link ConnectionFactory} to create direct socket connections to the servers.
@@ -38,8 +38,8 @@ import com.allanbank.mongodb.client.state.SimpleReconnectStrategy;
 public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /** The logger for the factory. */
-    private static final Logger LOG = Logger
-            .getLogger(SocketConnectionFactory.class.getName());
+    private static final Log LOG = LogFactory
+            .getLog(SocketConnectionFactory.class);
 
     /** The MongoDB client configuration. */
     private final MongoClientConfiguration myConfig;
@@ -106,13 +106,11 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
                     }
                     catch (final ExecutionException e) {
                         // Probably not in a good state...
-                        LOG.log(Level.FINE,
-                                "Could not execute a 'ismaster' command.", e);
+                        LOG.debug(e, "Could not execute an 'ismaster' command.");
                     }
                     catch (final InterruptedException e) {
                         // Probably not in a good state...
-                        LOG.log(Level.FINE,
-                                "Could not execute a 'ismaster' command.", e);
+                        LOG.debug(e, "Could not execute an 'ismaster' command.");
                     }
                 }
 

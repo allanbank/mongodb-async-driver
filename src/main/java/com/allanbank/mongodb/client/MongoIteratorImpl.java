@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoDbException;
@@ -28,6 +26,8 @@ import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.KillCursors;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Iterator over the results of the MongoDB cursor.
@@ -39,8 +39,7 @@ import com.allanbank.mongodb.error.CursorNotFoundException;
 public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /** The log for the iterator. */
-    private static final Logger LOG = Logger.getLogger(MongoIteratorImpl.class
-            .getName());
+    private static final Log LOG = LogFactory.getLog(MongoIteratorImpl.class);
 
     /** The size of batches that are requested from the servers. */
     private int myBatchSize = 0;
@@ -530,14 +529,12 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
                 return reply.getCursorId();
             }
             catch (final InterruptedException e) {
-                LOG.log(Level.WARNING,
-                        "Intertrupted waiting for a query reply: "
-                                + e.getMessage(), e);
+                LOG.warn(e, "Interrupted waiting for a query reply: {}",
+                        e.getMessage());
             }
             catch (final ExecutionException e) {
-                LOG.log(Level.WARNING,
-                        "Intertrupted waiting for a query reply: "
-                                + e.getMessage(), e);
+                LOG.warn(e, "Interrupted waiting for a query reply: {}",
+                        e.getMessage());
             }
         }
         return cursorId;

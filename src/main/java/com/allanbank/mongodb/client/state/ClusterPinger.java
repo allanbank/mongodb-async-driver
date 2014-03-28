@@ -14,8 +14,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
@@ -27,6 +25,8 @@ import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.message.ReplicaSetStatus;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * ClusterPinger pings each of the connections in the cluster and updates the
@@ -42,8 +42,7 @@ public class ClusterPinger implements Runnable, Closeable {
     public static final int DEFAULT_PING_INTERVAL_SECONDS = 600;
 
     /** The logger for the {@link ClusterPinger}. */
-    protected static final Logger LOG = Logger.getLogger(ClusterPinger.class
-            .getCanonicalName());
+    protected static final Log LOG = LogFactory.getLog(ClusterPinger.class);
 
     /** Instance of the inner class containing the ping logic. */
     private static final Pinger PINGER = new Pinger();
@@ -173,7 +172,7 @@ public class ClusterPinger implements Runnable, Closeable {
                     replies.add(reply);
                 }
                 catch (final IOException e) {
-                    LOG.info("Could not ping '" + name + "': " + e.getMessage());
+                    LOG.info("Could not ping '{}': {}", name, e.getMessage());
                 }
                 finally {
                     if (conn != null) {
@@ -259,8 +258,8 @@ public class ClusterPinger implements Runnable, Closeable {
                                 .toMillis(perServerSleep));
                     }
                     catch (final IOException e) {
-                        LOG.info("Could not ping '" + name + "': "
-                                + e.getMessage());
+                        LOG.info("Could not ping '{}': {}", name,
+                                e.getMessage());
                     }
                     finally {
                         myPingThread.setName("MongoDB Pinger - Idle");
@@ -272,7 +271,7 @@ public class ClusterPinger implements Runnable, Closeable {
                 }
             }
             catch (final InterruptedException ok) {
-                LOG.fine("Pinger interrupted.");
+                LOG.debug("Pinger interrupted.");
             }
         }
     }
@@ -368,19 +367,17 @@ public class ClusterPinger implements Runnable, Closeable {
                 }
             }
             catch (final ExecutionException e) {
-                LOG.log(Level.INFO,
-                        "Could not ping '" + server.getCanonicalName() + "': "
-                                + e.getMessage(), e);
+                LOG.info(e, "Could not ping '{}': {}",
+                        server.getCanonicalName(), e.getMessage());
             }
             catch (final TimeoutException e) {
-                LOG.log(Level.INFO, "'" + server.getCanonicalName()
-                        + "' might be a zombie - not receiving "
-                        + "a response to ping: " + e.getMessage(), e);
+                LOG.info(e, "'{}' might be a zombie - not receiving "
+                        + "a response to ping: {}", server.getCanonicalName(),
+                        e.getMessage());
             }
             catch (final InterruptedException e) {
-                LOG.log(Level.INFO,
-                        "Interrupted pinging '" + server.getCanonicalName()
-                                + "': " + e.getMessage(), e);
+                LOG.info(e, "Interrupted pinging '{}': {}",
+                        server.getCanonicalName(), e.getMessage());
             }
 
             return false;
@@ -418,7 +415,7 @@ public class ClusterPinger implements Runnable, Closeable {
                 return future;
             }
             catch (final MongoDbException e) {
-                LOG.info("Could not ping '" + server + "': " + e.getMessage());
+                LOG.info("Could not ping '{}': {}", server, e.getMessage());
             }
             return null;
         }

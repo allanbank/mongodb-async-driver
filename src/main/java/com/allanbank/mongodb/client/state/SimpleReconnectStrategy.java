@@ -7,10 +7,11 @@ package com.allanbank.mongodb.client.state;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * SimpleReconnectStrategy provides a reconnection strategy to simply attempt to
@@ -23,8 +24,8 @@ import com.allanbank.mongodb.util.IOUtils;
 public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
 
     /** The logger for the {@link SimpleReconnectStrategy}. */
-    protected static final Logger LOG = Logger
-            .getLogger(SimpleReconnectStrategy.class.getCanonicalName());
+    protected static final Log LOG = LogFactory
+            .getLog(SimpleReconnectStrategy.class);
 
     /**
      * Creates a new SimpleReconnectStrategy.
@@ -63,8 +64,8 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
                 }
             }
 
-            LOG.info("Reconnect attempt failed for all " + servers.size()
-                    + " servers: " + servers);
+            LOG.info("Reconnect attempt failed for all {} servers: {}",
+                    servers.size(), servers);
         }
         finally {
             // Reset the interrupt state.
@@ -89,7 +90,7 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
 
             newConn = getConnectionFactory().connect(server, getConfig());
             if (isConnected(server, newConn)) {
-                LOG.info("Reconnected to " + server);
+                LOG.info("Reconnected to {}", server);
 
                 // Make sure we don't close the connection.
                 final Connection result = newConn;
@@ -100,8 +101,7 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
         }
         catch (final IOException error) {
             // Connection failed. Try the next one.
-            LOG.fine("Reconnect to " + server + " failed: "
-                    + error.getMessage());
+            LOG.debug("Reconnect to {} failed: {}", server, error.getMessage());
         }
         finally {
             IOUtils.close(newConn);

@@ -6,7 +6,6 @@ package com.allanbank.mongodb.client.connection.socket;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.logging.Level;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -252,20 +251,17 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
                         raiseError(ie, myPendingMessage.getReplyCallback());
                     }
                     catch (final IOException ioe) {
-                        myLog.log(Level.WARNING,
-                                "I/O Error sending a message.", ioe);
+                        myLog.warn(ioe, "I/O Error sending a message.");
                         raiseError(ioe, myPendingMessage.getReplyCallback());
                         sawError = true;
                     }
                     catch (final RuntimeException re) {
-                        myLog.log(Level.WARNING,
-                                "Runtime error sending a message.", re);
+                        myLog.warn(re, "Runtime error sending a message.");
                         raiseError(re, myPendingMessage.getReplyCallback());
                         sawError = true;
                     }
                     catch (final Error error) {
-                        myLog.log(Level.SEVERE, "Error sending a message.",
-                                error);
+                        myLog.error(error, "Error sending a message.");
                         raiseError(error, myPendingMessage.getReplyCallback());
                         sawError = true;
                     }
@@ -282,8 +278,7 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
                     }
                 }
                 catch (final IOException ioe) {
-                    myLog.log(Level.WARNING,
-                            "I/O Error on final flush of messages.", ioe);
+                    myLog.warn(ioe, "I/O Error on final flush of messages.");
                 }
                 finally {
                     // Make sure we get shutdown completely.

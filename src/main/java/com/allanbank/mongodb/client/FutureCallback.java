@@ -13,13 +13,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ListenableFuture;
 import com.allanbank.mongodb.LockType;
 import com.allanbank.mongodb.util.Assertions;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Implementation of a {@link Callback} and {@link ListenableFuture} interfaces.
@@ -39,8 +39,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
     public static final Class<?> CLASS = FutureCallback.class;
 
     /** Logger to log exceptions caught when running myPendingListeners. */
-    public static final Logger LOG = Logger.getLogger(FutureCallback.class
-            .getName());
+    public static final Log LOG = LogFactory.getLog(FutureCallback.class);
 
     /** Amount of time to spin before yielding. Set to 1/100 of a millisecond. */
     public static final long SPIN_TIME_NS = TimeUnit.MILLISECONDS.toNanos(1) / 100;
@@ -287,9 +286,8 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
             executor.execute(runnable);
         }
         catch (final RuntimeException e) {
-            LOG.log(Level.SEVERE,
-                    "Exception running a FutureListener's runnable " + runnable
-                            + " with executor " + executor, e);
+            LOG.error(e, "Exception running a FutureListener's runnable {} "
+                    + "with executor {}", runnable, executor);
         }
     }
 
