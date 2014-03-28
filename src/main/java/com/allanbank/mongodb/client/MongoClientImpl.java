@@ -5,8 +5,12 @@
 
 package com.allanbank.mongodb.client;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.allanbank.mongodb.LambdaCallback;
 import com.allanbank.mongodb.MongoClient;
@@ -31,6 +35,12 @@ public class MongoClientImpl implements MongoClient {
     /** The client to interact with MongoDB. */
     private final Client myClient;
 
+    /** The queue of references to the databases that have been reclaimed. */
+    private final ReferenceQueue<MongoDatabase> myReferenceQueue = new ReferenceQueue<MongoDatabase>();
+
+    /** The set of databases in use. */
+    private final ConcurrentMap<String, Reference<MongoDatabase>> myDatabases;
+
     /**
      * Create a new MongoClient.
      * 
@@ -39,6 +49,8 @@ public class MongoClientImpl implements MongoClient {
      */
     public MongoClientImpl(final Client client) {
         myClient = client;
+
+        myDatabases = new ConcurrentHashMap<String, Reference<MongoDatabase>>();
     }
 
     /**
@@ -107,7 +119,45 @@ public class MongoClientImpl implements MongoClient {
      */
     @Override
     public MongoDatabase getDatabase(final String name) {
-        return new MongoDatabaseImpl(myClient, name);
+        MongoDatabase database = null;
+        Reference<MongoDatabase> ref = myDatabases.get(name);
+        if (ref != null) {
+            database = ref.get();
+            if (database == null) {
+                // Reference was take n from the map. Remove it from the map.
+                myDatabases.remove(name, ref);
+            }
+        }
+
+        // Create a new one.
+        if (database == null) {
+            database = new MongoDatabaseImpl(myClient, name);
+            ref = new NamedReference<MongoDatabase>(name, database,
+                    myReferenceQueue);
+
+            Reference<MongoDatabase> existing = myDatabases.putIfAbsent(name,
+                    ref);
+            if (existing != null) {
+                MongoDatabase existingDb = existing.get();
+                if (existingDb != null) {
+                    database = existingDb;
+                }
+                // Extremely unlikely but if the reference came and went that
+                // quick it is the next guys problem to add one. We will return
+                // the one we created.
+            }
+        }
+
+        // Clean out any garbage collected references.
+        Reference<?> polled;
+        while ((polled = myReferenceQueue.poll()) != null) {
+            if (polled instanceof NamedReference) {
+                myDatabases.remove(((NamedReference<?>) polled).getName(),
+                        polled);
+            }
+        }
+
+        return database;
     }
 
     /**

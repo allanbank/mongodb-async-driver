@@ -5,9 +5,13 @@
 
 package com.allanbank.mongodb.client;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
@@ -61,6 +65,12 @@ public class MongoDatabaseImpl implements MongoDatabase {
     /** The {@link ReadPreference} for reads from this database instance. */
     private ReadPreference myReadPreference;
 
+    /** The queue of references to the collections that have been reclaimed. */
+    private final ReferenceQueue<MongoCollection> myReferenceQueue = new ReferenceQueue<MongoCollection>();
+
+    /** The set of databases in use. */
+    private final ConcurrentMap<String, Reference<MongoCollection>> myCollections;
+
     /**
      * Create a new MongoDatabaseClient.
      * 
@@ -74,6 +84,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
         myName = name;
         myDurability = null;
         myReadPreference = null;
+        myCollections = new ConcurrentHashMap<String, Reference<MongoCollection>>();
     }
 
     /**
@@ -132,7 +143,46 @@ public class MongoDatabaseImpl implements MongoDatabase {
      */
     @Override
     public MongoCollection getCollection(final String name) {
-        return new SynchronousMongoCollectionImpl(myClient, this, name);
+        MongoCollection collection = null;
+        Reference<MongoCollection> ref = myCollections.get(name);
+        if (ref != null) {
+            collection = ref.get();
+            if (collection == null) {
+                // Reference was take n from the map. Remove it from the map.
+                myCollections.remove(name, ref);
+            }
+        }
+
+        // Create a new one.
+        if (collection == null) {
+            collection = new SynchronousMongoCollectionImpl(myClient, this,
+                    name);
+            ref = new NamedReference<MongoCollection>(name, collection,
+                    myReferenceQueue);
+
+            Reference<MongoCollection> existing = myCollections.putIfAbsent(
+                    name, ref);
+            if (existing != null) {
+                MongoCollection existingCollection = existing.get();
+                if (existingCollection != null) {
+                    collection = existingCollection;
+                }
+                // Extremely unlikely but if the reference came and went that
+                // quick it is the next guys problem to add one. We will return
+                // the one we created.
+            }
+        }
+
+        // Clean out any garbage collected references.
+        Reference<?> polled;
+        while ((polled = myReferenceQueue.poll()) != null) {
+            if (polled instanceof NamedReference) {
+                myCollections.remove(((NamedReference<?>) polled).getName(),
+                        polled);
+            }
+        }
+
+        return collection;
     }
 
     /**
