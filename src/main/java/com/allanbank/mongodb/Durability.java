@@ -71,6 +71,11 @@ public class Durability implements Serializable {
 
     /**
      * Creates an fsync() durability.
+     * <p>
+     * Will cause the server to wait for the write to be sync'd to disk. If the
+     * server is running with journaling enabled then only the journal will have
+     * been sync'd to disk. If running without journaling enabled then will wait
+     * for all data files to be sync'd to disk.
      * 
      * @param waitTimeoutMillis
      *            The number of milliseconds to wait for the durability
@@ -84,6 +89,12 @@ public class Durability implements Serializable {
 
     /**
      * Creates an journal durability.
+     * <p>
+     * Will cause the server to wait for the write to be sync'd to disk as part
+     * of the journal. As of MongoDB 2.6 this mode will cause a TBD exception to
+     * be thrown if the server is configured without journaling enabled. Prior
+     * to MongoDB 2.6 this mode would silently degrade to {@link #ACK}.
+     * </p>
      * 
      * @param waitTimeoutMillis
      *            The number of milliseconds to wait for the durability

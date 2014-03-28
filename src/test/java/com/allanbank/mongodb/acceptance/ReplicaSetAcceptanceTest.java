@@ -380,6 +380,17 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return true.
+     * </p>
+     */
+    @Override
+    protected boolean isReplicaSetConfiguration() {
+        return true;
+    }
+
+    /**
      * Extracts the specified opcounter value from the document.
      * 
      * @param doc

@@ -66,6 +66,9 @@ public class GridFs {
      */
     public static final String CHUNK_NUMBER_FIELD = "n";
 
+    /** The amount of overhead in a chunk document in bytes: {@value} */
+    public static final int CHUNK_OVERHEAD = 58;
+
     /**
      * The field in the {@link #FILES_SUFFIX files} collection containing the
      * file's chunk size.
@@ -80,9 +83,6 @@ public class GridFs {
      * chunk's data.
      */
     public static final String DATA_FIELD = "data";
-
-    /** The amount of overhead in a chunk document in bytes: {@value} */
-    public static final int CHUNK_OVERHEAD = 58;
 
     /**
      * The default chunk size. This is slightly less than 256K to allow for the
@@ -130,7 +130,7 @@ public class GridFs {
     public static final String UPLOAD_DATE_FIELD = "uploadDate";
 
     static {
-        DEFAULT_CHUNK_SIZE = 256 * 1024 - CHUNK_OVERHEAD;
+        DEFAULT_CHUNK_SIZE = (256 * 1024) - CHUNK_OVERHEAD;
     }
 
     /** The GridFS chunks collection. */

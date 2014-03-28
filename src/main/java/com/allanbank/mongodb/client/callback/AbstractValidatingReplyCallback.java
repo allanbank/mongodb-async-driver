@@ -19,6 +19,7 @@ import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
+import com.allanbank.mongodb.error.DurabilityException;
 import com.allanbank.mongodb.error.MaximumTimeLimitExceededException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
@@ -43,6 +44,8 @@ public abstract class AbstractValidatingReplyCallback implements
 
     static {
         final List<String> fields = new ArrayList<String>(3);
+        fields.add("jnote");
+        fields.add("wnote");
         fields.add("$err");
         fields.add("errmsg");
         fields.add("err");
@@ -148,24 +151,8 @@ public abstract class AbstractValidatingReplyCallback implements
      *            The 'ok' field.
      * @param errorNumber
      *            The 'errno' field.
-     * @param errorMessage
-     *            The 'errmsg' field.
-     * @return The exception created.
-     */
-    protected MongoDbException asError(final Reply reply, final int okValue,
-            final int errorNumber, final String errorMessage) {
-        return asError(reply, okValue, errorNumber, errorMessage, null);
-    }
-
-    /**
-     * Creates an exception from the parsed reply fields.
-     * 
-     * @param reply
-     *            The raw reply.
-     * @param okValue
-     *            The 'ok' field.
-     * @param errorNumber
-     *            The 'errno' field.
+     * @param knownDurabilityError
+     *            Set to true when we know the error is a durability failure.
      * @param errorMessage
      *            The 'errmsg' field.
      * @param message
@@ -174,8 +161,14 @@ public abstract class AbstractValidatingReplyCallback implements
      */
     protected final MongoDbException asError(final Reply reply,
             final int okValue, final int errorNumber,
-            final String errorMessage, final Message message) {
-        if ((errorNumber == 11000) || (errorNumber == 11001)
+            final boolean knownDurabilityError, final String errorMessage,
+            final Message message) {
+
+        if (isDurabilityFailure(reply, knownDurabilityError)) {
+            return new DurabilityException(okValue, errorNumber, errorMessage,
+                    message, reply);
+        }
+        else if ((errorNumber == 11000) || (errorNumber == 11001)
                 || errorMessage.startsWith("E11000")
                 || errorMessage.startsWith("E11001")) {
             return new DuplicateKeyException(okValue, errorNumber,
@@ -189,6 +182,24 @@ public abstract class AbstractValidatingReplyCallback implements
         }
         return new ReplyException(okValue, errorNumber, errorMessage, message,
                 reply);
+    }
+
+    /**
+     * Creates an exception from the parsed reply fields.
+     * 
+     * @param reply
+     *            The raw reply.
+     * @param okValue
+     *            The 'ok' field.
+     * @param errorNumber
+     *            The 'errno' field.
+     * @param errorMessage
+     *            The 'errmsg' field.
+     * @return The exception created.
+     */
+    protected MongoDbException asError(final Reply reply, final int okValue,
+            final int errorNumber, final String errorMessage) {
+        return asError(reply, okValue, errorNumber, false, errorMessage, null);
     }
 
     /**
@@ -272,6 +283,30 @@ public abstract class AbstractValidatingReplyCallback implements
         else {
             checkForError(reply);
         }
+    }
+
+    /**
+     * Check if the failure is a failure of the durability of the write.
+     * 
+     * @param reply
+     *            The reply to the message.
+     * @param knownDurabilityError
+     *            If true then the result is already known to be a durability
+     *            failure.
+     * @return True if the durability has failed.
+     */
+    private boolean isDurabilityFailure(final Reply reply,
+            final boolean knownDurabilityError) {
+        boolean durabilityError = knownDurabilityError;
+
+        final List<Document> results = reply.getResults();
+        if ((results.size() == 1) && !knownDurabilityError) {
+            final Document doc = results.get(0);
+
+            durabilityError = doc.contains("wtimeout") || doc.contains("wnote")
+                    || doc.contains("jnote") || doc.contains("badGLE");
+        }
+        return durabilityError;
     }
 
 }

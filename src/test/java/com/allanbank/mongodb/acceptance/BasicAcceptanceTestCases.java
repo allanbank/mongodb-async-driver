@@ -123,6 +123,7 @@ import com.allanbank.mongodb.error.BatchedWriteException;
 import com.allanbank.mongodb.error.CursorNotFoundException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.DuplicateKeyException;
+import com.allanbank.mongodb.error.DurabilityException;
 import com.allanbank.mongodb.error.MaximumTimeLimitExceededException;
 import com.allanbank.mongodb.error.QueryFailedException;
 import com.allanbank.mongodb.error.ReplyException;
@@ -2268,6 +2269,38 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         assertEquals(LARGE_COLLECTION_COUNT, count);
         cb.check();
+    }
+
+    /**
+     * Verifies that the driver throws an exception when the durability is
+     * violated.
+     */
+    @Test
+    public void testJournalDurabilityThrows() {
+        try {
+            // We test with the journal off so this should fail for MongoDB 2.6
+            // and later.
+            myCollection.insert(Durability.journalDurable(10), BuilderFactory
+                    .start().build());
+
+            // Need to check the server version is after 2.6...
+            // Use the maxTimeMs to check that for us since it was added at the
+            // same time.
+            testFindTimeout();
+
+            fail("Should not be able to do a Journaled Write with a MongoDB "
+                    + "server without Journaling on.");
+        }
+        catch (final DurabilityException error) {
+            // Good.
+            assertThat(
+                    error.getMessage(),
+                    either(
+                            containsString("cannot use 'j' option when a host "
+                                    + "does not have journaling enabled")).or(
+                            containsString("journaling not enabled on this "
+                                    + "server")));
+        }
     }
 
     /**
@@ -8459,6 +8492,43 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Verifies performing a mass update on all documents with a short write
+     * timeout fails.
+     */
+    @Test
+    public void testUpdateDurabilityFails() {
+        if (isReplicaSetConfiguration()) {
+            // Adjust the configuration to keep the connection count down
+            // and let the inserts happen asynchronously.
+            myConfig.setDefaultDurability(Durability.ACK);
+            myConfig.setMaxConnectionCount(1);
+
+            final Document doc = BuilderFactory.start()
+                    .add("_id", new ObjectId()).build();
+            myCollection.insert(doc);
+
+            // Increment a field.
+            final DocumentBuilder update = BuilderFactory.start();
+            update.push("$inc").addInteger("i", 1);
+
+            try {
+                myCollection.update(doc, update.build(), true, false,
+                        Durability.replicaDurable(
+                                15/* replicas we do not have */, 1 /* ms */));
+                fail("Durability should have failed.");
+            }
+            catch (final DurabilityException error) {
+                // Good there was a timeout.
+                assertThat(error.getMessage(), containsString("timeout"));
+
+                // But the update should have happened.
+                final Document found = myCollection.findOne(doc);
+                assertThat(found.get("i"), notNullValue());
+            }
+        }
+    }
+
+    /**
      * Verifies the ability to update the collection options.
      */
     @Test
@@ -8683,6 +8753,16 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             myGeoSphereCollection.createIndex(Index.geo2dSphere("p"));
         }
         return myGeoSphereCollection;
+    }
+
+    /**
+     * Returns true when running against a replica set configuration (may be
+     * shards of replica sets.
+     * 
+     * @return True when connecting to a replica set.
+     */
+    protected boolean isReplicaSetConfiguration() {
+        return false;
     }
 
     /**

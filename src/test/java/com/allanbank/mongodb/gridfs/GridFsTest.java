@@ -72,24 +72,6 @@ public class GridFsTest {
     }
 
     /**
-     * Test method for {@link GridFs#getChunkSize}.
-     */
-    @Test
-    public void testOverhead() {
-        final Random random = new Random(System.currentTimeMillis());
-        final byte[] data = new byte[random.nextInt(GridFs.DEFAULT_CHUNK_SIZE) + 1];
-
-        DocumentBuilder doc = BuilderFactory.start();
-        doc.addObjectId(GridFs.ID_FIELD, new ObjectId());
-        doc.addObjectId(GridFs.FILES_ID_FIELD, new ObjectId());
-        doc.addInteger(GridFs.CHUNK_NUMBER_FIELD, 0);
-        doc.addBinary(GridFs.DATA_FIELD, data);
-
-        assertThat((long) GridFs.CHUNK_OVERHEAD, is(doc.build().size()
-                - data.length));
-    }
-
-    /**
      * Test method for {@link GridFs#createIndexes()}.
      */
     @Test
@@ -845,6 +827,24 @@ public class GridFsTest {
     public void testGridFsString() {
         final GridFs fs = new GridFs("mongodb://localhost:27017/foo");
         assertEquals(GridFs.DEFAULT_CHUNK_SIZE, fs.getChunkSize());
+    }
+
+    /**
+     * Test method for {@link GridFs#getChunkSize}.
+     */
+    @Test
+    public void testOverhead() {
+        final Random random = new Random(System.currentTimeMillis());
+        final byte[] data = new byte[random.nextInt(GridFs.DEFAULT_CHUNK_SIZE) + 1];
+
+        final DocumentBuilder doc = BuilderFactory.start();
+        doc.addObjectId(GridFs.ID_FIELD, new ObjectId());
+        doc.addObjectId(GridFs.FILES_ID_FIELD, new ObjectId());
+        doc.addInteger(GridFs.CHUNK_NUMBER_FIELD, 0);
+        doc.addBinary(GridFs.DATA_FIELD, data);
+
+        assertThat((long) GridFs.CHUNK_OVERHEAD, is(doc.build().size()
+                - data.length));
     }
 
     /**

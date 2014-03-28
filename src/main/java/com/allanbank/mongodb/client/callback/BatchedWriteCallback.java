@@ -443,9 +443,8 @@ public class BatchedWriteCallback extends ReplyLongCallback {
                 final int code = toInt(error.get(NumericElement.class, "code"));
                 final String errmsg = asString(error.get(Element.class,
                         "errmsg"));
-
                 final MongoDbException exception = asError(reply, 0, code,
-                        errmsg, null);
+                        true, errmsg, null);
                 for (final WriteOperation op : bundle.getWrites()) {
                     myFailedOperations.put(op, exception);
                 }
@@ -488,7 +487,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
                         final WriteOperation op = operations.get(index);
 
                         myFailedOperations.put(op,
-                                asError(reply, 0, code, errmsg, null));
+                                asError(reply, 0, code, false, errmsg, null));
 
                         if (myWrite.getMode() == BatchedWriteMode.SERIALIZE_AND_STOP) {
                             mySkippedOperations = new ArrayList<WriteOperation>();

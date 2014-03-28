@@ -1024,6 +1024,17 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * </p>
      */
     @Override
+    protected boolean isReplicaSetConfiguration() {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return true.
+     * </p>
+     */
+    @Override
     protected boolean isShardedConfiguration() {
         return true;
     }

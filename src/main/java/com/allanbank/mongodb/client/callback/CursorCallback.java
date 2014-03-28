@@ -108,7 +108,7 @@ public final class CursorCallback extends
     @Override
     protected MongoDbException asError(final Reply reply, final int okValue,
             final int errorNumber, final String errorMessage) {
-        return super.asError(reply, okValue, errorNumber, errorMessage,
+        return super.asError(reply, okValue, errorNumber, false, errorMessage,
                 myMessage);
     }
 
