@@ -8,7 +8,6 @@ package com.allanbank.mongodb.client;
 import java.util.List;
 
 import com.allanbank.mongodb.BatchedAsyncMongoCollection;
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.ListenableFuture;
 import com.allanbank.mongodb.MongoCollection;
@@ -575,10 +574,11 @@ public class SynchronousMongoCollectionImpl extends
 
     /**
      * <p>
-     * Overridden to call the {@link #findOneAsync(Callback, Find)}.
+     * Overridden to call the
+     * {@link #findOneAsync(com.allanbank.mongodb.Callback, Find)}.
      * </p>
      * 
-     * @see #findOneAsync(Callback, Find)
+     * @see #findOneAsync(com.allanbank.mongodb.Callback, Find)
      */
     @Override
     public Document findOne(final Find query) throws MongoDbException {

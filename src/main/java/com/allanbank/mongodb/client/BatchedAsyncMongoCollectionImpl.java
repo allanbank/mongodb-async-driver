@@ -181,7 +181,7 @@ public class BatchedAsyncMongoCollectionImpl extends
         private BatchedAsyncMongoCollectionImpl myCollection;
 
         /** The real (e.g., user's) callbacks. */
-        private final ArrayList<Callback<Reply>> myRealCallbacks;
+        private List<Callback<Reply>> myRealCallbacks;
 
         /**
          * The {@link Client} implementation to delegate to when sending
@@ -190,7 +190,7 @@ public class BatchedAsyncMongoCollectionImpl extends
         private final Client myRealClient;
 
         /** The final results from the callback. */
-        private final ArrayList<Object> myResults;
+        private List<Object> myResults;
 
         /**
          * The {@link Client} implementation to delegate to when sending
@@ -211,8 +211,9 @@ public class BatchedAsyncMongoCollectionImpl extends
         public CaptureClientHandler(final Client realClient) {
             myRealClient = realClient;
 
-            myRealCallbacks = new ArrayList<Callback<Reply>>();
-            myResults = new ArrayList<Object>();
+            myRealCallbacks = null;
+            myResults = null;
+
             mySendArgs = new LinkedList<Object[]>();
             myWrite = BatchedWrite.builder();
         }
@@ -224,9 +225,10 @@ public class BatchedAsyncMongoCollectionImpl extends
             final List<Object[]> copy = new ArrayList<Object[]>(mySendArgs);
 
             mySendArgs.clear();
-            myResults.clear();
             myWrite.reset();
-            myRealCallbacks.clear();
+
+            myResults = null;
+            myRealCallbacks = null;
             myCollection = null;
 
             for (final Object[] args : copy) {
@@ -441,11 +443,9 @@ public class BatchedAsyncMongoCollectionImpl extends
                 myWrite.reset();
                 myWrite.setMode(collection.getMode());
 
-                myResults.clear();
-                myRealCallbacks.clear();
-
-                myResults.ensureCapacity(mySendArgs.size());
-                myRealCallbacks.ensureCapacity(mySendArgs.size());
+                myResults = new ArrayList<Object>(mySendArgs.size());
+                myRealCallbacks = new ArrayList<Callback<Reply>>(
+                        mySendArgs.size());
 
                 while (!mySendArgs.isEmpty()) {
                     final Object[] args = mySendArgs.remove(0);
@@ -473,7 +473,7 @@ public class BatchedAsyncMongoCollectionImpl extends
                 closeBatch();
             }
             else {
-                myResults.clear();
+                myResults = new ArrayList<Object>(mySendArgs.size());
                 myResults.addAll(mySendArgs);
 
                 // Clear the sendArgs or they will get notified of a cancel.

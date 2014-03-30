@@ -25,12 +25,15 @@
 	<!-- <rule ref="rulesets/java/optimizations.xml" /> -->
 	<!-- <rule ref="rulesets/java/strings.xml" /> -->
 	<!-- <rule ref="rulesets/java/sunsecure.xml" /> -->
-	<rule ref="rulesets/java/typeresolution.xml" />
+	<rule ref="rulesets/java/typeresolution.xml">
+		<!-- Does not see inherited interface. -->
+		<exclude name="CloneMethodMustImplementCloneable" />
+	</rule>
 	<rule ref="rulesets/java/unnecessary.xml">
-		<exclude name="UselessParentheses" />
+		<exclude name="UselessParentheses" /> <!-- Do not agree. -->
 	</rule>
 	<rule ref="rulesets/java/unusedcode.xml">
-		<exclude name="UnusedModifier" />
+		<exclude name="UnusedModifier" /> <!-- Do not agree. -->
 	</rule>
 
 </ruleset>
