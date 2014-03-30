@@ -1,12 +1,12 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
 package com.allanbank.mongodb.client.message;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 
 /**
  * Container for a pending message. Before the message is sent the message id
@@ -15,7 +15,7 @@ import com.allanbank.mongodb.client.Message;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class PendingMessage {
 
@@ -26,7 +26,7 @@ public class PendingMessage {
     private int myMessageId;
 
     /** The callback for the reply to the message. */
-    private Callback<Reply> myReplyCallback;
+    private ReplyCallback myReplyCallback;
 
     /** The timestamp of the message. */
     private long myTimestamp;
@@ -62,7 +62,7 @@ public class PendingMessage {
      * 
      */
     public PendingMessage(final int messageId, final Message message,
-            final Callback<Reply> replyCallback) {
+            final ReplyCallback replyCallback) {
         myMessageId = messageId;
         myMessage = message;
         myReplyCallback = replyCallback;
@@ -102,7 +102,7 @@ public class PendingMessage {
      * 
      * @return The callback for the reply to the message.
      */
-    public Callback<Reply> getReplyCallback() {
+    public ReplyCallback getReplyCallback() {
         return myReplyCallback;
     }
 
@@ -133,7 +133,7 @@ public class PendingMessage {
      *            The callback for the message. May be null.
      */
     public void set(final int messageId, final Message message,
-            final Callback<Reply> replyCallback) {
+            final ReplyCallback replyCallback) {
         myMessageId = messageId;
         myMessage = message;
         myReplyCallback = replyCallback;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -213,7 +213,7 @@ public class MongoDbAuthenticator implements Authenticator {
      * NonceReplyCallback provides the callback for the reply to the nonce
      * request.
      * 
-     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
      */
     private class NonceReplyCallback extends AbstractValidatingReplyCallback {
 
@@ -247,6 +247,17 @@ public class MongoDbAuthenticator implements Authenticator {
         @Override
         public void exception(final Throwable thrown) {
             myResults.exception(thrown);
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to return false.
+         * </p>
+         */
+        @Override
+        public boolean isLightWeight() {
+            return false;
         }
 
         /**
@@ -306,6 +317,5 @@ public class MongoDbAuthenticator implements Authenticator {
                 exception(new MongoDbAuthenticationException(e));
             }
         }
-
     }
 }

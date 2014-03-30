@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.socket;
@@ -7,15 +7,14 @@ package com.allanbank.mongodb.client.connection.socket;
 import java.io.IOException;
 import java.net.SocketException;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.AddressAware;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.message.BuildInfo;
 import com.allanbank.mongodb.client.message.PendingMessage;
 import com.allanbank.mongodb.client.message.PendingMessageQueue;
-import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
@@ -35,7 +34,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class TwoThreadSocketConnection extends AbstractSocketConnection {
 
@@ -159,7 +158,29 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
      * {@inheritDoc}
      */
     @Override
-    public void send(final Message message, final Callback<Reply> replyCallback)
+    public void send(final Message message1, final Message message2,
+            final ReplyCallback replyCallback) throws MongoDbException {
+
+        validate(message1, message2);
+
+        if (replyCallback instanceof AddressAware) {
+            ((AddressAware) replyCallback).setAddress(myServer
+                    .getCanonicalName());
+        }
+
+        try {
+            myToSendQueue.put(message1, null, message2, replyCallback);
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void send(final Message message, final ReplyCallback replyCallback)
             throws MongoDbException {
 
         validate(message, null);
@@ -171,28 +192,6 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
 
         try {
             myToSendQueue.put(message, replyCallback);
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbException(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void send(final Message message1, final Message message2,
-            final Callback<Reply> replyCallback) throws MongoDbException {
-
-        validate(message1, message2);
-
-        if (replyCallback instanceof AddressAware) {
-            ((AddressAware) replyCallback).setAddress(myServer
-                    .getCanonicalName());
-        }
-
-        try {
-            myToSendQueue.put(message1, null, message2, replyCallback);
         }
         catch (final InterruptedException e) {
             throw new MongoDbException(e);

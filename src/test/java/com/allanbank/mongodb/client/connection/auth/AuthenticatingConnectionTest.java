@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -25,7 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -33,13 +32,13 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
-import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -47,7 +46,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * AuthenticatingConnectionTest provides test for the
  * {@link AuthenticatingConnection}.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticatingConnectionTest {
 
@@ -362,7 +361,6 @@ public class AuthenticatingConnectionTest {
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testAuthenticateRequestFails() throws IOException {
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
@@ -377,7 +375,7 @@ public class AuthenticatingConnectionTest {
 
         // Auth.
         mockConnetion.send(eq(new Command(TEST_DB, myAuthRequest.build())),
-                anyObject(Callback.class));
+                anyObject(ReplyCallback.class));
         expectLastCall().andThrow(injected);
 
         // Just a log message (now).
@@ -745,8 +743,8 @@ public class AuthenticatingConnectionTest {
     }
 
     /**
-     * Test method for {@link AuthenticatingConnection#send(Message, Callback)}
-     * .
+     * Test method for
+     * {@link AuthenticatingConnection#send(Message, ReplyCallback)} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -754,7 +752,7 @@ public class AuthenticatingConnectionTest {
     @Test
     public void testSendCallbackOfReplyMessageArray() throws IOException {
 
-        final Callback<Reply> reply = new FutureCallback<Reply>();
+        final ReplyCallback reply = new FutureReplyCallback();
         final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
         final Connection mockConnetion = createMock(Connection.class);

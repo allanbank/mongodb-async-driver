@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -18,7 +18,6 @@ import java.util.concurrent.TimeoutException;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.ClusterType;
-import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.message.IsMaster;
@@ -34,7 +33,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterPinger implements Runnable, Closeable {
 
@@ -403,7 +402,7 @@ public class ClusterPinger implements Runnable, Closeable {
         public Future<Reply> pingAsync(final ClusterType type,
                 final Server server, final Connection conn) {
             try {
-                final FutureCallback<Reply> future = new ServerUpdateCallback(
+                final ServerUpdateCallback future = new ServerUpdateCallback(
                         server);
 
                 conn.send(new IsMaster(), future);

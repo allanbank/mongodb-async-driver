@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.socket;
@@ -67,10 +67,10 @@ import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.EndianUtils;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.client.Client;
-import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.VersionRange;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.SocketConnectionListener;
 import com.allanbank.mongodb.client.message.Command;
@@ -93,7 +93,7 @@ import com.allanbank.mongodb.error.ServerVersionException;
 /**
  * SocketConnectionTest provides tests for the {@link SocketConnection} class.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SocketConnectionTest {
     /** Update document with the "build info". */
@@ -1479,7 +1479,7 @@ public class SocketConnectionTest {
         assertTrue(myTestConnection.isIdle());
         assertFalse(myTestConnection.isOpen());
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1538,7 +1538,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1604,7 +1604,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, error, future);
 
@@ -1648,7 +1648,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1713,7 +1713,7 @@ public class SocketConnectionTest {
         }
         assertNotNull("Did not find the receive thread", receive);
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1771,7 +1771,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1820,7 +1820,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1869,7 +1869,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1920,7 +1920,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1986,7 +1986,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -2025,7 +2025,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -2074,7 +2074,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -2137,7 +2137,7 @@ public class SocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
         assertTrue("Should receive the request after flush.",
@@ -2152,7 +2152,7 @@ public class SocketConnectionTest {
         assertThat(myTestConnection.myPendingQueue.poll(pending), is(false));
 
         // Now to add two back...
-        final FutureCallback<Reply> future2 = new FutureCallback<Reply>();
+        final FutureReplyCallback future2 = new FutureReplyCallback();
         pending.set(1234, error, future2);
         assertThat(myTestConnection.myPendingQueue.offer(pending), is(true));
         pending.set(1235, error, future);
@@ -2162,7 +2162,7 @@ public class SocketConnectionTest {
         ourServer.setReplies(Arrays.asList(out.toByteArray()));
 
         // Send another mesage to trigger the errors.
-        final FutureCallback<Reply> future3 = new FutureCallback<Reply>();
+        final FutureReplyCallback future3 = new FutureReplyCallback();
         myTestConnection.send(error, future3);
 
         // Wake up the server.

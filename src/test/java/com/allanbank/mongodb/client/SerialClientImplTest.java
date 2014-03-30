@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -25,7 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCursorControl;
@@ -38,19 +37,19 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.client.callback.CursorStreamingCallback;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.Query;
-import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.message.Update;
 
 /**
  * ClientImplTest provides tests for the {@link ClientImpl} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("unchecked")
 public class SerialClientImplTest {
@@ -199,7 +198,7 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(eq(message), anyObject(Callback.class));
+        mockConnection.send(eq(message), anyObject(ReplyCallback.class));
         expectLastCall();
 
         replay(mockConnection);
@@ -382,7 +381,7 @@ public class SerialClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(eq(message), anyObject(Callback.class));
+        mockConnection.send(eq(message), anyObject(ReplyCallback.class));
         expectLastCall();
 
         replay(mockConnection, mockStreamCallback);
@@ -548,7 +547,7 @@ public class SerialClientImplTest {
     @Test
     public void testSendGetMoreCallbackOfReply() throws IOException {
 
-        final Callback<Reply> callback = createMock(Callback.class);
+        final ReplyCallback callback = createMock(ReplyCallback.class);
         final GetMore message = new GetMore("testDb", "collection", 1234L,
                 12345, ReadPreference.PRIMARY);
 
@@ -718,7 +717,7 @@ public class SerialClientImplTest {
                 false, false);
         final GetLastError lastError = new GetLastError("testDb", false, false,
                 0, 0);
-        final Callback<Reply> callback = createMock(Callback.class);
+        final ReplyCallback callback = createMock(ReplyCallback.class);
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -821,7 +820,7 @@ public class SerialClientImplTest {
     public void testSendQueryCallbackOfReply() throws IOException {
         final Query message = new Query("db", "coll", null, null, 0, 0, 0,
                 false, ReadPreference.PRIMARY, false, false, false, false);
-        final Callback<Reply> callback = createMock(Callback.class);
+        final ReplyCallback callback = createMock(ReplyCallback.class);
 
         final Connection mockConnection = createMock(Connection.class);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -32,13 +32,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.KillCursors;
 import com.allanbank.mongodb.client.message.Query;
@@ -48,7 +48,7 @@ import com.allanbank.mongodb.error.CursorNotFoundException;
 /**
  * MongoIteratorTest provides tests for the {@link MongoIteratorImpl} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoIteratorTest {
 
@@ -404,15 +404,16 @@ public class MongoIteratorTest {
     /**
      * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testAskForMoreThrowsOnInterrupt() {
         final Client mockClient = createMock(Client.class);
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
-        mockClient.send(anyObject(GetMore.class), anyObject(Callback.class));
+        mockClient.send(anyObject(GetMore.class),
+                anyObject(ReplyCallback.class));
         expectLastCall();
-        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        mockClient.send(anyObject(KillCursors.class),
+                isNull(ReplyCallback.class));
         expectLastCall();
 
         replay(mockClient);
@@ -488,14 +489,14 @@ public class MongoIteratorTest {
     /**
      * Test method for {@link MongoIteratorImpl#close()}.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testCloseWithoutReading() {
         final Client mockClient = createMock(Client.class);
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        mockClient.send(anyObject(KillCursors.class),
+                isNull(ReplyCallback.class));
         expectLastCall();
 
         replay(mockClient);
@@ -511,7 +512,6 @@ public class MongoIteratorTest {
     /**
      * Test method for {@link MongoIteratorImpl#close()}.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testCloseWithPending() {
         final Client mockClient = createMock(Client.class);
@@ -522,7 +522,8 @@ public class MongoIteratorTest {
 
         mockClient.send(anyObject(GetMore.class), cb(reply2));
         expectLastCall();
-        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        mockClient.send(anyObject(KillCursors.class),
+                isNull(ReplyCallback.class));
         expectLastCall();
 
         replay(mockClient);
@@ -586,7 +587,6 @@ public class MongoIteratorTest {
     /**
      * Test method for {@link MongoIteratorImpl#MongoIteratorImpl} .
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testOverLimit() {
         final int batchSize = 5;
@@ -599,7 +599,8 @@ public class MongoIteratorTest {
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        mockClient.send(anyObject(KillCursors.class),
+                isNull(ReplyCallback.class));
         expectLastCall();
 
         replay(mockClient);
@@ -750,7 +751,6 @@ public class MongoIteratorTest {
     /**
      * Test method for {@link MongoIteratorImpl#remove()}.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testTailableCursor() {
         final DocumentBuilder b = BuilderFactory.start();
@@ -781,7 +781,7 @@ public class MongoIteratorTest {
         expectLastCall(); // Request for more data after reading
         // the last batch.
         mockClient.send(anyObject(KillCursors.class),
-                (Callback<Reply>) isNull());
+                isNull(ReplyCallback.class));
         expectLastCall();
 
         replay(mockClient);
@@ -819,7 +819,6 @@ public class MongoIteratorTest {
     /**
      * Test method for {@link MongoIteratorImpl#remove()}.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testTailableCursorDoesNotExhaustTheStack() {
         final DocumentBuilder b = BuilderFactory.start();
@@ -850,7 +849,7 @@ public class MongoIteratorTest {
         expectLastCall(); // Request for more data after reading
         // the last batch.
         mockClient.send(anyObject(KillCursors.class),
-                (Callback<Reply>) isNull());
+                isNull(ReplyCallback.class));
         expectLastCall();
 
         replay(mockClient);

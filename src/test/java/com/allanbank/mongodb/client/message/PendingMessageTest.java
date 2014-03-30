@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -18,13 +18,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 
 /**
  * PendingMessageTest provides tests for the {@link PendingMessage} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class PendingMessageTest {
 
@@ -51,16 +51,15 @@ public class PendingMessageTest {
 
     /**
      * Test method for
-     * {@link PendingMessage#PendingMessage(int, Message, Callback)}.
+     * {@link PendingMessage#PendingMessage(int, Message, ReplyCallback)}.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testPendingMessageIntMessageCallbackOfReply() {
         final Random random = new Random(System.currentTimeMillis());
 
         final Message mockMessage = createMock(Message.class);
         final int id = random.nextInt();
-        final Callback<Reply> mockCallback = createMock(Callback.class);
+        final ReplyCallback mockCallback = createMock(ReplyCallback.class);
 
         replay(mockMessage, mockCallback);
 

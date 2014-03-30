@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -28,25 +28,24 @@ import java.util.concurrent.TimeUnit;
 import org.easymock.Capture;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
-import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * AbstractProxyConnectionTest provides tests for the
  * {@link AbstractProxyConnection} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AbstractProxyConnectionTest {
     /** An empty document for use in constructing messages. */
@@ -644,7 +643,8 @@ public class AbstractProxyConnectionTest {
     }
 
     /**
-     * Test method for {@link AbstractProxyConnection#send(Message, Callback)} .
+     * Test method for
+     * {@link AbstractProxyConnection#send(Message, ReplyCallback)} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -652,7 +652,7 @@ public class AbstractProxyConnectionTest {
     @Test
     public void testSendCallbackOfReplyMessageArray() throws IOException {
         final Message msg = new Delete("db", "collection", EMPTY_DOC, true);
-        final FutureCallback<Reply> callback = new FutureCallback<Reply>();
+        final FutureReplyCallback callback = new FutureReplyCallback();
 
         final Connection mockConnetion = createMock(Connection.class);
 
@@ -676,7 +676,8 @@ public class AbstractProxyConnectionTest {
     }
 
     /**
-     * Test method for {@link AbstractProxyConnection#send(Message, Callback)} .
+     * Test method for
+     * {@link AbstractProxyConnection#send(Message, ReplyCallback)} .
      * 
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -684,7 +685,7 @@ public class AbstractProxyConnectionTest {
     @Test
     public void testSendCallbackOfReplyMessageArrayOnThrow() throws IOException {
         final Message msg = new Delete("db", "collection", EMPTY_DOC, true);
-        final FutureCallback<Reply> callback = new FutureCallback<Reply>();
+        final FutureReplyCallback callback = new FutureReplyCallback();
         final MongoDbException thrown = new MongoDbException();
 
         final Connection mockConnetion = createMock(Connection.class);

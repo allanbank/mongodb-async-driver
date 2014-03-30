@@ -674,7 +674,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
      *         driver.
      * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
      */
-    /* package */class BundleCallback implements Callback<Reply> {
+    /* package */class BundleCallback implements ReplyCallback {
 
         /**
          * The bundle of operations this callback is waiting for the reply from.
@@ -712,6 +712,17 @@ public class BatchedWriteCallback extends ReplyLongCallback {
         @Override
         public void exception(final Throwable thrown) {
             BatchedWriteCallback.this.exception(myBundle, thrown);
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to return false.
+         * </p>
+         */
+        @Override
+        public boolean isLightWeight() {
+            return false;
         }
     }
 

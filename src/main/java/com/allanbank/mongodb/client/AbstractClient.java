@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -8,11 +8,10 @@ package com.allanbank.mongodb.client;
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
-import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.MongoClientClosedException;
 
 /**
@@ -20,7 +19,7 @@ import com.allanbank.mongodb.error.MongoClientClosedException;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractClient implements Client {
 
@@ -50,34 +49,34 @@ public abstract class AbstractClient implements Client {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to locate the a connection to send the message and then
-     * forward the message to that connection.
-     * </p>
-     */
-    @Override
-    public void send(final Message message, final Callback<Reply> replyCallback)
-            throws MongoDbException {
-
-        assertOpen(message);
-
-        findConnection(message, null).send(message, replyCallback);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to locate the a connection to send the messages and then
      * forward the messages to that connection.
      * </p>
      */
     @Override
     public void send(final Message message1, final Message message2,
-            final Callback<Reply> replyCallback) throws MongoDbException {
+            final ReplyCallback replyCallback) throws MongoDbException {
 
         assertOpen(message1);
 
         findConnection(message1, message2).send(message1, message2,
                 replyCallback);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to locate the a connection to send the message and then
+     * forward the message to that connection.
+     * </p>
+     */
+    @Override
+    public void send(final Message message, final ReplyCallback replyCallback)
+            throws MongoDbException {
+
+        assertOpen(message);
+
+        findConnection(message, null).send(message, replyCallback);
     }
 
     /**

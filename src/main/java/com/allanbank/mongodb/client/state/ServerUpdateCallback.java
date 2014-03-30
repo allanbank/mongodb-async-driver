@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -8,7 +8,7 @@ package com.allanbank.mongodb.client.state;
 import java.util.List;
 
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.client.FutureCallback;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.message.Reply;
 
 /**
@@ -18,9 +18,9 @@ import com.allanbank.mongodb.client.message.Reply;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ServerUpdateCallback extends FutureCallback<Reply> {
+public class ServerUpdateCallback extends FutureReplyCallback {
 
     /** The server to update the seconds behind for. */
     private final Server myServer;

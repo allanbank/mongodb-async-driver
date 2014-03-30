@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.SocketFactory;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.Version;
@@ -34,6 +33,8 @@ import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.VersionRange;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
+import com.allanbank.mongodb.client.callback.ReplyHandler;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.SocketConnectionListener;
 import com.allanbank.mongodb.client.message.Delete;
@@ -46,7 +47,6 @@ import com.allanbank.mongodb.client.message.PendingMessage;
 import com.allanbank.mongodb.client.message.PendingMessageQueue;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
-import com.allanbank.mongodb.client.message.ReplyHandler;
 import com.allanbank.mongodb.client.message.Update;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.error.ConnectionLostException;
@@ -62,7 +62,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractSocketConnection implements Connection {
 
@@ -535,7 +535,7 @@ public abstract class AbstractSocketConnection implements Connection {
      *            The callback for the reply to the message.
      */
     protected void raiseError(final Throwable exception,
-            final Callback<Reply> replyCallback) {
+            final ReplyCallback replyCallback) {
         ReplyHandler.raiseError(exception, replyCallback, myExecutor);
     }
 
@@ -594,7 +594,7 @@ public abstract class AbstractSocketConnection implements Connection {
             myServer.updateAverageLatency(latency);
         }
 
-        final Callback<Reply> callback = pendingMessage.getReplyCallback();
+        final ReplyCallback callback = pendingMessage.getReplyCallback();
         ReplyHandler.reply(reply, callback, myExecutor);
     }
 
@@ -814,7 +814,7 @@ public abstract class AbstractSocketConnection implements Connection {
      * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected static final class NoopCallback implements Callback<Reply> {
+    protected static final class NoopCallback implements ReplyCallback {
         /**
          * {@inheritDoc}
          * <p>
@@ -835,6 +835,17 @@ public abstract class AbstractSocketConnection implements Connection {
         @Override
         public void exception(final Throwable thrown) {
             // Noop.
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to return true.
+         * </p>
+         */
+        @Override
+        public boolean isLightWeight() {
+            return true;
         }
     }
 

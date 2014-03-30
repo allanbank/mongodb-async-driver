@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -24,7 +24,6 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
 import com.allanbank.mongodb.client.connection.proxy.ConnectionInfo;
@@ -56,7 +55,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
 
@@ -330,7 +329,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
                 LOG.debug("Sending reconnect(rs) query to {}.",
                         server.getCanonicalName());
 
-                final FutureCallback<Reply> replyCallback = new ServerUpdateCallback(
+                final ServerUpdateCallback replyCallback = new ServerUpdateCallback(
                         server);
                 conn.send(new IsMaster(), replyCallback);
 

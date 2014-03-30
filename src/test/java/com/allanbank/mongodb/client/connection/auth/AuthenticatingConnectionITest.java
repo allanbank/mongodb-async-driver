@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -20,7 +20,7 @@ import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ObjectId;
-import com.allanbank.mongodb.client.FutureCallback;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.client.message.Insert;
@@ -33,7 +33,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * AuthenticatingConnectionITest provides tests of the authentication against a
  * live MongoDB process.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
 
@@ -75,7 +75,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
                     config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
-            final FutureCallback<Reply> reply = new FutureCallback<Reply>();
+            final FutureReplyCallback reply = new FutureReplyCallback();
             authConn.send(
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
                             false),
@@ -124,7 +124,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
                     config);
             authConn = new AuthenticatingConnection(socketConn, config);
 
-            final FutureCallback<Reply> reply = new FutureCallback<Reply>();
+            final FutureReplyCallback reply = new FutureReplyCallback();
             authConn.send(
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
                             false),

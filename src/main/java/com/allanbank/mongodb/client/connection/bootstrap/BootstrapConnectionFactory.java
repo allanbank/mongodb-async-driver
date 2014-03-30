@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.bootstrap;
@@ -16,7 +16,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.client.ClusterType;
-import com.allanbank.mongodb.client.FutureCallback;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
@@ -40,7 +40,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BootstrapConnectionFactory implements ConnectionFactory {
 
@@ -95,7 +95,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
             final Cluster cluster = new Cluster(myConfig);
             for (final InetSocketAddress addr : myConfig.getServerAddresses()) {
                 Connection conn = null;
-                final FutureCallback<Reply> future = new FutureCallback<Reply>();
+                final FutureReplyCallback future = new FutureReplyCallback();
                 try {
                     conn = factory.connect(cluster.add(addr), myConfig);
 

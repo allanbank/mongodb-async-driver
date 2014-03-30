@@ -1,15 +1,15 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.client.message;
+package com.allanbank.mongodb.client.callback;
 
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertSame;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,31 +17,30 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
+import org.easymock.EasyMock;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * ReplyHandlerTest provides tests for the {@link ReplyHandler} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyHandlerTest {
 
     /**
      * Test method for
-     * {@link ReplyHandler#raiseError(Throwable, Callback, Executor)}.
+     * {@link ReplyHandler#raiseError(Throwable, ReplyCallback, Executor)}.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testRaiseError() {
         final Executor executor = new CallerExecutor();
 
         final Message mockMessage = createMock(Message.class);
-        final Callback<Reply> mockCallback = createMock(Callback.class);
+        final ReplyCallback mockCallback = createMock(ReplyCallback.class);
 
         final Throwable thrown = new Throwable();
 
@@ -57,15 +56,14 @@ public class ReplyHandlerTest {
 
     /**
      * Test method for
-     * {@link ReplyHandler#raiseError(Throwable, Callback, Executor)}.
+     * {@link ReplyHandler#raiseError(Throwable, ReplyCallback, Executor)}.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testRaiseErrorWhenRejected() {
         final Executor executor = new RejectionExecutor();
 
         final Message mockMessage = createMock(Message.class);
-        final Callback<Reply> mockCallback = createMock(Callback.class);
+        final ReplyCallback mockCallback = createMock(ReplyCallback.class);
 
         final Throwable thrown = new Throwable();
 
@@ -81,7 +79,7 @@ public class ReplyHandlerTest {
 
     /**
      * Test method for
-     * {@link ReplyHandler#raiseError(Throwable, Callback, Executor)}.
+     * {@link ReplyHandler#raiseError(Throwable, ReplyCallback, Executor)}.
      */
     @Test
     public void testRaiseErrorWithoutCallback() {
@@ -98,15 +96,14 @@ public class ReplyHandlerTest {
 
     /**
      * Test method for
-     * {@link ReplyHandler#raiseError(Throwable, Callback, Executor)}.
+     * {@link ReplyHandler#raiseError(Throwable, ReplyCallback, Executor)}.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testRaiseErrorWithoutError() {
         final Executor executor = new CallerExecutor();
 
         final Message mockMessage = createMock(Message.class);
-        final Callback<Reply> mockCallback = createMock(Callback.class);
+        final ReplyCallback mockCallback = createMock(ReplyCallback.class);
 
         replay(mockMessage, mockCallback);
 
@@ -116,9 +113,9 @@ public class ReplyHandlerTest {
     }
 
     /**
-     * Test method for {@link ReplyHandler#reply(Reply, Callback, Executor)}.
+     * Test method for
+     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testReply() {
         final Executor executor = new CallerExecutor();
@@ -127,7 +124,9 @@ public class ReplyHandlerTest {
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, false);
 
         final Message mockMessage = createMock(Message.class);
-        final Callback<Reply> mockCallback = createMock(Callback.class);
+        final ReplyCallback mockCallback = createMock(ReplyCallback.class);
+
+        expect(mockCallback.isLightWeight()).andReturn(true);
 
         mockCallback.callback(reply);
         expectLastCall();
@@ -140,9 +139,9 @@ public class ReplyHandlerTest {
     }
 
     /**
-     * Test method for {@link ReplyHandler#reply(Reply, Callback, Executor)}.
+     * Test method for
+     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testReplyWhenRejected() {
         final Executor executor = new RejectionExecutor();
@@ -151,7 +150,9 @@ public class ReplyHandlerTest {
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, false);
 
         final Message mockMessage = createMock(Message.class);
-        final Callback<Reply> mockCallback = createMock(Callback.class);
+        final ReplyCallback mockCallback = createMock(ReplyCallback.class);
+
+        expect(mockCallback.isLightWeight()).andReturn(true);
 
         mockCallback.callback(reply);
         expectLastCall();
@@ -164,7 +165,8 @@ public class ReplyHandlerTest {
     }
 
     /**
-     * Test method for {@link ReplyHandler#reply(Reply, Callback, Executor)}.
+     * Test method for
+     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
      * 
      * @throws ExecutionException
      *             On a test failure.
@@ -172,27 +174,92 @@ public class ReplyHandlerTest {
      *             On a test failure.
      */
     @Test
-    public void testReplyWithFutureCallback() throws InterruptedException,
+    public void testReplyWithLightWeightCallback() throws InterruptedException,
             ExecutionException {
-        final Executor mockEexecutor = createMock(Executor.class);
+        final Executor mockExecutor = createMock(Executor.class);
 
         final List<Document> docs = Collections.emptyList();
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, false);
 
         final Message mockMessage = createMock(Message.class);
-        final FutureCallback<Reply> callback = new FutureCallback<Reply>();
+        final ReplyCallback callback = createMock(ReplyCallback.class);
 
-        replay(mockMessage, mockEexecutor);
+        expect(callback.isLightWeight()).andReturn(true);
+        callback.callback(reply);
+        expectLastCall();
 
-        ReplyHandler.reply(reply, callback, mockEexecutor);
+        replay(mockMessage, mockExecutor, callback);
 
-        assertSame(reply, callback.get());
+        ReplyHandler.reply(reply, callback, mockExecutor);
 
-        verify(mockMessage, mockEexecutor);
+        verify(mockMessage, mockExecutor, callback);
     }
 
     /**
-     * Test method for {@link ReplyHandler#reply(Reply, Callback, Executor)}.
+     * Test method for
+     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
+     * 
+     * @throws ExecutionException
+     *             On a test failure.
+     * @throws InterruptedException
+     *             On a test failure.
+     */
+    @Test
+    public void testReplyWithNonLightWeightCallback()
+            throws InterruptedException, ExecutionException {
+        final Executor mockExecutor = createMock(Executor.class);
+
+        final List<Document> docs = Collections.emptyList();
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, false, false);
+
+        final Message mockMessage = createMock(Message.class);
+        final ReplyCallback callback = createMock(ReplyCallback.class);
+
+        expect(callback.isLightWeight()).andReturn(false);
+
+        mockExecutor.execute(EasyMock.anyObject(Runnable.class));
+        expectLastCall();
+
+        replay(mockMessage, mockExecutor, callback);
+
+        ReplyHandler.reply(reply, callback, mockExecutor);
+
+        verify(mockMessage, mockExecutor, callback);
+    }
+
+    /**
+     * Test method for
+     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
+     * 
+     * @throws ExecutionException
+     *             On a test failure.
+     * @throws InterruptedException
+     *             On a test failure.
+     */
+    @Test
+    public void testReplyWithNonLightWeightCallbackNoExecutor()
+            throws InterruptedException, ExecutionException {
+        final List<Document> docs = Collections.emptyList();
+        final Reply reply = new Reply(0, 0, 0, docs, false, false, false, false);
+
+        final Message mockMessage = createMock(Message.class);
+        final ReplyCallback callback = createMock(ReplyCallback.class);
+
+        expect(callback.isLightWeight()).andReturn(false);
+
+        callback.callback(reply);
+        expectLastCall();
+
+        replay(mockMessage, callback);
+
+        ReplyHandler.reply(reply, callback, null);
+
+        verify(mockMessage, callback);
+    }
+
+    /**
+     * Test method for
+     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
      */
     @Test
     public void testReplyWithoutCallback() {

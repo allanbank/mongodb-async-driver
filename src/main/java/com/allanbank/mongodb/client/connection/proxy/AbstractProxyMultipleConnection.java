@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -21,9 +21,9 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
-import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.util.IOUtils;
@@ -36,7 +36,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * 
  * @param <K>
  *            The key used to track the various connections.
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
@@ -256,9 +256,18 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * </p>
      */
     @Override
-    public void send(final Message message, final Callback<Reply> replyCallback)
-            throws MongoDbException {
-        send(message, null, replyCallback);
+    public void send(final Message message1, final Message message2,
+            final ReplyCallback replyCallback) throws MongoDbException {
+
+        if (!isAvailable()) {
+            throw new ConnectionLostException("Connection shutting down.");
+        }
+
+        final List<K> servers = findPotentialKeys(message1, message2);
+        if (!trySend(servers, message1, message2, replyCallback)) {
+            throw new MongoDbException(
+                    "Could not send the messages to any of the potential servers.");
+        }
     }
 
     /**
@@ -271,18 +280,9 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * </p>
      */
     @Override
-    public void send(final Message message1, final Message message2,
-            final Callback<Reply> replyCallback) throws MongoDbException {
-
-        if (!isAvailable()) {
-            throw new ConnectionLostException("Connection shutting down.");
-        }
-
-        final List<K> servers = findPotentialKeys(message1, message2);
-        if (!trySend(servers, message1, message2, replyCallback)) {
-            throw new MongoDbException(
-                    "Could not send the messages to any of the potential servers.");
-        }
+    public void send(final Message message, final ReplyCallback replyCallback)
+            throws MongoDbException {
+        send(message, null, replyCallback);
     }
 
     /**
@@ -391,7 +391,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      *            The reply {@link Callback}.
      */
     protected void doSend(final Connection conn, final Message message1,
-            final Message message2, final Callback<Reply> reply) {
+            final Message message2, final ReplyCallback reply) {
 
         // Use the connection for metrics etc.
         myLastUsedConnection.lazySet(conn);
@@ -555,7 +555,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * @return The true if the message was sent.
      */
     protected boolean trySend(final List<K> servers, final Message message1,
-            final Message message2, final Callback<Reply> reply) {
+            final Message message2, final ReplyCallback reply) {
         for (final K server : servers) {
 
             Connection conn = myConnections.get(server);

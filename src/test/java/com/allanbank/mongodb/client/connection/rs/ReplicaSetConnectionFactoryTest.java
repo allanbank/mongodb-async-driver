@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -39,7 +39,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
@@ -47,6 +46,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.client.ClusterType;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.MockMongoDBServer;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
@@ -62,7 +62,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * ReplicaSetConnectionFactoryTest provides tests for the
  * {@link ReplicaSetConnectionFactory}.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetConnectionFactoryTest {
     /** A Mock MongoDB server to connect to. */
@@ -475,7 +475,6 @@ public class ReplicaSetConnectionFactoryTest {
      * @throws InterruptedException
      *             On a failure.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testConnectReplyWeird() throws IOException,
             InterruptedException {
@@ -544,7 +543,7 @@ public class ReplicaSetConnectionFactoryTest {
                         return mockConnection;
                     }
                 });
-        mockConnection.send(eq(new IsMaster()), anyObject(Callback.class));
+        mockConnection.send(eq(new IsMaster()), anyObject(ReplyCallback.class));
         expectLastCall();
         mockConnection.close();
         expectLastCall();
@@ -945,7 +944,6 @@ public class ReplicaSetConnectionFactoryTest {
      * @throws InterruptedException
      *             On a failure.
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testInterruptedBootstrap() throws IOException,
             InterruptedException {
@@ -967,7 +965,7 @@ public class ReplicaSetConnectionFactoryTest {
         // The request to find the cluster.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
                 .andReturn(mockConnection);
-        mockConnection.send(eq(new IsMaster()), anyObject(Callback.class));
+        mockConnection.send(eq(new IsMaster()), anyObject(ReplyCallback.class));
         expectLastCall();
         mockConnection.close();
         expectLastCall();

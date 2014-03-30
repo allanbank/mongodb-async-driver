@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -34,7 +34,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.QueryBuilder;
-import com.allanbank.mongodb.client.FutureCallback;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.socket.SocketConnection;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.message.ServerStatus;
@@ -45,7 +45,7 @@ import com.allanbank.mongodb.error.ConnectionLostException;
  * BasicAcceptanceTestCases provides acceptance test cases for when interacting
  * with a replica set.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
 
@@ -160,7 +160,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         final int[] beforeCommand = new int[PORTS.length];
         for (int i = 0; i < PORTS.length; ++i) {
 
-            final FutureCallback<Reply> replyFuture = new FutureCallback<Reply>();
+            final FutureReplyCallback replyFuture = new FutureReplyCallback();
             conns[i].send(new ServerStatus(), replyFuture);
 
             final Reply reply = replyFuture.get();
@@ -209,7 +209,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         // Collect the counters again.
         for (int i = 0; i < PORTS.length; ++i) {
 
-            final FutureCallback<Reply> replyFuture = new FutureCallback<Reply>();
+            final FutureReplyCallback replyFuture = new FutureReplyCallback();
             conns[i].send(new ServerStatus(), replyFuture);
 
             final Reply reply = replyFuture.get();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -10,17 +10,17 @@ import java.util.List;
 
 import org.easymock.EasyMock;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.CallbackCapture;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * CallbackReply provides the ability to trigger the callback when called from
  * an {@link EasyMock} mock.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CallbackReply {
 
@@ -31,8 +31,9 @@ public class CallbackReply {
      *            The reply to provide to the callback.
      * @return The CallbackReply.
      */
-    public static Callback<Reply> cb(final DocumentBuilder... builders) {
-        return CallbackCapture.callback(reply(builders));
+    public static ReplyCallback cb(final DocumentBuilder... builders) {
+        CallbackCapture.callback(reply(builders));
+        return null;
     }
 
     /**
@@ -42,8 +43,9 @@ public class CallbackReply {
      *            The reply to provide to the callback.
      * @return The CallbackReply.
      */
-    public static Callback<Reply> cb(final Reply reply) {
-        return CallbackCapture.callback(reply);
+    public static ReplyCallback cb(final Reply reply) {
+        CallbackCapture.callback(reply);
+        return null;
     }
 
     /**
@@ -53,8 +55,9 @@ public class CallbackReply {
      *            The error to provide to the callback.
      * @return The CallbackReply.
      */
-    public static Callback<Reply> cb(final Throwable error) {
-        return CallbackCapture.callback(error);
+    public static ReplyCallback cb(final Throwable error) {
+        CallbackCapture.callback(error);
+        return null;
     }
 
     /**
@@ -62,8 +65,9 @@ public class CallbackReply {
      * 
      * @return The CallbackReply.
      */
-    public static Callback<Reply> cbError() {
-        return CallbackCapture.callbackError();
+    public static ReplyCallback cbError() {
+        CallbackCapture.callbackError();
+        return null;
     }
 
     /**

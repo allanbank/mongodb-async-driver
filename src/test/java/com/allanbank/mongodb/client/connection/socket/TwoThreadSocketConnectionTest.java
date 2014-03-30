@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.socket;
@@ -59,9 +59,9 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.EndianUtils;
 import com.allanbank.mongodb.client.Client;
-import com.allanbank.mongodb.client.FutureCallback;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.socket.SocketConnectionTest.SocketFactoryWithConnectionListener;
 import com.allanbank.mongodb.client.message.Delete;
@@ -79,7 +79,7 @@ import com.allanbank.mongodb.client.state.Server;
  * TwoThreadSocketConnectionTest provides tests for the
  * {@link TwoThreadSocketConnection} class.
  * 
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class TwoThreadSocketConnectionTest {
     /** Update document with the "build info". */
@@ -1332,7 +1332,7 @@ public class TwoThreadSocketConnectionTest {
         assertTrue(myTestConnection.isIdle());
         assertFalse(myTestConnection.isOpen());
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1391,7 +1391,7 @@ public class TwoThreadSocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1455,7 +1455,7 @@ public class TwoThreadSocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, error, future);
 
@@ -1585,7 +1585,7 @@ public class TwoThreadSocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 
@@ -1653,7 +1653,7 @@ public class TwoThreadSocketConnectionTest {
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         final GetLastError error = new GetLastError("fo", false, false, 0, 0);
         myTestConnection.send(error, future);
 

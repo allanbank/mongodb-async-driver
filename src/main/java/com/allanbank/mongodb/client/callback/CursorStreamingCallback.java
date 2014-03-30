@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -31,7 +31,7 @@ import com.allanbank.mongodb.error.ReplyException;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class CursorStreamingCallback extends
         AbstractValidatingReplyCallback implements MongoCursorControl,
@@ -269,6 +269,17 @@ public final class CursorStreamingCallback extends
      */
     public int getLimit() {
         return myLimit;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return false.
+     * </p>
+     */
+    @Override
+    public boolean isLightWeight() {
+        return false;
     }
 
     /**

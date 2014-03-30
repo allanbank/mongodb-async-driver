@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -55,7 +55,7 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
-import com.allanbank.mongodb.client.FutureCallback;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.socket.SocketConnection;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.message.ServerStatus;
@@ -73,7 +73,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * to demonstrate that interactions with the MongoDB processes work.
  * </p>
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
@@ -895,7 +895,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
                             myConfig);
                     conn.start();
 
-                    final FutureCallback<Reply> replyFuture = new FutureCallback<Reply>();
+                    final FutureReplyCallback replyFuture = new FutureReplyCallback();
                     conn.send(new ServerStatus(), replyFuture);
 
                     final Reply reply = replyFuture.get();
@@ -956,7 +956,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
                             myConfig);
                     conn.start();
 
-                    final FutureCallback<Reply> replyFuture = new FutureCallback<Reply>();
+                    final FutureReplyCallback replyFuture = new FutureReplyCallback();
                     conn.send(new ServerStatus(), replyFuture);
 
                     final Reply reply = replyFuture.get();

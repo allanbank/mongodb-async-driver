@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -37,7 +37,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCursorControl;
@@ -51,6 +50,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.client.callback.CursorStreamingCallback;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.MockMongoDBServer;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
@@ -61,7 +61,6 @@ import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.message.Query;
-import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.message.Update;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
@@ -75,7 +74,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 /**
  * ClientImplTest provides tests for the {@link ClientImpl} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("unchecked")
 public class ClientImplTest {
@@ -772,7 +771,8 @@ public class ClientImplTest {
                 mockConnection2);
 
         // The ping! -- Fail.
-        mockConnection2.send(eq(new IsMaster()), anyObject(Callback.class));
+        mockConnection2
+                .send(eq(new IsMaster()), anyObject(ReplyCallback.class));
         expectLastCall().andThrow(new MongoDbException("synthetic ping error"));
         mockConnection2.close();
         expectLastCall();
@@ -913,7 +913,7 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(eq(message), anyObject(Callback.class));
+        mockConnection.send(eq(message), anyObject(ReplyCallback.class));
         expectLastCall();
 
         replay(mockConnection);
@@ -1096,7 +1096,7 @@ public class ClientImplTest {
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
-        mockConnection.send(eq(message), anyObject(Callback.class));
+        mockConnection.send(eq(message), anyObject(ReplyCallback.class));
         expectLastCall();
 
         replay(mockConnection, mockStreamCallback);
@@ -1262,7 +1262,7 @@ public class ClientImplTest {
     @Test
     public void testSendGetMoreCallbackOfReply() throws IOException {
 
-        final Callback<Reply> callback = createMock(Callback.class);
+        final ReplyCallback callback = createMock(ReplyCallback.class);
         final GetMore message = new GetMore("testDb", "collection", 1234L,
                 12345, ReadPreference.PRIMARY);
 
@@ -1578,7 +1578,7 @@ public class ClientImplTest {
                 false, false);
         final GetLastError lastError = new GetLastError("testDb", false, false,
                 0, 0);
-        final Callback<Reply> callback = createMock(Callback.class);
+        final ReplyCallback callback = createMock(ReplyCallback.class);
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -1872,7 +1872,7 @@ public class ClientImplTest {
     public void testSendQueryCallbackOfReply() throws IOException {
         final Query message = new Query("db", "coll", null, null, 0, 0, 0,
                 false, ReadPreference.PRIMARY, false, false, false, false);
-        final Callback<Reply> callback = createMock(Callback.class);
+        final ReplyCallback callback = createMock(ReplyCallback.class);
 
         final Connection mockConnection = createMock(Connection.class);
 

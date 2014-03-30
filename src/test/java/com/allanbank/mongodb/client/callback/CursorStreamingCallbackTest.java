@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -27,7 +27,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
@@ -46,7 +45,7 @@ import com.allanbank.mongodb.client.message.Reply;
  * CursorStreamingCallbackTest provides test for the
  * {@link CursorStreamingCallback} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CursorStreamingCallbackTest {
 
@@ -152,7 +151,8 @@ public class CursorStreamingCallbackTest {
         mockClient.send(anyObject(Message.class), eq(qsCallback));
         expectLastCall();
 
-        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        mockClient.send(anyObject(KillCursors.class),
+                isNull(ReplyCallback.class));
         expectLastCall();
 
         replay(mockClient, mockCallback);
@@ -328,7 +328,8 @@ public class CursorStreamingCallbackTest {
         final Reply reply = new Reply(0, 10, 0, myDocs, false, false, false,
                 false);
 
-        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        mockClient.send(anyObject(KillCursors.class),
+                isNull(ReplyCallback.class));
         expectLastCall();
 
         replay(mockClient, mockCallback);
@@ -508,7 +509,8 @@ public class CursorStreamingCallbackTest {
         expectLastCall();
         mockCallback.done();
         expectLastCall();
-        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        mockClient.send(anyObject(KillCursors.class),
+                isNull(ReplyCallback.class));
         expectLastCall();
 
         replay(mockClient, mockCallback);
@@ -723,7 +725,8 @@ public class CursorStreamingCallbackTest {
         final Client mockClient = createMock(Client.class);
         final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
 
-        mockClient.send(anyObject(KillCursors.class), isNull(Callback.class));
+        mockClient.send(anyObject(KillCursors.class),
+                isNull(ReplyCallback.class));
         expectLastCall();
 
         replay(mockClient, mockCallback);

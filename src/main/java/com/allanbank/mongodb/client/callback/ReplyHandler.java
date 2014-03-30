@@ -1,21 +1,20 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
-package com.allanbank.mongodb.client.message;
+package com.allanbank.mongodb.client.callback;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
-import com.allanbank.mongodb.Callback;
-import com.allanbank.mongodb.client.FutureCallback;
+import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * ReplyHandler provides the capability to properly handle the replies to a
  * callback.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyHandler implements Runnable {
 
@@ -31,7 +30,7 @@ public class ReplyHandler implements Runnable {
      *            The executor to use for the back-grounding the reply handling.
      */
     public static void raiseError(final Throwable exception,
-            final Callback<Reply> replyCallback, final Executor executor) {
+            final ReplyCallback replyCallback, final Executor executor) {
         if (replyCallback != null) {
             if (executor != null) {
                 try {
@@ -59,12 +58,12 @@ public class ReplyHandler implements Runnable {
      *            The executor to use for the back-grounding the reply handling.
      */
     public static void reply(final Reply reply,
-            final Callback<Reply> replyCallback, final Executor executor) {
+            final ReplyCallback replyCallback, final Executor executor) {
         if (replyCallback != null) {
             // We know the FutureCallback will not block or take long to process
             // so just use this thread in that case.
-            if ((FutureCallback.CLASS != replyCallback.getClass())
-                    && (executor != null)) {
+            final boolean lightWeight = replyCallback.isLightWeight();
+            if (!lightWeight && (executor != null)) {
                 try {
                     executor.execute(new ReplyHandler(replyCallback, reply));
                 }
@@ -86,7 +85,7 @@ public class ReplyHandler implements Runnable {
     private final Reply myReply;
 
     /** The callback for the reply to the message. */
-    private final Callback<Reply> myReplyCallback;
+    private final ReplyCallback myReplyCallback;
 
     /**
      * Creates a new ReplyHandler.
@@ -96,7 +95,7 @@ public class ReplyHandler implements Runnable {
      * @param reply
      *            The reply.
      */
-    public ReplyHandler(final Callback<Reply> replyCallback, final Reply reply) {
+    public ReplyHandler(final ReplyCallback replyCallback, final Reply reply) {
         super();
         myReplyCallback = replyCallback;
         myReply = reply;
@@ -111,7 +110,7 @@ public class ReplyHandler implements Runnable {
      * @param exception
      *            The thrown exception.
      */
-    public ReplyHandler(final Callback<Reply> replyCallback,
+    public ReplyHandler(final ReplyCallback replyCallback,
             final Throwable exception) {
         super();
         myReplyCallback = replyCallback;

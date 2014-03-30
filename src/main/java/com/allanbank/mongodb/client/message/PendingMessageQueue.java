@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -12,9 +12,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.LockType;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 
 /**
  * PendingMessageQueue provides an optimized queue for pending messages inspired
@@ -76,7 +76,7 @@ import com.allanbank.mongodb.client.Message;
  * @see <a href="http://code.google.com/p/disruptor/">Disruptor Project</a>
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class PendingMessageQueue {
 
@@ -235,7 +235,7 @@ public final class PendingMessageQueue {
      * @return True if the message was added, false otherwise.
      */
     public boolean offer(final Message message,
-            final Callback<Reply> replyCallback) {
+            final ReplyCallback replyCallback) {
 
         final int loop = myLooped.get();
         final int reserve = offer();
@@ -321,7 +321,7 @@ public final class PendingMessageQueue {
      *             If the thread is interrupted while waiting for the message.
      *             If thrown the message will not have been enqueued.
      */
-    public void put(final Message message, final Callback<Reply> replyCallback)
+    public void put(final Message message, final ReplyCallback replyCallback)
             throws InterruptedException {
 
         int loop = myLooped.get();
@@ -374,8 +374,8 @@ public final class PendingMessageQueue {
      *             If the thread is interrupted while waiting for the message.
      *             If thrown neither message will have been enqueued.
      */
-    public void put(final Message message, final Callback<Reply> replyCallback,
-            final Message message2, final Callback<Reply> replyCallback2)
+    public void put(final Message message, final ReplyCallback replyCallback,
+            final Message message2, final ReplyCallback replyCallback2)
             throws InterruptedException {
         int loop = myLooped.get();
         int reserve = offer2();

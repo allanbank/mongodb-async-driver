@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection;
@@ -9,10 +9,9 @@ import java.io.Closeable;
 import java.io.Flushable;
 import java.util.concurrent.TimeUnit;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.Message;
-import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 
 /**
  * Provides the lowest level interface for interacting with a MongoDB server.
@@ -22,7 +21,7 @@ import com.allanbank.mongodb.client.message.Reply;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface Connection extends Closeable, Flushable {
 
@@ -109,20 +108,6 @@ public interface Connection extends Closeable, Flushable {
     /**
      * Sends a message on the connection.
      * 
-     * @param message
-     *            The message to send on the connection.
-     * @param replyCallback
-     *            The callback to notify of responses to the messages. May be
-     *            <code>null</code>.
-     * @throws MongoDbException
-     *             On an error sending the message.
-     */
-    public void send(Message message, Callback<Reply> replyCallback)
-            throws MongoDbException;
-
-    /**
-     * Sends a message on the connection.
-     * 
      * @param message1
      *            The first message to send on the connection.
      * @param message2
@@ -134,7 +119,21 @@ public interface Connection extends Closeable, Flushable {
      *             On an error sending the message.
      */
     public void send(Message message1, Message message2,
-            Callback<Reply> replyCallback) throws MongoDbException;
+            ReplyCallback replyCallback) throws MongoDbException;
+
+    /**
+     * Sends a message on the connection.
+     * 
+     * @param message
+     *            The message to send on the connection.
+     * @param replyCallback
+     *            The callback to notify of responses to the messages. May be
+     *            <code>null</code>.
+     * @throws MongoDbException
+     *             On an error sending the message.
+     */
+    public void send(Message message, ReplyCallback replyCallback)
+            throws MongoDbException;
 
     /**
      * Notifies the connection that once all outstanding requests have been sent

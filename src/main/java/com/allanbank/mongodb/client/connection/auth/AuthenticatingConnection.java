@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -10,14 +10,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.proxy.AbstractProxyConnection;
-import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.log.Log;
 import com.allanbank.mongodb.util.log.LogFactory;
@@ -28,7 +27,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticatingConnection extends AbstractProxyConnection {
 
@@ -98,11 +97,12 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
      * </p>
      */
     @Override
-    public void send(final Message message, final Callback<Reply> replyCallback)
-            throws MongoDbException {
-        ensureAuthenticated(message);
+    public void send(final Message message1, final Message message2,
+            final ReplyCallback replyCallback) throws MongoDbException {
+        ensureAuthenticated(message1);
+        ensureAuthenticated(message2);
 
-        super.send(message, replyCallback);
+        super.send(message1, message2, replyCallback);
     }
 
     /**
@@ -113,12 +113,11 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
      * </p>
      */
     @Override
-    public void send(final Message message1, final Message message2,
-            final Callback<Reply> replyCallback) throws MongoDbException {
-        ensureAuthenticated(message1);
-        ensureAuthenticated(message2);
+    public void send(final Message message, final ReplyCallback replyCallback)
+            throws MongoDbException {
+        ensureAuthenticated(message);
 
-        super.send(message1, message2, replyCallback);
+        super.send(message, replyCallback);
     }
 
     /**

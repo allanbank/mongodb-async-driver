@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -37,6 +37,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.client.ClusterType;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.CallbackReply;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
@@ -49,7 +50,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 /**
  * ClusterPingerTest provides tests for the {@link ClusterPinger} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterPingerTest {
     /** The pinger being tested. */
@@ -1037,7 +1038,7 @@ public class ClusterPingerTest {
      *            The reply to provide to the callback.
      * @return The CallbackReply.
      */
-    protected Callback<Reply> cbAndClose(final DocumentBuilder... builders) {
+    protected ReplyCallback cbAndClose(final DocumentBuilder... builders) {
         return cbAndClose(CallbackReply.reply(builders));
     }
 
@@ -1048,7 +1049,7 @@ public class ClusterPingerTest {
      *            The reply to provide to the callback.
      * @return The CallbackReply.
      */
-    protected Callback<Reply> cbAndClose(final Reply reply) {
+    protected ReplyCallback cbAndClose(final Reply reply) {
         EasyMock.capture(new CloseCallbackReply(reply));
         return null;
     }
@@ -1060,7 +1061,7 @@ public class ClusterPingerTest {
      *            The error to provide to the callback.
      * @return The CallbackReply.
      */
-    protected Callback<Reply> cbAndClose(final Throwable error) {
+    protected ReplyCallback cbAndClose(final Throwable error) {
         EasyMock.capture(new CloseCallbackReply(error));
         return null;
     }
@@ -1070,7 +1071,7 @@ public class ClusterPingerTest {
      * 
      * @return The CallbackReply.
      */
-    protected Callback<Reply> cbAndCloseError() {
+    protected ReplyCallback cbAndCloseError() {
         EasyMock.capture(new CloseCallbackReply(new Throwable("Injected -3")));
         return null;
     }
@@ -1098,7 +1099,7 @@ public class ClusterPingerTest {
      * 
      * @return The CallbackReply.
      */
-    private Callback<Reply> cbAndCloseWithConn(final DocumentBuilder builder,
+    private ReplyCallback cbAndCloseWithConn(final DocumentBuilder builder,
             final Server state, final Connection conn) {
         class CloseCallbackWithSetConnection extends CloseCallbackReply {
 
@@ -1130,7 +1131,7 @@ public class ClusterPingerTest {
      * 
      * @return The CallbackReply.
      */
-    private Callback<Reply> cbWithConn(final DocumentBuilder builder,
+    private ReplyCallback cbWithConn(final DocumentBuilder builder,
             final Server state, final Connection conn) {
         class CallbackWithSetConnection extends CallbackCapture<Reply> {
 

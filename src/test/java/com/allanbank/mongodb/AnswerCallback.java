@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -9,24 +9,24 @@ import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 
 import com.allanbank.mongodb.client.callback.AddressAware;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
+import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * AnswerCallback provides the ability to provide replies to callbacks.
  * 
  * @param <R>
  *            The type for the reply callback.
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AnswerCallback<R> implements IArgumentMatcher {
     /**
      * Helper for matching callbacks and triggering them at method invocation
      * time.
      * 
-     * @param clazz
-     *            The class for the callback reply.
      * @return <code>null</code>
      */
-    public static <T> Callback<T> callback(final Class<T> clazz) {
+    public static <T> ReplyCallback callback() {
         EasyMock.reportMatcher(new AnswerCallback<T>());
         return null;
     }
@@ -35,15 +35,12 @@ public class AnswerCallback<R> implements IArgumentMatcher {
      * Helper for matching callbacks and triggering them at method invocation
      * time.
      * 
-     * @param clazz
-     *            The class for the callback reply.
-     * @param error
-     *            The error to provide the callback.
+     * @param reply
+     *            The reply to give the callback when matching.
      * @return <code>null</code>
      */
-    public static <T> Callback<T> callback(final Class<T> clazz,
-            final Throwable error) {
-        EasyMock.reportMatcher(new AnswerCallback<T>(error));
+    public static ReplyCallback callback(final Reply reply) {
+        EasyMock.reportMatcher(new AnswerCallback<Reply>(reply));
         return null;
     }
 
@@ -57,6 +54,20 @@ public class AnswerCallback<R> implements IArgumentMatcher {
      */
     public static <T> Callback<T> callback(final T reply) {
         EasyMock.reportMatcher(new AnswerCallback<T>(reply));
+        return null;
+    }
+
+    /**
+     * Helper for matching callbacks and triggering them at method invocation
+     * time.
+     * 
+     * @param error
+     *            The error to provide the callback.
+     * 
+     * @return <code>null</code>
+     */
+    public static <T> ReplyCallback callback(final Throwable error) {
+        EasyMock.reportMatcher(new AnswerCallback<T>(error));
         return null;
     }
 

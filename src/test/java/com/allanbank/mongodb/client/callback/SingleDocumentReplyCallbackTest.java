@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -32,14 +32,15 @@ import com.allanbank.mongodb.error.ReplyException;
 import com.allanbank.mongodb.error.ShardConfigStaleException;
 
 /**
- * ReplyCallbackTest provides tests for the {@link ReplyCallback} class.
+ * SingleDocumentReplyCallbackTest provides tests for the
+ * {@link SingleDocumentReplyCallback} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReplyCallbackTest {
+public class SingleDocumentReplyCallbackTest {
 
     /**
-     * Test method for {@link ReplyCallback#asError(Reply)} .
+     * Test method for {@link SingleDocumentReplyCallback#asError(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -52,7 +53,8 @@ public class ReplyCallbackTest {
 
         replay(mockCallback);
 
-        final ReplyCallback callback = new ReplyCallback(mockCallback);
+        final SingleDocumentReplyCallback callback = new SingleDocumentReplyCallback(
+                mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply);
         assertTrue(error.getMessage().contains(
                 "Should only be a single document in the reply."));
@@ -61,7 +63,7 @@ public class ReplyCallbackTest {
     }
 
     /**
-     * Test method for {@link ReplyCallback#asError(Reply)} .
+     * Test method for {@link SingleDocumentReplyCallback#asError(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -74,7 +76,8 @@ public class ReplyCallbackTest {
 
         replay(mockCallback);
 
-        final ReplyCallback callback = new ReplyCallback(mockCallback);
+        final SingleDocumentReplyCallback callback = new SingleDocumentReplyCallback(
+                mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply);
         assertNull(error);
 
@@ -82,7 +85,7 @@ public class ReplyCallbackTest {
     }
 
     /**
-     * Test method for {@link ReplyCallback#asError(Reply)} .
+     * Test method for {@link SingleDocumentReplyCallback#asError(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -99,7 +102,8 @@ public class ReplyCallbackTest {
 
         replay(mockCallback);
 
-        final ReplyCallback callback = new ReplyCallback(mockCallback);
+        final SingleDocumentReplyCallback callback = new SingleDocumentReplyCallback(
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -110,7 +114,7 @@ public class ReplyCallbackTest {
     }
 
     /**
-     * Test method for {@link ReplyCallback#asError(Reply)} .
+     * Test method for {@link SingleDocumentReplyCallback#asError(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -127,7 +131,8 @@ public class ReplyCallbackTest {
 
         replay(mockCallback);
 
-        final ReplyCallback callback = new ReplyCallback(mockCallback);
+        final SingleDocumentReplyCallback callback = new SingleDocumentReplyCallback(
+                mockCallback);
         callback.callback(reply);
 
         verify(mockCallback);
@@ -138,7 +143,7 @@ public class ReplyCallbackTest {
     }
 
     /**
-     * Test method for {@link ReplyCallback#asError(Reply)} .
+     * Test method for {@link SingleDocumentReplyCallback#asError(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -151,7 +156,8 @@ public class ReplyCallbackTest {
 
         replay(mockCallback);
 
-        final ReplyCallback callback = new ReplyCallback(mockCallback);
+        final SingleDocumentReplyCallback callback = new SingleDocumentReplyCallback(
+                mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply);
         assertNull(error);
 
@@ -160,7 +166,7 @@ public class ReplyCallbackTest {
     }
 
     /**
-     * Test method for {@link ReplyCallback#asError(Reply)} .
+     * Test method for {@link SingleDocumentReplyCallback#asError(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -173,7 +179,8 @@ public class ReplyCallbackTest {
 
         replay(mockCallback);
 
-        final ReplyCallback callback = new ReplyCallback(mockCallback);
+        final SingleDocumentReplyCallback callback = new SingleDocumentReplyCallback(
+                mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply);
         assertEquals(-1, error.getErrorNumber());
 
@@ -181,7 +188,7 @@ public class ReplyCallbackTest {
     }
 
     /**
-     * Test method for {@link ReplyCallback#asError(Reply)} .
+     * Test method for {@link SingleDocumentReplyCallback#asError(Reply)} .
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -194,7 +201,8 @@ public class ReplyCallbackTest {
 
         replay(mockCallback);
 
-        final ReplyCallback callback = new ReplyCallback(mockCallback);
+        final SingleDocumentReplyCallback callback = new SingleDocumentReplyCallback(
+                mockCallback);
         final ReplyException error = (ReplyException) callback.asError(reply);
         assertNull(error);
 
@@ -202,7 +210,7 @@ public class ReplyCallbackTest {
     }
 
     /**
-     * Test method for {@link ReplyCallback#convert(Reply)}.
+     * Test method for {@link SingleDocumentReplyCallback#convert(Reply)}.
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -215,14 +223,15 @@ public class ReplyCallbackTest {
 
         replay(mockCallback);
 
-        final ReplyCallback callback = new ReplyCallback(mockCallback);
+        final SingleDocumentReplyCallback callback = new SingleDocumentReplyCallback(
+                mockCallback);
         assertNull(callback.convert(reply));
 
         verify(mockCallback);
     }
 
     /**
-     * Test method for {@link ReplyCallback#convert(Reply)}.
+     * Test method for {@link SingleDocumentReplyCallback#convert(Reply)}.
      */
     @SuppressWarnings("unchecked")
     @Test
@@ -235,7 +244,8 @@ public class ReplyCallbackTest {
 
         replay(mockCallback);
 
-        final ReplyCallback callback = new ReplyCallback(mockCallback);
+        final SingleDocumentReplyCallback callback = new SingleDocumentReplyCallback(
+                mockCallback);
         assertSame(docs.get(0), callback.convert(reply));
 
         verify(mockCallback);

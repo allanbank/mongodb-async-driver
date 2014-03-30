@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -35,7 +35,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.client.callback.ReplyCallback;
+import com.allanbank.mongodb.client.callback.SingleDocumentReplyCallback;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
@@ -43,7 +43,7 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * MongoDatabaseImplTest provides tests for the {@link MongoDatabaseImpl} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("unchecked")
 public class MongoDatabaseImplTest {
@@ -475,7 +475,8 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), anyObject(ReplyCallback.class));
+        myMockClient.send(eq(message),
+                anyObject(SingleDocumentReplyCallback.class));
         expectLastCall();
 
         replay(mockCallback);
@@ -505,7 +506,8 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), anyObject(ReplyCallback.class));
+        myMockClient.send(eq(message),
+                anyObject(SingleDocumentReplyCallback.class));
         expectLastCall();
 
         replay(mockCallback);
@@ -535,7 +537,8 @@ public class MongoDatabaseImplTest {
 
         final Command message = new Command("test", commandDoc.build());
 
-        myMockClient.send(eq(message), anyObject(ReplyCallback.class));
+        myMockClient.send(eq(message),
+                anyObject(SingleDocumentReplyCallback.class));
         expectLastCall();
 
         replay(mockCallback);

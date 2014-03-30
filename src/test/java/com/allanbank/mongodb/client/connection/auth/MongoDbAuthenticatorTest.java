@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -21,11 +21,11 @@ import java.util.List;
 import org.easymock.Capture;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Reply;
@@ -34,7 +34,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 /**
  * MongoDbAuthenticatorTest provides tests for the {@link MongoDbAuthenticator}.
  * 
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoDbAuthenticatorTest {
 
@@ -53,9 +53,9 @@ public class MongoDbAuthenticatorTest {
                                 'r', 'e', 't' }).build();
 
         final Capture<Message> getNonceCapture = new Capture<Message>();
-        final Capture<Callback<Reply>> getNonceReplyCapture = new Capture<Callback<Reply>>();
+        final Capture<ReplyCallback> getNonceReplyCapture = new Capture<ReplyCallback>();
         final Capture<Message> authCapture = new Capture<Message>();
-        final Capture<Callback<Reply>> authReplyCapture = new Capture<Callback<Reply>>();
+        final Capture<ReplyCallback> authReplyCapture = new Capture<ReplyCallback>();
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -130,9 +130,9 @@ public class MongoDbAuthenticatorTest {
                                 'r', 'e', 't' }).build();
 
         final Capture<Message> getNonceCapture = new Capture<Message>();
-        final Capture<Callback<Reply>> getNonceReplyCapture = new Capture<Callback<Reply>>();
+        final Capture<ReplyCallback> getNonceReplyCapture = new Capture<ReplyCallback>();
         final Capture<Message> authCapture = new Capture<Message>();
-        final Capture<Callback<Reply>> authReplyCapture = new Capture<Callback<Reply>>();
+        final Capture<ReplyCallback> authReplyCapture = new Capture<ReplyCallback>();
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -207,7 +207,7 @@ public class MongoDbAuthenticatorTest {
                                 'r', 'e', 't' }).build();
 
         final Capture<Message> getNonceCapture = new Capture<Message>();
-        final Capture<Callback<Reply>> getNonceReplyCapture = new Capture<Callback<Reply>>();
+        final Capture<ReplyCallback> getNonceReplyCapture = new Capture<ReplyCallback>();
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -264,7 +264,7 @@ public class MongoDbAuthenticatorTest {
                                 'r', 'e', 't' }).build();
 
         final Capture<Message> getNonceCapture = new Capture<Message>();
-        final Capture<Callback<Reply>> getNonceReplyCapture = new Capture<Callback<Reply>>();
+        final Capture<ReplyCallback> getNonceReplyCapture = new Capture<ReplyCallback>();
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -320,7 +320,7 @@ public class MongoDbAuthenticatorTest {
                                 'r', 'e', 't' }).build();
 
         final Capture<Message> getNonceCapture = new Capture<Message>();
-        final Capture<Callback<Reply>> getNonceReplyCapture = new Capture<Callback<Reply>>();
+        final Capture<ReplyCallback> getNonceReplyCapture = new Capture<ReplyCallback>();
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -376,9 +376,9 @@ public class MongoDbAuthenticatorTest {
                                 'r', 'e', 't' }).build();
 
         final Capture<Message> getNonceCapture = new Capture<Message>();
-        final Capture<Callback<Reply>> getNonceReplyCapture = new Capture<Callback<Reply>>();
+        final Capture<ReplyCallback> getNonceReplyCapture = new Capture<ReplyCallback>();
         final Capture<Message> authCapture = new Capture<Message>();
-        final Capture<Callback<Reply>> authReplyCapture = new Capture<Callback<Reply>>();
+        final Capture<ReplyCallback> authReplyCapture = new Capture<ReplyCallback>();
 
         final Connection mockConnection = createMock(Connection.class);
 

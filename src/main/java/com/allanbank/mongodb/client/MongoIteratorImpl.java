@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -21,6 +21,7 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.message.CursorableMessage;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.KillCursors;
@@ -34,7 +35,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoIteratorImpl implements MongoIterator<Document> {
 
@@ -66,7 +67,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
     private int myLimit = 0;
 
     /** The {@link Future} that will be updated with the next set of results. */
-    private FutureCallback<Reply> myNextReply;
+    private FutureReplyCallback myNextReply;
 
     /** The read preference to subsequent requests. */
     private final ReadPreference myReadPerference;
@@ -91,7 +92,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
      */
     public MongoIteratorImpl(final CursorableMessage originalQuery,
             final Client client, final String server, final Reply reply) {
-        myNextReply = new FutureCallback<Reply>();
+        myNextReply = new FutureReplyCallback();
         myNextReply.callback(reply);
 
         myReadPerference = ReadPreference.server(server);
@@ -550,7 +551,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
         final GetMore getMore = new GetMore(myDatabaseName, myCollectionName,
                 myCursorId, nextBatchSize(), myReadPerference);
 
-        myNextReply = new FutureCallback<Reply>();
+        myNextReply = new FutureReplyCallback();
         myClient.send(getMore, myNextReply);
     }
 }

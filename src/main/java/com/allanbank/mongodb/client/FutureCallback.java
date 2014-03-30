@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -31,12 +31,9 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
-
-    /** The class for the {@link FutureCallback}. */
-    public static final Class<?> CLASS = FutureCallback.class;
 
     /** Logger to log exceptions caught when running myPendingListeners. */
     public static final Log LOG = LogFactory.getLog(FutureCallback.class);

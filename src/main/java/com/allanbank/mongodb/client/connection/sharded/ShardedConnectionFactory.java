@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.sharded;
@@ -19,7 +19,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.client.ClusterType;
-import com.allanbank.mongodb.client.FutureCallback;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
@@ -41,7 +41,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedConnectionFactory implements ConnectionFactory {
 
@@ -347,7 +347,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                 false);
 
         // Send the request...
-        final FutureCallback<Reply> future = new FutureCallback<Reply>();
+        final FutureReplyCallback future = new FutureReplyCallback();
         conn.send(query, future);
 
         // Receive the response.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -28,6 +28,7 @@ import com.allanbank.mongodb.builder.BatchedWriteMode;
 import com.allanbank.mongodb.client.callback.AbstractReplyCallback;
 import com.allanbank.mongodb.client.callback.BatchedInsertCountingCallback;
 import com.allanbank.mongodb.client.callback.BatchedWriteCallback;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.Insert;
@@ -38,7 +39,7 @@ import com.allanbank.mongodb.client.message.Update;
  * BatchedAsyncMongoCollectionImpl provides the implementation for the
  * {@link BatchedAsyncMongoCollection}.
  * 
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedAsyncMongoCollectionImpl extends
         AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
@@ -247,7 +248,6 @@ public class BatchedAsyncMongoCollectionImpl extends
          * @param collection
          *            The Collection the we are flushing operations for.
          */
-        @SuppressWarnings("unchecked")
         public synchronized void flush(
                 final BatchedAsyncMongoCollectionImpl collection) {
 
@@ -275,12 +275,12 @@ public class BatchedAsyncMongoCollectionImpl extends
                         final Object[] sendArg = (Object[]) toSend;
                         if (sendArg.length == 2) {
                             serialized.send((Message) sendArg[0],
-                                    (Callback<Reply>) sendArg[1]);
+                                    (ReplyCallback) sendArg[1]);
                         }
                         else {
                             serialized.send((Message) sendArg[0],
                                     (Message) sendArg[1],
-                                    (Callback<Reply>) sendArg[2]);
+                                    (ReplyCallback) sendArg[2]);
                         }
                     }
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -10,11 +10,10 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
-import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -23,7 +22,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractProxyConnection implements Connection {
 
@@ -213,10 +212,10 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public void send(final Message message, final Callback<Reply> replyCallback)
-            throws MongoDbException {
+    public void send(final Message message1, final Message message2,
+            final ReplyCallback replyCallback) throws MongoDbException {
         try {
-            myProxiedConnection.send(message, replyCallback);
+            myProxiedConnection.send(message1, message2, replyCallback);
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -231,10 +230,10 @@ public abstract class AbstractProxyConnection implements Connection {
      * </p>
      */
     @Override
-    public void send(final Message message1, final Message message2,
-            final Callback<Reply> replyCallback) throws MongoDbException {
+    public void send(final Message message, final ReplyCallback replyCallback)
+            throws MongoDbException {
         try {
-            myProxiedConnection.send(message1, message2, replyCallback);
+            myProxiedConnection.send(message, replyCallback);
         }
         catch (final MongoDbException error) {
             onExceptin(error);

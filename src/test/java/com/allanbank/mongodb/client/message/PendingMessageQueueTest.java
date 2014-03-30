@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 
@@ -17,14 +17,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.LockType;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.callback.ReplyCallback;
 
 /**
  * PendingMessageQueueTest provides tests for the {@link PendingMessageQueue}.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class PendingMessageQueueTest {
 
@@ -591,7 +591,7 @@ public class PendingMessageQueueTest {
     }
 
     /**
-     * Test method for {@link PendingMessageQueue#put(Message, Callback)} .
+     * Test method for {@link PendingMessageQueue#put(Message, ReplyCallback)} .
      */
     @Test
     public void testPutIntMessageCallbackOfReply() {
@@ -620,7 +620,8 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for
-     * {@link PendingMessageQueue#put(Message, Callback, Message, Callback)} .
+     * {@link PendingMessageQueue#put(Message, ReplyCallback, Message, ReplyCallback)}
+     * .
      */
     @Test
     public void testPutIntMessageCallbackOfReplyIntMessageCallbackOfReply() {
@@ -663,7 +664,8 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for
-     * {@link PendingMessageQueue#put(Message, Callback, Message, Callback)} .
+     * {@link PendingMessageQueue#put(Message, ReplyCallback, Message, ReplyCallback)}
+     * .
      */
     @Test
     public void testPutIntMessageCallbackOfReplyIntMessageCallbackOfReplyWhenFull() {
@@ -691,7 +693,8 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for
-     * {@link PendingMessageQueue#put(Message, Callback, Message, Callback)} .
+     * {@link PendingMessageQueue#put(Message, ReplyCallback, Message, ReplyCallback)}
+     * .
      */
     @Test
     public void testPutIntMessageCallbackOfReplyIntMessageCallbackOfReplyWhenFullWithLowLatencyLock() {
@@ -719,7 +722,8 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for
-     * {@link PendingMessageQueue#put(Message, Callback, Message, Callback)} .
+     * {@link PendingMessageQueue#put(Message, ReplyCallback, Message, ReplyCallback)}
+     * .
      */
     @Test
     public void testPutIntMessageCallbackOfReplyIntMessageCallbackOfReplyWithLowLatencyLock() {
@@ -761,7 +765,7 @@ public class PendingMessageQueueTest {
     }
 
     /**
-     * Test method for {@link PendingMessageQueue#put(Message, Callback)} .
+     * Test method for {@link PendingMessageQueue#put(Message, ReplyCallback)} .
      */
     @Test
     public void testPutIntMessageCallbackOfReplyWhenFull() {
@@ -788,7 +792,7 @@ public class PendingMessageQueueTest {
     }
 
     /**
-     * Test method for {@link PendingMessageQueue#put(Message, Callback)} .
+     * Test method for {@link PendingMessageQueue#put(Message, ReplyCallback)} .
      */
     @Test
     public void testPutIntMessageCallbackOfReplyWhenFullWithLowLatencyLock() {
@@ -815,7 +819,7 @@ public class PendingMessageQueueTest {
     }
 
     /**
-     * Test method for {@link PendingMessageQueue#put(Message, Callback)} .
+     * Test method for {@link PendingMessageQueue#put(Message, ReplyCallback)} .
      */
     @Test
     public void testPutIntMessageCallbackOfReplyWithLowLatencyLock() {
