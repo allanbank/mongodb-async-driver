@@ -7,15 +7,11 @@ package com.allanbank.mongodb.client.connection.rs;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.proxy.AbstractProxyMultipleConnection;
@@ -133,7 +129,7 @@ public class ReplicaSetConnection extends
     @Override
     protected List<Server> findPotentialKeys(final Message message1,
             final Message message2) throws MongoDbException {
-        List<Server> servers = doFindPotentialServers(message1, message2);
+        List<Server> servers = findReplicaSetMembers(message1, message2);
 
         if (servers.isEmpty()) {
             // If we get here and a reconnect is in progress then
@@ -141,34 +137,15 @@ public class ReplicaSetConnection extends
             // secondary... Once the reconnect is complete, try again.
             if (myMainKey == null) {
                 // Wait for a reconnect.
-                final ConnectionInfo<Server> newConnInfo = myReconnectStrategy
-                        .reconnectPrimary();
+                final ConnectionInfo<Server> newConnInfo = reconnectMain();
                 if (newConnInfo != null) {
                     updateMain(newConnInfo);
-                    servers = doFindPotentialServers(message1, message2);
+                    servers = findReplicaSetMembers(message1, message2);
                 }
             }
 
             if (servers.isEmpty()) {
-                final StringBuilder builder = new StringBuilder();
-                builder.append("Could not find any servers for the following set of read preferences: ");
-                final Set<ReadPreference> seen = new HashSet<ReadPreference>();
-                for (final Message message : Arrays.asList(message1, message2)) {
-                    if (message != null) {
-                        final ReadPreference prefs = message
-                                .getReadPreference();
-                        if (seen.add(prefs)) {
-                            if (seen.size() > 1) {
-                                builder.append(", ");
-                            }
-                            builder.append(prefs);
-                        }
-                    }
-                }
-
-                builder.append('.');
-
-                throw new MongoDbException(builder.toString());
+                throw createReconnectFailure(message1, message2);
             }
         }
 
@@ -196,7 +173,7 @@ public class ReplicaSetConnection extends
      *            The second message to send. May be <code>null</code>.
      * @return The servers that can be used.
      */
-    private List<Server> doFindPotentialServers(final Message message1,
+    private List<Server> findReplicaSetMembers(final Message message1,
             final Message message2) {
         List<Server> servers = Collections.emptyList();
 

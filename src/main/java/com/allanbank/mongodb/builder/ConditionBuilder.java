@@ -5240,13 +5240,13 @@ public class ConditionBuilder implements DocumentAssignable {
         myEqualsComparison = null;
 
         final DocumentBuilder builder = BuilderFactory.start();
-        final ArrayBuilder box = builder.pushArray(GeospatialOperator.POLYGON);
+        final ArrayBuilder polygon = builder.pushArray(GeospatialOperator.POLYGON);
 
-        box.pushArray().addDouble(p1.getX()).addDouble(p1.getY());
-        box.pushArray().addDouble(p2.getX()).addDouble(p2.getY());
-        box.pushArray().addDouble(p3.getX()).addDouble(p3.getY());
+        polygon.pushArray().add(p1.getX()).add(p1.getY());
+        polygon.pushArray().add(p2.getX()).add(p2.getY());
+        polygon.pushArray().add(p3.getX()).add(p3.getY());
         for (final Point2D p : points) {
-            box.pushArray().addDouble(p.getX()).addDouble(p.getY());
+            polygon.pushArray().add(p.getX()).add(p.getY());
         }
 
         myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(

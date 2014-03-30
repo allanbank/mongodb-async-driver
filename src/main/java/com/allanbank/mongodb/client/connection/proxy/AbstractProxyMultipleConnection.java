@@ -9,8 +9,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -420,6 +424,36 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      */
     protected abstract List<K> findPotentialKeys(final Message message1,
             final Message message2) throws MongoDbException;
+
+    /**
+     * Creates a exception for a reconnect failure.
+     * 
+     * @param message1
+     *            The first message to send.
+     * @param message2
+     *            The second message to send.
+     * @return The exception.
+     */
+    protected MongoDbException createReconnectFailure(final Message message1,
+            final Message message2) {
+        final StringBuilder builder = new StringBuilder(
+                "Could not find any servers for the following set of read preferences: ");
+        final Set<ReadPreference> seen = new HashSet<ReadPreference>();
+        for (final Message message : Arrays.asList(message1, message2)) {
+            if (message != null) {
+                final ReadPreference prefs = message.getReadPreference();
+                if (seen.add(prefs)) {
+                    if (seen.size() > 1) {
+                        builder.append(", ");
+                    }
+                    builder.append(prefs);
+                }
+            }
+        }
+        builder.append('.');
+
+        return new MongoDbException(builder.toString());
+    }
 
     /**
      * Tries to reconnect previously open {@link Connection}s. If a connection
