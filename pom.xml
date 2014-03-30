@@ -409,6 +409,7 @@
 					<rulesets>
 						<ruleset>src/pmd-ruleset.xml</ruleset>
 					</rulesets>
+					<skipEmptyReport>false</skipEmptyReport>
 					<excludes>
 						<!-- JavaCC generated Classes. -->
 						<exclude>**/JavaCharStream.java</exclude>
