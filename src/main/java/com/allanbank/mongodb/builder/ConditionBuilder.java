@@ -4459,7 +4459,7 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Adds a text query to the query.
      * <p>
-     * Note that the {@value MiscellaneousOperator#TEXT $text} operator does not
+     * Note that the {@link MiscellaneousOperator#TEXT $text} operator does not
      * apply to a specific field but applies to the document as a whole. For
      * this reason only a single {@link #text} condition can be used. Calling
      * multiple <tt>text(...)</tt> methods overwrites previous values.
@@ -4482,7 +4482,7 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Adds a text query to the query.
      * <p>
-     * Note that the {@value MiscellaneousOperator#TEXT $text} operator does not
+     * Note that the {@link MiscellaneousOperator#TEXT $text} operator does not
      * apply to a specific field but applies to the document as a whole. For
      * this reason only a single {@link #text} condition can be used. Calling
      * multiple <tt>text(...)</tt> methods overwrites previous values.
@@ -4511,7 +4511,7 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Adds an ad-hoc JavaScript condition to the query.
      * <p>
-     * Note that the {@value MiscellaneousOperator#WHERE $where} operator does
+     * Note that the {@link MiscellaneousOperator#WHERE $where} operator does
      * not apply to a specific field but applies to the document as a whole. For
      * this reason only a single {@link #where(String)} condition can be used.
      * Calling multiple <tt>where(...)</tt> methods overwrites previous values.
@@ -5240,7 +5240,8 @@ public class ConditionBuilder implements DocumentAssignable {
         myEqualsComparison = null;
 
         final DocumentBuilder builder = BuilderFactory.start();
-        final ArrayBuilder polygon = builder.pushArray(GeospatialOperator.POLYGON);
+        final ArrayBuilder polygon = builder
+                .pushArray(GeospatialOperator.POLYGON);
 
         polygon.pushArray().add(p1.getX()).add(p1.getY());
         polygon.pushArray().add(p2.getX()).add(p2.getY());

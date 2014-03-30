@@ -46,7 +46,7 @@ import com.allanbank.mongodb.bson.element.UuidElement;
 public class BuilderFactoryTest {
 
     /**
-     * Test method for {@link BuilderFactory#a(boolean[])}.
+     * Test method for {@link BuilderFactory#a(Boolean...)}.
      */
     @Test
     public void testABooleanArray() {
@@ -89,7 +89,7 @@ public class BuilderFactoryTest {
     }
 
     /**
-     * Test method for {@link BuilderFactory#a(double[])}.
+     * Test method for {@link BuilderFactory#a(double...)}.
      */
     @Test
     public void testADoubleArray() {
@@ -109,7 +109,7 @@ public class BuilderFactoryTest {
     }
 
     /**
-     * Test method for {@link BuilderFactory#a(int[])}.
+     * Test method for {@link BuilderFactory#a(Integer...)}.
      */
     @Test
     public void testAIntArray() {
@@ -119,7 +119,7 @@ public class BuilderFactoryTest {
     }
 
     /**
-     * Test method for {@link BuilderFactory#a(long[])}.
+     * Test method for {@link BuilderFactory#a(Long...)}.
      */
     @Test
     public void testALongArray() {
