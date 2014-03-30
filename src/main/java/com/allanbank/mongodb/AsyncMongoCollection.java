@@ -39,7 +39,7 @@ public interface AsyncMongoCollection {
     public static final Document ALL = EmptyDocument.INSTANCE;
 
     /** An (empty) update document to perform no actual modifications. */
-    public static final Document NONE = MongoCollection.ALL;
+    public static final Document NONE = AsyncMongoCollection.ALL;
 
     /**
      * Invokes a aggregate command on the server.

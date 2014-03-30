@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder.write;
 
+import java.io.Serializable;
+
 /**
  * WriteOperation provides a common interface for all types of writes:
  * {@link InsertOperation inserts}, {@link UpdateOperation updates}, and
@@ -16,7 +18,7 @@ package com.allanbank.mongodb.builder.write;
  *          before being removed or modified.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface WriteOperation {
+public interface WriteOperation extends Serializable {
     /**
      * Returns the type of write. Can be used to avoid instance of calls and in
      * switch statements.

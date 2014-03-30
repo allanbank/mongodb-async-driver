@@ -1,9 +1,11 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.impl;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,7 +49,7 @@ import com.allanbank.mongodb.bson.Element;
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ImmutableDocument extends AbstractDocument {
 
@@ -64,7 +66,7 @@ public class ImmutableDocument extends AbstractDocument {
     private final List<Element> myElements;
 
     /** The size of the document when encoded as bytes. */
-    private final long mySize;
+    private transient long mySize;
 
     /**
      * Constructs a new {@link ImmutableDocument}.
@@ -158,5 +160,21 @@ public class ImmutableDocument extends AbstractDocument {
         }
 
         return result;
+    }
+
+    /**
+     * Sets the transient state of this document.
+     * 
+     * @param in
+     *            The input stream.
+     * @throws ClassNotFoundException
+     *             On a failure loading a class in this classed reachable tree.
+     * @throws IOException
+     *             On a failure reading from the stream.
+     */
+    private void readObject(final ObjectInputStream in)
+            throws ClassNotFoundException, IOException {
+        in.defaultReadObject();
+        mySize = computeSize();
     }
 }

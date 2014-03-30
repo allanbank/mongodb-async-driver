@@ -19,6 +19,9 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  */
 public class DeleteOperation implements WriteOperation {
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 3493986989972041392L;
+
     /** The query to find the documents to delete. */
     private final Document myQuery;
 

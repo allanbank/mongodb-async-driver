@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.builder;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -72,7 +73,10 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  *          removed or modified.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BatchedWrite {
+public class BatchedWrite implements Serializable {
+
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 6984498574755719178L;
 
     /** The first version of MongoDB to support the {@code aggregate} command. */
     public static final Version REQUIRED_VERSION = Version.parse("2.5.5");

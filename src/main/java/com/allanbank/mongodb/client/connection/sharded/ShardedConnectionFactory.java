@@ -259,7 +259,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      *         information.
      */
     protected BootstrapState createBootstrapState() {
-        return new BootstrapState();
+        return new BootstrapState(!myConfig.isAutoDiscoverServers());
     }
 
     /**
@@ -419,11 +419,21 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      * BootstrapState provides the ability to track the state of the bootstrap
      * for the sharded cluster.
      * 
-     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected class BootstrapState {
+    protected static class BootstrapState {
         /** Tracks if the {@code mongos} servers have been located. */
-        private boolean myMongosFound = !myConfig.isAutoDiscoverServers();
+        private boolean myMongosFound;
+
+        /**
+         * Creates a new BootstrapState.
+         * 
+         * @param mongosFound
+         *            Initials if we should look for the {@code mongos} servers.
+         */
+        protected BootstrapState(boolean mongosFound) {
+            myMongosFound = mongosFound;
+        }
 
         /**
          * Indicates when the bootstrap is complete.

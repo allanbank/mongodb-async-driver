@@ -19,6 +19,9 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  */
 public class UpdateOperation implements WriteOperation {
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = 4657279430768594366L;
+
     /** If true then the update can modify multiple documents. */
     private final boolean myMultiUpdate;
 

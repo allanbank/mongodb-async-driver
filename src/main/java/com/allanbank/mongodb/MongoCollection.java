@@ -9,7 +9,6 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.IntegerElement;
-import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.BatchedWrite;
 import com.allanbank.mongodb.builder.ConditionBuilder;
@@ -46,10 +45,10 @@ import com.allanbank.mongodb.builder.MapReduce;
  */
 public interface MongoCollection extends AsyncMongoCollection {
     /** An (empty) query document to find all documents. */
-    public static final Document ALL = EmptyDocument.INSTANCE;
+    public static final Document ALL = AsyncMongoCollection.ALL;
 
     /** An (empty) update document to perform no actual modifications. */
-    public static final Document NONE = MongoCollection.ALL;
+    public static final Document NONE = AsyncMongoCollection.NONE;
 
     /**
      * Invokes a aggregate command on the server.

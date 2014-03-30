@@ -20,6 +20,9 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  */
 public class InsertOperation implements WriteOperation {
 
+    /** Serialization version for the class. */
+    private static final long serialVersionUID = -197787616022990034L;
+
     /** The document to insert. */
     private final Document myDocument;
 

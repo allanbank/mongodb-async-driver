@@ -1,9 +1,11 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc. 
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.impl;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +24,7 @@ import com.allanbank.mongodb.bson.element.ObjectIdElement;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class RootDocument extends AbstractDocument {
 
@@ -199,5 +201,21 @@ public class RootDocument extends AbstractDocument {
         }
 
         return myElementMap.get();
+    }
+
+    /**
+     * Sets the transient state of this document.
+     * 
+     * @param in
+     *            The input stream.
+     * @throws ClassNotFoundException
+     *             On a failure loading a class in this classed reachable tree.
+     * @throws IOException
+     *             On a failure reading from the stream.
+     */
+    private void readObject(final ObjectInputStream in)
+            throws ClassNotFoundException, IOException {
+        in.defaultReadObject();
+        mySize = computeSize(getElements());
     }
 }

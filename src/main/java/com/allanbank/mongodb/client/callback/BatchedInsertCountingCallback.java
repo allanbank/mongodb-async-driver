@@ -85,13 +85,13 @@ public class BatchedInsertCountingCallback implements Callback<Reply> {
      */
     @Override
     public void callback(final Reply result) {
-        int count;
+        boolean publish;
         synchronized (this) {
             myCount += 1;
-            count = myCount;
+            publish = (myCount == myExpectedCount);
         }
 
-        if (count == myExpectedCount) {
+        if (publish) {
             publish();
         }
     }
@@ -104,11 +104,11 @@ public class BatchedInsertCountingCallback implements Callback<Reply> {
      */
     @Override
     public void exception(final Throwable thrown) {
-        int count;
+        boolean publish;
         synchronized (this) {
             myFailureCount += 1;
             myCount += 1;
-            count = myCount;
+            publish = (myCount == myExpectedCount);
 
             if (mySkipped == null) {
                 mySkipped = new ArrayList<WriteOperation>();
@@ -124,7 +124,7 @@ public class BatchedInsertCountingCallback implements Callback<Reply> {
             }
         }
 
-        if (count == myExpectedCount) {
+        if (publish) {
             publish();
         }
     }
@@ -133,17 +133,27 @@ public class BatchedInsertCountingCallback implements Callback<Reply> {
      * Publishes the final results to {@link #myForwardCallback}.
      */
     private void publish() {
-        if (myFailureCount == 0) {
-            final Document doc = BuilderFactory.start().add("ok", 1)
-                    .add("n", myExpectedCount).build();
-            final Reply reply = new Reply(0, 0, 0,
-                    Collections.singletonList(doc), false, false, false, false);
+        Reply reply = null;
+        BatchedWriteException error = null;
+        synchronized (this) {
+            if (myFailureCount == 0) {
+                final Document doc = BuilderFactory.start().add("ok", 1)
+                        .add("n", myExpectedCount).build();
+                reply = new Reply(0, 0, 0, Collections.singletonList(doc),
+                        false, false, false, false);
+            }
+            else {
+                error = new BatchedWriteException(myLastWrite,
+                        (myExpectedCount - myFailureCount), mySkipped, myErrors);
+            }
+        }
 
+        // Reply outside the lock.
+        if (reply != null) {
             myForwardCallback.callback(reply);
         }
         else {
-            myForwardCallback.exception(new BatchedWriteException(myLastWrite,
-                    (myExpectedCount - myFailureCount), mySkipped, myErrors));
+            myForwardCallback.exception(error);
         }
     }
 
