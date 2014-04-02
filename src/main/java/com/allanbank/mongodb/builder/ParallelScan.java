@@ -5,8 +5,6 @@
 
 package com.allanbank.mongodb.builder;
 
-import java.util.concurrent.TimeUnit;
-
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 
@@ -42,9 +40,6 @@ public class ParallelScan {
     /** The number of documents to be returned in each batch of results. */
     private final int myBatchSize;
 
-    /** The maximum amount of time to allow the query to run. */
-    private final long myMaximumTimeMilliseconds;
-
     /** The preference for which servers to use to retrieve the results. */
     private final ReadPreference myReadPreference;
 
@@ -66,7 +61,6 @@ public class ParallelScan {
     protected ParallelScan(final Builder builder) {
         myBatchSize = builder.myBatchSize;
         myReadPreference = builder.myReadPreference;
-        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
         myRequestedIteratorCount = builder.myRequestedIteratorCount;
     }
 
@@ -77,19 +71,6 @@ public class ParallelScan {
      */
     public int getBatchSize() {
         return myBatchSize;
-    }
-
-    /**
-     * Returns the maximum amount of time to allow the query to run on the
-     * Server before it is aborted.
-     * 
-     * @return The maximum amount of time to allow the query to run on the
-     *         Server before it is aborted.
-     * 
-     * @since MongoDB 2.6
-     */
-    public long getMaximumTimeMilliseconds() {
-        return myMaximumTimeMilliseconds;
     }
 
     /**
@@ -129,9 +110,6 @@ public class ParallelScan {
 
         /** The number of documents to be returned in each batch of results. */
         protected int myBatchSize;
-
-        /** The maximum amount of time to allow the query to run. */
-        protected long myMaximumTimeMilliseconds;
 
         /** The preference for which servers to use to retrieve the results. */
         protected ReadPreference myReadPreference;
@@ -179,30 +157,6 @@ public class ParallelScan {
         }
 
         /**
-         * Sets the maximum number of milliseconds to allow the query to run
-         * before aborting the request on the server.
-         * <p>
-         * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
-         * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
-         * </p>
-         * 
-         * @param timeLimit
-         *            The new maximum amount of time to allow the query to run.
-         * @param timeLimitUnits
-         *            The units for the maximum amount of time to allow the
-         *            query to run.
-         * 
-         * @return This {@link Builder} for method call chaining.
-         * 
-         * @since MongoDB 2.6
-         */
-        public Builder maximumTime(final long timeLimit,
-                final TimeUnit timeLimitUnits) {
-            return setMaximumTimeMilliseconds(timeLimitUnits
-                    .toMillis(timeLimit));
-        }
-
-        /**
          * Sets the preference for the set of servers to retrieve the results
          * from.
          * <p>
@@ -244,7 +198,6 @@ public class ParallelScan {
         public Builder reset() {
             myBatchSize = 0;
             myReadPreference = null;
-            myMaximumTimeMilliseconds = 0;
             myRequestedIteratorCount = 1;
 
             return this;
@@ -261,23 +214,6 @@ public class ParallelScan {
          */
         public Builder setBatchSize(final int batchSize) {
             myBatchSize = batchSize;
-            return this;
-        }
-
-        /**
-         * Sets the maximum number of milliseconds to allow the query to run
-         * before aborting the request on the server.
-         * 
-         * @param maximumTimeMilliseconds
-         *            The new maximum number of milliseconds to allow the query
-         *            to run.
-         * @return This {@link Builder} for method call chaining.
-         * 
-         * @since MongoDB 2.6
-         */
-        public Builder setMaximumTimeMilliseconds(
-                final long maximumTimeMilliseconds) {
-            myMaximumTimeMilliseconds = maximumTimeMilliseconds;
             return this;
         }
 

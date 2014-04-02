@@ -2710,47 +2710,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
-     * Verifies running a {@code parallelCollectionScan} command will timeout.
-     */
-    @Test
-    public void testParallelScanTimeout() {
-        // Adjust the configuration to keep the connection count down
-        // and let the inserts happen asynchronously.
-        myConfig.setDefaultDurability(Durability.NONE);
-        myConfig.setMaxConnectionCount(1);
-
-        final MongoCollection collection = largeCollection(myMongo);
-
-        final int cores = Runtime.getRuntime().availableProcessors();
-        final ParallelScan.Builder scan = ParallelScan.builder()
-                .requestedIteratorCount(cores).batchSize(10)
-                .maximumTime(1, TimeUnit.MILLISECONDS);
-        try {
-            final Collection<MongoIterator<Document>> iterators = collection
-                    .parallelScan(scan);
-            for (final MongoIterator<Document> iter : iterators) {
-                for (final Document found : iter) {
-                    assertNotNull(found);
-                }
-            }
-            fail("Should have thrown a timeout exception before "
-                    + "scanning the entire collection.");
-        }
-        catch (final MaximumTimeLimitExceededException expected) {
-            // Good.
-        }
-        catch (final ServerVersionException sve) {
-            // Check if we are talking to a recent MongoDB instance
-            // That supports the parallelCollectionScan.
-            assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(ParallelScan.REQUIRED_VERSION));
-
-            // Humm - Should have worked. Rethrow the error.
-            throw sve;
-        }
-    }
-
-    /**
      * Verifies the ability to adjust the profiling status.
      */
     @Test

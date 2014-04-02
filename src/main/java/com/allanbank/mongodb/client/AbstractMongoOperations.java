@@ -670,9 +670,6 @@ public abstract class AbstractMongoOperations {
 
         builder.add("parallelCollectionScan", getName());
         builder.add("numCursors", parallelScan.getRequestedIteratorCount());
-        if (parallelScan.getMaximumTimeMilliseconds() > 0) {
-            builder.add("maxTimeMS", parallelScan.getMaximumTimeMilliseconds());
-        }
 
         // Should be last since might wrap command in a $query element.
         final ReadPreference readPreference = updateReadPreference(builder,
