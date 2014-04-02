@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.client;
 
+import java.util.Collection;
+
 import com.allanbank.mongodb.AsyncMongoCollection;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
@@ -31,6 +33,7 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.ParallelScan;
 
 /**
  * Helper class for forward all methods to the canonical version (which is
@@ -1477,6 +1480,84 @@ public abstract class AbstractAsyncMongoCollection extends
     public ListenableFuture<MongoIterator<Document>> mapReduceAsync(
             final MapReduce.Builder command) throws MongoDbException {
         return mapReduceAsync(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #parallelScanAsync(Callback, ParallelScan)}
+     * .
+     * </p>
+     */
+    @Override
+    public void parallelScanAsync(
+            final Callback<Collection<MongoIterator<Document>>> results,
+            final ParallelScan.Builder parallelScan) throws MongoDbException {
+        parallelScanAsync(results, parallelScan.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #parallelScanAsync(Callback, ParallelScan)}
+     * method with an adapter for the {@link LambdaCallback}.
+     * </p>
+     */
+    @Override
+    public void parallelScanAsync(
+            final LambdaCallback<Collection<MongoIterator<Document>>> results,
+            final ParallelScan parallelScan) throws MongoDbException {
+        parallelScanAsync(
+                new LambdaCallbackAdapter<Collection<MongoIterator<Document>>>(
+                        results), parallelScan);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #parallelScanAsync(LambdaCallback, ParallelScan)} method.
+     * </p>
+     */
+    @Override
+    public void parallelScanAsync(
+            final LambdaCallback<Collection<MongoIterator<Document>>> results,
+            final ParallelScan.Builder parallelScan) throws MongoDbException {
+        parallelScanAsync(results, parallelScan.build());
+
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #parallelScanAsync(Callback, ParallelScan)}
+     * .
+     * </p>
+     */
+    @Override
+    public ListenableFuture<Collection<MongoIterator<Document>>> parallelScanAsync(
+            final ParallelScan parallelScan) throws MongoDbException {
+        final FutureCallback<Collection<MongoIterator<Document>>> future;
+        future = new FutureCallback<Collection<MongoIterator<Document>>>(
+                getLockType());
+
+        parallelScanAsync(future, parallelScan);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #parallelScanAsync(Callback, ParallelScan)}
+     * .
+     * </p>
+     */
+    @Override
+    public ListenableFuture<Collection<MongoIterator<Document>>> parallelScanAsync(
+            final ParallelScan.Builder parallelScan) throws MongoDbException {
+        return parallelScanAsync(parallelScan.build());
     }
 
     /**

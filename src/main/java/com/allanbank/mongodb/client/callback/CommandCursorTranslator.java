@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.client.callback;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.bson.Document;
@@ -77,7 +78,104 @@ public class CommandCursorTranslator {
     /* package */static Reply translate(final Reply reply) {
         Reply result = reply;
 
-        // Check for a single Document. Both formats to translate are single
+        final List<Reply> replies = translateAll(reply);
+        if (replies.size() == 1) {
+            result = replies.get(0);
+        }
+
+        return result;
+    }
+
+    /**
+     * Translates the reply from a single document command reply into a list of
+     * standard replies with the appropriate bit flips.
+     * <p>
+     * There are three possible formats we can receive:
+     * <ul>
+     * <li>
+     * Traditional embedded documents under a {@code results} array. For this
+     * format all of the Documents are in the single reply and there is no
+     * cursor established.<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {
+     *   results : [
+     *      { ... },
+     *      ...
+     *   ],
+     *   ok : 1
+     * }
+     * </code>
+     * </pre>
+     * 
+     * </blockquote></li>
+     * <li>
+     * A {@code cursor} sub-document containing the cursor's {@code id} and
+     * {@code firstBatch}. This reply establishes (possibly) a cursor for the
+     * results.<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {
+     *   cursor : {
+     *     id : 1234567,
+     *     firstBatch : [
+     *       { ... },
+     *       ...
+     *     ]
+     *   }
+     *   ok : 1
+     * }
+     * </code>
+     * </pre>
+     * 
+     * </blockquote></li>
+     * <li>
+     * A {@code cursor} sub-array with a sub-document as each element of the
+     * array. Each sub-document contains a {@code cursor} document as described
+     * above.<blockquote>
+     * 
+     * <pre>
+     * <code>
+     * {
+     *   cursors: [
+     *     {
+     *       cursor : {
+     *         id : 1234567,
+     *         firstBatch : [
+     *           { ... },
+     *           ...
+     *         ]
+     *       }
+     *     },
+     *     {
+     *       cursor : {
+     *         id : 1234568,
+     *         firstBatch : [
+     *           { ... },
+     *           ...
+     *         ]
+     *       }
+     *     },
+     *     ...
+     *   ]
+     *   ok : 1
+     * }
+     * </code>
+     * </pre>
+     * 
+     * </blockquote></li>
+     * 
+     * 
+     * @param reply
+     *            The reply to translate.
+     * @return The translated reply.
+     */
+    /* package */static List<Reply> translateAll(final Reply reply) {
+        List<Reply> results = Collections.singletonList(reply);
+
+        // Check for a single Document. All formats to translate are single
         // documents.
         final List<Document> docs = reply.getResults();
         if (docs.size() == 1) {
@@ -86,29 +184,57 @@ public class CommandCursorTranslator {
             List<DocumentElement> resultDocs;
 
             // Traditional first since it is more probable in the short term.
-            final ArrayElement results = replyDoc.get(ArrayElement.class,
+            final ArrayElement resultArray = replyDoc.get(ArrayElement.class,
                     "result");
-            if (results != null) {
+            if (resultArray != null) {
                 resultDocs = replyDoc.find(DocumentElement.class, "result",
                         ".*");
-                result = translate(reply, 0L, resultDocs);
+                results = Collections.singletonList(translate(reply, 0L,
+                        resultDocs));
             }
             else {
                 final DocumentElement cursor = replyDoc.get(
                         DocumentElement.class, "cursor");
                 if (cursor != null) {
-                    final NumericElement id = cursor.get(NumericElement.class,
-                            "id");
-                    resultDocs = cursor.find(DocumentElement.class,
-                            "firstBatch", ".*");
-
-                    result = translate(reply,
-                            (id == null) ? 0 : id.getLongValue(), resultDocs);
+                    results = translate(reply,
+                            Collections.singletonList(cursor));
+                }
+                else {
+                    final List<DocumentElement> cursors = replyDoc.find(
+                            DocumentElement.class, "cursors", ".*", "cursor");
+                    if (!cursors.isEmpty()) {
+                        results = translate(reply, cursors);
+                    }
                 }
             }
         }
 
-        return result;
+        return results;
+    }
+
+    /**
+     * Translates a list of cursor documents into a list of {@link Reply}
+     * objects.
+     * 
+     * @param reply
+     *            The original reply.
+     * @param cursors
+     *            The cursor sub documents.
+     * @return The translated replies.
+     */
+    private static List<Reply> translate(final Reply reply,
+            final List<DocumentElement> cursors) {
+
+        final List<Reply> results = new ArrayList<Reply>(cursors.size());
+        for (final DocumentElement cursor : cursors) {
+            final NumericElement id = cursor.get(NumericElement.class, "id");
+            final List<DocumentElement> resultDocs = cursor.find(
+                    DocumentElement.class, "firstBatch", ".*");
+
+            results.add(translate(reply, (id == null) ? 0 : id.getLongValue(),
+                    resultDocs));
+        }
+        return results;
     }
 
     /**

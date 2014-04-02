@@ -383,6 +383,36 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
     }
 
     /**
+     * Creates a exception for a reconnect failure.
+     * 
+     * @param message1
+     *            The first message to send.
+     * @param message2
+     *            The second message to send.
+     * @return The exception.
+     */
+    protected MongoDbException createReconnectFailure(final Message message1,
+            final Message message2) {
+        final StringBuilder builder = new StringBuilder(
+                "Could not find any servers for the following set of read preferences: ");
+        final Set<ReadPreference> seen = new HashSet<ReadPreference>();
+        for (final Message message : Arrays.asList(message1, message2)) {
+            if (message != null) {
+                final ReadPreference prefs = message.getReadPreference();
+                if (seen.add(prefs)) {
+                    if (seen.size() > 1) {
+                        builder.append(", ");
+                    }
+                    builder.append(prefs);
+                }
+            }
+        }
+        builder.append('.');
+
+        return new MongoDbException(builder.toString());
+    }
+
+    /**
      * Sends the message on the connection.
      * 
      * @param conn
@@ -424,36 +454,6 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      */
     protected abstract List<K> findPotentialKeys(final Message message1,
             final Message message2) throws MongoDbException;
-
-    /**
-     * Creates a exception for a reconnect failure.
-     * 
-     * @param message1
-     *            The first message to send.
-     * @param message2
-     *            The second message to send.
-     * @return The exception.
-     */
-    protected MongoDbException createReconnectFailure(final Message message1,
-            final Message message2) {
-        final StringBuilder builder = new StringBuilder(
-                "Could not find any servers for the following set of read preferences: ");
-        final Set<ReadPreference> seen = new HashSet<ReadPreference>();
-        for (final Message message : Arrays.asList(message1, message2)) {
-            if (message != null) {
-                final ReadPreference prefs = message.getReadPreference();
-                if (seen.add(prefs)) {
-                    if (seen.size() > 1) {
-                        builder.append(", ");
-                    }
-                    builder.append(prefs);
-                }
-            }
-        }
-        builder.append('.');
-
-        return new MongoDbException(builder.toString());
-    }
 
     /**
      * Tries to reconnect previously open {@link Connection}s. If a connection

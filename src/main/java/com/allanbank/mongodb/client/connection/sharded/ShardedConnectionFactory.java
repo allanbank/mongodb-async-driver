@@ -431,7 +431,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
          * @param mongosFound
          *            Initials if we should look for the {@code mongos} servers.
          */
-        protected BootstrapState(boolean mongosFound) {
+        protected BootstrapState(final boolean mongosFound) {
             myMongosFound = mongosFound;
         }
 

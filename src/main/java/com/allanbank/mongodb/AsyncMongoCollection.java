@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb;
 
+import java.util.Collection;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -18,6 +20,7 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.ParallelScan;
 
 /**
  * Interface for asynchronously interacting with a MongoDB collection.
@@ -50,7 +53,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public abstract ListenableFuture<MongoIterator<Document>> aggregateAsync(
+    public ListenableFuture<MongoIterator<Document>> aggregateAsync(
             Aggregate command) throws MongoDbException;
 
     /**
@@ -62,7 +65,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public abstract ListenableFuture<MongoIterator<Document>> aggregateAsync(
+    public ListenableFuture<MongoIterator<Document>> aggregateAsync(
             Aggregate.Builder command) throws MongoDbException;
 
     /**
@@ -75,9 +78,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public abstract void aggregateAsync(
-            Callback<MongoIterator<Document>> results, Aggregate command)
-            throws MongoDbException;
+    public void aggregateAsync(Callback<MongoIterator<Document>> results,
+            Aggregate command) throws MongoDbException;
 
     /**
      * Invokes a aggregate command on the server.
@@ -89,9 +91,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public abstract void aggregateAsync(
-            Callback<MongoIterator<Document>> results, Aggregate.Builder command)
-            throws MongoDbException;
+    public void aggregateAsync(Callback<MongoIterator<Document>> results,
+            Aggregate.Builder command) throws MongoDbException;
 
     /**
      * Invokes a aggregate command on the server.
@@ -103,9 +104,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public abstract void aggregateAsync(
-            LambdaCallback<MongoIterator<Document>> results, Aggregate command)
-            throws MongoDbException;
+    public void aggregateAsync(LambdaCallback<MongoIterator<Document>> results,
+            Aggregate command) throws MongoDbException;
 
     /**
      * Invokes a aggregate command on the server.
@@ -117,8 +117,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error executing the aggregate command.
      */
-    public abstract void aggregateAsync(
-            LambdaCallback<MongoIterator<Document>> results,
+    public void aggregateAsync(LambdaCallback<MongoIterator<Document>> results,
             Aggregate.Builder command) throws MongoDbException;
 
     /**
@@ -131,7 +130,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<Long> countAsync() throws MongoDbException;
+    public ListenableFuture<Long> countAsync() throws MongoDbException;
 
     /**
      * Counts the set of documents in the collection.
@@ -146,7 +145,20 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void countAsync(Callback<Long> results)
+    public void countAsync(Callback<Long> results) throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param results
+     *            The callback to notify of the results.
+     * @param count
+     *            The count command.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     */
+    public void countAsync(Callback<Long> results, Count count)
             throws MongoDbException;
 
     /**
@@ -160,21 +172,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error counting the documents.
      */
-    public abstract void countAsync(Callback<Long> results, Count count)
-            throws MongoDbException;
-
-    /**
-     * Counts the set of documents matching the query document in the
-     * collection.
-     * 
-     * @param results
-     *            The callback to notify of the results.
-     * @param count
-     *            The count command.
-     * @throws MongoDbException
-     *             On an error counting the documents.
-     */
-    public abstract void countAsync(Callback<Long> results, Count.Builder count)
+    public void countAsync(Callback<Long> results, Count.Builder count)
             throws MongoDbException;
 
     /**
@@ -188,8 +186,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void countAsync(Callback<Long> results,
-            DocumentAssignable query) throws MongoDbException;
+    public void countAsync(Callback<Long> results, DocumentAssignable query)
+            throws MongoDbException;
 
     /**
      * Counts the set of documents matching the query document in the
@@ -205,9 +203,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void countAsync(Callback<Long> results,
-            DocumentAssignable query, ReadPreference readPreference)
-            throws MongoDbException;
+    public void countAsync(Callback<Long> results, DocumentAssignable query,
+            ReadPreference readPreference) throws MongoDbException;
 
     /**
      * Counts the set of documents in the collection.
@@ -225,21 +222,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void countAsync(Callback<Long> results,
-            ReadPreference readPreference) throws MongoDbException;
-
-    /**
-     * Counts the set of documents matching the query document in the
-     * collection.
-     * 
-     * @param count
-     *            The count command.
-     * @return The future that will be updated with the count once it is
-     *         completed.
-     * @throws MongoDbException
-     *             On an error counting the documents.
-     */
-    public abstract ListenableFuture<Long> countAsync(Count count)
+    public void countAsync(Callback<Long> results, ReadPreference readPreference)
             throws MongoDbException;
 
     /**
@@ -253,7 +236,21 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error counting the documents.
      */
-    public abstract ListenableFuture<Long> countAsync(Count.Builder count)
+    public ListenableFuture<Long> countAsync(Count count)
+            throws MongoDbException;
+
+    /**
+     * Counts the set of documents matching the query document in the
+     * collection.
+     * 
+     * @param count
+     *            The count command.
+     * @return The future that will be updated with the count once it is
+     *         completed.
+     * @throws MongoDbException
+     *             On an error counting the documents.
+     */
+    public ListenableFuture<Long> countAsync(Count.Builder count)
             throws MongoDbException;
 
     /**
@@ -267,7 +264,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<Long> countAsync(DocumentAssignable query)
+    public ListenableFuture<Long> countAsync(DocumentAssignable query)
             throws MongoDbException;
 
     /**
@@ -284,7 +281,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<Long> countAsync(DocumentAssignable query,
+    public ListenableFuture<Long> countAsync(DocumentAssignable query,
             ReadPreference readPreference) throws MongoDbException;
 
     /**
@@ -300,7 +297,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void countAsync(LambdaCallback<Long> results)
+    public void countAsync(LambdaCallback<Long> results)
             throws MongoDbException;
 
     /**
@@ -314,7 +311,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error counting the documents.
      */
-    public abstract void countAsync(LambdaCallback<Long> results, Count count)
+    public void countAsync(LambdaCallback<Long> results, Count count)
             throws MongoDbException;
 
     /**
@@ -328,8 +325,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error counting the documents.
      */
-    public abstract void countAsync(LambdaCallback<Long> results,
-            Count.Builder count) throws MongoDbException;
+    public void countAsync(LambdaCallback<Long> results, Count.Builder count)
+            throws MongoDbException;
 
     /**
      * Counts the set of documents matching the query document in the
@@ -342,7 +339,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void countAsync(LambdaCallback<Long> results,
+    public void countAsync(LambdaCallback<Long> results,
             DocumentAssignable query) throws MongoDbException;
 
     /**
@@ -359,7 +356,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void countAsync(LambdaCallback<Long> results,
+    public void countAsync(LambdaCallback<Long> results,
             DocumentAssignable query, ReadPreference readPreference)
             throws MongoDbException;
 
@@ -379,7 +376,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void countAsync(LambdaCallback<Long> results,
+    public void countAsync(LambdaCallback<Long> results,
             ReadPreference readPreference) throws MongoDbException;
 
     /**
@@ -395,8 +392,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<Long> countAsync(
-            ReadPreference readPreference) throws MongoDbException;
+    public ListenableFuture<Long> countAsync(ReadPreference readPreference)
+            throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -409,7 +406,145 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public abstract void deleteAsync(Callback<Long> results,
+    public void deleteAsync(Callback<Long> results, DocumentAssignable query)
+            throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query. If
+     *            the durability of the operation is NONE then this will be -1.
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param singleDelete
+     *            If true then only a single document will be deleted. If
+     *            running in a sharded environment then this field must be false
+     *            or the query must contain the shard key.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public void deleteAsync(Callback<Long> results, DocumentAssignable query,
+            boolean singleDelete) throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query. If
+     *            the durability of the operation is NONE then this will be -1.
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param singleDelete
+     *            If true then only a single document will be deleted. If
+     *            running in a sharded environment then this field must be false
+     *            or the query must contain the shard key.
+     * @param durability
+     *            The durability for the delete.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public void deleteAsync(Callback<Long> results, DocumentAssignable query,
+            boolean singleDelete, Durability durability)
+            throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query. If
+     *            the durability of the operation is NONE then this will be -1.
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param durability
+     *            The durability for the delete.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public void deleteAsync(Callback<Long> results, DocumentAssignable query,
+            Durability durability) throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @return ListenableFuture that will be updated with the results of the
+     *         delete. If the durability of the operation is NONE then this will
+     *         be -1.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public ListenableFuture<Long> deleteAsync(DocumentAssignable query)
+            throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param singleDelete
+     *            If true then only a single document will be deleted. If
+     *            running in a sharded environment then this field must be false
+     *            or the query must contain the shard key.
+     * @return ListenableFuture that will be updated with the results of the
+     *         delete. If the durability of the operation is NONE then this will
+     *         be -1.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public ListenableFuture<Long> deleteAsync(DocumentAssignable query,
+            boolean singleDelete) throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param singleDelete
+     *            If true then only a single document will be deleted. If
+     *            running in a sharded environment then this field must be false
+     *            or the query must contain the shard key.
+     * @param durability
+     *            The durability for the delete.
+     * @return ListenableFuture that will be updated with the results of the
+     *         delete. If the durability of the operation is NONE then this will
+     *         be -1.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public ListenableFuture<Long> deleteAsync(DocumentAssignable query,
+            boolean singleDelete, Durability durability)
+            throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @param durability
+     *            The durability for the delete.
+     * @return ListenableFuture that will be updated with the results of the
+     *         delete. If the durability of the operation is NONE then this will
+     *         be -1.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public ListenableFuture<Long> deleteAsync(DocumentAssignable query,
+            Durability durability) throws MongoDbException;
+
+    /**
+     * Deletes a set of documents matching a query from the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query. If
+     *            the durability of the operation is NONE then this will be -1.
+     * @param query
+     *            Query to locate the documents to be deleted.
+     * @throws MongoDbException
+     *             On an error deleting the documents.
+     */
+    public void deleteAsync(LambdaCallback<Long> results,
             DocumentAssignable query) throws MongoDbException;
 
     /**
@@ -427,7 +562,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public abstract void deleteAsync(Callback<Long> results,
+    public void deleteAsync(LambdaCallback<Long> results,
             DocumentAssignable query, boolean singleDelete)
             throws MongoDbException;
 
@@ -448,7 +583,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public abstract void deleteAsync(Callback<Long> results,
+    public void deleteAsync(LambdaCallback<Long> results,
             DocumentAssignable query, boolean singleDelete,
             Durability durability) throws MongoDbException;
 
@@ -465,149 +600,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error deleting the documents.
      */
-    public abstract void deleteAsync(Callback<Long> results,
-            DocumentAssignable query, Durability durability)
-            throws MongoDbException;
-
-    /**
-     * Deletes a set of documents matching a query from the collection.
-     * 
-     * @param query
-     *            Query to locate the documents to be deleted.
-     * @return ListenableFuture that will be updated with the results of the
-     *         delete. If the durability of the operation is NONE then this will
-     *         be -1.
-     * @throws MongoDbException
-     *             On an error deleting the documents.
-     */
-    public abstract ListenableFuture<Long> deleteAsync(DocumentAssignable query)
-            throws MongoDbException;
-
-    /**
-     * Deletes a set of documents matching a query from the collection.
-     * 
-     * @param query
-     *            Query to locate the documents to be deleted.
-     * @param singleDelete
-     *            If true then only a single document will be deleted. If
-     *            running in a sharded environment then this field must be false
-     *            or the query must contain the shard key.
-     * @return ListenableFuture that will be updated with the results of the
-     *         delete. If the durability of the operation is NONE then this will
-     *         be -1.
-     * @throws MongoDbException
-     *             On an error deleting the documents.
-     */
-    public abstract ListenableFuture<Long> deleteAsync(
-            DocumentAssignable query, boolean singleDelete)
-            throws MongoDbException;
-
-    /**
-     * Deletes a set of documents matching a query from the collection.
-     * 
-     * @param query
-     *            Query to locate the documents to be deleted.
-     * @param singleDelete
-     *            If true then only a single document will be deleted. If
-     *            running in a sharded environment then this field must be false
-     *            or the query must contain the shard key.
-     * @param durability
-     *            The durability for the delete.
-     * @return ListenableFuture that will be updated with the results of the
-     *         delete. If the durability of the operation is NONE then this will
-     *         be -1.
-     * @throws MongoDbException
-     *             On an error deleting the documents.
-     */
-    public abstract ListenableFuture<Long> deleteAsync(
-            DocumentAssignable query, boolean singleDelete,
-            Durability durability) throws MongoDbException;
-
-    /**
-     * Deletes a set of documents matching a query from the collection.
-     * 
-     * @param query
-     *            Query to locate the documents to be deleted.
-     * @param durability
-     *            The durability for the delete.
-     * @return ListenableFuture that will be updated with the results of the
-     *         delete. If the durability of the operation is NONE then this will
-     *         be -1.
-     * @throws MongoDbException
-     *             On an error deleting the documents.
-     */
-    public abstract ListenableFuture<Long> deleteAsync(
-            DocumentAssignable query, Durability durability)
-            throws MongoDbException;
-
-    /**
-     * Deletes a set of documents matching a query from the collection.
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query. If
-     *            the durability of the operation is NONE then this will be -1.
-     * @param query
-     *            Query to locate the documents to be deleted.
-     * @throws MongoDbException
-     *             On an error deleting the documents.
-     */
-    public abstract void deleteAsync(LambdaCallback<Long> results,
-            DocumentAssignable query) throws MongoDbException;
-
-    /**
-     * Deletes a set of documents matching a query from the collection.
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query. If
-     *            the durability of the operation is NONE then this will be -1.
-     * @param query
-     *            Query to locate the documents to be deleted.
-     * @param singleDelete
-     *            If true then only a single document will be deleted. If
-     *            running in a sharded environment then this field must be false
-     *            or the query must contain the shard key.
-     * @throws MongoDbException
-     *             On an error deleting the documents.
-     */
-    public abstract void deleteAsync(LambdaCallback<Long> results,
-            DocumentAssignable query, boolean singleDelete)
-            throws MongoDbException;
-
-    /**
-     * Deletes a set of documents matching a query from the collection.
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query. If
-     *            the durability of the operation is NONE then this will be -1.
-     * @param query
-     *            Query to locate the documents to be deleted.
-     * @param singleDelete
-     *            If true then only a single document will be deleted. If
-     *            running in a sharded environment then this field must be false
-     *            or the query must contain the shard key.
-     * @param durability
-     *            The durability for the delete.
-     * @throws MongoDbException
-     *             On an error deleting the documents.
-     */
-    public abstract void deleteAsync(LambdaCallback<Long> results,
-            DocumentAssignable query, boolean singleDelete,
-            Durability durability) throws MongoDbException;
-
-    /**
-     * Deletes a set of documents matching a query from the collection.
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query. If
-     *            the durability of the operation is NONE then this will be -1.
-     * @param query
-     *            Query to locate the documents to be deleted.
-     * @param durability
-     *            The durability for the delete.
-     * @throws MongoDbException
-     *             On an error deleting the documents.
-     */
-    public abstract void deleteAsync(LambdaCallback<Long> results,
+    public void deleteAsync(LambdaCallback<Long> results,
             DocumentAssignable query, Durability durability)
             throws MongoDbException;
 
@@ -621,9 +614,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void distinctAsync(
-            Callback<MongoIterator<Element>> results, Distinct command)
-            throws MongoDbException;
+    public void distinctAsync(Callback<MongoIterator<Element>> results,
+            Distinct command) throws MongoDbException;
 
     /**
      * Invokes a distinct command on the server.
@@ -635,9 +627,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void distinctAsync(
-            Callback<MongoIterator<Element>> results, Distinct.Builder command)
-            throws MongoDbException;
+    public void distinctAsync(Callback<MongoIterator<Element>> results,
+            Distinct.Builder command) throws MongoDbException;
 
     /**
      * Invokes a distinct command on the server.
@@ -648,7 +639,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<MongoIterator<Element>> distinctAsync(
+    public ListenableFuture<MongoIterator<Element>> distinctAsync(
             Distinct command) throws MongoDbException;
 
     /**
@@ -660,7 +651,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<MongoIterator<Element>> distinctAsync(
+    public ListenableFuture<MongoIterator<Element>> distinctAsync(
             Distinct.Builder command) throws MongoDbException;
 
     /**
@@ -673,9 +664,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void distinctAsync(
-            LambdaCallback<MongoIterator<Element>> results, Distinct command)
-            throws MongoDbException;
+    public void distinctAsync(LambdaCallback<MongoIterator<Element>> results,
+            Distinct command) throws MongoDbException;
 
     /**
      * Invokes a distinct command on the server.
@@ -687,8 +677,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void distinctAsync(
-            LambdaCallback<MongoIterator<Element>> results,
+    public void distinctAsync(LambdaCallback<MongoIterator<Element>> results,
             Distinct.Builder command) throws MongoDbException;
 
     /**
@@ -701,8 +690,8 @@ public interface AsyncMongoCollection {
      *             On an error finding the documents.
      * @since MongoDB 2.6
      */
-    public abstract ListenableFuture<Document> explainAsync(
-            Aggregate aggregation) throws MongoDbException;
+    public ListenableFuture<Document> explainAsync(Aggregate aggregation)
+            throws MongoDbException;
 
     /**
      * Explains the way that the aggregation will be performed.
@@ -714,8 +703,8 @@ public interface AsyncMongoCollection {
      *             On an error finding the documents.
      * @since MongoDB 2.6
      */
-    public abstract ListenableFuture<Document> explainAsync(
-            Aggregate.Builder aggregation) throws MongoDbException;
+    public ListenableFuture<Document> explainAsync(Aggregate.Builder aggregation)
+            throws MongoDbException;
 
     /**
      * Explains the way that the aggregation will be performed.
@@ -728,8 +717,8 @@ public interface AsyncMongoCollection {
      *             On an error finding the documents.
      * @since MongoDB 2.6
      */
-    public abstract void explainAsync(Callback<Document> results,
-            Aggregate aggregation) throws MongoDbException;
+    public void explainAsync(Callback<Document> results, Aggregate aggregation)
+            throws MongoDbException;
 
     /**
      * Explains the way that the aggregation will be performed.
@@ -742,7 +731,7 @@ public interface AsyncMongoCollection {
      *             On an error finding the documents.
      * @since MongoDB 2.6
      */
-    public abstract void explainAsync(Callback<Document> results,
+    public void explainAsync(Callback<Document> results,
             Aggregate.Builder aggregation) throws MongoDbException;
 
     /**
@@ -755,7 +744,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void explainAsync(Callback<Document> results, Find query)
+    public void explainAsync(Callback<Document> results, Find query)
             throws MongoDbException;
 
     /**
@@ -768,19 +757,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void explainAsync(Callback<Document> results,
-            Find.Builder query) throws MongoDbException;
-
-    /**
-     * Explains the way that the document will be performed.
-     * 
-     * @param query
-     *            The query details.
-     * @return The document describing the method used to execute the query.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public abstract ListenableFuture<Document> explainAsync(Find query)
+    public void explainAsync(Callback<Document> results, Find.Builder query)
             throws MongoDbException;
 
     /**
@@ -792,7 +769,19 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<Document> explainAsync(Find.Builder query)
+    public ListenableFuture<Document> explainAsync(Find query)
+            throws MongoDbException;
+
+    /**
+     * Explains the way that the document will be performed.
+     * 
+     * @param query
+     *            The query details.
+     * @return The document describing the method used to execute the query.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public ListenableFuture<Document> explainAsync(Find.Builder query)
             throws MongoDbException;
 
     /**
@@ -806,7 +795,7 @@ public interface AsyncMongoCollection {
      *             On an error finding the documents.
      * @since MongoDB 2.6
      */
-    public abstract void explainAsync(LambdaCallback<Document> results,
+    public void explainAsync(LambdaCallback<Document> results,
             Aggregate aggregation) throws MongoDbException;
 
     /**
@@ -820,7 +809,7 @@ public interface AsyncMongoCollection {
      *             On an error finding the documents.
      * @since MongoDB 2.6
      */
-    public abstract void explainAsync(LambdaCallback<Document> results,
+    public void explainAsync(LambdaCallback<Document> results,
             Aggregate.Builder aggregation) throws MongoDbException;
 
     /**
@@ -833,8 +822,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void explainAsync(LambdaCallback<Document> results,
-            Find query) throws MongoDbException;
+    public void explainAsync(LambdaCallback<Document> results, Find query)
+            throws MongoDbException;
 
     /**
      * Explains the way that the query will be performed.
@@ -846,7 +835,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void explainAsync(LambdaCallback<Document> results,
+    public void explainAsync(LambdaCallback<Document> results,
             Find.Builder query) throws MongoDbException;
 
     /**
@@ -860,7 +849,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void findAndModifyAsync(Callback<Document> results,
+    public void findAndModifyAsync(Callback<Document> results,
             FindAndModify command) throws MongoDbException;
 
     /**
@@ -874,7 +863,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void findAndModifyAsync(Callback<Document> results,
+    public void findAndModifyAsync(Callback<Document> results,
             FindAndModify.Builder command) throws MongoDbException;
 
     /**
@@ -887,8 +876,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<Document> findAndModifyAsync(
-            FindAndModify command) throws MongoDbException;
+    public ListenableFuture<Document> findAndModifyAsync(FindAndModify command)
+            throws MongoDbException;
 
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
@@ -900,7 +889,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<Document> findAndModifyAsync(
+    public ListenableFuture<Document> findAndModifyAsync(
             FindAndModify.Builder command) throws MongoDbException;
 
     /**
@@ -914,7 +903,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void findAndModifyAsync(LambdaCallback<Document> results,
+    public void findAndModifyAsync(LambdaCallback<Document> results,
             FindAndModify command) throws MongoDbException;
 
     /**
@@ -928,7 +917,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void findAndModifyAsync(LambdaCallback<Document> results,
+    public void findAndModifyAsync(LambdaCallback<Document> results,
             FindAndModify.Builder command) throws MongoDbException;
 
     /**
@@ -941,7 +930,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void findAsync(Callback<MongoIterator<Document>> results,
+    public void findAsync(Callback<MongoIterator<Document>> results,
             DocumentAssignable query) throws MongoDbException;
 
     /**
@@ -954,8 +943,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void findAsync(Callback<MongoIterator<Document>> results,
-            Find query) throws MongoDbException;
+    public void findAsync(Callback<MongoIterator<Document>> results, Find query)
+            throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query in the collection.
@@ -967,7 +956,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void findAsync(Callback<MongoIterator<Document>> results,
+    public void findAsync(Callback<MongoIterator<Document>> results,
             Find.Builder query) throws MongoDbException;
 
     /**
@@ -979,7 +968,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<MongoIterator<Document>> findAsync(
+    public ListenableFuture<MongoIterator<Document>> findAsync(
             DocumentAssignable query) throws MongoDbException;
 
     /**
@@ -991,8 +980,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<MongoIterator<Document>> findAsync(
-            Find query) throws MongoDbException;
+    public ListenableFuture<MongoIterator<Document>> findAsync(Find query)
+            throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query in the collection.
@@ -1003,7 +992,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<MongoIterator<Document>> findAsync(
+    public ListenableFuture<MongoIterator<Document>> findAsync(
             Find.Builder query) throws MongoDbException;
 
     /**
@@ -1016,8 +1005,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void findAsync(
-            LambdaCallback<MongoIterator<Document>> results,
+    public void findAsync(LambdaCallback<MongoIterator<Document>> results,
             DocumentAssignable query) throws MongoDbException;
 
     /**
@@ -1030,9 +1018,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void findAsync(
-            LambdaCallback<MongoIterator<Document>> results, Find query)
-            throws MongoDbException;
+    public void findAsync(LambdaCallback<MongoIterator<Document>> results,
+            Find query) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query in the collection.
@@ -1044,128 +1031,12 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void findAsync(
-            LambdaCallback<MongoIterator<Document>> results, Find.Builder query)
-            throws MongoDbException;
-
-    /**
-     * Finds a single matching document in the collection.
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
-     * @param query
-     *            The query document.
-     * @throws MongoDbException
-     *             On an error finding the document.
-     */
-    public abstract void findOneAsync(Callback<Document> results,
-            DocumentAssignable query) throws MongoDbException;
-
-    /**
-     * Finds a single matching document in the collection.
-     * <p>
-     * Note that following options in the {@link Find} class do not make sense
-     * and are silently ignored by this method.
-     * <ul>
-     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
-     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
-     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
-     * document.</li>
-     * </ul>
-     * </p>
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
-     * @param query
-     *            The query details.
-     * @throws MongoDbException
-     *             On an error finding the document.
-     */
-    public abstract void findOneAsync(Callback<Document> results, Find query)
-            throws MongoDbException;
-
-    /**
-     * Finds a single matching document in the collection.
-     * <p>
-     * Note that following options in the {@link Find} class do not make sense
-     * and are silently ignored by this method.
-     * <ul>
-     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
-     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
-     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
-     * document.</li>
-     * </ul>
-     * </p>
-     * 
-     * @param results
-     *            Callback that will be notified of the results of the query.
-     * @param query
-     *            The query details.
-     * @throws MongoDbException
-     *             On an error finding the document.
-     */
-    public abstract void findOneAsync(Callback<Document> results,
+    public void findAsync(LambdaCallback<MongoIterator<Document>> results,
             Find.Builder query) throws MongoDbException;
 
     /**
      * Finds a single matching document in the collection.
      * 
-     * @param query
-     *            The query document.
-     * @return The first found document.
-     * @throws MongoDbException
-     *             On an error finding the document.
-     */
-    public abstract ListenableFuture<Document> findOneAsync(
-            DocumentAssignable query) throws MongoDbException;
-
-    /**
-     * Finds a single matching document in the collection.
-     * <p>
-     * Note that following options in the {@link Find} class do not make sense
-     * and are silently ignored by this method.
-     * <ul>
-     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
-     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
-     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
-     * document.</li>
-     * </ul>
-     * </p>
-     * 
-     * @param query
-     *            The query details.
-     * @return The first found document.
-     * @throws MongoDbException
-     *             On an error finding the document.
-     */
-    public abstract ListenableFuture<Document> findOneAsync(Find query)
-            throws MongoDbException;
-
-    /**
-     * Finds a single matching document in the collection.
-     * <p>
-     * Note that following options in the {@link Find} class do not make sense
-     * and are silently ignored by this method.
-     * <ul>
-     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
-     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
-     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
-     * document.</li>
-     * </ul>
-     * </p>
-     * 
-     * @param query
-     *            The query details.
-     * @return The first found document.
-     * @throws MongoDbException
-     *             On an error finding the document.
-     */
-    public abstract ListenableFuture<Document> findOneAsync(Find.Builder query)
-            throws MongoDbException;
-
-    /**
-     * Finds a single matching document in the collection.
-     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -1173,7 +1044,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the document.
      */
-    public abstract void findOneAsync(LambdaCallback<Document> results,
+    public void findOneAsync(Callback<Document> results,
             DocumentAssignable query) throws MongoDbException;
 
     /**
@@ -1196,8 +1067,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the document.
      */
-    public abstract void findOneAsync(LambdaCallback<Document> results,
-            Find query) throws MongoDbException;
+    public void findOneAsync(Callback<Document> results, Find query)
+            throws MongoDbException;
 
     /**
      * Finds a single matching document in the collection.
@@ -1219,7 +1090,122 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the document.
      */
-    public abstract void findOneAsync(LambdaCallback<Document> results,
+    public void findOneAsync(Callback<Document> results, Find.Builder query)
+            throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * 
+     * @param query
+     *            The query document.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public ListenableFuture<Document> findOneAsync(DocumentAssignable query)
+            throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public ListenableFuture<Document> findOneAsync(Find query)
+            throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param query
+     *            The query details.
+     * @return The first found document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public ListenableFuture<Document> findOneAsync(Find.Builder query)
+            throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query document.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public void findOneAsync(LambdaCallback<Document> results,
+            DocumentAssignable query) throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public void findOneAsync(LambdaCallback<Document> results, Find query)
+            throws MongoDbException;
+
+    /**
+     * Finds a single matching document in the collection.
+     * <p>
+     * Note that following options in the {@link Find} class do not make sense
+     * and are silently ignored by this method.
+     * <ul>
+     * <li> {@link Find#getBatchSize() Batch Size} - Automatically set to 1.</li>
+     * <li> {@link Find#getLimit() Limit} - Automatically set to 1.</li>
+     * <li> {@link Find#isTailable() Tailable} - This method only returns 1
+     * document.</li>
+     * </ul>
+     * </p>
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param query
+     *            The query details.
+     * @throws MongoDbException
+     *             On an error finding the document.
+     */
+    public void findOneAsync(LambdaCallback<Document> results,
             Find.Builder query) throws MongoDbException;
 
     /**
@@ -1232,7 +1218,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void groupByAsync(Callback<MongoIterator<Element>> results,
+    public void groupByAsync(Callback<MongoIterator<Element>> results,
             GroupBy command) throws MongoDbException;
 
     /**
@@ -1245,7 +1231,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void groupByAsync(Callback<MongoIterator<Element>> results,
+    public void groupByAsync(Callback<MongoIterator<Element>> results,
             GroupBy.Builder command) throws MongoDbException;
 
     /**
@@ -1257,24 +1243,37 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<MongoIterator<Element>> groupByAsync(
+    public ListenableFuture<MongoIterator<Element>> groupByAsync(GroupBy command)
+            throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
+     * @param command
+     *            The details of the group request.
+     * @return ListenableFuture for the group results returned.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public ListenableFuture<MongoIterator<Element>> groupByAsync(
+            GroupBy.Builder command) throws MongoDbException;
+
+    /**
+     * Invokes a group command on the server.
+     * 
+     * @param results
+     *            Callback for the group results returned.
+     * @param command
+     *            The details of the group request.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public void groupByAsync(LambdaCallback<MongoIterator<Element>> results,
             GroupBy command) throws MongoDbException;
 
     /**
      * Invokes a group command on the server.
      * 
-     * @param command
-     *            The details of the group request.
-     * @return ListenableFuture for the group results returned.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public abstract ListenableFuture<MongoIterator<Element>> groupByAsync(
-            GroupBy.Builder command) throws MongoDbException;
-
-    /**
-     * Invokes a group command on the server.
-     * 
      * @param results
      *            Callback for the group results returned.
      * @param command
@@ -1282,22 +1281,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void groupByAsync(
-            LambdaCallback<MongoIterator<Element>> results, GroupBy command)
-            throws MongoDbException;
-
-    /**
-     * Invokes a group command on the server.
-     * 
-     * @param results
-     *            Callback for the group results returned.
-     * @param command
-     *            The details of the group request.
-     * @throws MongoDbException
-     *             On an error finding the documents.
-     */
-    public abstract void groupByAsync(
-            LambdaCallback<MongoIterator<Element>> results,
+    public void groupByAsync(LambdaCallback<MongoIterator<Element>> results,
             GroupBy.Builder command) throws MongoDbException;
 
     /**
@@ -1316,9 +1300,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public abstract ListenableFuture<Integer> insertAsync(
-            boolean continueOnError, DocumentAssignable... documents)
-            throws MongoDbException;
+    public ListenableFuture<Integer> insertAsync(boolean continueOnError,
+            DocumentAssignable... documents) throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -1338,127 +1321,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public abstract ListenableFuture<Integer> insertAsync(
-            boolean continueOnError, Durability durability,
-            DocumentAssignable... documents) throws MongoDbException;
-
-    /**
-     * Inserts a set of documents into the collection.
-     * 
-     * @param results
-     *            {@link Callback} that will be notified with the results of the
-     *            insert. Currently, the value is always zero. Once <a
-     *            href="http://jira.mongodb.org/browse/SERVER-4381"
-     *            >SERVER-4381</a> is fixed then expected to be the number of
-     *            documents inserted. If the durability is NONE then returns
-     *            <code>-1</code>.
-     * @param continueOnError
-     *            If the insert should continue if one of the documents causes
-     *            an error.
-     * @param documents
-     *            The documents to add to the collection.
-     * @throws MongoDbException
-     *             On an error inserting the documents.
-     */
-    public abstract void insertAsync(Callback<Integer> results,
-            boolean continueOnError, DocumentAssignable... documents)
-            throws MongoDbException;
-
-    /**
-     * Inserts a set of documents into the collection.
-     * 
-     * @param results
-     *            {@link Callback} that will be notified with the results of the
-     *            insert. Currently, the value is always zero. Once <a
-     *            href="http://jira.mongodb.org/browse/SERVER-4381"
-     *            >SERVER-4381</a> is fixed then expected to be the number of
-     *            documents inserted. If the durability is NONE then returns
-     *            <code>-1</code>.
-     * @param continueOnError
-     *            If the insert should continue if one of the documents causes
-     *            an error.
-     * @param durability
-     *            The durability for the insert.
-     * @param documents
-     *            The documents to add to the collection.
-     * @throws MongoDbException
-     *             On an error inserting the documents.
-     */
-    public abstract void insertAsync(Callback<Integer> results,
-            boolean continueOnError, Durability durability,
-            DocumentAssignable... documents) throws MongoDbException;
-
-    /**
-     * Inserts a set of documents into the collection.
-     * 
-     * @param results
-     *            {@link Callback} that will be notified with the results of the
-     *            insert. Currently, the value is always zero. Once <a
-     *            href="http://jira.mongodb.org/browse/SERVER-4381"
-     *            >SERVER-4381</a> is fixed then expected to be the number of
-     *            documents inserted. If the durability is NONE then returns
-     *            <code>-1</code>.
-     * @param documents
-     *            The documents to add to the collection.
-     * @throws MongoDbException
-     *             On an error inserting the documents.
-     */
-    public abstract void insertAsync(Callback<Integer> results,
-            DocumentAssignable... documents) throws MongoDbException;
-
-    /**
-     * Inserts a set of documents into the collection.
-     * 
-     * @param results
-     *            {@link Callback} that will be notified with the results of the
-     *            insert. Currently, the value is always zero. Once <a
-     *            href="http://jira.mongodb.org/browse/SERVER-4381"
-     *            >SERVER-4381</a> is fixed then expected to be the number of
-     *            documents inserted. If the durability is NONE then returns
-     *            <code>-1</code>.
-     * @param durability
-     *            The durability for the insert.
-     * @param documents
-     *            The documents to add to the collection.
-     * @throws MongoDbException
-     *             On an error inserting the documents.
-     */
-    public abstract void insertAsync(Callback<Integer> results,
-            Durability durability, DocumentAssignable... documents)
-            throws MongoDbException;
-
-    /**
-     * Inserts a set of documents into the collection.
-     * 
-     * @param documents
-     *            The documents to add to the collection.
-     * @return ListenableFuture that will be updated with the results of the
-     *         insert. Currently, the value is always zero. Once <a
-     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
-     *         is fixed then expected to be the number of documents inserted. If
-     *         the durability is NONE then returns <code>-1</code>.
-     * @throws MongoDbException
-     *             On an error inserting the documents.
-     */
-    public abstract ListenableFuture<Integer> insertAsync(
-            DocumentAssignable... documents) throws MongoDbException;
-
-    /**
-     * Inserts a set of documents into the collection.
-     * 
-     * @param durability
-     *            The durability for the insert.
-     * @param documents
-     *            The documents to add to the collection.
-     * @return ListenableFuture that will be updated with the results of the
-     *         insert. Currently, the value is always zero. Once <a
-     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
-     *         is fixed then expected to be the number of documents inserted. If
-     *         the durability is NONE then returns <code>-1</code>.
-     * @throws MongoDbException
-     *             On an error inserting the documents.
-     */
-    public abstract ListenableFuture<Integer> insertAsync(
+    public ListenableFuture<Integer> insertAsync(boolean continueOnError,
             Durability durability, DocumentAssignable... documents)
             throws MongoDbException;
 
@@ -1480,7 +1343,124 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public abstract void insertAsync(LambdaCallback<Integer> results,
+    public void insertAsync(Callback<Integer> results, boolean continueOnError,
+            DocumentAssignable... documents) throws MongoDbException;
+
+    /**
+     * Inserts a set of documents into the collection.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
+     * @param continueOnError
+     *            If the insert should continue if one of the documents causes
+     *            an error.
+     * @param durability
+     *            The durability for the insert.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    public void insertAsync(Callback<Integer> results, boolean continueOnError,
+            Durability durability, DocumentAssignable... documents)
+            throws MongoDbException;
+
+    /**
+     * Inserts a set of documents into the collection.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    public void insertAsync(Callback<Integer> results,
+            DocumentAssignable... documents) throws MongoDbException;
+
+    /**
+     * Inserts a set of documents into the collection.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
+     * @param durability
+     *            The durability for the insert.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    public void insertAsync(Callback<Integer> results, Durability durability,
+            DocumentAssignable... documents) throws MongoDbException;
+
+    /**
+     * Inserts a set of documents into the collection.
+     * 
+     * @param documents
+     *            The documents to add to the collection.
+     * @return ListenableFuture that will be updated with the results of the
+     *         insert. Currently, the value is always zero. Once <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
+     *         is fixed then expected to be the number of documents inserted. If
+     *         the durability is NONE then returns <code>-1</code>.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    public ListenableFuture<Integer> insertAsync(
+            DocumentAssignable... documents) throws MongoDbException;
+
+    /**
+     * Inserts a set of documents into the collection.
+     * 
+     * @param durability
+     *            The durability for the insert.
+     * @param documents
+     *            The documents to add to the collection.
+     * @return ListenableFuture that will be updated with the results of the
+     *         insert. Currently, the value is always zero. Once <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
+     *         is fixed then expected to be the number of documents inserted. If
+     *         the durability is NONE then returns <code>-1</code>.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    public ListenableFuture<Integer> insertAsync(Durability durability,
+            DocumentAssignable... documents) throws MongoDbException;
+
+    /**
+     * Inserts a set of documents into the collection.
+     * 
+     * @param results
+     *            {@link Callback} that will be notified with the results of the
+     *            insert. Currently, the value is always zero. Once <a
+     *            href="http://jira.mongodb.org/browse/SERVER-4381"
+     *            >SERVER-4381</a> is fixed then expected to be the number of
+     *            documents inserted. If the durability is NONE then returns
+     *            <code>-1</code>.
+     * @param continueOnError
+     *            If the insert should continue if one of the documents causes
+     *            an error.
+     * @param documents
+     *            The documents to add to the collection.
+     * @throws MongoDbException
+     *             On an error inserting the documents.
+     */
+    public void insertAsync(LambdaCallback<Integer> results,
             boolean continueOnError, DocumentAssignable... documents)
             throws MongoDbException;
 
@@ -1504,7 +1484,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public abstract void insertAsync(LambdaCallback<Integer> results,
+    public void insertAsync(LambdaCallback<Integer> results,
             boolean continueOnError, Durability durability,
             DocumentAssignable... documents) throws MongoDbException;
 
@@ -1523,7 +1503,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public abstract void insertAsync(LambdaCallback<Integer> results,
+    public void insertAsync(LambdaCallback<Integer> results,
             DocumentAssignable... documents) throws MongoDbException;
 
     /**
@@ -1543,7 +1523,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
-    public abstract void insertAsync(LambdaCallback<Integer> results,
+    public void insertAsync(LambdaCallback<Integer> results,
             Durability durability, DocumentAssignable... documents)
             throws MongoDbException;
 
@@ -1558,9 +1538,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void mapReduceAsync(
-            Callback<MongoIterator<Document>> results, MapReduce command)
-            throws MongoDbException;
+    public void mapReduceAsync(Callback<MongoIterator<Document>> results,
+            MapReduce command) throws MongoDbException;
 
     /**
      * Invokes a mapReduce command on the server.
@@ -1573,9 +1552,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void mapReduceAsync(
-            Callback<MongoIterator<Document>> results, MapReduce.Builder command)
-            throws MongoDbException;
+    public void mapReduceAsync(Callback<MongoIterator<Document>> results,
+            MapReduce.Builder command) throws MongoDbException;
 
     /**
      * Invokes a mapReduce command on the server.
@@ -1588,9 +1566,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void mapReduceAsync(
-            LambdaCallback<MongoIterator<Document>> results, MapReduce command)
-            throws MongoDbException;
+    public void mapReduceAsync(LambdaCallback<MongoIterator<Document>> results,
+            MapReduce command) throws MongoDbException;
 
     /**
      * Invokes a mapReduce command on the server.
@@ -1603,8 +1580,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract void mapReduceAsync(
-            LambdaCallback<MongoIterator<Document>> results,
+    public void mapReduceAsync(LambdaCallback<MongoIterator<Document>> results,
             MapReduce.Builder command) throws MongoDbException;
 
     /**
@@ -1617,7 +1593,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<MongoIterator<Document>> mapReduceAsync(
+    public ListenableFuture<MongoIterator<Document>> mapReduceAsync(
             MapReduce command) throws MongoDbException;
 
     /**
@@ -1630,8 +1606,130 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract ListenableFuture<MongoIterator<Document>> mapReduceAsync(
+    public ListenableFuture<MongoIterator<Document>> mapReduceAsync(
             MapReduce.Builder command) throws MongoDbException;
+
+    /**
+     * Uses the {@code parallelCollectionScan} command to open multiple
+     * iterators over the collection each configured to scan a distinct regions
+     * of the collection. You may then use a separate thread to scan each region
+     * of the collection in parallel.
+     * 
+     * @param results
+     *            Callback for the collection of iterators.
+     * @param parallelScan
+     *            The details on the scan.
+     * @throws MongoDbException
+     *             On an error initializing the parallel scan.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
+     *      Command</a>
+     */
+    public void parallelScanAsync(
+            Callback<Collection<MongoIterator<Document>>> results,
+            ParallelScan parallelScan) throws MongoDbException;
+
+    /**
+     * Uses the {@code parallelCollectionScan} command to open multiple
+     * iterators over the collection each configured to scan a distinct regions
+     * of the collection. You may then use a separate thread to scan each region
+     * of the collection in parallel.
+     * 
+     * @param results
+     *            Callback for the collection of iterators.
+     * @param parallelScan
+     *            The details on the scan.
+     * @throws MongoDbException
+     *             On an error initializing the parallel scan.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
+     *      Command</a>
+     */
+    public void parallelScanAsync(
+            Callback<Collection<MongoIterator<Document>>> results,
+            ParallelScan.Builder parallelScan) throws MongoDbException;
+
+    /**
+     * Uses the {@code parallelCollectionScan} command to open multiple
+     * iterators over the collection each configured to scan a distinct regions
+     * of the collection. You may then use a separate thread to scan each region
+     * of the collection in parallel.
+     * 
+     * @param results
+     *            Callback for the collection of iterators.
+     * @param parallelScan
+     *            The details on the scan.
+     * @throws MongoDbException
+     *             On an error initializing the parallel scan.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
+     *      Command</a>
+     */
+    public void parallelScanAsync(
+            LambdaCallback<Collection<MongoIterator<Document>>> results,
+            ParallelScan parallelScan) throws MongoDbException;
+
+    /**
+     * Uses the {@code parallelCollectionScan} command to open multiple
+     * iterators over the collection each configured to scan a distinct regions
+     * of the collection. You may then use a separate thread to scan each region
+     * of the collection in parallel.
+     * 
+     * @param results
+     *            Callback for the collection of iterators.
+     * @param parallelScan
+     *            The details on the scan.
+     * @throws MongoDbException
+     *             On an error initializing the parallel scan.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
+     *      Command</a>
+     */
+    public void parallelScanAsync(
+            LambdaCallback<Collection<MongoIterator<Document>>> results,
+            ParallelScan.Builder parallelScan) throws MongoDbException;
+
+    /**
+     * Uses the {@code parallelCollectionScan} command to open multiple
+     * iterators over the collection each configured to scan a distinct regions
+     * of the collection. You may then use a separate thread to scan each region
+     * of the collection in parallel.
+     * 
+     * @param parallelScan
+     *            The details on the scan.
+     * @return The collection of iterators.
+     * @throws MongoDbException
+     *             On an error initializing the parallel scan.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
+     *      Command</a>
+     */
+    public ListenableFuture<Collection<MongoIterator<Document>>> parallelScanAsync(
+            ParallelScan parallelScan) throws MongoDbException;
+
+    /**
+     * Uses the {@code parallelCollectionScan} command to open multiple
+     * iterators over the collection each configured to scan a distinct regions
+     * of the collection. You may then use a separate thread to scan each region
+     * of the collection in parallel.
+     * 
+     * @param parallelScan
+     *            The details on the scan.
+     * @return The collection of iterators.
+     * @throws MongoDbException
+     *             On an error initializing the parallel scan.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
+     *      Command</a>
+     */
+    public ListenableFuture<Collection<MongoIterator<Document>>> parallelScanAsync(
+            ParallelScan.Builder parallelScan) throws MongoDbException;
 
     /**
      * Saves the {@code document} to the collection.
@@ -1658,8 +1756,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error saving the documents.
      */
-    public abstract void saveAsync(Callback<Integer> results,
-            DocumentAssignable document) throws MongoDbException;
+    public void saveAsync(Callback<Integer> results, DocumentAssignable document)
+            throws MongoDbException;
 
     /**
      * Saves the {@code document} to the collection.
@@ -1688,7 +1786,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error saving the documents.
      */
-    public abstract void saveAsync(Callback<Integer> results,
+    public void saveAsync(Callback<Integer> results,
             DocumentAssignable document, Durability durability)
             throws MongoDbException;
 
@@ -1715,8 +1813,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error saving the documents.
      */
-    public abstract ListenableFuture<Integer> saveAsync(
-            DocumentAssignable document) throws MongoDbException;
+    public ListenableFuture<Integer> saveAsync(DocumentAssignable document)
+            throws MongoDbException;
 
     /**
      * Saves the {@code document} to the collection.
@@ -1744,9 +1842,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error saving the documents.
      */
-    public abstract ListenableFuture<Integer> saveAsync(
-            DocumentAssignable document, Durability durability)
-            throws MongoDbException;
+    public ListenableFuture<Integer> saveAsync(DocumentAssignable document,
+            Durability durability) throws MongoDbException;
 
     /**
      * Saves the {@code document} to the collection.
@@ -1773,7 +1870,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error saving the documents.
      */
-    public abstract void saveAsync(LambdaCallback<Integer> results,
+    public void saveAsync(LambdaCallback<Integer> results,
             DocumentAssignable document) throws MongoDbException;
 
     /**
@@ -1803,7 +1900,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error saving the documents.
      */
-    public abstract void saveAsync(LambdaCallback<Integer> results,
+    public void saveAsync(LambdaCallback<Integer> results,
             DocumentAssignable document, Durability durability)
             throws MongoDbException;
 
@@ -1844,7 +1941,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract MongoCursorControl stream(LambdaCallback<Document> results,
+    public MongoCursorControl stream(LambdaCallback<Document> results,
             Aggregate aggregation) throws MongoDbException;
 
     /**
@@ -1888,7 +1985,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract MongoCursorControl stream(LambdaCallback<Document> results,
+    public MongoCursorControl stream(LambdaCallback<Document> results,
             Aggregate.Builder aggregation) throws MongoDbException;
 
     /**
@@ -1928,7 +2025,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract MongoCursorControl stream(LambdaCallback<Document> results,
+    public MongoCursorControl stream(LambdaCallback<Document> results,
             Find query) throws MongoDbException;
 
     /**
@@ -1968,7 +2065,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract MongoCursorControl stream(LambdaCallback<Document> results,
+    public MongoCursorControl stream(LambdaCallback<Document> results,
             Find.Builder query) throws MongoDbException;
 
     /**
@@ -2008,7 +2105,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract MongoCursorControl stream(StreamCallback<Document> results,
+    public MongoCursorControl stream(StreamCallback<Document> results,
             Aggregate aggregation) throws MongoDbException;
 
     /**
@@ -2052,7 +2149,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract MongoCursorControl stream(StreamCallback<Document> results,
+    public MongoCursorControl stream(StreamCallback<Document> results,
             Aggregate.Builder aggregation) throws MongoDbException;
 
     /**
@@ -2092,7 +2189,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract MongoCursorControl stream(StreamCallback<Document> results,
+    public MongoCursorControl stream(StreamCallback<Document> results,
             Find query) throws MongoDbException;
 
     /**
@@ -2132,7 +2229,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract MongoCursorControl stream(StreamCallback<Document> results,
+    public MongoCursorControl stream(StreamCallback<Document> results,
             Find.Builder query) throws MongoDbException;
 
     /**
@@ -2176,9 +2273,8 @@ public interface AsyncMongoCollection {
      *             release.
      */
     @Deprecated
-    public abstract MongoCursorControl streamingFind(
-            Callback<Document> results, DocumentAssignable query)
-            throws MongoDbException;
+    public MongoCursorControl streamingFind(Callback<Document> results,
+            DocumentAssignable query) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query in the collection and
@@ -2219,8 +2315,8 @@ public interface AsyncMongoCollection {
      *             This method will be removed after the 1.3.0 release.
      */
     @Deprecated
-    public abstract MongoCursorControl streamingFind(
-            Callback<Document> results, Find query) throws MongoDbException;
+    public MongoCursorControl streamingFind(Callback<Document> results,
+            Find query) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection
@@ -2259,9 +2355,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract MongoCursorControl streamingFind(
-            LambdaCallback<Document> results, DocumentAssignable query)
-            throws MongoDbException;
+    public MongoCursorControl streamingFind(LambdaCallback<Document> results,
+            DocumentAssignable query) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection
@@ -2300,9 +2395,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error finding the documents.
      */
-    public abstract MongoCursorControl streamingFind(
-            StreamCallback<Document> results, DocumentAssignable query)
-            throws MongoDbException;
+    public MongoCursorControl streamingFind(StreamCallback<Document> results,
+            DocumentAssignable query) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query in the collection and
@@ -2344,9 +2438,8 @@ public interface AsyncMongoCollection {
      *             This method will be removed after the 1.4.0 release.
      */
     @Deprecated
-    public abstract MongoCursorControl streamingFind(
-            StreamCallback<Document> results, Find query)
-            throws MongoDbException;
+    public MongoCursorControl streamingFind(StreamCallback<Document> results,
+            Find query) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query in the collection and
@@ -2388,9 +2481,8 @@ public interface AsyncMongoCollection {
      *             instead. This method will be removed after the 1.4.0 release.
      */
     @Deprecated
-    public abstract MongoCursorControl streamingFind(
-            StreamCallback<Document> results, Find.Builder query)
-            throws MongoDbException;
+    public MongoCursorControl streamingFind(StreamCallback<Document> results,
+            Find.Builder query) throws MongoDbException;
 
     /**
      * Invokes a {@code text} command on the server.
@@ -2413,7 +2505,7 @@ public interface AsyncMongoCollection {
      *             2.8 and 2.10).
      */
     @Deprecated
-    public abstract void textSearchAsync(
+    public void textSearchAsync(
             Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
             com.allanbank.mongodb.builder.Text command) throws MongoDbException;
 
@@ -2434,7 +2526,7 @@ public interface AsyncMongoCollection {
      *             2.8 and 2.10).
      */
     @Deprecated
-    public abstract void textSearchAsync(
+    public void textSearchAsync(
             Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
             com.allanbank.mongodb.builder.Text.Builder command)
             throws MongoDbException;
@@ -2459,7 +2551,7 @@ public interface AsyncMongoCollection {
      *             2.8 and 2.10).
      */
     @Deprecated
-    public abstract ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
+    public ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
             com.allanbank.mongodb.builder.Text command) throws MongoDbException;
 
     /**
@@ -2482,7 +2574,7 @@ public interface AsyncMongoCollection {
      *             2.8 and 2.10).
      */
     @Deprecated
-    public abstract ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
+    public ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
             com.allanbank.mongodb.builder.Text.Builder command)
             throws MongoDbException;
 
@@ -2502,9 +2594,8 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public abstract void updateAsync(Callback<Long> results,
-            DocumentAssignable query, DocumentAssignable update)
-            throws MongoDbException;
+    public void updateAsync(Callback<Long> results, DocumentAssignable query,
+            DocumentAssignable update) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2528,9 +2619,9 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public abstract void updateAsync(Callback<Long> results,
-            DocumentAssignable query, DocumentAssignable update,
-            boolean multiUpdate, boolean upsert) throws MongoDbException;
+    public void updateAsync(Callback<Long> results, DocumentAssignable query,
+            DocumentAssignable update, boolean multiUpdate, boolean upsert)
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2556,10 +2647,9 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public abstract void updateAsync(Callback<Long> results,
-            DocumentAssignable query, DocumentAssignable update,
-            boolean multiUpdate, boolean upsert, Durability durability)
-            throws MongoDbException;
+    public void updateAsync(Callback<Long> results, DocumentAssignable query,
+            DocumentAssignable update, boolean multiUpdate, boolean upsert,
+            Durability durability) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2579,8 +2669,78 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public abstract void updateAsync(Callback<Long> results,
-            DocumentAssignable query, DocumentAssignable update,
+    public void updateAsync(Callback<Long> results, DocumentAssignable query,
+            DocumentAssignable update, Durability durability)
+            throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @return A {@link ListenableFuture} that will be updated with the number
+     *         of documents updated. If the durability of the operation is NONE
+     *         then this will be -1.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public ListenableFuture<Long> updateAsync(DocumentAssignable query,
+            DocumentAssignable update) throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @param multiUpdate
+     *            If true then the update is applied to all of the matching
+     *            documents, otherwise only the first document found is updated.
+     * @param upsert
+     *            If true then if no document is found then a new document is
+     *            created and updated, otherwise no operation is performed.
+     * @return A {@link ListenableFuture} that will be updated with the number
+     *         of documents updated. If the durability of the operation is NONE
+     *         then this will be -1.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public ListenableFuture<Long> updateAsync(DocumentAssignable query,
+            DocumentAssignable update, boolean multiUpdate, boolean upsert)
+            throws MongoDbException;
+
+    /**
+     * Applies updates to a set of documents within the collection. The
+     * documents to update are selected by the <tt>query</tt> and the updates
+     * are describe by the <tt>update</tt> document.
+     * 
+     * @param query
+     *            The query to select the documents to update.
+     * @param update
+     *            The updates to apply to the selected documents.
+     * @param multiUpdate
+     *            If true then the update is applied to all of the matching
+     *            documents, otherwise only the first document found is updated.
+     * @param upsert
+     *            If true then if no document is found then a new document is
+     *            created and updated, otherwise no operation is performed.
+     * @param durability
+     *            The durability for the update.
+     * @return A {@link ListenableFuture} that will be updated with the number
+     *         of documents updated. If the durability of the operation is NONE
+     *         then this will be -1.
+     * @throws MongoDbException
+     *             On an error updating the documents.
+     */
+    public ListenableFuture<Long> updateAsync(DocumentAssignable query,
+            DocumentAssignable update, boolean multiUpdate, boolean upsert,
             Durability durability) throws MongoDbException;
 
     /**
@@ -2592,56 +2752,6 @@ public interface AsyncMongoCollection {
      *            The query to select the documents to update.
      * @param update
      *            The updates to apply to the selected documents.
-     * @return A {@link ListenableFuture} that will be updated with the number
-     *         of documents updated. If the durability of the operation is NONE
-     *         then this will be -1.
-     * @throws MongoDbException
-     *             On an error updating the documents.
-     */
-    public abstract ListenableFuture<Long> updateAsync(
-            DocumentAssignable query, DocumentAssignable update)
-            throws MongoDbException;
-
-    /**
-     * Applies updates to a set of documents within the collection. The
-     * documents to update are selected by the <tt>query</tt> and the updates
-     * are describe by the <tt>update</tt> document.
-     * 
-     * @param query
-     *            The query to select the documents to update.
-     * @param update
-     *            The updates to apply to the selected documents.
-     * @param multiUpdate
-     *            If true then the update is applied to all of the matching
-     *            documents, otherwise only the first document found is updated.
-     * @param upsert
-     *            If true then if no document is found then a new document is
-     *            created and updated, otherwise no operation is performed.
-     * @return A {@link ListenableFuture} that will be updated with the number
-     *         of documents updated. If the durability of the operation is NONE
-     *         then this will be -1.
-     * @throws MongoDbException
-     *             On an error updating the documents.
-     */
-    public abstract ListenableFuture<Long> updateAsync(
-            DocumentAssignable query, DocumentAssignable update,
-            boolean multiUpdate, boolean upsert) throws MongoDbException;
-
-    /**
-     * Applies updates to a set of documents within the collection. The
-     * documents to update are selected by the <tt>query</tt> and the updates
-     * are describe by the <tt>update</tt> document.
-     * 
-     * @param query
-     *            The query to select the documents to update.
-     * @param update
-     *            The updates to apply to the selected documents.
-     * @param multiUpdate
-     *            If true then the update is applied to all of the matching
-     *            documents, otherwise only the first document found is updated.
-     * @param upsert
-     *            If true then if no document is found then a new document is
-     *            created and updated, otherwise no operation is performed.
      * @param durability
      *            The durability for the update.
      * @return A {@link ListenableFuture} that will be updated with the number
@@ -2650,31 +2760,9 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public abstract ListenableFuture<Long> updateAsync(
-            DocumentAssignable query, DocumentAssignable update,
-            boolean multiUpdate, boolean upsert, Durability durability)
+    public ListenableFuture<Long> updateAsync(DocumentAssignable query,
+            DocumentAssignable update, Durability durability)
             throws MongoDbException;
-
-    /**
-     * Applies updates to a set of documents within the collection. The
-     * documents to update are selected by the <tt>query</tt> and the updates
-     * are describe by the <tt>update</tt> document.
-     * 
-     * @param query
-     *            The query to select the documents to update.
-     * @param update
-     *            The updates to apply to the selected documents.
-     * @param durability
-     *            The durability for the update.
-     * @return A {@link ListenableFuture} that will be updated with the number
-     *         of documents updated. If the durability of the operation is NONE
-     *         then this will be -1.
-     * @throws MongoDbException
-     *             On an error updating the documents.
-     */
-    public abstract ListenableFuture<Long> updateAsync(
-            DocumentAssignable query, DocumentAssignable update,
-            Durability durability) throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2692,7 +2780,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public abstract void updateAsync(LambdaCallback<Long> results,
+    public void updateAsync(LambdaCallback<Long> results,
             DocumentAssignable query, DocumentAssignable update)
             throws MongoDbException;
 
@@ -2718,7 +2806,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public abstract void updateAsync(LambdaCallback<Long> results,
+    public void updateAsync(LambdaCallback<Long> results,
             DocumentAssignable query, DocumentAssignable update,
             boolean multiUpdate, boolean upsert) throws MongoDbException;
 
@@ -2746,7 +2834,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public abstract void updateAsync(LambdaCallback<Long> results,
+    public void updateAsync(LambdaCallback<Long> results,
             DocumentAssignable query, DocumentAssignable update,
             boolean multiUpdate, boolean upsert, Durability durability)
             throws MongoDbException;
@@ -2769,7 +2857,7 @@ public interface AsyncMongoCollection {
      * @throws MongoDbException
      *             On an error updating the documents.
      */
-    public abstract void updateAsync(LambdaCallback<Long> results,
+    public void updateAsync(LambdaCallback<Long> results,
             DocumentAssignable query, DocumentAssignable update,
             Durability durability) throws MongoDbException;
 

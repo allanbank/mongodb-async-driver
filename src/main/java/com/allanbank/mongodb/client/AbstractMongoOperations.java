@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.client;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.allanbank.mongodb.AsyncMongoCollection;
@@ -36,11 +37,13 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.ParallelScan;
 import com.allanbank.mongodb.builder.write.WriteOperation;
 import com.allanbank.mongodb.client.callback.BatchedWriteCallback;
 import com.allanbank.mongodb.client.callback.CursorCallback;
 import com.allanbank.mongodb.client.callback.CursorStreamingCallback;
 import com.allanbank.mongodb.client.callback.LongToIntCallback;
+import com.allanbank.mongodb.client.callback.MultipleCursorCallback;
 import com.allanbank.mongodb.client.callback.ReplyArrayCallback;
 import com.allanbank.mongodb.client.callback.ReplyDocumentCallback;
 import com.allanbank.mongodb.client.callback.ReplyIntegerCallback;
@@ -52,6 +55,7 @@ import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.Insert;
+import com.allanbank.mongodb.client.message.ParallelScanCommand;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Update;
 
@@ -642,6 +646,45 @@ public abstract class AbstractMongoOperations {
                 builder.build(), readPreference,
                 VersionRange.minimum(minVersion));
         myClient.send(commandMsg, new ReplyResultCallback(results));
+    }
+
+    /**
+     * Constructs a {@code parallelCollectionScan} command and sends it to the
+     * server via the {@link Client}.
+     * 
+     * @param results
+     *            Callback for the collection of iterators.
+     * @param parallelScan
+     *            The details on the scan.
+     * @throws MongoDbException
+     *             On an error initializing the parallel scan.
+     * @see AsyncMongoCollection#parallelScanAsync(Callback, ParallelScan)
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
+     *      Command</a>
+     */
+    public void parallelScanAsync(
+            final Callback<Collection<MongoIterator<Document>>> results,
+            final ParallelScan parallelScan) throws MongoDbException {
+        final DocumentBuilder builder = BuilderFactory.start();
+
+        builder.add("parallelCollectionScan", getName());
+        builder.add("numCursors", parallelScan.getRequestedIteratorCount());
+        if (parallelScan.getMaximumTimeMilliseconds() > 0) {
+            builder.add("maxTimeMS", parallelScan.getMaximumTimeMilliseconds());
+        }
+
+        // Should be last since might wrap command in a $query element.
+        final ReadPreference readPreference = updateReadPreference(builder,
+                parallelScan.getReadPreference(), true);
+
+        final ParallelScanCommand commandMsg = new ParallelScanCommand(
+                parallelScan, getDatabaseName(), getName(), builder.build(),
+                readPreference);
+
+        myClient.send(commandMsg, new MultipleCursorCallback(myClient,
+                commandMsg, results));
+
     }
 
     /**

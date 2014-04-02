@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -64,6 +65,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,6 +116,7 @@ import com.allanbank.mongodb.builder.GeospatialOperator;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.ParallelScan;
 import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.builder.write.InsertOperation;
 import com.allanbank.mongodb.builder.write.WriteOperation;
@@ -2617,6 +2620,134 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         // Now we have read all of the documents.
         assertEquals(findBuilder.build().getLimit(), count);
+    }
+
+    /**
+     * Verifies running a {@code parallelCollectionScan} command.
+     */
+    @Test
+    public void testParallelScan() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final MongoCollection collection = largeCollection(myMongo);
+
+        final int cores = Runtime.getRuntime().availableProcessors();
+        final ParallelScan.Builder scan = ParallelScan.builder()
+                .requestedIteratorCount(cores).batchSize(10);
+        try {
+            int count = 0;
+            final Collection<MongoIterator<Document>> iterators = collection
+                    .parallelScan(scan);
+            for (final MongoIterator<Document> iter : iterators) {
+                for (final Document found : iter) {
+
+                    assertNotNull(found);
+
+                    count += 1;
+                }
+            }
+
+            assertThat(iterators.size(), Matchers.allOf(
+                    greaterThanOrEqualTo(1), lessThanOrEqualTo(cores)));
+            assertEquals(LARGE_COLLECTION_COUNT, count);
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the parallelCollectionScan.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(ParallelScan.REQUIRED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+    }
+
+    /**
+     * Verifies running a {@code parallelCollectionScan} command will timeout.
+     */
+    @Test
+    public void testParallelScanOnSecondary() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final MongoCollection collection = largeCollection(myMongo);
+
+        final int cores = Runtime.getRuntime().availableProcessors();
+        final ParallelScan.Builder scan = ParallelScan.builder()
+                .requestedIteratorCount(cores).batchSize(10)
+                .readPreference(ReadPreference.PREFER_SECONDARY);
+        try {
+            int count = 0;
+            final Collection<MongoIterator<Document>> iterators = collection
+                    .parallelScan(scan);
+            for (final MongoIterator<Document> iter : iterators) {
+                for (final Document found : iter) {
+
+                    assertNotNull(found);
+
+                    count += 1;
+                }
+            }
+
+            assertThat(iterators.size(), Matchers.allOf(
+                    greaterThanOrEqualTo(1), lessThanOrEqualTo(cores)));
+            assertEquals(LARGE_COLLECTION_COUNT, count);
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the parallelCollectionScan.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(ParallelScan.REQUIRED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+    }
+
+    /**
+     * Verifies running a {@code parallelCollectionScan} command will timeout.
+     */
+    @Test
+    public void testParallelScanTimeout() {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.NONE);
+        myConfig.setMaxConnectionCount(1);
+
+        final MongoCollection collection = largeCollection(myMongo);
+
+        final int cores = Runtime.getRuntime().availableProcessors();
+        final ParallelScan.Builder scan = ParallelScan.builder()
+                .requestedIteratorCount(cores).batchSize(10)
+                .maximumTime(1, TimeUnit.MILLISECONDS);
+        try {
+            final Collection<MongoIterator<Document>> iterators = collection
+                    .parallelScan(scan);
+            for (final MongoIterator<Document> iter : iterators) {
+                for (final Document found : iter) {
+                    assertNotNull(found);
+                }
+            }
+            fail("Should have thrown a timeout exception before "
+                    + "scanning the entire collection.");
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the parallelCollectionScan.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(ParallelScan.REQUIRED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
     }
 
     /**

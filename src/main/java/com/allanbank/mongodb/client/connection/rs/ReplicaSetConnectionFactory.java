@@ -317,8 +317,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                     }
 
                     // Add and mark the primary as writable.
-                    StringElement primary = doc.findFirst(StringElement.class,
-                            "primary");
+                    final StringElement primary = doc.findFirst(
+                            StringElement.class, "primary");
                     if (primary != null) {
                         return Collections.singletonList(myCluster.add(primary
                                 .getValue()));

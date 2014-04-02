@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb;
 
+import java.util.Collection;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -18,6 +20,7 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.ParallelScan;
 
 /**
  * Interface for interacting with a MongoDB collection.
@@ -875,6 +878,44 @@ public interface MongoCollection extends AsyncMongoCollection {
      */
     public MongoIterator<Document> mapReduce(MapReduce.Builder command)
             throws MongoDbException;
+
+    /**
+     * Uses the {@code parallelCollectionScan} command to open multiple
+     * iterators over the collection each configured to scan a distinct regions
+     * of the collection. You may then use a separate thread to scan each region
+     * of the collection in parallel.
+     * 
+     * @param parallelScan
+     *            The details on the scan.
+     * @return The collection of iterators.
+     * @throws MongoDbException
+     *             On an error initializing the parallel scan.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
+     *      Command</a>
+     */
+    public Collection<MongoIterator<Document>> parallelScan(
+            ParallelScan parallelScan) throws MongoDbException;
+
+    /**
+     * Uses the {@code parallelCollectionScan} command to open multiple
+     * iterators over the collection each configured to scan a distinct regions
+     * of the collection. You may then use a separate thread to scan each region
+     * of the collection in parallel.
+     * 
+     * @param parallelScan
+     *            The details on the scan.
+     * @return The collection of iterators.
+     * @throws MongoDbException
+     *             On an error initializing the parallel scan.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
+     *      Command</a>
+     */
+    public Collection<MongoIterator<Document>> parallelScan(
+            ParallelScan.Builder parallelScan) throws MongoDbException;
 
     /**
      * Saves the {@code document} to the collection.

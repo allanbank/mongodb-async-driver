@@ -5,6 +5,7 @@
 
 package com.allanbank.mongodb.client;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.allanbank.mongodb.BatchedAsyncMongoCollection;
@@ -35,6 +36,7 @@ import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.ParallelScan;
 import com.allanbank.mongodb.util.FutureUtils;
 
 /**
@@ -744,6 +746,34 @@ public class SynchronousMongoCollectionImpl extends
     public MongoIterator<Document> mapReduce(final MapReduce.Builder command)
             throws MongoDbException {
         return mapReduce(command.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #parallelScanAsync(ParallelScan)}.
+     * </p>
+     * 
+     * @see #parallelScanAsync(ParallelScan)
+     */
+    @Override
+    public Collection<MongoIterator<Document>> parallelScan(
+            final ParallelScan parallelScan) throws MongoDbException {
+        return FutureUtils.unwrap(parallelScanAsync(parallelScan));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #parallelScan(ParallelScan)}.
+     * </p>
+     * 
+     * @see #parallelScanAsync(ParallelScan)
+     */
+    @Override
+    public Collection<MongoIterator<Document>> parallelScan(
+            final ParallelScan.Builder parallelScan) throws MongoDbException {
+        return parallelScan(parallelScan.build());
     }
 
     /**
