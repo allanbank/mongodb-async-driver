@@ -778,24 +778,4 @@ public class BatchedWriteCallback extends ReplyLongCallback {
             BatchedWriteCallback.this.exception(myOperation, thrown);
         }
     }
-
-    /**
-     * CallbackImplementation provides a no-op callback.
-     * 
-     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
-     *         be mutated in incompatible ways between any two releases of the
-     *         driver.
-     * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    /* package */final static class NoOpCallback implements Callback<Reply> {
-        @Override
-        public void callback(final Reply result) {
-            // Nothing.
-        }
-
-        @Override
-        public void exception(final Throwable thrown) {
-            // Nothing.
-        }
-    }
 }

@@ -33,6 +33,7 @@ import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.VersionRange;
+import com.allanbank.mongodb.client.callback.NoOpCallback;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.callback.ReplyHandler;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -304,7 +305,7 @@ public abstract class AbstractSocketConnection implements Connection {
         else {
             if (isOpen()) {
                 // Force a message with a callback to wake the receiver up.
-                send(new IsMaster(), new NoopCallback());
+                send(new IsMaster(), new NoOpCallback());
             }
         }
     }
@@ -808,45 +809,4 @@ public abstract class AbstractSocketConnection implements Connection {
                     serverVersion, message);
         }
     }
-
-    /**
-     * NoopCallback provides a callback that does not look at the reply.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected static final class NoopCallback implements ReplyCallback {
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to do nothing.
-         * </p>
-         */
-        @Override
-        public void callback(final Reply result) {
-            // Noop.
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to do nothing.
-         * </p>
-         */
-        @Override
-        public void exception(final Throwable thrown) {
-            // Noop.
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to return true.
-         * </p>
-         */
-        @Override
-        public boolean isLightWeight() {
-            return true;
-        }
-    }
-
 }
