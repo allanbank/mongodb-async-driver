@@ -12,13 +12,12 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.builder.ConditionBuilder;
-import com.allanbank.mongodb.builder.Text;
-import com.allanbank.mongodb.builder.TextResult;
 import com.allanbank.mongodb.client.SimpleMongoIteratorImpl;
 
 /**
- * TextCallback provides conversion from a {@link Text text} command's result
- * document to a {@link TextResult}.
+ * TextCallback provides conversion from a
+ * {@link com.allanbank.mongodb.builder.Text text} command's result document to
+ * a {@link com.allanbank.mongodb.builder.TextResult}.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
@@ -32,35 +31,66 @@ import com.allanbank.mongodb.client.SimpleMongoIteratorImpl;
 @Deprecated
 public class TextCallback implements Callback<MongoIterator<Document>> {
 
-    /** The delegate callback to receive the {@link TextResult}s. */
-    private final Callback<MongoIterator<TextResult>> myDelegate;
+    /**
+     * The delegate callback to receive the
+     * {@link com.allanbank.mongodb.builder.TextResult}s.
+     * 
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This class will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
+     */
+    @Deprecated
+    private final Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> myDelegate;
 
     /**
      * Creates a new TextCallback.
      * 
      * @param delegate
-     *            The delegate callback to receive the {@link TextResult}s.
+     *            The delegate callback to receive the
+     *            {@link com.allanbank.mongodb.builder.TextResult}s.
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This class will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
-    public TextCallback(final Callback<MongoIterator<TextResult>> delegate) {
+    @Deprecated
+    public TextCallback(
+            final Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> delegate) {
         myDelegate = delegate;
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to convert each document into a {@link TextResult} and forward
-     * to the delegate.
+     * Overridden to convert each document into a
+     * {@link com.allanbank.mongodb.builder.TextResult} and forward to the
+     * delegate.
      * </p>
+     * 
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This class will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
     @Override
+    @Deprecated
     public void callback(final MongoIterator<Document> result) {
-        final List<TextResult> results = new ArrayList<TextResult>();
+        final List<com.allanbank.mongodb.builder.TextResult> results = new ArrayList<com.allanbank.mongodb.builder.TextResult>();
 
         for (final Document doc : result) {
-            results.add(new TextResult(doc));
+            results.add(new com.allanbank.mongodb.builder.TextResult(doc));
         }
 
-        myDelegate.callback(new SimpleMongoIteratorImpl<TextResult>(results));
+        myDelegate
+                .callback(new SimpleMongoIteratorImpl<com.allanbank.mongodb.builder.TextResult>(
+                        results));
     }
 
     /**
@@ -68,8 +98,16 @@ public class TextCallback implements Callback<MongoIterator<Document>> {
      * <p>
      * Overridden to forward to the delegate callback.
      * </p>
+     * 
+     * @deprecated Support for the {@code text} command was deprecated in the
+     *             2.6 version of MongoDB. Use the
+     *             {@link ConditionBuilder#text(String) $text} query operator
+     *             instead. This class will not be removed until two releases
+     *             after the MongoDB 2.6 release (e.g. 2.10 if the releases are
+     *             2.8 and 2.10).
      */
     @Override
+    @Deprecated
     public void exception(final Throwable thrown) {
         myDelegate.exception(thrown);
     }

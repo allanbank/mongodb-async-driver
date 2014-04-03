@@ -22,11 +22,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.allanbank.mongodb.Mongo;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDatabase;
-import com.allanbank.mongodb.MongoDbConfiguration;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -76,7 +74,8 @@ public class MongoImplTest {
      */
     @Test
     public void testAsSerializedClient() {
-        final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
+        final MongoImpl impl = new MongoImpl(
+                new com.allanbank.mongodb.MongoDbConfiguration());
         assertThat(impl.getClient(), instanceOf(ClientImpl.class));
         impl.close();
 
@@ -94,11 +93,12 @@ public class MongoImplTest {
      */
     @Test
     public void testAsSerializedMongo() {
-        final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
+        final MongoImpl impl = new MongoImpl(
+                new com.allanbank.mongodb.MongoDbConfiguration());
         assertThat(impl.getClient(), instanceOf(ClientImpl.class));
         impl.close();
 
-        final Mongo serial = impl.asSerializedMongo();
+        final com.allanbank.mongodb.Mongo serial = impl.asSerializedMongo();
         assertThat(serial, instanceOf(MongoImpl.class));
         final MongoImpl serialImpl = (MongoImpl) serial;
         assertThat(serialImpl.getClient(), instanceOf(SerialClientImpl.class));
@@ -124,12 +124,13 @@ public class MongoImplTest {
 
     /**
      * Test method for
-     * {@link com.allanbank.mongodb.client.MongoImpl#MongoImpl(MongoDbConfiguration)}
+     * {@link com.allanbank.mongodb.client.MongoImpl#MongoImpl(com.allanbank.mongodb.MongoDbConfiguration)}
      * .
      */
     @Test
     public void testConstructor() {
-        final MongoImpl impl = new MongoImpl(new MongoDbConfiguration());
+        final MongoImpl impl = new MongoImpl(
+                new com.allanbank.mongodb.MongoDbConfiguration());
         assertTrue(impl.getClient() instanceof ClientImpl);
         impl.close();
     }

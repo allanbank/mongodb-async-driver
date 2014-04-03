@@ -323,6 +323,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * @see MongoDatabase#listCollectionNames()
      */
     @Override
+    @Deprecated
     public List<String> listCollections() {
         return listCollectionNames();
     }

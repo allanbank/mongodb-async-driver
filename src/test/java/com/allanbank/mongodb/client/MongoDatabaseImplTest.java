@@ -349,6 +349,7 @@ public class MongoDatabaseImplTest {
      * Test method for {@link MongoDatabaseImpl#listCollections()}.
      */
     @Test
+    @Deprecated
     public void testListCollections() {
 
         final Document result1 = BuilderFactory.start()

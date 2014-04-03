@@ -25,7 +25,6 @@ import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.builder.ConditionBuilder;
-import com.allanbank.mongodb.builder.TextResult;
 import com.allanbank.mongodb.client.SimpleMongoIteratorImpl;
 
 /**
@@ -46,15 +45,16 @@ public class TextCallbackTest {
      */
     @SuppressWarnings("unchecked")
     @Test
+    @Deprecated
     public void testCallback() {
 
         final List<Document> docs = Arrays.asList(BuilderFactory.start()
                 .add("score", 1).build());
 
-        final Callback<MongoIterator<TextResult>> mockCallback = EasyMock
+        final Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> mockCallback = EasyMock
                 .createMock(Callback.class);
 
-        final Capture<MongoIterator<TextResult>> capture = new Capture<MongoIterator<TextResult>>();
+        final Capture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> capture = new Capture<MongoIterator<com.allanbank.mongodb.builder.TextResult>>();
         mockCallback.callback(capture(capture));
         expectLastCall();
 
@@ -65,8 +65,11 @@ public class TextCallbackTest {
 
         verify(mockCallback);
 
-        assertThat(capture.getValue().toList(),
-                is(Collections.singletonList(new TextResult(docs.get(0)))));
+        assertThat(
+                capture.getValue().toList(),
+                is(Collections
+                        .singletonList(new com.allanbank.mongodb.builder.TextResult(
+                                docs.get(0)))));
     }
 
     /**
@@ -74,10 +77,11 @@ public class TextCallbackTest {
      */
     @SuppressWarnings("unchecked")
     @Test
+    @Deprecated
     public void testException() {
         final Throwable thrown = new IllegalAccessError();
 
-        final Callback<MongoIterator<TextResult>> mockCallback = EasyMock
+        final Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> mockCallback = EasyMock
                 .createMock(Callback.class);
 
         mockCallback.exception(thrown);

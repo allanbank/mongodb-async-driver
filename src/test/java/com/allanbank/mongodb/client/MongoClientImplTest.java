@@ -159,6 +159,7 @@ public class MongoClientImplTest {
     /**
      * Test method for {@link MongoClientImpl#listDatabases()}.
      */
+    @Deprecated
     @Test
     public void testListDatabases() {
         final DocumentBuilder reply = BuilderFactory.start();

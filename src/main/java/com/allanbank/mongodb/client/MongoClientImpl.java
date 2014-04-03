@@ -188,6 +188,7 @@ public class MongoClientImpl implements MongoClient {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public List<String> listDatabases() {
         return listDatabaseNames();
     }

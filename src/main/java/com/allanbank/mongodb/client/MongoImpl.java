@@ -5,10 +5,8 @@
 
 package com.allanbank.mongodb.client;
 
-import com.allanbank.mongodb.Mongo;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
-import com.allanbank.mongodb.MongoDbConfiguration;
 
 /**
  * Implements the bootstrap point for interactions with MongoDB.
@@ -20,7 +18,8 @@ import com.allanbank.mongodb.MongoDbConfiguration;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
-public class MongoImpl extends MongoClientImpl implements Mongo {
+public class MongoImpl extends MongoClientImpl implements
+        com.allanbank.mongodb.Mongo {
 
     /**
      * Create a new MongoClient.
@@ -38,7 +37,7 @@ public class MongoImpl extends MongoClientImpl implements Mongo {
      * @param config
      *            The configuration for interacting with MongoDB.
      */
-    public MongoImpl(final MongoDbConfiguration config) {
+    public MongoImpl(final com.allanbank.mongodb.MongoDbConfiguration config) {
         super(config);
     }
 
@@ -52,7 +51,7 @@ public class MongoImpl extends MongoClientImpl implements Mongo {
      */
     @Override
     @Deprecated
-    public Mongo asSerializedMongo() {
+    public com.allanbank.mongodb.Mongo asSerializedMongo() {
         if (getClient() instanceof SerialClientImpl) {
             return this;
         }
@@ -67,10 +66,10 @@ public class MongoImpl extends MongoClientImpl implements Mongo {
      * </p>
      */
     @Override
-    public MongoDbConfiguration getConfig() {
+    public com.allanbank.mongodb.MongoDbConfiguration getConfig() {
         final MongoClientConfiguration config = getClient().getConfig();
-        if (config instanceof MongoDbConfiguration) {
-            return (MongoDbConfiguration) config;
+        if (config instanceof com.allanbank.mongodb.MongoDbConfiguration) {
+            return (com.allanbank.mongodb.MongoDbConfiguration) config;
         }
         throw new IllegalStateException(
                 "Configuration is not the expected MongoDbConfiguration.");
