@@ -2298,11 +2298,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Good.
             assertThat(
                     error.getMessage(),
-                    either(
-                            containsString("cannot use 'j' option when a host "
-                                    + "does not have journaling enabled")).or(
+                    anyOf(containsString("cannot use 'j' option when a host "
+                            + "does not have journaling enabled"),
                             containsString("journaling not enabled on this "
-                                    + "server")));
+                                    + "server"),
+                            containsString("timed out waiting for slaves")));
         }
     }
 
@@ -2654,6 +2654,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     greaterThanOrEqualTo(1), lessThanOrEqualTo(cores)));
             assertEquals(LARGE_COLLECTION_COUNT, count);
         }
+        catch (final ReplyException shardedMaybe) {
+            if (isShardedConfiguration()) {
+                assertThat(shardedMaybe.getMessage(),
+                        containsString("no such cmd: parallelCollectionScan"));
+            }
+            else {
+                throw shardedMaybe;
+            }
+        }
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance
             // That supports the parallelCollectionScan.
@@ -2697,6 +2706,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertThat(iterators.size(), Matchers.allOf(
                     greaterThanOrEqualTo(1), lessThanOrEqualTo(cores)));
             assertEquals(LARGE_COLLECTION_COUNT, count);
+        }
+        catch (final ReplyException shardedMaybe) {
+            if (isShardedConfiguration()) {
+                assertThat(shardedMaybe.getMessage(),
+                        containsString("no such cmd: parallelCollectionScan"));
+            }
+            else {
+                throw shardedMaybe;
+            }
         }
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance
@@ -8609,7 +8627,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             }
             catch (final DurabilityException error) {
                 // Good there was a timeout.
-                assertThat(error.getMessage(), containsString("timeout"));
+                assertThat(
+                        error.getMessage(),
+                        anyOf(containsString("timeout"),
+                                containsString("timed out waiting for slaves")));
 
                 // But the update should have happened.
                 final Document found = myCollection.findOne(doc);

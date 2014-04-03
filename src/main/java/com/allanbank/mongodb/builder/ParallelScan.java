@@ -11,6 +11,10 @@ import com.allanbank.mongodb.Version;
 /**
  * ParallelScan provides an immutable container for all of the options for a
  * {@code parallelCollectionScan}.
+ * <p>
+ * <b>Note</b>: The {@code parallelCollectionScan} does not work with sharded
+ * clusters.
+ * <p>
  * 
  * @see <a
  *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan

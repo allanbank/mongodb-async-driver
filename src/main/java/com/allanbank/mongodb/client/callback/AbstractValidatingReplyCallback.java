@@ -163,7 +163,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
             final boolean knownDurabilityError, final String errorMessage,
             final Message message) {
 
-        if (isDurabilityFailure(reply, knownDurabilityError)) {
+        if (isDurabilityFailure(reply, knownDurabilityError, errorMessage)) {
             return new DurabilityException(okValue, errorNumber, errorMessage,
                     message, reply);
         }
@@ -292,18 +292,24 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
      * @param knownDurabilityError
      *            If true then the result is already known to be a durability
      *            failure.
+     * @param errorMessage
+     *            The error message extracted from the document.
      * @return True if the durability has failed.
      */
     private boolean isDurabilityFailure(final Reply reply,
-            final boolean knownDurabilityError) {
+            final boolean knownDurabilityError, final String errorMessage) {
         boolean durabilityError = knownDurabilityError;
 
         final List<Document> results = reply.getResults();
         if ((results.size() == 1) && !knownDurabilityError) {
             final Document doc = results.get(0);
 
-            durabilityError = doc.contains("wtimeout") || doc.contains("wnote")
-                    || doc.contains("jnote") || doc.contains("badGLE");
+            durabilityError = doc.contains("wtimeout")
+                    || doc.contains("wnote")
+                    || doc.contains("jnote")
+                    || doc.contains("badGLE")
+                    || errorMessage
+                            .startsWith("could not enforce write concern");
         }
         return durabilityError;
     }

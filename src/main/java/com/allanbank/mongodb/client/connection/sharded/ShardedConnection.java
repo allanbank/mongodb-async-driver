@@ -82,17 +82,6 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to return the socket information.
-     * </p>
-     */
-    @Override
-    public String toString() {
-        return "Sharded(" + myLastUsedConnection.get() + ")";
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to create a connection to the server.
      * </p>
      */
@@ -150,6 +139,17 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
         }
 
         return servers;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the string {@code Sharded}.
+     * </p>
+     */
+    @Override
+    protected String getConnectionType() {
+        return "Sharded";
     }
 
     /**

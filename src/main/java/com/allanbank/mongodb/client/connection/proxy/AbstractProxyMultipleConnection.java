@@ -311,7 +311,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      */
     @Override
     public String toString() {
-        return "ReplicaSet(" + myLastUsedConnection.get() + ")";
+        return getConnectionType() + "(" + myLastUsedConnection.get() + ")";
     }
 
     /**
@@ -456,6 +456,13 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
             final Message message2) throws MongoDbException;
 
     /**
+     * Returns the type of connection (for logs, etc.).
+     * 
+     * @return The connection type.
+     */
+    protected abstract String getConnectionType();
+
+    /**
      * Tries to reconnect previously open {@link Connection}s. If a connection
      * was being closed then cleans up the remaining state.
      * 
@@ -493,8 +500,9 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
                 // Not sure who is primary any more.
                 myMainKey = null;
 
-                LOG.info("Primary MongoDB Connection closed: ReplicaSet({}). "
-                        + "Will try to reconnect.", connection);
+                LOG.info("Primary MongoDB Connection closed: {}({}). "
+                        + "Will try to reconnect.", getConnectionType(),
+                        connection);
 
                 // Need to use the reconnect logic to find the new primary.
                 final ConnectionInfo<K> newConn = reconnectMain();
@@ -516,8 +524,8 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
             }
             // Just remove the connection (above).
             else {
-                LOG.debug("MongoDB Connection closed: ReplicaSet({}).",
-                        connection);
+                LOG.debug("MongoDB Connection closed: {}({}).",
+                        getConnectionType(), connection);
             }
         }
         finally {

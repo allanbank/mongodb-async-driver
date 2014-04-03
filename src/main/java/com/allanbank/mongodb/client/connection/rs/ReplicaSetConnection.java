@@ -83,17 +83,6 @@ public class ReplicaSetConnection extends
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to return the socket information.
-     * </p>
-     */
-    @Override
-    public String toString() {
-        return "ReplicaSet(" + myLastUsedConnection.get() + ")";
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to create a connection to the server.
      * </p>
      */
@@ -150,6 +139,17 @@ public class ReplicaSetConnection extends
         }
 
         return servers;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the string {@code ReplicaSet}.
+     * </p>
+     */
+    @Override
+    protected String getConnectionType() {
+        return "ReplicaSet";
     }
 
     /**
