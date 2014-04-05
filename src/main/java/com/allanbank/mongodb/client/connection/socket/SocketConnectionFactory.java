@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.Version;
+import com.allanbank.mongodb.client.ClusterStats;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
@@ -164,32 +165,23 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the {@link Cluster}.
+     * </p>
+     */
+    @Override
+    public ClusterStats getClusterStats() {
+        return myState;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return {@link ClusterType#STAND_ALONE} cluster type.
      * </p>
      */
     @Override
     public ClusterType getClusterType() {
         return ClusterType.STAND_ALONE;
-    }
-
-    /**
-     * Returns the maximum server version within the cluster.
-     *
-     * @return The maximum server version within the cluster.
-     */
-    @Override
-    public Version getMaximumServerVersion() {
-        return myState.getMaximumServerVersion();
-    }
-
-    /**
-     * Returns the minimum server version within the cluster.
-     *
-     * @return The minimum server version within the cluster.
-     */
-    @Override
-    public Version getMinimumServerVersion() {
-        return myState.getMinimumServerVersion();
     }
 
     /**
@@ -207,30 +199,6 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         strategy.setState(myState);
 
         return strategy;
-    }
-
-    /**
-     * Returns smallest value for the maximum number of write operations allowed
-     * in a single write command.
-     *
-     * @return The smallest value for maximum number of write operations allowed
-     *         in a single write command.
-     */
-    @Override
-    public int getSmallestMaxBatchedWriteOperations() {
-        return myState.getSmallestMaxBatchedWriteOperations();
-    }
-
-    /**
-     * Returns the smallest value for the maximum BSON object size within the
-     * cluster.
-     *
-     * @return The smallest value for the maximum BSON object within the
-     *         cluster.
-     */
-    @Override
-    public long getSmallestMaxBsonObjectSize() {
-        return myState.getSmallestMaxBsonObjectSize();
     }
 
     /**

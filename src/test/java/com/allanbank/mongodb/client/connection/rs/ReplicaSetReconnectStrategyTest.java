@@ -66,7 +66,7 @@ public class ReplicaSetReconnectStrategyTest {
     /** Update document to mark servers as the secondary. */
     private static final Document SECONDARY_UPDATE = new ImmutableDocument(
             BuilderFactory.start().add("ismaster", false)
-                    .add("secondary", true));
+            .add("secondary", true));
 
     /**
      * Starts a Mock MongoDB server.
@@ -192,7 +192,7 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName1);
         replStatusBuilder.pushArray("hosts").addString(serverName1)
-                .addString(serverName2).addString(serverName3);
+        .addString(serverName2).addString(serverName3);
 
         // Servers are called twice. Once for ping and once for close.
         ourServer1.setReplies(reply(start(BUILD_INFO)),
@@ -232,7 +232,7 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName2);
         replStatusBuilder.pushArray("hosts").addString(serverName1)
-                .addString(serverName2).addString(serverName3);
+        .addString(serverName2).addString(serverName3);
 
         // Note sure who will get asked first... server2 should be asked twice.
         ourServer1.setReplies(reply(start(BUILD_INFO)),
@@ -286,7 +286,7 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName1);
         replStatusBuilder.pushArray("hosts").addString(serverName1)
-                .addString(serverName2).addString(serverName3);
+        .addString(serverName2).addString(serverName3);
 
         // Servers are called twice. Once for ping and once for close.
         ourServer1.setReplies(reply(start(PRIMARY_UPDATE, replStatusBuilder)),
@@ -340,18 +340,18 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName2);
         replStatusBuilder.pushArray("hosts").addString(serverName1)
-                .addString(serverName2).addString(serverName3);
+        .addString(serverName2).addString(serverName3);
 
         final DocumentBuilder replyUnknown = BuilderFactory.start();
         replyUnknown.push("repl");
         replyUnknown.pushArray("hosts").addString(serverName1)
-                .addString(serverName2).addString(serverName3);
+        .addString(serverName2).addString(serverName3);
 
         final DocumentBuilder reply2 = BuilderFactory.start();
         reply2.push("repl");
         reply2.addString("primary", serverName3);
         reply2.pushArray("hosts").addString(serverName1).addString(serverName2)
-                .addString(serverName3);
+        .addString(serverName3);
 
         // Note sure who will get asked first...
         ourServer1.setReplies(
@@ -413,7 +413,7 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName1);
         replStatusBuilder.pushArray("hosts").addString(serverName1)
-                .addString(serverName2).addString(serverName3);
+        .addString(serverName2).addString(serverName3);
 
         // Servers are called twice. Once for ping and once for close.
         ourServer1.setReplies(reply(start(BUILD_INFO)),
@@ -472,14 +472,14 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.reset();
         replStatusBuilder.push("repl");
         replStatusBuilder.pushArray("hosts").addString(serverName1)
-                .addString(serverName2).addString(serverName3);
+        .addString(serverName2).addString(serverName3);
 
         // Positive reply - server 3.
         final DocumentBuilder reply2 = BuilderFactory.start();
         reply2.push("repl");
         reply2.addString("primary", serverName3);
         reply2.pushArray("hosts").addString(serverName1).addString(serverName2)
-                .addString(serverName3);
+        .addString(serverName3);
 
         ourServer1.setReplies(reply(start(BUILD_INFO)),
                 reply(start(SECONDARY_UPDATE, replStatusBuilder)),
@@ -540,7 +540,7 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName1);
         replStatusBuilder.pushArray("hosts").addString(serverName1)
-                .addString(serverName2).addString(serverName3);
+        .addString(serverName2).addString(serverName3);
 
         // Servers are called twice. Once for ping and once for close.
         ourServer1.setReplies(reply(start(BUILD_INFO)),
@@ -593,7 +593,7 @@ public class ReplicaSetReconnectStrategyTest {
         replStatusBuilder.reset();
         replStatusBuilder.push("repl");
         replStatusBuilder.pushArray("hosts").addString(serverName1)
-                .addString(serverName2).addString(serverName3);
+        .addString(serverName2).addString(serverName3);
 
         ourServer1.setReplies(reply(start(BUILD_INFO)),
                 reply(replStatusBuilder), reply(replStatusBuilder),

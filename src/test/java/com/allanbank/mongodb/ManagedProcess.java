@@ -19,43 +19,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ManagedProcess {
 
     /**
-     * OutputReader provides a background process to read in all of the output
-     * from the process.
-     *
-     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected final class OutputReader implements Runnable {
-        @Override
-        public void run() {
-            try {
-                final char[] buffer = new char[1024];
-                while (true) {
-                    final int read = myReader.read(buffer);
-                    if (read > 0) {
-                        myLock.lock();
-                        try {
-                            if (ourWriteMongoDbOutput) {
-                                System.out.print(new String(buffer, 0, read));
-                            }
-                            myOutput.append(buffer, 0, read);
-                        }
-                        finally {
-                            myLock.unlock();
-                        }
-                    }
-                    else if (read < 0) {
-                        // EOF.
-                        return;
-                    }
-                }
-            }
-            catch (final IOException ioe) {
-                // Just exit.
-            }
-        }
-    }
-
-    /**
      * Boolean to control if the output from the MongoDB processes are written
      * to the console. This is normally false but can be turned on with a system
      * property or, more likely, at the start of a test (hence no final
@@ -228,6 +191,43 @@ public class ManagedProcess {
         }
         finally {
             myLock.unlock();
+        }
+    }
+
+    /**
+     * OutputReader provides a background process to read in all of the output
+     * from the process.
+     *
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected final class OutputReader implements Runnable {
+        @Override
+        public void run() {
+            try {
+                final char[] buffer = new char[1024];
+                while (true) {
+                    final int read = myReader.read(buffer);
+                    if (read > 0) {
+                        myLock.lock();
+                        try {
+                            if (ourWriteMongoDbOutput) {
+                                System.out.print(new String(buffer, 0, read));
+                            }
+                            myOutput.append(buffer, 0, read);
+                        }
+                        finally {
+                            myLock.unlock();
+                        }
+                    }
+                    else if (read < 0) {
+                        // EOF.
+                        return;
+                    }
+                }
+            }
+            catch (final IOException ioe) {
+                // Just exit.
+            }
         }
     }
 }

@@ -51,12 +51,12 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
  * <pre>
  * <code>
  * PendingMessage pm = new {@link PendingMessage}();
- * 
+ *
  * queue.take(pm); // Blocks.
  * // Handle the message.
- * 
+ *
  * // or
- * 
+ *
  * if( queue.poll(pm) ) { // Non-blocking.
  *    // Handle The Message.
  * }
@@ -376,7 +376,7 @@ public final class PendingMessageQueue {
      */
     public void put(final Message message, final ReplyCallback replyCallback,
             final Message message2, final ReplyCallback replyCallback2)
-            throws InterruptedException {
+                    throws InterruptedException {
         int loop = myLooped.get();
         int reserve = offer2();
         if (reserve < 0) {

@@ -28,6 +28,99 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  */
 public class Distinct {
     /**
+     * The first version of MongoDB to support the {@code distinct} command with
+     * the ability to limit the execution time on the server.
+     */
+    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
+
+    /**
+     * Creates a new builder for a {@link Distinct}.
+     *
+     * @return The builder to construct a {@link Distinct}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /** The name of the key to collect distinct values for. */
+    private final String myKey;
+
+    /** The maximum amount of time to allow the command to run. */
+    private final long myMaximumTimeMilliseconds;
+
+    /** The query to select document to perform a distinct query across. */
+    private final Document myQuery;
+
+    /** The read preference to use. */
+    private final ReadPreference myReadPreference;
+
+    /**
+     * Creates a new Distinct.
+     *
+     * @param builder
+     *            The builder to copy the state from.
+     * @throws IllegalArgumentException
+     *             If neither the {@link #getKey() key} is <code>null</code> or
+     *             empty.
+     */
+    protected Distinct(final Builder builder) {
+        assertNotEmpty(builder.myKey,
+                "The distinct's command key cannot be null or empty.");
+
+        myKey = builder.myKey;
+        myQuery = builder.myQuery;
+        myReadPreference = builder.myReadPreference;
+        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the name of the key to collect distinct values for.
+     *
+     * @return The name of the key to collect distinct values for.
+     */
+    public String getKey() {
+        return myKey;
+    }
+
+    /**
+     * Returns the maximum amount of time to allow the command to run on the
+     * Server before it is aborted.
+     *
+     * @return The maximum amount of time to allow the command to run on the
+     *         Server before it is aborted.
+     *
+     * @since MongoDB 2.6
+     */
+    public long getMaximumTimeMilliseconds() {
+        return myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the query to select the documents to run the distinct against.
+     *
+     * @return The query to select the documents to run the distinct against.
+     */
+    public Document getQuery() {
+        return myQuery;
+    }
+
+    /**
+     * Returns the {@link ReadPreference} specifying which servers may be used
+     * to execute the {@link Distinct} command.
+     * <p>
+     * If <code>null</code> then the {@link MongoCollection} instance's
+     * {@link ReadPreference} will be used.
+     * </p>
+     *
+     * @return The read preference to use.
+     *
+     * @see MongoCollection#getReadPreference()
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
      * Builder provides support for creating a {@link Distinct} object.
      *
      * @api.yes This class is part of the driver's API. Public and protected
@@ -224,98 +317,5 @@ public class Distinct {
             myReadPreference = readPreference;
             return this;
         }
-    }
-
-    /**
-     * The first version of MongoDB to support the {@code distinct} command with
-     * the ability to limit the execution time on the server.
-     */
-    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
-
-    /**
-     * Creates a new builder for a {@link Distinct}.
-     *
-     * @return The builder to construct a {@link Distinct}.
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /** The name of the key to collect distinct values for. */
-    private final String myKey;
-
-    /** The maximum amount of time to allow the command to run. */
-    private final long myMaximumTimeMilliseconds;
-
-    /** The query to select document to perform a distinct query across. */
-    private final Document myQuery;
-
-    /** The read preference to use. */
-    private final ReadPreference myReadPreference;
-
-    /**
-     * Creates a new Distinct.
-     *
-     * @param builder
-     *            The builder to copy the state from.
-     * @throws IllegalArgumentException
-     *             If neither the {@link #getKey() key} is <code>null</code> or
-     *             empty.
-     */
-    protected Distinct(final Builder builder) {
-        assertNotEmpty(builder.myKey,
-                "The distinct's command key cannot be null or empty.");
-
-        myKey = builder.myKey;
-        myQuery = builder.myQuery;
-        myReadPreference = builder.myReadPreference;
-        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the name of the key to collect distinct values for.
-     *
-     * @return The name of the key to collect distinct values for.
-     */
-    public String getKey() {
-        return myKey;
-    }
-
-    /**
-     * Returns the maximum amount of time to allow the command to run on the
-     * Server before it is aborted.
-     *
-     * @return The maximum amount of time to allow the command to run on the
-     *         Server before it is aborted.
-     *
-     * @since MongoDB 2.6
-     */
-    public long getMaximumTimeMilliseconds() {
-        return myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the query to select the documents to run the distinct against.
-     *
-     * @return The query to select the documents to run the distinct against.
-     */
-    public Document getQuery() {
-        return myQuery;
-    }
-
-    /**
-     * Returns the {@link ReadPreference} specifying which servers may be used
-     * to execute the {@link Distinct} command.
-     * <p>
-     * If <code>null</code> then the {@link MongoCollection} instance's
-     * {@link ReadPreference} will be used.
-     * </p>
-     *
-     * @return The read preference to use.
-     *
-     * @see MongoCollection#getReadPreference()
-     */
-    public ReadPreference getReadPreference() {
-        return myReadPreference;
     }
 }

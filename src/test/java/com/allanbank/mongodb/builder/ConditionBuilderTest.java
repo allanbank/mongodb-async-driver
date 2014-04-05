@@ -6,6 +6,7 @@
 package com.allanbank.mongodb.builder;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -123,7 +124,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).addBoolean(false)
-                .addBoolean(true);
+        .addBoolean(true);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -169,7 +170,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -191,7 +192,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).addBoolean(false)
-                .addBoolean(true);
+        .addBoolean(true);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -216,7 +217,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -241,7 +242,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -266,7 +267,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -289,7 +290,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).addBoolean(false)
-                .addBoolean(true);
+        .addBoolean(true);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -314,7 +315,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -339,7 +340,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -364,7 +365,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -389,7 +390,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -414,7 +415,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -439,7 +440,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.ALL.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1650,7 +1651,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).addBoolean(false)
-                .addBoolean(true);
+        .addBoolean(true);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1696,7 +1697,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1718,7 +1719,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).addBoolean(false)
-                .addBoolean(true);
+        .addBoolean(true);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1743,7 +1744,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1768,7 +1769,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1793,7 +1794,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1816,7 +1817,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).addBoolean(false)
-                .addBoolean(true);
+        .addBoolean(true);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1841,7 +1842,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1866,7 +1867,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1891,7 +1892,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1916,7 +1917,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -1932,7 +1933,7 @@ public class ConditionBuilderTest {
         final ConditionBuilder b = QueryBuilder.where("foo");
 
         final ElementType value = ElementType.values()[myRandom
-                .nextInt(ElementType.values().length)];
+                                                       .nextInt(ElementType.values().length)];
 
         b.equals(false); // Make sure equals is removed.
         b.instanceOf(value);
@@ -1967,7 +1968,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -2023,7 +2024,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.IN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -2586,7 +2587,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.MOD.getToken()).addInteger(v1)
-                .addInteger(v2);
+        .addInteger(v2);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -2611,7 +2612,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.MOD.getToken()).addLong(v1)
-                .addLong(v2);
+        .addLong(v2);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -2661,8 +2662,8 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.push(GeospatialOperator.NEAR.getToken())
-                .add(GeospatialOperator.GEOMETRY,
-                        GeoJson.point(GeoJson.p(v1, v2)))
+        .add(GeospatialOperator.GEOMETRY,
+                GeoJson.point(GeoJson.p(v1, v2)))
                 .add(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), 42.1);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
@@ -2688,7 +2689,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR.getToken()).addDouble(v1)
-                .addDouble(v2);
+        .addDouble(v2);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -2714,7 +2715,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR.getToken()).addDouble(v1)
-                .addDouble(v2);
+        .addDouble(v2);
         db.addDouble(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -2739,7 +2740,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR.getToken()).addInteger(v1)
-                .addInteger(v2);
+        .addInteger(v2);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -2765,7 +2766,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR.getToken()).addInteger(v1)
-                .addInteger(v2);
+        .addInteger(v2);
         db.addInteger(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
@@ -2791,7 +2792,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR.getToken()).addLong(v1)
-                .addLong(v2);
+        .addLong(v2);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -2817,7 +2818,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR.getToken()).addLong(v1)
-                .addLong(v2);
+        .addLong(v2);
         db.addLong(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
@@ -2869,8 +2870,8 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.push(GeospatialOperator.NEAR_SPHERE.getToken())
-                .add(GeospatialOperator.GEOMETRY,
-                        GeoJson.point(GeoJson.p(v1, v2)))
+        .add(GeospatialOperator.GEOMETRY,
+                GeoJson.point(GeoJson.p(v1, v2)))
                 .add(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), 42.1);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
@@ -2896,7 +2897,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR_SPHERE.getToken()).addDouble(v1)
-                .addDouble(v2);
+        .addDouble(v2);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -2923,7 +2924,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR_SPHERE.getToken()).addDouble(v1)
-                .addDouble(v2);
+        .addDouble(v2);
         db.addDouble(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
@@ -2949,7 +2950,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR_SPHERE.getToken()).addInteger(v1)
-                .addInteger(v2);
+        .addInteger(v2);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -2975,7 +2976,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR_SPHERE.getToken()).addInteger(v1)
-                .addInteger(v2);
+        .addInteger(v2);
         db.addInteger(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
@@ -3001,7 +3002,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR_SPHERE.getToken()).addLong(v1)
-                .addLong(v2);
+        .addLong(v2);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
     }
@@ -3027,7 +3028,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(GeospatialOperator.NEAR_SPHERE.getToken()).addLong(v1)
-                .addLong(v2);
+        .addLong(v2);
         db.addLong(GeospatialOperator.MAX_DISTANCE_MODIFIER.getToken(), v3);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
@@ -3548,7 +3549,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).addBoolean(false)
-                .addBoolean(true);
+        .addBoolean(true);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3594,7 +3595,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3617,7 +3618,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).addBoolean(false)
-                .addBoolean(true);
+        .addBoolean(true);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3642,7 +3643,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3667,7 +3668,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3692,7 +3693,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3715,7 +3716,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).addBoolean(false)
-                .addBoolean(true);
+        .addBoolean(true);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3740,7 +3741,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3765,7 +3766,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3790,7 +3791,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3815,7 +3816,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3840,7 +3841,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3865,7 +3866,7 @@ public class ConditionBuilderTest {
 
         final DocumentBuilder db = BuilderFactory.start();
         db.pushArray(MiscellaneousOperator.NIN.getToken()).add(value1)
-                .add(value2);
+        .add(value2);
 
         assertEquals(e, new DocumentElement("foo", db.build()));
     }
@@ -3913,6 +3914,45 @@ public class ConditionBuilderTest {
         db.addInteger(MiscellaneousOperator.SIZE.getToken(), value);
 
         assertEquals(new DocumentElement("foo", db.build()), e);
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#text(String)}.
+     */
+    @Test
+    public void testText() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.text("abc");
+
+        final Document e = b.build();
+
+        assertThat(e.getElements().size(), is(1));
+        assertEquals(e.getElements().get(0), new DocumentElement(
+                MiscellaneousOperator.TEXT.getToken(), new StringElement(
+                        MiscellaneousOperator.SEARCH_MODIFIER, "abc")));
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#text(String,String)}.
+     */
+    @Test
+    public void testTextWithLang() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.text("abc", "en");
+
+        final Document e = b.build();
+
+        assertThat(e.getElements().size(), is(1));
+        assertEquals(e.getElements().get(0),
+                new DocumentElement(MiscellaneousOperator.TEXT.getToken(),
+                        new StringElement(
+                                MiscellaneousOperator.SEARCH_MODIFIER, "abc"),
+                                new StringElement(
+                                        MiscellaneousOperator.LANGUAGE_MODIFIER, "en")));
     }
 
     /**
@@ -3976,7 +4016,7 @@ public class ConditionBuilderTest {
         region.pushArray().addDouble(p3.getX()).addDouble(p3.getY());
         for (int i = 0; i < count; ++i) {
             region.pushArray().addDouble(points[i].getX())
-                    .addDouble(points[i].getY());
+            .addDouble(points[i].getY());
         }
         wb.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, unique);
 
@@ -4649,7 +4689,7 @@ public class ConditionBuilderTest {
         region.pushArray().addDouble(p3.getX()).addDouble(p3.getY());
         for (int i = 0; i < count; ++i) {
             region.pushArray().addDouble(points[i].getX())
-                    .addDouble(points[i].getY());
+            .addDouble(points[i].getY());
         }
 
         assertEquals(new DocumentElement("foo", db.build()), e);

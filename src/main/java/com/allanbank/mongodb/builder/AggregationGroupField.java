@@ -28,6 +28,71 @@ import com.allanbank.mongodb.bson.element.StringElement;
 public class AggregationGroupField {
 
     /**
+     * Helper method for creating {@link AggregationGroupField.Builder}s using
+     * with a specific fieldName.
+     *
+     * @param fieldName
+     *            The name of the output document field to be set.
+     * @return The builder for constructing the {@link AggregationGroupField}.
+     * @see <a href=
+     *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
+     *      Aggregate Command $group Operator</a>
+     */
+    public static AggregationGroupField.Builder set(final String fieldName) {
+        return new AggregationGroupField.Builder(fieldName);
+    }
+
+    /** The element for the group operator's field. */
+    private final Element myElement;
+
+    /**
+     * Creates a new AggregationGroupField.
+     *
+     * @param name
+     *            The name of the output document field to be set.
+     * @param operator
+     *            The operator to use to perform the aggregation.
+     * @param value
+     *            The value to supply the operator.
+     */
+    protected AggregationGroupField(final String name, final String operator,
+            final int value) {
+        myElement = new DocumentElement(name, new IntegerElement(operator,
+                value));
+    }
+
+    /**
+     * Creates a new AggregationGroupField.
+     *
+     * @param name
+     *            The name of the output document field to be set.
+     * @param operator
+     *            The operator to use to perform the aggregation.
+     * @param fieldRef
+     *            The field reference to use. If the <tt>fieldRef</tt> does not
+     *            start with a '$' then one will be added.
+     */
+    protected AggregationGroupField(final String name, final String operator,
+            final String fieldRef) {
+        String normailzedFieldRef = fieldRef;
+        if (!fieldRef.startsWith("$")) {
+            normailzedFieldRef = "$" + fieldRef;
+        }
+
+        myElement = new DocumentElement(name, new StringElement(operator,
+                normailzedFieldRef));
+    }
+
+    /**
+     * Returns the element for the group operator's field.
+     *
+     * @return The element for the group operator's field.
+     */
+    public Element toElement() {
+        return myElement;
+    }
+
+    /**
      * Builder provides the ability to construct a {@link AggregationGroupField}
      * .
      * <p>
@@ -289,70 +354,5 @@ public class AggregationGroupField {
         public AggregationGroupField uniqueValuesOf(final String fieldRef) {
             return as("$addToSet", fieldRef);
         }
-    }
-
-    /**
-     * Helper method for creating {@link AggregationGroupField.Builder}s using
-     * with a specific fieldName.
-     *
-     * @param fieldName
-     *            The name of the output document field to be set.
-     * @return The builder for constructing the {@link AggregationGroupField}.
-     * @see <a href=
-     *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
-     *      Aggregate Command $group Operator</a>
-     */
-    public static AggregationGroupField.Builder set(final String fieldName) {
-        return new AggregationGroupField.Builder(fieldName);
-    }
-
-    /** The element for the group operator's field. */
-    private final Element myElement;
-
-    /**
-     * Creates a new AggregationGroupField.
-     *
-     * @param name
-     *            The name of the output document field to be set.
-     * @param operator
-     *            The operator to use to perform the aggregation.
-     * @param value
-     *            The value to supply the operator.
-     */
-    protected AggregationGroupField(final String name, final String operator,
-            final int value) {
-        myElement = new DocumentElement(name, new IntegerElement(operator,
-                value));
-    }
-
-    /**
-     * Creates a new AggregationGroupField.
-     *
-     * @param name
-     *            The name of the output document field to be set.
-     * @param operator
-     *            The operator to use to perform the aggregation.
-     * @param fieldRef
-     *            The field reference to use. If the <tt>fieldRef</tt> does not
-     *            start with a '$' then one will be added.
-     */
-    protected AggregationGroupField(final String name, final String operator,
-            final String fieldRef) {
-        String normailzedFieldRef = fieldRef;
-        if (!fieldRef.startsWith("$")) {
-            normailzedFieldRef = "$" + fieldRef;
-        }
-
-        myElement = new DocumentElement(name, new StringElement(operator,
-                normailzedFieldRef));
-    }
-
-    /**
-     * Returns the element for the group operator's field.
-     *
-     * @return The element for the group operator's field.
-     */
-    public Element toElement() {
-        return myElement;
     }
 }

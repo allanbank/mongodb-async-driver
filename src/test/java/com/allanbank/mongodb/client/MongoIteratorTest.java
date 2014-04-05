@@ -12,10 +12,12 @@ import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isNull;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
@@ -143,6 +145,8 @@ public class MongoIteratorTest {
 
         assertThat(iterImpl.asDocument(), is(b.build()));
 
+        iterImpl.close();
+
         verify();
     }
 
@@ -193,6 +197,8 @@ public class MongoIteratorTest {
         assertTrue(iter.hasNext());
         assertThat(iter.asDocument(), nullValue(Document.class));
 
+        iter.close();
+
         verify(mockClient);
     }
 
@@ -222,6 +228,10 @@ public class MongoIteratorTest {
         assertThat(iter.asDocument(), is(b.build()));
 
         verify(mockClient);
+
+        // Will call kill cursor.
+        reset(mockClient);
+        iter.close();
     }
 
     /**
@@ -948,6 +958,73 @@ public class MongoIteratorTest {
     }
 
     /**
+     * Test method for {@link MongoIteratorImpl#toArray()} .
+     */
+    @Test
+    public void testToArray() {
+
+        final Client mockClient = createMock(Client.class);
+        final Reply reply = new Reply(0, 0, 0, myDocs, false, false, false,
+                false);
+
+        replay(mockClient);
+
+        final MongoIteratorImpl iter = new MongoIteratorImpl(myQuery,
+                mockClient, myAddress, reply);
+
+        assertThat(iter.toArray(), arrayContaining(myDocs.toArray()));
+
+        iter.close();
+
+        verify(mockClient);
+    }
+
+    /**
+     * Test method for {@link MongoIteratorImpl#toArray(T[])} .
+     */
+    @Test
+    public void testToArrayTyped() {
+
+        final Client mockClient = createMock(Client.class);
+        final Reply reply = new Reply(0, 0, 0, myDocs, false, false, false,
+                false);
+
+        replay(mockClient);
+
+        final MongoIteratorImpl iter = new MongoIteratorImpl(myQuery,
+                mockClient, myAddress, reply);
+
+        assertThat(iter.toArray(new Document[0]),
+                arrayContaining(myDocs.toArray()));
+
+        iter.close();
+
+        verify(mockClient);
+    }
+
+    /**
+     * Test method for {@link MongoIteratorImpl#toList()} .
+     */
+    @Test
+    public void testToList() {
+
+        final Client mockClient = createMock(Client.class);
+        final Reply reply = new Reply(0, 0, 0, myDocs, false, false, false,
+                false);
+
+        replay(mockClient);
+
+        final MongoIteratorImpl iter = new MongoIteratorImpl(myQuery,
+                mockClient, myAddress, reply);
+
+        assertThat(iter.toList(), is(myDocs));
+
+        iter.close();
+
+        verify(mockClient);
+    }
+
+    /**
      * Test method for
      * {@link MongoIteratorImpl#MongoIteratorImpl(Document, Client)} .
      */
@@ -978,5 +1055,9 @@ public class MongoIteratorTest {
                 is(ReadPreference.server("server")));
 
         verify(mockClient);
+
+        // Will call kill cursor.
+        reset(mockClient);
+        iterImpl.close();
     }
 }

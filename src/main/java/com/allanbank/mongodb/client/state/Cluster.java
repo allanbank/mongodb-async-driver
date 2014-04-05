@@ -19,6 +19,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
+import com.allanbank.mongodb.client.ClusterStats;
+import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
@@ -41,79 +43,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Cluster {
-
-    /**
-     * ServerListener provides a listener for the state updates of the
-     * {@link Server}.
-     *
-     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
-     *         be mutated in incompatible ways between any two releases of the
-     *         driver.
-     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected final class ServerListener implements PropertyChangeListener {
-        @Override
-        public void propertyChange(final PropertyChangeEvent evt) {
-            final String propertyName = evt.getPropertyName();
-            final Server server = (Server) evt.getSource();
-
-            if (Server.STATE_PROP.equals(propertyName)) {
-
-                final boolean old = !myWritableServers.isEmpty();
-
-                if (Server.State.WRITABLE == evt.getNewValue()) {
-                    myWritableServers.addIfAbsent(server);
-                    myNonWritableServers.remove(server);
-                }
-                else if (Server.State.READ_ONLY == evt.getNewValue()) {
-                    myWritableServers.remove(server);
-                    myNonWritableServers.addIfAbsent(server);
-                }
-                else {
-                    myWritableServers.remove(server);
-                    myNonWritableServers.remove(server);
-                }
-
-                myChangeSupport.firePropertyChange(WRITABLE_PROP, old,
-                        !myWritableServers.isEmpty());
-
-            }
-            else if (Server.CANONICAL_NAME_PROP.equals(propertyName)) {
-                // Resolved a new canonical name. e.g., What the server
-                // calls itself in the cluster.
-
-                // Remove the entry with the old name.
-                myServers.remove(evt.getOldValue(), server);
-
-                // And add with the new name. Checking for duplicate entries.
-                final Server existing = myServers.putIfAbsent(
-                        server.getCanonicalName(), server);
-                if (existing != null) {
-                    // Already have a Server with that name. Remove the listener
-                    // and let this server get garbage collected.
-                    myNonWritableServers.remove(server);
-                    myWritableServers.remove(server);
-                    server.removeListener(myListener);
-
-                    myChangeSupport.firePropertyChange(SERVER_PROP, server,
-                            null);
-                }
-            }
-            else if (Server.VERSION_PROP.equals(propertyName)) {
-                // If the old version is either the high or low for the cluster
-                // (or the version is UNKNOWN) then recompute the high/low
-                // versions.
-                final Version old = (Version) evt.getOldValue();
-
-                if (Version.UNKNOWN.equals(old)
-                        || (myMaximumServerVersion.compareTo(old) <= 0)
-                        || (myMinimumServerVersion.compareTo(old) >= 0)) {
-                    updateVersions();
-                }
-            }
-        }
-    }
+public class Cluster implements ClusterStats {
 
     /** The property sued for adding a new server. */
     public static final String SERVER_PROP = "server";
@@ -121,14 +51,11 @@ public class Cluster {
     /** The property name for if there is a writable server. */
     public static final String WRITABLE_PROP = "writable";
 
-    /** The maximum server version within the cluster. */
-    protected Version myMaximumServerVersion;
-
-    /** The minimum server version within the cluster. */
-    protected Version myMinimumServerVersion;
-
     /** The complete list of servers. */
     protected final ConcurrentMap<String, Server> myServers;
+
+    /** The range of versions within the cluster. */
+    protected VersionRange myServerVersionRange;
 
     /** The smallest maximum number of operations in a batch in the cluster. */
     protected int mySmallestMaxBatchedWriteOperations;
@@ -164,8 +91,8 @@ public class Cluster {
         myWritableServers = new CopyOnWriteArrayList<Server>();
         myNonWritableServers = new CopyOnWriteArrayList<Server>();
         myListener = new ServerListener();
-        myMaximumServerVersion = Version.parse("0");
-        myMinimumServerVersion = myMaximumServerVersion;
+        myServerVersionRange = VersionRange.range(Version.parse("0"),
+                Version.parse("0"));
     }
 
     /**
@@ -289,24 +216,6 @@ public class Cluster {
     }
 
     /**
-     * Returns the maximum server version within the cluster.
-     *
-     * @return The maximum server version within the cluster.
-     */
-    public Version getMaximumServerVersion() {
-        return myMaximumServerVersion;
-    }
-
-    /**
-     * Returns the minimum server version within the cluster.
-     *
-     * @return The minimum server version within the cluster.
-     */
-    public Version getMinimumServerVersion() {
-        return myMinimumServerVersion;
-    }
-
-    /**
      * Returns a copy of the list of non-writable servers. The list returned is
      * a copy of the internal list and can be modified by the caller.
      *
@@ -327,12 +236,21 @@ public class Cluster {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public VersionRange getServerVersionRange() {
+        return myServerVersionRange;
+    }
+
+    /**
      * Returns smallest value for the maximum number of write operations allowed
      * in a single write command.
      *
      * @return The smallest value for maximum number of write operations allowed
      *         in a single write command.
      */
+    @Override
     public int getSmallestMaxBatchedWriteOperations() {
         return mySmallestMaxBatchedWriteOperations;
     }
@@ -344,6 +262,7 @@ public class Cluster {
      * @return The smallest value for the maximum BSON object size within the
      *         cluster.
      */
+    @Override
     public long getSmallestMaxBsonObjectSize() {
         return mySmallestMaxBsonObjectSize;
     }
@@ -612,8 +531,7 @@ public class Cluster {
                     server.getMaxBatchedWriteOperations());
         }
 
-        myMaximumServerVersion = max;
-        myMinimumServerVersion = min;
+        myServerVersionRange = VersionRange.range(min, max);
         mySmallestMaxBsonObjectSize = smallestMaxBsonObjectSize;
         mySmallestMaxBatchedWriteOperations = smallestMaxBatchedWriteOperations;
     }
@@ -654,6 +572,80 @@ public class Cluster {
             results.addAll(list2);
         }
         return results;
+    }
+
+    /**
+     * ServerListener provides a listener for the state updates of the
+     * {@link Server}.
+     *
+     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
+     *         be mutated in incompatible ways between any two releases of the
+     *         driver.
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected final class ServerListener implements PropertyChangeListener {
+        @Override
+        public void propertyChange(final PropertyChangeEvent evt) {
+            final String propertyName = evt.getPropertyName();
+            final Server server = (Server) evt.getSource();
+
+            if (Server.STATE_PROP.equals(propertyName)) {
+
+                final boolean old = !myWritableServers.isEmpty();
+
+                if (Server.State.WRITABLE == evt.getNewValue()) {
+                    myWritableServers.addIfAbsent(server);
+                    myNonWritableServers.remove(server);
+                }
+                else if (Server.State.READ_ONLY == evt.getNewValue()) {
+                    myWritableServers.remove(server);
+                    myNonWritableServers.addIfAbsent(server);
+                }
+                else {
+                    myWritableServers.remove(server);
+                    myNonWritableServers.remove(server);
+                }
+
+                myChangeSupport.firePropertyChange(WRITABLE_PROP, old,
+                        !myWritableServers.isEmpty());
+
+            }
+            else if (Server.CANONICAL_NAME_PROP.equals(propertyName)) {
+                // Resolved a new canonical name. e.g., What the server
+                // calls itself in the cluster.
+
+                // Remove the entry with the old name.
+                myServers.remove(evt.getOldValue(), server);
+
+                // And add with the new name. Checking for duplicate entries.
+                final Server existing = myServers.putIfAbsent(
+                        server.getCanonicalName(), server);
+                if (existing != null) {
+                    // Already have a Server with that name. Remove the listener
+                    // and let this server get garbage collected.
+                    myNonWritableServers.remove(server);
+                    myWritableServers.remove(server);
+                    server.removeListener(myListener);
+
+                    myChangeSupport.firePropertyChange(SERVER_PROP, server,
+                            null);
+                }
+            }
+            else if (Server.VERSION_PROP.equals(propertyName)) {
+                // If the old version is either the high or low for the cluster
+                // (or the version is UNKNOWN) then recompute the high/low
+                // versions.
+                final Version old = (Version) evt.getOldValue();
+
+                if (Version.UNKNOWN.equals(old)
+                        || (myServerVersionRange.getUpperBounds()
+                                .compareTo(old) <= 0)
+                                || (myServerVersionRange.getLowerBounds()
+                                        .compareTo(old) >= 0)) {
+                    updateVersions();
+                }
+            }
+        }
     }
 
 }

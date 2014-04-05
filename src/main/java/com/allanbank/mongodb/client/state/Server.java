@@ -36,39 +36,6 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  */
 public class Server {
 
-    /**
-     * State provides the possible sttes for a server within the MongoDB
-     * cluster.
-     *
-     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
-     *         be mutated in incompatible ways between any two releases of the
-     *         driver.
-     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public enum State {
-        /**
-         * We can send reads to the server. It is running, we can connect to it
-         * and is a secondary in the replica set.
-         */
-        READ_ONLY,
-
-        /** We cannot connect to the server. */
-        UNAVAILABLE,
-
-        /**
-         * A transient state for the server. We have either never connected to
-         * the server or have lost all of the connections to the server.
-         */
-        UNKNOWN,
-
-        /**
-         * We can send writes to the server. It is running, we can connect to it
-         * and is either a stand-alone instance, the primary in the replica set
-         * or a mongos.
-         */
-        WRITABLE;
-    }
-
     /** The name for the Server's canonical name property: '{@value} '. */
     public static final String CANONICAL_NAME_PROP = "canonicalName";
 
@@ -797,5 +764,38 @@ public class Server {
         }
 
         myEventSupport.firePropertyChange(VERSION_PROP, oldValue, myVersion);
+    }
+
+    /**
+     * State provides the possible sttes for a server within the MongoDB
+     * cluster.
+     *
+     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
+     *         be mutated in incompatible ways between any two releases of the
+     *         driver.
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public enum State {
+        /**
+         * We can send reads to the server. It is running, we can connect to it
+         * and is a secondary in the replica set.
+         */
+        READ_ONLY,
+
+        /** We cannot connect to the server. */
+        UNAVAILABLE,
+
+        /**
+         * A transient state for the server. We have either never connected to
+         * the server or have lost all of the connections to the server.
+         */
+        UNKNOWN,
+
+        /**
+         * We can send writes to the server. It is running, we can connect to it
+         * and is either a stand-alone instance, the primary in the replica set
+         * or a mongos.
+         */
+        WRITABLE;
     }
 }

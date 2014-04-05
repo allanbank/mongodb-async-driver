@@ -534,6 +534,30 @@ public class Slf4jLogTest {
     }
 
     /**
+     * Test for the {@link AbstractLog#log(Level, String)} method.
+     */
+    @Test
+    public void testLogLevelTrace() {
+        final String method = "testLogLevelTrace";
+        final String messsage = "Log Message";
+        final Level level = Level.parse("0");
+
+        myTestLog.log(level, messsage);
+
+        final List<LogRecord> records = myCaptureHandler.getRecords();
+        assertThat(records.size(), is(1));
+
+        final LogRecord record = records.get(0);
+        assertThat(record.getLevel(), is(Level.FINEST));
+        assertThat(record.getLoggerName(), is(Slf4jLogTest.class.getName()));
+        assertThat(record.getMessage(), is(messsage));
+        assertThat(record.getSourceClassName(),
+                is(Slf4jLogTest.class.getName()));
+        assertThat(record.getSourceMethodName(), is(method));
+        assertThat(record.getThrown(), nullValue());
+    }
+
+    /**
      * Test for the {@link AbstractLog#warn(String)} method.
      */
     @Test

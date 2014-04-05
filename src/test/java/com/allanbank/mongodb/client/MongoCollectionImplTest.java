@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -59,6 +60,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.builder.Aggregate;
+import com.allanbank.mongodb.builder.BatchedWrite;
 import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
@@ -67,7 +69,9 @@ import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.ParallelScan;
 import com.allanbank.mongodb.builder.Sort;
+import com.allanbank.mongodb.client.callback.BatchedWriteCallback;
 import com.allanbank.mongodb.client.callback.CursorCallback;
 import com.allanbank.mongodb.client.callback.ReplyArrayCallback;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
@@ -80,6 +84,7 @@ import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.Insert;
+import com.allanbank.mongodb.client.message.ParallelScanCommand;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.message.Update;
@@ -318,6 +323,95 @@ public class MongoCollectionImplTest {
         myTestInstance.aggregateAsync(mockCallback, builder);
 
         verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#aggregateAsync(Aggregate)} .
+     *
+     * @throws Exception
+     *             On a failure.
+     */
+    @Test
+    public void testAggregateWithCursor() throws Exception {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.limit(5);
+        builder.useCursor();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+        expectedCommand.push("cursor");
+
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Aggregate.MAX_TIMEOUT_VERSION));
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
+
+        replay();
+
+        final MongoIterator<Document> docs = myTestInstance.aggregateAsync(
+                builder).get();
+        assertThat(docs.hasNext(), is(true));
+        assertThat(docs.next(), is(value.build()));
+        assertThat(docs.hasNext(), is(false));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#aggregateAsync(Aggregate)} .
+     *
+     * @throws Exception
+     *             On a failure.
+     */
+    @Test
+    public void testAggregateWithCursorBatchSizeAndAllowDisk() throws Exception {
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.limit(5);
+        builder.useCursor(true).batchSize(10).allowDiskUsage();
+
+        final DocumentBuilder result = BuilderFactory.start();
+        final DocumentBuilder value = result.pushArray("result").push();
+        value.addInteger("foo", 1);
+
+        final DocumentBuilder expectedCommand = BuilderFactory.start();
+        expectedCommand.addString("aggregate", "test");
+        expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
+        expectedCommand.push("cursor").add("batchSize", 10)
+                .add("allowDiskUsage", true);
+
+        final AggregateCommand message = new AggregateCommand(builder.build(),
+                "test", "test", expectedCommand.build(),
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(Aggregate.MAX_TIMEOUT_VERSION));
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        myMockClient.send(eq(message), callback(reply(result.build())));
+        expectLastCall();
+
+        replay();
+
+        final MongoIterator<Document> docs = myTestInstance.aggregateAsync(
+                builder).get();
+        assertThat(docs.hasNext(), is(true));
+        assertThat(docs.next(), is(value.build()));
+        assertThat(docs.hasNext(), is(false));
+
+        verify();
     }
 
     /**
@@ -2417,6 +2511,22 @@ public class MongoCollectionImplTest {
         assertFalse(myTestInstance.dropIndex("foo"));
         assertFalse(myTestInstance.dropIndex("foo"));
         assertTrue(myTestInstance.dropIndex(Index.asc("f")));
+
+        verify();
+    }
+
+    /**
+     * Test method for {@link MongoDatabaseImpl#exists()}.
+     */
+    @Test
+    public void testExists() {
+
+        expect(myMockDatabase.listCollectionNames()).andReturn(
+                Collections.singletonList("test"));
+
+        replay();
+
+        assertThat(myTestInstance.exists(), is(true));
 
         verify();
     }
@@ -5708,6 +5818,143 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
+     * {@link SynchronousMongoCollectionImpl#parallelScan(ParallelScan)} .
+     */
+    @Test
+    public void testParallelScan() {
+        final ClusterStats mockStats = createMock(ClusterStats.class);
+
+        final DocumentBuilder commandDoc = BuilderFactory.start();
+        commandDoc.add("parallelCollectionScan", "test");
+        commandDoc.add("numCursors", 2);
+
+        final DocumentBuilder replyDoc = BuilderFactory.start();
+        replyDoc.add("ok", 1);
+        replyDoc.pushArray("cursors").push().push("cursor").add("id", 1234)
+                .pushArray("firstBatch");
+
+        final ParallelScan.Builder scan = ParallelScan.builder()
+                .requestedIteratorCount(2)
+                .readPreference(ReadPreference.PREFER_SECONDARY);
+
+        final ParallelScanCommand commandMsg = new ParallelScanCommand(
+                scan.build(), "test", "test", commandDoc.build(),
+                ReadPreference.PREFER_SECONDARY);
+
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        myMockClient.send(eq(commandMsg), callback(reply(replyDoc.build())));
+        expectLastCall();
+
+        replay(mockStats);
+
+        final Collection<MongoIterator<Document>> result = myTestInstance
+                .parallelScan(scan);
+        assertThat(result.size(), is(1));
+
+        verify(mockStats);
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#parallelScanAsync(Callback,ParallelScan)}
+     * .
+     */
+    @Test
+    public void testParallelScanAsync() {
+        final Callback<Collection<MongoIterator<Document>>> mockCallback = createMock(Callback.class);
+        final ClusterStats mockStats = createMock(ClusterStats.class);
+
+        final DocumentBuilder commandDoc = BuilderFactory.start();
+        commandDoc.add("parallelCollectionScan", "test");
+        commandDoc.add("numCursors", 2);
+
+        final DocumentBuilder replyDoc = BuilderFactory.start();
+        replyDoc.add("ok", 1);
+        replyDoc.pushArray("cursors").push().push("cursor").add("id", 1234)
+                .pushArray("firstBatch");
+
+        final ParallelScan.Builder scan = ParallelScan.builder()
+                .requestedIteratorCount(2)
+                .readPreference(ReadPreference.PREFER_SECONDARY);
+
+        final ParallelScanCommand commandMsg = new ParallelScanCommand(
+                scan.build(), "test", "test", commandDoc.build(),
+                ReadPreference.PREFER_SECONDARY);
+
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        myMockClient.send(eq(commandMsg), callback(reply(replyDoc.build())));
+        expectLastCall();
+
+        Capture<Collection<MongoIterator<Document>>> capture;
+        capture = new Capture<Collection<MongoIterator<Document>>>();
+        mockCallback.callback(capture(capture));
+        expectLastCall();
+
+        replay(mockCallback, mockStats);
+
+        myTestInstance.parallelScanAsync(mockCallback, scan);
+
+        verify(mockCallback, mockStats);
+
+        assertThat(capture.getValue().size(), is(1));
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#parallelScanAsync(ParallelScan)} .
+     *
+     * @throws Exception
+     *             On a test error.
+     */
+    @Test
+    public void testParallelScanAsyncFuture() throws Exception {
+        final ClusterStats mockStats = createMock(ClusterStats.class);
+
+        final DocumentBuilder commandDoc = BuilderFactory.start();
+        commandDoc.add("parallelCollectionScan", "test");
+        commandDoc.add("numCursors", 2);
+
+        final DocumentBuilder replyDoc = BuilderFactory.start();
+        replyDoc.add("ok", 1);
+        replyDoc.pushArray("cursors").push().push("cursor").add("id", 1234)
+                .pushArray("firstBatch");
+
+        final ParallelScan.Builder scan = ParallelScan.builder()
+                .requestedIteratorCount(2)
+                .readPreference(ReadPreference.PREFER_SECONDARY);
+
+        final ParallelScanCommand commandMsg = new ParallelScanCommand(
+                scan.build(), "test", "test", commandDoc.build(),
+                ReadPreference.PREFER_SECONDARY);
+
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        myMockClient.send(eq(commandMsg), callback(reply(replyDoc.build())));
+        expectLastCall();
+
+        replay(mockStats);
+
+        final Collection<MongoIterator<Document>> result = myTestInstance
+                .parallelScanAsync(scan).get();
+        assertThat(result.size(), is(1));
+
+        verify(mockStats);
+
+    }
+
+    /**
+     * Test method for
      * {@link SynchronousMongoCollectionImpl#saveAsync(Callback, DocumentAssignable)}
      * .
      */
@@ -7409,6 +7656,187 @@ public class MongoCollectionImplTest {
                 myTestInstance.validate(MongoCollection.ValidateMode.FULL));
 
         verify();
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#writeAsync(Callback, BatchedWrite)}
+     * .
+     */
+    @Test
+    public void testWriteAsyncBatchedWrite() {
+        final Callback<Long> mockCallback = createMock(Callback.class);
+        final ClusterStats mockStats = createMock(ClusterStats.class);
+
+        final BatchedWrite.Builder write = BatchedWrite.builder().insert(
+                BuilderFactory.start());
+        final BatchedWrite.Bundle bundle = write.build()
+                .toBundles("test", 100000, 10000000).get(0);
+
+        final Command commandMsg = new Command("test", bundle.getCommand(),
+                ReadPreference.PRIMARY,
+                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+
+        expect(myMockClient.getClusterStats()).andReturn(mockStats);
+        expect(mockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(mockStats.getSmallestMaxBatchedWriteOperations())
+                .andReturn(1000);
+        expect(mockStats.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+
+        myMockClient
+                .send(eq(commandMsg), anyObject(BatchedWriteCallback.class));
+        expectLastCall();
+
+        replay(mockCallback, mockStats);
+
+        myTestInstance.writeAsync(mockCallback, write);
+
+        verify(mockCallback, mockStats);
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#writeAsync(Callback, BatchedWrite)}
+     * .
+     */
+    @Test
+    public void testWriteAsyncBatchedWriteBefore26() {
+        final Callback<Long> mockCallback = createMock(Callback.class);
+        final ClusterStats mockStats = createMock(ClusterStats.class);
+
+        final Document doc = BuilderFactory.start().add("_id", 1).build();
+
+        final BatchedWrite.Builder write = BatchedWrite.builder().insert(doc);
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 1, 0);
+
+        expect(myMockClient.getClusterStats()).andReturn(mockStats);
+        expect(mockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(BatchedWriteCallback.class));
+        expectLastCall();
+
+        replay(mockCallback, mockStats);
+
+        myTestInstance.writeAsync(mockCallback, write);
+
+        verify(mockCallback, mockStats);
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#writeAsync(Callback, BatchedWrite)}
+     * .
+     */
+    @Test
+    public void testWriteAsyncBatchedWriteBefore26NoOps() {
+        final Callback<Long> mockCallback = createMock(Callback.class);
+        final ClusterStats mockStats = createMock(ClusterStats.class);
+
+        final BatchedWrite.Builder write = BatchedWrite.builder();
+
+        mockCallback.callback(0L);
+        expectLastCall();
+        expect(myMockClient.getClusterStats()).andReturn(mockStats);
+        expect(mockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
+        replay(mockCallback, mockStats);
+
+        myTestInstance.writeAsync(mockCallback, write);
+
+        verify(mockCallback, mockStats);
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#writeAsync(Callback, BatchedWrite)}
+     * .
+     */
+    @Test
+    public void testWriteAsyncBatchedWriteNoOps() {
+        final Callback<Long> mockCallback = createMock(Callback.class);
+        final ClusterStats mockStats = createMock(ClusterStats.class);
+
+        final BatchedWrite.Builder write = BatchedWrite.builder();
+        expect(myMockClient.getClusterStats()).andReturn(mockStats);
+        expect(mockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(mockStats.getSmallestMaxBatchedWriteOperations())
+                .andReturn(1000);
+        expect(mockStats.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+
+        mockCallback.callback(0L);
+        expectLastCall();
+
+        replay(mockCallback, mockStats);
+
+        myTestInstance.writeAsync(mockCallback, write);
+
+        verify(mockCallback, mockStats);
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#write(BatchedWrite)} .
+     *
+     * @throws Exception
+     *             On a test failure.
+     */
+    @Test
+    public void testWriteBatchedWriteAsyncFutureNoOps() throws Exception {
+        final ClusterStats mockStats = createMock(ClusterStats.class);
+
+        final BatchedWrite.Builder write = BatchedWrite.builder();
+        expect(myMockClient.getClusterStats()).andReturn(mockStats);
+        expect(mockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(mockStats.getSmallestMaxBatchedWriteOperations())
+                .andReturn(1000);
+        expect(mockStats.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+
+        replay(mockStats);
+
+        assertThat(myTestInstance.writeAsync(write).get(), is(0L));
+
+        verify(mockStats);
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#write(BatchedWrite)} .
+     */
+    @Test
+    public void testWriteBatchedWriteNoOps() {
+        final ClusterStats mockStats = createMock(ClusterStats.class);
+
+        final BatchedWrite.Builder write = BatchedWrite.builder();
+        expect(myMockClient.getClusterStats()).andReturn(mockStats);
+        expect(mockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(mockStats.getSmallestMaxBatchedWriteOperations())
+                .andReturn(1000);
+        expect(mockStats.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+
+        replay(mockStats);
+
+        assertThat(myTestInstance.write(write), is(0L));
+
+        verify(mockStats);
     }
 
     /**

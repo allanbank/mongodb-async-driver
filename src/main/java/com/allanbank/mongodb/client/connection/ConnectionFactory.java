@@ -8,7 +8,7 @@ package com.allanbank.mongodb.client.connection;
 import java.io.Closeable;
 import java.io.IOException;
 
-import com.allanbank.mongodb.Version;
+import com.allanbank.mongodb.client.ClusterStats;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.bootstrap.BootstrapConnectionFactory;
 import com.allanbank.mongodb.client.connection.socket.SocketConnection;
@@ -42,6 +42,13 @@ public interface ConnectionFactory extends Closeable {
     public Connection connect() throws IOException;
 
     /**
+     * Returns the meta-data on the current cluster.
+     *
+     * @return The meta-data on the current cluster.
+     */
+    public ClusterStats getClusterStats();
+
+    /**
      * Returns the type of cluster the connection factory connects to.
      *
      * @return The type of cluster the connection factory connects to.
@@ -49,41 +56,9 @@ public interface ConnectionFactory extends Closeable {
     public ClusterType getClusterType();
 
     /**
-     * Returns the maximum server version within the cluster.
-     *
-     * @return The maximum server version within the cluster.
-     */
-    public Version getMaximumServerVersion();
-
-    /**
-     * Returns the minimum server version within the cluster.
-     *
-     * @return The minimum server version within the cluster.
-     */
-    public Version getMinimumServerVersion();
-
-    /**
      * Returns the reconnection strategy for the type of connections.
      *
      * @return The reconnection strategy for the type of connections.
      */
     public ReconnectStrategy getReconnectStrategy();
-
-    /**
-     * Returns smallest value for the maximum number of write operations allowed
-     * in a single write command.
-     *
-     * @return The smallest value for maximum number of write operations allowed
-     *         in a single write command.
-     */
-    public int getSmallestMaxBatchedWriteOperations();
-
-    /**
-     * Returns the smallest value for the maximum BSON object size within the
-     * cluster.
-     *
-     * @return The smallest value for the maximum BSON object size within the
-     *         cluster.
-     */
-    public long getSmallestMaxBsonObjectSize();
 }

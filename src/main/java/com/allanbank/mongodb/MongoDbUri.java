@@ -62,7 +62,7 @@ public class MongoDbUri {
                 .equalsIgnoreCase(MONGODB_URI_PREFIX)) {
             throw new IllegalArgumentException(
                     "The MongoDB URI must start with '" + MONGODB_URI_PREFIX
-                            + "'.");
+                    + "'.");
         }
 
         String remaining = mongoDbUri.substring(MONGODB_URI_PREFIX.length());
@@ -128,7 +128,7 @@ public class MongoDbUri {
             else {
                 throw new IllegalArgumentException(
                         "The password for the user '" + userNamePassword
-                                + "' must be provided.");
+                        + "' must be provided.");
             }
         }
         else {

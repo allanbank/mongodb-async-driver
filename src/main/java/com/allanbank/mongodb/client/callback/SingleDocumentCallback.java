@@ -19,7 +19,7 @@ import com.allanbank.mongodb.client.message.Reply;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class SingleDocumentCallback extends
-        AbstractReplyCallback<Document> {
+AbstractReplyCallback<Document> {
 
     /**
      * Create a new CursorCallback.

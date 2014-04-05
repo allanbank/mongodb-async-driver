@@ -34,60 +34,6 @@ import com.allanbank.mongodb.error.BatchedWriteException;
  */
 public class BatchedNativeWriteCallback extends ReplyLongCallback {
 
-    /**
-     * NativeCallback provides the callback for a single operation within a
-     * batched write. This callback is used when the batched write commands are
-     * not supported and the driver falls back to using the native insert,
-     * update, and delete messages.
-     *
-     * @param <T>
-     *            The type for the callback. Expected to be either Integer or
-     *            Long.
-     *
-     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
-     *         be mutated in incompatible ways between any two releases of the
-     *         driver.
-     * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    /* package */class NativeCallback<T extends Number> implements Callback<T> {
-
-        /** The operation this callback is waiting for the reply from. */
-        private final WriteOperation myOperation;
-
-        /**
-         * Creates a new BatchedWriteNativeCallback.
-         *
-         * @param operation
-         *            The operation this callback is waiting for the reply from.
-         */
-        public NativeCallback(final WriteOperation operation) {
-            myOperation = operation;
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to forward the results to the parent callback.
-         * </p>
-         */
-        @Override
-        public void callback(final T result) {
-            BatchedNativeWriteCallback.this.callback(myOperation,
-                    result.longValue());
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to forward the error to the parent callback.
-         * </p>
-         */
-        @Override
-        public void exception(final Throwable thrown) {
-            BatchedNativeWriteCallback.this.exception(myOperation, thrown);
-        }
-    }
-
     /** The collection to send individual operations with. */
     private final AbstractMongoOperations myCollection;
 
@@ -248,6 +194,60 @@ public class BatchedNativeWriteCallback extends ReplyLongCallback {
         else {
             myForwardCallback.exception(new BatchedWriteException(myWrite, myN,
                     myPendingOperations, myFailedOperations));
+        }
+    }
+
+    /**
+     * NativeCallback provides the callback for a single operation within a
+     * batched write. This callback is used when the batched write commands are
+     * not supported and the driver falls back to using the native insert,
+     * update, and delete messages.
+     *
+     * @param <T>
+     *            The type for the callback. Expected to be either Integer or
+     *            Long.
+     *
+     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
+     *         be mutated in incompatible ways between any two releases of the
+     *         driver.
+     * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    /* package */class NativeCallback<T extends Number> implements Callback<T> {
+
+        /** The operation this callback is waiting for the reply from. */
+        private final WriteOperation myOperation;
+
+        /**
+         * Creates a new BatchedWriteNativeCallback.
+         *
+         * @param operation
+         *            The operation this callback is waiting for the reply from.
+         */
+        public NativeCallback(final WriteOperation operation) {
+            myOperation = operation;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to forward the results to the parent callback.
+         * </p>
+         */
+        @Override
+        public void callback(final T result) {
+            BatchedNativeWriteCallback.this.callback(myOperation,
+                    result.longValue());
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to forward the error to the parent callback.
+         * </p>
+         */
+        @Override
+        public void exception(final Throwable thrown) {
+            BatchedNativeWriteCallback.this.exception(myOperation, thrown);
         }
     }
 }

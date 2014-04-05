@@ -14,7 +14,6 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -70,6 +69,17 @@ public class SerialClientImpl extends AbstractClient {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the cluster stats from the delegate client.
+     * </p>
+     */
+    @Override
+    public ClusterStats getClusterStats() {
+        return myDelegate.getClusterStats();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return the {@link ClusterType} of delegate
      * {@link ClientImpl}.
      * </p>
@@ -118,50 +128,6 @@ public class SerialClientImpl extends AbstractClient {
     }
 
     /**
-     * Returns the maximum server version within the cluster.
-     *
-     * @return The maximum server version within the cluster.
-     */
-    @Override
-    public Version getMaximumServerVersion() {
-        return myDelegate.getMaximumServerVersion();
-    }
-
-    /**
-     * Returns the minimum server version within the cluster.
-     *
-     * @return The minimum server version within the cluster.
-     */
-    @Override
-    public Version getMinimumServerVersion() {
-        return myDelegate.getMinimumServerVersion();
-    }
-
-    /**
-     * Returns smallest value for the maximum number of write operations allowed
-     * in a single write command.
-     *
-     * @return The smallest value for maximum number of write operations allowed
-     *         in a single write command.
-     */
-    @Override
-    public int getSmallestMaxBatchedWriteOperations() {
-        return myDelegate.getSmallestMaxBatchedWriteOperations();
-    }
-
-    /**
-     * Returns the lowest value for the maximum BSON object size within the
-     * cluster.
-     *
-     * @return The lowest value for the maximum BSON object size within the
-     *         cluster.
-     */
-    @Override
-    public long getSmallestMaxBsonObjectSize() {
-        return myDelegate.getSmallestMaxBsonObjectSize();
-    }
-
-    /**
      * {@inheritDoc}
      * <p>
      * Overridden to forward to the delegate client.
@@ -172,7 +138,7 @@ public class SerialClientImpl extends AbstractClient {
     @Override
     public MongoIterator<Document> restart(
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return myDelegate.restart(cursorDocument);
     }
 
@@ -187,7 +153,7 @@ public class SerialClientImpl extends AbstractClient {
     @Override
     public MongoCursorControl restart(final StreamCallback<Document> results,
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return myDelegate.restart(results, cursorDocument);
     }
 

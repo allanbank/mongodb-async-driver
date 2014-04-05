@@ -25,6 +25,78 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  */
 public class Count {
 
+    /** An (empty) query document to find all documents. */
+    public static final Document ALL = MongoCollection.ALL;
+
+    /**
+     * The first version of MongoDB to support the {@code count} command with
+     * the ability to limit the execution time on the server.
+     */
+    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
+
+    /**
+     * Creates a new builder for a {@link Count}.
+     *
+     * @return The builder to construct a {@link Count}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /** The maximum amount of time to allow the query to run. */
+    private final long myMaximumTimeMilliseconds;
+
+    /** The query document. */
+    private final Document myQuery;
+
+    /** The preference for which servers to use to retrieve the results. */
+    private final ReadPreference myReadPreference;
+
+    /**
+     * Creates a new Count.
+     *
+     * @param builder
+     *            The builder to copy the query fields from.
+     */
+    protected Count(final Builder builder) {
+        myQuery = builder.myQuery;
+        myReadPreference = builder.myReadPreference;
+        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the maximum amount of time to allow the query to run on the
+     * Server before it is aborted.
+     *
+     * @return The maximum amount of time to allow the query to run on the
+     *         Server before it is aborted.
+     *
+     * @since MongoDB 2.6
+     */
+    public long getMaximumTimeMilliseconds() {
+        return myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the query document.
+     *
+     * @return The query document.
+     */
+    public Document getQuery() {
+        return myQuery;
+    }
+
+    /**
+     * Returns the preference for the servers to retrieve the results from. May
+     * be <code>null</code> in which case the default read preference should be
+     * used.
+     *
+     * @return The preference for the servers to retrieve the results from.
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
     /**
      * Helper for creating immutable {@link Count} queries.
      *
@@ -182,77 +254,5 @@ public class Count {
             return this;
         }
 
-    }
-
-    /** An (empty) query document to find all documents. */
-    public static final Document ALL = MongoCollection.ALL;
-
-    /**
-     * The first version of MongoDB to support the {@code count} command with
-     * the ability to limit the execution time on the server.
-     */
-    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
-
-    /**
-     * Creates a new builder for a {@link Count}.
-     *
-     * @return The builder to construct a {@link Count}.
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /** The maximum amount of time to allow the query to run. */
-    private final long myMaximumTimeMilliseconds;
-
-    /** The query document. */
-    private final Document myQuery;
-
-    /** The preference for which servers to use to retrieve the results. */
-    private final ReadPreference myReadPreference;
-
-    /**
-     * Creates a new Count.
-     *
-     * @param builder
-     *            The builder to copy the query fields from.
-     */
-    protected Count(final Builder builder) {
-        myQuery = builder.myQuery;
-        myReadPreference = builder.myReadPreference;
-        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the maximum amount of time to allow the query to run on the
-     * Server before it is aborted.
-     *
-     * @return The maximum amount of time to allow the query to run on the
-     *         Server before it is aborted.
-     *
-     * @since MongoDB 2.6
-     */
-    public long getMaximumTimeMilliseconds() {
-        return myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the query document.
-     *
-     * @return The query document.
-     */
-    public Document getQuery() {
-        return myQuery;
-    }
-
-    /**
-     * Returns the preference for the servers to retrieve the results from. May
-     * be <code>null</code> in which case the default read preference should be
-     * used.
-     *
-     * @return The preference for the servers to retrieve the results from.
-     */
-    public ReadPreference getReadPreference() {
-        return myReadPreference;
     }
 }

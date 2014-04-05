@@ -47,7 +47,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DocumentBuilderImpl extends AbstractBuilder implements
-        DocumentBuilder {
+DocumentBuilder {
 
     /** Tracks if an _id element is present. */
     private boolean myIdPresent;
@@ -232,7 +232,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Deprecated
     public DocumentBuilder add(final String name, final String databaseName,
             final String collectionName, final ObjectId id)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return addDBPointer(name, databaseName, collectionName, id);
     }
 
@@ -411,7 +411,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
     @Override
     public DocumentBuilder addRegularExpression(final String name,
             final String pattern, final String options)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return add(new RegularExpressionElement(name, pattern, options));
     }
 

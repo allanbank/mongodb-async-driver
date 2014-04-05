@@ -29,102 +29,6 @@ import com.allanbank.mongodb.bson.element.AbstractElement;
  */
 public abstract class AbstractBuilder implements Builder {
 
-    /**
-     * A temporary Element to stand in for a element being constructed with a
-     * builder.
-     * <p>
-     * <b>Note:</b> This class if final to allow the class comparison in
-     * {@link AbstractBuilder}.subElements() method.
-     * </p>
-     */
-    public static final class BuilderElement extends AbstractElement {
-
-        /** Serialization version for the class. */
-        private static final long serialVersionUID = 4421203621373216989L;
-
-        /** The encapsulated builder. */
-        private transient AbstractBuilder myBuilder;
-
-        /**
-         * Creates a new {@link BuilderElement}.
-         *
-         * @param name
-         *            The name for the element to build.
-         * @param builder
-         *            The Builder doing the building.
-         */
-        public BuilderElement(final String name, final AbstractBuilder builder) {
-            super(name, 0);
-            myBuilder = builder;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void accept(final Visitor visitor) {
-            build().accept(visitor);
-        }
-
-        /**
-         * Constructs the final form of the element being constructed by the
-         * encapsulated builder.
-         *
-         * @return The Element constructed by the encapsulated builder.
-         */
-        public Element build() {
-            return myBuilder.build(getName());
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public ElementType getType() {
-            return null;
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to return null as this class should not be seen outside of
-         * the builders.
-         * </p>
-         */
-        @Override
-        public Object getValueAsObject() {
-            return null;
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Returns a new {@link BuilderElement}.
-         * </p>
-         */
-        @Override
-        public BuilderElement withName(final String name) {
-            return new BuilderElement(name, myBuilder);
-        }
-
-        /**
-         * Sets the transient state of this non-Element.
-         *
-         * @param in
-         *            The input stream.
-         * @throws ClassNotFoundException
-         *             On a failure loading a class in this classed reachable
-         *             tree.
-         * @throws IOException
-         *             On a failure reading from the stream.
-         */
-        private void readObject(final ObjectInputStream in)
-                throws ClassNotFoundException, IOException {
-            in.defaultReadObject();
-            myBuilder = null;
-        }
-    }
-
     /** If true then assertions have been enabled for the class. */
     protected static final boolean ASSERTIONS_ENABLED;
 
@@ -240,5 +144,101 @@ public abstract class AbstractBuilder implements Builder {
         }
 
         return elements;
+    }
+
+    /**
+     * A temporary Element to stand in for a element being constructed with a
+     * builder.
+     * <p>
+     * <b>Note:</b> This class if final to allow the class comparison in
+     * {@link AbstractBuilder}.subElements() method.
+     * </p>
+     */
+    public static final class BuilderElement extends AbstractElement {
+
+        /** Serialization version for the class. */
+        private static final long serialVersionUID = 4421203621373216989L;
+
+        /** The encapsulated builder. */
+        private transient AbstractBuilder myBuilder;
+
+        /**
+         * Creates a new {@link BuilderElement}.
+         *
+         * @param name
+         *            The name for the element to build.
+         * @param builder
+         *            The Builder doing the building.
+         */
+        public BuilderElement(final String name, final AbstractBuilder builder) {
+            super(name, 0);
+            myBuilder = builder;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void accept(final Visitor visitor) {
+            build().accept(visitor);
+        }
+
+        /**
+         * Constructs the final form of the element being constructed by the
+         * encapsulated builder.
+         *
+         * @return The Element constructed by the encapsulated builder.
+         */
+        public Element build() {
+            return myBuilder.build(getName());
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementType getType() {
+            return null;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to return null as this class should not be seen outside of
+         * the builders.
+         * </p>
+         */
+        @Override
+        public Object getValueAsObject() {
+            return null;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Returns a new {@link BuilderElement}.
+         * </p>
+         */
+        @Override
+        public BuilderElement withName(final String name) {
+            return new BuilderElement(name, myBuilder);
+        }
+
+        /**
+         * Sets the transient state of this non-Element.
+         *
+         * @param in
+         *            The input stream.
+         * @throws ClassNotFoundException
+         *             On a failure loading a class in this classed reachable
+         *             tree.
+         * @throws IOException
+         *             On a failure reading from the stream.
+         */
+        private void readObject(final ObjectInputStream in)
+                throws ClassNotFoundException, IOException {
+            in.defaultReadObject();
+            myBuilder = null;
+        }
     }
 }

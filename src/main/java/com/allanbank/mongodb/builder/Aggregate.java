@@ -44,11 +44,11 @@ import com.allanbank.mongodb.builder.expression.Expressions;
  *  import static {@link Sort#desc com.allanbank.mongodb.builder.Sort.desc};
  *  import static {@link Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
  *  import static {@link Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
- * 
+ *
  *  DocumentBuilder b1 = BuilderFactory.start();
  *  DocumentBuilder b2 = BuilderFactory.start();
  *  Aggregate.Builder builder = new Aggregate.Builder();
- * 
+ *
  *  builder.match(where("state").notEqualTo("NZ"))
  *          .group(id().addField("state")
  *                     .addField("city"),
@@ -88,6 +88,155 @@ import com.allanbank.mongodb.builder.expression.Expressions;
 public class Aggregate {
 
     /**
+     * The first version of MongoDB to support the {@code aggregate} command
+     * using a cursor.
+     */
+    public static final Version CURSOR_VERSION = Version.parse("2.5.2");
+
+    /**
+     * The first version of MongoDB to support the {@code aggregate} command
+     * with the explain option.
+     */
+    public static final Version EXPLAIN_VERSION = Version.parse("2.5.3");
+
+    /**
+     * The first version of MongoDB to support the {@code aggregate} command
+     * with the ability to limit the execution time on the server.
+     */
+    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
+
+    /** The first version of MongoDB to support the {@code aggregate} command. */
+    public static final Version REQUIRED_VERSION = Version.parse("2.1.0");
+
+    /**
+     * Creates a new builder for a {@link Aggregate}.
+     *
+     * @return The builder to construct a {@link Aggregate}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Set to true if the aggregation results should be allowed to spill to
+     * disk.
+     */
+    private final boolean myAllowDiskUsage;
+
+    /** The number of documents to be returned in each batch of results. */
+    private final int myBatchSize;
+
+    /** The total number of documents to be returned. */
+    private final int myLimit;
+
+    /** The maximum amount of time to allow the command to run. */
+    private final long myMaximumTimeMilliseconds;
+
+    /** The pipeline of operations to be applied. */
+    private final List<Element> myPipeline;
+
+    /** The read preference to use. */
+    private final ReadPreference myReadPreference;
+
+    /** Set to true if the aggregation results should be returned as a cursor. */
+    private final boolean myUseCursor;
+
+    /**
+     * Creates a new Aggregation.
+     *
+     * @param builder
+     *            The builder for the Aggregation instance.
+     */
+    protected Aggregate(final Builder builder) {
+        myPipeline = Collections.unmodifiableList(Arrays
+                .asList(builder.myPipeline.build()));
+        myBatchSize = builder.myBatchSize;
+        myLimit = builder.myLimit;
+        myUseCursor = builder.myUseCursor;
+        myAllowDiskUsage = builder.myAllowDiskUsage;
+        myReadPreference = builder.myReadPreference;
+        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the number of documents to be returned in each batch of results
+     * by the cursor.
+     *
+     * @return The number of documents to be returned in each batch of results
+     *         by the cursor.
+     */
+    public int getBatchSize() {
+        return myBatchSize;
+    }
+
+    /**
+     * Returns the total number of documents to be returned by the cursor.
+     *
+     * @return The total number of documents to be returned the cursor.
+     */
+    public int getCursorLimit() {
+        return myLimit;
+    }
+
+    /**
+     * Returns the maximum amount of time to allow the command to run on the
+     * Server before it is aborted.
+     *
+     * @return The maximum amount of time to allow the command to run on the
+     *         Server before it is aborted.
+     *
+     * @since MongoDB 2.6
+     */
+    public long getMaximumTimeMilliseconds() {
+        return myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the pipeline of operations to apply.
+     *
+     * @return The pipeline of operations to apply.
+     */
+    public List<Element> getPipeline() {
+        return myPipeline;
+    }
+
+    /**
+     * Returns the {@link ReadPreference} specifying which servers may be used
+     * to execute the aggregation.
+     * <p>
+     * If <code>null</code> then the {@link MongoCollection} instance's
+     * {@link ReadPreference} will be used.
+     * </p>
+     *
+     * @return The read preference to use.
+     *
+     * @see MongoCollection#getReadPreference()
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
+     * Returns true if the aggregation results should be allowed to spill to
+     * disk.
+     *
+     * @return True if the aggregation results should be allowed to spill to
+     *         disk.
+     */
+    public boolean isAllowDiskUsage() {
+        return myAllowDiskUsage;
+    }
+
+    /**
+     * Returns true if the aggregation results should be returned as a cursor.
+     *
+     * @return True if the aggregation results should be returned as a cursor.
+     */
+    public boolean isUseCursor() {
+        return myUseCursor;
+    }
+
+    /**
      * Builder provides the ability to construct aggregate command pipelines.
      * <p>
      * Methods are provided for all existing pipeline operators and generic
@@ -108,11 +257,11 @@ public class Aggregate {
      *  import static {@link Sort#desc com.allanbank.mongodb.builder.Sort.desc};
      *  import static {@link Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
      *  import static {@link Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
-     * 
+     *
      *  DocumentBuilder b1 = BuilderFactory.start();
      *  DocumentBuilder b2 = BuilderFactory.start();
      *  Aggregation.Builder builder = new Aggregation.Builder();
-     * 
+     *
      *  builder.match(where("state").notEqualTo("NZ"))
      *          .group(id().addField("state")
      *                     .addField("city"),
@@ -275,7 +424,7 @@ public class Aggregate {
          * <pre>
          * <code>
          * import {@link AggregationGeoNear com.allanbank.mongodb.builder.AggregationGeoNear};
-         * 
+         *
          * {@link Aggregate.Builder} builder = new Aggregation.Builder();
          * builder.geoNear( AggregationGeoNear.builder()
          *           .location( new Point( 1, 2 ) )
@@ -305,7 +454,7 @@ public class Aggregate {
          * <pre>
          * <code>
          * import {@link AggregationGeoNear com.allanbank.mongodb.builder.AggregationGeoNear};
-         * 
+         *
          * {@link Aggregate.Builder} builder = new Aggregation.Builder();
          * builder.geoNear( AggregationGeoNear.builder()
          *           .location( new Point( 1, 2 ) )
@@ -340,7 +489,7 @@ public class Aggregate {
          * <code>
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
          * import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
-         * 
+         *
          * {@link Aggregate.Builder} builder = new Aggregation.Builder();
          * builder.group(
          *           id("$field1"),
@@ -388,7 +537,7 @@ public class Aggregate {
          * <code>
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
          * import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
-         * 
+         *
          * {@link Aggregate.Builder} builder = new Aggregation.Builder();
          * builder.group(
          *           id().addField("$field1").addField("$field2"),
@@ -443,7 +592,7 @@ public class Aggregate {
          * <code>
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
          * import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
-         * 
+         *
          * {@link Aggregate.Builder} builder = new Aggregation.Builder();
          * builder.group(
          *           id().addInteger("i", 1),
@@ -514,9 +663,9 @@ public class Aggregate {
          * <pre>
          * <code>
          * import static {@link QueryBuilder#where com.allanbank.mongodb.builder.QueryBuilder.where}
-         * 
+         *
          * Aggregation.Builder builder = new Aggregation.Builder();
-         * 
+         *
          * builder.match( where("f").greaterThan(23).lessThan(42).and("g").lessThan(3) );
          * ...
          * </code>
@@ -598,8 +747,8 @@ public class Aggregate {
          * <code>
          * import static {@link AggregationProjectFields#include com.allanbank.mongodb.builder.AggregationProjectFields.include};
          * import static {@link com.allanbank.mongodb.builder.expression.Expressions com.allanbank.mongodb.builder.expression.Expressions.*};
-         * 
-         * 
+         *
+         *
          * Aggregation.Builder builder = new Aggregation.Builder();
          * ...
          * builder.project(
@@ -667,9 +816,9 @@ public class Aggregate {
 
             final DocumentBuilder doc = BuilderFactory.start();
             doc.push(Expressions.CONDITION)
-                    .add(new DocumentElement("if", ifExpression.asDocument()))
-                    .add("then", thenOption.getToken())
-                    .add("else", elseOption.getToken());
+            .add(new DocumentElement("if", ifExpression.asDocument()))
+            .add("then", thenOption.getToken())
+            .add("else", elseOption.getToken());
 
             step("$redact", doc);
         }
@@ -693,8 +842,8 @@ public class Aggregate {
 
             final DocumentBuilder doc = BuilderFactory.start();
             doc.push(Expressions.CONDITION).add(ifExpression.toElement("if"))
-                    .add("then", thenOption.getToken())
-                    .add("else", elseOption.getToken());
+            .add("then", thenOption.getToken())
+            .add("else", elseOption.getToken());
 
             step("$redact", doc);
         }
@@ -863,9 +1012,9 @@ public class Aggregate {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         * 
+         *
          * Aggregation.Builder builder = new Aggregation.Builder();
-         * 
+         *
          * builder.setSort( asc("f"), desc("g") );
          * ...
          * </code>
@@ -1014,7 +1163,7 @@ public class Aggregate {
         @Override
         public String toString() {
             return new ArrayElement("$pipeline", build().getPipeline())
-                    .toString();
+            .toString();
         }
 
         /**
@@ -1070,154 +1219,5 @@ public class Aggregate {
         public Builder useCursor(final boolean useCursor) {
             return setUseCursor(useCursor);
         }
-    }
-
-    /**
-     * The first version of MongoDB to support the {@code aggregate} command
-     * using a cursor.
-     */
-    public static final Version CURSOR_VERSION = Version.parse("2.5.2");
-
-    /**
-     * The first version of MongoDB to support the {@code aggregate} command
-     * with the explain option.
-     */
-    public static final Version EXPLAIN_VERSION = Version.parse("2.5.3");
-
-    /**
-     * The first version of MongoDB to support the {@code aggregate} command
-     * with the ability to limit the execution time on the server.
-     */
-    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
-
-    /** The first version of MongoDB to support the {@code aggregate} command. */
-    public static final Version REQUIRED_VERSION = Version.parse("2.1.0");
-
-    /**
-     * Creates a new builder for a {@link Aggregate}.
-     *
-     * @return The builder to construct a {@link Aggregate}.
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
-     * Set to true if the aggregation results should be allowed to spill to
-     * disk.
-     */
-    private final boolean myAllowDiskUsage;
-
-    /** The number of documents to be returned in each batch of results. */
-    private final int myBatchSize;
-
-    /** The total number of documents to be returned. */
-    private final int myLimit;
-
-    /** The maximum amount of time to allow the command to run. */
-    private final long myMaximumTimeMilliseconds;
-
-    /** The pipeline of operations to be applied. */
-    private final List<Element> myPipeline;
-
-    /** The read preference to use. */
-    private final ReadPreference myReadPreference;
-
-    /** Set to true if the aggregation results should be returned as a cursor. */
-    private final boolean myUseCursor;
-
-    /**
-     * Creates a new Aggregation.
-     *
-     * @param builder
-     *            The builder for the Aggregation instance.
-     */
-    protected Aggregate(final Builder builder) {
-        myPipeline = Collections.unmodifiableList(Arrays
-                .asList(builder.myPipeline.build()));
-        myBatchSize = builder.myBatchSize;
-        myLimit = builder.myLimit;
-        myUseCursor = builder.myUseCursor;
-        myAllowDiskUsage = builder.myAllowDiskUsage;
-        myReadPreference = builder.myReadPreference;
-        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the number of documents to be returned in each batch of results
-     * by the cursor.
-     *
-     * @return The number of documents to be returned in each batch of results
-     *         by the cursor.
-     */
-    public int getBatchSize() {
-        return myBatchSize;
-    }
-
-    /**
-     * Returns the total number of documents to be returned by the cursor.
-     *
-     * @return The total number of documents to be returned the cursor.
-     */
-    public int getCursorLimit() {
-        return myLimit;
-    }
-
-    /**
-     * Returns the maximum amount of time to allow the command to run on the
-     * Server before it is aborted.
-     *
-     * @return The maximum amount of time to allow the command to run on the
-     *         Server before it is aborted.
-     *
-     * @since MongoDB 2.6
-     */
-    public long getMaximumTimeMilliseconds() {
-        return myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the pipeline of operations to apply.
-     *
-     * @return The pipeline of operations to apply.
-     */
-    public List<Element> getPipeline() {
-        return myPipeline;
-    }
-
-    /**
-     * Returns the {@link ReadPreference} specifying which servers may be used
-     * to execute the aggregation.
-     * <p>
-     * If <code>null</code> then the {@link MongoCollection} instance's
-     * {@link ReadPreference} will be used.
-     * </p>
-     *
-     * @return The read preference to use.
-     *
-     * @see MongoCollection#getReadPreference()
-     */
-    public ReadPreference getReadPreference() {
-        return myReadPreference;
-    }
-
-    /**
-     * Returns true if the aggregation results should be allowed to spill to
-     * disk.
-     *
-     * @return True if the aggregation results should be allowed to spill to
-     *         disk.
-     */
-    public boolean isAllowDiskUsage() {
-        return myAllowDiskUsage;
-    }
-
-    /**
-     * Returns true if the aggregation results should be returned as a cursor.
-     *
-     * @return True if the aggregation results should be returned as a cursor.
-     */
-    public boolean isUseCursor() {
-        return myUseCursor;
     }
 }

@@ -6,10 +6,12 @@
 package com.allanbank.mongodb.client;
 
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 
 /**
- * NamedReference provides a Reference that tracks a name.
+ * NamedReference provides a Reference that tracks a name. We use a weak
+ * reference as the base class as we want the garbage collector to reclaim the
+ * instance as soon as possible.
  *
  * @param <T>
  *            The type of the referent.
@@ -18,7 +20,7 @@ import java.lang.ref.SoftReference;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class NamedReference<T> extends SoftReference<T> {
+/* package */class NamedReference<T> extends WeakReference<T> {
 
     /** The name for the referent. */
     private final String myName;

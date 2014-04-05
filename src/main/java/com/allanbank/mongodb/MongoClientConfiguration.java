@@ -1417,20 +1417,20 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *      public Socket createSocket() throws java.io.IOException {
      *          return new org.newsclub.net.unix.AFUNIXSocket.newInstance();
      *      }
-     * 
+     *
      *      public Socket createSocket(String host, int port) throws SocketException {
      *          throw new SocketException("AFUNIX socket does not support connections to a host/port");
      *      }
-     * 
+     *
      *      public Socket createSocket(InetAddress host, int port) throws SocketException {
      *          throw new SocketException("AFUNIX socket does not support connections to a host/port");
      *      }
-     * 
+     *
      *      public Socket createSocket(String host, int port, InetAddress localHost,
      *              int localPort) throws SocketException {
      *          throw new SocketException("AFUNIX socket does not support connections to a host/port");
      *      }
-     * 
+     *
      *      public Socket createSocket(InetAddress address, int port,
      *              InetAddress localAddress, int localPort) throws SocketException {
      *          throw new SocketException("AFUNIX socket does not support connections to a host/port");

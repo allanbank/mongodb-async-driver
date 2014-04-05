@@ -11,10 +11,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.client.ClusterStats;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -173,6 +173,18 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the cluster stats of the proxied
+     * {@link ConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public ClusterStats getClusterStats() {
+        return getDelegate().getClusterStats();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return the cluster type of the delegate
      * {@link ConnectionFactory}.
      * </p>
@@ -180,26 +192,6 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     @Override
     public ClusterType getClusterType() {
         return getDelegate().getClusterType();
-    }
-
-    /**
-     * Returns the maximum server version within the cluster.
-     *
-     * @return The maximum server version within the cluster.
-     */
-    @Override
-    public Version getMaximumServerVersion() {
-        return getDelegate().getMaximumServerVersion();
-    }
-
-    /**
-     * Returns the minimum server version within the cluster.
-     *
-     * @return The minimum server version within the cluster.
-     */
-    @Override
-    public Version getMinimumServerVersion() {
-        return getDelegate().getMinimumServerVersion();
     }
 
     /**
@@ -211,30 +203,6 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     @Override
     public ReconnectStrategy getReconnectStrategy() {
         return getDelegate().getReconnectStrategy();
-    }
-
-    /**
-     * Returns smallest value for the maximum number of write operations allowed
-     * in a single write command.
-     *
-     * @return The smallest value for maximum number of write operations allowed
-     *         in a single write command.
-     */
-    @Override
-    public int getSmallestMaxBatchedWriteOperations() {
-        return getDelegate().getSmallestMaxBatchedWriteOperations();
-    }
-
-    /**
-     * Returns the smallest value for the maximum BSON object within the
-     * cluster.
-     *
-     * @return The smallest value for the maximum BSON object within the
-     *         cluster.
-     */
-    @Override
-    public long getSmallestMaxBsonObjectSize() {
-        return getDelegate().getSmallestMaxBsonObjectSize();
     }
 
     /**

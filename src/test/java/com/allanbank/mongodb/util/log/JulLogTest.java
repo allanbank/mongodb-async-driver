@@ -49,7 +49,7 @@ public class JulLogTest {
         myJulLog = Logger.getLogger(JulLogTest.class.getName());
         myJulLog.addHandler(myCaptureHandler);
         myJulLog.setUseParentHandlers(false);
-        myJulLog.setLevel(Level.FINEST);
+        myJulLog.setLevel(Level.ALL);
 
         myTestLog = new JulLogFactory().doGetLog(JulLogTest.class);
     }
@@ -420,6 +420,56 @@ public class JulLogTest {
         final Throwable thrown = new Throwable();
 
         myTestLog.debug(thrown, "Debug - Hello {}", "World");
+
+        final List<LogRecord> records = myCaptureHandler.getRecords();
+        assertThat(records.size(), is(1));
+
+        final LogRecord record = records.get(0);
+        assertThat(record.getLevel(), is(level));
+        assertThat(record.getLoggerName(), is(JulLogTest.class.getName()));
+        assertThat(record.getMessage(), is(messsage));
+        assertThat(record.getSourceClassName(), is(JulLogTest.class.getName()));
+        assertThat(record.getSourceMethodName(), is(method));
+        assertThat(record.getThreadID(), is((int) Thread.currentThread()
+                .getId()));
+        assertThat(record.getThrown(), sameInstance(thrown));
+    }
+
+    /**
+     * Test for the {@link AbstractLog#log(Level, String)} method.
+     */
+    @Test
+    public void testLogLevelTrace() {
+        final String method = "testLogLevelTrace";
+        final String messsage = "Log Message";
+        final Level level = Level.parse("0");
+
+        myTestLog.log(level, messsage);
+
+        final List<LogRecord> records = myCaptureHandler.getRecords();
+        assertThat(records.size(), is(1));
+
+        final LogRecord record = records.get(0);
+        assertThat(record.getLevel(), is(level));
+        assertThat(record.getLoggerName(), is(JulLogTest.class.getName()));
+        assertThat(record.getMessage(), is(messsage));
+        assertThat(record.getSourceClassName(), is(JulLogTest.class.getName()));
+        assertThat(record.getSourceMethodName(), is(method));
+        assertThat(record.getThrown(), nullValue());
+    }
+
+    /**
+     * Test for the {@link AbstractLog#info(Throwable, String, Object...)}
+     * method.
+     */
+    @Test
+    public void testTooFewArgLocations() {
+        final String method = "testTooFewArgLocations";
+        final String messsage = "Info - Hello World {}";
+        final Level level = Level.INFO;
+        final Throwable thrown = new Throwable();
+
+        myTestLog.info(thrown, "Info - Hello {} {}", "World");
 
         final List<LogRecord> records = myCaptureHandler.getRecords();
         assertThat(records.size(), is(1));

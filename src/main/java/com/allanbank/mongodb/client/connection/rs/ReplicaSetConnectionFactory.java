@@ -14,9 +14,9 @@ import java.util.logging.Level;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.client.ClusterStats;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -153,8 +153,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                 }
             }
 
-            // Update the stale state.
-            writableServers = locatePrimary();
+        // Update the stale state.
+        writableServers = locatePrimary();
         }
 
         // Don't throw an error here.
@@ -162,6 +162,17 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
         // primary.
         return new ReplicaSetConnection(null, null, myCluster,
                 myConnectionFactory, myConfig, myStrategy);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the {@link Cluster}.
+     * </p>
+     */
+    @Override
+    public ClusterStats getClusterStats() {
+        return myCluster;
     }
 
     /**
@@ -176,26 +187,6 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
     }
 
     /**
-     * Returns the maximum server version within the cluster.
-     *
-     * @return The maximum server version within the cluster.
-     */
-    @Override
-    public Version getMaximumServerVersion() {
-        return myCluster.getMaximumServerVersion();
-    }
-
-    /**
-     * Returns the minimum server version within the cluster.
-     *
-     * @return The minimum server version within the cluster.
-     */
-    @Override
-    public Version getMinimumServerVersion() {
-        return myCluster.getMinimumServerVersion();
-    }
-
-    /**
      * {@inheritDoc}
      * <p>
      * Overridden to return a replica set {@link ReconnectStrategy}.
@@ -204,30 +195,6 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
     @Override
     public ReconnectStrategy getReconnectStrategy() {
         return myStrategy;
-    }
-
-    /**
-     * Returns smallest value for the maximum number of write operations allowed
-     * in a single write command.
-     *
-     * @return The smallest value for maximum number of write operations allowed
-     *         in a single write command.
-     */
-    @Override
-    public int getSmallestMaxBatchedWriteOperations() {
-        return myCluster.getSmallestMaxBatchedWriteOperations();
-    }
-
-    /**
-     * Returns the smallest value for the maximum BSON object within the
-     * cluster.
-     *
-     * @return The smallest value for the maximum BSON object within the
-     *         cluster.
-     */
-    @Override
-    public long getSmallestMaxBsonObjectSize() {
-        return myCluster.getSmallestMaxBsonObjectSize();
     }
 
     /**

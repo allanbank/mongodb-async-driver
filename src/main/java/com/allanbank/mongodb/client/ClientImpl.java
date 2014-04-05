@@ -26,7 +26,6 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.NumericElement;
@@ -36,6 +35,7 @@ import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
 import com.allanbank.mongodb.client.connection.bootstrap.BootstrapConnectionFactory;
+import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.util.IOUtils;
@@ -51,36 +51,6 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClientImpl extends AbstractClient {
-
-    /**
-     * ConnectionListener provides the call back for events occurring on a
-     * connection.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected class ConnectionListener implements PropertyChangeListener {
-
-        /**
-         * Creates a new ConnectionListener.
-         */
-        public ConnectionListener() {
-            super();
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to try reconnecting a connection that has closed.
-         * </p>
-         */
-        @Override
-        public void propertyChange(final PropertyChangeEvent event) {
-            if (Connection.OPEN_PROP_NAME.equals(event.getPropertyName())
-                    && Boolean.FALSE.equals(event.getNewValue())) {
-                handleConnectionClosed((Connection) event.getSource());
-            }
-        }
-    }
 
     /**
      * The maximum number of connections to scan looking for idle/lightly used
@@ -185,6 +155,17 @@ public class ClientImpl extends AbstractClient {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the {@link Cluster}.
+     * </p>
+     */
+    @Override
+    public ClusterStats getClusterStats() {
+        return myConnectionFactory.getClusterStats();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return the {@link ClusterType} of the
      * {@link ConnectionFactory}.
      * </p>
@@ -242,50 +223,6 @@ public class ClientImpl extends AbstractClient {
     }
 
     /**
-     * Returns the maximum server version within the cluster.
-     *
-     * @return The maximum server version within the cluster.
-     */
-    @Override
-    public Version getMaximumServerVersion() {
-        return myConnectionFactory.getMaximumServerVersion();
-    }
-
-    /**
-     * Returns the minimum server version within the cluster.
-     *
-     * @return The minimum server version within the cluster.
-     */
-    @Override
-    public Version getMinimumServerVersion() {
-        return myConnectionFactory.getMinimumServerVersion();
-    }
-
-    /**
-     * Returns smallest value for the maximum number of write operations allowed
-     * in a single write command.
-     *
-     * @return The smallest value for maximum number of write operations allowed
-     *         in a single write command.
-     */
-    @Override
-    public int getSmallestMaxBatchedWriteOperations() {
-        return myConnectionFactory.getSmallestMaxBatchedWriteOperations();
-    }
-
-    /**
-     * Returns the lowest value for the maximum BSON object size within the
-     * cluster.
-     *
-     * @return The lowest value for the maximum BSON object size within the
-     *         cluster.
-     */
-    @Override
-    public long getSmallestMaxBsonObjectSize() {
-        return myConnectionFactory.getSmallestMaxBsonObjectSize();
-    }
-
-    /**
      * Returns true if the document looks like a cursor restart document. e.g.,
      * one that is created by {@link MongoIteratorImpl#asDocument()}.
      *
@@ -298,14 +235,14 @@ public class ClientImpl extends AbstractClient {
         return (doc.getElements().size() == 5)
                 && (doc.get(StringElement.class,
                         MongoCursorControl.NAME_SPACE_FIELD) != null)
-                && (doc.get(NumericElement.class,
-                        MongoCursorControl.CURSOR_ID_FIELD) != null)
-                && (doc.get(StringElement.class,
-                        MongoCursorControl.SERVER_FIELD) != null)
-                && (doc.get(NumericElement.class,
-                        MongoCursorControl.BATCH_SIZE_FIELD) != null)
-                && (doc.get(NumericElement.class,
-                        MongoCursorControl.LIMIT_FIELD) != null);
+                        && (doc.get(NumericElement.class,
+                                MongoCursorControl.CURSOR_ID_FIELD) != null)
+                                && (doc.get(StringElement.class,
+                                        MongoCursorControl.SERVER_FIELD) != null)
+                                        && (doc.get(NumericElement.class,
+                                                MongoCursorControl.BATCH_SIZE_FIELD) != null)
+                                                && (doc.get(NumericElement.class,
+                                                        MongoCursorControl.LIMIT_FIELD) != null);
     }
 
     /**
@@ -314,7 +251,7 @@ public class ClientImpl extends AbstractClient {
     @Override
     public MongoIterator<Document> restart(
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         final Document cursorDoc = cursorDocument.asDocument();
 
         if (isCursorDocument(cursorDoc)) {
@@ -336,7 +273,7 @@ public class ClientImpl extends AbstractClient {
     @Override
     public MongoCursorControl restart(final StreamCallback<Document> results,
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         final Document cursorDoc = cursorDocument.asDocument();
 
         if (isCursorDocument(cursorDoc)) {
@@ -426,7 +363,7 @@ public class ClientImpl extends AbstractClient {
                 else {
                     LOG.info("MongoDB Connection closed: {}", connection);
                     connection
-                            .removePropertyChangeListener(myConnectionListener);
+                    .removePropertyChangeListener(myConnectionListener);
                     connection.raiseErrors(new ConnectionLostException(
                             "Connection shutdown."));
                 }
@@ -524,7 +461,7 @@ public class ClientImpl extends AbstractClient {
      */
     protected Connection searchConnection(final Message message1,
             final Message message2, final boolean waitForReconnect)
-            throws MongoDbException {
+                    throws MongoDbException {
         // Locate a connection to use.
         Connection conn = findIdleConnection();
         if (conn == null) {
@@ -717,5 +654,35 @@ public class ClientImpl extends AbstractClient {
             conn = searchConnection(message1, message2, false);
         }
         return conn;
+    }
+
+    /**
+     * ConnectionListener provides the call back for events occurring on a
+     * connection.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected class ConnectionListener implements PropertyChangeListener {
+
+        /**
+         * Creates a new ConnectionListener.
+         */
+        public ConnectionListener() {
+            super();
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to try reconnecting a connection that has closed.
+         * </p>
+         */
+        @Override
+        public void propertyChange(final PropertyChangeEvent event) {
+            if (Connection.OPEN_PROP_NAME.equals(event.getPropertyName())
+                    && Boolean.FALSE.equals(event.getNewValue())) {
+                handleConnectionClosed((Connection) event.getSource());
+            }
+        }
     }
 }

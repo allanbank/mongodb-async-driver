@@ -6,11 +6,14 @@
 package com.allanbank.mongodb.client;
 
 import static com.allanbank.mongodb.AnswerCallback.callback;
+import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -19,12 +22,16 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Random;
 
+import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.allanbank.mongodb.LambdaCallback;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCursorControl;
@@ -37,6 +44,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * MongoClientImplTest provides tests for the {@link MongoClientImpl} class.
@@ -126,6 +134,89 @@ public class MongoClientImplTest {
         assertTrue(database instanceof MongoDatabaseImpl);
         assertSame(myMockClient, ((MongoDatabaseImpl) database).myClient);
         assertEquals("foo", database.getName());
+
+        assertThat(myTestInstance.getDatabase("foo"),
+                Matchers.sameInstance(database));
+    }
+
+    /**
+     * Test method for {@link MongoClientImpl#getDatabase(java.lang.String)} .
+     */
+    @Test
+    public void testGetDatabaseCachingDoesRelease() {
+        MongoDatabase database = myTestInstance.getDatabase("foo");
+        assertThat(myTestInstance.getDatabase("foo"),
+                Matchers.sameInstance(database));
+
+        // Remember the instance id.
+        final int instanceId = System.identityHashCode(database);
+
+        database = null;
+
+        // Flood the map/memory.
+        final Random rand = new Random(System.currentTimeMillis());
+        byte[] bytes = new byte[1024];
+        for (int i = 0; i < 10000000; ++i) {
+
+            bytes = new byte[bytes.length + 1024];
+            rand.nextBytes(bytes);
+
+            final String name = IOUtils.toBase64(bytes);
+            myTestInstance.getDatabase(name);
+
+            if (((i % 10) == 0)
+                    && (instanceId != System.identityHashCode(myTestInstance
+                            .getDatabase("foo")))) {
+                // Woot - got garbage collected.
+                break;
+            }
+
+            // Try and nudge things along.
+            System.gc();
+        }
+
+        database = myTestInstance.getDatabase("foo");
+        assertThat(System.identityHashCode(database), not(is(instanceId)));
+    }
+
+    /**
+     * Test method for {@link MongoClientImpl#getDatabase(java.lang.String)} .
+     */
+    @Test
+    public void testGetDatabaseCachingDoesReleaseMaybeSeenViaGet() {
+        MongoDatabase database = myTestInstance.getDatabase("foo");
+        assertThat(myTestInstance.getDatabase("foo"),
+                Matchers.sameInstance(database));
+
+        // Remember the instance id.
+        final int instanceId = System.identityHashCode(database);
+
+        database = null;
+
+        // Flood the map/memory.
+        final Random rand = new Random(System.currentTimeMillis());
+        byte[] bytes = new byte[1024];
+        for (int i = 0; i < 10000000; ++i) {
+
+            bytes = new byte[bytes.length + 1024];
+            rand.nextBytes(bytes);
+
+            final String name = IOUtils.toBase64(bytes);
+            myTestInstance.getDatabase(name);
+
+            // Check ever time for the removed instance.
+            if (instanceId != System.identityHashCode(myTestInstance
+                    .getDatabase("foo"))) {
+                // Woot - got garbage collected.
+                break;
+            }
+
+            // Try and nudge things along.
+            System.gc();
+        }
+
+        database = myTestInstance.getDatabase("foo");
+        assertThat(System.identityHashCode(database), not(is(instanceId)));
     }
 
     /**
@@ -208,6 +299,39 @@ public class MongoClientImplTest {
         assertNull(myTestInstance.restart(b));
 
         verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientImpl#restart(LambdaCallback,DocumentAssignable)}.
+     *
+     * @throws IOException
+     *             on a test failure.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testRestartLambdaCallbackDocumentAssignable()
+            throws IOException {
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.add(MongoCursorControl.NAME_SPACE_FIELD, "a.b");
+        b.add(MongoCursorControl.CURSOR_ID_FIELD, 123456);
+        b.add(MongoCursorControl.SERVER_FIELD, "server");
+        b.add(MongoCursorControl.LIMIT_FIELD, 4321);
+        b.add(MongoCursorControl.BATCH_SIZE_FIELD, 23);
+
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+        final Capture<StreamCallback<Document>> capture = new Capture<StreamCallback<Document>>();
+
+        expect(myMockClient.restart(capture(capture), eq(b))).andReturn(null);
+
+        replay(mockCallback);
+
+        assertNull(myTestInstance.restart(mockCallback, b));
+
+        verify(mockCallback);
+
+        assertThat(capture.getValue(), instanceOf(LambdaCallbackAdapter.class));
     }
 
     /**

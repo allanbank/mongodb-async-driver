@@ -26,84 +26,6 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public abstract class AbstractProxyConnection implements Connection {
 
-    /**
-     * ProxiedChangeListener provides a change listener to modify the source of
-     * the event to the outer connection from the (inner) proxied connection.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected static class ProxiedChangeListener implements
-            PropertyChangeListener {
-
-        /** The delegate listener. */
-        private final PropertyChangeListener myDelegate;
-
-        /** The proxied connection. */
-        private final AbstractProxyConnection myProxiedConn;
-
-        /**
-         * Creates a new ProxiedChangeListener.
-         *
-         * @param proxiedConn
-         *            The proxied connection.
-         * @param delegate
-         *            The delegate listener.
-         */
-        public ProxiedChangeListener(final AbstractProxyConnection proxiedConn,
-                final PropertyChangeListener delegate) {
-            myProxiedConn = proxiedConn;
-            myDelegate = delegate;
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to compare the nested delegate listeners.
-         * </p>
-         */
-        @Override
-        public boolean equals(final Object object) {
-            boolean result = false;
-            if (this == object) {
-                result = true;
-            }
-            else if ((object != null) && (getClass() == object.getClass())) {
-                final ProxiedChangeListener other = (ProxiedChangeListener) object;
-
-                result = myDelegate.equals(other.myDelegate);
-            }
-            return result;
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to return the delegates hash code.
-         * </p>
-         */
-        @Override
-        public int hashCode() {
-            return ((myDelegate == null) ? 13 : myDelegate.hashCode());
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to change the source of the property change event to the
-         * outer connection instead of the inner connection.
-         * </p>
-         */
-        @Override
-        public void propertyChange(final PropertyChangeEvent event) {
-
-            final PropertyChangeEvent newEvent = new PropertyChangeEvent(
-                    myProxiedConn, event.getPropertyName(),
-                    event.getOldValue(), event.getNewValue());
-            newEvent.setPropagationId(event.getPropagationId());
-            myDelegate.propertyChange(newEvent);
-        }
-    }
-
     /** The proxied connection. */
     private final Connection myProxiedConnection;
 
@@ -128,8 +50,8 @@ public abstract class AbstractProxyConnection implements Connection {
     public void addPropertyChangeListener(final PropertyChangeListener listener) {
         try {
             myProxiedConnection
-                    .addPropertyChangeListener(new ProxiedChangeListener(this,
-                            listener));
+            .addPropertyChangeListener(new ProxiedChangeListener(this,
+                    listener));
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -279,8 +201,8 @@ public abstract class AbstractProxyConnection implements Connection {
     public void removePropertyChangeListener(
             final PropertyChangeListener listener) {
         myProxiedConnection
-                .removePropertyChangeListener(new ProxiedChangeListener(this,
-                        listener));
+        .removePropertyChangeListener(new ProxiedChangeListener(this,
+                listener));
     }
 
     /**
@@ -369,5 +291,83 @@ public abstract class AbstractProxyConnection implements Connection {
     protected void onExceptin(final MongoDbException exception) {
         // Close without fear of an exception.
         IOUtils.close(this);
+    }
+
+    /**
+     * ProxiedChangeListener provides a change listener to modify the source of
+     * the event to the outer connection from the (inner) proxied connection.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected static class ProxiedChangeListener implements
+    PropertyChangeListener {
+
+        /** The delegate listener. */
+        private final PropertyChangeListener myDelegate;
+
+        /** The proxied connection. */
+        private final AbstractProxyConnection myProxiedConn;
+
+        /**
+         * Creates a new ProxiedChangeListener.
+         *
+         * @param proxiedConn
+         *            The proxied connection.
+         * @param delegate
+         *            The delegate listener.
+         */
+        public ProxiedChangeListener(final AbstractProxyConnection proxiedConn,
+                final PropertyChangeListener delegate) {
+            myProxiedConn = proxiedConn;
+            myDelegate = delegate;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to compare the nested delegate listeners.
+         * </p>
+         */
+        @Override
+        public boolean equals(final Object object) {
+            boolean result = false;
+            if (this == object) {
+                result = true;
+            }
+            else if ((object != null) && (getClass() == object.getClass())) {
+                final ProxiedChangeListener other = (ProxiedChangeListener) object;
+
+                result = myDelegate.equals(other.myDelegate);
+            }
+            return result;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to return the delegates hash code.
+         * </p>
+         */
+        @Override
+        public int hashCode() {
+            return ((myDelegate == null) ? 13 : myDelegate.hashCode());
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to change the source of the property change event to the
+         * outer connection instead of the inner connection.
+         * </p>
+         */
+        @Override
+        public void propertyChange(final PropertyChangeEvent event) {
+
+            final PropertyChangeEvent newEvent = new PropertyChangeEvent(
+                    myProxiedConn, event.getPropertyName(),
+                    event.getOldValue(), event.getNewValue());
+            newEvent.setPropagationId(event.getPropagationId());
+            myDelegate.propertyChange(newEvent);
+        }
     }
 }

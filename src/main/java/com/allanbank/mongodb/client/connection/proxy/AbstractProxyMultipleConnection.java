@@ -30,7 +30,6 @@ import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.error.ConnectionLostException;
-import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.log.Log;
 import com.allanbank.mongodb.util.log.LogFactory;
 
@@ -40,35 +39,11 @@ import com.allanbank.mongodb.util.log.LogFactory;
  *
  * @param <K>
  *            The key used to track the various connections.
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractProxyMultipleConnection<K> implements Connection {
-
-    /**
-     * ClusterListener provides a listener for changes in the cluster.
-     *
-     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
-     *         be mutated in incompatible ways between any two releases of the
-     *         driver.
-     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected final class ClusterAndConnectionListener implements
-            PropertyChangeListener {
-        @Override
-        public void propertyChange(final PropertyChangeEvent event) {
-            final String propName = event.getPropertyName();
-            if (Cluster.SERVER_PROP.equals(propName)
-                    && (event.getNewValue() == null)) {
-                // A K has been removed. Close the connection.
-                removeCachedConnection(event.getOldValue(), null);
-            }
-            else if (Connection.OPEN_PROP_NAME.equals(event.getPropertyName())
-                    && Boolean.FALSE.equals(event.getNewValue())) {
-                handleConnectionClosed((Connection) event.getSource());
-            }
-        }
-
-    }
 
     /** The logger for the {@link AbstractProxyMultipleConnection}. */
     private static final Log LOG = LogFactory
@@ -159,7 +134,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * @see Connection#close()
      */
     @Override
-    public void close() throws IOException {
+    public void close() {
 
         myOpen.set(false);
         myCluster.removeListener(myListener);
@@ -397,18 +372,6 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
     protected abstract Connection connect(final K server);
 
     /**
-     * Returns the cached connection for the specified key. This method may
-     * return {@code null}.
-     *
-     * @param server
-     *            The server connected to.
-     * @return The connection in the cache.
-     */
-    protected Connection connection(final K server) {
-        return myConnections.get(server);
-    }
-
-    /**
      * Creates a exception for a reconnect failure.
      *
      * @param message1
@@ -563,20 +526,6 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
     }
 
     /**
-     * Reconnects the connection.
-     *
-     * @param conn
-     *            The connection to reconnect.
-     * @return The new connection if the reconnect was successful.
-     */
-    protected Connection reconnect(final Connection conn) {
-        final ReconnectStrategy strategy = myFactory.getReconnectStrategy();
-        final Connection newConn = strategy.reconnect(conn);
-        IOUtils.close(conn);
-        return newConn;
-    }
-
-    /**
      * Creates a connection back to the main server for this connection.
      *
      * @return The information for the new connection.
@@ -682,5 +631,31 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
             }
         }
         return null;
+    }
+
+    /**
+     * ClusterListener provides a listener for changes in the cluster.
+     *
+     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
+     *         be mutated in incompatible ways between any two releases of the
+     *         driver.
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected final class ClusterAndConnectionListener implements
+            PropertyChangeListener {
+        @Override
+        public void propertyChange(final PropertyChangeEvent event) {
+            final String propName = event.getPropertyName();
+            if (Cluster.SERVER_PROP.equals(propName)
+                    && (event.getNewValue() == null)) {
+                // A K has been removed. Close the connection.
+                removeCachedConnection(event.getOldValue(), null);
+            }
+            else if (Connection.OPEN_PROP_NAME.equals(event.getPropertyName())
+                    && Boolean.FALSE.equals(event.getNewValue())) {
+                handleConnectionClosed((Connection) event.getSource());
+            }
+        }
+
     }
 }

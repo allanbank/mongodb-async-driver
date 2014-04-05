@@ -63,6 +63,9 @@ public class BatchedAsyncMongoCollectionImplTest {
     /** The parent database for the collection. */
     private MongoDatabase myMockDatabase = null;
 
+    /** The stats for our fake cluster. */
+    private ClusterStats myMockStats = null;
+
     /** The instance under test. */
     private BatchedAsyncMongoCollectionImpl myTestInstance = null;
 
@@ -73,6 +76,7 @@ public class BatchedAsyncMongoCollectionImplTest {
     public void setUp() {
         myMockClient = EasyMock.createMock(SerialClientImpl.class);
         myMockDatabase = EasyMock.createMock(MongoDatabase.class);
+        myMockStats = EasyMock.createMock(ClusterStats.class);
 
         myTestInstance = new BatchedAsyncMongoCollectionImpl(myMockClient,
                 myMockDatabase, "test");
@@ -162,7 +166,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseNoBatchDeleteCommand() throws InterruptedException,
-            ExecutionException {
+    ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
                 .build();
@@ -184,8 +188,10 @@ public class BatchedAsyncMongoCollectionImplTest {
         verify();
 
         reset();
-        expect(myMockClient.getMinimumServerVersion()).andReturn(
-                Version.VERSION_2_4);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall().times(3);
@@ -208,7 +214,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseNoBatchUpdateCommand() throws InterruptedException,
-            ExecutionException {
+    ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
                 .build();
@@ -232,8 +238,10 @@ public class BatchedAsyncMongoCollectionImplTest {
         verify();
 
         reset();
-        expect(myMockClient.getMinimumServerVersion()).andReturn(
-                Version.VERSION_2_4);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall().times(3);
@@ -256,7 +264,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseWithBatchDeleteCommand() throws InterruptedException,
-            ExecutionException {
+    ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
                 .build();
@@ -286,11 +294,12 @@ public class BatchedAsyncMongoCollectionImplTest {
         verify();
 
         reset();
-        expect(myMockClient.getMinimumServerVersion()).andReturn(
-                Version.VERSION_2_6);
-        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(2);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(myMockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE);
-        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+        expect(myMockStats.getSmallestMaxBatchedWriteOperations()).andReturn(
                 Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(deleteMessage), callback(reply(replyDoc)));
@@ -315,7 +324,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseWithBatchUpdateCommand() throws InterruptedException,
-            ExecutionException {
+    ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
                 .build();
@@ -346,11 +355,12 @@ public class BatchedAsyncMongoCollectionImplTest {
         verify();
 
         reset();
-        expect(myMockClient.getMinimumServerVersion()).andReturn(
-                Version.VERSION_2_6);
-        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(2);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(myMockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE);
-        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+        expect(myMockStats.getSmallestMaxBatchedWriteOperations()).andReturn(
                 Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(updateMessage), callback(reply(replyDoc)));
@@ -375,7 +385,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testFlushNoBatchInsertCommand() throws InterruptedException,
-            ExecutionException {
+    ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
                 .build();
@@ -400,8 +410,9 @@ public class BatchedAsyncMongoCollectionImplTest {
         reset();
 
         // No batch command.
-        expect(myMockClient.getMinimumServerVersion()).andReturn(
-                Version.VERSION_2_4);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
@@ -426,7 +437,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testFlushWithBatchInsertCommand() throws InterruptedException,
-            ExecutionException {
+    ExecutionException {
         final Document doc = BuilderFactory.start().add("_id", new ObjectId())
                 .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
@@ -453,11 +464,12 @@ public class BatchedAsyncMongoCollectionImplTest {
 
         reset();
 
-        expect(myMockClient.getMinimumServerVersion()).andReturn(
-                Version.VERSION_2_6);
-        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(2);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(myMockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE);
-        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+        expect(myMockStats.getSmallestMaxBatchedWriteOperations()).andReturn(
                 Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(insertMessage), callback(reply(replyDoc)));
@@ -516,12 +528,12 @@ public class BatchedAsyncMongoCollectionImplTest {
 
         reset();
 
-        expect(myMockClient.getMinimumServerVersion()).andReturn(
-                Version.VERSION_2_6);
-
-        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(4);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(myMockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE).times(3);
-        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+        expect(myMockStats.getSmallestMaxBatchedWriteOperations()).andReturn(
                 Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT).times(3);
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -593,12 +605,13 @@ public class BatchedAsyncMongoCollectionImplTest {
 
         reset();
 
-        expect(myMockClient.getMinimumServerVersion()).andReturn(
-                Version.VERSION_2_6);
-
-        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(2);
+        ;
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(myMockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE);
-        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+        expect(myMockStats.getSmallestMaxBatchedWriteOperations()).andReturn(
                 Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -672,12 +685,12 @@ public class BatchedAsyncMongoCollectionImplTest {
 
         reset();
 
-        expect(myMockClient.getMinimumServerVersion()).andReturn(
-                Version.VERSION_2_6);
-
-        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(2);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(myMockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE);
-        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+        expect(myMockStats.getSmallestMaxBatchedWriteOperations()).andReturn(
                 Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -750,12 +763,12 @@ public class BatchedAsyncMongoCollectionImplTest {
 
         reset();
 
-        expect(myMockClient.getMinimumServerVersion()).andReturn(
-                Version.VERSION_2_6);
-
-        expect(myMockClient.getSmallestMaxBsonObjectSize()).andReturn(
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(2);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+        expect(myMockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE);
-        expect(myMockClient.getSmallestMaxBatchedWriteOperations()).andReturn(
+        expect(myMockStats.getSmallestMaxBatchedWriteOperations()).andReturn(
                 Server.MAX_BATCHED_WRITE_OPERATIONS_DEFAULT);
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -786,7 +799,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     private void replay(final Object... mocks) {
         EasyMock.replay(mocks);
-        EasyMock.replay(myMockClient, myMockDatabase);
+        EasyMock.replay(myMockClient, myMockDatabase, myMockStats);
     }
 
     /**
@@ -810,7 +823,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     private void reset(final Object... mocks) {
         EasyMock.reset(mocks);
-        EasyMock.reset(myMockClient, myMockDatabase);
+        EasyMock.reset(myMockClient, myMockDatabase, myMockStats);
     }
 
     /**
@@ -822,7 +835,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     private void verify(final Object... mocks) {
         EasyMock.verify(mocks);
-        EasyMock.verify(myMockClient, myMockDatabase);
+        EasyMock.verify(myMockClient, myMockDatabase, myMockStats);
     }
 
 }

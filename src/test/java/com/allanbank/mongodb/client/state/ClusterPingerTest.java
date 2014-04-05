@@ -53,105 +53,6 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterPingerTest {
-    /**
-     * A specialized {@link IAnswer} to close the pinger.
-     *
-     * @param <C>
-     *            The type for the answer.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public final class CloseAnswer<C> implements IAnswer<C> {
-        /** The error to provide to the callback. */
-        private final Throwable myError;
-
-        /** The reply to provide to the callback. */
-        private final C myReply;
-
-        /**
-         * Creates a new CallbackReply.
-         *
-         * @param reply
-         *            The reply to provide to the callback.
-         */
-        public CloseAnswer(final C reply) {
-            myReply = reply;
-            myError = null;
-        }
-
-        /**
-         * Creates a new CallbackReply.
-         *
-         * @param error
-         *            The error to provide to the callback.
-         */
-        public CloseAnswer(final Throwable error) {
-            myReply = null;
-            myError = error;
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to throw the error or return the reply.
-         * </p>
-         */
-        @Override
-        public C answer() throws Throwable {
-            myPinger.close();
-
-            if (myError != null) {
-                throw myError;
-            }
-            return myReply;
-        }
-    }
-
-    /**
-     * A specialized callback reply to close the pinger when a value is set.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public class CloseCallbackReply extends CallbackCapture<Reply> {
-
-        /** The serialization version for the class. */
-        private static final long serialVersionUID = -5855409833338626339L;
-
-        /**
-         * Creates a new CloseCallbackReply.
-         *
-         * @param reply
-         *            The reply for the callback.
-         */
-        public CloseCallbackReply(final Reply reply) {
-            super(reply);
-        }
-
-        /**
-         * Creates a new CloseCallbackReply.
-         *
-         * @param thrown
-         *            The error for the callback.
-         */
-        public CloseCallbackReply(final Throwable thrown) {
-            super(thrown);
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to call super and then provide the reply or error to the
-         * callback.
-         * </p>
-         */
-        @Override
-        public void setValue(final Callback<Reply> value) {
-            super.setValue(value);
-            myPinger.close();
-        }
-
-    }
-
     /** The pinger being tested. */
     protected ClusterPinger myPinger = null;
 
@@ -191,7 +92,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(reply));
         expectLastCall();
         mockConnection.shutdown(false);
@@ -238,7 +139,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class),
                 cbAndCloseWithConn(reply, state, mockConnection));
         expectLastCall();
@@ -285,7 +186,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(new MongoDbException(
                 "Error")));
         expectLastCall();
@@ -333,7 +234,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(reply));
         expectLastCall();
         mockConnection.send(anyObject(ReplicaSetStatus.class), cb(reply));
@@ -379,7 +280,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andThrow(
-                new IOException("Injected- 4"));
+                                new IOException("Injected- 4"));
 
         replay(mockFactory);
 
@@ -419,7 +320,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class),
                 anyObject(ServerUpdateCallback.class));
         expectLastCall().andThrow(new MongoDbException("Injected - 5"));
@@ -450,7 +351,7 @@ public class ClusterPingerTest {
      */
     @Test
     public void testInitialSweepWhenInterrupted() throws IOException,
-            InterruptedException {
+    InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
         tags.addInteger("f", 1).addInteger("b", 1);
@@ -472,7 +373,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), capture(catureReply));
         expectLastCall();
         mockConnection.shutdown(false);
@@ -534,7 +435,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -573,7 +474,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose());
         expectLastCall();
         mockConnection.shutdown(true);
@@ -603,7 +504,7 @@ public class ClusterPingerTest {
      */
     @Test
     public void testRunCannotGiveConnectionBack() throws IOException,
-            InterruptedException {
+    InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
         tags.addInteger("f", 1).addInteger("b", 1);
@@ -623,7 +524,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class),
                 cbAndCloseWithConn(reply, state, mockConnection));
         expectLastCall();
@@ -678,7 +579,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -724,7 +625,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
         expectLastCall();
 
@@ -765,7 +666,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndCloseError());
         expectLastCall();
 
@@ -819,7 +720,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -829,7 +730,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -859,7 +760,7 @@ public class ClusterPingerTest {
      */
     @Test
     public void testRunSweepTwiceIdleConnection() throws IOException,
-            InterruptedException {
+    InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
         tags.addInteger("f", 1).addInteger("b", 1);
@@ -879,7 +780,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -889,7 +790,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -919,7 +820,7 @@ public class ClusterPingerTest {
      */
     @Test
     public void testRunSweepTwiceNotGiveBackConnection() throws IOException,
-            InterruptedException {
+    InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
         tags.addInteger("f", 1).addInteger("b", 1);
@@ -939,7 +840,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class),
                 cbWithConn(reply, state, mockConnection));
         expectLastCall();
@@ -950,7 +851,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -988,7 +889,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andAnswer(
-                a(new IOException("Injected - 1")));
+                                a(new IOException("Injected - 1")));
 
         replay(mockFactory);
 
@@ -1024,7 +925,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndCloseError());
         expectLastCall().andThrow(new MongoDbException("Injected - 2"));
         mockConnection.shutdown(true);
@@ -1055,7 +956,7 @@ public class ClusterPingerTest {
      */
     @Test
     public void testRunWhenInterrupted() throws IOException,
-            InterruptedException {
+    InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
         tags.addInteger("f", 1).addInteger("b", 1);
@@ -1078,7 +979,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                mockConnection);
+                                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), capture(catureReply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -1248,5 +1149,104 @@ public class ClusterPingerTest {
         EasyMock.capture(new CallbackWithSetConnection(CallbackReply
                 .reply(builder)));
         return null;
+    }
+
+    /**
+     * A specialized {@link IAnswer} to close the pinger.
+     *
+     * @param <C>
+     *            The type for the answer.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public final class CloseAnswer<C> implements IAnswer<C> {
+        /** The error to provide to the callback. */
+        private final Throwable myError;
+
+        /** The reply to provide to the callback. */
+        private final C myReply;
+
+        /**
+         * Creates a new CallbackReply.
+         *
+         * @param reply
+         *            The reply to provide to the callback.
+         */
+        public CloseAnswer(final C reply) {
+            myReply = reply;
+            myError = null;
+        }
+
+        /**
+         * Creates a new CallbackReply.
+         *
+         * @param error
+         *            The error to provide to the callback.
+         */
+        public CloseAnswer(final Throwable error) {
+            myReply = null;
+            myError = error;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to throw the error or return the reply.
+         * </p>
+         */
+        @Override
+        public C answer() throws Throwable {
+            myPinger.close();
+
+            if (myError != null) {
+                throw myError;
+            }
+            return myReply;
+        }
+    }
+
+    /**
+     * A specialized callback reply to close the pinger when a value is set.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public class CloseCallbackReply extends CallbackCapture<Reply> {
+
+        /** The serialization version for the class. */
+        private static final long serialVersionUID = -5855409833338626339L;
+
+        /**
+         * Creates a new CloseCallbackReply.
+         *
+         * @param reply
+         *            The reply for the callback.
+         */
+        public CloseCallbackReply(final Reply reply) {
+            super(reply);
+        }
+
+        /**
+         * Creates a new CloseCallbackReply.
+         *
+         * @param thrown
+         *            The error for the callback.
+         */
+        public CloseCallbackReply(final Throwable thrown) {
+            super(thrown);
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to call super and then provide the reply or error to the
+         * callback.
+         * </p>
+         */
+        @Override
+        public void setValue(final Callback<Reply> value) {
+            super.setValue(value);
+            myPinger.close();
+        }
+
     }
 }

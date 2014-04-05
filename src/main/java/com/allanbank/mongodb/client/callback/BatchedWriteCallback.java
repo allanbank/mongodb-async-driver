@@ -42,66 +42,6 @@ import com.allanbank.mongodb.util.Assertions;
  */
 public class BatchedWriteCallback extends ReplyLongCallback {
 
-    /**
-     * BundleCallback provides the callback for a single batched write.
-     *
-     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
-     *         be mutated in incompatible ways between any two releases of the
-     *         driver.
-     * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    /* package */class BundleCallback implements ReplyCallback {
-
-        /**
-         * The bundle of operations this callback is waiting for the reply from.
-         */
-        private final Bundle myBundle;
-
-        /**
-         * Creates a new BatchedWriteBundleCallback.
-         *
-         * @param bundle
-         *            The bundle of operations this callback is waiting for the
-         *            reply from.
-         */
-        public BundleCallback(final Bundle bundle) {
-            myBundle = bundle;
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to forward the results to the parent callback.
-         * </p>
-         */
-        @Override
-        public void callback(final Reply result) {
-            BatchedWriteCallback.this.callback(myBundle, result);
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to forward the error to the parent callback.
-         * </p>
-         */
-        @Override
-        public void exception(final Throwable thrown) {
-            BatchedWriteCallback.this.exception(myBundle, thrown);
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to return false.
-         * </p>
-         */
-        @Override
-        public boolean isLightWeight() {
-            return false;
-        }
-    }
-
     /** The list of bundles to send. */
     private final List<BatchedWrite.Bundle> myBundles;
 
@@ -208,8 +148,8 @@ public class BatchedWriteCallback extends ReplyLongCallback {
         Assertions.assertThat(
                 myRealCallbacks.size() == count,
                 "There nust be an operation (" + count
-                + ") in a bundle for each callback ("
-                + myRealCallbacks.size() + ").");
+                        + ") in a bundle for each callback ("
+                        + myRealCallbacks.size() + ").");
     }
 
     /**
@@ -495,7 +435,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
                             if (thrown != null) {
                                 cb.exception(new BatchedWriteException(myWrite,
                                         myN, emptySkipped, Collections
-                                        .singletonMap(op, thrown)));
+                                                .singletonMap(op, thrown)));
                             }
                             else if (skipped.contains(op)) {
                                 // Skipped the write.
@@ -514,6 +454,66 @@ public class BatchedWriteCallback extends ReplyLongCallback {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * BundleCallback provides the callback for a single batched write.
+     *
+     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
+     *         be mutated in incompatible ways between any two releases of the
+     *         driver.
+     * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    /* package */class BundleCallback implements ReplyCallback {
+
+        /**
+         * The bundle of operations this callback is waiting for the reply from.
+         */
+        private final Bundle myBundle;
+
+        /**
+         * Creates a new BatchedWriteBundleCallback.
+         *
+         * @param bundle
+         *            The bundle of operations this callback is waiting for the
+         *            reply from.
+         */
+        public BundleCallback(final Bundle bundle) {
+            myBundle = bundle;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to forward the results to the parent callback.
+         * </p>
+         */
+        @Override
+        public void callback(final Reply result) {
+            BatchedWriteCallback.this.callback(myBundle, result);
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to forward the error to the parent callback.
+         * </p>
+         */
+        @Override
+        public void exception(final Throwable thrown) {
+            BatchedWriteCallback.this.exception(myBundle, thrown);
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to return false.
+         * </p>
+         */
+        @Override
+        public boolean isLightWeight() {
+            return false;
         }
     }
 }

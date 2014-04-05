@@ -38,6 +38,132 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class MongoDbAuthenticator implements Authenticator {
 
+    /** The UTF-8 character encoding. */
+    public static final Charset ASCII = Charset.forName("US-ASCII");
+
+    /** The result of the Authentication attempt. */
+    protected FutureCallback<Boolean> myResults = new FutureCallback<Boolean>();
+
+    /**
+     * Creates a new MongoDbAuthenticator.
+     */
+    public MongoDbAuthenticator() {
+        super();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a new authenticator.
+     * </p>
+     */
+    @Override
+    public MongoDbAuthenticator clone() {
+        try {
+            final MongoDbAuthenticator newAuth = (MongoDbAuthenticator) super
+                    .clone();
+            newAuth.myResults = new FutureCallback<Boolean>();
+
+            return newAuth;
+        }
+        catch (final CloneNotSupportedException cannotHappen) {
+            return new MongoDbAuthenticator();
+        }
+    }
+
+    /**
+     * Creates the MongoDB authentication hash of the password.
+     *
+     * @param credentials
+     *            The credentials to hash.
+     * @return The hashed password/myCredential.
+     * @throws NoSuchAlgorithmException
+     *             On a failure to create a MD5 message digest.
+     */
+    public String passwordHash(final Credential credentials)
+            throws NoSuchAlgorithmException {
+        final MessageDigest md5 = MessageDigest.getInstance("MD5");
+
+        return passwordHash(md5, credentials);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to returns the results of the authentication, once complete.
+     * </p>
+     */
+    @Override
+    public boolean result() throws MongoDbAuthenticationException {
+
+        // Clear and restore the threads interrupted state for reconnect cases.
+        final boolean interrupted = Thread.interrupted();
+        try {
+            return myResults.get().booleanValue();
+        }
+        catch (final InterruptedException e) {
+            throw new MongoDbAuthenticationException(e);
+        }
+        catch (final ExecutionException e) {
+            throw new MongoDbAuthenticationException(e);
+        }
+        finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to authenticate with MongoDB using the native/legacy
+     * authentication mechanisms.
+     * </p>
+     */
+    @Override
+    public void startAuthentication(final Credential credential,
+            final Connection connection) throws MongoDbAuthenticationException {
+
+        try {
+            final DocumentBuilder builder = BuilderFactory.start();
+            builder.addInteger("getnonce", 1);
+
+            connection.send(
+                    new Command(credential.getDatabase(), builder.build()),
+                    new NonceReplyCallback(credential, connection));
+        }
+        catch (final MongoDbException errorOnSend) {
+            myResults.exception(errorOnSend);
+
+            throw errorOnSend;
+        }
+    }
+
+    /**
+     * Creates the MongoDB authentication hash of the password.
+     *
+     * @param md5
+     *            The MD5 digest to compute the hash.
+     * @param credentials
+     *            The credentials to hash.
+     * @return The hashed password/myCredential.
+     */
+    protected String passwordHash(final MessageDigest md5,
+            final Credential credentials) {
+
+        final char[] password = credentials.getPassword();
+        final ByteBuffer bb = ASCII.encode(CharBuffer.wrap(password));
+
+        md5.update((credentials.getUserName() + ":mongo:").getBytes(ASCII));
+        md5.update(bb.array(), 0, bb.limit());
+
+        Arrays.fill(password, ' ');
+        Arrays.fill(bb.array(), (byte) 0);
+
+        return IOUtils.toHex(md5.digest());
+    }
+
     /**
      * AuthenticateReplyCallback provides the callback for the second step of
      * the authentication.
@@ -45,7 +171,7 @@ public class MongoDbAuthenticator implements Authenticator {
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     private static class AuthenticateReplyCallback extends
-            AbstractReplyCallback<Boolean> {
+    AbstractReplyCallback<Boolean> {
         /**
          * Creates a new AuthenticateReplyCallback.
          *
@@ -182,7 +308,7 @@ public class MongoDbAuthenticator implements Authenticator {
 
                 myConnection.send(new Command(myCredential.getDatabase(),
                         builder.build()), new AuthenticateReplyCallback(
-                        myResults));
+                                myResults));
             }
             catch (final NoSuchAlgorithmException e) {
                 exception(new MongoDbAuthenticationException(e));
@@ -191,131 +317,5 @@ public class MongoDbAuthenticator implements Authenticator {
                 exception(new MongoDbAuthenticationException(e));
             }
         }
-    }
-
-    /** The UTF-8 character encoding. */
-    public static final Charset ASCII = Charset.forName("US-ASCII");
-
-    /** The result of the Authentication attempt. */
-    protected FutureCallback<Boolean> myResults = new FutureCallback<Boolean>();
-
-    /**
-     * Creates a new MongoDbAuthenticator.
-     */
-    public MongoDbAuthenticator() {
-        super();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return a new authenticator.
-     * </p>
-     */
-    @Override
-    public MongoDbAuthenticator clone() {
-        try {
-            final MongoDbAuthenticator newAuth = (MongoDbAuthenticator) super
-                    .clone();
-            newAuth.myResults = new FutureCallback<Boolean>();
-
-            return newAuth;
-        }
-        catch (final CloneNotSupportedException cannotHappen) {
-            return new MongoDbAuthenticator();
-        }
-    }
-
-    /**
-     * Creates the MongoDB authentication hash of the password.
-     *
-     * @param credentials
-     *            The credentials to hash.
-     * @return The hashed password/myCredential.
-     * @throws NoSuchAlgorithmException
-     *             On a failure to create a MD5 message digest.
-     */
-    public String passwordHash(final Credential credentials)
-            throws NoSuchAlgorithmException {
-        final MessageDigest md5 = MessageDigest.getInstance("MD5");
-
-        return passwordHash(md5, credentials);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to returns the results of the authentication, once complete.
-     * </p>
-     */
-    @Override
-    public boolean result() throws MongoDbAuthenticationException {
-
-        // Clear and restore the threads interrupted state for reconnect cases.
-        final boolean interrupted = Thread.interrupted();
-        try {
-            return myResults.get().booleanValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbAuthenticationException(e);
-        }
-        catch (final ExecutionException e) {
-            throw new MongoDbAuthenticationException(e);
-        }
-        finally {
-            if (interrupted) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to authenticate with MongoDB using the native/legacy
-     * authentication mechanisms.
-     * </p>
-     */
-    @Override
-    public void startAuthentication(final Credential credential,
-            final Connection connection) throws MongoDbAuthenticationException {
-
-        try {
-            final DocumentBuilder builder = BuilderFactory.start();
-            builder.addInteger("getnonce", 1);
-
-            connection.send(
-                    new Command(credential.getDatabase(), builder.build()),
-                    new NonceReplyCallback(credential, connection));
-        }
-        catch (final MongoDbException errorOnSend) {
-            myResults.exception(errorOnSend);
-
-            throw errorOnSend;
-        }
-    }
-
-    /**
-     * Creates the MongoDB authentication hash of the password.
-     *
-     * @param md5
-     *            The MD5 digest to compute the hash.
-     * @param credentials
-     *            The credentials to hash.
-     * @return The hashed password/myCredential.
-     */
-    protected String passwordHash(final MessageDigest md5,
-            final Credential credentials) {
-
-        final char[] password = credentials.getPassword();
-        final ByteBuffer bb = ASCII.encode(CharBuffer.wrap(password));
-
-        md5.update((credentials.getUserName() + ":mongo:").getBytes(ASCII));
-        md5.update(bb.array(), 0, bb.limit());
-
-        Arrays.fill(password, ' ');
-        Arrays.fill(bb.array(), (byte) 0);
-
-        return IOUtils.toHex(md5.digest());
     }
 }

@@ -18,68 +18,7 @@ import java.io.Serializable;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ProfilingStatus implements Comparable<ProfilingStatus>,
-        Serializable {
-
-    /**
-     * Level provides the set of available profiling levels provided by the
-     * MongoDB server.
-     *
-     * @api.yes This class is part of the driver's API. Public and protected
-     *          members will be deprecated for at least 1 non-bugfix release
-     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
-     *          before being removed or modified.
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static enum Level {
-
-        /** Profile all operations. */
-        ALL(2),
-
-        /** Profile no operations. */
-        NONE(0),
-
-        /** Only profile slow operations. */
-        SLOW_ONLY(1);
-
-        /**
-         * Returns the {@link Level} for the specified value.
-         *
-         * @param value
-         *            The value of the profile level.
-         * @return The profile level for the value.
-         */
-        public static Level fromValue(final int value) {
-            for (final Level level : values()) {
-                if (level.getValue() == value) {
-                    return level;
-                }
-            }
-
-            return null;
-        }
-
-        /** The profile level value to send to MongoDB. */
-        private final int myValue;
-
-        /**
-         * Creates a new Level.
-         *
-         * @param value
-         *            The profile level value to send to MongoDB.
-         */
-        private Level(final int value) {
-            myValue = value;
-        }
-
-        /**
-         * Returns the profile level value to send to MongoDB.
-         *
-         * @return The profile level value to send to MongoDB.
-         */
-        public int getValue() {
-            return myValue;
-        }
-    }
+Serializable {
 
     /**
      * The default threshold ({@value} )for the number of milliseconds beyond
@@ -254,6 +193,67 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
         }
         else {
             return this;
+        }
+    }
+
+    /**
+     * Level provides the set of available profiling levels provided by the
+     * MongoDB server.
+     *
+     * @api.yes This class is part of the driver's API. Public and protected
+     *          members will be deprecated for at least 1 non-bugfix release
+     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
+     *          before being removed or modified.
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static enum Level {
+
+        /** Profile all operations. */
+        ALL(2),
+
+        /** Profile no operations. */
+        NONE(0),
+
+        /** Only profile slow operations. */
+        SLOW_ONLY(1);
+
+        /**
+         * Returns the {@link Level} for the specified value.
+         *
+         * @param value
+         *            The value of the profile level.
+         * @return The profile level for the value.
+         */
+        public static Level fromValue(final int value) {
+            for (final Level level : values()) {
+                if (level.getValue() == value) {
+                    return level;
+                }
+            }
+
+            return null;
+        }
+
+        /** The profile level value to send to MongoDB. */
+        private final int myValue;
+
+        /**
+         * Creates a new Level.
+         *
+         * @param value
+         *            The profile level value to send to MongoDB.
+         */
+        private Level(final int value) {
+            myValue = value;
+        }
+
+        /**
+         * Returns the profile level value to send to MongoDB.
+         *
+         * @return The profile level value to send to MongoDB.
+         */
+        public int getValue() {
+            return myValue;
         }
     }
 }

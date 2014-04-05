@@ -45,51 +45,6 @@ import com.allanbank.mongodb.util.IOUtils;
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MockMongoDBServer extends Thread {
-    /**
-     * ClientRunnable provides the handling for a single client.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    private final class ClientRunnable implements Runnable {
-        /** The client connection. */
-        private final Socket myConn;
-
-        /**
-         * Creates a new ClientRunnable.
-         *
-         * @param conn
-         *            The client connection.
-         */
-        public ClientRunnable(final Socket conn) {
-            myConn = conn;
-        }
-
-        /**
-         * Process client messages.
-         */
-        @Override
-        public void run() {
-            try {
-                synchronized (MockMongoDBServer.this) {
-                    myClientConnected += 1;
-                    MockMongoDBServer.this.notifyAll();
-                }
-
-                handleClient(myConn);
-            }
-            catch (final IOException error) {
-                // OK. Just close.
-            }
-            finally {
-                synchronized (MockMongoDBServer.this) {
-                    myClientConnected -= 1;
-                    MockMongoDBServer.this.notifyAll();
-                }
-                close(myConn);
-            }
-        }
-    }
-
     /** An empty Array of bytes. */
     public static final byte[] EMPTY_BYTES = new byte[0];
 
@@ -540,6 +495,51 @@ public class MockMongoDBServer extends Thread {
         }
         catch (final InterruptedException e) {
             // Ignore.
+        }
+    }
+
+    /**
+     * ClientRunnable provides the handling for a single client.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    private final class ClientRunnable implements Runnable {
+        /** The client connection. */
+        private final Socket myConn;
+
+        /**
+         * Creates a new ClientRunnable.
+         *
+         * @param conn
+         *            The client connection.
+         */
+        public ClientRunnable(final Socket conn) {
+            myConn = conn;
+        }
+
+        /**
+         * Process client messages.
+         */
+        @Override
+        public void run() {
+            try {
+                synchronized (MockMongoDBServer.this) {
+                    myClientConnected += 1;
+                    MockMongoDBServer.this.notifyAll();
+                }
+
+                handleClient(myConn);
+            }
+            catch (final IOException error) {
+                // OK. Just close.
+            }
+            finally {
+                synchronized (MockMongoDBServer.this) {
+                    myClientConnected -= 1;
+                    MockMongoDBServer.this.notifyAll();
+                }
+                close(myConn);
+            }
         }
     }
 }

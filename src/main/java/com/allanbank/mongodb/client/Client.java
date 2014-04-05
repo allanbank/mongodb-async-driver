@@ -12,7 +12,6 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.StreamCallback;
-import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
@@ -35,6 +34,13 @@ public interface Client {
      * Closes the client.
      */
     public void close();
+
+    /**
+     * Returns the meta-data on the current cluster.
+     *
+     * @return The meta-data on the current cluster.
+     */
+    public ClusterStats getClusterStats();
 
     /**
      * Returns the type of cluster the client is connected to.
@@ -65,38 +71,6 @@ public interface Client {
      *         {@link MongoClientConfiguration} .
      */
     public ReadPreference getDefaultReadPreference();
-
-    /**
-     * Returns the maximum server version within the cluster.
-     *
-     * @return The maximum server version within the cluster.
-     */
-    public Version getMaximumServerVersion();
-
-    /**
-     * Returns the minimum server version within the cluster.
-     *
-     * @return The minimum server version within the cluster.
-     */
-    public Version getMinimumServerVersion();
-
-    /**
-     * Returns smallest value for the maximum number of write operations allowed
-     * in a single write command.
-     *
-     * @return The smallest value for maximum number of write operations allowed
-     *         in a single write command.
-     */
-    public int getSmallestMaxBatchedWriteOperations();
-
-    /**
-     * Returns the smallest value for the maximum BSON object size within the
-     * cluster.
-     *
-     * @return The smallest value for the maximum BSON object size within the
-     *         cluster.
-     */
-    public long getSmallestMaxBsonObjectSize();
 
     /**
      * Restarts an iterator that was previously saved.

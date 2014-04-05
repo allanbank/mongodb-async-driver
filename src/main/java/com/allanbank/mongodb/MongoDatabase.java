@@ -302,7 +302,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(Callback<Document> reply,
             DocumentAssignable command, Version requiredServerVersion)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -348,7 +348,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(Callback<Document> reply, String commandName,
             int commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -366,7 +366,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(Callback<Document> reply, String commandName,
             String commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -409,7 +409,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(LambdaCallback<Document> reply,
             DocumentAssignable command, Version requiredServerVersion)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -458,7 +458,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(LambdaCallback<Document> reply,
             String commandName, int commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -477,7 +477,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(LambdaCallback<Document> reply,
             String commandName, String commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -520,7 +520,7 @@ public interface MongoDatabase {
      */
     public ListenableFuture<Document> runCommandAsync(String commandName,
             int commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -537,7 +537,7 @@ public interface MongoDatabase {
      */
     public ListenableFuture<Document> runCommandAsync(String commandName,
             String commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Sets the durability for write operations from this {@link MongoDatabase}

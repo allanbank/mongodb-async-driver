@@ -48,28 +48,6 @@ import com.allanbank.mongodb.util.IOUtils;
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AbstractProxyConnectionTest {
-    /**
-     * TestProxiedConnection provides a connection for testing.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static final class TestProxiedConnection extends
-            AbstractProxyConnection {
-
-        /**
-         * Creates a new TestProxiedConnection.
-         *
-         * @param proxiedConnection
-         *            The connection to forward to.
-         * @param config
-         *            The MongoDB client configuration.
-         */
-        public TestProxiedConnection(final Connection proxiedConnection,
-                final MongoClientConfiguration config) {
-            super(proxiedConnection);
-        }
-    }
-
     /** An empty document for use in constructing messages. */
     public static final Document EMPTY_DOC = BuilderFactory.start().build();
 
@@ -901,5 +879,27 @@ public class AbstractProxyConnectionTest {
         IOUtils.close(conn);
 
         verify(mockConnetion);
+    }
+
+    /**
+     * TestProxiedConnection provides a connection for testing.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static final class TestProxiedConnection extends
+    AbstractProxyConnection {
+
+        /**
+         * Creates a new TestProxiedConnection.
+         *
+         * @param proxiedConnection
+         *            The connection to forward to.
+         * @param config
+         *            The MongoDB client configuration.
+         */
+        public TestProxiedConnection(final Connection proxiedConnection,
+                final MongoClientConfiguration config) {
+            super(proxiedConnection);
+        }
     }
 }

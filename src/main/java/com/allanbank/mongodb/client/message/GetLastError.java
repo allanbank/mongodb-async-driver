@@ -5,11 +5,14 @@
 
 package com.allanbank.mongodb.client.message;
 
+import java.io.StringWriter;
+
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.client.connection.Connection;
 
 /**
@@ -105,5 +108,22 @@ public class GetLastError extends Query {
         /* numberToSkip= */0, /* tailable= */false, ReadPreference.PRIMARY,
         /* noCursorTimeout= */false, /* awaitData= */false,
         /* exhaust= */false, /* partial= */false);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to returns the getLastError on a single line.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringWriter sink = new StringWriter();
+
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                sink, true);
+        getQuery().accept(visitor);
+
+        return sink.toString();
     }
 }

@@ -47,23 +47,6 @@ import com.allanbank.mongodb.builder.ParallelScan;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface MongoCollection extends AsyncMongoCollection {
-    /**
-     * ValidateMode provides an enumeration of the validation modes.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static enum ValidateMode {
-
-        /** Validates the data and indexes performing all checks. */
-        FULL,
-
-        /** Validates the indexes only and not the collection data. */
-        INDEX_ONLY,
-
-        /** Validates the data and indexes but skips some checks. */
-        NORMAL;
-    }
-
     /** An (empty) query document to find all documents. */
     public static final Document ALL = AsyncMongoCollection.ALL;
 
@@ -189,9 +172,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     * 
+     *
      * MongoCollection collection = ...;
-     * 
+     *
      * collection.createIndex( true, asc("f"), desc("g") );
      * ...
      * </code>
@@ -223,9 +206,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * import static {@link com.allanbank.mongodb.bson.builder.BuilderFactory#start com.allanbank.mongodb.bson.builder.BuilderFactory.start};
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     * 
+     *
      * MongoCollection collection = ...;
-     * 
+     *
      * collection.createIndex(start().add("sparse", true), asc("f") );
      * ...
      * </code>
@@ -258,9 +241,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     * 
+     *
      * MongoCollection collection = ...;
-     * 
+     *
      * collection.createIndex( asc("f"), desc("g") );
      * ...
      * </code>
@@ -287,9 +270,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     * 
+     *
      * MongoCollection collection = ...;
-     * 
+     *
      * collection.createIndex( "f_and_g", false, asc("f"), desc("g") );
      * ...
      * </code>
@@ -324,9 +307,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * import static {@link com.allanbank.mongodb.bson.builder.BuilderFactory#start com.allanbank.mongodb.bson.builder.BuilderFactory.start};
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     * 
+     *
      * MongoCollection collection = ...;
-     * 
+     *
      * collection.createIndex("sparse_f", start().add("sparse", true), asc("f") );
      * ...
      * </code>
@@ -457,9 +440,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     * 
+     *
      * MongoCollection collection = ...;
-     * 
+     *
      * collection.dropIndex( asc("f"), desc("g") );
      * ...
      * </code>
@@ -816,7 +799,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      */
     public int insert(final boolean continueOnError,
             final Durability durability, DocumentAssignable... documents)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -1085,7 +1068,7 @@ public interface MongoCollection extends AsyncMongoCollection {
     @Deprecated
     public MongoIterator<com.allanbank.mongodb.builder.TextResult> textSearch(
             com.allanbank.mongodb.builder.Text.Builder command)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -1126,7 +1109,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      */
     public long update(DocumentAssignable query, DocumentAssignable update,
             final boolean multiUpdate, final boolean upsert)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -1182,7 +1165,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <pre>
      * <code>
      * MongoCollection collection = ...;
-     * 
+     *
      * collection.updateOptions( BuilderFactory.start().add( "usePowerOf2Sizes", true ) );
      * </code>
      * </pre>
@@ -1268,4 +1251,21 @@ public interface MongoCollection extends AsyncMongoCollection {
      * @see BatchedWrite#REQUIRED_VERSION
      */
     public long write(final BatchedWrite.Builder write) throws MongoDbException;
+
+    /**
+     * ValidateMode provides an enumeration of the validation modes.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static enum ValidateMode {
+
+        /** Validates the data and indexes performing all checks. */
+        FULL,
+
+        /** Validates the indexes only and not the collection data. */
+        INDEX_ONLY,
+
+        /** Validates the data and indexes but skips some checks. */
+        NORMAL;
+    }
 }

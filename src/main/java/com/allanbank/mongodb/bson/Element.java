@@ -22,7 +22,7 @@ import com.allanbank.mongodb.bson.element.TimestampElement;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface Element extends Serializable, ElementAssignable,
-        Comparable<Element> {
+Comparable<Element> {
 
     /**
      * Accepts the visitor and calls the appropriate method on the visitor based

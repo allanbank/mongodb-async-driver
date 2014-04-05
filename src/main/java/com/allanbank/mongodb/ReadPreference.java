@@ -56,102 +56,6 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 public class ReadPreference implements Serializable, DocumentAssignable {
 
     /**
-     * Enumeration of the basic {@link ReadPreference} modes of service.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static enum Mode {
-        /**
-         * Use the nearest (by latency measurement) member of the replica set:
-         * either primary or secondary servers are allowed.
-         * <p>
-         * If tag matching documents are specified then only server matching the
-         * specified tag matching documents would be used.
-         * </p>
-         */
-        NEAREST("nearest"),
-
-        /**
-         * Reads should only be attempted from the primary member of the replica
-         * set.
-         */
-        PRIMARY_ONLY("primary"),
-
-        /**
-         * Read from the primary but in the case of a fault may fallback to a
-         * secondary.
-         * <p>
-         * If tag matching documents are specified and a fallback to a secondary
-         * is required then only secondaries matching the specified tag matching
-         * documents would be used.
-         * </p>
-         */
-        PRIMARY_PREFERRED("primaryPreferred"),
-
-        /**
-         * Do not attempt to read from the primary.
-         * <p>
-         * If tag matching documents are specified then only secondaries
-         * matching the specified tag matching documents would be used.
-         * </p>
-         */
-        SECONDARY_ONLY("secondary"),
-
-        /**
-         * Try to first read from a secondary. If none are available "fallback"
-         * to the primary.
-         * <p>
-         * If tag matching documents are specified then only secondaries
-         * matching the specified tag matching documents would be used.
-         * </p>
-         */
-        SECONDARY_PREFERRED("secondaryPreferred"),
-
-        /**
-         * Do not attempt to read from any server other than the one specified.
-         * Used by the {@link MongoIterator} to ensure cursor fetch and
-         * terminate requests use the originating server.
-         */
-        SERVER("server");
-
-        /** The token passed to the mongos server when in a shared environment. */
-        private final String myToken;
-
-        /**
-         * Creates a new Mode.
-         *
-         * @param token
-         *            The token passed to the mongos server when in a shared
-         *            environment.
-         */
-        private Mode(final String token) {
-            myToken = token;
-        }
-
-        /**
-         * Returns the token passed to the mongos server when in a shared
-         * environment.
-         *
-         * @return The token passed to the mongos server when in a shared
-         *         environment.
-         */
-        public String getToken() {
-            return myToken;
-        }
-
-        /**
-         * Returns true if the mode allows reading from secondaries, false
-         * otherwise.
-         *
-         * @return True if the mode allows reading from secondaries, false
-         *         otherwise.
-         */
-        public boolean isSecondaryOk() {
-            return (this != PRIMARY_ONLY);
-        }
-    }
-
-    /**
      * {@link ReadPreference} to read from the closest/{@link Mode#NEAREST}
      * primary of secondary server.
      */
@@ -421,7 +325,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
 
             result = myMode.equals(other.myMode)
                     && myTagMatchingDocuments
-                            .equals(other.myTagMatchingDocuments)
+                    .equals(other.myTagMatchingDocuments)
                     && nullSafeEquals(myServer, other.myServer);
         }
         return result;
@@ -653,6 +557,102 @@ public class ReadPreference implements Serializable, DocumentAssignable {
         }
         else {
             return this;
+        }
+    }
+
+    /**
+     * Enumeration of the basic {@link ReadPreference} modes of service.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static enum Mode {
+        /**
+         * Use the nearest (by latency measurement) member of the replica set:
+         * either primary or secondary servers are allowed.
+         * <p>
+         * If tag matching documents are specified then only server matching the
+         * specified tag matching documents would be used.
+         * </p>
+         */
+        NEAREST("nearest"),
+
+        /**
+         * Reads should only be attempted from the primary member of the replica
+         * set.
+         */
+        PRIMARY_ONLY("primary"),
+
+        /**
+         * Read from the primary but in the case of a fault may fallback to a
+         * secondary.
+         * <p>
+         * If tag matching documents are specified and a fallback to a secondary
+         * is required then only secondaries matching the specified tag matching
+         * documents would be used.
+         * </p>
+         */
+        PRIMARY_PREFERRED("primaryPreferred"),
+
+        /**
+         * Do not attempt to read from the primary.
+         * <p>
+         * If tag matching documents are specified then only secondaries
+         * matching the specified tag matching documents would be used.
+         * </p>
+         */
+        SECONDARY_ONLY("secondary"),
+
+        /**
+         * Try to first read from a secondary. If none are available "fallback"
+         * to the primary.
+         * <p>
+         * If tag matching documents are specified then only secondaries
+         * matching the specified tag matching documents would be used.
+         * </p>
+         */
+        SECONDARY_PREFERRED("secondaryPreferred"),
+
+        /**
+         * Do not attempt to read from any server other than the one specified.
+         * Used by the {@link MongoIterator} to ensure cursor fetch and
+         * terminate requests use the originating server.
+         */
+        SERVER("server");
+
+        /** The token passed to the mongos server when in a shared environment. */
+        private final String myToken;
+
+        /**
+         * Creates a new Mode.
+         *
+         * @param token
+         *            The token passed to the mongos server when in a shared
+         *            environment.
+         */
+        private Mode(final String token) {
+            myToken = token;
+        }
+
+        /**
+         * Returns the token passed to the mongos server when in a shared
+         * environment.
+         *
+         * @return The token passed to the mongos server when in a shared
+         *         environment.
+         */
+        public String getToken() {
+            return myToken;
+        }
+
+        /**
+         * Returns true if the mode allows reading from secondaries, false
+         * otherwise.
+         *
+         * @return True if the mode allows reading from secondaries, false
+         *         otherwise.
+         */
+        public boolean isSecondaryOk() {
+            return (this != PRIMARY_ONLY);
         }
     }
 }

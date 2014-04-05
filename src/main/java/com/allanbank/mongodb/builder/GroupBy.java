@@ -31,6 +31,165 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  */
 public class GroupBy {
     /**
+     * The first version of MongoDB to support the {@code group} command with
+     * the ability to limit the execution time on the server.
+     */
+    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
+
+    /**
+     * Creates a new builder for a {@link GroupBy}.
+     *
+     * @return The builder to construct a {@link GroupBy}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /** The finalizer function to run for each group. */
+    private final String myFinalizeFunction;
+
+    /** The initial value for each group. */
+    private final Document myInitialValue;
+
+    /**
+     * Function to return the key for a document. Used instead of the
+     * {@link #getKeys} to dynamically determine the group for each document.
+     */
+    private final String myKeyFunction;
+
+    /** The fields to group by. */
+    private final Set<String> myKeys;
+
+    /** The maximum amount of time to allow the command to run. */
+    private final long myMaximumTimeMilliseconds;
+
+    /** The query to select the documents to run the group against. */
+    private final Document myQuery;
+
+    /** The read preference to use. */
+    private final ReadPreference myReadPreference;
+
+    /**
+     * The reduce function taking the previous value and the current value and
+     * returning the new reduced value.
+     */
+    private final String myReduceFunction;
+
+    /**
+     * Creates a new GroupBy.
+     *
+     * @param builder
+     *            The builder to copy the state from.
+     * @throws IllegalArgumentException
+     *             If neither the {@link #getKeys() keys} nor
+     *             {@link #getKeyFunction() key function} have been set.
+     */
+    protected GroupBy(final Builder builder) throws IllegalArgumentException {
+        assertThat(
+                !builder.myKeys.isEmpty() || (builder.myKeyFunction != null),
+                "Must specify either a set of keys for the groupBy or a key function.");
+
+        myKeys = Collections
+                .unmodifiableSet(new HashSet<String>(builder.myKeys));
+        myReduceFunction = builder.myReduceFunction;
+        myInitialValue = builder.myInitialValue;
+        myKeyFunction = builder.myKeyFunction;
+        myQuery = builder.myQuery;
+        myFinalizeFunction = builder.myFinalizeFunction;
+        myReadPreference = builder.myReadPreference;
+        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the finalizer function to run for each group.
+     *
+     * @return The finalizer function to run for each group.
+     */
+    public String getFinalizeFunction() {
+        return myFinalizeFunction;
+    }
+
+    /**
+     * Returns the initial value for each group.
+     *
+     * @return The initial value for each group.
+     */
+    public Document getInitialValue() {
+        return myInitialValue;
+    }
+
+    /**
+     * Returns the function to return the key for a document. Used instead of
+     * the {@link #getKeys} to dynamically determine the group for each
+     * document.
+     *
+     * @return The function to return the key for a document. Used instead of
+     *         the {@link #getKeys} to dynamically determine the group for each
+     *         document.
+     */
+    public String getKeyFunction() {
+        return myKeyFunction;
+    }
+
+    /**
+     * Returns the fields to group by.
+     *
+     * @return The fields to group by.
+     */
+    public Set<String> getKeys() {
+        return myKeys;
+    }
+
+    /**
+     * Returns the maximum amount of time to allow the command to run on the
+     * Server before it is aborted.
+     *
+     * @return The maximum amount of time to allow the command to run on the
+     *         Server before it is aborted.
+     *
+     * @since MongoDB 2.6
+     */
+    public long getMaximumTimeMilliseconds() {
+        return myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the query to select the documents to run the group against.
+     *
+     * @return The query to select the documents to run the group against.
+     */
+    public Document getQuery() {
+        return myQuery;
+    }
+
+    /**
+     * Returns the {@link ReadPreference} specifying which servers may be used
+     * to execute the {@link GroupBy} command.
+     * <p>
+     * If <code>null</code> then the {@link MongoCollection} instance's
+     * {@link ReadPreference} will be used.
+     * </p>
+     *
+     * @return The read preference to use.
+     *
+     * @see MongoCollection#getReadPreference()
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
+     * Returns the reduce function taking the previous value and the current
+     * value and returning the new reduced value.
+     *
+     * @return The reduce function taking the previous value and the current
+     *         value and returning the new reduced value.
+     */
+    public String getReduceFunction() {
+        return myReduceFunction;
+    }
+
+    /**
      * Builder provides a builder for Group commands.
      *
      * @api.yes This class is part of the driver's API. Public and protected
@@ -376,164 +535,5 @@ public class GroupBy {
             myReduceFunction = reduceFunction;
             return this;
         }
-    }
-
-    /**
-     * The first version of MongoDB to support the {@code group} command with
-     * the ability to limit the execution time on the server.
-     */
-    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
-
-    /**
-     * Creates a new builder for a {@link GroupBy}.
-     *
-     * @return The builder to construct a {@link GroupBy}.
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /** The finalizer function to run for each group. */
-    private final String myFinalizeFunction;
-
-    /** The initial value for each group. */
-    private final Document myInitialValue;
-
-    /**
-     * Function to return the key for a document. Used instead of the
-     * {@link #getKeys} to dynamically determine the group for each document.
-     */
-    private final String myKeyFunction;
-
-    /** The fields to group by. */
-    private final Set<String> myKeys;
-
-    /** The maximum amount of time to allow the command to run. */
-    private final long myMaximumTimeMilliseconds;
-
-    /** The query to select the documents to run the group against. */
-    private final Document myQuery;
-
-    /** The read preference to use. */
-    private final ReadPreference myReadPreference;
-
-    /**
-     * The reduce function taking the previous value and the current value and
-     * returning the new reduced value.
-     */
-    private final String myReduceFunction;
-
-    /**
-     * Creates a new GroupBy.
-     *
-     * @param builder
-     *            The builder to copy the state from.
-     * @throws IllegalArgumentException
-     *             If neither the {@link #getKeys() keys} nor
-     *             {@link #getKeyFunction() key function} have been set.
-     */
-    protected GroupBy(final Builder builder) throws IllegalArgumentException {
-        assertThat(
-                !builder.myKeys.isEmpty() || (builder.myKeyFunction != null),
-                "Must specify either a set of keys for the groupBy or a key function.");
-
-        myKeys = Collections
-                .unmodifiableSet(new HashSet<String>(builder.myKeys));
-        myReduceFunction = builder.myReduceFunction;
-        myInitialValue = builder.myInitialValue;
-        myKeyFunction = builder.myKeyFunction;
-        myQuery = builder.myQuery;
-        myFinalizeFunction = builder.myFinalizeFunction;
-        myReadPreference = builder.myReadPreference;
-        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the finalizer function to run for each group.
-     *
-     * @return The finalizer function to run for each group.
-     */
-    public String getFinalizeFunction() {
-        return myFinalizeFunction;
-    }
-
-    /**
-     * Returns the initial value for each group.
-     *
-     * @return The initial value for each group.
-     */
-    public Document getInitialValue() {
-        return myInitialValue;
-    }
-
-    /**
-     * Returns the function to return the key for a document. Used instead of
-     * the {@link #getKeys} to dynamically determine the group for each
-     * document.
-     *
-     * @return The function to return the key for a document. Used instead of
-     *         the {@link #getKeys} to dynamically determine the group for each
-     *         document.
-     */
-    public String getKeyFunction() {
-        return myKeyFunction;
-    }
-
-    /**
-     * Returns the fields to group by.
-     *
-     * @return The fields to group by.
-     */
-    public Set<String> getKeys() {
-        return myKeys;
-    }
-
-    /**
-     * Returns the maximum amount of time to allow the command to run on the
-     * Server before it is aborted.
-     *
-     * @return The maximum amount of time to allow the command to run on the
-     *         Server before it is aborted.
-     *
-     * @since MongoDB 2.6
-     */
-    public long getMaximumTimeMilliseconds() {
-        return myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the query to select the documents to run the group against.
-     *
-     * @return The query to select the documents to run the group against.
-     */
-    public Document getQuery() {
-        return myQuery;
-    }
-
-    /**
-     * Returns the {@link ReadPreference} specifying which servers may be used
-     * to execute the {@link GroupBy} command.
-     * <p>
-     * If <code>null</code> then the {@link MongoCollection} instance's
-     * {@link ReadPreference} will be used.
-     * </p>
-     *
-     * @return The read preference to use.
-     *
-     * @see MongoCollection#getReadPreference()
-     */
-    public ReadPreference getReadPreference() {
-        return myReadPreference;
-    }
-
-    /**
-     * Returns the reduce function taking the previous value and the current
-     * value and returning the new reduced value.
-     *
-     * @return The reduce function taking the previous value and the current
-     *         value and returning the new reduced value.
-     */
-    public String getReduceFunction() {
-        return myReduceFunction;
     }
 }

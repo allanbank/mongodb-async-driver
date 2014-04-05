@@ -19,7 +19,7 @@ import com.allanbank.mongodb.MongoClientConfiguration;
  */
 @Deprecated
 public class MongoImpl extends MongoClientImpl implements
-        com.allanbank.mongodb.Mongo {
+com.allanbank.mongodb.Mongo {
 
     /**
      * Create a new MongoClient.

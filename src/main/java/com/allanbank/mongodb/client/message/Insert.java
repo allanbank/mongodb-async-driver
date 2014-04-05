@@ -209,6 +209,18 @@ public class Insert extends AbstractMessage {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to output the documents and insert flags.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        return "Insert [myContinueOnError=" + myContinueOnError
+                + ", myDocuments=" + myDocuments + "]";
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to ensure the inserted documents are not too large in
      * aggregate.
      * </p>

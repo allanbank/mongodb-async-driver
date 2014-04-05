@@ -79,6 +79,117 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  */
 @Deprecated
 public class Text {
+    /** The first version of MongoDB to support the text command. */
+    public static final Version REQUIRED_VERSION = Version.VERSION_2_4;
+
+    /**
+     * Creates a new builder for a {@link Text} command.
+     *
+     * @return The builder to construct a {@link Text} command.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /** The language to use when stemming the search terms. */
+    private final String myLanguage;
+
+    /** Maximum number of document to return. */
+    private final int myLimit;
+
+    /** A standard MongoDB query document to limit the final results. */
+    private final Document myQuery;
+
+    /** The read preference to use. */
+    private final ReadPreference myReadPreference;
+
+    /** The fields to return from the query. */
+    private final Document myReturnFields;
+
+    /** The search terms. */
+    private final String mySearchTerm;
+
+    /**
+     * Creates a new Text.
+     *
+     * @param builder
+     *            The builder containing the state of the text command.
+     * @throws IllegalArgumentException
+     *             On the search term not being set.
+     */
+    protected Text(final Builder builder) {
+        assertNotEmpty(builder.mySearchTerm,
+                "The search term for a 'text' command must be a non-empty string.");
+
+        myLanguage = builder.myLanguage;
+        myLimit = builder.myLimit;
+        myQuery = builder.myQuery;
+        myReadPreference = builder.myReadPreference;
+        myReturnFields = builder.myReturnFields;
+        mySearchTerm = builder.mySearchTerm;
+    }
+
+    /**
+     * Returns the language to use when stemming the search terms.
+     *
+     * @return The language to use when stemming the search terms.
+     */
+    public String getLanguage() {
+        return myLanguage;
+    }
+
+    /**
+     * Returns the maximum number of document to return.
+     *
+     * @return The maximum number of document to return.
+     */
+    public int getLimit() {
+        return myLimit;
+    }
+
+    /**
+     * Returns the query document to limit the final results.
+     *
+     * @return The query document to limit the final results.
+     */
+    public Document getQuery() {
+        return myQuery;
+    }
+
+    /**
+     * Returns the {@link ReadPreference} specifying which servers may be used
+     * to execute the {@link Text} command.
+     * <p>
+     * If <code>null</code> then the {@link MongoCollection} instance's
+     * {@link ReadPreference} will be used.
+     * </p>
+     *
+     * @return The read preference to use.
+     *
+     * @see MongoCollection#getReadPreference()
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
+     * Returns the fields to return from the query.
+     *
+     * @return The fields to return from the query.
+     */
+    public Document getReturnFields() {
+        return myReturnFields;
+    }
+
+    /**
+     * Returns the search terms.
+     *
+     * @return The search terms.
+     */
+    public String getSearchTerm() {
+        return mySearchTerm;
+    }
+
     /**
      * Builder provides a builder for Text commands.
      *
@@ -341,116 +452,5 @@ public class Text {
             mySearchTerm = searchTerm;
             return this;
         }
-    }
-
-    /** The first version of MongoDB to support the text command. */
-    public static final Version REQUIRED_VERSION = Version.VERSION_2_4;
-
-    /**
-     * Creates a new builder for a {@link Text} command.
-     *
-     * @return The builder to construct a {@link Text} command.
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /** The language to use when stemming the search terms. */
-    private final String myLanguage;
-
-    /** Maximum number of document to return. */
-    private final int myLimit;
-
-    /** A standard MongoDB query document to limit the final results. */
-    private final Document myQuery;
-
-    /** The read preference to use. */
-    private final ReadPreference myReadPreference;
-
-    /** The fields to return from the query. */
-    private final Document myReturnFields;
-
-    /** The search terms. */
-    private final String mySearchTerm;
-
-    /**
-     * Creates a new Text.
-     *
-     * @param builder
-     *            The builder containing the state of the text command.
-     * @throws IllegalArgumentException
-     *             On the search term not being set.
-     */
-    protected Text(final Builder builder) {
-        assertNotEmpty(builder.mySearchTerm,
-                "The search term for a 'text' command must be a non-empty string.");
-
-        myLanguage = builder.myLanguage;
-        myLimit = builder.myLimit;
-        myQuery = builder.myQuery;
-        myReadPreference = builder.myReadPreference;
-        myReturnFields = builder.myReturnFields;
-        mySearchTerm = builder.mySearchTerm;
-    }
-
-    /**
-     * Returns the language to use when stemming the search terms.
-     *
-     * @return The language to use when stemming the search terms.
-     */
-    public String getLanguage() {
-        return myLanguage;
-    }
-
-    /**
-     * Returns the maximum number of document to return.
-     *
-     * @return The maximum number of document to return.
-     */
-    public int getLimit() {
-        return myLimit;
-    }
-
-    /**
-     * Returns the query document to limit the final results.
-     *
-     * @return The query document to limit the final results.
-     */
-    public Document getQuery() {
-        return myQuery;
-    }
-
-    /**
-     * Returns the {@link ReadPreference} specifying which servers may be used
-     * to execute the {@link Text} command.
-     * <p>
-     * If <code>null</code> then the {@link MongoCollection} instance's
-     * {@link ReadPreference} will be used.
-     * </p>
-     *
-     * @return The read preference to use.
-     *
-     * @see MongoCollection#getReadPreference()
-     */
-    public ReadPreference getReadPreference() {
-        return myReadPreference;
-    }
-
-    /**
-     * Returns the fields to return from the query.
-     *
-     * @return The fields to return from the query.
-     */
-    public Document getReturnFields() {
-        return myReturnFields;
-    }
-
-    /**
-     * Returns the search terms.
-     *
-     * @return The search terms.
-     */
-    public String getSearchTerm() {
-        return mySearchTerm;
     }
 }

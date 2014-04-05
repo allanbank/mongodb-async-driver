@@ -32,44 +32,6 @@ import com.allanbank.mongodb.client.message.Reply;
 public class ReplyHandlerTest {
 
     /**
-     * CallerExecutor provides a simple executor.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public class CallerExecutor implements Executor {
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to call run on the command.
-         * </p>
-         */
-        @Override
-        public void execute(final Runnable command) {
-            command.run();
-        }
-    }
-
-    /**
-     * RejectionExecutor provides a simple executor.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public class RejectionExecutor implements Executor {
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to call run on the command.
-         * </p>
-         */
-        @Override
-        public void execute(final Runnable command) {
-            throw new RejectedExecutionException();
-        }
-    }
-
-    /**
      * Test method for
      * {@link ReplyHandler#raiseError(Throwable, ReplyCallback, Executor)}.
      */
@@ -213,7 +175,7 @@ public class ReplyHandlerTest {
      */
     @Test
     public void testReplyWithLightWeightCallback() throws InterruptedException,
-            ExecutionException {
+    ExecutionException {
         final Executor mockExecutor = createMock(Executor.class);
 
         final List<Document> docs = Collections.emptyList();
@@ -310,5 +272,43 @@ public class ReplyHandlerTest {
         replay(executor);
         ReplyHandler.reply(reply, null, executor);
         verify(executor);
+    }
+
+    /**
+     * CallerExecutor provides a simple executor.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public class CallerExecutor implements Executor {
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to call run on the command.
+         * </p>
+         */
+        @Override
+        public void execute(final Runnable command) {
+            command.run();
+        }
+    }
+
+    /**
+     * RejectionExecutor provides a simple executor.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public class RejectionExecutor implements Executor {
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to call run on the command.
+         * </p>
+         */
+        @Override
+        public void execute(final Runnable command) {
+            throw new RejectedExecutionException();
+        }
     }
 }

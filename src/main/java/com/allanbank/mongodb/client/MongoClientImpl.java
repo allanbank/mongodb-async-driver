@@ -112,10 +112,11 @@ public class MongoClientImpl implements MongoClient {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to create the named database.
+     * Overridden to create a {@link MongoDatabase} instance with the given
+     * name.
      * </p>
      *
-     * @see com.allanbank.mongodb.Mongo#getDatabase(java.lang.String)
+     * @see MongoClient#getDatabase(String)
      */
     @Override
     public MongoDatabase getDatabase(final String name) {
@@ -142,9 +143,9 @@ public class MongoClientImpl implements MongoClient {
                 if (existingDb != null) {
                     database = existingDb;
                 }
-                // Extremely unlikely but if the reference came and went that
-                // quick it is the next guys problem to add one. We will return
-                // the one we created.
+                // else ... Extremely unlikely but if the reference came and
+                // went that quick it is the next guys problem to add one. We
+                // will return the one we created.
             }
         }
 
@@ -205,7 +206,7 @@ public class MongoClientImpl implements MongoClient {
     @Override
     public MongoIterator<Document> restart(
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return myClient.restart(cursorDocument);
     }
 
@@ -219,7 +220,7 @@ public class MongoClientImpl implements MongoClient {
     @Override
     public MongoCursorControl restart(final LambdaCallback<Document> results,
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return restart(new LambdaCallbackAdapter<Document>(results),
                 cursorDocument);
     }
@@ -237,7 +238,7 @@ public class MongoClientImpl implements MongoClient {
     @Override
     public MongoCursorControl restart(final StreamCallback<Document> results,
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return myClient.restart(results, cursorDocument);
     }
 }

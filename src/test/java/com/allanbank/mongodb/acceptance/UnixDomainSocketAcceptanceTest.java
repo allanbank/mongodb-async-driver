@@ -39,77 +39,6 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
 
-    /**
-     * UnixDomainSocketFactory provides a {@link SocketFactory} implementation
-     * based on reflection into the junixsocket library.
-     *
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static class UnixDomainSocketFactory extends SocketFactory {
-
-        /**
-         * Creates a org.newsclub.net.unix.AFUNIXSocket via reflection.
-         */
-        @Override
-        public Socket createSocket() throws java.io.IOException {
-            try {
-                final Class<?> clazz = ourJUnixSocketLibClassLoader
-                        .loadClass("org.newsclub.net.unix.AFUNIXSocket");
-
-                return (Socket) clazz.getMethod("newInstance").invoke(null);
-            }
-            catch (final Exception error) {
-                final SocketException socketError = new SocketException(
-                        error.getMessage());
-                socketError.initCause(error);
-                throw socketError;
-            }
-        }
-
-        /**
-         * Always throws a {@link SocketException}.
-         */
-        @Override
-        public Socket createSocket(final InetAddress host, final int port)
-                throws SocketException {
-            throw new SocketException(
-                    "AFUNIX socket does not support connections to a host/port");
-        }
-
-        /**
-         * Always throws a {@link SocketException}.
-         */
-        @Override
-        public Socket createSocket(final InetAddress address, final int port,
-                final InetAddress localAddress, final int localPort)
-                throws SocketException {
-            throw new SocketException(
-                    "AFUNIX socket does not support connections to a host/port");
-        }
-
-        /**
-         * Always throws a {@link SocketException}.
-         */
-        @Override
-        public Socket createSocket(final String host, final int port)
-                throws SocketException {
-            throw new SocketException(
-                    "AFUNIX socket does not support connections to a host/port");
-        }
-
-        /**
-         * Always throws a {@link SocketException}.
-         */
-        @Override
-        public Socket createSocket(final String host, final int port,
-                final InetAddress localHost, final int localPort)
-                throws SocketException {
-            throw new SocketException(
-                    "AFUNIX socket does not support connections to a host/port");
-        }
-
-    }
-
     /** The local copy of the jar file release. */
     public static final File JAR_FILE;
 
@@ -239,5 +168,76 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig.setSocketFactory(new UnixDomainSocketFactory());
 
         super.connect();
+    }
+
+    /**
+     * UnixDomainSocketFactory provides a {@link SocketFactory} implementation
+     * based on reflection into the junixsocket library.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static class UnixDomainSocketFactory extends SocketFactory {
+
+        /**
+         * Creates a org.newsclub.net.unix.AFUNIXSocket via reflection.
+         */
+        @Override
+        public Socket createSocket() throws java.io.IOException {
+            try {
+                final Class<?> clazz = ourJUnixSocketLibClassLoader
+                        .loadClass("org.newsclub.net.unix.AFUNIXSocket");
+
+                return (Socket) clazz.getMethod("newInstance").invoke(null);
+            }
+            catch (final Exception error) {
+                final SocketException socketError = new SocketException(
+                        error.getMessage());
+                socketError.initCause(error);
+                throw socketError;
+            }
+        }
+
+        /**
+         * Always throws a {@link SocketException}.
+         */
+        @Override
+        public Socket createSocket(final InetAddress host, final int port)
+                throws SocketException {
+            throw new SocketException(
+                    "AFUNIX socket does not support connections to a host/port");
+        }
+
+        /**
+         * Always throws a {@link SocketException}.
+         */
+        @Override
+        public Socket createSocket(final InetAddress address, final int port,
+                final InetAddress localAddress, final int localPort)
+                        throws SocketException {
+            throw new SocketException(
+                    "AFUNIX socket does not support connections to a host/port");
+        }
+
+        /**
+         * Always throws a {@link SocketException}.
+         */
+        @Override
+        public Socket createSocket(final String host, final int port)
+                throws SocketException {
+            throw new SocketException(
+                    "AFUNIX socket does not support connections to a host/port");
+        }
+
+        /**
+         * Always throws a {@link SocketException}.
+         */
+        @Override
+        public Socket createSocket(final String host, final int port,
+                final InetAddress localHost, final int localPort)
+                        throws SocketException {
+            throw new SocketException(
+                    "AFUNIX socket does not support connections to a host/port");
+        }
+
     }
 }

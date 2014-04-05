@@ -188,8 +188,12 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
     private List<Server> resolveForReadPreferenceServer(final Message message1,
             final Message message2) {
 
+        List<Server> servers = Collections.emptyList();
+
         final Server main = myMainKey;
-        List<Server> servers = Collections.singletonList(main);
+        if (main != null) {
+            servers = Collections.singletonList(main);
+        }
 
         if (message1 != null) {
             ReadPreference pref = message1.getReadPreference();

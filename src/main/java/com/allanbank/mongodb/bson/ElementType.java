@@ -130,7 +130,7 @@ public enum ElementType {
 
         // Note - same value....
         mongoDbOrdering
-                .put(ElementType.UTC_TIMESTAMP, Integer.valueOf(ordinal));
+        .put(ElementType.UTC_TIMESTAMP, Integer.valueOf(ordinal));
         mongoDbOrdering.put(ElementType.MONGO_TIMESTAMP,
                 Integer.valueOf(ordinal));
         ordinal += 1;

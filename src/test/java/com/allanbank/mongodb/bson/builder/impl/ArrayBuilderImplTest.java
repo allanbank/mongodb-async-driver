@@ -386,7 +386,7 @@ public class ArrayBuilderImplTest {
 
         assertThat(builder.toString(),
                 is(new ArrayElement("elements", builder.subElements())
-                        .toString()));
+                .toString()));
     }
 
 }

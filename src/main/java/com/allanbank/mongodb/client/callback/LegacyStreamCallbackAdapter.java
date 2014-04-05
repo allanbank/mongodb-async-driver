@@ -30,7 +30,7 @@ import com.allanbank.mongodb.bson.Document;
  */
 @Deprecated
 public final class LegacyStreamCallbackAdapter implements
-        StreamCallback<Document> {
+StreamCallback<Document> {
 
     /** The legacy callback to delegate to. */
     private final Callback<Document> myDelegate;

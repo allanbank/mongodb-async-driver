@@ -124,7 +124,7 @@ public class ParallelScanCommand extends Command implements CursorableMessage {
     public int hashCode() {
         int result = 1;
         result = (31 * result) + super.hashCode();
-        result = (31 * result) + myCollectionName.hashCode();
+        result = (31 * result) + myScannedCollectionName.hashCode();
         return result;
     }
 }

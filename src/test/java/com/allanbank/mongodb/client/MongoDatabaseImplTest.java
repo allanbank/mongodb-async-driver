@@ -11,15 +11,21 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Random;
 
 import org.easymock.EasyMock;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +45,7 @@ import com.allanbank.mongodb.client.callback.SingleDocumentReplyCallback;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * MongoDatabaseImplTest provides tests for the {@link MongoDatabaseImpl} class.
@@ -176,6 +183,22 @@ public class MongoDatabaseImplTest {
     }
 
     /**
+     * Test method for {@link MongoDatabaseImpl#exists()}.
+     */
+    @Test
+    public void testExists() {
+
+        expect(myMockMongoClient.listDatabaseNames()).andReturn(
+                Collections.singletonList("test"));
+
+        replay();
+
+        assertThat(myTestInstance.exists(), is(true));
+
+        verify();
+    }
+
+    /**
      * Test method for {@link MongoDatabaseImpl#getCollection(String)}.
      */
     @Test
@@ -190,6 +213,86 @@ public class MongoDatabaseImplTest {
     }
 
     /**
+     * Test method for {@link MongoDatabaseImpl#getCollection(String)} .
+     */
+    @Test
+    public void testGetDatabaseCachingDoesRelease() {
+        MongoCollection collection = myTestInstance.getCollection("foo");
+        assertThat(myTestInstance.getCollection("foo"),
+                Matchers.sameInstance(collection));
+
+        // Remember the instance id.
+        final int instanceId = System.identityHashCode(collection);
+
+        collection = null;
+
+        // Flood the map/memory.
+        final Random rand = new Random(System.currentTimeMillis());
+        byte[] bytes = new byte[1024];
+        for (int i = 0; i < 10000000; ++i) {
+
+            bytes = new byte[bytes.length + 1024];
+            rand.nextBytes(bytes);
+
+            final String name = IOUtils.toBase64(bytes);
+            myTestInstance.getCollection(name);
+
+            if (((i % 10) == 0)
+                    && (instanceId != System.identityHashCode(myTestInstance
+                            .getCollection("foo")))) {
+                // Woot - got garbage collected.
+                break;
+            }
+
+            // Try and nudge things along.
+            System.gc();
+        }
+
+        collection = myTestInstance.getCollection("foo");
+        assertThat(System.identityHashCode(collection), not(is(instanceId)));
+    }
+
+    /**
+     * Test method for {@link MongoDatabaseImpl#getCollection(String)} .
+     */
+    @Test
+    public void testGetDatabaseCachingDoesReleaseMaybeSeenViaGet() {
+        MongoCollection collection = myTestInstance.getCollection("foo");
+        assertThat(myTestInstance.getCollection("foo"),
+                Matchers.sameInstance(collection));
+
+        // Remember the instance id.
+        final int instanceId = System.identityHashCode(collection);
+
+        collection = null;
+
+        // Flood the map/memory.
+        final Random rand = new Random(System.currentTimeMillis());
+        byte[] bytes = new byte[1024];
+        for (int i = 0; i < 10000000; ++i) {
+
+            bytes = new byte[bytes.length + 1024];
+            rand.nextBytes(bytes);
+
+            final String name = IOUtils.toBase64(bytes);
+            myTestInstance.getCollection(name);
+
+            // Check ever time for the removed instance.
+            if (instanceId != System.identityHashCode(myTestInstance
+                    .getCollection("foo"))) {
+                // Woot - got garbage collected.
+                break;
+            }
+
+            // Try and nudge things along.
+            System.gc();
+        }
+
+        collection = myTestInstance.getCollection("foo");
+        assertThat(System.identityHashCode(collection), not(is(instanceId)));
+    }
+
+    /**
      * Test method for {@link MongoDatabaseImpl#getDurability()}.
      */
     @Test
@@ -197,7 +300,7 @@ public class MongoDatabaseImplTest {
         final Durability defaultDurability = Durability.journalDurable(1234);
 
         expect(myMockClient.getDefaultDurability())
-                .andReturn(defaultDurability);
+        .andReturn(defaultDurability);
 
         replay();
 
@@ -216,7 +319,7 @@ public class MongoDatabaseImplTest {
         final Durability setDurability = Durability.journalDurable(4321);
 
         expect(myMockClient.getDefaultDurability())
-                .andReturn(defaultDurability);
+        .andReturn(defaultDurability);
 
         replay();
 
@@ -415,9 +518,9 @@ public class MongoDatabaseImplTest {
         final Command message = new Command("admin", commandDoc.build());
 
         expect(myMockMongoClient.getDatabase("admin"))
-                .andReturn(
-                        new MongoDatabaseImpl(myMockMongoClient, myMockClient,
-                                "admin"));
+        .andReturn(
+                new MongoDatabaseImpl(myMockMongoClient, myMockClient,
+                        "admin"));
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
@@ -449,9 +552,9 @@ public class MongoDatabaseImplTest {
         final Command message = new Command("admin", commandDoc.build());
 
         expect(myMockMongoClient.getDatabase("admin"))
-                .andReturn(
-                        new MongoDatabaseImpl(myMockMongoClient, myMockClient,
-                                "admin"));
+        .andReturn(
+                new MongoDatabaseImpl(myMockMongoClient, myMockClient,
+                        "admin"));
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
 
@@ -514,7 +617,7 @@ public class MongoDatabaseImplTest {
         replay(mockCallback);
 
         myTestInstance
-                .runCommandAsync(mockCallback, "command", options.build());
+        .runCommandAsync(mockCallback, "command", options.build());
 
         verify(mockCallback);
     }
@@ -630,7 +733,7 @@ public class MongoDatabaseImplTest {
 
         assertSame(reply,
                 myTestInstance.runCommandAsync("command", options.build())
-                        .get());
+                .get());
 
         verify();
     }

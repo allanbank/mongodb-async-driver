@@ -11,6 +11,7 @@ import static com.allanbank.mongodb.builder.AggregationProjectFields.includeWith
 import static com.allanbank.mongodb.builder.expression.Expressions.add;
 import static com.allanbank.mongodb.builder.expression.Expressions.constant;
 import static com.allanbank.mongodb.builder.expression.Expressions.field;
+import static com.allanbank.mongodb.builder.expression.Expressions.ifNull;
 import static com.allanbank.mongodb.builder.expression.Expressions.set;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -453,6 +454,96 @@ public class AggregateBuilderTest extends Builder {
         assertEquals("$project", first.getName());
 
         assertEquals(new DocumentElement("$project", db.build()), first);
+
+        assertFalse(iter.hasNext());
+    }
+
+    /**
+     * Test method for
+     * {@link Aggregate.Builder#redact(DocumentAssignable, RedactOption, RedactOption)}
+     * .
+     */
+    @Test
+    public void testRedact() {
+        final Aggregate.Builder b = new Aggregate.Builder();
+
+        b.redact(BuilderFactory.start(), RedactOption.DESCEND,
+                RedactOption.KEEP);
+
+        final Aggregate a = b.build();
+
+        final List<Element> pipeline = a.getPipeline();
+        assertEquals(1, pipeline.size());
+
+        final Element e = pipeline.get(0);
+        assertEquals("0", e.getName());
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentElement d = (DocumentElement) e;
+        final Iterator<Element> iter = d.iterator();
+        assertTrue(iter.hasNext());
+
+        final Element first = iter.next();
+        assertThat(first, instanceOf(DocumentElement.class));
+        assertEquals("$redact", first.getName());
+        DocumentElement doc = (DocumentElement) first;
+        assertThat(doc.getElements().size(), is(1));
+        assertThat(doc.getElements().get(0), instanceOf(DocumentElement.class));
+        doc = (DocumentElement) doc.getElements().get(0);
+        assertThat(doc.getName(), is("$cond"));
+        assertThat(doc.getElements().size(), is(3));
+        assertThat(doc.getElements().get(0), is((Element) new DocumentElement(
+                "if")));
+        assertThat(doc.getElements().get(1), is((Element) new StringElement(
+                "then", "$$DESCEND")));
+        assertThat(doc.getElements().get(2), is((Element) new StringElement(
+                "else", "$$KEEP")));
+
+        assertFalse(iter.hasNext());
+    }
+
+    /**
+     * Test method for
+     * {@link Aggregate.Builder#redact(DocumentAssignable, RedactOption, RedactOption)}
+     * .
+     */
+    @Test
+    public void testRedactExpression() {
+        final Aggregate.Builder b = new Aggregate.Builder();
+
+        b.redact(ifNull(field("abc"), constant(true)), RedactOption.DESCEND,
+                RedactOption.PRUNE);
+
+        final Aggregate a = b.build();
+
+        final List<Element> pipeline = a.getPipeline();
+        assertEquals(1, pipeline.size());
+
+        final Element e = pipeline.get(0);
+        assertEquals("0", e.getName());
+        assertThat(e, instanceOf(DocumentElement.class));
+
+        final DocumentElement d = (DocumentElement) e;
+        final Iterator<Element> iter = d.iterator();
+        assertTrue(iter.hasNext());
+
+        final Element first = iter.next();
+        assertThat(first, instanceOf(DocumentElement.class));
+        assertEquals("$redact", first.getName());
+        DocumentElement doc = (DocumentElement) first;
+        assertThat(doc.getElements().size(), is(1));
+        assertThat(doc.getElements().get(0), instanceOf(DocumentElement.class));
+        doc = (DocumentElement) doc.getElements().get(0);
+        assertThat(doc.getName(), is("$cond"));
+        assertThat(doc.getElements().size(), is(3));
+        assertThat(
+                doc.getElements().get(0),
+                is((Element) ifNull(field("abc"), constant(true)).toElement(
+                        "if")));
+        assertThat(doc.getElements().get(1), is((Element) new StringElement(
+                "then", "$$DESCEND")));
+        assertThat(doc.getElements().get(2), is((Element) new StringElement(
+                "else", "$$PRUNE")));
 
         assertFalse(iter.hasNext());
     }

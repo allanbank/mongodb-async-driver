@@ -27,6 +27,81 @@ import com.allanbank.mongodb.Version;
  */
 public class ParallelScan {
     /**
+     * The first version of MongoDB to support the
+     * {@code parallelCollectionScan} command.
+     */
+    public static final Version REQUIRED_VERSION = Version.parse("2.6.0");
+
+    /**
+     * Creates a new builder for a {@link ParallelScan}.
+     *
+     * @return The builder to construct a {@link ParallelScan}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /** The number of documents to be returned in each batch of results. */
+    private final int myBatchSize;
+
+    /** The preference for which servers to use to retrieve the results. */
+    private final ReadPreference myReadPreference;
+
+    /**
+     * The requested number of iterators/cursors to create. The server may
+     * return few than this number of iterators.
+     * <p>
+     * This value will be forced into the range [1, 10,000].
+     * </p>
+     */
+    private final int myRequestedIteratorCount;
+
+    /**
+     * Creates a new ParallelScan.
+     *
+     * @param builder
+     *            The builder to copy the query fields from.
+     */
+    protected ParallelScan(final Builder builder) {
+        myBatchSize = builder.myBatchSize;
+        myReadPreference = builder.myReadPreference;
+        myRequestedIteratorCount = builder.myRequestedIteratorCount;
+    }
+
+    /**
+     * Returns the number of documents to be returned in each batch of results.
+     *
+     * @return The number of documents to be returned in each batch of results.
+     */
+    public int getBatchSize() {
+        return myBatchSize;
+    }
+
+    /**
+     * Returns the preference for the servers to retrieve the results from. May
+     * be <code>null</code> in which case the default read preference should be
+     * used.
+     *
+     * @return The preference for the servers to retrieve the results from.
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
+     * Returns the requested number of iterators/cursors to create. The server
+     * may return few than this number of iterators.
+     * <p>
+     * This value will be forced into the range [1, 10,000].
+     * </p>
+     *
+     * @return The requested number of iterators/cursors to create.
+     */
+    public int getRequestedIteratorCount() {
+        return myRequestedIteratorCount;
+    }
+
+    /**
      * Helper for creating immutable {@link ParallelScan} queries.
      *
      * @api.yes This class is part of the driver's API. Public and protected
@@ -176,80 +251,5 @@ public class ParallelScan {
                     10000);
             return this;
         }
-    }
-
-    /**
-     * The first version of MongoDB to support the
-     * {@code parallelCollectionScan} command.
-     */
-    public static final Version REQUIRED_VERSION = Version.parse("2.6.0");
-
-    /**
-     * Creates a new builder for a {@link ParallelScan}.
-     *
-     * @return The builder to construct a {@link ParallelScan}.
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /** The number of documents to be returned in each batch of results. */
-    private final int myBatchSize;
-
-    /** The preference for which servers to use to retrieve the results. */
-    private final ReadPreference myReadPreference;
-
-    /**
-     * The requested number of iterators/cursors to create. The server may
-     * return few than this number of iterators.
-     * <p>
-     * This value will be forced into the range [1, 10,000].
-     * </p>
-     */
-    private final int myRequestedIteratorCount;
-
-    /**
-     * Creates a new ParallelScan.
-     *
-     * @param builder
-     *            The builder to copy the query fields from.
-     */
-    protected ParallelScan(final Builder builder) {
-        myBatchSize = builder.myBatchSize;
-        myReadPreference = builder.myReadPreference;
-        myRequestedIteratorCount = builder.myRequestedIteratorCount;
-    }
-
-    /**
-     * Returns the number of documents to be returned in each batch of results.
-     *
-     * @return The number of documents to be returned in each batch of results.
-     */
-    public int getBatchSize() {
-        return myBatchSize;
-    }
-
-    /**
-     * Returns the preference for the servers to retrieve the results from. May
-     * be <code>null</code> in which case the default read preference should be
-     * used.
-     *
-     * @return The preference for the servers to retrieve the results from.
-     */
-    public ReadPreference getReadPreference() {
-        return myReadPreference;
-    }
-
-    /**
-     * Returns the requested number of iterators/cursors to create. The server
-     * may return few than this number of iterators.
-     * <p>
-     * This value will be forced into the range [1, 10,000].
-     * </p>
-     *
-     * @return The requested number of iterators/cursors to create.
-     */
-    public int getRequestedIteratorCount() {
-        return myRequestedIteratorCount;
     }
 }

@@ -31,6 +31,291 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
  */
 public class MapReduce {
     /**
+     * The first version of MongoDB to support the {@code mapreduce} command
+     * with the ability to limit the execution time on the server.
+     */
+    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
+
+    /**
+     * Creates a new builder for a {@link MapReduce}.
+     *
+     * @return The builder to construct a {@link MapReduce}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * The finalize function to apply to the final results of the reduce
+     * function.
+     */
+    private final String myFinalizeFunction;
+
+    /**
+     * If true limits the translation of the documents to an from
+     * BSON/JavaScript.
+     */
+    private final boolean myJsMode;
+
+    /**
+     * If true then the temporary collections created during the map/reduce
+     * should not be dropped.
+     */
+    private final boolean myKeepTemp;
+
+    /** Limits the number of objects to be used as input to the map/reduce. */
+    private final int myLimit;
+
+    /** The map functions to apply to each selected document. */
+    private final String myMapFunction;
+
+    /** The maximum amount of time to allow the command to run. */
+    private final long myMaximumTimeMilliseconds;
+
+    /**
+     * The name of the output database if the output type is One of
+     * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+     * {@link OutputType#REDUCE}.
+     */
+    private final String myOutputDatabase;
+
+    /**
+     * The name of the output collection if the output type is One of
+     * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+     * {@link OutputType#REDUCE}.
+     */
+    private final String myOutputName;
+
+    /** The handling for the output of the map/reduce. */
+    private final OutputType myOutputType;
+
+    /** The query to select the document to run the map/reduce against. */
+    private final Document myQuery;
+
+    /** The read preference to use. */
+    private final ReadPreference myReadPreference;
+
+    /** The reduce function to apply to the emitted output of the map function. */
+    private final String myReduceFunction;
+
+    /** The scoped values to expose to the map/reduce/finalize functions. */
+    private final Document myScope;
+
+    /**
+     * The sort to apply to the input objects. Useful for optimization, like
+     * sorting by the emit key for fewer reduces.
+     */
+    private final Document mySort;
+
+    /** If true emits progress messages in the server logs. */
+    private final boolean myVerbose;
+
+    /**
+     * Create a new MapReduce.
+     *
+     * @param builder
+     *            The builder to copy state from.
+     */
+    protected MapReduce(final Builder builder) {
+        assertNotNull(builder.myMapFunction,
+                "A mapReduce must have a map function.");
+        assertNotNull(builder.myReduceFunction,
+                "A mapReduce must have a reduce function.");
+        assertThat(
+                (builder.myOutputType == OutputType.INLINE)
+                || ((builder.myOutputName != null) && !builder.myOutputName
+                        .isEmpty()),
+                        "A mapReduce output type must be INLINE or an output collection must be specified.");
+
+        myMapFunction = builder.myMapFunction;
+        myReduceFunction = builder.myReduceFunction;
+        myFinalizeFunction = builder.myFinalizeFunction;
+        myQuery = builder.myQuery;
+        mySort = builder.mySort;
+        myScope = builder.myScope;
+        myLimit = builder.myLimit;
+        myOutputName = builder.myOutputName;
+        myOutputDatabase = builder.myOutputDatabase;
+        myOutputType = builder.myOutputType;
+        myKeepTemp = builder.myKeepTemp;
+        myJsMode = builder.myJsMode;
+        myVerbose = builder.myVerbose;
+        myReadPreference = builder.myReadPreference;
+        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the finalize function to apply to the final results of the reduce
+     * function.
+     *
+     * @return The finalize function to apply to the final results of the reduce
+     *         function.
+     */
+    public String getFinalizeFunction() {
+        return myFinalizeFunction;
+    }
+
+    /**
+     * Returns the limit for the number of objects to be used as input to the
+     * map/reduce.
+     *
+     * @return The limit for the number of objects to be used as input to the
+     *         map/reduce.
+     */
+    public int getLimit() {
+        return myLimit;
+    }
+
+    /**
+     * Returns the map functions to apply to each selected document.
+     *
+     * @return The map functions to apply to each selected document.
+     */
+    public String getMapFunction() {
+        return myMapFunction;
+    }
+
+    /**
+     * Returns the maximum amount of time to allow the command to run on the
+     * Server before it is aborted.
+     *
+     * @return The maximum amount of time to allow the command to run on the
+     *         Server before it is aborted.
+     *
+     * @since MongoDB 2.6
+     */
+    public long getMaximumTimeMilliseconds() {
+        return myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the name of the output database if the output type is One of
+     * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+     * {@link OutputType#REDUCE}.
+     *
+     * @return The name of the output database if the output type is One of
+     *         {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+     *         {@link OutputType#REDUCE}.
+     */
+    public String getOutputDatabase() {
+        return myOutputDatabase;
+    }
+
+    /**
+     * Returns the name of the output collection if the output type is One of
+     * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+     * {@link OutputType#REDUCE}.
+     *
+     * @return The name of the output collection if the output type is One of
+     *         {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
+     *         {@link OutputType#REDUCE}.
+     */
+    public String getOutputName() {
+        return myOutputName;
+    }
+
+    /**
+     * Returns the handling for the output of the map/reduce.
+     *
+     * @return The handling for the output of the map/reduce.
+     */
+    public OutputType getOutputType() {
+        return myOutputType;
+    }
+
+    /**
+     * Returns the query to select the documents to run the map/reduce against.
+     *
+     * @return The query to select the documents to run the map/reduce against.
+     */
+    public Document getQuery() {
+        return myQuery;
+    }
+
+    /**
+     * Returns the {@link ReadPreference} specifying which servers may be used
+     * to execute the {@link MapReduce} command.
+     * <p>
+     * If <code>null</code> then the {@link MongoCollection} instance's
+     * {@link ReadPreference} will be used.
+     * </p>
+     * <p>
+     * <b>NOTE: </b> Passing of read preferences to a {@code mongos} does not
+     * work in a sharded configuration. The query will always be run on the
+     * primary members of all shards.
+     * </p>
+     *
+     * @return The read preference to use.
+     *
+     * @see MongoCollection#getReadPreference()
+     */
+    public ReadPreference getReadPreference() {
+        return myReadPreference;
+    }
+
+    /**
+     * Returns the reduce function to apply to the emitted output of the map
+     * function.
+     *
+     * @return The reduce function to apply to the emitted output of the map
+     *         function.
+     */
+    public String getReduceFunction() {
+        return myReduceFunction;
+    }
+
+    /**
+     * Returns the scoped values to expose to the map/reduce/finalize functions.
+     *
+     * @return The scoped values to expose to the map/reduce/finalize functions.
+     */
+    public Document getScope() {
+        return myScope;
+    }
+
+    /**
+     * Returns the sort to apply to the input objects. Useful for optimization,
+     * like sorting by the emit key for fewer reduces.
+     *
+     * @return The sort to apply to the input objects. Useful for optimization,
+     *         like sorting by the emit key for fewer reduces.
+     */
+    public Document getSort() {
+        return mySort;
+    }
+
+    /**
+     * Returns true to limit the translation of the documents to an from
+     * BSON/JavaScript.
+     *
+     * @return True to limit the translation of the documents to an from
+     *         BSON/JavaScript.
+     */
+    public boolean isJsMode() {
+        return myJsMode;
+    }
+
+    /**
+     * Returns true to drop the temporary collections created during the
+     * map/reduce.
+     *
+     * @return True to drop the temporary collections created during the
+     *         map/reduce.
+     */
+    public boolean isKeepTemp() {
+        return myKeepTemp;
+    }
+
+    /**
+     * Returns true to emit progress messages in the server logs.
+     *
+     * @return True to emit progress messages in the server logs.
+     */
+    public boolean isVerbose() {
+        return myVerbose;
+    }
+
+    /**
      * Helper for creating immutable {@link MapReduce} commands.
      *
      * @api.yes This class is part of the driver's API. Public and protected
@@ -615,9 +900,9 @@ public class MapReduce {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         * 
+         *
          * MapReduce.Builder builder = new Find.Builder();
-         * 
+         *
          * builder.setSort( asc("f"), desc("g") );
          * ...
          * </code>
@@ -683,9 +968,9 @@ public class MapReduce {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         * 
+         *
          * MapReduce.Builder builder = new Find.Builder();
-         * 
+         *
          * builder.setSort( asc("f"), desc("g") );
          * ...
          * </code>
@@ -762,290 +1047,5 @@ public class MapReduce {
          * results.
          */
         REPLACE;
-    }
-
-    /**
-     * The first version of MongoDB to support the {@code mapreduce} command
-     * with the ability to limit the execution time on the server.
-     */
-    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
-
-    /**
-     * Creates a new builder for a {@link MapReduce}.
-     *
-     * @return The builder to construct a {@link MapReduce}.
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
-     * The finalize function to apply to the final results of the reduce
-     * function.
-     */
-    private final String myFinalizeFunction;
-
-    /**
-     * If true limits the translation of the documents to an from
-     * BSON/JavaScript.
-     */
-    private final boolean myJsMode;
-
-    /**
-     * If true then the temporary collections created during the map/reduce
-     * should not be dropped.
-     */
-    private final boolean myKeepTemp;
-
-    /** Limits the number of objects to be used as input to the map/reduce. */
-    private final int myLimit;
-
-    /** The map functions to apply to each selected document. */
-    private final String myMapFunction;
-
-    /** The maximum amount of time to allow the command to run. */
-    private final long myMaximumTimeMilliseconds;
-
-    /**
-     * The name of the output database if the output type is One of
-     * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
-     * {@link OutputType#REDUCE}.
-     */
-    private final String myOutputDatabase;
-
-    /**
-     * The name of the output collection if the output type is One of
-     * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
-     * {@link OutputType#REDUCE}.
-     */
-    private final String myOutputName;
-
-    /** The handling for the output of the map/reduce. */
-    private final OutputType myOutputType;
-
-    /** The query to select the document to run the map/reduce against. */
-    private final Document myQuery;
-
-    /** The read preference to use. */
-    private final ReadPreference myReadPreference;
-
-    /** The reduce function to apply to the emitted output of the map function. */
-    private final String myReduceFunction;
-
-    /** The scoped values to expose to the map/reduce/finalize functions. */
-    private final Document myScope;
-
-    /**
-     * The sort to apply to the input objects. Useful for optimization, like
-     * sorting by the emit key for fewer reduces.
-     */
-    private final Document mySort;
-
-    /** If true emits progress messages in the server logs. */
-    private final boolean myVerbose;
-
-    /**
-     * Create a new MapReduce.
-     *
-     * @param builder
-     *            The builder to copy state from.
-     */
-    protected MapReduce(final Builder builder) {
-        assertNotNull(builder.myMapFunction,
-                "A mapReduce must have a map function.");
-        assertNotNull(builder.myReduceFunction,
-                "A mapReduce must have a reduce function.");
-        assertThat(
-                (builder.myOutputType == OutputType.INLINE)
-                        || ((builder.myOutputName != null) && !builder.myOutputName
-                                .isEmpty()),
-                "A mapReduce output type must be INLINE or an output collection must be specified.");
-
-        myMapFunction = builder.myMapFunction;
-        myReduceFunction = builder.myReduceFunction;
-        myFinalizeFunction = builder.myFinalizeFunction;
-        myQuery = builder.myQuery;
-        mySort = builder.mySort;
-        myScope = builder.myScope;
-        myLimit = builder.myLimit;
-        myOutputName = builder.myOutputName;
-        myOutputDatabase = builder.myOutputDatabase;
-        myOutputType = builder.myOutputType;
-        myKeepTemp = builder.myKeepTemp;
-        myJsMode = builder.myJsMode;
-        myVerbose = builder.myVerbose;
-        myReadPreference = builder.myReadPreference;
-        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the finalize function to apply to the final results of the reduce
-     * function.
-     *
-     * @return The finalize function to apply to the final results of the reduce
-     *         function.
-     */
-    public String getFinalizeFunction() {
-        return myFinalizeFunction;
-    }
-
-    /**
-     * Returns the limit for the number of objects to be used as input to the
-     * map/reduce.
-     *
-     * @return The limit for the number of objects to be used as input to the
-     *         map/reduce.
-     */
-    public int getLimit() {
-        return myLimit;
-    }
-
-    /**
-     * Returns the map functions to apply to each selected document.
-     *
-     * @return The map functions to apply to each selected document.
-     */
-    public String getMapFunction() {
-        return myMapFunction;
-    }
-
-    /**
-     * Returns the maximum amount of time to allow the command to run on the
-     * Server before it is aborted.
-     *
-     * @return The maximum amount of time to allow the command to run on the
-     *         Server before it is aborted.
-     *
-     * @since MongoDB 2.6
-     */
-    public long getMaximumTimeMilliseconds() {
-        return myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the name of the output database if the output type is One of
-     * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
-     * {@link OutputType#REDUCE}.
-     *
-     * @return The name of the output database if the output type is One of
-     *         {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
-     *         {@link OutputType#REDUCE}.
-     */
-    public String getOutputDatabase() {
-        return myOutputDatabase;
-    }
-
-    /**
-     * Returns the name of the output collection if the output type is One of
-     * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
-     * {@link OutputType#REDUCE}.
-     *
-     * @return The name of the output collection if the output type is One of
-     *         {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
-     *         {@link OutputType#REDUCE}.
-     */
-    public String getOutputName() {
-        return myOutputName;
-    }
-
-    /**
-     * Returns the handling for the output of the map/reduce.
-     *
-     * @return The handling for the output of the map/reduce.
-     */
-    public OutputType getOutputType() {
-        return myOutputType;
-    }
-
-    /**
-     * Returns the query to select the documents to run the map/reduce against.
-     *
-     * @return The query to select the documents to run the map/reduce against.
-     */
-    public Document getQuery() {
-        return myQuery;
-    }
-
-    /**
-     * Returns the {@link ReadPreference} specifying which servers may be used
-     * to execute the {@link MapReduce} command.
-     * <p>
-     * If <code>null</code> then the {@link MongoCollection} instance's
-     * {@link ReadPreference} will be used.
-     * </p>
-     * <p>
-     * <b>NOTE: </b> Passing of read preferences to a {@code mongos} does not
-     * work in a sharded configuration. The query will always be run on the
-     * primary members of all shards.
-     * </p>
-     *
-     * @return The read preference to use.
-     *
-     * @see MongoCollection#getReadPreference()
-     */
-    public ReadPreference getReadPreference() {
-        return myReadPreference;
-    }
-
-    /**
-     * Returns the reduce function to apply to the emitted output of the map
-     * function.
-     *
-     * @return The reduce function to apply to the emitted output of the map
-     *         function.
-     */
-    public String getReduceFunction() {
-        return myReduceFunction;
-    }
-
-    /**
-     * Returns the scoped values to expose to the map/reduce/finalize functions.
-     *
-     * @return The scoped values to expose to the map/reduce/finalize functions.
-     */
-    public Document getScope() {
-        return myScope;
-    }
-
-    /**
-     * Returns the sort to apply to the input objects. Useful for optimization,
-     * like sorting by the emit key for fewer reduces.
-     *
-     * @return The sort to apply to the input objects. Useful for optimization,
-     *         like sorting by the emit key for fewer reduces.
-     */
-    public Document getSort() {
-        return mySort;
-    }
-
-    /**
-     * Returns true to limit the translation of the documents to an from
-     * BSON/JavaScript.
-     *
-     * @return True to limit the translation of the documents to an from
-     *         BSON/JavaScript.
-     */
-    public boolean isJsMode() {
-        return myJsMode;
-    }
-
-    /**
-     * Returns true to drop the temporary collections created during the
-     * map/reduce.
-     *
-     * @return True to drop the temporary collections created during the
-     *         map/reduce.
-     */
-    public boolean isKeepTemp() {
-        return myKeepTemp;
-    }
-
-    /**
-     * Returns true to emit progress messages in the server logs.
-     *
-     * @return True to emit progress messages in the server logs.
-     */
-    public boolean isVerbose() {
-        return myVerbose;
     }
 }

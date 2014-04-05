@@ -73,18 +73,18 @@ public class IOUtilsTest {
         assertArrayEquals(new byte[0], IOUtils.base64ToBytes(""));
         assertArrayEquals(
                 "The quick brown fox jumped over the lazy dogs."
-                        .getBytes("US-ASCII"),
+                .getBytes("US-ASCII"),
                 IOUtils.base64ToBytes("VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg=="));
         assertArrayEquals(
                 "It was the best of times, it was the worst of times."
-                        .getBytes("US-ASCII"),
+                .getBytes("US-ASCII"),
                 IOUtils.base64ToBytes("SXQgd2FzIHRoZSBiZXN0IG9mIHRpbWVzLCBpdCB3YXMgdGhlIHdvcnN0IG9mIHRpbWVzLg=="));
         assertArrayEquals(
                 "http://jakarta.apache.org/commmons".getBytes("US-ASCII"),
                 IOUtils.base64ToBytes("aHR0cDovL2pha2FydGEuYXBhY2hlLm9yZy9jb21tbW9ucw=="));
         assertArrayEquals(
                 "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
-                        .getBytes("US-ASCII"),
+                .getBytes("US-ASCII"),
                 IOUtils.base64ToBytes("QWFCYkNjRGRFZUZmR2dIaElpSmpLa0xsTW1Obk9vUHBRcVJyU3NUdFV1VnZXd1h4WXlaeg=="));
         assertArrayEquals(
                 "{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }".getBytes("US-ASCII"),
@@ -207,7 +207,7 @@ public class IOUtilsTest {
                         (byte) 0x5f, (byte) 0x6f, (byte) 0x7f, (byte) 0x8f,
                         (byte) 0x9f, (byte) 0xaf, (byte) 0xbf, (byte) 0xcf,
                         (byte) 0xdf, (byte) 0xef, (byte) 0xff },
-                IOUtils.hexToBytes("000102030405060708090a0b0c0d0e0f1f2f3f4f5f6f7f8f9fafbfcfdfefff"));
+                        IOUtils.hexToBytes("000102030405060708090a0b0c0d0e0f1f2f3f4f5f6f7f8f9fafbfcfdfefff"));
     }
 
     /**
