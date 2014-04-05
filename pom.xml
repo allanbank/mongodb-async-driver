@@ -206,7 +206,7 @@
 					<source>1.6</source>
 					<target>1.6</target>
 					<debuglevel>source,lines</debuglevel>
-                    <!-- showDeprecation>true</showDeprecation -->
+					<!-- showDeprecation>true</showDeprecation -->
 					<showWarnings>true</showWarnings>
 				</configuration>
 			</plugin>
@@ -244,22 +244,15 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>integration-test</id>
-						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
-						</goals>
-						<configuration>
-							<includes>
-								<include>**/*ITest.java</include>
-								<include>**/*AcceptanceTest.java</include>
-							</includes>
-							<summaryFile>target/failsafe-reports/failsafe-summary.xml</summaryFile>
-						</configuration>
-					</execution>
-				</executions>
+				<configuration>
+					<includes>
+						<include>**/*ITest.java</include>
+						<include>**/*AcceptanceTest.java</include>
+					</includes>
+					<systemProperties>
+						<java.util.logging.config.file>src/test/resources/jul_logging.props</java.util.logging.config.file>
+					</systemProperties>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>

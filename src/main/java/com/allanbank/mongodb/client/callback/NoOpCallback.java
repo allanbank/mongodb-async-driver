@@ -15,6 +15,9 @@ import com.allanbank.mongodb.client.message.Reply;
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class NoOpCallback implements ReplyCallback {
+    /** A no-op callback. */
+    public static final NoOpCallback NO_OP = new NoOpCallback();
+
     /**
      * {@inheritDoc}
      * <p>

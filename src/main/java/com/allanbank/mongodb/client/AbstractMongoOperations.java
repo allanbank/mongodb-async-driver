@@ -39,6 +39,7 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.ParallelScan;
 import com.allanbank.mongodb.builder.write.WriteOperation;
+import com.allanbank.mongodb.client.callback.BatchedNativeWriteCallback;
 import com.allanbank.mongodb.client.callback.BatchedWriteCallback;
 import com.allanbank.mongodb.client.callback.CursorCallback;
 import com.allanbank.mongodb.client.callback.CursorStreamingCallback;
@@ -916,8 +917,6 @@ public abstract class AbstractMongoOperations {
      */
     public void writeAsync(final Callback<Long> results,
             final BatchedWrite write) throws MongoDbException {
-        BatchedWriteCallback callback;
-
         if (BatchedWrite.REQUIRED_VERSION.compareTo(myClient
                 .getMinimumServerVersion()) <= 0) {
 
@@ -929,8 +928,11 @@ public abstract class AbstractMongoOperations {
                 return;
             }
 
-            callback = new BatchedWriteCallback(getDatabaseName(), results,
-                    write, myClient, bundles);
+            BatchedWriteCallback callback = new BatchedWriteCallback(
+                    getDatabaseName(), results, write, myClient, bundles);
+
+            // Push the messages out.
+            callback.send();
         }
         else {
             final List<WriteOperation> operations = write.getWrites();
@@ -939,12 +941,12 @@ public abstract class AbstractMongoOperations {
                 return;
             }
 
-            callback = new BatchedWriteCallback(getDatabaseName(), results,
-                    write, this, operations);
-        }
+            BatchedNativeWriteCallback callback = new BatchedNativeWriteCallback(
+                    results, write, this, operations);
 
-        // Push the messages out.
-        callback.send();
+            // Push the messages out.
+            callback.send();
+        }
     }
 
     /**

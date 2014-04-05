@@ -109,705 +109,696 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  */
 public class BuilderFactory {
 
-    /**
-     * Creates an array element containing boolean elements.
-     * 
-     * @param values
-     *            The boolean value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final Boolean... values)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Boolean entry : values) {
-            if (entry != null) {
-                subArray.add(entry.booleanValue());
-            }
-            else {
-                subArray.addNull();
-            }
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing no elements. e.g., an empty array.
+	 * 
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a() throws IllegalArgumentException {
+		return new ArrayElement("");
+	}
 
-    /**
-     * Creates an array element containing binary elements using sub-type zero
-     * (the default).
-     * <p>
-     * Will return a {@link NullElement} if any {@code data} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param datas
-     *            The binary value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final byte[]... datas)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Object entry : datas) {
-            subArray.add(entry);
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing boolean elements.
+	 * 
+	 * @param values
+	 *            The boolean value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final Boolean... values)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Boolean entry : values) {
+			if (entry != null) {
+				subArray.add(entry.booleanValue());
+			} else {
+				subArray.addNull();
+			}
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates an array element containing timestamp elements. The timestamp is
-     * the number of milliseconds since the Unix epoch.
-     * <p>
-     * Will return a {@link NullElement} if any {@code timestamp} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param timestamps
-     *            The number of milliseconds since the Unix epoch.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final Date... timestamps)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Object entry : timestamps) {
-            subArray.add(entry);
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing binary elements using sub-type zero
+	 * (the default).
+	 * <p>
+	 * Will return a {@link NullElement} if any {@code data} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param datas
+	 *            The binary value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final byte[]... datas)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Object entry : datas) {
+			subArray.add(entry);
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates an array element containing pre-constructed document elements.
-     * <p>
-     * Will return a {@link NullElement} if any {@code document} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param documents
-     *            The document to wrap.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final DocumentAssignable... documents)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Object entry : documents) {
-            subArray.add(entry);
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing timestamp elements. The timestamp is
+	 * the number of milliseconds since the Unix epoch.
+	 * <p>
+	 * Will return a {@link NullElement} if any {@code timestamp} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param timestamps
+	 *            The number of milliseconds since the Unix epoch.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final Date... timestamps)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Object entry : timestamps) {
+			subArray.add(entry);
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates an array element containing double elements.
-     * 
-     * @param values
-     *            The double value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final Double... values)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Double entry : values) {
-            if (entry != null) {
-                subArray.add(entry.doubleValue());
-            }
-            else {
-                subArray.addNull();
-            }
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing pre-constructed document elements.
+	 * <p>
+	 * Will return a {@link NullElement} if any {@code document} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param documents
+	 *            The document to wrap.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final DocumentAssignable... documents)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Object entry : documents) {
+			subArray.add(entry);
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates an array element containing the re-created slements.
-     * <p>
-     * Will return a {@link NullElement} if any {@code element} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param elements
-     *            The element to add to wrap.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final ElementAssignable... elements)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Object entry : elements) {
-            subArray.add(entry);
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing double elements.
+	 * 
+	 * @param values
+	 *            The double value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final Double... values)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Double entry : values) {
+			if (entry != null) {
+				subArray.add(entry.doubleValue());
+			} else {
+				subArray.addNull();
+			}
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates an array element containing integer (32-bit signed) elements.
-     * 
-     * @param values
-     *            The integer value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final Integer... values)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Integer entry : values) {
-            if (entry != null) {
-                subArray.add(entry.intValue());
-            }
-            else {
-                subArray.addNull();
-            }
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing the re-created slements.
+	 * <p>
+	 * Will return a {@link NullElement} if any {@code element} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param elements
+	 *            The element to add to wrap.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final ElementAssignable... elements)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Object entry : elements) {
+			subArray.add(entry);
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates an array element containing long (64-bit signed) elements.
-     * 
-     * @param values
-     *            The long value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final Long... values)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Long entry : values) {
-            if (entry != null) {
-                subArray.add(entry.longValue());
-            }
-            else {
-                subArray.addNull();
-            }
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing integer (32-bit signed) elements.
+	 * 
+	 * @param values
+	 *            The integer value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final Integer... values)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Integer entry : values) {
+			if (entry != null) {
+				subArray.add(entry.intValue());
+			} else {
+				subArray.addNull();
+			}
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates an ArrayElement after trying to coerce the values into the best
-     * possible element type. If the coercion fails then an
-     * {@link IllegalArgumentException} is thrown.
-     * 
-     * @param values
-     *            The Object values to coerce into an element.
-     * @return The {@link ArrayElement} with the name {@code ""} and the
-     *         provided values.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code> or the {@code value}
-     *             cannot be coerced into an element type.
-     */
-    public static final ArrayElement a(final Object... values) {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Object entry : values) {
-            subArray.add(entry);
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing long (64-bit signed) elements.
+	 * 
+	 * @param values
+	 *            The long value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final Long... values)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Long entry : values) {
+			if (entry != null) {
+				subArray.add(entry.longValue());
+			} else {
+				subArray.addNull();
+			}
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates an array element containing ObjectId elements.
-     * <p>
-     * Will return a {@link NullElement} if any {@code id} is <code>null</code>.
-     * </p>
-     * 
-     * @param ids
-     *            The ObjectId to wrap.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} or {@code id} is <code>null</code>.
-     */
-    public static final ArrayElement a(final ObjectId... ids)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Object entry : ids) {
-            subArray.add(entry);
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an ArrayElement after trying to coerce the values into the best
+	 * possible element type. If the coercion fails then an
+	 * {@link IllegalArgumentException} is thrown.
+	 * 
+	 * @param values
+	 *            The Object values to coerce into an element.
+	 * @return The {@link ArrayElement} with the name {@code ""} and the
+	 *         provided values.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code> or the {@code value}
+	 *             cannot be coerced into an element type.
+	 */
+	public static final ArrayElement a(final Object... values) {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Object entry : values) {
+			subArray.add(entry);
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates an array element containing regular expression elements.
-     * <p>
-     * Will return a {@link NullElement} if any {@code pattern} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param patterns
-     *            The pattern for the regular expression.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final Pattern... patterns)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Object entry : patterns) {
-            subArray.add(entry);
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing ObjectId elements.
+	 * <p>
+	 * Will return a {@link NullElement} if any {@code id} is <code>null</code>.
+	 * </p>
+	 * 
+	 * @param ids
+	 *            The ObjectId to wrap.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} or {@code id} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final ObjectId... ids)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Object entry : ids) {
+			subArray.add(entry);
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates an array element containing string elements.
-     * <p>
-     * Will return a {@link NullElement} if any {@code value} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param values
-     *            The string value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final String... values)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Object entry : values) {
-            subArray.add(entry);
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing regular expression elements.
+	 * <p>
+	 * Will return a {@link NullElement} if any {@code pattern} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param patterns
+	 *            The pattern for the regular expression.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final Pattern... patterns)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Object entry : patterns) {
+			subArray.add(entry);
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Create an array element containing (sub-type 4) {@link UUID} elements.
-     * <p>
-     * Will return a {@link NullElement} if the {@code uuid} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param uuids
-     *            The {@link UUID}s to wrap in an element.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final ArrayElement a(final UUID... uuids)
-            throws IllegalArgumentException {
-        final ArrayBuilder subArray = BuilderFactory.startArray();
-        for (final Object entry : uuids) {
-            subArray.add(entry);
-        }
-        return new ArrayElement("", subArray.build());
-    }
+	/**
+	 * Creates an array element containing string elements.
+	 * <p>
+	 * Will return a {@link NullElement} if any {@code value} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param values
+	 *            The string value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final String... values)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Object entry : values) {
+			subArray.add(entry);
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Helper method for creating static document structures.
-     * 
-     * @param elements
-     *            The elements of the document. The elements may be created
-     *            using the {@link #e} methods.
-     * @return The document builder seeded with the specified elements.
-     */
-    public static final DocumentBuilder d(final Element... elements) {
-        return new DocumentBuilderImpl(new RootDocument(elements));
-    }
+	/**
+	 * Create an array element containing (sub-type 4) {@link UUID} elements.
+	 * <p>
+	 * Will return a {@link NullElement} if the {@code uuid} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param uuids
+	 *            The {@link UUID}s to wrap in an element.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final ArrayElement a(final UUID... uuids)
+			throws IllegalArgumentException {
+		final ArrayBuilder subArray = BuilderFactory.startArray();
+		for (final Object entry : uuids) {
+			subArray.add(entry);
+		}
+		return new ArrayElement("", subArray.build());
+	}
 
-    /**
-     * Creates a boolean element.
-     * 
-     * @param name
-     *            The name of the element.
-     * @param value
-     *            The boolean value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final BooleanElement e(final String name, final boolean value)
-            throws IllegalArgumentException {
-        return new BooleanElement(name, value);
-    }
+	/**
+	 * Helper method for creating static document structures.
+	 * 
+	 * @param elements
+	 *            The elements of the document. The elements may be created
+	 *            using the {@link #e} methods.
+	 * @return The document builder seeded with the specified elements.
+	 */
+	public static final DocumentBuilder d(final Element... elements) {
+		return new DocumentBuilderImpl(new RootDocument(elements));
+	}
 
-    /**
-     * Creates a binary element using sub-type zero (the default).
-     * <p>
-     * Will return a {@link NullElement} if the {@code data} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param name
-     *            The name of the element.
-     * @param data
-     *            The binary value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final Element e(final String name, final byte[] data)
-            throws IllegalArgumentException {
-        if (data != null) {
-            return new BinaryElement(name, data);
-        }
-        return new NullElement(name);
-    }
+	/**
+	 * Creates a boolean element.
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param value
+	 *            The boolean value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final BooleanElement e(final String name, final boolean value)
+			throws IllegalArgumentException {
+		return new BooleanElement(name, value);
+	}
 
-    /**
-     * Creates a timestamp element. The timestamp is the number of milliseconds
-     * since the Unix epoch.
-     * <p>
-     * Will return a {@link NullElement} if the {@code timestamp} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param name
-     *            The name of the element.
-     * @param timestamp
-     *            The number of milliseconds since the Unix epoch.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final Element e(final String name, final Date timestamp)
-            throws IllegalArgumentException {
-        if (timestamp != null) {
-            return new TimestampElement(name, timestamp.getTime());
-        }
-        return new NullElement(name);
-    }
+	/**
+	 * Creates a binary element using sub-type zero (the default).
+	 * <p>
+	 * Will return a {@link NullElement} if the {@code data} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param data
+	 *            The binary value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final Element e(final String name, final byte[] data)
+			throws IllegalArgumentException {
+		if (data != null) {
+			return new BinaryElement(name, data);
+		}
+		return new NullElement(name);
+	}
 
-    /**
-     * Creates a pre-constructed document element.
-     * <p>
-     * Will return a {@link NullElement} if the {@code document} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param name
-     *            The name of the element.
-     * @param document
-     *            The document to wrap.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final Element e(final String name,
-            final DocumentAssignable document) throws IllegalArgumentException {
-        if (document != null) {
-            return new DocumentElement(name, document.asDocument());
-        }
-        return new NullElement(name);
-    }
+	/**
+	 * Creates a timestamp element. The timestamp is the number of milliseconds
+	 * since the Unix epoch.
+	 * <p>
+	 * Will return a {@link NullElement} if the {@code timestamp} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param timestamp
+	 *            The number of milliseconds since the Unix epoch.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final Element e(final String name, final Date timestamp)
+			throws IllegalArgumentException {
+		if (timestamp != null) {
+			return new TimestampElement(name, timestamp.getTime());
+		}
+		return new NullElement(name);
+	}
 
-    /**
-     * Creates a double element.
-     * 
-     * @param name
-     *            The name of the element.
-     * @param value
-     *            The double value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final DoubleElement e(final String name, final double value)
-            throws IllegalArgumentException {
-        return new DoubleElement(name, value);
-    }
+	/**
+	 * Creates a pre-constructed document element.
+	 * <p>
+	 * Will return a {@link NullElement} if the {@code document} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param document
+	 *            The document to wrap.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final Element e(final String name,
+			final DocumentAssignable document) throws IllegalArgumentException {
+		if (document != null) {
+			return new DocumentElement(name, document.asDocument());
+		}
+		return new NullElement(name);
+	}
 
-    /**
-     * Re-creates the Element with the name provided.
-     * <p>
-     * Will return a {@link NullElement} if the {@code element} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param name
-     *            The name of the element.
-     * @param element
-     *            The element to add to wrap.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final Element e(final String name,
-            final ElementAssignable element) throws IllegalArgumentException {
-        if (element != null) {
-            return element.asElement().withName(name);
-        }
-        return new NullElement(name);
-    }
+	/**
+	 * Creates a double element.
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param value
+	 *            The double value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final DoubleElement e(final String name, final double value)
+			throws IllegalArgumentException {
+		return new DoubleElement(name, value);
+	}
 
-    /**
-     * Creates a integer (32-bit signed) element.
-     * 
-     * @param name
-     *            The name of the element.
-     * @param value
-     *            The integer value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final IntegerElement e(final String name, final int value)
-            throws IllegalArgumentException {
-        return new IntegerElement(name, value);
-    }
+	/**
+	 * Re-creates the Element with the name provided.
+	 * <p>
+	 * Will return a {@link NullElement} if the {@code element} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param element
+	 *            The element to add to wrap.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final Element e(final String name,
+			final ElementAssignable element) throws IllegalArgumentException {
+		if (element != null) {
+			return element.asElement().withName(name);
+		}
+		return new NullElement(name);
+	}
 
-    /**
-     * Creates a long (64-bit signed) element.
-     * 
-     * @param name
-     *            The name of the element.
-     * @param value
-     *            The long value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final LongElement e(final String name, final long value)
-            throws IllegalArgumentException {
-        return new LongElement(name, value);
-    }
+	/**
+	 * Creates a integer (32-bit signed) element.
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param value
+	 *            The integer value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final IntegerElement e(final String name, final int value)
+			throws IllegalArgumentException {
+		return new IntegerElement(name, value);
+	}
 
-    /**
-     * Creates an element after trying to coerce the value into the best
-     * possible element type. If the coercion fails then an
-     * {@link IllegalArgumentException} is thrown.
-     * <p>
-     * This method does type inspection which can be slow. It is generally much
-     * faster to use the type specific {@link #e} methods of this class.
-     * </p>
-     * 
-     * @param name
-     *            The name of the element.
-     * @param value
-     *            The Object value to coerce into an element.
-     * @return The element with the name and value.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code> or the {@code value}
-     *             cannot be coerced into an element type.
-     */
-    public static final Element e(final String name, final Object value) {
-        if (value == null) {
-            return new NullElement(name);
-        }
-        else if (value instanceof Boolean) {
-            return new BooleanElement(name, ((Boolean) value).booleanValue());
-        }
-        else if ((value instanceof Long) || (value instanceof BigInteger)) {
-            return new LongElement(name, ((Number) value).longValue());
-        }
-        else if ((value instanceof Double) || (value instanceof Float)) {
-            return new DoubleElement(name, ((Number) value).doubleValue());
-        }
-        else if (value instanceof Number) {
-            return new IntegerElement(name, ((Number) value).intValue());
-        }
-        else if (value instanceof byte[]) {
-            return new BinaryElement(name, (byte[]) value);
-        }
-        else if (value instanceof ObjectId) {
-            return new ObjectIdElement(name, (ObjectId) value);
-        }
-        else if (value instanceof Pattern) {
-            return new RegularExpressionElement(name, (Pattern) value);
-        }
-        else if (value instanceof String) {
-            return new StringElement(name, (String) value);
-        }
-        else if (value instanceof Date) {
-            return new TimestampElement(name, ((Date) value).getTime());
-        }
-        else if (value instanceof Calendar) {
-            return new TimestampElement(name, ((Calendar) value).getTime()
-                    .getTime());
-        }
-        else if (value instanceof UUID) {
-            return new UuidElement(name, (UUID) value);
-        }
-        else if (value instanceof DocumentAssignable) {
-            return new DocumentElement(name,
-                    ((DocumentAssignable) value).asDocument());
-        }
-        else if (value instanceof ElementAssignable) {
-            return ((ElementAssignable) value).asElement().withName(name);
-        }
-        else if (value instanceof Map) {
-            final DocumentBuilder subDoc = BuilderFactory.start();
-            for (final Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
-                subDoc.add(entry.getKey().toString(), entry.getValue());
-            }
-            return new DocumentElement(name, subDoc.build());
-        }
-        else if (value instanceof Collection) {
-            final ArrayBuilder subArray = BuilderFactory.startArray();
-            for (final Object entry : (Collection<?>) value) {
-                subArray.add(entry);
-            }
-            return new ArrayElement(name, subArray.build());
-        }
-        else if (value instanceof Object[]) {
-            final ArrayBuilder subArray = BuilderFactory.startArray();
-            for (final Object entry : (Object[]) value) {
-                subArray.add(entry);
-            }
-            return new ArrayElement(name, subArray.build());
-        }
+	/**
+	 * Creates a long (64-bit signed) element.
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param value
+	 *            The long value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final LongElement e(final String name, final long value)
+			throws IllegalArgumentException {
+		return new LongElement(name, value);
+	}
 
-        throw new IllegalArgumentException("Could not coerce the type '"
-                + value.getClass().getName()
-                + "' into a valid BSON element type.");
-    }
+	/**
+	 * Creates an element after trying to coerce the value into the best
+	 * possible element type. If the coercion fails then an
+	 * {@link IllegalArgumentException} is thrown.
+	 * <p>
+	 * This method does type inspection which can be slow. It is generally much
+	 * faster to use the type specific {@link #e} methods of this class.
+	 * </p>
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param value
+	 *            The Object value to coerce into an element.
+	 * @return The element with the name and value.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code> or the {@code value}
+	 *             cannot be coerced into an element type.
+	 */
+	public static final Element e(final String name, final Object value) {
+		if (value == null) {
+			return new NullElement(name);
+		} else if (value instanceof Boolean) {
+			return new BooleanElement(name, ((Boolean) value).booleanValue());
+		} else if ((value instanceof Long) || (value instanceof BigInteger)) {
+			return new LongElement(name, ((Number) value).longValue());
+		} else if ((value instanceof Double) || (value instanceof Float)) {
+			return new DoubleElement(name, ((Number) value).doubleValue());
+		} else if (value instanceof Number) {
+			return new IntegerElement(name, ((Number) value).intValue());
+		} else if (value instanceof byte[]) {
+			return new BinaryElement(name, (byte[]) value);
+		} else if (value instanceof ObjectId) {
+			return new ObjectIdElement(name, (ObjectId) value);
+		} else if (value instanceof Pattern) {
+			return new RegularExpressionElement(name, (Pattern) value);
+		} else if (value instanceof String) {
+			return new StringElement(name, (String) value);
+		} else if (value instanceof Date) {
+			return new TimestampElement(name, ((Date) value).getTime());
+		} else if (value instanceof Calendar) {
+			return new TimestampElement(name, ((Calendar) value).getTime()
+					.getTime());
+		} else if (value instanceof UUID) {
+			return new UuidElement(name, (UUID) value);
+		} else if (value instanceof DocumentAssignable) {
+			return new DocumentElement(name,
+					((DocumentAssignable) value).asDocument());
+		} else if (value instanceof ElementAssignable) {
+			return ((ElementAssignable) value).asElement().withName(name);
+		} else if (value instanceof Map) {
+			final DocumentBuilder subDoc = BuilderFactory.start();
+			for (final Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+				subDoc.add(entry.getKey().toString(), entry.getValue());
+			}
+			return new DocumentElement(name, subDoc.build());
+		} else if (value instanceof Collection) {
+			final ArrayBuilder subArray = BuilderFactory.startArray();
+			for (final Object entry : (Collection<?>) value) {
+				subArray.add(entry);
+			}
+			return new ArrayElement(name, subArray.build());
+		} else if (value instanceof Object[]) {
+			final ArrayBuilder subArray = BuilderFactory.startArray();
+			for (final Object entry : (Object[]) value) {
+				subArray.add(entry);
+			}
+			return new ArrayElement(name, subArray.build());
+		}
 
-    /**
-     * Creates an ObjectId element.
-     * <p>
-     * Will return a {@link NullElement} if the {@code id} is <code>null</code>.
-     * </p>
-     * 
-     * @param name
-     *            The name of the element.
-     * @param id
-     *            The ObjectId to wrap.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} or {@code id} is <code>null</code>.
-     */
-    public static final Element e(final String name, final ObjectId id)
-            throws IllegalArgumentException {
-        if (id != null) {
-            return new ObjectIdElement(name, id);
-        }
-        return new NullElement(name);
-    }
+		throw new IllegalArgumentException("Could not coerce the type '"
+				+ value.getClass().getName()
+				+ "' into a valid BSON element type.");
+	}
 
-    /**
-     * Creates a regular expression element.
-     * <p>
-     * Will return a {@link NullElement} if the {@code pattern} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param name
-     *            The name of the element.
-     * @param pattern
-     *            The pattern for the regular expression.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final Element e(final String name, final Pattern pattern)
-            throws IllegalArgumentException {
-        if (pattern != null) {
-            return new RegularExpressionElement(name, pattern);
-        }
-        return new NullElement(name);
-    }
+	/**
+	 * Creates an ObjectId element.
+	 * <p>
+	 * Will return a {@link NullElement} if the {@code id} is <code>null</code>.
+	 * </p>
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param id
+	 *            The ObjectId to wrap.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} or {@code id} is <code>null</code>.
+	 */
+	public static final Element e(final String name, final ObjectId id)
+			throws IllegalArgumentException {
+		if (id != null) {
+			return new ObjectIdElement(name, id);
+		}
+		return new NullElement(name);
+	}
 
-    /**
-     * Creates a string element.
-     * <p>
-     * Will return a {@link NullElement} if the {@code value} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param name
-     *            The name of the element.
-     * @param value
-     *            The string value.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final Element e(final String name, final String value)
-            throws IllegalArgumentException {
-        if (value != null) {
-            return new StringElement(name, value);
-        }
-        return new NullElement(name);
-    }
+	/**
+	 * Creates a regular expression element.
+	 * <p>
+	 * Will return a {@link NullElement} if the {@code pattern} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param pattern
+	 *            The pattern for the regular expression.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final Element e(final String name, final Pattern pattern)
+			throws IllegalArgumentException {
+		if (pattern != null) {
+			return new RegularExpressionElement(name, pattern);
+		}
+		return new NullElement(name);
+	}
 
-    /**
-     * Create a (sub-type 4) {@link UUID} element.
-     * <p>
-     * Will return a {@link NullElement} if the {@code uuid} is
-     * <code>null</code>.
-     * </p>
-     * 
-     * @param name
-     *            The name of the element.
-     * @param uuid
-     *            The {@link UUID} to wrap in an element.
-     * @return The wrapped element.
-     * @throws IllegalArgumentException
-     *             If the {@code name} is <code>null</code>.
-     */
-    public static final Element e(final String name, final UUID uuid)
-            throws IllegalArgumentException {
-        if (uuid != null) {
-            return new UuidElement(name, UuidElement.UUID_SUBTTYPE, uuid);
-        }
-        return new NullElement(name);
-    }
+	/**
+	 * Creates a string element.
+	 * <p>
+	 * Will return a {@link NullElement} if the {@code value} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param value
+	 *            The string value.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final Element e(final String name, final String value)
+			throws IllegalArgumentException {
+		if (value != null) {
+			return new StringElement(name, value);
+		}
+		return new NullElement(name);
+	}
 
-    /**
-     * Creates a new {@link DocumentBuilder}.
-     * 
-     * @return The root level document builder.
-     */
-    public static final DocumentBuilder start() {
-        return new DocumentBuilderImpl();
-    }
+	/**
+	 * Create a (sub-type 4) {@link UUID} element.
+	 * <p>
+	 * Will return a {@link NullElement} if the {@code uuid} is
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param name
+	 *            The name of the element.
+	 * @param uuid
+	 *            The {@link UUID} to wrap in an element.
+	 * @return The wrapped element.
+	 * @throws IllegalArgumentException
+	 *             If the {@code name} is <code>null</code>.
+	 */
+	public static final Element e(final String name, final UUID uuid)
+			throws IllegalArgumentException {
+		if (uuid != null) {
+			return new UuidElement(name, UuidElement.UUID_SUBTTYPE, uuid);
+		}
+		return new NullElement(name);
+	}
 
-    /**
-     * Creates a new {@link DocumentBuilder} to append more elements to an
-     * existing document.
-     * 
-     * @param seedDocument
-     *            The document to seed the builder with. The builder will
-     *            contain the seed document elements plus any added/appended
-     *            elements.
-     * @return The root level document builder.
-     */
-    public static final DocumentBuilder start(
-            final DocumentAssignable seedDocument) {
-        return new DocumentBuilderImpl(seedDocument);
-    }
+	/**
+	 * Creates a new {@link DocumentBuilder}.
+	 * 
+	 * @return The root level document builder.
+	 */
+	public static final DocumentBuilder start() {
+		return new DocumentBuilderImpl();
+	}
 
-    /**
-     * Creates a new {@link DocumentBuilder} to append more elements to an
-     * existing set of documents.
-     * 
-     * @param seedDocuments
-     *            The documents to seed the builder with. The builder will
-     *            contain the seed document elements plus any added/appended
-     *            elements.
-     * @return The root level document builder.
-     */
-    public static final DocumentBuilder start(
-            final DocumentAssignable... seedDocuments) {
-        final DocumentBuilderImpl builder = new DocumentBuilderImpl();
-        for (final DocumentAssignable seedDocument : seedDocuments) {
-            for (final Element element : seedDocument.asDocument()) {
-                builder.remove(element.getName());
-                builder.add(element);
-            }
-        }
-        return builder;
-    }
+	/**
+	 * Creates a new {@link DocumentBuilder} to append more elements to an
+	 * existing document.
+	 * 
+	 * @param seedDocument
+	 *            The document to seed the builder with. The builder will
+	 *            contain the seed document elements plus any added/appended
+	 *            elements.
+	 * @return The root level document builder.
+	 */
+	public static final DocumentBuilder start(
+			final DocumentAssignable seedDocument) {
+		return new DocumentBuilderImpl(seedDocument);
+	}
 
-    /**
-     * Creates a new {@link ArrayBuilder}.
-     * 
-     * @return The root level array builder.
-     */
-    public static final ArrayBuilder startArray() {
-        return new ArrayBuilderImpl();
-    }
+	/**
+	 * Creates a new {@link DocumentBuilder} to append more elements to an
+	 * existing set of documents.
+	 * 
+	 * @param seedDocuments
+	 *            The documents to seed the builder with. The builder will
+	 *            contain the seed document elements plus any added/appended
+	 *            elements.
+	 * @return The root level document builder.
+	 */
+	public static final DocumentBuilder start(
+			final DocumentAssignable... seedDocuments) {
+		final DocumentBuilderImpl builder = new DocumentBuilderImpl();
+		for (final DocumentAssignable seedDocument : seedDocuments) {
+			for (final Element element : seedDocument.asDocument()) {
+				builder.remove(element.getName());
+				builder.add(element);
+			}
+		}
+		return builder;
+	}
 
-    /**
-     * Creates a new builder factory.
-     */
-    private BuilderFactory() {
-        // Nothing to do.
-    }
+	/**
+	 * Creates a new {@link ArrayBuilder}.
+	 * 
+	 * @return The root level array builder.
+	 */
+	public static final ArrayBuilder startArray() {
+		return new ArrayBuilderImpl();
+	}
+
+	/**
+	 * Creates a new builder factory.
+	 */
+	private BuilderFactory() {
+		// Nothing to do.
+	}
 }

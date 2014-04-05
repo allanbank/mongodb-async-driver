@@ -81,7 +81,7 @@ public class ReplicaSetConnectionFactoryTest {
         final Thread[] threads = new Thread[Thread.activeCount()];
         Thread.enumerate(threads);
         for (final Thread t : threads) {
-            if (t.getName().contains("<--")) {
+            if ((t != null) && t.getName().contains("<--")) {
                 return true;
             }
         }

@@ -118,6 +118,7 @@ import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.ParallelScan;
 import com.allanbank.mongodb.builder.QueryBuilder;
+import com.allanbank.mongodb.builder.Sort;
 import com.allanbank.mongodb.builder.write.InsertOperation;
 import com.allanbank.mongodb.builder.write.WriteOperation;
 import com.allanbank.mongodb.builder.write.WriteOperationType;
@@ -1269,8 +1270,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Now go find all of them by the covering index.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
                 .start().build());
+        findBuilder.query(where("foo").equals(0));
         findBuilder.projection(BuilderFactory.start().addBoolean("_id", false)
                 .addBoolean("foo", true).addBoolean("bar", true).build());
+        findBuilder.sort(Sort.asc("bar"));
         final MongoIterator<Document> iter = myCollection.find(findBuilder
                 .build());
         int expectedId = 0;

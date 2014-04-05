@@ -269,7 +269,6 @@ public class BatchedAsyncMongoCollectionImpl extends
                 for (final Object toSend : optimized) {
                     if (toSend instanceof BatchedWriteCallback) {
                         final BatchedWriteCallback cb = (BatchedWriteCallback) toSend;
-
                         cb.setClient(serialized);
                         cb.send();
                     }
