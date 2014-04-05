@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * Enumeration of the possible BSON types.
- * 
+ *
  * @api.yes This enumeration is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -30,7 +30,7 @@ public enum ElementType {
 
     /**
      * The BSON DB Pointer type.
-     * 
+     *
      * @deprecated See BSON specification.
      */
     @Deprecated
@@ -87,7 +87,7 @@ public enum ElementType {
      * "http://docs.mongodb.org/manual/faq/developers/#what-is-the-compare-order-for-bson-types"
      * >MongoDB FAQ Entry</a> with non-listed types from the BSON Specification
      * determine experimentally.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/faq/developers/#what-is-the-compare-order-for-bson-types">MongoDB
      *      FAQ Entry</a>
@@ -154,7 +154,7 @@ public enum ElementType {
     /**
      * Returns the ElementType with the provided token or <code>null</code> if
      * it is not found.
-     * 
+     *
      * @param token
      *            The BSON type token to find the ElementType for.
      * @return The ElementType with the provided token or <code>null</code> if
@@ -237,7 +237,7 @@ public enum ElementType {
 
     /**
      * Create a new {@link ElementType}.
-     * 
+     *
      * @param token
      *            The token for the {@link ElementType}.
      */
@@ -248,7 +248,7 @@ public enum ElementType {
     /**
      * Similar to {@link #compareTo} but instead of comparing on the ordinal
      * value compares the values based on the MongoDB sort order.
-     * 
+     *
      * @param rhs
      *            The right-hand-side of the ordering.
      * @return A negative value if this {@link ElementType} is less than the
@@ -265,7 +265,7 @@ public enum ElementType {
 
     /**
      * Returns the token for the BSON type.
-     * 
+     *
      * @return The token for the BSON type.
      */
     public byte getToken() {

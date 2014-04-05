@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.socket;
@@ -78,7 +78,7 @@ import com.allanbank.mongodb.client.state.Server;
 /**
  * TwoThreadSocketConnectionTest provides tests for the
  * {@link TwoThreadSocketConnection} class.
- * 
+ *
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class TwoThreadSocketConnectionTest {
@@ -97,7 +97,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -109,7 +109,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Stops a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -140,7 +140,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Cleans up the test connection.
-     * 
+     *
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -156,7 +156,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -199,7 +199,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -263,7 +263,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -322,7 +322,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -381,7 +381,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -440,7 +440,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -501,7 +501,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -553,7 +553,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -617,7 +617,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -674,7 +674,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -722,7 +722,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -777,7 +777,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -839,7 +839,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -902,7 +902,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -965,7 +965,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1028,7 +1028,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1091,7 +1091,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1154,7 +1154,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1217,7 +1217,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1287,7 +1287,7 @@ public class TwoThreadSocketConnectionTest {
     /**
      * Test method for
      * {@link TwoThreadSocketConnection#raiseErrors(MongoDbException)} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1344,7 +1344,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -1408,7 +1408,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -1472,7 +1472,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1544,7 +1544,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1606,7 +1606,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1670,7 +1670,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1712,7 +1712,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1754,7 +1754,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1797,7 +1797,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1841,7 +1841,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#shutdown} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1890,7 +1890,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1947,7 +1947,7 @@ public class TwoThreadSocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1993,7 +1993,7 @@ public class TwoThreadSocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2037,7 +2037,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#stop} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2087,7 +2087,7 @@ public class TwoThreadSocketConnectionTest {
      * Test method for
      * {@link TwoThreadSocketConnection#TwoThreadSocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2112,7 +2112,7 @@ public class TwoThreadSocketConnectionTest {
      * Test method for
      * {@link TwoThreadSocketConnection#TwoThreadSocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2130,7 +2130,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2194,7 +2194,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2258,7 +2258,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2322,7 +2322,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Waits for the capture to have been set.
-     * 
+     *
      * @param capture
      *            The capture to wait for.
      */

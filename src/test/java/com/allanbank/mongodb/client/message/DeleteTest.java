@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -33,14 +33,14 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * DeleteTest provides tests for the {@link Delete} message.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DeleteTest {
 
     /**
      * Test method for {@link Delete#Delete(BsonInputStream)} .
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */

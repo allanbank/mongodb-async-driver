@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -32,7 +32,7 @@ import com.allanbank.mongodb.client.connection.auth.MongoDbAuthenticator;
 
 /**
  * CredentialTest provides tests for the {@link Credential} class.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CredentialTest {
@@ -219,7 +219,7 @@ public class CredentialTest {
 
     /**
      * Test method for {@link Credential#authenticator()}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      * @throws ClassNotFoundException

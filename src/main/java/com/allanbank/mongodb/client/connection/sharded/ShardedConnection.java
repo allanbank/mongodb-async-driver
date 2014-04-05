@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -26,7 +26,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * Provides a {@link Connection} implementation for connecting to a sharded
  * environment via mongos servers.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -41,7 +41,7 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
 
     /**
      * Creates a new {@link ShardedConnection}.
-     * 
+     *
      * @param proxiedConnection
      *            The connection being proxied.
      * @param server
@@ -104,7 +104,7 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
      * Locates the set of servers that can be used to send the specified
      * messages. This method will attempt to connect to the primary server if
      * there is not a current connection to the primary.
-     * 
+     *
      * @param message1
      *            The first message to send.
      * @param message2
@@ -178,7 +178,7 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
     /**
      * Locates the set of servers that can be used to send the specified
      * messages.
-     * 
+     *
      * @param message1
      *            The first message to send.
      * @param message2

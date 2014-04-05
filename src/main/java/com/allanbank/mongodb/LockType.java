@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -8,7 +8,7 @@ package com.allanbank.mongodb;
 /**
  * LockType provides an enumeration for the types of locks used at the core of
  * the driver to hand off messages between threads.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)

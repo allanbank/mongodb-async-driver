@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -7,7 +7,7 @@ package com.allanbank.mongodb;
 
 /**
  * Interface to bootstrap into interactions with MongoDB.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -32,7 +32,7 @@ public interface Mongo extends MongoClient {
      * Creation of the serial instance is lightweight with minimal object
      * allocation and no server interaction.
      * </p>
-     * 
+     *
      * @return Serialized view of the connections to the MongoDB Server.
      * @deprecated Use {@link MongoClient#asSerializedClient()} instead.
      */
@@ -41,7 +41,7 @@ public interface Mongo extends MongoClient {
 
     /**
      * Returns the configuration being used by the logical MongoDB connection.
-     * 
+     *
      * @return The configuration being used by the logical MongoDB connection.
      */
     @Override

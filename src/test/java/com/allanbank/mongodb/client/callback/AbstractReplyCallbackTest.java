@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -40,7 +40,7 @@ import com.allanbank.mongodb.error.ShardConfigStaleException;
 /**
  * AbstractReplyCallbackTest provides tests of the {@link AbstractReplyCallback}
  * class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AbstractReplyCallbackTest {

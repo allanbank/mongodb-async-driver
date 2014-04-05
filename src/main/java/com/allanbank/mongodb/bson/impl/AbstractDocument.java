@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -24,7 +24,7 @@ import com.allanbank.mongodb.util.PatternUtils;
 /**
  * AbstractDocument provides a base class for all document implementations with
  * the common functionality.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractDocument implements Document {
@@ -47,7 +47,7 @@ public abstract class AbstractDocument implements Document {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitDocument} method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -68,7 +68,7 @@ public abstract class AbstractDocument implements Document {
 
     /**
      * Returns true if the document contains an element with the specified name.
-     * 
+     *
      * @see Document#contains(String)
      */
     @Override
@@ -79,10 +79,10 @@ public abstract class AbstractDocument implements Document {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -105,7 +105,7 @@ public abstract class AbstractDocument implements Document {
      * Searches this sub-elements for matching elements on the path and are of
      * the right type.
      * </p>
-     * 
+     *
      * @see Document#find
      */
     @Override
@@ -146,7 +146,7 @@ public abstract class AbstractDocument implements Document {
      * <p>
      * Searches this sub-elements for matching elements on the path.
      * </p>
-     * 
+     *
      * @see Document#find
      */
     @Override
@@ -160,7 +160,7 @@ public abstract class AbstractDocument implements Document {
      * Searches this sub-elements for matching elements on the path and are of
      * the right type.
      * </p>
-     * 
+     *
      * @see Document#findFirst
      */
     @Override
@@ -205,7 +205,7 @@ public abstract class AbstractDocument implements Document {
      * Searches this sub-elements for matching elements on the path and are of
      * the right type.
      * </p>
-     * 
+     *
      * @see Document#findFirst
      */
     @Override
@@ -216,7 +216,7 @@ public abstract class AbstractDocument implements Document {
     /**
      * Returns the element with the specified name and type or null if no
      * element with that name and type exists.
-     * 
+     *
      * @see Document#get(String)
      */
     @Override
@@ -231,7 +231,7 @@ public abstract class AbstractDocument implements Document {
     /**
      * Returns the element with the specified name or null if no element with
      * that name exists.
-     * 
+     *
      * @see Document#get(String)
      */
     @Override
@@ -247,7 +247,7 @@ public abstract class AbstractDocument implements Document {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -257,7 +257,7 @@ public abstract class AbstractDocument implements Document {
 
     /**
      * Returns an iterator over the documents elements.
-     * 
+     *
      * @see Iterable#iterator()
      */
     @Override
@@ -267,9 +267,9 @@ public abstract class AbstractDocument implements Document {
 
     /**
      * String form of the object.
-     * 
+     *
      * @return A human readable form of the object.
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
@@ -285,7 +285,7 @@ public abstract class AbstractDocument implements Document {
 
     /**
      * Returns the mapping from the names of elements to the element.
-     * 
+     *
      * @return The mapping from the names of elements to the element.
      */
     protected abstract Map<String, Element> getElementMap();

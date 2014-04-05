@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, InmyState. 
+ * Copyright 2012-2013, Allanbank Consulting, InmyState.
  *           All Rights Reserved
  */
 
@@ -43,7 +43,7 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 
 /**
  * ClusterTest provides tests for the {@link Cluster}.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterTest {

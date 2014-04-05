@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -18,7 +18,7 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * QueryFailedExceptionTest provides tests for the {@link QueryFailedException}
  * class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class QueryFailedExceptionTest {

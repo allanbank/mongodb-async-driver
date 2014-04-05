@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -29,7 +29,7 @@ import com.allanbank.mongodb.error.BatchedWriteException;
  * an N value based on the expected count. That limits the utility of this class
  * to inserts.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -62,7 +62,7 @@ public class BatchedInsertCountingCallback implements Callback<Reply> {
 
     /**
      * Creates a new CountingCallback.
-     * 
+     *
      * @param forwardCallback
      *            The callback to notify with the final results once we receive
      *            them all.

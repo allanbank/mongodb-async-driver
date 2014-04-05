@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -40,7 +40,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * MongoClientImplTest provides tests for the {@link MongoClientImpl} class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoClientImplTest {
@@ -187,7 +187,7 @@ public class MongoClientImplTest {
 
     /**
      * Test method for {@link MongoClientImpl#restart(DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -213,7 +213,7 @@ public class MongoClientImplTest {
     /**
      * Test method for
      * {@link MongoClientImpl#restart(StreamCallback,DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -243,7 +243,7 @@ public class MongoClientImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -254,7 +254,7 @@ public class MongoClientImplTest {
 
     /**
      * Creates a reply around the document.
-     * 
+     *
      * @param replyDoc
      *            The document to include in the reply.
      * @return The {@link Reply}
@@ -267,7 +267,7 @@ public class MongoClientImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */

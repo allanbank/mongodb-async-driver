@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -22,7 +22,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
  * that it is only invoked from a single thread. The "result" method should not
  * make the same assumption.
  * </p>
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface Authenticator extends Cloneable {
@@ -35,14 +35,14 @@ public interface Authenticator extends Cloneable {
      * Using clone allows users to create a "template" version of the
      * authenticator that is then copied prior to use by each connection.
      * </p>
-     * 
+     *
      * @return The cloned authenticator.
      */
     public Authenticator clone();
 
     /**
      * Returns the results of the authentication attempt.
-     * 
+     *
      * @return True if the user is successfully authenticated on the connection,
      *         false if the authentication fails.
      * @throws MongoDbAuthenticationException
@@ -53,7 +53,7 @@ public interface Authenticator extends Cloneable {
 
     /**
      * Starts to authenticate the user with the specified credentials.
-     * 
+     *
      * @param credentials
      *            The credentials to use to login to the database.
      * @param connection

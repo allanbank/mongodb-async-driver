@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -19,7 +19,7 @@ import com.allanbank.mongodb.MongoDbException;
 /**
  * LambdaCallbackAdapterTest provides tests for the
  * {@link LambdaCallbackAdapter} class.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class LambdaCallbackAdapterTest {

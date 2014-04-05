@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -45,7 +45,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
  * RootDocumentTest provides tests for the {@link RootDocument}.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("boxing")

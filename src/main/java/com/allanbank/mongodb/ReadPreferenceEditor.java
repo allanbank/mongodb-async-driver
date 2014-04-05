@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb;
@@ -29,7 +29,7 @@ import com.allanbank.mongodb.error.JsonException;
  * <li>PREFER_PRIMARY</li>
  * <li>PREFER_SECONDARY</li>
  * </ul>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -50,7 +50,7 @@ public class ReadPreferenceEditor extends PropertyEditorSupport {
      * <p>
      * Overridden to parse a string to a {@link ReadPreference}.
      * </p>
-     * 
+     *
      * @throws IllegalArgumentException
      *             If the string cannot be parsed into a {@link ReadPreference}.
      */

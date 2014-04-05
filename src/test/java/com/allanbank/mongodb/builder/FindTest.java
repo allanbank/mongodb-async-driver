@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -25,7 +25,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * FindTest provides tests for the {@link Find} command.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class FindTest {
@@ -477,7 +477,7 @@ public class FindTest {
 
     /**
      * Test method for {@link Find#Find}.
-     * 
+     *
      * @deprecated Replaced with the MongoDB standardized name: projection. This
      *             test will be removed on or after the 1.4 release.
      */
@@ -519,7 +519,7 @@ public class FindTest {
 
     /**
      * Test method for {@link Find#Find}.
-     * 
+     *
      * @deprecated Replaced with the MongoDB standardized name: projection. This
      *             test will be removed on or after the 1.4 release.
      */
@@ -561,7 +561,7 @@ public class FindTest {
 
     /**
      * Test method for {@link Find#Find}.
-     * 
+     *
      * @deprecated Replaced with the MongoDB standardized name: projection. This
      *             test will be removed on or after the 1.4 release.
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.message;
@@ -21,7 +21,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPQUERY"
  * >query</a> documents from the database matching a criteria. Also used to
  * issue commands to the database.
- * 
+ *
  * <pre>
  * <code>
  * struct OP_QUERY {
@@ -31,13 +31,13 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  *     int32     numberToSkip;          // number of documents to skip
  *     int32     numberToReturn;        // number of documents to return
  *                                      //  in the first OP_REPLY batch
- *     document  query;                 // query object. 
+ *     document  query;                 // query object.
  *   [ document  returnFieldSelector; ] // Optional. Selector indicating the fields
- *                                      //  to return.  
+ *                                      //  to return.
  * }
  * </code>
  * </pre>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -121,7 +121,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Creates a new Query.
-     * 
+     *
      * @param header
      *            The header for the query message.
      * @param in
@@ -158,7 +158,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Creates a new Query.
-     * 
+     *
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -232,10 +232,10 @@ public class Query extends AbstractMessage implements CursorableMessage {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -266,7 +266,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Returns the number of documents to be returned in each batch of results.
-     * 
+     *
      * @return The number of documents to be returned in each batch of results.
      */
     @Override
@@ -276,7 +276,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Returns the total number of documents to be returned.
-     * 
+     *
      * @return The total number of documents to be returned.
      */
     @Override
@@ -286,7 +286,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Returns the number of documents to be returned.
-     * 
+     *
      * @return The number of documents to be returned.
      */
     public int getNumberToReturn() {
@@ -296,7 +296,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
     /**
      * Returns the number of documents to skip before starting to return
      * documents.
-     * 
+     *
      * @return The number of documents to skip before starting to return
      *         documents.
      */
@@ -318,7 +318,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
     /**
      * Returns the query document containing the expression to select documents
      * from the collection.
-     * 
+     *
      * @return The query document containing the expression to select documents
      *         from the collection.
      */
@@ -329,7 +329,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
     /**
      * Returns the optional document containing the fields to be returned.
      * Optional here means this method may return <code>null</code>.
-     * 
+     *
      * @return The optional document containing the fields to be returned.
      */
     public Document getReturnFields() {
@@ -338,7 +338,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -363,7 +363,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
     /**
      * Returns true and if using a tailable cursor then the connection will
      * block waiting for more data.
-     * 
+     *
      * @return True and if using a tailable cursor then the connection will
      *         block waiting for more data.
      */
@@ -373,7 +373,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Returns true if the batch size is greater than zero.
-     * 
+     *
      * @return True if the batch size is greater than zero.
      */
     public boolean isBatchSizeSet() {
@@ -382,7 +382,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Returns true if all results should be returned in multiple results.
-     * 
+     *
      * @return True if all results should be returned in multiple results.
      */
     public boolean isExhaust() {
@@ -391,7 +391,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Returns true if the limit is greater than zero.
-     * 
+     *
      * @return True if the limit is greater than zero.
      */
     public boolean isLimitSet() {
@@ -400,7 +400,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Returns true if marking the cursor as not having a timeout.
-     * 
+     *
      * @return True if marking the cursor as not having a timeout.
      */
     public boolean isNoCursorTimeout() {
@@ -409,7 +409,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Returns true if return the results found and suppress shard down errors.
-     * 
+     *
      * @return True if return the results found and suppress shard down errors..
      */
     public boolean isPartial() {
@@ -419,7 +419,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
     /**
      * Returns true if the cursor created should follow additional documents
      * being inserted.
-     * 
+     *
      * @return True if the cursor created should follow additional documents
      *         being inserted.
      */
@@ -461,7 +461,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
      * <p>
      * Overridden to write the query message.
      * </p>
-     * 
+     *
      * @see Message#write(int, BsonOutputStream)
      */
     @Override
@@ -495,7 +495,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
      * <p>
      * Overridden to write the query message.
      * </p>
-     * 
+     *
      * @see Message#write(int, BsonOutputStream)
      */
     @Override
@@ -519,7 +519,7 @@ public class Query extends AbstractMessage implements CursorableMessage {
 
     /**
      * Computes the message flags bit field.
-     * 
+     *
      * @return The message flags bit field.
      */
     private int computeFlags() {

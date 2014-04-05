@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -12,7 +12,7 @@ import org.junit.Test;
 
 /**
  * NoOpCallbackTest provides tests for the {@link NoOpCallback} class.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class NoOpCallbackTest {

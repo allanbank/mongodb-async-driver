@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -23,7 +23,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * significant long in least-significant-byte order and then the least
  * significant long in least-significant-byte order.
  * </p>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -49,7 +49,7 @@ public class UuidElement extends BinaryElement {
 
     /**
      * Converts the UUID value to a byte array based on the subtype.
-     * 
+     *
      * @param uuidSubttype
      *            The subtype for the UUID encoding.
      * @param value
@@ -95,7 +95,7 @@ public class UuidElement extends BinaryElement {
 
     /**
      * Creates a new UuidElement.
-     * 
+     *
      * @param name
      *            The name for the element.
      * @param subType
@@ -116,7 +116,7 @@ public class UuidElement extends BinaryElement {
 
     /**
      * Creates a new UuidElement.
-     * 
+     *
      * @param name
      *            The name for the element.
      * @param subType
@@ -143,7 +143,7 @@ public class UuidElement extends BinaryElement {
 
     /**
      * Creates a new UuidElement.
-     * 
+     *
      * @param name
      *            The name for the element.
      * @param subType
@@ -161,7 +161,7 @@ public class UuidElement extends BinaryElement {
 
     /**
      * Creates a new UuidElement.
-     * 
+     *
      * @param name
      *            The name for the element.
      * @param value
@@ -178,10 +178,10 @@ public class UuidElement extends BinaryElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -200,7 +200,7 @@ public class UuidElement extends BinaryElement {
 
     /**
      * Returns the {@link UUID} value.
-     * 
+     *
      * @return The {@link UUID} value.
      */
     public UUID getUuid() {
@@ -235,7 +235,7 @@ public class UuidElement extends BinaryElement {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -262,7 +262,7 @@ public class UuidElement extends BinaryElement {
 
     /**
      * Converts the UUID binary form into a UUID object.
-     * 
+     *
      * @param subType
      *            The sub-type for the UUID encoding.
      * @param value

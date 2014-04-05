@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -28,10 +28,27 @@ import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * ClusterTestSupport provides a class to manage a cluster.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterTestSupport {
+
+    /**
+     * TestDirectoryFilenameFilter provides a file name filter to locate test
+     * directories left behind.
+     *
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected final static class TestDirectoryFilenameFilter implements
+            FilenameFilter {
+        @Override
+        public boolean accept(final File dir, final String name) {
+            return name.endsWith(DIR_SUFFIX)
+                    && (name.startsWith(STANDALONE_ROOT)
+                            || name.startsWith(REPLICA_SET_ROOT) || name
+                                .startsWith(SHARDED_ROOT));
+        }
+    }
 
     /** The default MongoDB port. */
     public static final int DEFAULT_PORT = 27017;
@@ -66,7 +83,7 @@ public class ClusterTestSupport {
 
     /**
      * Deletes the files.
-     * 
+     *
      * @param file
      *            The file to delete. Will delete all sub directories and files
      *            if a directory.
@@ -97,7 +114,7 @@ public class ClusterTestSupport {
 
     /**
      * Runs a process and returns the merged stderr and stdout.
-     * 
+     *
      * @param workingDirectory
      *            The working directory for the executable.
      * @param executable
@@ -337,7 +354,7 @@ public class ClusterTestSupport {
 
     /**
      * Fails with the message and exception.
-     * 
+     *
      * @param message
      *            The failure message.
      * @throws AssertionError
@@ -349,7 +366,7 @@ public class ClusterTestSupport {
 
     /**
      * Fails with the message and exception.
-     * 
+     *
      * @param message
      *            The failure message.
      * @param cause
@@ -367,7 +384,7 @@ public class ClusterTestSupport {
 
     /**
      * Repairs a replica set on the specified start port.
-     * 
+     *
      * @param workingDirectory
      *            The work directory for the replica set.
      * @param startPort
@@ -424,7 +441,7 @@ public class ClusterTestSupport {
 
     /**
      * Sleeps for the specified number of milliseconds.
-     * 
+     *
      * @param millis
      *            The number of milliseconds to sleep.
      */
@@ -439,7 +456,7 @@ public class ClusterTestSupport {
 
     /**
      * Starts a replica set on the specified start port.
-     * 
+     *
      * @param workingDirectory
      *            The work directory for the replica set.
      * @param startPort
@@ -556,7 +573,7 @@ public class ClusterTestSupport {
 
     /**
      * Starts a sharded cluster on the specified start port.
-     * 
+     *
      * @param workingDirectory
      *            The work directory for the shards.
      * @param startPort
@@ -636,7 +653,7 @@ public class ClusterTestSupport {
 
     /**
      * Starts a sharded cluster on the specified start port.
-     * 
+     *
      * @param workingDirectory
      *            The work directory for the shards.
      * @param startPort
@@ -711,7 +728,7 @@ public class ClusterTestSupport {
 
     /**
      * Starts a mongod on the specified port.
-     * 
+     *
      * @param workingDirectory
      *            The work directory for the mongod.
      * @param port
@@ -740,7 +757,7 @@ public class ClusterTestSupport {
     /**
      * Waits for the log file to contain the standard message that mongod is
      * waiting on the specified port.
-     * 
+     *
      * @param log
      *            The log file to scan.
      * @param port
@@ -755,7 +772,7 @@ public class ClusterTestSupport {
     /**
      * Waits for the log file to contain the specified token {@code count}
      * times.
-     * 
+     *
      * @param log
      *            The log file to scan.
      * @param token
@@ -807,7 +824,7 @@ public class ClusterTestSupport {
 
     /**
      * Waits for the log file to contain the specified token.
-     * 
+     *
      * @param log
      *            The log file to scan.
      * @param token
@@ -817,22 +834,5 @@ public class ClusterTestSupport {
      */
     protected void waitFor(final File log, final String token, final long waitMs) {
         waitFor(log, token, 1, waitMs);
-    }
-
-    /**
-     * TestDirectoryFilenameFilter provides a file name filter to locate test
-     * directories left behind.
-     * 
-     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected final static class TestDirectoryFilenameFilter implements
-            FilenameFilter {
-        @Override
-        public boolean accept(final File dir, final String name) {
-            return name.endsWith(DIR_SUFFIX)
-                    && (name.startsWith(STANDALONE_ROOT)
-                            || name.startsWith(REPLICA_SET_ROOT) || name
-                                .startsWith(SHARDED_ROOT));
-        }
     }
 }

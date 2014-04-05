@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -9,7 +9,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * Exception raised when a query fails.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -23,7 +23,7 @@ public class QueryFailedException extends ReplyException {
 
     /**
      * Create a new QueryFailedException.
-     * 
+     *
      * @param reply
      *            The reply that raised the exception.
      * @param cause

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014, Allanbank Consulting, Inc. 
+ * Copyright 2013-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -60,7 +60,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * AbstractSocketConnection provides the basic functionality for a socket
  * connection that passes messages between the sender and receiver.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -120,7 +120,7 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /**
      * Creates a new AbstractSocketConnection.
-     * 
+     *
      * @param server
      *            The MongoDB server to connect to.
      * @param config
@@ -361,7 +361,7 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /**
      * Receives a single message from the connection.
-     * 
+     *
      * @return The {@link Message} received.
      * @throws MongoDbException
      *             On an error receiving the message.
@@ -503,7 +503,7 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /**
      * Sends a single message to the connection.
-     * 
+     *
      * @param messageId
      *            The id to use for the message.
      * @param message
@@ -529,7 +529,7 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /**
      * Updates to raise an error on the callback, if any.
-     * 
+     *
      * @param exception
      *            The thrown exception.
      * @param replyCallback
@@ -542,7 +542,7 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /**
      * Reads a little-endian 4 byte signed integer from the stream.
-     * 
+     *
      * @return The integer value.
      * @throws EOFException
      *             On insufficient data for the integer.
@@ -580,7 +580,7 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /**
      * Updates to set the reply for the callback, if any.
-     * 
+     *
      * @param reply
      *            The reply.
      * @param pendingMessage
@@ -601,10 +601,10 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /**
      * Sends a single message.
-     * 
+     *
      * @param pendingMessage
      *            The message to be sent.
-     * 
+     *
      * @throws InterruptedException
      *             If the thread is interrupted waiting for a message to send.
      * @throws IOException
@@ -639,7 +639,7 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /**
      * Shutsdown the connection on an error.
-     * 
+     *
      * @param error
      *            The error causing the shutdown.
      * @param receiveError
@@ -662,7 +662,7 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /**
      * Updates the socket with the configuration's socket options.
-     * 
+     *
      * @param config
      *            The configuration to apply.
      * @throws SocketException
@@ -690,7 +690,7 @@ public abstract class AbstractSocketConnection implements Connection {
     /**
      * Ensures that the documents in the message do not exceed the maximum size
      * allowed by MongoDB.
-     * 
+     *
      * @param message1
      *            The message to be sent to the server.
      * @param message2
@@ -733,7 +733,7 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /**
      * Tries to open a connection to the server.
-     * 
+     *
      * @param server
      *            The server to open the connection to.
      * @param config
@@ -793,7 +793,7 @@ public abstract class AbstractSocketConnection implements Connection {
     /**
      * Validates that the server we are about to send the message to knows how
      * to handle the message.
-     * 
+     *
      * @param message
      *            The message to be sent.
      * @param serverVersion

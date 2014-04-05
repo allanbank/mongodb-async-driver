@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -36,7 +36,7 @@ import com.allanbank.mongodb.bson.io.BsonInputStream;
 
 /**
  * BinaryElementTest provides tests for the {@link BinaryElement} class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BinaryElementTest {
@@ -109,7 +109,7 @@ public class BinaryElementTest {
      * Test method for
      * {@link BinaryElement#BinaryElement(String, byte, BsonInputStream, int) )}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */

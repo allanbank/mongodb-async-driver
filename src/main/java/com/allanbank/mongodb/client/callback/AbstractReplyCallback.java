@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.callback;
@@ -12,10 +12,10 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * Helper class for constructing callbacks that convert a {@link Reply} message
  * into a different type of result.
- * 
+ *
  * @param <F>
  *            The type for the converted {@link Reply}.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -28,7 +28,7 @@ public abstract class AbstractReplyCallback<F> extends
 
     /**
      * Create a new AbstractReplyCallback.
-     * 
+     *
      * @param forwardCallback
      *            The callback for the converted type.
      */
@@ -41,7 +41,7 @@ public abstract class AbstractReplyCallback<F> extends
      * <p>
      * Overridden to forward the exception to the {@link #myForwardCallback}.
      * </p>
-     * 
+     *
      * @see Callback#exception
      */
     @Override
@@ -51,7 +51,7 @@ public abstract class AbstractReplyCallback<F> extends
 
     /**
      * Returns the forwardCallback value.
-     * 
+     *
      * @return the forwardCallback
      */
     public Callback<F> getForwardCallback() {
@@ -75,7 +75,7 @@ public abstract class AbstractReplyCallback<F> extends
 
     /**
      * Converts the {@link Reply} into the final response type.
-     * 
+     *
      * @param reply
      *            The reply to convert.
      * @return The converted reply.

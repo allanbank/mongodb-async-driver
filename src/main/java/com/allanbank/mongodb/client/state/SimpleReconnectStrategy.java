@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -16,7 +16,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * SimpleReconnectStrategy provides a reconnection strategy to simply attempt to
  * connect to the server again.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -79,7 +79,7 @@ public class SimpleReconnectStrategy extends AbstractReconnectStrategy {
 
     /**
      * Tries to connect to the server.
-     * 
+     *
      * @param server
      *            The server to connect to.
      * @return The connection to the server.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -48,7 +48,7 @@ import com.allanbank.mongodb.client.message.Update;
 
 /**
  * ClientImplTest provides tests for the {@link ClientImpl} class.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("unchecked")
@@ -92,7 +92,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#close()}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -174,7 +174,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -221,7 +221,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -355,7 +355,7 @@ public class SerialClientImplTest {
     /**
      * Test method for
      * {@link ClientImpl#restart(StreamCallback, DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -404,7 +404,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -540,7 +540,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -570,7 +570,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -598,7 +598,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -626,7 +626,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -665,7 +665,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -707,7 +707,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -738,7 +738,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -771,7 +771,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -812,7 +812,7 @@ public class SerialClientImplTest {
 
     /**
      * Test method for {@link SerialClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -842,7 +842,7 @@ public class SerialClientImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockConnectionFactory} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -854,7 +854,7 @@ public class SerialClientImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockConnectionFactory} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -11,7 +11,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * Base class exception for all reply errors.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -37,7 +37,7 @@ public class ReplyException extends MongoDbException {
 
     /**
      * Create a new ReplyException.
-     * 
+     *
      * @param okValue
      *            The value of the "ok" field in the reply document.
      * @param errorNumber
@@ -60,7 +60,7 @@ public class ReplyException extends MongoDbException {
 
     /**
      * Create a new ReplyException.
-     * 
+     *
      * @param okValue
      *            The value of the "ok" field in the reply document.
      * @param errorNumber
@@ -77,7 +77,7 @@ public class ReplyException extends MongoDbException {
 
     /**
      * Create a new ReplyException.
-     * 
+     *
      * @param reply
      *            The reply that raised the exception.
      */
@@ -92,7 +92,7 @@ public class ReplyException extends MongoDbException {
 
     /**
      * Create a new ReplyException.
-     * 
+     *
      * @param reply
      *            The reply that raised the exception.
      * @param message
@@ -108,7 +108,7 @@ public class ReplyException extends MongoDbException {
 
     /**
      * Create a new ReplyException.
-     * 
+     *
      * @param reply
      *            The reply that raised the exception.
      * @param cause
@@ -125,7 +125,7 @@ public class ReplyException extends MongoDbException {
 
     /**
      * Returns the value of the "errNo" field in the reply document or -1.
-     * 
+     *
      * @return The value of the "errNo" field in the reply document.
      */
     public int getErrorNumber() {
@@ -134,7 +134,7 @@ public class ReplyException extends MongoDbException {
 
     /**
      * Returns the value of the "ok" field in the reply document or -1.
-     * 
+     *
      * @return The value of the "ok" field in the reply document.
      */
     public int getOkValue() {
@@ -143,7 +143,7 @@ public class ReplyException extends MongoDbException {
 
     /**
      * Returns the reply.
-     * 
+     *
      * @return The reply.
      */
     public Reply getReply() {
@@ -152,7 +152,7 @@ public class ReplyException extends MongoDbException {
 
     /**
      * Returns the original request message, if known.
-     * 
+     *
      * @return The original request message, if known.
      */
     public Message getRequest() {

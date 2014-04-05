@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.element;
@@ -20,7 +20,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * An Object Id.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -121,7 +121,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * Generates the current timestamp value. This is the number of
      * <b>seconds</b> since the Unix Epoch.
-     * 
+     *
      * @return The unique object id value.
      */
     private static int now() {
@@ -132,7 +132,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * Generates the current timestamp value. This is the number of
      * <b>seconds</b> since the Unix Epoch.
-     * 
+     *
      * @return The unique object id value.
      */
     private static long processId() {
@@ -154,7 +154,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * Constructs a new {@link ObjectId}.
-     * 
+     *
      * @param timestamp
      *            The BSON Object Id timestamp.
      * @param machineId
@@ -167,7 +167,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * Constructs a new {@link ObjectId}.
-     * 
+     *
      * @param hexBytes
      *            The hex encoded byte value.
      * @throws IllegalArgumentException
@@ -219,10 +219,10 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -242,7 +242,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * The low 3 byte value of the machine id.
-     * 
+     *
      * @return The low 3 byte value of the machine id.
      */
     public int getCounterField() {
@@ -252,7 +252,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * The lower 8 bytes of the object id. This is the machine identifier field
      * and counter.
-     * 
+     *
      * @return The lower 8 bytes of the object id.
      */
     public long getMachineId() {
@@ -261,7 +261,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * The upper 3 bytes in the machine id.
-     * 
+     *
      * @return The upper 3 bytes of the machine id.
      */
     public int getMachineIdentifier() {
@@ -270,7 +270,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * Middle 2 byte process id field from the machine id.
-     * 
+     *
      * @return The middle 2 byte process id field from the machine id.
      */
     public int getPidField() {
@@ -280,7 +280,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * The upper 4 bytes of the object id. This is the <b>seconds</b> since the
      * UNIX Epoch.
-     * 
+     *
      * @return The upper 4 bytes of the object id.
      */
     public int getTimestamp() {
@@ -289,7 +289,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -303,7 +303,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * Returns the HEX string form of the ObjectId.
-     * 
+     *
      * @return The HEX string form of the ObjectId.
      */
     public String toHexString() {
@@ -320,9 +320,9 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * String form of the object.
-     * 
+     *
      * @return A human readable form of the object.
-     * 
+     *
      * @see Object#toString()
      */
     @Override

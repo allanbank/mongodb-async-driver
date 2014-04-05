@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.socket;
@@ -31,12 +31,135 @@ import com.allanbank.mongodb.util.IOUtils;
  * be standard Java Sockets as it performs better when the communication path
  * does not have built in buffering of messages.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class TwoThreadSocketConnection extends AbstractSocketConnection {
+
+    /**
+     * Runnable to push data out over the MongoDB connection.
+     *
+     * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected class SendRunnable implements Runnable {
+
+        /** Tracks if there are messages in the buffer that need to be flushed. */
+        private boolean myNeedToFlush = false;
+
+        /** The {@link PendingMessage} used for the local cached copy. */
+        private final PendingMessage myPendingMessage = new PendingMessage();
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to pull messages off the
+         * {@link TwoThreadSocketConnection#myToSendQueue} and push them into
+         * the socket connection. If <code>null</code> is ever received from a
+         * poll of the queue then the socket connection is flushed and blocking
+         * call is made to the queue.
+         * </p>
+         *
+         * @see Runnable#run()
+         */
+        @Override
+        public void run() {
+            boolean sawError = false;
+            try {
+                while (myOpen.get() && !sawError) {
+                    try {
+                        sendOne();
+                    }
+                    catch (final InterruptedException ie) {
+                        // Handled by loop but if we have a message, need to
+                        // tell him something bad happened (but we shouldn't).
+                        raiseError(ie, myPendingMessage.getReplyCallback());
+                    }
+                    catch (final IOException ioe) {
+                        myLog.warn(ioe, "I/O Error sending a message.");
+                        raiseError(ioe, myPendingMessage.getReplyCallback());
+                        sawError = true;
+                    }
+                    catch (final RuntimeException re) {
+                        myLog.warn(re, "Runtime error sending a message.");
+                        raiseError(re, myPendingMessage.getReplyCallback());
+                        sawError = true;
+                    }
+                    catch (final Error error) {
+                        myLog.error(error, "Error sending a message.");
+                        raiseError(error, myPendingMessage.getReplyCallback());
+                        sawError = true;
+                    }
+                    finally {
+                        myPendingMessage.clear();
+                    }
+                }
+            }
+            finally {
+                // This may/will fail because we are dying.
+                try {
+                    if (myOpen.get()) {
+                        doFlush();
+                    }
+                }
+                catch (final IOException ioe) {
+                    myLog.warn(ioe, "I/O Error on final flush of messages.");
+                }
+                finally {
+                    // Make sure we get shutdown completely.
+                    IOUtils.close(TwoThreadSocketConnection.this);
+                }
+            }
+        }
+
+        /**
+         * Flushes the messages in the buffer and clears the need-to-flush flag.
+         *
+         * @throws IOException
+         *             On a failure flushing the messages.
+         */
+        protected final void doFlush() throws IOException {
+            if (myNeedToFlush) {
+                flush();
+                myNeedToFlush = false;
+            }
+        }
+
+        /**
+         * Sends a single message.
+         *
+         * @throws InterruptedException
+         *             If the thread is interrupted waiting for a message to
+         *             send.
+         * @throws IOException
+         *             On a failure sending the message.
+         */
+        protected final void sendOne() throws InterruptedException, IOException {
+            boolean took = false;
+            if (myNeedToFlush) {
+                took = myToSendQueue.poll(myPendingMessage);
+            }
+            else {
+                myToSendQueue.take(myPendingMessage);
+                took = true;
+            }
+
+            if (took) {
+                myNeedToFlush = true;
+                send(myPendingMessage);
+
+                // We have handed the message off. Not our problem any more.
+                // We could legitimately do this before the send but in the case
+                // of an I/O error the send's exception is more meaningful then
+                // the receivers generic "Didn't get a reply".
+                myPendingMessage.clear();
+            }
+            else {
+                doFlush();
+            }
+        }
+    }
 
     /** The queue of messages to be sent. */
     protected final PendingMessageQueue myToSendQueue;
@@ -49,7 +172,7 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
 
     /**
      * Creates a new SocketConnection to a MongoDB server.
-     * 
+     *
      * @param server
      *            The MongoDB server to connect to.
      * @param config
@@ -208,129 +331,6 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
 
         if (myServer.needBuildInfo()) {
             send(new BuildInfo(), new ServerUpdateCallback(myServer));
-        }
-    }
-
-    /**
-     * Runnable to push data out over the MongoDB connection.
-     * 
-     * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected class SendRunnable implements Runnable {
-
-        /** Tracks if there are messages in the buffer that need to be flushed. */
-        private boolean myNeedToFlush = false;
-
-        /** The {@link PendingMessage} used for the local cached copy. */
-        private final PendingMessage myPendingMessage = new PendingMessage();
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to pull messages off the
-         * {@link TwoThreadSocketConnection#myToSendQueue} and push them into
-         * the socket connection. If <code>null</code> is ever received from a
-         * poll of the queue then the socket connection is flushed and blocking
-         * call is made to the queue.
-         * </p>
-         * 
-         * @see Runnable#run()
-         */
-        @Override
-        public void run() {
-            boolean sawError = false;
-            try {
-                while (myOpen.get() && !sawError) {
-                    try {
-                        sendOne();
-                    }
-                    catch (final InterruptedException ie) {
-                        // Handled by loop but if we have a message, need to
-                        // tell him something bad happened (but we shouldn't).
-                        raiseError(ie, myPendingMessage.getReplyCallback());
-                    }
-                    catch (final IOException ioe) {
-                        myLog.warn(ioe, "I/O Error sending a message.");
-                        raiseError(ioe, myPendingMessage.getReplyCallback());
-                        sawError = true;
-                    }
-                    catch (final RuntimeException re) {
-                        myLog.warn(re, "Runtime error sending a message.");
-                        raiseError(re, myPendingMessage.getReplyCallback());
-                        sawError = true;
-                    }
-                    catch (final Error error) {
-                        myLog.error(error, "Error sending a message.");
-                        raiseError(error, myPendingMessage.getReplyCallback());
-                        sawError = true;
-                    }
-                    finally {
-                        myPendingMessage.clear();
-                    }
-                }
-            }
-            finally {
-                // This may/will fail because we are dying.
-                try {
-                    if (myOpen.get()) {
-                        doFlush();
-                    }
-                }
-                catch (final IOException ioe) {
-                    myLog.warn(ioe, "I/O Error on final flush of messages.");
-                }
-                finally {
-                    // Make sure we get shutdown completely.
-                    IOUtils.close(TwoThreadSocketConnection.this);
-                }
-            }
-        }
-
-        /**
-         * Flushes the messages in the buffer and clears the need-to-flush flag.
-         * 
-         * @throws IOException
-         *             On a failure flushing the messages.
-         */
-        protected final void doFlush() throws IOException {
-            if (myNeedToFlush) {
-                flush();
-                myNeedToFlush = false;
-            }
-        }
-
-        /**
-         * Sends a single message.
-         * 
-         * @throws InterruptedException
-         *             If the thread is interrupted waiting for a message to
-         *             send.
-         * @throws IOException
-         *             On a failure sending the message.
-         */
-        protected final void sendOne() throws InterruptedException, IOException {
-            boolean took = false;
-            if (myNeedToFlush) {
-                took = myToSendQueue.poll(myPendingMessage);
-            }
-            else {
-                myToSendQueue.take(myPendingMessage);
-                took = true;
-            }
-
-            if (took) {
-                myNeedToFlush = true;
-                send(myPendingMessage);
-
-                // We have handed the message off. Not our problem any more.
-                // We could legitimately do this before the send but in the case
-                // of an I/O error the send's exception is more meaningful then
-                // the receivers generic "Didn't get a reply".
-                myPendingMessage.clear();
-            }
-            else {
-                doFlush();
-            }
         }
     }
 }

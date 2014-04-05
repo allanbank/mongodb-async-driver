@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -10,7 +10,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * Exception raised when an insert encounters a duplicate key error.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -24,7 +24,7 @@ public class DuplicateKeyException extends ReplyException {
 
     /**
      * Create a new DuplicateKeyException.
-     * 
+     *
      * @param okValue
      *            The value of the "ok" field in the reply document.
      * @param errorNumber
@@ -43,7 +43,7 @@ public class DuplicateKeyException extends ReplyException {
 
     /**
      * Create a new DuplicateKeyException.
-     * 
+     *
      * @param okValue
      *            The value of the "ok" field in the reply document.
      * @param errorNumber

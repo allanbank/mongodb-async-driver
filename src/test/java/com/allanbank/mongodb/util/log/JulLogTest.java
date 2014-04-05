@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.util.log;
@@ -22,7 +22,7 @@ import org.junit.Test;
 
 /**
  * JulLogTest provides tests for the {@link JulLog} class.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JulLogTest {
@@ -38,7 +38,7 @@ public class JulLogTest {
 
     /**
      * Initializes the logger for the test.
-     * 
+     *
      * @throws Exception
      *             On a failure initializing the logger.
      */
@@ -56,7 +56,7 @@ public class JulLogTest {
 
     /**
      * Cleanup after the test.
-     * 
+     *
      * @throws Exception
      *             On a failure cleaning up the logger.
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.element;
@@ -12,7 +12,7 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON (signed 64-bit) integer or long.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -30,7 +30,7 @@ public class LongElement extends AbstractElement implements NumericElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the element.
      * @return The size of the element when encoded in bytes.
@@ -47,7 +47,7 @@ public class LongElement extends AbstractElement implements NumericElement {
 
     /**
      * Constructs a new {@link LongElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON long.
      * @param value
@@ -61,7 +61,7 @@ public class LongElement extends AbstractElement implements NumericElement {
 
     /**
      * Constructs a new {@link LongElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON long.
      * @param value
@@ -81,7 +81,7 @@ public class LongElement extends AbstractElement implements NumericElement {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitLong} method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -126,10 +126,10 @@ public class LongElement extends AbstractElement implements NumericElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -189,7 +189,7 @@ public class LongElement extends AbstractElement implements NumericElement {
 
     /**
      * Returns the BSON long value.
-     * 
+     *
      * @return The BSON long value.
      */
     public long getValue() {
@@ -220,7 +220,7 @@ public class LongElement extends AbstractElement implements NumericElement {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

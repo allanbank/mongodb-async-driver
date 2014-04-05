@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -17,7 +17,7 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
  * <p>
  * This is a helper class for retrieving the status of a MongoDB server. The
  * results of this command will look like: <blockquote>
- * 
+ *
  * <pre>
  * <code>
  * {
@@ -67,7 +67,7 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
  *         }
  *     },
  *     "shardCursorType" : {
- *         
+ * 
  *     },
  *     "asserts" : {
  *         "regular" : 0,
@@ -85,10 +85,10 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
  * }
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -11,7 +11,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * InsertOperation provides a container for the fields in an insert request.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -28,7 +28,7 @@ public class InsertOperation implements WriteOperation {
 
     /**
      * Creates a new InsertOperation.
-     * 
+     *
      * @param document
      *            The document to insert.
      */
@@ -41,7 +41,7 @@ public class InsertOperation implements WriteOperation {
 
     /**
      * Returns the document to insert.
-     * 
+     *
      * @return The document to insert.
      */
     public Document getDocument() {

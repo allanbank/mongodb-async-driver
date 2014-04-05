@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -10,7 +10,7 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 
 /**
  * Implements the bootstrap point for interactions with MongoDB.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @deprecated Use the {@link MongoClient} interface instead. This interface
@@ -23,7 +23,7 @@ public class MongoImpl extends MongoClientImpl implements
 
     /**
      * Create a new MongoClient.
-     * 
+     *
      * @param client
      *            The client interface for interacting with the database.
      */
@@ -33,7 +33,7 @@ public class MongoImpl extends MongoClientImpl implements
 
     /**
      * Create a new MongoClient.
-     * 
+     *
      * @param config
      *            The configuration for interacting with MongoDB.
      */
@@ -46,7 +46,7 @@ public class MongoImpl extends MongoClientImpl implements
      * <p>
      * Overridden to create a new Mongo instance around a SerialClientImpl.
      * </p>
-     * 
+     *
      * @deprecated Use the {@link #asSerializedClient()} instead.
      */
     @Override

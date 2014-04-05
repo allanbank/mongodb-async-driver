@@ -1,12 +1,12 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.util.log;
 
 /**
  * LogFactory supports the creation of the Log instances.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -18,7 +18,7 @@ public abstract class LogFactory {
 
     /**
      * Creates a {@link Log} instance for the provided class.
-     * 
+     *
      * @param clazz
      *            The name of the class to create a log instance for.
      * @return The {@link Log} instance for the class.
@@ -53,7 +53,7 @@ public abstract class LogFactory {
 
     /**
      * Delegate method for the instantiated {@link LogFactory}.
-     * 
+     *
      * @param clazz
      *            The name of the class to create a log instance for.
      * @return The {@link Log} instance for the class.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -15,7 +15,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * IOUtils provides helper methods for dealing with I/O operations.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -77,7 +77,7 @@ public final class IOUtils {
 
     /**
      * Converts the Base64 (RFC 2045) String into a byte array.
-     * 
+     *
      * @param base64
      *            The Base64 string to convert.
      * @return The byte[] version.
@@ -141,7 +141,7 @@ public final class IOUtils {
 
     /**
      * Closes the {@link Closeable} and logs any error.
-     * 
+     *
      * @param closeable
      *            The connection to close.
      */
@@ -154,7 +154,7 @@ public final class IOUtils {
 
     /**
      * Closes the {@link Closeable} and logs any error.
-     * 
+     *
      * @param closeable
      *            The connection to close.
      * @param level
@@ -176,7 +176,7 @@ public final class IOUtils {
 
     /**
      * Converts the hex string to bytes.
-     * 
+     *
      * @param hex
      *            The HEX string to convert.
      * @return The byte[] version.
@@ -206,7 +206,7 @@ public final class IOUtils {
 
     /**
      * Converts the byte array into a Base64 (RFC 2045) string.
-     * 
+     *
      * @param bytes
      *            The bytes to convert.
      * @return The string version.
@@ -253,7 +253,7 @@ public final class IOUtils {
 
     /**
      * Converts the byte array into a HEX string.
-     * 
+     *
      * @param bytes
      *            The bytes to convert.
      * @return The string version.
@@ -269,7 +269,7 @@ public final class IOUtils {
 
     /**
      * Uses the provided alphabet to convert the character to a set of bits.
-     * 
+     *
      * @param alphabet
      *            The alphabet for the conversion.
      * @param c

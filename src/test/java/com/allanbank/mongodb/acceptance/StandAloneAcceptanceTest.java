@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -35,10 +35,74 @@ import com.allanbank.mongodb.error.ConnectionLostException;
  * These are not meant to be exhaustive tests of the driver but instead attempt
  * to demonstrate that interactions with the MongoDB processes work.
  * </p>
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
+
+    /**
+     * BackgroundTailableCursorReader provides a background myRunnable for
+     * reading documents.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static class BackgroundTailableCursorReader implements Runnable {
+
+        /** The number of documents to read. */
+        private final int myDocsToRead;
+
+        /** The iterator to read from. */
+        private final MongoIterator<Document> myIterator;
+
+        /** The thrown exception, if any. */
+        private RuntimeException myThrown;
+
+        /**
+         * Creates a new BackgroundTailableCursorReader.
+         *
+         * @param iterator
+         *            The iterator to read from.
+         * @param docsToRead
+         *            The number of documents to read.
+         */
+        public BackgroundTailableCursorReader(
+                final MongoIterator<Document> iterator, final int docsToRead) {
+            myIterator = iterator;
+            myDocsToRead = docsToRead;
+            myThrown = null;
+        }
+
+        /**
+         * Returns the thrown exception, if any.
+         *
+         * @return The thrown exception, if any.
+         */
+        public Throwable getThrown() {
+            return myThrown;
+        }
+
+        /**
+         * Reads over the documents on the background.
+         */
+        @Override
+        public void run() {
+            try {
+                for (int i = 0; i < myDocsToRead; ++i) {
+                    if (myIterator.hasNext()) {
+                        myIterator.next();
+                    }
+                    else {
+                        myThrown = new IllegalStateException(
+                                "Did not read all of the expected messages.");
+                        return;
+                    }
+                }
+            }
+            catch (final RuntimeException re) {
+                myThrown = re;
+            }
+        }
+    }
 
     /**
      * Starts the standalone server before the tests.
@@ -231,70 +295,6 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
                 iter.close();
             }
             collection.drop();
-        }
-    }
-
-    /**
-     * BackgroundTailableCursorReader provides a background myRunnable for
-     * reading documents.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static class BackgroundTailableCursorReader implements Runnable {
-
-        /** The number of documents to read. */
-        private final int myDocsToRead;
-
-        /** The iterator to read from. */
-        private final MongoIterator<Document> myIterator;
-
-        /** The thrown exception, if any. */
-        private RuntimeException myThrown;
-
-        /**
-         * Creates a new BackgroundTailableCursorReader.
-         * 
-         * @param iterator
-         *            The iterator to read from.
-         * @param docsToRead
-         *            The number of documents to read.
-         */
-        public BackgroundTailableCursorReader(
-                final MongoIterator<Document> iterator, final int docsToRead) {
-            myIterator = iterator;
-            myDocsToRead = docsToRead;
-            myThrown = null;
-        }
-
-        /**
-         * Returns the thrown exception, if any.
-         * 
-         * @return The thrown exception, if any.
-         */
-        public Throwable getThrown() {
-            return myThrown;
-        }
-
-        /**
-         * Reads over the documents on the background.
-         */
-        @Override
-        public void run() {
-            try {
-                for (int i = 0; i < myDocsToRead; ++i) {
-                    if (myIterator.hasNext()) {
-                        myIterator.next();
-                    }
-                    else {
-                        myThrown = new IllegalStateException(
-                                "Did not read all of the expected messages.");
-                        return;
-                    }
-                }
-            }
-            catch (final RuntimeException re) {
-                myThrown = re;
-            }
         }
     }
 }

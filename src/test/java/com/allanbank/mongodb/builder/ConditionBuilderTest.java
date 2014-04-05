@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -51,7 +51,7 @@ import com.allanbank.mongodb.builder.expression.Expressions;
 
 /**
  * ConditionBuilderTest provides tests for the {@link ConditionBuilder} class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ConditionBuilderTest {
@@ -3936,7 +3936,7 @@ public class ConditionBuilderTest {
     }
 
     /**
-     * 
+     *
      * Test method for
      * {@link ConditionBuilder#within(boolean, Point2D, Point2D, Point2D, Point2D[])}
      * .

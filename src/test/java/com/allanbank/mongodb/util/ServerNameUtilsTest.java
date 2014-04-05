@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -13,7 +13,7 @@ import org.junit.Test;
 
 /**
  * ServerNameUtilsTest provides tests of the {@link ServerNameUtils} class.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerNameUtilsTest {

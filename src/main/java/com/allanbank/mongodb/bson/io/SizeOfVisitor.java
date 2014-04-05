@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.io;
@@ -32,12 +32,89 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * linked list to remove the overhead of extra object allocations for the node
  * and the value.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SizeOfVisitor implements Visitor {
+    /**
+     * CachedSizeNode provides a node in a singly linked list that forms the
+     * cache for the sizes of lists of elements.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected static final class CachedSizeNode {
+
+        /** The elements we are caching the size of. */
+        /* package */List<Element> myElements;
+
+        /** The next node in the singly linked list. */
+        /* package */CachedSizeNode myNext;
+
+        /** The cached size. */
+        /* package */int mySize;
+
+        /**
+         * Creates a new CachedSizeNode.
+         *
+         * @param elements
+         *            The elements to cache the size of.
+         */
+        public CachedSizeNode(final List<Element> elements) {
+            myElements = elements;
+            mySize = 0;
+            myNext = null;
+        }
+
+        /**
+         * Returns the elements value.
+         *
+         * @return The elements value.
+         */
+        public List<Element> getElements() {
+            return myElements;
+        }
+
+        /**
+         * Returns the next value.
+         *
+         * @return The next value.
+         */
+        public CachedSizeNode getNext() {
+            return myNext;
+        }
+
+        /**
+         * Returns the size value.
+         *
+         * @return The size value.
+         */
+        public int getSize() {
+            return mySize;
+        }
+
+        /**
+         * Sets the value of next to the new value.
+         *
+         * @param next
+         *            The new value for the next.
+         */
+        public void setNext(final CachedSizeNode next) {
+            myNext = next;
+        }
+
+        /**
+         * Sets the value of size to the new value.
+         *
+         * @param size
+         *            The new value for the size.
+         */
+        public void setSize(final int size) {
+            mySize = size;
+        }
+    }
+
     /** UTF-8 Character set for encoding strings. */
     public final static Charset UTF8 = Charset.forName("UTF-8");
 
@@ -62,7 +139,7 @@ public class SizeOfVisitor implements Visitor {
 
     /**
      * Creates a new SizeOfVisitor.
-     * 
+     *
      * @param encoder
      *            The encoder for strings.
      */
@@ -74,7 +151,7 @@ public class SizeOfVisitor implements Visitor {
 
     /**
      * Returns the visitor's output buffer.
-     * 
+     *
      * @param string
      *            The 'C' string to determine the size of.
      * @return The visitor's output buffer.
@@ -85,7 +162,7 @@ public class SizeOfVisitor implements Visitor {
 
     /**
      * Returns the visitor's output buffer.
-     * 
+     *
      * @param string
      *            The 'UTF8' string to determine the size of.
      * @return The visitor's output buffer.
@@ -96,7 +173,7 @@ public class SizeOfVisitor implements Visitor {
 
     /**
      * Return the current Size of the written document.
-     * 
+     *
      * @return The current size of the encoded document.
      */
     public int getSize() {
@@ -126,7 +203,7 @@ public class SizeOfVisitor implements Visitor {
 
     /**
      * Computes the size of the encoded UTF8 String based on the table below.
-     * 
+     *
      * <pre>
      * #    Code Points      Bytes
      * 1    U+0000..U+007F   1
@@ -140,7 +217,7 @@ public class SizeOfVisitor implements Visitor {
      *     U+40000..U+FFFFF  4
      *    U+100000..U10FFFF  4
      * </pre>
-     * 
+     *
      * @param string
      *            The string to determine the length of.
      * @return The length of the string encoded as UTF8.
@@ -396,7 +473,7 @@ public class SizeOfVisitor implements Visitor {
     /**
      * Computes the size of the binary based on the name, type and length of the
      * data.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param subType
@@ -419,83 +496,6 @@ public class SizeOfVisitor implements Visitor {
         default:
             mySize += (4 + 1 + dataLength);
             break;
-        }
-    }
-
-    /**
-     * CachedSizeNode provides a node in a singly linked list that forms the
-     * cache for the sizes of lists of elements.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected static final class CachedSizeNode {
-
-        /** The elements we are caching the size of. */
-        /* package */List<Element> myElements;
-
-        /** The next node in the singly linked list. */
-        /* package */CachedSizeNode myNext;
-
-        /** The cached size. */
-        /* package */int mySize;
-
-        /**
-         * Creates a new CachedSizeNode.
-         * 
-         * @param elements
-         *            The elements to cache the size of.
-         */
-        public CachedSizeNode(final List<Element> elements) {
-            myElements = elements;
-            mySize = 0;
-            myNext = null;
-        }
-
-        /**
-         * Returns the elements value.
-         * 
-         * @return The elements value.
-         */
-        public List<Element> getElements() {
-            return myElements;
-        }
-
-        /**
-         * Returns the next value.
-         * 
-         * @return The next value.
-         */
-        public CachedSizeNode getNext() {
-            return myNext;
-        }
-
-        /**
-         * Returns the size value.
-         * 
-         * @return The size value.
-         */
-        public int getSize() {
-            return mySize;
-        }
-
-        /**
-         * Sets the value of next to the new value.
-         * 
-         * @param next
-         *            The new value for the next.
-         */
-        public void setNext(final CachedSizeNode next) {
-            myNext = next;
-        }
-
-        /**
-         * Sets the value of size to the new value.
-         * 
-         * @param size
-         *            The new value for the size.
-         */
-        public void setSize(final int size) {
-            mySize = size;
         }
     }
 }

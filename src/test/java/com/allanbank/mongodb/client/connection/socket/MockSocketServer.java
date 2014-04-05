@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -25,7 +25,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * Provides a simple single threaded socket server to act as a MongoDB server in
  * tests. The server collects all messages it receives and can be loaded with
  * replies to the requests it receives.
- * 
+ *
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MockSocketServer extends Thread {
@@ -52,7 +52,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Creates a new MockMongoDBServer.
-     * 
+     *
      * @throws IOException
      *             On a failure creating the server socket.
      */
@@ -77,7 +77,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Closes the server socket.
-     * 
+     *
      * @throws IOException
      *             On a failure closing the server socket.
      */
@@ -87,7 +87,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Disconnects any active client..
-     * 
+     *
      * @return True if a client is connected, false otherwise.
      */
     public boolean disconnectClient() {
@@ -103,7 +103,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Returns the address for the server.
-     * 
+     *
      * @return The address for the server.
      */
     public InetSocketAddress getInetSocketAddress() {
@@ -113,7 +113,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Returns the replies that will be returned after each message is received.
-     * 
+     *
      * @return the replies to return.
      */
     public List<byte[]> getReplies() {
@@ -122,7 +122,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Returns the requests that have been received.
-     * 
+     *
      * @return the requests received.
      */
     public List<byte[]> getRequests() {
@@ -131,7 +131,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Returns the address for the server.
-     * 
+     *
      * @return The address for the server.
      */
     public String getServerName() {
@@ -140,7 +140,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Returns if the server is running.
-     * 
+     *
      * @return the running
      */
     public boolean isRunning() {
@@ -183,7 +183,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Sets the replies to return after each message is received.
-     * 
+     *
      * @param replies
      *            the replies to send
      */
@@ -196,7 +196,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Controls if the server is running.
-     * 
+     *
      * @param running
      *            the running to set
      */
@@ -206,7 +206,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Waits for a client to connect.
-     * 
+     *
      * @param timeout
      *            Time to wait (in milliseconds) for the disconnect.
      * @return True if a client is connected, false on timeout.
@@ -235,7 +235,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Waits for a client to disconnect.
-     * 
+     *
      * @param timeout
      *            Time to wait (in milliseconds) for the disconnect.
      * @return True if a client is disconnected, false on timeout.
@@ -263,7 +263,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Waits for a client request.
-     * 
+     *
      * @param count
      *            The number of request to wait for.
      * @param timeout
@@ -294,7 +294,7 @@ public class MockSocketServer extends Thread {
     /**
      * Closes the {@link Socket} and logs any error. Sockets do not implement
      * {@link Closeable} in Java 6
-     * 
+     *
      * @param socket
      *            The connection to close. Sockets do not implement
      *            {@link Closeable} in Java 6
@@ -312,7 +312,7 @@ public class MockSocketServer extends Thread {
 
     /**
      * Handles a single client connection.
-     * 
+     *
      * @throws IOException
      *             On a connection error.
      */
@@ -399,8 +399,8 @@ public class MockSocketServer extends Thread {
     }
 
     /**
-	 * 
-	 */
+     *
+     */
     protected void sleep() {
         long now = System.currentTimeMillis();
         final long deadline = now + 5000;

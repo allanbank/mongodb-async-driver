@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.io;
@@ -39,7 +39,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * Tests for the BsonInputStream class.
- * 
+ *
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BsonInputStreamTest {
@@ -62,7 +62,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#available()}.
-     * 
+     *
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -89,7 +89,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     * 
+     *
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -157,7 +157,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     * 
+     *
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -184,7 +184,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     * 
+     *
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -256,7 +256,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     * 
+     *
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -295,7 +295,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     * 
+     *
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -353,7 +353,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     * 
+     *
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -385,7 +385,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     * 
+     *
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -483,7 +483,7 @@ public class BsonInputStreamTest {
 
     /**
      * /** Test method for {@link BsonInputStream#readDocument()}.
-     * 
+     *
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -521,7 +521,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     * 
+     *
      * @throws IOException
      *             On a failure reading the test document.
      * @throws ClassNotFoundException

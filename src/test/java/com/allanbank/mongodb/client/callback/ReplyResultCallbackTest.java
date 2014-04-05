@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -26,7 +26,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * ReplyResultCallbackTest provides tests for the {@link ReplyResultCallback}.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyResultCallbackTest {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -72,7 +72,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * These are not meant to be exhaustive tests of the driver but instead attempt
  * to demonstrate that interactions with the MongoDB processes work.
  * </p>
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
@@ -298,7 +298,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Verifies running a distinct command. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * db.addresses.insert({"zip-code": 10010})
@@ -309,7 +309,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * [ 10010, 99701 ]
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Test
@@ -436,7 +436,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Verifies the function of a GroupBy command. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * { domain: "www.mongodb.org"
@@ -444,7 +444,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * , response_time: 0.05
      * , http_action: "GET /display/DOCS/Aggregate"
      * }
-     *  
+     * 
      * db.test.group(
      *    { cond: {"invoked_at.d": {$gte: "2009-11", $lt: "2009-12"}}
      *    , key: {http_action: true}
@@ -464,7 +464,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * 
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Test
@@ -505,7 +505,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Verifies the function of MapReduce via a sample Map/Reduce <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * > db.things.insert( { _id : 1, tags : ['dog', 'cat'] } );
@@ -548,7 +548,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * {"_id" : "mouse" , "value" : {"count" : 1}}
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Test
@@ -880,7 +880,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Returns the number of commands seen on secondaries.
-     * 
+     *
      * @return The number of commands seen on secondaries.
      */
     protected int countPrimaryCommands() {
@@ -941,7 +941,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Returns the number of commands seen on secondaries.
-     * 
+     *
      * @return The number of commands seen on secondaries.
      */
     protected int countSecondaryCommands() {
@@ -1002,7 +1002,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Returns a collection with a geospatial 2D index on the 'p' field.
-     * 
+     *
      * @return The collection with a geospatial 2D index on the 'p' field.
      */
     @Override

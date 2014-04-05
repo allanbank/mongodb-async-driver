@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -27,7 +27,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * TextResultTest provides tests for the {@link TextResult} class.
- * 
+ *
  * @deprecated Support for the {@code text} command was deprecated in the 2.6
  *             version of MongoDB. Use the {@link ConditionBuilder#text(String)
  *             $text} query operator instead. This class will not be removed

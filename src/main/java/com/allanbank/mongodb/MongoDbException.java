@@ -1,12 +1,12 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb;
 
 /**
  * Exception base class for all MongoDB exceptions.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -27,7 +27,7 @@ public class MongoDbException extends RuntimeException {
 
     /**
      * Creates a new MongoDbException.
-     * 
+     *
      * @param message
      *            Reason for the exception.
      */
@@ -37,7 +37,7 @@ public class MongoDbException extends RuntimeException {
 
     /**
      * Creates a new MongoDbException.
-     * 
+     *
      * @param message
      *            Reason for the exception.
      * @param cause
@@ -49,7 +49,7 @@ public class MongoDbException extends RuntimeException {
 
     /**
      * Creates a new MongoDbException.
-     * 
+     *
      * @param cause
      *            The exception causing the MongoDbException.
      */

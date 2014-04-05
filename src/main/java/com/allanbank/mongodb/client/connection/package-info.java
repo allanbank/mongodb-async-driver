@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -12,7 +12,7 @@
  * </p>
  *
  * <h2>Design</h2>
- * <p> 
+ * <p>
  * {@link com.allanbank.mongodb.client.connection.ConnectionFactory} instances are responsible for creating and
  * managing the state for a set of connections to MongoDB.  {@link com.allanbank.mongodb.client.connection.Connection}
  * provides the basic interface for sending and asynchronously receiving replies from the MongoDB servers.
@@ -20,12 +20,12 @@
  * </p>
  * <p>
  * The <a href="bootstrap/package-summary.html">com.allanbank.mongodb.client.connection.bootstrap</p> package
- * contains a <tt>ConnectionFactory</tt> that simply detects the type of MongoDB cluster being used and 
+ * contains a <tt>ConnectionFactory</tt> that simply detects the type of MongoDB cluster being used and
  * then delegates all future request to an appropriate delegate for the cluster type.
  * </p>
  * <p>
  * The <a href="auth/package-summary.html">com.allanbank.mongodb.client.connection.auth</p> package
- * contains a <tt>ConnectionFactory</tt> that wraps another connection factory and ensures 
+ * contains a <tt>ConnectionFactory</tt> that wraps another connection factory and ensures
  * all requests are properly authenticated prior to being sent to the server.
  * </p>
  * <p>
@@ -45,7 +45,7 @@
  * contains base classes for <tt>ConnectionFactory</tt> and <tt>Connection</tt> implementations
  * that delegate to another implementation.
  * </p>
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection;

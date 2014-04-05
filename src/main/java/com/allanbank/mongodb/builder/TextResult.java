@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -16,7 +16,7 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
  * <p>
  * The result of a {@code text} command is a document that looks like the
  * following:<blockquote>
- * 
+ *
  * <pre>
  * <code>
  * > db.collection.runCommand( { "text": "collection" , search: "coffee magic" } )
@@ -50,13 +50,13 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
  * }
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
  * </p>
  * <p>
  * This class wraps a single entry from the {@code results} array.
  * </p>
- * 
+ *
  * @api.no <b>This class is NOT part of the Public API.</b> This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  *         This class <b>WILL</b>, eventually, be part of the driver's API.
@@ -86,7 +86,7 @@ public class TextResult {
 
     /**
      * Creates a new Text.
-     * 
+     *
      * @param document
      *            The document containing the 'score' and 'obj' fields.
      * @throws AssertionError
@@ -136,7 +136,7 @@ public class TextResult {
 
     /**
      * Returns the document.
-     * 
+     *
      * @return The document.
      */
     public Document getDocument() {
@@ -146,7 +146,7 @@ public class TextResult {
     /**
      * Returns the un-processed result document. It is expected to be a document
      * containing two fields: 'score' and 'obj'.
-     * 
+     *
      * @return The un-processed result document.
      */
     public Document getRawDocument() {
@@ -155,7 +155,7 @@ public class TextResult {
 
     /**
      * Returns the score for the document.
-     * 
+     *
      * @return The score for the document.
      */
     public double getScore() {

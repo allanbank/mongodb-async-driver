@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -15,7 +15,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * GetLastErrorTest provides tests for the {@link GetLastError} command.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class GetLastErrorTest {

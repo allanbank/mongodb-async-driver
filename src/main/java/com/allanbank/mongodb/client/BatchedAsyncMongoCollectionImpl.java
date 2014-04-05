@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014, Allanbank Consulting, Inc. 
+ * Copyright 2013-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -38,137 +38,16 @@ import com.allanbank.mongodb.client.message.Update;
 /**
  * BatchedAsyncMongoCollectionImpl provides the implementation for the
  * {@link BatchedAsyncMongoCollection}.
- * 
+ *
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedAsyncMongoCollectionImpl extends
         AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
-    /** The interfaces to implement via the proxy. */
-    private static final Class<?>[] CLIENT_INTERFACE = new Class[] { Client.class };
-
-    /** set to true to batch deletes. */
-    private boolean myBatchDeletes = false;
-
-    /** Set to true to batch updates. */
-    private boolean myBatchUpdates = false;
-
-    /** The mode for the writes. */
-    private BatchedWriteMode myMode = BatchedWriteMode.SERIALIZE_AND_CONTINUE;
-
-    /**
-     * Creates a new BatchedAsyncMongoCollectionImpl.
-     * 
-     * @param client
-     *            The client for interacting with MongoDB.
-     * @param database
-     *            The database we interact with.
-     * @param name
-     *            The name of the collection we interact with.
-     */
-    public BatchedAsyncMongoCollectionImpl(final Client client,
-            final MongoDatabase database, final String name) {
-
-        super((Client) Proxy.newProxyInstance(
-                BatchedAsyncMongoCollectionImpl.class.getClassLoader(),
-                CLIENT_INTERFACE, new CaptureClientHandler(client)), database,
-                name);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to clear any pending messages without sending them to MongoDB.
-     * </p>
-     */
-    @Override
-    public void cancel() {
-        final InvocationHandler handler = Proxy.getInvocationHandler(myClient);
-        if (handler instanceof CaptureClientHandler) {
-            ((CaptureClientHandler) handler).clear();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to flush any pending messages to a real serialized client.
-     * </p>
-     */
-    @Override
-    public void close() throws MongoDbException {
-        flush();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to flush any pending messages to a real serialized client.
-     * </p>
-     */
-    @Override
-    public void flush() throws MongoDbException {
-        final InvocationHandler handler = Proxy.getInvocationHandler(myClient);
-        if (handler instanceof CaptureClientHandler) {
-            ((CaptureClientHandler) handler).flush(this);
-        }
-    }
-
-    /**
-     * Returns the mode for the batched writes.
-     * 
-     * @return The mode for the batched writes.
-     */
-    public BatchedWriteMode getMode() {
-        return myMode;
-    }
-
-    /**
-     * Returns true if the deletes should be batched.
-     * 
-     * @return True if the deletes should be batched.
-     */
-    public boolean isBatchDeletes() {
-        return myBatchDeletes;
-    }
-
-    /**
-     * Returns true if the updates should be batched.
-     * 
-     * @return True if the updates should be batched.
-     */
-    public boolean isBatchUpdates() {
-        return myBatchUpdates;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setBatchDeletes(final boolean batchDeletes) {
-        myBatchDeletes = batchDeletes;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setBatchUpdates(final boolean batchUpdates) {
-        myBatchUpdates = batchUpdates;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setMode(final BatchedWriteMode mode) {
-        myMode = mode;
-    }
-
     /**
      * CaptureClientHandler provides an {@link InvocationHandler} to capture all
      * send requests and defer them until flushed.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     private static class CaptureClientHandler implements InvocationHandler {
@@ -203,7 +82,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
         /**
          * Creates a new CaptureClientHandler.
-         * 
+         *
          * @param realClient
          *            The {@link Client} implementation to delegate to when
          *            sending messages or handling other method calls.
@@ -246,7 +125,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
         /**
          * Flushes the pending messages to a serialized client.
-         * 
+         *
          * @param collection
          *            The Collection the we are flushing operations for.
          */
@@ -312,7 +191,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
         /**
          * Adds a delete to the batch.
-         * 
+         *
          * @param delete
          *            The delete to add to the batch.
          * @param args
@@ -328,7 +207,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
         /**
          * Adds an insert to the batch.
-         * 
+         *
          * @param insert
          *            The insert to add to the batch.
          * @param args
@@ -362,7 +241,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
         /**
          * Adds an update to the batch.
-         * 
+         *
          * @param update
          *            The update to add to the batch.
          * @param args
@@ -402,7 +281,7 @@ public class BatchedAsyncMongoCollectionImpl extends
         /**
          * Extracts the callback from the write arguments. If the write has a
          * {@link Callback} then it will be the last argument.
-         * 
+         *
          * @param args
          *            The arguments for the original {@link Client#send} call.
          * @return The callback for the call. Returns null if there is no
@@ -421,7 +300,7 @@ public class BatchedAsyncMongoCollectionImpl extends
          * Tries the optimize the messages we will send to the server by
          * coalescing the sequential insert, update and delete messages into the
          * batched write commands of the same name.
-         * 
+         *
          * @param collection
          *            The collection we are sending requests to.
          * @return The list of optimized messages.
@@ -485,7 +364,7 @@ public class BatchedAsyncMongoCollectionImpl extends
         /**
          * Updates the durability for the batch. If the durability changes
          * mid-batch then we force a break in the batch.
-         * 
+         *
          * @param args
          *            The arguments for the send() call. The
          *            {@link GetLastError} will be the second of three
@@ -513,5 +392,126 @@ public class BatchedAsyncMongoCollectionImpl extends
                 }
             } // else Durability is none or not applicable.
         }
+    }
+
+    /** The interfaces to implement via the proxy. */
+    private static final Class<?>[] CLIENT_INTERFACE = new Class[] { Client.class };
+
+    /** set to true to batch deletes. */
+    private boolean myBatchDeletes = false;
+
+    /** Set to true to batch updates. */
+    private boolean myBatchUpdates = false;
+
+    /** The mode for the writes. */
+    private BatchedWriteMode myMode = BatchedWriteMode.SERIALIZE_AND_CONTINUE;
+
+    /**
+     * Creates a new BatchedAsyncMongoCollectionImpl.
+     *
+     * @param client
+     *            The client for interacting with MongoDB.
+     * @param database
+     *            The database we interact with.
+     * @param name
+     *            The name of the collection we interact with.
+     */
+    public BatchedAsyncMongoCollectionImpl(final Client client,
+            final MongoDatabase database, final String name) {
+
+        super((Client) Proxy.newProxyInstance(
+                BatchedAsyncMongoCollectionImpl.class.getClassLoader(),
+                CLIENT_INTERFACE, new CaptureClientHandler(client)), database,
+                name);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to clear any pending messages without sending them to MongoDB.
+     * </p>
+     */
+    @Override
+    public void cancel() {
+        final InvocationHandler handler = Proxy.getInvocationHandler(myClient);
+        if (handler instanceof CaptureClientHandler) {
+            ((CaptureClientHandler) handler).clear();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to flush any pending messages to a real serialized client.
+     * </p>
+     */
+    @Override
+    public void close() throws MongoDbException {
+        flush();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to flush any pending messages to a real serialized client.
+     * </p>
+     */
+    @Override
+    public void flush() throws MongoDbException {
+        final InvocationHandler handler = Proxy.getInvocationHandler(myClient);
+        if (handler instanceof CaptureClientHandler) {
+            ((CaptureClientHandler) handler).flush(this);
+        }
+    }
+
+    /**
+     * Returns the mode for the batched writes.
+     *
+     * @return The mode for the batched writes.
+     */
+    public BatchedWriteMode getMode() {
+        return myMode;
+    }
+
+    /**
+     * Returns true if the deletes should be batched.
+     *
+     * @return True if the deletes should be batched.
+     */
+    public boolean isBatchDeletes() {
+        return myBatchDeletes;
+    }
+
+    /**
+     * Returns true if the updates should be batched.
+     *
+     * @return True if the updates should be batched.
+     */
+    public boolean isBatchUpdates() {
+        return myBatchUpdates;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBatchDeletes(final boolean batchDeletes) {
+        myBatchDeletes = batchDeletes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBatchUpdates(final boolean batchUpdates) {
+        myBatchUpdates = batchUpdates;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setMode(final BatchedWriteMode mode) {
+        myMode = mode;
     }
 }

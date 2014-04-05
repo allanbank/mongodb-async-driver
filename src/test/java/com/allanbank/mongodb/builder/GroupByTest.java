@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -25,7 +25,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
  * GroupByTest provides tests for the {@link GroupBy} command.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class GroupByTest {

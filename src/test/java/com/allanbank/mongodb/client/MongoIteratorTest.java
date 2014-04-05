@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -47,7 +47,7 @@ import com.allanbank.mongodb.error.CursorNotFoundException;
 
 /**
  * MongoIteratorTest provides tests for the {@link MongoIteratorImpl} class.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoIteratorTest {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -8,7 +8,7 @@ package com.allanbank.mongodb.builder;
 /**
  * RedactOption provides options for what to do when evaluating a
  * {@code $redact} condition within the {@link Aggregate} pipeline.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public enum RedactOption {
@@ -29,7 +29,7 @@ public enum RedactOption {
 
     /**
      * Creates a new RedactOption.
-     * 
+     *
      * @param token
      *            The token for the option.
      */
@@ -39,7 +39,7 @@ public enum RedactOption {
 
     /**
      * Returns the token for the option.
-     * 
+     *
      * @return The token for the option.
      */
     public String getToken() {

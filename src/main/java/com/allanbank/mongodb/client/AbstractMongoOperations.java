@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -63,7 +63,7 @@ import com.allanbank.mongodb.client.message.Update;
 /**
  * AbstractMongoOperations provides the core functionality for the operations on
  * a MongoDB collection.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -112,7 +112,7 @@ public abstract class AbstractMongoOperations {
 
     /**
      * Create a new AbstractAsyncMongoCollection.
-     * 
+     *
      * @param client
      *            The client for interacting with MongoDB.
      * @param database
@@ -134,7 +134,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@code aggregate} command and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            Callback for the aggregation results returned.
      * @param command
@@ -157,7 +157,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@code count} command and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            The callback to notify of the results.
      * @param count
@@ -192,7 +192,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@link Delete} message and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            Callback that will be notified of the results of the query. If
      *            the durability of the operation is NONE then this will be -1.
@@ -229,7 +229,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@code distinct} command and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            Callback for the distinct results returned.
      * @param command
@@ -270,7 +270,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@link AggregateCommand} and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param aggregation
      *            The aggregation details.
      * @param results
@@ -290,7 +290,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@link Query} message and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param query
      *            The query details.
      * @param results
@@ -329,7 +329,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@code findAndModify} command and sends it to the server via
      * the {@link Client}.
-     * 
+     *
      * @param results
      *            Callback for the the found document.
      * @param command
@@ -379,7 +379,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@link Query} message and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param query
      *            The query details.
      * @param results
@@ -404,7 +404,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@link Query} message and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param query
      *            The query details.
      * @param results
@@ -422,7 +422,7 @@ public abstract class AbstractMongoOperations {
 
     /**
      * Returns the name of the database.
-     * 
+     *
      * @return The name of the database.
      */
     public String getDatabaseName() {
@@ -432,7 +432,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Returns the durability to use when no durability is specified for the
      * write operation.
-     * 
+     *
      * @return The durability to use when no durability is specified for the
      *         write operation.
      */
@@ -446,7 +446,7 @@ public abstract class AbstractMongoOperations {
 
     /**
      * Returns the name of the collection.
-     * 
+     *
      * @return The name of the collection.
      */
     public String getName() {
@@ -456,7 +456,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Returns the read preference to use when no read preference is specified
      * for the read operation.
-     * 
+     *
      * @return The read preference to use when no read preference is specified
      *         for the read operation.
      */
@@ -471,7 +471,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@code group} command and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            Callback for the group results returned.
      * @param command
@@ -532,7 +532,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@link Insert} message and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. Currently, the value is always zero. Once <a
@@ -562,7 +562,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@code mapreduce} command and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            Callback for the map/reduce results returned. Note this might
      *            be empty if the output type is not inline.
@@ -652,7 +652,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@code parallelCollectionScan} command and sends it to the
      * server via the {@link Client}.
-     * 
+     *
      * @param results
      *            Callback for the collection of iterators.
      * @param parallelScan
@@ -689,7 +689,7 @@ public abstract class AbstractMongoOperations {
      * Constructs a {@link Insert} of {@link Update} message based on if the
      * document contains a {@link #ID_FIELD_NAME} and sends it to the server via
      * the {@link Client}.
-     * 
+     *
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. If the durability of the operation is NONE then this
@@ -721,7 +721,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Sets the durability to use when no durability is specified for the write
      * operation.
-     * 
+     *
      * @param durability
      *            The durability to use when no durability is specified for the
      *            write operation.
@@ -733,7 +733,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Sets the read preference to use when no read preference is specified for
      * the read operation.
-     * 
+     *
      * @param readPreference
      *            The read preference to use when no read preference is
      *            specified for the read operation.
@@ -745,7 +745,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@code aggregate} command and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param aggregation
@@ -772,7 +772,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@link Query} message and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -801,7 +801,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@code text} command and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            Callback for the {@code text} results returned.
      * @param command
@@ -860,7 +860,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Constructs a {@link Update} message and sends it to the server via the
      * {@link Client}.
-     * 
+     *
      * @param results
      *            The {@link Callback} that will be notified of the number of
      *            documents updated. If the durability of the operation is NONE
@@ -902,7 +902,7 @@ public abstract class AbstractMongoOperations {
 
     /**
      * Constructs the appropriate set of write commands to send to the server.
-     * 
+     *
      * @param results
      *            The {@link Callback} that will be notified of the number of
      *            documents inserted, updated, and deleted. If the durability of
@@ -911,7 +911,7 @@ public abstract class AbstractMongoOperations {
      *            The batched writes
      * @throws MongoDbException
      *             On an error submitting the write operations.
-     * 
+     *
      * @since MongoDB 2.6
      * @see AsyncMongoCollection#writeAsync(Callback,BatchedWrite)
      */
@@ -928,7 +928,7 @@ public abstract class AbstractMongoOperations {
                 return;
             }
 
-            BatchedWriteCallback callback = new BatchedWriteCallback(
+            final BatchedWriteCallback callback = new BatchedWriteCallback(
                     getDatabaseName(), results, write, myClient, bundles);
 
             // Push the messages out.
@@ -941,7 +941,7 @@ public abstract class AbstractMongoOperations {
                 return;
             }
 
-            BatchedNativeWriteCallback callback = new BatchedNativeWriteCallback(
+            final BatchedNativeWriteCallback callback = new BatchedNativeWriteCallback(
                     results, write, this, operations);
 
             // Push the messages out.
@@ -951,7 +951,7 @@ public abstract class AbstractMongoOperations {
 
     /**
      * Converts the {@link Durability} into a {@link GetLastError} command.
-     * 
+     *
      * @param durability
      *            The {@link Durability} to convert.
      * @return The {@link GetLastError} command.
@@ -962,7 +962,7 @@ public abstract class AbstractMongoOperations {
 
     /**
      * Creates a properly configured {@link Query} message.
-     * 
+     *
      * @param query
      *            The {@link Find} to construct the {@link Query} from.
      * @param limit
@@ -1004,7 +1004,7 @@ public abstract class AbstractMongoOperations {
     /**
      * Sends an {@link Insert} message to the server. This version is private to
      * this class since most inserts do not need the server version.
-     * 
+     *
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert.
@@ -1051,7 +1051,7 @@ public abstract class AbstractMongoOperations {
 
     /**
      * Converts the {@link Aggregate} object to an {@link AggregateCommand}.
-     * 
+     *
      * @param command
      *            The {@link Aggregate} to convert.
      * @param explain
@@ -1111,7 +1111,7 @@ public abstract class AbstractMongoOperations {
      * {@link DocumentBuilder} with the {@code ReadPreference} details if
      * connected to a sharded cluster and the resulting {@code ReadPreference}
      * is not supported by the legacy settings.
-     * 
+     *
      * @param builder
      *            The builder for the command document to augment with the read
      *            preferences if connected to a sharded cluster.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -20,7 +20,7 @@ import org.junit.Test;
 
 /**
  * IOUtilsTest provides tests for the {@link IOUtils} class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class IOUtilsTest {
@@ -64,7 +64,7 @@ public class IOUtilsTest {
 
     /**
      * Test method for {@link IOUtils#base64ToBytes(String)}.
-     * 
+     *
      * @throws UnsupportedEncodingException
      *             On a failure to encode the test vector.
      */
@@ -95,7 +95,7 @@ public class IOUtilsTest {
 
     /**
      * Test method for {@link IOUtils#base64ToBytes(String)}.
-     * 
+     *
      * @throws UnsupportedEncodingException
      *             On a failure to encode the test vector.
      */
@@ -107,7 +107,7 @@ public class IOUtilsTest {
 
     /**
      * Test method for {@link IOUtils#base64ToBytes(String)}.
-     * 
+     *
      * @throws UnsupportedEncodingException
      *             On a failure to encode the test vector.
      */
@@ -119,7 +119,7 @@ public class IOUtilsTest {
 
     /**
      * Test method for {@link IOUtils#close}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test mocks.
      */
@@ -252,7 +252,7 @@ public class IOUtilsTest {
 
     /**
      * Test method for {@link IOUtils#toBase64(byte[])}.
-     * 
+     *
      * @throws UnsupportedEncodingException
      *             On a failure to encode the test vector.
      */

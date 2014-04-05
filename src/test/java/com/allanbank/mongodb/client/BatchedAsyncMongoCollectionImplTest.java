@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -52,7 +52,7 @@ import com.allanbank.mongodb.client.state.Server;
 /**
  * BatchedAsyncMongoCollectionImplTest provides tests for the
  * {@link BatchedAsyncMongoCollectionImpl} class.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedAsyncMongoCollectionImplTest {
@@ -94,7 +94,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#cancel()}.
-     * 
+     *
      * @throws InterruptedException
      *             On a test failure.
      */
@@ -154,7 +154,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -200,7 +200,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -248,7 +248,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -307,7 +307,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -367,7 +367,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -418,7 +418,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -474,7 +474,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -539,7 +539,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         verify();
 
         assertThat(future1.get(), is(1)); // Note - fixed to Match the number of
-                                          // documents.
+        // documents.
 
         assertThat(future2.get(), is(2L));
         assertThat(future3.get(), is(2L));
@@ -547,7 +547,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -614,7 +614,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         verify();
 
         assertThat(future1.get(), is(1)); // Note - fixed to Match the number of
-                                          // documents.
+        // documents.
 
         assertThat(future2.get(), is(2L));
         assertThat(future3.get(), is(2L));
@@ -622,7 +622,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -695,7 +695,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         verify();
 
         assertThat(future1.get(), is(1)); // Note - fixed to Match the number of
-                                          // documents.
+        // documents.
 
         assertThat(future2.get(), is(2L));
         assertThat(future3.get(), is(2L));
@@ -703,7 +703,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -771,7 +771,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         verify();
 
         assertThat(future1.get(), is(1)); // Note - fixed to match the number of
-                                          // documents.
+        // documents.
 
         assertThat(future2.get(), is(2L));
         assertThat(future3.get(), is(2L));
@@ -780,7 +780,7 @@ public class BatchedAsyncMongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -791,7 +791,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Creates a reply around the document.
-     * 
+     *
      * @param replyDoc
      *            The document to include in the reply.
      * @return The {@link Reply}
@@ -804,7 +804,7 @@ public class BatchedAsyncMongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#reset(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -816,7 +816,7 @@ public class BatchedAsyncMongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */

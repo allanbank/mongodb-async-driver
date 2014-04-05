@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.impl;
@@ -26,7 +26,7 @@ import com.allanbank.mongodb.bson.Element;
  * Most users will not need to use this class except when creating static
  * documents within classes. The intended usage is then to use the builder when
  * constructing the immutable document: <blockquote>
- * 
+ *
  * <pre>
  * <code>
  * public static final Document QUERY;
@@ -42,9 +42,9 @@ import com.allanbank.mongodb.bson.Element;
  * }
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -70,7 +70,7 @@ public class ImmutableDocument extends AbstractDocument {
 
     /**
      * Constructs a new {@link ImmutableDocument}.
-     * 
+     *
      * @param document
      *            The elements for the BSON document.
      */
@@ -86,7 +86,7 @@ public class ImmutableDocument extends AbstractDocument {
 
     /**
      * Constructs a new {@link ImmutableDocument}.
-     * 
+     *
      * @param document
      *            The elements for the BSON document.
      * @param size
@@ -107,7 +107,7 @@ public class ImmutableDocument extends AbstractDocument {
 
     /**
      * Returns the elements in the document.
-     * 
+     *
      * @return The elements in the document.
      */
     @Override
@@ -117,7 +117,7 @@ public class ImmutableDocument extends AbstractDocument {
 
     /**
      * Returns the size of the document when encoded as bytes.
-     * 
+     *
      * @return The size of the document when encoded as bytes.
      */
     @Override
@@ -128,7 +128,7 @@ public class ImmutableDocument extends AbstractDocument {
     /**
      * Returns a map from the element names to the elements in the document.
      * Used for faster by-name access.
-     * 
+     *
      * @return The element name to element mapping.
      */
     @Override
@@ -150,7 +150,7 @@ public class ImmutableDocument extends AbstractDocument {
 
     /**
      * Computes and returns the length of the document in bytes.
-     * 
+     *
      * @return The length of the document in bytes.
      */
     private long computeSize() {
@@ -164,7 +164,7 @@ public class ImmutableDocument extends AbstractDocument {
 
     /**
      * Sets the transient state of this document.
-     * 
+     *
      * @param in
      *            The input stream.
      * @throws ClassNotFoundException

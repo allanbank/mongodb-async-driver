@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -35,7 +35,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * QueryTest provides tests for the {@link Query} message.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class QueryTest {
@@ -444,7 +444,7 @@ public class QueryTest {
 
     /**
      * Test method for {@link Query#Query(Header,BsonInputStream)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */

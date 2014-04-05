@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -20,7 +20,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 /**
  * LegacyStreamCallbackAdapterTest provides tests for the
  * {@link LegacyStreamCallbackAdapter}.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -12,17 +12,17 @@
  * <ul>
  * <li>{@link com.allanbank.mongodb.bson.io.BsonInputStream}/{@link com.allanbank.mongodb.bson.io.BsonOutputStream}
  * provide the ability to read and write BSON documents directly to a stream without the need to buffer
- * document contents to determine the length prefix for the document.  They require 2 scans over the document.  
+ * document contents to determine the length prefix for the document.  They require 2 scans over the document.
  * The first determines the size of the document and the second writes the document's contents.</li>
  * <li>{@link com.allanbank.mongodb.bson.io.BufferingBsonOutputStream}
- * provide the ability to write BSON documents using an intermediate re-used set of buffers for 
+ * provide the ability to write BSON documents using an intermediate re-used set of buffers for
  * the document's contents.</li>
  * </p>
  * <p>
- * Empirical testing has shown that the un-buffered <tt>BsonInputStream</tt> and 
+ * Empirical testing has shown that the un-buffered <tt>BsonInputStream</tt> and
  * <tt>BsonOutputStream</tt> perform better on most BSON documents.
  * </p>
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 package com.allanbank.mongodb.bson.io;

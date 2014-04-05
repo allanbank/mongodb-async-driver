@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -20,7 +20,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * logic. This class if backed by a cache of strings to the encoded bytes.
  * <p>
  * The cache is controlled via two parameters:
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class StringEncoder {
@@ -47,7 +47,7 @@ public class StringEncoder {
 
     /**
      * Computes the size of the encoded UTF8 String based on the table below.
-     * 
+     *
      * <pre>
      * #    Code Points      Bytes
      * 1    U+0000..U+007F   1
@@ -61,7 +61,7 @@ public class StringEncoder {
      *     U+40000..U+FFFFF  4
      *    U+100000..U10FFFF  4
      * </pre>
-     * 
+     *
      * @param string
      *            The string to determine the length of.
      * @return The length of the string encoded as UTF8.
@@ -128,7 +128,7 @@ public class StringEncoder {
      * Writes the string as a UTF-8 string. This method handles the
      * "normal/easy" cases and delegates to the full character set if things get
      * complicated.
-     * 
+     *
      * @param string
      *            The string to encode.
      * @param out
@@ -157,7 +157,7 @@ public class StringEncoder {
      * Computes the size of the encoded UTF8 String based on the table below.
      * This method may use a cached copy of the encoded string to determine the
      * size.
-     * 
+     *
      * <pre>
      * #    Code Points      Bytes
      * 1    U+0000..U+007F   1
@@ -171,7 +171,7 @@ public class StringEncoder {
      *     U+40000..U+FFFFF  4
      *    U+100000..U10FFFF  4
      * </pre>
-     * 
+     *
      * @param string
      *            The string to determine the length of.
      * @return The length of the string encoded as UTF8.
@@ -202,7 +202,7 @@ public class StringEncoder {
 
     /**
      * Returns the maximum number of strings that can be cached.
-     * 
+     *
      * @return The maximum number of strings that can be cached.
      */
     public int getMaxCacheEntries() {
@@ -212,7 +212,7 @@ public class StringEncoder {
     /**
      * Returns the maximum length for a string that the encoder is allowed to
      * cache.
-     * 
+     *
      * @return The maximum length for a string that the encoder is allowed to
      *         cache.
      */
@@ -222,7 +222,7 @@ public class StringEncoder {
 
     /**
      * Sets the value of maximum number of cached strings.
-     * 
+     *
      * @param maxCacheEntries
      *            The new value for the maximum number of cached strings.
      */
@@ -234,7 +234,7 @@ public class StringEncoder {
      * Sets the value of length for a string that the encoder is allowed to
      * cache to the new value. This can be used to stop a single long string
      * from pushing useful values out of the cache.
-     * 
+     *
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
@@ -252,7 +252,7 @@ public class StringEncoder {
      * Writes the string as a UTF-8 string. This method handles the
      * "normal/easy" cases and delegates to the full character set if things get
      * complicated.
-     * 
+     *
      * @param string
      *            The string to encode.
      * @param out

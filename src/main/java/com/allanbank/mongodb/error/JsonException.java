@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -10,7 +10,7 @@ import com.allanbank.mongodb.MongoDbException;
 /**
  * JsonException provides an exception to throw when processing JSON documents
  * fail.
- * 
+ *
  * @api.yes This exception is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -31,7 +31,7 @@ public class JsonException extends MongoDbException {
 
     /**
      * Creates a new JsonParseException.
-     * 
+     *
      * @param message
      *            Reason for the exception.
      */
@@ -41,7 +41,7 @@ public class JsonException extends MongoDbException {
 
     /**
      * Creates a new JsonParseException.
-     * 
+     *
      * @param message
      *            Reason for the exception.
      * @param cause
@@ -53,7 +53,7 @@ public class JsonException extends MongoDbException {
 
     /**
      * Creates a new JsonParseException.
-     * 
+     *
      * @param cause
      *            The exception causing the MongoDbException.
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -23,10 +23,197 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
 
 /**
  * PendingMessageQueueTest provides tests for the {@link PendingMessageQueue}.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class PendingMessageQueueTest {
+
+    /**
+     * FastConsumer provides a fast consumer of messages.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public final static class FastConsumer implements Runnable {
+
+        /** The number of messages consumed. */
+        private int myCount = 0;
+
+        /** The queue to consume from. */
+        private final PendingMessageQueue myQueue;
+
+        /**
+         * Creates a new FastConsumer.
+         *
+         * @param queue
+         *            The queue to consume from.
+         */
+        public FastConsumer(final PendingMessageQueue queue) {
+            myQueue = queue;
+        }
+
+        /**
+         * Returns the count value.
+         *
+         * @return The count value.
+         */
+        public int getCount() {
+            return myCount;
+        }
+
+        @Override
+        public void run() {
+            try {
+                final PendingMessage message = new PendingMessage();
+                while (true) {
+                    myQueue.take(message);
+                    myCount += 1;
+                }
+            }
+            catch (final InterruptedException ie) {
+                // Nothing.
+            }
+        }
+    }
+
+    /**
+     * FastProducer provides a fast producer of messages.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public final static class FastProducer implements Runnable {
+
+        /** The number of messages consumed. */
+        private final int myCount;
+
+        /** The queue to write to. */
+        private final PendingMessageQueue myQueue;
+
+        /**
+         * Creates a new FastProducer.
+         *
+         * @param queue
+         *            The queue to write to.
+         * @param count
+         *            The number of messages to produce.
+         */
+        public FastProducer(final PendingMessageQueue queue, final int count) {
+            myQueue = queue;
+            myCount = count;
+        }
+
+        @Override
+        public void run() {
+            try {
+                final PendingMessage message = new PendingMessage();
+                for (int i = 0; i < myCount; ++i) {
+                    message.set(i, null, null);
+                    myQueue.put(message);
+                }
+            }
+            catch (final InterruptedException ie) {
+                // Nothing.
+            }
+        }
+    }
+
+    /**
+     * SlowConsumer provides a slow consumer of messages.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public final static class SlowConsumer implements Runnable {
+
+        /** The number of messages consumed. */
+        private int myCount = 0;
+
+        /** The queue to consume from. */
+        private final PendingMessageQueue myQueue;
+
+        /**
+         * Creates a new SlowConsumer.
+         *
+         * @param queue
+         *            The queue to consume from.
+         */
+        public SlowConsumer(final PendingMessageQueue queue) {
+            myQueue = queue;
+        }
+
+        /**
+         * Returns the count value.
+         *
+         * @return The count value.
+         */
+        public int getCount() {
+            return myCount;
+        }
+
+        @Override
+        public void run() {
+            try {
+                final PendingMessage message = new PendingMessage();
+                while (true) {
+                    myQueue.take(message);
+                    myCount += 1;
+
+                    // Slow.
+                    Thread.sleep(1);
+                }
+            }
+            catch (final InterruptedException ie) {
+                // Nothing.
+            }
+        }
+    }
+
+    /**
+     * SlowProducer provides a slow producer of messages.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public final static class SlowProducer implements Runnable {
+
+        /** The number of messages consumed. */
+        private final int myCount;
+
+        /** The queue to write to. */
+        private final PendingMessageQueue myQueue;
+
+        /**
+         * Creates a new SlowProducer.
+         *
+         * @param queue
+         *            The queue to write to.
+         * @param count
+         *            The number of messages to produce.
+         */
+        public SlowProducer(final PendingMessageQueue queue, final int count) {
+            myQueue = queue;
+            myCount = count;
+        }
+
+        @Override
+        public void run() {
+            try {
+                final PendingMessage message = new PendingMessage();
+                for (int i = 0; i < myCount; ++i) {
+                    message.set(i, null, null);
+                    myQueue.put(message);
+
+                    // Slow.
+                    if (Math.random() < 0.10) {
+                        Thread.sleep(3);
+                    }
+                    else {
+                        Thread.sleep(1);
+                    }
+                }
+            }
+            catch (final InterruptedException ie) {
+                // Nothing.
+            }
+        }
+    }
 
     /**
      * Test method for {@link PendingMessageQueue#drainTo(List)} .
@@ -100,7 +287,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for a single producer and slow consumer.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure waiting for the test.
      */
@@ -146,7 +333,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for a single producer and slow consumer.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure waiting for the test.
      */
@@ -192,7 +379,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for a single producer and slow consumer.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure waiting for the test.
      */
@@ -241,7 +428,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for a single producer and slow consumer.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure waiting for the test.
      */
@@ -958,7 +1145,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for a single producer and slow consumer.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure waiting for the test.
      */
@@ -995,7 +1182,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for a single producer and slow consumer.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure waiting for the test.
      */
@@ -1033,7 +1220,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for a single producer and slow consumer.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure waiting for the test.
      */
@@ -1070,7 +1257,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for a single producer and slow consumer.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure waiting for the test.
      */
@@ -1108,7 +1295,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for a single producer and slow consumer.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure waiting for the test.
      */
@@ -1146,7 +1333,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Test method for a single producer and slow consumer.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure waiting for the test.
      */
@@ -1360,7 +1547,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Waits for the queue to empty.
-     * 
+     *
      * @param count
      *            The expected count.
      * @param queue
@@ -1383,7 +1570,7 @@ public class PendingMessageQueueTest {
 
     /**
      * Waits for the queue to empty.
-     * 
+     *
      * @param count
      *            The expected count.
      * @param queue
@@ -1401,193 +1588,6 @@ public class PendingMessageQueueTest {
         while ((start < deadline) && !queue.isEmpty()
                 && (consumer.getCount() < count)) {
             Thread.sleep(5);
-        }
-    }
-
-    /**
-     * FastConsumer provides a fast consumer of messages.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public final static class FastConsumer implements Runnable {
-
-        /** The number of messages consumed. */
-        private int myCount = 0;
-
-        /** The queue to consume from. */
-        private final PendingMessageQueue myQueue;
-
-        /**
-         * Creates a new FastConsumer.
-         * 
-         * @param queue
-         *            The queue to consume from.
-         */
-        public FastConsumer(final PendingMessageQueue queue) {
-            myQueue = queue;
-        }
-
-        /**
-         * Returns the count value.
-         * 
-         * @return The count value.
-         */
-        public int getCount() {
-            return myCount;
-        }
-
-        @Override
-        public void run() {
-            try {
-                final PendingMessage message = new PendingMessage();
-                while (true) {
-                    myQueue.take(message);
-                    myCount += 1;
-                }
-            }
-            catch (final InterruptedException ie) {
-                // Nothing.
-            }
-        }
-    }
-
-    /**
-     * FastProducer provides a fast producer of messages.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public final static class FastProducer implements Runnable {
-
-        /** The number of messages consumed. */
-        private final int myCount;
-
-        /** The queue to write to. */
-        private final PendingMessageQueue myQueue;
-
-        /**
-         * Creates a new FastProducer.
-         * 
-         * @param queue
-         *            The queue to write to.
-         * @param count
-         *            The number of messages to produce.
-         */
-        public FastProducer(final PendingMessageQueue queue, final int count) {
-            myQueue = queue;
-            myCount = count;
-        }
-
-        @Override
-        public void run() {
-            try {
-                final PendingMessage message = new PendingMessage();
-                for (int i = 0; i < myCount; ++i) {
-                    message.set(i, null, null);
-                    myQueue.put(message);
-                }
-            }
-            catch (final InterruptedException ie) {
-                // Nothing.
-            }
-        }
-    }
-
-    /**
-     * SlowConsumer provides a slow consumer of messages.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public final static class SlowConsumer implements Runnable {
-
-        /** The number of messages consumed. */
-        private int myCount = 0;
-
-        /** The queue to consume from. */
-        private final PendingMessageQueue myQueue;
-
-        /**
-         * Creates a new SlowConsumer.
-         * 
-         * @param queue
-         *            The queue to consume from.
-         */
-        public SlowConsumer(final PendingMessageQueue queue) {
-            myQueue = queue;
-        }
-
-        /**
-         * Returns the count value.
-         * 
-         * @return The count value.
-         */
-        public int getCount() {
-            return myCount;
-        }
-
-        @Override
-        public void run() {
-            try {
-                final PendingMessage message = new PendingMessage();
-                while (true) {
-                    myQueue.take(message);
-                    myCount += 1;
-
-                    // Slow.
-                    Thread.sleep(1);
-                }
-            }
-            catch (final InterruptedException ie) {
-                // Nothing.
-            }
-        }
-    }
-
-    /**
-     * SlowProducer provides a slow producer of messages.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public final static class SlowProducer implements Runnable {
-
-        /** The number of messages consumed. */
-        private final int myCount;
-
-        /** The queue to write to. */
-        private final PendingMessageQueue myQueue;
-
-        /**
-         * Creates a new SlowProducer.
-         * 
-         * @param queue
-         *            The queue to write to.
-         * @param count
-         *            The number of messages to produce.
-         */
-        public SlowProducer(final PendingMessageQueue queue, final int count) {
-            myQueue = queue;
-            myCount = count;
-        }
-
-        @Override
-        public void run() {
-            try {
-                final PendingMessage message = new PendingMessage();
-                for (int i = 0; i < myCount; ++i) {
-                    message.set(i, null, null);
-                    myQueue.put(message);
-
-                    // Slow.
-                    if (Math.random() < 0.10) {
-                        Thread.sleep(3);
-                    }
-                    else {
-                        Thread.sleep(1);
-                    }
-                }
-            }
-            catch (final InterruptedException ie) {
-                // Nothing.
-            }
         }
     }
 

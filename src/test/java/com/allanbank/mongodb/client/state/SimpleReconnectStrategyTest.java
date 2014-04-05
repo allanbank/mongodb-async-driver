@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -36,7 +36,7 @@ import com.allanbank.mongodb.client.message.ServerStatus;
 /**
  * SimpleReconnectStrategyTest provides tests for the
  * {@link SimpleReconnectStrategy} class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SimpleReconnectStrategyTest {
@@ -47,7 +47,7 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
-     * 
+     *
      * @throws IOException
      *             On a Failure setting up the mock configuration for the test.
      * @throws InterruptedException
@@ -94,7 +94,7 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
-     * 
+     *
      * @throws IOException
      *             On a Failure setting up the mock configuration for the test.
      * @throws InterruptedException
@@ -135,7 +135,7 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -172,7 +172,7 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
-     * 
+     *
      * @throws IOException
      *             On a Failure setting up the mock configuration for the test.
      * @throws InterruptedException
@@ -227,7 +227,7 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
-     * 
+     *
      * @throws IOException
      *             On a Failure setting up the mock configuration for the test.
      */

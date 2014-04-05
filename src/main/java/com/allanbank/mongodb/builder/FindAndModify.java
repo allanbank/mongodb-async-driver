@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -21,7 +21,7 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
 /**
  * Represents the state of a single {@link MongoCollection#findAndModify}
  * command. Objects of this class are created using the nested {@link Builder}.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -29,164 +29,9 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class FindAndModify {
-    /** An (empty) query document to find all documents. */
-    public static final Document ALL = MongoCollection.ALL;
-
-    /**
-     * The first version of MongoDB to support the {@code findAndModify} command
-     * with the ability to limit the execution time on the server.
-     */
-    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
-
-    /** An (empty) update document to perform no actual modifications. */
-    public static final Document NONE = MongoCollection.NONE;
-
-    /**
-     * Creates a new builder for a {@link FindAndModify}.
-     * 
-     * @return The builder to construct a {@link FindAndModify}.
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /** The subset of fields to retrieve from the matched document. */
-    private final Document myFields;
-
-    /** The maximum amount of time to allow the command to run. */
-    private final long myMaximumTimeMilliseconds;
-
-    /** The query to locate the document to update. */
-    private final Document myQuery;
-
-    /** Set to a true to remove the object before returning */
-    private final boolean myRemove;
-
-    /**
-     * Set to true if you want to return the modified object rather than the
-     * original. Ignored for remove.
-     */
-    private final boolean myReturnNew;
-
-    /**
-     * If multiple docs match, choose the first one in the specified sort order
-     * as the object to manipulate.
-     */
-    private final Document mySort;
-
-    /** The updates to be applied to the document. */
-    private final Document myUpdate;
-
-    /** If true create the document if it doesn't exist. */
-    private final boolean myUpsert;
-
-    /**
-     * Create a new FindAndModify.
-     * 
-     * @param builder
-     *            The builder to copy from.
-     */
-    protected FindAndModify(final Builder builder) {
-        assertNotNull(builder.myQuery,
-                "The findAndModify's query document cannot be null or empty.");
-        assertNotNull(builder.myQuery,
-                "The findAndModify's query document cannot be null or empty.");
-        assertThat((builder.myUpdate != null) || builder.myRemove,
-                "The findAndModify must have an update document or be a remove.");
-
-        myQuery = builder.myQuery;
-        myUpdate = builder.myUpdate;
-        mySort = builder.mySort;
-        myFields = builder.myFields;
-        myUpsert = builder.myUpsert;
-        myReturnNew = builder.myReturnNew;
-        myRemove = builder.myRemove;
-        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the subset of fields to retrieve from the matched document.
-     * 
-     * @return The subset of fields to retrieve from the matched document.
-     */
-    public Document getFields() {
-        return myFields;
-    }
-
-    /**
-     * Returns the maximum amount of time to allow the command to run on the
-     * Server before it is aborted.
-     * 
-     * @return The maximum amount of time to allow the command to run on the
-     *         Server before it is aborted.
-     * 
-     * @since MongoDB 2.6
-     */
-    public long getMaximumTimeMilliseconds() {
-        return myMaximumTimeMilliseconds;
-    }
-
-    /**
-     * Returns the query to locate the document to update.
-     * 
-     * @return The query to locate the document to update.
-     */
-    public Document getQuery() {
-        return myQuery;
-    }
-
-    /**
-     * Returns the sort to apply if multiple docs match, choose the first one as
-     * the object to manipulate.
-     * 
-     * @return The sort to apply if multiple docs match, choose the first one as
-     *         the object to manipulate.
-     */
-    public Document getSort() {
-        return mySort;
-    }
-
-    /**
-     * Returns the updates to be applied to the document.
-     * 
-     * @return The updates to be applied to the document.
-     */
-    public Document getUpdate() {
-        return myUpdate;
-    }
-
-    /**
-     * Returns true if the document should be removed.
-     * 
-     * @return True if the document should be removed.
-     */
-    public boolean isRemove() {
-        return myRemove;
-    }
-
-    /**
-     * Returns true if the updated document should be returned instead of the
-     * document before the update.
-     * 
-     * @return True if the updated document should be returned instead of the
-     *         document before the update.
-     */
-    public boolean isReturnNew() {
-        return myReturnNew;
-    }
-
-    /**
-     * Returns true to create the document if it doesn't exist.
-     * 
-     * @return True to create the document if it doesn't exist.
-     */
-    public boolean isUpsert() {
-        return myUpsert;
-    }
-
     /**
      * Helper for creating immutable {@link FindAndModify} commands.
-     * 
+     *
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -234,7 +79,7 @@ public class FindAndModify {
         /**
          * Constructs a new {@link FindAndModify} object from the state of the
          * builder.
-         * 
+         *
          * @return The new {@link FindAndModify} object.
          */
         public FindAndModify build() {
@@ -246,7 +91,7 @@ public class FindAndModify {
          * <p>
          * This method delegates to {@link #setFields(DocumentAssignable)}.
          * </p>
-         * 
+         *
          * @param fields
          *            The subset of fields to retrieve from the matched
          *            document.
@@ -263,16 +108,16 @@ public class FindAndModify {
          * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
          * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
          * </p>
-         * 
+         *
          * @param timeLimit
          *            The new maximum amount of time to allow the command to
          *            run.
          * @param timeLimitUnits
          *            The units for the maximum amount of time to allow the
          *            command to run.
-         * 
+         *
          * @return This {@link Builder} for method call chaining.
-         * 
+         *
          * @since MongoDB 2.6
          */
         public Builder maximumTime(final long timeLimit,
@@ -286,7 +131,7 @@ public class FindAndModify {
          * <p>
          * This method delegates to {@link #setQuery(DocumentAssignable)}.
          * </p>
-         * 
+         *
          * @param query
          *            The query to locate the document to update.
          * @return This builder for chaining method calls.
@@ -300,7 +145,7 @@ public class FindAndModify {
          * <p>
          * This method delegates to {@link #setRemove(boolean) setRemove(true)}.
          * </p>
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder remove() {
@@ -312,7 +157,7 @@ public class FindAndModify {
          * <p>
          * This method delegates to {@link #setRemove(boolean)}.
          * </p>
-         * 
+         *
          * @param remove
          *            True if the document should be removed.
          * @return This builder for chaining method calls.
@@ -323,7 +168,7 @@ public class FindAndModify {
 
         /**
          * Resets the builder back to its initial state.
-         * 
+         *
          * @return This {@link Builder} for method call chaining.
          */
         public Builder reset() {
@@ -346,7 +191,7 @@ public class FindAndModify {
          * This method delegates to {@link #setReturnNew(boolean)
          * setReturnNew(true)}.
          * </p>
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder returnNew() {
@@ -359,7 +204,7 @@ public class FindAndModify {
          * <p>
          * This method delegates to {@link #setReturnNew(boolean)}.
          * </p>
-         * 
+         *
          * @param returnNew
          *            True if the updated document should be returned instead of
          *            the document before the update.
@@ -371,7 +216,7 @@ public class FindAndModify {
 
         /**
          * Sets the subset of fields to retrieve from the matched document.
-         * 
+         *
          * @param fields
          *            The subset of fields to retrieve from the matched
          *            document.
@@ -385,12 +230,12 @@ public class FindAndModify {
         /**
          * Sets the maximum number of milliseconds to allow the command to run
          * before aborting the request on the server.
-         * 
+         *
          * @param maximumTimeMilliseconds
          *            The new maximum number of milliseconds to allow the
          *            command to run.
          * @return This {@link Builder} for method call chaining.
-         * 
+         *
          * @since MongoDB 2.6
          */
         public Builder setMaximumTimeMilliseconds(
@@ -401,7 +246,7 @@ public class FindAndModify {
 
         /**
          * Sets the query to locate the document to update.
-         * 
+         *
          * @param query
          *            The query to locate the document to update.
          * @return This builder for chaining method calls.
@@ -413,7 +258,7 @@ public class FindAndModify {
 
         /**
          * Sets to true if the document should be removed.
-         * 
+         *
          * @param remove
          *            True if the document should be removed.
          * @return This builder for chaining method calls.
@@ -426,7 +271,7 @@ public class FindAndModify {
         /**
          * Sets to true if the updated document should be returned instead of
          * the document before the update.
-         * 
+         *
          * @param returnNew
          *            True if the updated document should be returned instead of
          *            the document before the update.
@@ -440,7 +285,7 @@ public class FindAndModify {
         /**
          * Sets the sort to apply if multiple docs match, choose the first one
          * as the object to manipulate.
-         * 
+         *
          * @param sort
          *            The sort to apply if multiple docs match, choose the first
          *            one as the object to manipulate.
@@ -457,7 +302,7 @@ public class FindAndModify {
          * <p>
          * This method is intended to be used with the {@link Sort} class's
          * static methods: <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
@@ -469,9 +314,9 @@ public class FindAndModify {
          * ...
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param sortFields
          *            The sort to apply if multiple docs match, choose the first
          *            one as the object to manipulate.
@@ -488,7 +333,7 @@ public class FindAndModify {
 
         /**
          * Sets the updates to be applied to the document.
-         * 
+         *
          * @param update
          *            The updates to be applied to the document.
          * @return This builder for chaining method calls.
@@ -500,7 +345,7 @@ public class FindAndModify {
 
         /**
          * Sets to true to create the document if it doesn't exist.
-         * 
+         *
          * @param upsert
          *            True to create the document if it doesn't exist.
          * @return This builder for chaining method calls.
@@ -516,7 +361,7 @@ public class FindAndModify {
          * <p>
          * This method delegates to {@link #setSort(DocumentAssignable)}.
          * </p>
-         * 
+         *
          * @param sort
          *            The sort to apply if multiple docs match, choose the first
          *            one as the object to manipulate.
@@ -535,7 +380,7 @@ public class FindAndModify {
          * <p>
          * This method is intended to be used with the {@link Sort} class's
          * static methods: <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
@@ -547,9 +392,9 @@ public class FindAndModify {
          * ...
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param sortFields
          *            The sort to apply if multiple docs match, choose the first
          *            one as the object to manipulate.
@@ -564,7 +409,7 @@ public class FindAndModify {
          * <p>
          * This method delegates to {@link #setUpdate(DocumentAssignable)}.
          * </p>
-         * 
+         *
          * @param update
          *            The updates to be applied to the document.
          * @return This builder for chaining method calls.
@@ -578,7 +423,7 @@ public class FindAndModify {
          * <p>
          * This method delegates to {@link #setUpsert(boolean) setUpsert(true)}.
          * </p>
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder upsert() {
@@ -590,7 +435,7 @@ public class FindAndModify {
          * <p>
          * This method delegates to {@link #setUpsert(boolean)}.
          * </p>
-         * 
+         *
          * @param upsert
          *            True to create the document if it doesn't exist.
          * @return This builder for chaining method calls.
@@ -598,5 +443,160 @@ public class FindAndModify {
         public Builder upsert(final boolean upsert) {
             return setUpsert(upsert);
         }
+    }
+
+    /** An (empty) query document to find all documents. */
+    public static final Document ALL = MongoCollection.ALL;
+
+    /**
+     * The first version of MongoDB to support the {@code findAndModify} command
+     * with the ability to limit the execution time on the server.
+     */
+    public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
+
+    /** An (empty) update document to perform no actual modifications. */
+    public static final Document NONE = MongoCollection.NONE;
+
+    /**
+     * Creates a new builder for a {@link FindAndModify}.
+     *
+     * @return The builder to construct a {@link FindAndModify}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /** The subset of fields to retrieve from the matched document. */
+    private final Document myFields;
+
+    /** The maximum amount of time to allow the command to run. */
+    private final long myMaximumTimeMilliseconds;
+
+    /** The query to locate the document to update. */
+    private final Document myQuery;
+
+    /** Set to a true to remove the object before returning */
+    private final boolean myRemove;
+
+    /**
+     * Set to true if you want to return the modified object rather than the
+     * original. Ignored for remove.
+     */
+    private final boolean myReturnNew;
+
+    /**
+     * If multiple docs match, choose the first one in the specified sort order
+     * as the object to manipulate.
+     */
+    private final Document mySort;
+
+    /** The updates to be applied to the document. */
+    private final Document myUpdate;
+
+    /** If true create the document if it doesn't exist. */
+    private final boolean myUpsert;
+
+    /**
+     * Create a new FindAndModify.
+     *
+     * @param builder
+     *            The builder to copy from.
+     */
+    protected FindAndModify(final Builder builder) {
+        assertNotNull(builder.myQuery,
+                "The findAndModify's query document cannot be null or empty.");
+        assertNotNull(builder.myQuery,
+                "The findAndModify's query document cannot be null or empty.");
+        assertThat((builder.myUpdate != null) || builder.myRemove,
+                "The findAndModify must have an update document or be a remove.");
+
+        myQuery = builder.myQuery;
+        myUpdate = builder.myUpdate;
+        mySort = builder.mySort;
+        myFields = builder.myFields;
+        myUpsert = builder.myUpsert;
+        myReturnNew = builder.myReturnNew;
+        myRemove = builder.myRemove;
+        myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the subset of fields to retrieve from the matched document.
+     *
+     * @return The subset of fields to retrieve from the matched document.
+     */
+    public Document getFields() {
+        return myFields;
+    }
+
+    /**
+     * Returns the maximum amount of time to allow the command to run on the
+     * Server before it is aborted.
+     *
+     * @return The maximum amount of time to allow the command to run on the
+     *         Server before it is aborted.
+     *
+     * @since MongoDB 2.6
+     */
+    public long getMaximumTimeMilliseconds() {
+        return myMaximumTimeMilliseconds;
+    }
+
+    /**
+     * Returns the query to locate the document to update.
+     *
+     * @return The query to locate the document to update.
+     */
+    public Document getQuery() {
+        return myQuery;
+    }
+
+    /**
+     * Returns the sort to apply if multiple docs match, choose the first one as
+     * the object to manipulate.
+     *
+     * @return The sort to apply if multiple docs match, choose the first one as
+     *         the object to manipulate.
+     */
+    public Document getSort() {
+        return mySort;
+    }
+
+    /**
+     * Returns the updates to be applied to the document.
+     *
+     * @return The updates to be applied to the document.
+     */
+    public Document getUpdate() {
+        return myUpdate;
+    }
+
+    /**
+     * Returns true if the document should be removed.
+     *
+     * @return True if the document should be removed.
+     */
+    public boolean isRemove() {
+        return myRemove;
+    }
+
+    /**
+     * Returns true if the updated document should be returned instead of the
+     * document before the update.
+     *
+     * @return True if the updated document should be returned instead of the
+     *         document before the update.
+     */
+    public boolean isReturnNew() {
+        return myReturnNew;
+    }
+
+    /**
+     * Returns true to create the document if it doesn't exist.
+     *
+     * @return True to create the document if it doesn't exist.
+     */
+    public boolean isUpsert() {
+        return myUpsert;
     }
 }

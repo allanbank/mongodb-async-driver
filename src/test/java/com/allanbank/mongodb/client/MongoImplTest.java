@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -34,7 +34,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * MongoImplTest provides tests for the {@link MongoImpl} class.
- * 
+ *
  * @deprecated Use the {@link MongoClient} interface instead. This interface
  *             will be removed on or after the 1.3.0 release.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -180,7 +180,7 @@ public class MongoImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -191,7 +191,7 @@ public class MongoImplTest {
 
     /**
      * Creates a reply around the document.
-     * 
+     *
      * @param replyDoc
      *            The document to include in the reply.
      * @return The {@link Reply}
@@ -204,7 +204,7 @@ public class MongoImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */

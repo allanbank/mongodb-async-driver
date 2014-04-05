@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.socket;
@@ -30,7 +30,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * {@link ConnectionFactory} to create direct socket connections to the servers.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -52,7 +52,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /**
      * Creates a new {@link SocketConnectionFactory}.
-     * 
+     *
      * @param config
      *            The MongoDB client configuration.
      */
@@ -79,7 +79,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      * <p>
      * Returns a new {@link SocketConnection}.
      * </p>
-     * 
+     *
      * @see ConnectionFactory#connect()
      */
     @Override
@@ -129,7 +129,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /**
      * Creates a connection to the address provided.
-     * 
+     *
      * @param server
      *            The MongoDB server to connect to.
      * @param config
@@ -174,7 +174,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /**
      * Returns the maximum server version within the cluster.
-     * 
+     *
      * @return The maximum server version within the cluster.
      */
     @Override
@@ -184,7 +184,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /**
      * Returns the minimum server version within the cluster.
-     * 
+     *
      * @return The minimum server version within the cluster.
      */
     @Override
@@ -212,7 +212,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     /**
      * Returns smallest value for the maximum number of write operations allowed
      * in a single write command.
-     * 
+     *
      * @return The smallest value for maximum number of write operations allowed
      *         in a single write command.
      */
@@ -224,7 +224,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     /**
      * Returns the smallest value for the maximum BSON object size within the
      * cluster.
-     * 
+     *
      * @return The smallest value for the maximum BSON object within the
      *         cluster.
      */
@@ -235,7 +235,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /**
      * Returns the cluster state.
-     * 
+     *
      * @return The cluster state.
      */
     protected Cluster getState() {

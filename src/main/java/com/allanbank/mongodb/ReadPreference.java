@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -46,7 +46,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * If no tag matching documents are specified then all secondary servers may be
  * used.
  * </p>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -54,6 +54,102 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReadPreference implements Serializable, DocumentAssignable {
+
+    /**
+     * Enumeration of the basic {@link ReadPreference} modes of service.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static enum Mode {
+        /**
+         * Use the nearest (by latency measurement) member of the replica set:
+         * either primary or secondary servers are allowed.
+         * <p>
+         * If tag matching documents are specified then only server matching the
+         * specified tag matching documents would be used.
+         * </p>
+         */
+        NEAREST("nearest"),
+
+        /**
+         * Reads should only be attempted from the primary member of the replica
+         * set.
+         */
+        PRIMARY_ONLY("primary"),
+
+        /**
+         * Read from the primary but in the case of a fault may fallback to a
+         * secondary.
+         * <p>
+         * If tag matching documents are specified and a fallback to a secondary
+         * is required then only secondaries matching the specified tag matching
+         * documents would be used.
+         * </p>
+         */
+        PRIMARY_PREFERRED("primaryPreferred"),
+
+        /**
+         * Do not attempt to read from the primary.
+         * <p>
+         * If tag matching documents are specified then only secondaries
+         * matching the specified tag matching documents would be used.
+         * </p>
+         */
+        SECONDARY_ONLY("secondary"),
+
+        /**
+         * Try to first read from a secondary. If none are available "fallback"
+         * to the primary.
+         * <p>
+         * If tag matching documents are specified then only secondaries
+         * matching the specified tag matching documents would be used.
+         * </p>
+         */
+        SECONDARY_PREFERRED("secondaryPreferred"),
+
+        /**
+         * Do not attempt to read from any server other than the one specified.
+         * Used by the {@link MongoIterator} to ensure cursor fetch and
+         * terminate requests use the originating server.
+         */
+        SERVER("server");
+
+        /** The token passed to the mongos server when in a shared environment. */
+        private final String myToken;
+
+        /**
+         * Creates a new Mode.
+         *
+         * @param token
+         *            The token passed to the mongos server when in a shared
+         *            environment.
+         */
+        private Mode(final String token) {
+            myToken = token;
+        }
+
+        /**
+         * Returns the token passed to the mongos server when in a shared
+         * environment.
+         *
+         * @return The token passed to the mongos server when in a shared
+         *         environment.
+         */
+        public String getToken() {
+            return myToken;
+        }
+
+        /**
+         * Returns true if the mode allows reading from secondaries, false
+         * otherwise.
+         *
+         * @return True if the mode allows reading from secondaries, false
+         *         otherwise.
+         */
+        public boolean isSecondaryOk() {
+            return (this != PRIMARY_ONLY);
+        }
+    }
 
     /**
      * {@link ReadPreference} to read from the closest/{@link Mode#NEAREST}
@@ -103,7 +199,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * <p>
      * If no tag matching documents are specified then returns {@link #CLOSEST}.
      * </p>
-     * 
+     *
      * @param tagMatchDocuments
      *            Set of tag matching "documents" controlling which servers are
      *            used.
@@ -128,7 +224,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * If no tag matching documents are specified then returns
      * {@link #PREFER_PRIMARY}.
      * </p>
-     * 
+     *
      * @param tagMatchDocuments
      *            Set of tag matching "documents" controlling which secondary
      *            servers are used.
@@ -153,7 +249,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * If no tag matching documents are specified then returns
      * {@link #PREFER_SECONDARY}.
      * </p>
-     * 
+     *
      * @param tagMatchDocuments
      *            Set of tag matching "documents" controlling which secondary
      *            servers are used.
@@ -170,7 +266,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
     /**
      * Returns the default {@link ReadPreference} to read from the primary only:
      * {@link #PRIMARY}.
-     * 
+     *
      * @return The {@link #PRIMARY} {@link ReadPreference}.
      */
     public static ReadPreference primary() {
@@ -187,7 +283,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * If no tag matching documents are specified then returns
      * {@link #PREFER_SECONDARY}.
      * </p>
-     * 
+     *
      * @param tagMatchDocuments
      *            Set of tag matching "documents" controlling which secondary
      *            servers are used.
@@ -211,7 +307,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * <b>Note:</b> Use this form of {@link ReadPreference} with caution. If the
      * specified server fails all requests will fail.
      * </p>
-     * 
+     *
      * @param address
      *            The server to read from.
      * @return The creates {@link ReadPreference}.
@@ -240,7 +336,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
 
     /**
      * Creates a new ReadPreference.
-     * 
+     *
      * @param mode
      *            The read preference mode controlling if primary or secondary
      *            servers can be used and which to prefer.
@@ -276,7 +372,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
 
     /**
      * Creates a new ReadPreference.
-     * 
+     *
      * @param mode
      *            The read preference mode controlling if primary or secondary
      *            servers can be used and which to prefer.
@@ -308,10 +404,10 @@ public class ReadPreference implements Serializable, DocumentAssignable {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -334,7 +430,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
     /**
      * Returns the read preference mode controlling if primary or secondary
      * servers can be used and which to prefer.
-     * 
+     *
      * @return The read preference mode controlling if primary or secondary
      *         servers can be used and which to prefer.
      */
@@ -345,7 +441,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
     /**
      * Returns the server to read from. Used by the {@link MongoIterator} to
      * ensure cursor fetch and terminate requests use the originating server.
-     * 
+     *
      * @return The server to read from.
      */
     public String getServer() {
@@ -355,7 +451,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
     /**
      * Returns the list of tag matching documents to control the secondaries
      * used.
-     * 
+     *
      * @return The list of tag matching documents to control the secondaries
      *         used.
      */
@@ -365,7 +461,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -381,7 +477,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * "slaveOk", e.g., is one of {@link Mode#PRIMARY_ONLY},
      * {@link Mode#SECONDARY_ONLY}, or {@link Mode#SERVER} and has no tag
      * matching documents.
-     * 
+     *
      * @return True if the mode allows reading from secondaries, false
      *         otherwise.
      */
@@ -394,7 +490,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
     /**
      * Returns true if the mode allows reading from secondaries, false
      * otherwise.
-     * 
+     *
      * @return True if the mode allows reading from secondaries, false
      *         otherwise.
      */
@@ -405,7 +501,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
     /**
      * Returns true if this {@link ReadPreference} matches the <tt>tags</tt>
      * document.
-     * 
+     *
      * @param tags
      *            The tags to be matched against.
      * @return True if this {@link ReadPreference} matches the tags, false
@@ -493,7 +589,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
 
     /**
      * Does a null safe equals comparison.
-     * 
+     *
      * @param rhs
      *            The right-hand-side of the comparison.
      * @param lhs
@@ -509,7 +605,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * Compares if the two elements are equals allowing numeric values type to
      * not be a strict match but when casted as a long those values must still
      * compare equal.
-     * 
+     *
      * @param lhs
      *            The first element to compare. May not be <code>null</code>.
      * @param rhs
@@ -533,7 +629,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * Hook into serialization to replace <tt>this</tt> object with the local
      * {@link #CLOSEST}, {@link #PREFER_PRIMARY}, {@link #PREFER_SECONDARY},
      * {@link #PRIMARY}, or {@link #SECONDARY} instance as appropriate.
-     * 
+     *
      * @return Either the {@link #CLOSEST}, {@link #PREFER_PRIMARY},
      *         {@link #PREFER_SECONDARY}, {@link #PRIMARY}, or
      *         {@link #SECONDARY} instance if <tt>this</tt> instance equals one
@@ -557,102 +653,6 @@ public class ReadPreference implements Serializable, DocumentAssignable {
         }
         else {
             return this;
-        }
-    }
-
-    /**
-     * Enumeration of the basic {@link ReadPreference} modes of service.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static enum Mode {
-        /**
-         * Use the nearest (by latency measurement) member of the replica set:
-         * either primary or secondary servers are allowed.
-         * <p>
-         * If tag matching documents are specified then only server matching the
-         * specified tag matching documents would be used.
-         * </p>
-         */
-        NEAREST("nearest"),
-
-        /**
-         * Reads should only be attempted from the primary member of the replica
-         * set.
-         */
-        PRIMARY_ONLY("primary"),
-
-        /**
-         * Read from the primary but in the case of a fault may fallback to a
-         * secondary.
-         * <p>
-         * If tag matching documents are specified and a fallback to a secondary
-         * is required then only secondaries matching the specified tag matching
-         * documents would be used.
-         * </p>
-         */
-        PRIMARY_PREFERRED("primaryPreferred"),
-
-        /**
-         * Do not attempt to read from the primary.
-         * <p>
-         * If tag matching documents are specified then only secondaries
-         * matching the specified tag matching documents would be used.
-         * </p>
-         */
-        SECONDARY_ONLY("secondary"),
-
-        /**
-         * Try to first read from a secondary. If none are available "fallback"
-         * to the primary.
-         * <p>
-         * If tag matching documents are specified then only secondaries
-         * matching the specified tag matching documents would be used.
-         * </p>
-         */
-        SECONDARY_PREFERRED("secondaryPreferred"),
-
-        /**
-         * Do not attempt to read from any server other than the one specified.
-         * Used by the {@link MongoIterator} to ensure cursor fetch and
-         * terminate requests use the originating server.
-         */
-        SERVER("server");
-
-        /** The token passed to the mongos server when in a shared environment. */
-        private final String myToken;
-
-        /**
-         * Creates a new Mode.
-         * 
-         * @param token
-         *            The token passed to the mongos server when in a shared
-         *            environment.
-         */
-        private Mode(final String token) {
-            myToken = token;
-        }
-
-        /**
-         * Returns the token passed to the mongos server when in a shared
-         * environment.
-         * 
-         * @return The token passed to the mongos server when in a shared
-         *         environment.
-         */
-        public String getToken() {
-            return myToken;
-        }
-
-        /**
-         * Returns true if the mode allows reading from secondaries, false
-         * otherwise.
-         * 
-         * @return True if the mode allows reading from secondaries, false
-         *         otherwise.
-         */
-        public boolean isSecondaryOk() {
-            return (this != PRIMARY_ONLY);
         }
     }
 }

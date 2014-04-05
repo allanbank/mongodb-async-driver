@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -44,7 +44,7 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * CursorStreamingCallbackTest provides test for the
  * {@link CursorStreamingCallback} class.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CursorStreamingCallbackTest {

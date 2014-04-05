@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.util.log;
@@ -12,7 +12,7 @@ import java.util.logging.LogRecord;
 
 /**
  * A JUL Handler to capture the log records created.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CaptureHandler extends Handler {
@@ -38,7 +38,7 @@ public class CaptureHandler extends Handler {
 
     /**
      * Returns the captured {@link LogRecord}s.
-     * 
+     *
      * @return the captured {@link LogRecord}s.
      */
     public List<LogRecord> getRecords() {

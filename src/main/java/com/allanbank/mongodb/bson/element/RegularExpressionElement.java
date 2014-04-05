@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.element;
@@ -15,7 +15,7 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON regular expression.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -137,16 +137,16 @@ public class RegularExpressionElement extends AbstractElement {
      * </p>
      * <p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * {@link Pattern#CASE_INSENSITIVE} ==> {@link #CASE_INSENSITIVE}
      * {@link Pattern#MULTILINE} ==> {@link #MULTILINE}
      * {@link Pattern#DOTALL} ==> {@link #DOT_ALL}
      * {@link Pattern#UNICODE_CHARACTER_CLASS} ==> {@link #UNICODE}
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param pattern
      *            The pattern to extract the options from.
      * @return The options integer value.
@@ -176,7 +176,7 @@ public class RegularExpressionElement extends AbstractElement {
 
     /**
      * Converts the options string into a options value.
-     * 
+     *
      * @param options
      *            The possibly non-normalized options string.
      * @return The options integer value.
@@ -218,7 +218,7 @@ public class RegularExpressionElement extends AbstractElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the element.
      * @param pattern
@@ -230,7 +230,7 @@ public class RegularExpressionElement extends AbstractElement {
     private static long computeSize(final String name, final String pattern,
             final int options) {
         long result = 4; // type (1) + name null byte (1) +
-                         // pattern null byte (1) + options null byte (1).
+        // pattern null byte (1) + options null byte (1).
         result += StringEncoder.utf8Size(name);
         result += StringEncoder.utf8Size(pattern);
         result += OPTIONS[options & OPTION_MASK].length(); // ASCII
@@ -246,7 +246,7 @@ public class RegularExpressionElement extends AbstractElement {
 
     /**
      * Constructs a new {@link RegularExpressionElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON string.
      * @param pattern
@@ -261,7 +261,7 @@ public class RegularExpressionElement extends AbstractElement {
 
     /**
      * Constructs a new {@link RegularExpressionElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON string.
      * @param pattern
@@ -284,7 +284,7 @@ public class RegularExpressionElement extends AbstractElement {
 
     /**
      * Constructs a new {@link RegularExpressionElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON string.
      * @param pattern
@@ -312,7 +312,7 @@ public class RegularExpressionElement extends AbstractElement {
 
     /**
      * Constructs a new {@link RegularExpressionElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON string.
      * @param pattern
@@ -329,7 +329,7 @@ public class RegularExpressionElement extends AbstractElement {
 
     /**
      * Constructs a new {@link RegularExpressionElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON string.
      * @param pattern
@@ -352,7 +352,7 @@ public class RegularExpressionElement extends AbstractElement {
     /**
      * Accepts the visitor and calls the {@link Visitor#visitRegularExpression}
      * method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -387,10 +387,10 @@ public class RegularExpressionElement extends AbstractElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -410,7 +410,7 @@ public class RegularExpressionElement extends AbstractElement {
 
     /**
      * Returns the regular expression options.
-     * 
+     *
      * @return The regular expression options.
      */
     public int getOptions() {
@@ -419,7 +419,7 @@ public class RegularExpressionElement extends AbstractElement {
 
     /**
      * Returns the regular expression pattern.
-     * 
+     *
      * @return The regular expression pattern.
      */
     public String getPattern() {
@@ -462,7 +462,7 @@ public class RegularExpressionElement extends AbstractElement {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

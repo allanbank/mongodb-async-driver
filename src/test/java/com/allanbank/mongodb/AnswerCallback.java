@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -14,7 +14,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * AnswerCallback provides the ability to provide replies to callbacks.
- * 
+ *
  * @param <R>
  *            The type for the reply callback.
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -23,7 +23,7 @@ public class AnswerCallback<R> implements IArgumentMatcher {
     /**
      * Helper for matching callbacks and triggering them at method invocation
      * time.
-     * 
+     *
      * @return <code>null</code>
      */
     public static <T> ReplyCallback callback() {
@@ -34,7 +34,7 @@ public class AnswerCallback<R> implements IArgumentMatcher {
     /**
      * Helper for matching callbacks and triggering them at method invocation
      * time.
-     * 
+     *
      * @param reply
      *            The reply to give the callback when matching.
      * @return <code>null</code>
@@ -47,7 +47,7 @@ public class AnswerCallback<R> implements IArgumentMatcher {
     /**
      * Helper for matching callbacks and triggering them at method invocation
      * time.
-     * 
+     *
      * @param reply
      *            The reply to give the callback when matching.
      * @return <code>null</code>
@@ -60,10 +60,10 @@ public class AnswerCallback<R> implements IArgumentMatcher {
     /**
      * Helper for matching callbacks and triggering them at method invocation
      * time.
-     * 
+     *
      * @param error
      *            The error to provide the callback.
-     * 
+     *
      * @return <code>null</code>
      */
     public static <T> ReplyCallback callback(final Throwable error) {
@@ -87,7 +87,7 @@ public class AnswerCallback<R> implements IArgumentMatcher {
 
     /**
      * Creates a new AnswerCallback.
-     * 
+     *
      * @param reply
      *            The reply to provide the callbacks.
      */
@@ -98,7 +98,7 @@ public class AnswerCallback<R> implements IArgumentMatcher {
 
     /**
      * Creates a new AnswerCallback.
-     * 
+     *
      * @param error
      *            The reply to provide the callbacks.
      */

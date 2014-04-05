@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -31,7 +31,7 @@ import com.allanbank.mongodb.client.Operation;
 
 /**
  * ReplyTest provides tests for the {@link Reply} message.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyTest {
@@ -124,7 +124,7 @@ public class ReplyTest {
 
     /**
      * Test method for {@link Reply#Reply(Header, BsonInputStream)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */

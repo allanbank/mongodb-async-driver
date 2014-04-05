@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -22,7 +22,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * Helper class to make generating command queries easier. Commands are
  * communicated to the server as {@link Operation#QUERY} messages. We don't use
  * the Query class as a base class as it adds a lot of weight to the commands.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -51,7 +51,7 @@ public class Command extends AbstractMessage {
 
     /**
      * Create a new Command.
-     * 
+     *
      * @param databaseName
      *            The name of the database.
      * @param commandDocument
@@ -63,7 +63,7 @@ public class Command extends AbstractMessage {
 
     /**
      * Create a new Command.
-     * 
+     *
      * @param databaseName
      *            The name of the database.
      * @param commandDocument
@@ -79,7 +79,7 @@ public class Command extends AbstractMessage {
 
     /**
      * Create a new Command.
-     * 
+     *
      * @param databaseName
      *            The name of the database.
      * @param commandDocument
@@ -104,10 +104,10 @@ public class Command extends AbstractMessage {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -126,7 +126,7 @@ public class Command extends AbstractMessage {
 
     /**
      * Returns the command's document.
-     * 
+     *
      * @return The command's document.
      */
     public Document getCommand() {
@@ -153,7 +153,7 @@ public class Command extends AbstractMessage {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -167,7 +167,7 @@ public class Command extends AbstractMessage {
     /**
      * Returns true if the command document is allowed to slightly exceed the
      * document size limit.
-     * 
+     *
      * @return True if the command document is allowed to slightly exceed the
      *         document size limit.
      */
@@ -179,7 +179,7 @@ public class Command extends AbstractMessage {
      * If set to true then the command document is allowed to slightly exceed
      * the document size limit. This allows us to pack a full size document in a
      * insert command.
-     * 
+     *
      * @param allowJumbo
      *            If true then the command document is allowed to slightly
      *            exceed the document size limit.
@@ -302,7 +302,7 @@ public class Command extends AbstractMessage {
 
     /**
      * Computes the message flags bit field.
-     * 
+     *
      * @return The message flags bit field.
      */
     private int computeFlags() {

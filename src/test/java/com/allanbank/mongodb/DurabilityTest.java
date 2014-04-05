@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -32,7 +32,7 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 
 /**
  * DurabilityTest provides tests for the {@link Durability} class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DurabilityTest {
@@ -212,7 +212,7 @@ public class DurabilityTest {
 
     /**
      * Test method for {@link Durability#readResolve} .
-     * 
+     *
      * @throws IOException
      *             On a failure.
      * @throws ClassNotFoundException

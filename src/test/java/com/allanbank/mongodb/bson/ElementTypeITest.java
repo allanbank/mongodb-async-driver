@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -37,7 +37,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * ElementTypeTest provides tests verify the ordering of elements by MongoDB.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ElementTypeITest extends ServerTestDriverSupport {

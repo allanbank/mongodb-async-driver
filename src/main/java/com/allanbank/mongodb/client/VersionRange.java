@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -11,7 +11,7 @@ import com.allanbank.mongodb.Version;
 
 /**
  * VersionRange provides a simple class to hold a range of versions.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -23,7 +23,7 @@ public class VersionRange implements Serializable {
     /**
      * Returns a {@link VersionRange} that is only limited by a maximum version.
      * The minimum version is set to {@link Version#VERSION_0}.
-     * 
+     *
      * @param maxVersion
      *            The maximum version in the range. If <code>null</code> then
      *            <code>null</code> is returned.
@@ -39,7 +39,7 @@ public class VersionRange implements Serializable {
     /**
      * Returns a {@link VersionRange} that is only limited by a minimum version.
      * The maximum version is set to {@link Version#UNKNOWN}.
-     * 
+     *
      * @param minVersion
      *            The minimum version in the range. If <code>null</code> then
      *            <code>null</code> is returned.
@@ -67,7 +67,7 @@ public class VersionRange implements Serializable {
      * If only {@code maxVersion} is <code>null</code> then the upper bound is
      * set to {@link Version#UNKNOWN}.
      * </p>
-     * 
+     *
      * @param minVersion
      *            The minimum version in the range. If <code>null</code> then
      *            <code>null</code> is returned.
@@ -98,7 +98,7 @@ public class VersionRange implements Serializable {
 
     /**
      * Creates a new VersionRange.
-     * 
+     *
      * @param lowerBounds
      *            The lower, inclusive, bounds of the range.
      * @param upperBounds
@@ -112,7 +112,7 @@ public class VersionRange implements Serializable {
     /**
      * Returns true if the version is within the bounds of this
      * {@link VersionRange}.
-     * 
+     *
      * @param version
      *            The version to check if it is within range.
      * @return True if the version is within the bounds of this
@@ -146,7 +146,7 @@ public class VersionRange implements Serializable {
 
     /**
      * Returns the lower, inclusive, bounds of the range.
-     * 
+     *
      * @return The lower, inclusive, bounds of the range.
      */
     public Version getLowerBounds() {
@@ -155,7 +155,7 @@ public class VersionRange implements Serializable {
 
     /**
      * Returns the upper, exclusive, bounds of the range.
-     * 
+     *
      * @return The upper, exclusive, bounds of the range.
      */
     public Version getUpperBounds() {

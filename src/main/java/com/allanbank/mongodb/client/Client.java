@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -19,7 +19,7 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
 
 /**
  * Unified client interface to MongoDB.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -38,21 +38,21 @@ public interface Client {
 
     /**
      * Returns the type of cluster the client is connected to.
-     * 
+     *
      * @return The type of cluster the client is connected to.
      */
     public ClusterType getClusterType();
 
     /**
      * Returns the configuration being used by the logical MongoDB connection.
-     * 
+     *
      * @return The configuration being used by the logical MongoDB connection.
      */
     public MongoClientConfiguration getConfig();
 
     /**
      * Returns the {@link Durability} from the {@link MongoClientConfiguration}.
-     * 
+     *
      * @return The default durability from the {@link MongoClientConfiguration}.
      */
     public Durability getDefaultDurability();
@@ -60,7 +60,7 @@ public interface Client {
     /**
      * Returns the {@link ReadPreference} from the
      * {@link MongoClientConfiguration}.
-     * 
+     *
      * @return The default read preference from the
      *         {@link MongoClientConfiguration} .
      */
@@ -68,14 +68,14 @@ public interface Client {
 
     /**
      * Returns the maximum server version within the cluster.
-     * 
+     *
      * @return The maximum server version within the cluster.
      */
     public Version getMaximumServerVersion();
 
     /**
      * Returns the minimum server version within the cluster.
-     * 
+     *
      * @return The minimum server version within the cluster.
      */
     public Version getMinimumServerVersion();
@@ -83,7 +83,7 @@ public interface Client {
     /**
      * Returns smallest value for the maximum number of write operations allowed
      * in a single write command.
-     * 
+     *
      * @return The smallest value for maximum number of write operations allowed
      *         in a single write command.
      */
@@ -92,7 +92,7 @@ public interface Client {
     /**
      * Returns the smallest value for the maximum BSON object size within the
      * cluster.
-     * 
+     *
      * @return The smallest value for the maximum BSON object size within the
      *         cluster.
      */
@@ -100,7 +100,7 @@ public interface Client {
 
     /**
      * Restarts an iterator that was previously saved.
-     * 
+     *
      * @param cursorDocument
      *            The document containing the state of the cursor.
      * @return The restarted iterator.
@@ -112,7 +112,7 @@ public interface Client {
 
     /**
      * Restarts a document stream from a cursor that was previously saved.
-     * 
+     *
      * @param results
      *            Callback that will be notified of the results of the cursor.
      * @param cursorDocument
@@ -128,7 +128,7 @@ public interface Client {
 
     /**
      * Sends a message on the connection.
-     * 
+     *
      * @param message1
      *            The first message to send on the connection.
      * @param message2
@@ -144,7 +144,7 @@ public interface Client {
 
     /**
      * Sends a message on the connection.
-     * 
+     *
      * @param message
      *            The message to send on the connection.
      * @param replyCallback

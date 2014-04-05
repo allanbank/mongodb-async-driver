@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -22,7 +22,7 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * JsonSerializationVisitor provides a BSON Visitor that generates a JSON
  * document.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Conublic sulting, Inc., All Rights Reserved
@@ -56,7 +56,7 @@ public class JsonSerializationVisitor implements Visitor {
 
     /**
      * Creates a new JsonSerializationVisitor.
-     * 
+     *
      * @param sink
      *            The Writer to write to.
      * @param oneLine
@@ -588,7 +588,7 @@ public class JsonSerializationVisitor implements Visitor {
     /**
      * Returns if the visitor is currently suppressing the names of elements.
      * This is true when serializing an array.
-     * 
+     *
      * @return If the visitor is currently suppressing the names of elements.
      *         This is true when serializing an array.
      */
@@ -599,7 +599,7 @@ public class JsonSerializationVisitor implements Visitor {
     /**
      * Writes a new line if {@link #myOneLine} is false and indents to the
      * {@link #myIndentLevel}.
-     * 
+     *
      * @throws IOException
      *             On a failure to write the new line.
      */
@@ -618,7 +618,7 @@ public class JsonSerializationVisitor implements Visitor {
     /**
      * Sets the value for if the visitor is currently suppressing the names of
      * elements. This is true, for example, when serializing an array.
-     * 
+     *
      * @param suppressNames
      *            The new value for if names should be suppressed.
      */
@@ -628,7 +628,7 @@ public class JsonSerializationVisitor implements Visitor {
 
     /**
      * Writes the name if {@link #mySuppressNames} is false.
-     * 
+     *
      * @param name
      *            The name to write, if not suppressed.
      * @throws IOException
@@ -648,7 +648,7 @@ public class JsonSerializationVisitor implements Visitor {
 
     /**
      * Writes the {@link ObjectId}.
-     * 
+     *
      * @param id
      *            The {@link ObjectId} to write.
      * @throws IOException
@@ -670,7 +670,7 @@ public class JsonSerializationVisitor implements Visitor {
 
     /**
      * Writes the {@code string} as a quoted string.
-     * 
+     *
      * @param string
      *            The String to write.
      * @throws IOException

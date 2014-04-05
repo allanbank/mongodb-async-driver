@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -13,7 +13,7 @@ import com.allanbank.mongodb.client.VersionRange;
 
 /**
  * Helper class for the {@code parallelCollectionScan} commands.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -34,7 +34,7 @@ public class ParallelScanCommand extends Command implements CursorableMessage {
 
     /**
      * Create a new ParallelScanCommand.
-     * 
+     *
      * @param command
      *            The original request.
      * @param databaseName
@@ -59,10 +59,10 @@ public class ParallelScanCommand extends Command implements CursorableMessage {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -117,7 +117,7 @@ public class ParallelScanCommand extends Command implements CursorableMessage {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

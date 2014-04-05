@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -29,14 +29,14 @@ import com.allanbank.mongodb.error.JsonParseException;
 
 /**
  * JsonTest provides tests for the {@link Json} static class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JsonTest {
 
     /**
      * Test for parsing a document.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      * @throws JsonParseException
@@ -55,7 +55,7 @@ public class JsonTest {
 
     /**
      * Test for parsing a document.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      * @throws JsonParseException
@@ -93,7 +93,7 @@ public class JsonTest {
 
     /**
      * Test for parsing a document.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -108,7 +108,7 @@ public class JsonTest {
 
     /**
      * Test for parsing a document.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -123,7 +123,7 @@ public class JsonTest {
 
     /**
      * Test for parsing a document.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -138,7 +138,7 @@ public class JsonTest {
 
     /**
      * Test for parsing a document.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -153,7 +153,7 @@ public class JsonTest {
 
     /**
      * Test parsing a integer value too big for an IntegerElement.
-     * 
+     *
      * @throws ParseException
      *             On a test failure.
      */
@@ -165,7 +165,7 @@ public class JsonTest {
 
     /**
      * Test parsing a integer value too big for an IntegerElement in an array.
-     * 
+     *
      * @throws ParseException
      *             On a test failure.
      */
@@ -179,7 +179,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a BinData(..) element.
-     * 
+     *
      * @throws UnsupportedEncodingException
      *             On a test failure.
      * @throws IllegalArgumentException
@@ -204,7 +204,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a BinData(..) element.
-     * 
+     *
      * @throws UnsupportedEncodingException
      *             On a test failure.
      * @throws IllegalArgumentException
@@ -227,7 +227,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a DBPointer() element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -247,7 +247,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a DBPointer() element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -265,7 +265,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a HexData(..) element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      * @throws IllegalArgumentException
@@ -288,7 +288,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a HexData(..) element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      * @throws IllegalArgumentException
@@ -309,7 +309,7 @@ public class JsonTest {
 
     /**
      * Test for parsing a document.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -324,7 +324,7 @@ public class JsonTest {
 
     /**
      * Test for parsing a document.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -339,7 +339,7 @@ public class JsonTest {
 
     /**
      * Test for parsing a document.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -354,7 +354,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a ISODate(..) element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      * @throws java.text.ParseException
@@ -382,7 +382,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a ISODate(..) element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      * @throws java.text.ParseException
@@ -405,7 +405,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a MaxKey() element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -418,7 +418,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a MaxKey() element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -433,7 +433,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a MinKey() element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -446,7 +446,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a MinKey() element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -461,7 +461,7 @@ public class JsonTest {
 
     /**
      * Test parsing a integer value too small for an IntegerElement.
-     * 
+     *
      * @throws ParseException
      *             On a test failure.
      */
@@ -474,7 +474,7 @@ public class JsonTest {
 
     /**
      * Test parsing a integer value too small for an IntegerElement in an array.
-     * 
+     *
      * @throws ParseException
      *             On a test failure.
      */
@@ -488,7 +488,7 @@ public class JsonTest {
 
     /**
      * Test for parsing a document.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -503,7 +503,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a NumberLong(..) element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -516,7 +516,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a NumberLong(..) element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -531,7 +531,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a ObjectId(..) element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -549,7 +549,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a ObjectId(..) element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -565,7 +565,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a Timestamp(..) element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -581,7 +581,7 @@ public class JsonTest {
 
     /**
      * Test Parsing a Timestamp(..) element.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */
@@ -596,7 +596,7 @@ public class JsonTest {
 
     /**
      * Test for the {@link Json#serialize(DocumentAssignable)} method.
-     * 
+     *
      * @throws JsonParseException
      *             On a test failure.
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -32,7 +32,7 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * AuthenticatingConnectionITest provides tests of the authentication against a
  * live MongoDB process.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
@@ -48,7 +48,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
     /**
      * Test method to insert a document into the database and then query it back
      * out.
-     * 
+     *
      * @throws Exception
      *             On a test failure.
      */
@@ -97,7 +97,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
     /**
      * Test method to insert a document into the database and then query it back
      * out.
-     * 
+     *
      * @throws Exception
      *             On a test failure.
      */

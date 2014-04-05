@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -25,272 +25,19 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * Implementation of a {@link Callback} and {@link ListenableFuture} interfaces.
  * Used to convert a {@link Callback} into a {@link ListenableFuture} for
  * returning to callers.
- * 
+ *
  * @param <V>
  *            The type for the set value.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
-    /** Logger to log exceptions caught when running myPendingListeners. */
-    public static final Log LOG = LogFactory.getLog(FutureCallback.class);
-
-    /** Amount of time to spin before yielding. Set to 1/100 of a millisecond. */
-    public static final long SPIN_TIME_NS = TimeUnit.MILLISECONDS.toNanos(1) / 100;
-
-    /** Number of times to spin before trying something different. */
-    private static final int SPIN_ITERATIONS = 10000;
-
-    /** Amount of time to spin/yield before waiting. Set to 1/2 millisecond. */
-    private static final long YIELD_TIME_NS = TimeUnit.MILLISECONDS.toNanos(1) >> 1;
-
-    /** The type of lock to use when waiting for the future to be fulfilled. */
-    private final LockType myLockType;
-
-    /** The runnable, executor pairs to execute within a singly linked list. */
-    private AtomicReference<PendingListener> myPendingListeners;
-
-    /** Synchronization control for this Future. */
-    private final Sync<V> mySync;
-
-    /**
-     * Create a new FutureCallback.
-     */
-    public FutureCallback() {
-        this(LockType.MUTEX);
-    }
-
-    /**
-     * Create a new FutureCallback.
-     * 
-     * @param lockType
-     *            The type of lock to use when waiting for the future to be
-     *            fulfilled.
-     */
-    public FutureCallback(final LockType lockType) {
-        mySync = new Sync<V>();
-        myLockType = lockType;
-        myPendingListeners = new AtomicReference<PendingListener>(null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void addListener(final Runnable runnable, final Executor executor) {
-        Assertions.assertNotNull(runnable, "Runnable is null.");
-        Assertions.assertNotNull(executor, "Executor is null.");
-
-        if (!isDone()) {
-            PendingListener existing = myPendingListeners.get();
-            PendingListener listener = new PendingListener(runnable, executor,
-                    existing);
-
-            while (!myPendingListeners.compareAndSet(existing, listener)) {
-                existing = myPendingListeners.get();
-                listener = new PendingListener(runnable, executor, existing);
-            }
-
-            if (isDone()) {
-                execute();
-            }
-        }
-        else {
-            // Run the executor.
-            execute(executor, runnable);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Sets the value for the future and triggers any pending {@link #get} to
-     * return.
-     * </p>
-     * 
-     * @see Callback#callback
-     */
-    @Override
-    public void callback(final V result) {
-        final boolean set = mySync.set(result);
-        if (set) {
-            execute();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * If not cancelled and the callback has not completed then cancels the
-     * future, triggers the return of any pending {@link #get()} and returns
-     * true. Otherwise returns false. This does not stop the related MongoDB
-     * invocation.
-     * </p>
-     * 
-     * @see Future#cancel(boolean)
-     */
-    @Override
-    public boolean cancel(final boolean mayInterruptIfRunning) {
-        if (!mySync.cancel(mayInterruptIfRunning)) {
-            return false;
-        }
-        execute();
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Sets the exception for the future and triggers any pending {@link #get}
-     * to throw a {@link ExecutionException}.
-     * </p>
-     * 
-     * @see Callback#exception
-     */
-    @Override
-    public void exception(final Throwable thrown) {
-        Assertions.assertNotNull(thrown, "Cannot set a null exception.");
-
-        final boolean set = mySync.setException(thrown);
-        if (set) {
-            execute();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Returns the value set via the {@link Callback}.
-     * </p>
-     * 
-     * @see Future#get()
-     */
-    @Override
-    public V get() throws InterruptedException, ExecutionException {
-
-        if (myLockType == LockType.LOW_LATENCY_SPIN) {
-            long now = 0;
-            long spinDeadline = 1;
-            long yeildDeadline = 1;
-            while ((now < yeildDeadline) && !isDone()) {
-                for (int i = 0; (i < SPIN_ITERATIONS) && !isDone(); ++i) {
-                    // Hard spin...
-                }
-
-                if (!isDone()) {
-                    // Pause?
-                    now = System.nanoTime();
-                    if (spinDeadline == 1) {
-                        spinDeadline = now + SPIN_TIME_NS;
-                        yeildDeadline = now + YIELD_TIME_NS;
-                        // First time yield to allow other threads to do their
-                        // work...
-                        Thread.yield();
-                    }
-                    else {
-                        if ((spinDeadline < now) && (now < yeildDeadline)) {
-                            Thread.yield();
-                        }
-                    }
-                }
-            }
-        }
-
-        // Either the value is available and the get() will not block
-        // or we have spun for long enough and it is time to block.
-        return mySync.get();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public V get(final long timeout, final TimeUnit unit)
-            throws InterruptedException, TimeoutException, ExecutionException {
-        return mySync.get(unit.toNanos(timeout));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Returns true if {@link #cancel(boolean)} has been called.
-     * </p>
-     * 
-     * @see Future#isCancelled()
-     */
-    @Override
-    public boolean isCancelled() {
-        return mySync.isCancelled();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * True if a value has been set via the the {@link Callback} interface or
-     * the {@link Future} has been {@link #cancel(boolean) cancelled}.
-     * </p>
-     * 
-     * @see Future#isDone()
-     */
-    @Override
-    public boolean isDone() {
-        return mySync.isDone();
-    }
-
-    /**
-     * Runs this execution list, executing all existing pairs.
-     * <p>
-     * All callers of this method will drain the list of listeners.
-     * </p>
-     */
-    protected void execute() {
-        PendingListener toRun;
-        PendingListener next;
-
-        // Keep running until the list is exhausted.
-        do {
-
-            // Pick the next item from the list.
-            do {
-                toRun = myPendingListeners.get();
-                next = (toRun != null) ? toRun.myNext : null;
-            }
-            while (!myPendingListeners.compareAndSet(toRun, next));
-
-            // Run this item - if it exists.
-            if (toRun != null) {
-                execute(toRun.myExecutor, toRun.myRunnable);
-            }
-        }
-        while (toRun != null);
-    }
-
-    /**
-     * Execute the {@link Runnable} with the {@link Executor} suppressing
-     * exceptions.
-     * 
-     * @param executor
-     *            The executor to use.
-     * @param runnable
-     *            The {@link Runnable} to execute.
-     */
-    private void execute(final Executor executor, final Runnable runnable) {
-        try {
-            executor.execute(runnable);
-        }
-        catch (final RuntimeException e) {
-            LOG.error(e, "Exception running a FutureListener's runnable {} "
-                    + "with executor {}", runnable, executor);
-        }
-    }
-
     /**
      * PendingListener an immutable element in the list of listeners.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     /* package */static final class PendingListener {
@@ -306,7 +53,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Creates a new PendingListener.
-         * 
+         *
          * @param runnable
          *            The listener's {@link Runnable}.
          * @param executor
@@ -327,7 +74,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
      * model. The state starts in the {@link #RUNNING} state. The first thread
      * to complete the future moves the state to the {@link #COMPLETING} state,
      * sets the value and then sets the appropriate final state.
-     * 
+     *
      * @param <V>
      *            The type of value for the future.
      */
@@ -391,7 +138,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Move to the CANCELED or INTERRUPTED state.
-         * 
+         *
          * @param interrupt
          *            If we are interrupted.
          * @return If the cancel worked / won.
@@ -403,7 +150,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
         /**
          * Blocks until the future {@link #complete(Object, Throwable, int)
          * completes}.
-         * 
+         *
          * @return The value set for the future.
          * @throws CancellationException
          *             If the future was canceled.
@@ -424,7 +171,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
         /**
          * Blocks until the future {@link #complete(Object, Throwable, int)
          * completes} or the number of nano-seconds expires.
-         * 
+         *
          * @param nanos
          *            The number of nano-seconds to wait.
          * @return The value set for the future.
@@ -450,7 +197,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Checks if the state is {@link #CANCELED} or {@link #INTERRUPTED}.
-         * 
+         *
          * @return True if the future state is {@link #CANCELED} or
          *         {@link #INTERRUPTED}.
          */
@@ -461,7 +208,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
         /**
          * Checks if the state is {@link #COMPLETED}, {@link #CANCELED} or
          * {@link #INTERRUPTED}.
-         * 
+         *
          * @return True if the future state is {@link #COMPLETED},
          *         {@link #CANCELED} or {@link #INTERRUPTED}.
          */
@@ -471,7 +218,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Move to the COMPLETED state and set the value.
-         * 
+         *
          * @param value
          *            The value to set.
          * @return If the set worked / won.
@@ -482,7 +229,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Move to the COMPLETED state and set the exception value.
-         * 
+         *
          * @param thrown
          *            The exception to set.
          * @return If the set worked / won.
@@ -493,7 +240,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Completes the future.
-         * 
+         *
          * @param value
          *            The value to set as the result of the future.
          * @param thrown
@@ -525,7 +272,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Implementation to get the future's value.
-         * 
+         *
          * @return The value set for the future.
          * @throws CancellationException
          *             If the future was canceled.
@@ -553,6 +300,259 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
                 throw new IllegalStateException("Sync in invalid state: "
                         + state);
             }
+        }
+    }
+
+    /** Logger to log exceptions caught when running myPendingListeners. */
+    public static final Log LOG = LogFactory.getLog(FutureCallback.class);
+
+    /** Amount of time to spin before yielding. Set to 1/100 of a millisecond. */
+    public static final long SPIN_TIME_NS = TimeUnit.MILLISECONDS.toNanos(1) / 100;
+
+    /** Number of times to spin before trying something different. */
+    private static final int SPIN_ITERATIONS = 10000;
+
+    /** Amount of time to spin/yield before waiting. Set to 1/2 millisecond. */
+    private static final long YIELD_TIME_NS = TimeUnit.MILLISECONDS.toNanos(1) >> 1;
+
+    /** The type of lock to use when waiting for the future to be fulfilled. */
+    private final LockType myLockType;
+
+    /** The runnable, executor pairs to execute within a singly linked list. */
+    private AtomicReference<PendingListener> myPendingListeners;
+
+    /** Synchronization control for this Future. */
+    private final Sync<V> mySync;
+
+    /**
+     * Create a new FutureCallback.
+     */
+    public FutureCallback() {
+        this(LockType.MUTEX);
+    }
+
+    /**
+     * Create a new FutureCallback.
+     *
+     * @param lockType
+     *            The type of lock to use when waiting for the future to be
+     *            fulfilled.
+     */
+    public FutureCallback(final LockType lockType) {
+        mySync = new Sync<V>();
+        myLockType = lockType;
+        myPendingListeners = new AtomicReference<PendingListener>(null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addListener(final Runnable runnable, final Executor executor) {
+        Assertions.assertNotNull(runnable, "Runnable is null.");
+        Assertions.assertNotNull(executor, "Executor is null.");
+
+        if (!isDone()) {
+            PendingListener existing = myPendingListeners.get();
+            PendingListener listener = new PendingListener(runnable, executor,
+                    existing);
+
+            while (!myPendingListeners.compareAndSet(existing, listener)) {
+                existing = myPendingListeners.get();
+                listener = new PendingListener(runnable, executor, existing);
+            }
+
+            if (isDone()) {
+                execute();
+            }
+        }
+        else {
+            // Run the executor.
+            execute(executor, runnable);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sets the value for the future and triggers any pending {@link #get} to
+     * return.
+     * </p>
+     *
+     * @see Callback#callback
+     */
+    @Override
+    public void callback(final V result) {
+        final boolean set = mySync.set(result);
+        if (set) {
+            execute();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * If not cancelled and the callback has not completed then cancels the
+     * future, triggers the return of any pending {@link #get()} and returns
+     * true. Otherwise returns false. This does not stop the related MongoDB
+     * invocation.
+     * </p>
+     *
+     * @see Future#cancel(boolean)
+     */
+    @Override
+    public boolean cancel(final boolean mayInterruptIfRunning) {
+        if (!mySync.cancel(mayInterruptIfRunning)) {
+            return false;
+        }
+        execute();
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sets the exception for the future and triggers any pending {@link #get}
+     * to throw a {@link ExecutionException}.
+     * </p>
+     *
+     * @see Callback#exception
+     */
+    @Override
+    public void exception(final Throwable thrown) {
+        Assertions.assertNotNull(thrown, "Cannot set a null exception.");
+
+        final boolean set = mySync.setException(thrown);
+        if (set) {
+            execute();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the value set via the {@link Callback}.
+     * </p>
+     *
+     * @see Future#get()
+     */
+    @Override
+    public V get() throws InterruptedException, ExecutionException {
+
+        if (myLockType == LockType.LOW_LATENCY_SPIN) {
+            long now = 0;
+            long spinDeadline = 1;
+            long yeildDeadline = 1;
+            while ((now < yeildDeadline) && !isDone()) {
+                for (int i = 0; (i < SPIN_ITERATIONS) && !isDone(); ++i) {
+                    // Hard spin...
+                }
+
+                if (!isDone()) {
+                    // Pause?
+                    now = System.nanoTime();
+                    if (spinDeadline == 1) {
+                        spinDeadline = now + SPIN_TIME_NS;
+                        yeildDeadline = now + YIELD_TIME_NS;
+                        // First time yield to allow other threads to do their
+                        // work...
+                        Thread.yield();
+                    }
+                    else {
+                        if ((spinDeadline < now) && (now < yeildDeadline)) {
+                            Thread.yield();
+                        }
+                    }
+                }
+            }
+        }
+
+        // Either the value is available and the get() will not block
+        // or we have spun for long enough and it is time to block.
+        return mySync.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public V get(final long timeout, final TimeUnit unit)
+            throws InterruptedException, TimeoutException, ExecutionException {
+        return mySync.get(unit.toNanos(timeout));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns true if {@link #cancel(boolean)} has been called.
+     * </p>
+     *
+     * @see Future#isCancelled()
+     */
+    @Override
+    public boolean isCancelled() {
+        return mySync.isCancelled();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * True if a value has been set via the the {@link Callback} interface or
+     * the {@link Future} has been {@link #cancel(boolean) cancelled}.
+     * </p>
+     *
+     * @see Future#isDone()
+     */
+    @Override
+    public boolean isDone() {
+        return mySync.isDone();
+    }
+
+    /**
+     * Runs this execution list, executing all existing pairs.
+     * <p>
+     * All callers of this method will drain the list of listeners.
+     * </p>
+     */
+    protected void execute() {
+        PendingListener toRun;
+        PendingListener next;
+
+        // Keep running until the list is exhausted.
+        do {
+
+            // Pick the next item from the list.
+            do {
+                toRun = myPendingListeners.get();
+                next = (toRun != null) ? toRun.myNext : null;
+            }
+            while (!myPendingListeners.compareAndSet(toRun, next));
+
+            // Run this item - if it exists.
+            if (toRun != null) {
+                execute(toRun.myExecutor, toRun.myRunnable);
+            }
+        }
+        while (toRun != null);
+    }
+
+    /**
+     * Execute the {@link Runnable} with the {@link Executor} suppressing
+     * exceptions.
+     *
+     * @param executor
+     *            The executor to use.
+     * @param runnable
+     *            The {@link Runnable} to execute.
+     */
+    private void execute(final Executor executor, final Runnable runnable) {
+        try {
+            executor.execute(runnable);
+        }
+        catch (final RuntimeException e) {
+            LOG.error(e, "Exception running a FutureListener's runnable {} "
+                    + "with executor {}", runnable, executor);
         }
     }
 

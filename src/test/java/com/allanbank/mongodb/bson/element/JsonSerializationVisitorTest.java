@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -25,10 +25,43 @@ import com.allanbank.mongodb.error.JsonException;
  * {@link JsonSerializationVisitor} class is testing via the toString() tests
  * for each Element type. This test suite handles the error cases and corner
  * cases only.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JsonSerializationVisitorTest {
+
+    /**
+     * ThrowingWriter provides a writer that throws an exception on all writes.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static class ThrowingWriter extends Writer {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void close() throws IOException {
+            throw new IOException();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void flush() throws IOException {
+            throw new IOException();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void write(final char[] cbuf, final int off, final int len)
+                throws IOException {
+            throw new IOException();
+        }
+    }
 
     /**
      * Test method for
@@ -299,38 +332,5 @@ public class JsonSerializationVisitorTest {
         visitor.visitSymbol("a'b", "a'b\"c");
 
         assertEquals("\"a'b\" : 'a\\'b\"c'", writer.toString());
-    }
-
-    /**
-     * ThrowingWriter provides a writer that throws an exception on all writes.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static class ThrowingWriter extends Writer {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void close() throws IOException {
-            throw new IOException();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void flush() throws IOException {
-            throw new IOException();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void write(final char[] cbuf, final int off, final int len)
-                throws IOException {
-            throw new IOException();
-        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * ProfilingStatus provides a container for the {@link Level} and number of
  * milliseconds beyond which to consider an operation to be slow.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -19,6 +19,67 @@ import java.io.Serializable;
  */
 public class ProfilingStatus implements Comparable<ProfilingStatus>,
         Serializable {
+
+    /**
+     * Level provides the set of available profiling levels provided by the
+     * MongoDB server.
+     *
+     * @api.yes This class is part of the driver's API. Public and protected
+     *          members will be deprecated for at least 1 non-bugfix release
+     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
+     *          before being removed or modified.
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static enum Level {
+
+        /** Profile all operations. */
+        ALL(2),
+
+        /** Profile no operations. */
+        NONE(0),
+
+        /** Only profile slow operations. */
+        SLOW_ONLY(1);
+
+        /**
+         * Returns the {@link Level} for the specified value.
+         *
+         * @param value
+         *            The value of the profile level.
+         * @return The profile level for the value.
+         */
+        public static Level fromValue(final int value) {
+            for (final Level level : values()) {
+                if (level.getValue() == value) {
+                    return level;
+                }
+            }
+
+            return null;
+        }
+
+        /** The profile level value to send to MongoDB. */
+        private final int myValue;
+
+        /**
+         * Creates a new Level.
+         *
+         * @param value
+         *            The profile level value to send to MongoDB.
+         */
+        private Level(final int value) {
+            myValue = value;
+        }
+
+        /**
+         * Returns the profile level value to send to MongoDB.
+         *
+         * @return The profile level value to send to MongoDB.
+         */
+        public int getValue() {
+            return myValue;
+        }
+    }
 
     /**
      * The default threshold ({@value} )for the number of milliseconds beyond
@@ -38,7 +99,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
     /**
      * Creates a profiling state to profile operations taking more than
      * {@code slowMillis} to complete.
-     * 
+     *
      * @param slowMillis
      *            The number of milliseconds beyond which to consider an
      *            operation to be slow.
@@ -59,7 +120,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
 
     /**
      * Creates a new ProfilingStatus.
-     * 
+     *
      * @param level
      *            The profiling level to use.
      */
@@ -69,7 +130,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
 
     /**
      * Creates a new ProfilingStatus.
-     * 
+     *
      * @param level
      *            The profiling level to use.
      * @param slowMillis
@@ -129,7 +190,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
 
     /**
      * Returns the profiling level to use.
-     * 
+     *
      * @return The profiling level to use.
      */
     public Level getLevel() {
@@ -139,7 +200,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
     /**
      * Returns the number of milliseconds beyond which to consider an operation
      * to be slow.
-     * 
+     *
      * @return The number of milliseconds beyond which to consider an operation
      *         to be slow.
      */
@@ -179,7 +240,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
     /**
      * Hook into serialization to replace <tt>this</tt> object with the local
      * {@link #ON} or {@link #OFF} instance as appropriate.
-     * 
+     *
      * @return Either the {@link #ON} or {@link #OFF} instance if <tt>this</tt>
      *         instance equals one of those instances otherwise <tt>this</tt>
      *         instance.
@@ -193,67 +254,6 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
         }
         else {
             return this;
-        }
-    }
-
-    /**
-     * Level provides the set of available profiling levels provided by the
-     * MongoDB server.
-     * 
-     * @api.yes This class is part of the driver's API. Public and protected
-     *          members will be deprecated for at least 1 non-bugfix release
-     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
-     *          before being removed or modified.
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static enum Level {
-
-        /** Profile all operations. */
-        ALL(2),
-
-        /** Profile no operations. */
-        NONE(0),
-
-        /** Only profile slow operations. */
-        SLOW_ONLY(1);
-
-        /**
-         * Returns the {@link Level} for the specified value.
-         * 
-         * @param value
-         *            The value of the profile level.
-         * @return The profile level for the value.
-         */
-        public static Level fromValue(final int value) {
-            for (final Level level : values()) {
-                if (level.getValue() == value) {
-                    return level;
-                }
-            }
-
-            return null;
-        }
-
-        /** The profile level value to send to MongoDB. */
-        private final int myValue;
-
-        /**
-         * Creates a new Level.
-         * 
-         * @param value
-         *            The profile level value to send to MongoDB.
-         */
-        private Level(final int value) {
-            myValue = value;
-        }
-
-        /**
-         * Returns the profile level value to send to MongoDB.
-         * 
-         * @return The profile level value to send to MongoDB.
-         */
-        public int getValue() {
-            return myValue;
         }
     }
 }

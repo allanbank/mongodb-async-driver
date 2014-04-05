@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -17,7 +17,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
  * aggregate command's
  * {@link Aggregate.Builder#group(AggregationGroupId, AggregationGroupField...)
  * $group} pipeline operator.
- * 
+ *
  * @see <a href=
  *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
  *      Aggregate Command $group Operator</a>
@@ -30,86 +30,6 @@ import com.allanbank.mongodb.bson.element.StringElement;
 public class AggregationGroupId {
 
     /**
-     * Constructs a {@link AggregationGroupId} with a constant value.
-     * 
-     * @param value
-     *            The value of the _id.
-     * @return The AggregationGroupId with a constant value.
-     * @see <a href=
-     *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
-     *      Aggregate Command $group Operator</a>
-     */
-    public static AggregationGroupId constantId(final String value) {
-        return new AggregationGroupId(value);
-    }
-
-    /**
-     * Creates a builder to construct a complex _id value for the group.
-     * 
-     * @return The builder for the aggregation $group's id.
-     * @see <a href=
-     *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
-     *      Aggregate Command $group Operator</a>
-     */
-    public static AggregationGroupId.Builder id() {
-        return new AggregationGroupId.Builder();
-    }
-
-    /**
-     * Constructs a {@link AggregationGroupId} with a value from a single field
-     * in the source documents.
-     * 
-     * @param fieldRef
-     *            The field name in the source documents to use in constructing
-     *            the _id of the group'd documents. If the <tt>fieldRef</tt>
-     *            does not start with a '$' then one will be added.
-     * @return The AggregationGroupId with a single field value reference (which
-     *         may resolve to a complex sub-document).
-     * @see <a href=
-     *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
-     *      Aggregate Command $group Operator</a>
-     */
-    public static AggregationGroupId id(final String fieldRef) {
-        if (!fieldRef.startsWith("$")) {
-            return new AggregationGroupId("$" + fieldRef);
-        }
-
-        return new AggregationGroupId(fieldRef);
-    }
-
-    /** The id element. */
-    private final Element myIdElement;
-
-    /**
-     * Creates a new AggregationGroupId.
-     * 
-     * @param builder
-     *            The builder containing the details of the id.
-     */
-    public AggregationGroupId(final DocumentAssignable builder) {
-        myIdElement = new DocumentElement("_id", builder.asDocument());
-    }
-
-    /**
-     * Creates a new AggregationGroupId.
-     * 
-     * @param value
-     *            The value for the simple group id.
-     */
-    public AggregationGroupId(final String value) {
-        myIdElement = new StringElement("_id", value);
-    }
-
-    /**
-     * Returns the element for the group operator's id.
-     * 
-     * @return The element for the group operator's id.
-     */
-    public Element toElement() {
-        return myIdElement;
-    }
-
-    /**
      * Builder provides the ability to construct a complex
      * {@link AggregationGroupId}.
      * <p>
@@ -117,7 +37,7 @@ public class AggregationGroupId {
      * {@link com.allanbank.mongodb.bson.builder.DocumentBuilder} interface to
      * allow the construction of arbitrarily complex id documents.
      * </p>
-     * 
+     *
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -141,7 +61,7 @@ public class AggregationGroupId {
          * addField(&lt;fieldRef&gt;, &lt;fieldRef&gt;)} with appropriate
          * handling for the '$' prefix.
          * </p>
-         * 
+         *
          * @param fieldRef
          *            The dotted field path for the field to use. If the
          *            <tt>fieldRef</tt> does not start with a '$' then one will
@@ -160,7 +80,7 @@ public class AggregationGroupId {
 
         /**
          * Adds a field reference to the id document.
-         * 
+         *
          * @param name
          *            The name of the field in the id document.
          * @param fieldRef
@@ -182,11 +102,91 @@ public class AggregationGroupId {
         /**
          * Constructs a new {@link AggregationGroupId} object from the state of
          * the builder.
-         * 
+         *
          * @return The new {@link AggregationGroupId} object.
          */
         public AggregationGroupId buildId() {
             return new AggregationGroupId(this);
         }
+    }
+
+    /**
+     * Constructs a {@link AggregationGroupId} with a constant value.
+     *
+     * @param value
+     *            The value of the _id.
+     * @return The AggregationGroupId with a constant value.
+     * @see <a href=
+     *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
+     *      Aggregate Command $group Operator</a>
+     */
+    public static AggregationGroupId constantId(final String value) {
+        return new AggregationGroupId(value);
+    }
+
+    /**
+     * Creates a builder to construct a complex _id value for the group.
+     *
+     * @return The builder for the aggregation $group's id.
+     * @see <a href=
+     *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
+     *      Aggregate Command $group Operator</a>
+     */
+    public static AggregationGroupId.Builder id() {
+        return new AggregationGroupId.Builder();
+    }
+
+    /**
+     * Constructs a {@link AggregationGroupId} with a value from a single field
+     * in the source documents.
+     *
+     * @param fieldRef
+     *            The field name in the source documents to use in constructing
+     *            the _id of the group'd documents. If the <tt>fieldRef</tt>
+     *            does not start with a '$' then one will be added.
+     * @return The AggregationGroupId with a single field value reference (which
+     *         may resolve to a complex sub-document).
+     * @see <a href=
+     *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
+     *      Aggregate Command $group Operator</a>
+     */
+    public static AggregationGroupId id(final String fieldRef) {
+        if (!fieldRef.startsWith("$")) {
+            return new AggregationGroupId("$" + fieldRef);
+        }
+
+        return new AggregationGroupId(fieldRef);
+    }
+
+    /** The id element. */
+    private final Element myIdElement;
+
+    /**
+     * Creates a new AggregationGroupId.
+     *
+     * @param builder
+     *            The builder containing the details of the id.
+     */
+    public AggregationGroupId(final DocumentAssignable builder) {
+        myIdElement = new DocumentElement("_id", builder.asDocument());
+    }
+
+    /**
+     * Creates a new AggregationGroupId.
+     *
+     * @param value
+     *            The value for the simple group id.
+     */
+    public AggregationGroupId(final String value) {
+        myIdElement = new StringElement("_id", value);
+    }
+
+    /**
+     * Returns the element for the group operator's id.
+     *
+     * @return The element for the group operator's id.
+     */
+    public Element toElement() {
+        return myIdElement;
     }
 }

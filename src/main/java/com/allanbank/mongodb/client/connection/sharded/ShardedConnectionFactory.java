@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.sharded;
@@ -38,12 +38,67 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * Provides the ability to create connections to a shard configuration via
  * mongos servers.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedConnectionFactory implements ConnectionFactory {
+
+    /**
+     * BootstrapState provides the ability to track the state of the bootstrap
+     * for the sharded cluster.
+     *
+     * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected static class BootstrapState {
+        /** Tracks if the {@code mongos} servers have been located. */
+        private boolean myMongosFound;
+
+        /**
+         * Creates a new BootstrapState.
+         *
+         * @param mongosFound
+         *            Initials if we should look for the {@code mongos} servers.
+         */
+        protected BootstrapState(final boolean mongosFound) {
+            myMongosFound = mongosFound;
+        }
+
+        /**
+         * Indicates when the bootstrap is complete.
+         * <p>
+         * This method returns true if auto discovery is turned off or (if on)
+         * when all of the {@code mongos} servers have been located.
+         *
+         * @return True once the boot strap is complete.
+         */
+        public boolean done() {
+            return myMongosFound;
+        }
+
+        /**
+         * Returns true if the {@code mongos} servers have been found, false
+         * otherwise.
+         *
+         * @return True if the {@code mongos} servers have been found, false
+         *         otherwise.
+         */
+        public boolean isMongosFound() {
+            return myMongosFound;
+        }
+
+        /**
+         * Sets if the the {@code mongos} servers have been found.
+         *
+         * @param mongosFound
+         *            If true, the {@code mongos} servers have been found, false
+         *            otherwise.
+         */
+        public void setMongosFound(final boolean mongosFound) {
+            myMongosFound = mongosFound;
+        }
+    }
 
     /** The logger for the {@link ShardedConnectionFactory}. */
     protected static final Log LOG = LogFactory
@@ -66,7 +121,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates a new {@link ShardedConnectionFactory}.
-     * 
+     *
      * @param factory
      *            The factory to create proxied connections.
      * @param config
@@ -152,7 +207,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates a new connection to the shared mongos servers.
-     * 
+     *
      * @see ConnectionFactory#connect()
      */
     @Override
@@ -191,7 +246,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Returns the maximum server version within the cluster.
-     * 
+     *
      * @return The maximum server version within the cluster.
      */
     @Override
@@ -201,7 +256,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Returns the minimum server version within the cluster.
-     * 
+     *
      * @return The minimum server version within the cluster.
      */
     @Override
@@ -231,7 +286,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * Returns smallest value for the maximum number of write operations allowed
      * in a single write command.
-     * 
+     *
      * @return The smallest value for maximum number of write operations allowed
      *         in a single write command.
      */
@@ -243,7 +298,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * Returns the smallest value for the maximum BSON object within the
      * cluster.
-     * 
+     *
      * @return The smallest value for the maximum BSON object within the
      *         cluster.
      */
@@ -254,7 +309,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates a new {@link BootstrapState}.
-     * 
+     *
      * @return The {@link BootstrapState} to track state of loading the cluster
      *         information.
      */
@@ -265,7 +320,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * Creates a {@link Cluster} object to track the state of the servers across
      * the cluster.
-     * 
+     *
      * @param config
      *            The configuration for the cluster.
      * @return The {@link Cluster} to track the servers across the cluster.
@@ -277,12 +332,12 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * Creates a {@link ClusterPinger} object to periodically update the status
      * of the servers.
-     * 
+     *
      * @param factory
      *            The factory for creating the connections to the servers.
      * @param config
      *            The configuration for the client.
-     * 
+     *
      * @return The {@link ClusterPinger} object to periodically update the
      *         status of the servers.
      */
@@ -299,7 +354,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      * <p>
      * For a sharded cluster this defaults to the {@link LatencyServerSelector}.
      * </p>
-     * 
+     *
      * @return The {@link ServerSelector} object to select the (presumed)
      *         optimal server to handle a request.
      */
@@ -312,19 +367,19 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      * collection to return the id for all of the mongos servers in the cluster.
      * <p>
      * A single mongos entry looks like: <blockquote>
-     * 
+     *
      * <pre>
      * <code>
-     * { 
-     *     "_id" : "mongos.example.com:27017", 
-     *     "ping" : ISODate("2011-12-05T23:54:03.122Z"), 
-     *     "up" : 330 
+     * {
+     *     "_id" : "mongos.example.com:27017",
+     *     "ping" : ISODate("2011-12-05T23:54:03.122Z"),
+     *     "up" : 330
      * }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param conn
      *            The connection to request from.
      * @return True if the configuration servers have been determined.
@@ -373,7 +428,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Returns the clusterState value.
-     * 
+     *
      * @return The clusterState value.
      */
     protected Cluster getCluster() {
@@ -383,7 +438,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * Queries for the addresses for the {@code mongos} servers via the
      * {@link #findMongosServers(Connection)} method.
-     * 
+     *
      * @param state
      *            The state of the bootstrap to be updated.
      * @param conn
@@ -403,7 +458,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Wraps the connection in a shard-aware connection.
-     * 
+     *
      * @param primaryConn
      *            The primary shard connection.
      * @param server
@@ -413,60 +468,5 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     protected Connection wrap(final Connection primaryConn, final Server server) {
         return new ShardedConnection(primaryConn, server, myCluster,
                 mySelector, myConnectionFactory, myConfig);
-    }
-
-    /**
-     * BootstrapState provides the ability to track the state of the bootstrap
-     * for the sharded cluster.
-     * 
-     * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected static class BootstrapState {
-        /** Tracks if the {@code mongos} servers have been located. */
-        private boolean myMongosFound;
-
-        /**
-         * Creates a new BootstrapState.
-         * 
-         * @param mongosFound
-         *            Initials if we should look for the {@code mongos} servers.
-         */
-        protected BootstrapState(final boolean mongosFound) {
-            myMongosFound = mongosFound;
-        }
-
-        /**
-         * Indicates when the bootstrap is complete.
-         * <p>
-         * This method returns true if auto discovery is turned off or (if on)
-         * when all of the {@code mongos} servers have been located.
-         * 
-         * @return True once the boot strap is complete.
-         */
-        public boolean done() {
-            return myMongosFound;
-        }
-
-        /**
-         * Returns true if the {@code mongos} servers have been found, false
-         * otherwise.
-         * 
-         * @return True if the {@code mongos} servers have been found, false
-         *         otherwise.
-         */
-        public boolean isMongosFound() {
-            return myMongosFound;
-        }
-
-        /**
-         * Sets if the the {@code mongos} servers have been found.
-         * 
-         * @param mongosFound
-         *            If true, the {@code mongos} servers have been found, false
-         *            otherwise.
-         */
-        public void setMongosFound(final boolean mongosFound) {
-            myMongosFound = mongosFound;
-        }
     }
 }

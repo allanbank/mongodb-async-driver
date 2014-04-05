@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -22,7 +22,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
  * CountTest provides tests for the {@link Count} command.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CountTest {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.element;
@@ -18,7 +18,7 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON JavaScript with Scope.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -37,7 +37,7 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the element.
      * @param javaScript
@@ -49,7 +49,7 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
     private static long computeSize(final String name, final String javaScript,
             final Document scope) {
         long result = 11; // type (1) + name null byte (1) + length (4)
-                          // javaScript length and null byte (5)
+        // javaScript length and null byte (5)
         result += StringEncoder.utf8Size(name);
         result += StringEncoder.utf8Size(javaScript);
         if (scope != null) {
@@ -64,7 +64,7 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
 
     /**
      * Constructs a new {@link JavaScriptWithScopeElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON string.
      * @param javaScript
@@ -84,7 +84,7 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
 
     /**
      * Constructs a new {@link JavaScriptWithScopeElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON string.
      * @param javaScript
@@ -112,7 +112,7 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
     /**
      * Accepts the visitor and calls the
      * {@link Visitor#visitJavaScript(String,String,Document)} method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -160,10 +160,10 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -183,7 +183,7 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
 
     /**
      * Returns the BSON JavaScript scope.
-     * 
+     *
      * @return The BSON JavaScript scope.
      */
     public Document getScope() {
@@ -220,7 +220,7 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

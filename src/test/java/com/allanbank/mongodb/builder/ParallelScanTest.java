@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -15,7 +15,7 @@ import com.allanbank.mongodb.ReadPreference;
 
 /**
  * ParallelScanTest provides tests for the {@link ParallelScan} command.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ParallelScanTest {

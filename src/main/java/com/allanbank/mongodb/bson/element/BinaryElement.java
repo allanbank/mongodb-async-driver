@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.element;
@@ -17,7 +17,7 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON binary.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -38,7 +38,7 @@ public class BinaryElement extends AbstractElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the BSON array.
      * @param subType
@@ -69,7 +69,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Constructs a new {@link BinaryElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON binary.
      * @param subType
@@ -90,7 +90,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Constructs a new {@link BinaryElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON binary.
      * @param subType
@@ -122,7 +122,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Constructs a new {@link BinaryElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON binary.
      * @param subType
@@ -140,7 +140,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Constructs a new {@link BinaryElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON binary.
      * @param subType
@@ -169,7 +169,7 @@ public class BinaryElement extends AbstractElement {
     /**
      * Constructs a new {@link BinaryElement}. Uses the
      * {@link #DEFAULT_SUB_TYPE}.
-     * 
+     *
      * @param name
      *            The name for the BSON binary.
      * @param value
@@ -183,7 +183,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitBinary} method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -226,10 +226,10 @@ public class BinaryElement extends AbstractElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -249,7 +249,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Returns the byte value at the specified offset.
-     * 
+     *
      * @param offset
      *            The offset of the desired value.
      * @return The byte value at the offset.
@@ -262,7 +262,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Return the binary sub-type.
-     * 
+     *
      * @return The binary sub-type.
      */
     public byte getSubType() {
@@ -282,7 +282,7 @@ public class BinaryElement extends AbstractElement {
      * internal byte array. To avoid the copying of the bytes use the
      * {@link #length()} and {@link #get(int)} methods to access each byte
      * value.
-     * 
+     *
      * @return The BSON binary value.
      */
     public byte[] getValue() {
@@ -310,7 +310,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -324,7 +324,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Returns the length of the contained byte array.
-     * 
+     *
      * @return The length of the contained byte array.
      */
     public final int length() {

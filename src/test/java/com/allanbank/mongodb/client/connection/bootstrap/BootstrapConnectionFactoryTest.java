@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -51,7 +51,7 @@ import com.allanbank.mongodb.error.CannotConnectException;
 
 /**
  * Integration test for the {@link BootstrapConnectionFactory}.
- * 
+ *
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BootstrapConnectionFactoryTest {
@@ -72,7 +72,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -84,7 +84,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Stops a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -100,7 +100,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Cleans up the test connection.
-     * 
+     *
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -138,7 +138,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
-     * 
+     *
      * @throws UnknownHostException
      *             On a failure to resolve localhost.
      */
@@ -176,7 +176,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
-     * 
+     *
      * @throws UnknownHostException
      *             On a failure to resolve localhost.
      */
@@ -334,7 +334,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Test method for {@link BootstrapConnectionFactory#close()} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */

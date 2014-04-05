@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -30,7 +30,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * names of elements, this class will call the {@link #visitName(String)} method
  * for each element visited.
  * </p>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -284,7 +284,7 @@ public class VisitorAdapter implements Visitor {
     /**
      * Extension point for {@link Visitor} implementation only interested in the
      * name of the elements.
-     * 
+     *
      * @param name
      *            The name of the element.
      */

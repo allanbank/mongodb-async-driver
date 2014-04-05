@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.io;
@@ -20,7 +20,7 @@ import java.util.List;
  * buffer reallocations since it avoids the copy of contents from one buffer to
  * another.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -108,7 +108,7 @@ public class RandomAccessOutputStream extends OutputStream {
     /**
      * Returns the maximum number of strings that may have their encoded form
      * cached.
-     * 
+     *
      * @return The maximum number of strings that may have their encoded form
      *         cached.
      */
@@ -119,7 +119,7 @@ public class RandomAccessOutputStream extends OutputStream {
     /**
      * Returns the maximum length for a string that the stream is allowed to
      * cache.
-     * 
+     *
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
      */
@@ -130,7 +130,7 @@ public class RandomAccessOutputStream extends OutputStream {
     /**
      * Returns the current position in the stream. This is equivalent to
      * {@link #getSize()}.
-     * 
+     *
      * @return The current position in the stream.
      */
     public long getPosition() {
@@ -139,7 +139,7 @@ public class RandomAccessOutputStream extends OutputStream {
 
     /**
      * Returns the number of bytes written to the stream.
-     * 
+     *
      * @return The current number of bytes written to the stream.
      */
     public long getSize() {
@@ -160,7 +160,7 @@ public class RandomAccessOutputStream extends OutputStream {
     /**
      * Sets the value of maximum number of strings that may have their encoded
      * form cached.
-     * 
+     *
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
@@ -173,7 +173,7 @@ public class RandomAccessOutputStream extends OutputStream {
      * Sets the value of length for a string that the stream is allowed to cache
      * to the new value. This can be used to stop a single long string from
      * pushing useful values out of the cache.
-     * 
+     *
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
@@ -185,7 +185,7 @@ public class RandomAccessOutputStream extends OutputStream {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @param buffer
      *            the data.
      */
@@ -196,7 +196,7 @@ public class RandomAccessOutputStream extends OutputStream {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @param buffer
      *            the data.
      * @param offset
@@ -257,7 +257,7 @@ public class RandomAccessOutputStream extends OutputStream {
      * <p>
      * Equivalent to <code>writeAt(position, buffer, 0, buffer.length);</code>.
      * </p>
-     * 
+     *
      * @param position
      *            The position to write at. This location should have already
      *            been written.
@@ -271,7 +271,7 @@ public class RandomAccessOutputStream extends OutputStream {
     /**
      * Similar to {@link #write(byte[], int, int)} but allows a portion of the
      * already written buffer to be re-written.
-     * 
+     *
      * @param position
      *            The position to write at. This location should have already
      *            been written.
@@ -325,7 +325,7 @@ public class RandomAccessOutputStream extends OutputStream {
     /**
      * Similar to {@link #write(int)} but allows a portion of the already
      * written buffer to be re-written.
-     * 
+     *
      * @param position
      *            The position to write at. This location should have already
      *            been written.
@@ -343,7 +343,7 @@ public class RandomAccessOutputStream extends OutputStream {
 
     /**
      * Writes a single byte to the stream.
-     * 
+     *
      * @param b
      *            The byte to write.
      */
@@ -353,7 +353,7 @@ public class RandomAccessOutputStream extends OutputStream {
 
     /**
      * Writes a sequence of bytes to the under lying stream.
-     * 
+     *
      * @param data
      *            The bytes to write.
      */
@@ -363,7 +363,7 @@ public class RandomAccessOutputStream extends OutputStream {
 
     /**
      * Writes a "Cstring" to the stream.
-     * 
+     *
      * @param strings
      *            The CString to write. The strings are concatenated into a
      *            single CString value.
@@ -385,7 +385,7 @@ public class RandomAccessOutputStream extends OutputStream {
 
     /**
      * Write the integer value in little-endian byte order.
-     * 
+     *
      * @param value
      *            The integer to write.
      */
@@ -401,7 +401,7 @@ public class RandomAccessOutputStream extends OutputStream {
     /**
      * Write the integer value in little-endian byte order at the specified
      * position in the stream.
-     * 
+     *
      * @param position
      *            The position in the stream to write the integer.
      * @param value
@@ -418,7 +418,7 @@ public class RandomAccessOutputStream extends OutputStream {
 
     /**
      * Write the long value in little-endian byte order.
-     * 
+     *
      * @param value
      *            The long to write.
      */
@@ -437,7 +437,7 @@ public class RandomAccessOutputStream extends OutputStream {
 
     /**
      * Writes a "string" to the stream.
-     * 
+     *
      * @param string
      *            The String to write.
      */
@@ -469,7 +469,7 @@ public class RandomAccessOutputStream extends OutputStream {
      * Writes the complete contents of this byte array output stream to the
      * specified output stream argument, as if by calling the output stream's
      * write method using <code>out.write(buf, 0, count)</code>.
-     * 
+     *
      * @param out
      *            the output stream to which to write the data.
      * @exception IOException

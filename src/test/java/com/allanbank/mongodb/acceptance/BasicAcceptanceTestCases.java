@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -144,10 +144,218 @@ import com.allanbank.mongodb.util.IOUtils;
  * are expected to verify that the format and structure of the messages the
  * driver generates are acceptable to the MongoDB servers.
  * </p>
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
+
+    /**
+     * DocumentCallback provides a simple callback for testing streaming finds.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static final class DocumentCallback implements
+            StreamCallback<Document> {
+
+        /** The number of documents received. */
+        private int myCount = 0;
+
+        /** The exception if seen. */
+        private Throwable myException = null;
+
+        /** True if the callback has been terminated. */
+        private boolean myTerminated = false;
+
+        /** True if the callback has been terminated. */
+        private boolean myTerminatedByException = false;
+
+        /** True if the callback has been terminated. */
+        private boolean myTerminatedByNull = false;
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public synchronized void callback(final Document result) {
+            if (result != null) {
+                myCount += 1;
+            }
+            else {
+                myTerminatedByNull = true;
+                myTerminated = true;
+            }
+            notifyAll();
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to mark the callback as terminated.
+         * </p>
+         */
+        @Override
+        public synchronized void done() {
+            myTerminated = true;
+            notifyAll();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public synchronized void exception(final Throwable thrown) {
+            myTerminatedByException = true;
+            myTerminated = true;
+            myException = thrown;
+            notifyAll();
+        }
+
+        /**
+         * Returns the number of documents received.
+         *
+         * @return The number of documents received.
+         */
+        public synchronized int getCount() {
+            return myCount;
+        }
+
+        /**
+         * Returns the exception if seen.
+         *
+         * @return The exception if seen.
+         */
+        public synchronized Throwable getException() {
+            return myException;
+        }
+
+        /**
+         * Returns true if the callback has been terminated.
+         *
+         * @return True if the callback has been terminated.
+         */
+        public synchronized boolean isTerminated() {
+            return myTerminated;
+        }
+
+        /**
+         * Returns the terminatedByException value.
+         *
+         * @return The terminatedByException value.
+         */
+        public boolean isTerminatedByException() {
+            return myTerminatedByException;
+        }
+
+        /**
+         * Returns the terminatedByNull value.
+         *
+         * @return The terminatedByNull value.
+         */
+        public boolean isTerminatedByNull() {
+            return myTerminatedByNull;
+        }
+
+        /**
+         * Waits for the specified number of documents to be received or the
+         * callback to be termined or the timeout.
+         *
+         * @param timeMs
+         *            The maximum number of milliseconds to wait.
+         */
+        public void waitFor(final long timeMs) {
+            long now = System.currentTimeMillis();
+            final long deadline = now + timeMs;
+
+            synchronized (this) {
+                while ((now < deadline) && !myTerminated) {
+                    try {
+                        wait(deadline - now);
+                    }
+                    catch (final InterruptedException e) {
+                        // Handled by while loop.
+                    }
+                    now = System.currentTimeMillis();
+                }
+            }
+        }
+    }
+
+    /**
+     * TestIteratorAsyncCallback provides a test callback.
+     *
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    static class TestIteratorAsyncCallback implements
+            Callback<MongoIterator<Document>> {
+
+        /** The number of times the callback methods have been invoked. */
+        private int myCalls = 0;
+
+        /** The iterator provided to the callback. */
+        private MongoIterator<Document> myIter;
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to save the iterator and increment the call count.
+         * </p>
+         */
+        @Override
+        public void callback(final MongoIterator<Document> result) {
+            myIter = result;
+            synchronized (this) {
+                myCalls += 1;
+                this.notifyAll();
+            }
+
+        }
+
+        /**
+         * Checks the number of times the callback is invoked. Will wait for the
+         * first call.
+         *
+         * @throws InterruptedException
+         *             On a failure to wait.
+         */
+        public void check() throws InterruptedException {
+            synchronized (this) {
+                while (myCalls <= 0) {
+                    this.wait();
+                }
+            }
+
+            Thread.sleep(500);
+
+            if (myCalls > 1) {
+                throw new IllegalArgumentException("Called more than once: "
+                        + myCalls);
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to increment the called count.
+         * </p>
+         */
+        @Override
+        public void exception(final Throwable thrown) {
+            synchronized (this) {
+                myCalls += 1;
+                this.notifyAll();
+            }
+
+        }
+
+        /**
+         * Returns the iterator returned.
+         *
+         * @return The iterator provided to the callback.
+         */
+        public MongoIterator<Document> iter() {
+            return myIter;
+        }
+    }
 
     /** The name of the test collection to use. */
     public static final String GEO_TEST_COLLECTION_NAME = "geo";
@@ -235,7 +443,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Returns the large collection handle.
-     * 
+     *
      * @param mongoClient
      *            The client to connect to the collection.
      * @return The handle to the large collection.
@@ -337,7 +545,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Verifies the function of Aggregate framework.
      * <p>
      * Using the drivers support classes: <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.builder.AggregationGroupField#set com.allanbank.mongodb.builder.AggregateGroupField.set};
@@ -374,12 +582,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      *         .sort(desc("biggestCity.pop"));
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      * </p>
      * <p>
      * Using the MongoDB Shell: <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * > db.things.insert( { state : "NZ", city : "big", pop : 1000  } );
@@ -410,7 +618,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      *                  biggestCity : { name : "$biggestcity", pop: "$biggestpop" },
      *                  smallestCity : { name : "$smallestcity", pop : "$smallestpop" } } }
      *              { $sort : { "biggestCity.pop : -1 } }
-     *            ] );     
+     *            ] );
      * {
      *     "result" : [
      *         {
@@ -451,9 +659,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state">Inspired
      *      By</a>
@@ -824,7 +1032,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * closed to submit the requests so we use a try-finally. In Java 1.7 we
      * could use a try-with-resources.
      * </p>
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -1167,7 +1375,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies counting the number of documents in the collection will timeout
      * if it takes too long.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -1369,7 +1577,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies running a distinct command. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * db.addresses.insert({"zip-code": 10010})
@@ -1380,7 +1588,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * [ 10010, 99701 ]
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Test
@@ -1461,7 +1669,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies that a database is removed from the server on a drop.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure to sleep as part of the test.
      */
@@ -1845,7 +2053,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertThat(outFile.length(), is(inFile.length()));
 
             random = new Random(seed); // Reset random to get the same stream of
-                                       // values.
+            // values.
             final byte[] buffer2 = new byte[buffer.length];
             in = new FileInputStream(outFile);
             final DataInputStream din = new DataInputStream(in);
@@ -2033,7 +2241,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies the function of a GroupBy command. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * { domain: "www.mongodb.org"
@@ -2041,7 +2249,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * , response_time: 0.05
      * , http_action: "GET /display/DOCS/Aggregate"
      * }
-     *  
+     * 
      * db.test.group(
      *    { cond: {"invoked_at.d": {$gte: "2009-11", $lt: "2009-12"}}
      *    , key: {http_action: true}
@@ -2061,7 +2269,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * 
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Test
@@ -2238,7 +2446,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies that the MongoDB iteration over a large collection works as
      * expected.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure of the test to wait.
      * @throws ExecutionException
@@ -2341,7 +2549,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies the function of MapReduce via a sample Map/Reduce <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * > db.things.insert( { _id : 1, tags : ['dog', 'cat'] } );
@@ -2384,7 +2592,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {"_id" : "mouse" , "value" : {"count" : 1}}
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Test
@@ -8435,7 +8643,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies the function of the {@link com.allanbank.mongodb.builder.Text
      * text} command.
-     * 
+     *
      * <pre>
      * <code>
      * > db.collection.find()
@@ -8473,7 +8681,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * }
      * </code>
      * </pre>
-     * 
+     *
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -8798,7 +9006,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Calculates the distance between the two point in km.
-     * 
+     *
      * @param x1
      *            The first x coordinate.
      * @param y1
@@ -8812,7 +9020,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     protected double distance(final double x1, final double y1,
             final double x2, final double y2) {
         final double R = 6378.137 * 1000; // m - Distance is in meters w/out a
-                                          // datum
+        // datum
         final double dLat = Math.toRadians(x2 - x1);
         final double dLon = Math.toRadians(y2 - y1);
         final double lat1 = Math.toRadians(x1);
@@ -8830,7 +9038,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Fails the test.
-     * 
+     *
      * @param t
      *            The cause of the failure.
      */
@@ -8843,7 +9051,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Returns a collection with a geospatial 2D index on the 'p' field.
-     * 
+     *
      * @return The collection with a geospatial 2D index on the 'p' field.
      */
     protected MongoCollection getGeoCollection() {
@@ -8857,7 +9065,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Returns a collection with a geospatial 2Dshpere index on the 'p' field.
-     * 
+     *
      * @return The collection with a geospatial 2Dshpere index on the 'p' field.
      */
     protected MongoCollection getGeoSphereCollection() {
@@ -8872,7 +9080,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Returns true when running against a replica set configuration (may be
      * shards of replica sets.
-     * 
+     *
      * @return True when connecting to a replica set.
      */
     protected boolean isReplicaSetConfiguration() {
@@ -8883,7 +9091,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Returns true when running against a sharded configuration. Not all
      * commands are supported in shared environments, e.g., when connected to a
      * mongos.
-     * 
+     *
      * @return True when connecting to a mongos.
      */
     protected boolean isShardedConfiguration() {
@@ -8892,7 +9100,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Shards the collection with the specified name.
-     * 
+     *
      * @param collectionName
      *            The name of the collection to shard.
      */
@@ -8903,7 +9111,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Shards the collection with the specified name.
-     * 
+     *
      * @param collectionName
      *            The name of the collection to shard.
      * @param shardKey
@@ -8948,214 +9156,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     index += 1;
                 }
             }
-        }
-    }
-
-    /**
-     * DocumentCallback provides a simple callback for testing streaming finds.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static final class DocumentCallback implements
-            StreamCallback<Document> {
-
-        /** The number of documents received. */
-        private int myCount = 0;
-
-        /** The exception if seen. */
-        private Throwable myException = null;
-
-        /** True if the callback has been terminated. */
-        private boolean myTerminated = false;
-
-        /** True if the callback has been terminated. */
-        private boolean myTerminatedByException = false;
-
-        /** True if the callback has been terminated. */
-        private boolean myTerminatedByNull = false;
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public synchronized void callback(final Document result) {
-            if (result != null) {
-                myCount += 1;
-            }
-            else {
-                myTerminatedByNull = true;
-                myTerminated = true;
-            }
-            notifyAll();
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to mark the callback as terminated.
-         * </p>
-         */
-        @Override
-        public synchronized void done() {
-            myTerminated = true;
-            notifyAll();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public synchronized void exception(final Throwable thrown) {
-            myTerminatedByException = true;
-            myTerminated = true;
-            myException = thrown;
-            notifyAll();
-        }
-
-        /**
-         * Returns the number of documents received.
-         * 
-         * @return The number of documents received.
-         */
-        public synchronized int getCount() {
-            return myCount;
-        }
-
-        /**
-         * Returns the exception if seen.
-         * 
-         * @return The exception if seen.
-         */
-        public synchronized Throwable getException() {
-            return myException;
-        }
-
-        /**
-         * Returns true if the callback has been terminated.
-         * 
-         * @return True if the callback has been terminated.
-         */
-        public synchronized boolean isTerminated() {
-            return myTerminated;
-        }
-
-        /**
-         * Returns the terminatedByException value.
-         * 
-         * @return The terminatedByException value.
-         */
-        public boolean isTerminatedByException() {
-            return myTerminatedByException;
-        }
-
-        /**
-         * Returns the terminatedByNull value.
-         * 
-         * @return The terminatedByNull value.
-         */
-        public boolean isTerminatedByNull() {
-            return myTerminatedByNull;
-        }
-
-        /**
-         * Waits for the specified number of documents to be received or the
-         * callback to be termined or the timeout.
-         * 
-         * @param timeMs
-         *            The maximum number of milliseconds to wait.
-         */
-        public void waitFor(final long timeMs) {
-            long now = System.currentTimeMillis();
-            final long deadline = now + timeMs;
-
-            synchronized (this) {
-                while ((now < deadline) && !myTerminated) {
-                    try {
-                        wait(deadline - now);
-                    }
-                    catch (final InterruptedException e) {
-                        // Handled by while loop.
-                    }
-                    now = System.currentTimeMillis();
-                }
-            }
-        }
-    }
-
-    /**
-     * TestIteratorAsyncCallback provides a test callback.
-     * 
-     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    static class TestIteratorAsyncCallback implements
-            Callback<MongoIterator<Document>> {
-
-        /** The number of times the callback methods have been invoked. */
-        private int myCalls = 0;
-
-        /** The iterator provided to the callback. */
-        private MongoIterator<Document> myIter;
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to save the iterator and increment the call count.
-         * </p>
-         */
-        @Override
-        public void callback(final MongoIterator<Document> result) {
-            myIter = result;
-            synchronized (this) {
-                myCalls += 1;
-                this.notifyAll();
-            }
-
-        }
-
-        /**
-         * Checks the number of times the callback is invoked. Will wait for the
-         * first call.
-         * 
-         * @throws InterruptedException
-         *             On a failure to wait.
-         */
-        public void check() throws InterruptedException {
-            synchronized (this) {
-                while (myCalls <= 0) {
-                    this.wait();
-                }
-            }
-
-            Thread.sleep(500);
-
-            if (myCalls > 1) {
-                throw new IllegalArgumentException("Called more than once: "
-                        + myCalls);
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to increment the called count.
-         * </p>
-         */
-        @Override
-        public void exception(final Throwable thrown) {
-            synchronized (this) {
-                myCalls += 1;
-                this.notifyAll();
-            }
-
-        }
-
-        /**
-         * Returns the iterator returned.
-         * 
-         * @return The iterator provided to the callback.
-         */
-        public MongoIterator<Document> iter() {
-            return myIter;
         }
     }
 }

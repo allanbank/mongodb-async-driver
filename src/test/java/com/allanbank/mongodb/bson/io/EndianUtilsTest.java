@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Allanbank Consulting, Inc. 
+ * Copyright 2011, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.io;
@@ -13,7 +13,7 @@ import org.junit.Test;
 
 /**
  * Test class for the {@link EndianUtils} class.
- * 
+ *
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class EndianUtilsTest {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -20,7 +20,7 @@ import com.allanbank.mongodb.bson.json.Json;
 
 /**
  * GeoJsonTest provides tests for the {@link GeoJson} class.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class GeoJsonTest {

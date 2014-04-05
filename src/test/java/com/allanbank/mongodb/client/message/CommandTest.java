@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -14,7 +14,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
  * CommandTest provides tests for the {@link Command} class.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CommandTest {

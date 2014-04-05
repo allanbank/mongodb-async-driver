@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -26,10 +26,48 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * ReplyHandlerTest provides tests for the {@link ReplyHandler} class.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyHandlerTest {
+
+    /**
+     * CallerExecutor provides a simple executor.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public class CallerExecutor implements Executor {
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to call run on the command.
+         * </p>
+         */
+        @Override
+        public void execute(final Runnable command) {
+            command.run();
+        }
+    }
+
+    /**
+     * RejectionExecutor provides a simple executor.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public class RejectionExecutor implements Executor {
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to call run on the command.
+         * </p>
+         */
+        @Override
+        public void execute(final Runnable command) {
+            throw new RejectedExecutionException();
+        }
+    }
 
     /**
      * Test method for
@@ -167,7 +205,7 @@ public class ReplyHandlerTest {
     /**
      * Test method for
      * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -198,7 +236,7 @@ public class ReplyHandlerTest {
     /**
      * Test method for
      * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -230,7 +268,7 @@ public class ReplyHandlerTest {
     /**
      * Test method for
      * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -272,43 +310,5 @@ public class ReplyHandlerTest {
         replay(executor);
         ReplyHandler.reply(reply, null, executor);
         verify(executor);
-    }
-
-    /**
-     * CallerExecutor provides a simple executor.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public class CallerExecutor implements Executor {
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to call run on the command.
-         * </p>
-         */
-        @Override
-        public void execute(final Runnable command) {
-            command.run();
-        }
-    }
-
-    /**
-     * RejectionExecutor provides a simple executor.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public class RejectionExecutor implements Executor {
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Overridden to call run on the command.
-         * </p>
-         */
-        @Override
-        public void execute(final Runnable command) {
-            throw new RejectedExecutionException();
-        }
     }
 }

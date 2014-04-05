@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -25,7 +25,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
  * Implements the bootstrap point for interactions with MongoDB.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -43,7 +43,7 @@ public class MongoClientImpl implements MongoClient {
 
     /**
      * Create a new MongoClient.
-     * 
+     *
      * @param client
      *            The client interface for interacting with the database.
      */
@@ -55,7 +55,7 @@ public class MongoClientImpl implements MongoClient {
 
     /**
      * Create a new MongoClient.
-     * 
+     *
      * @param config
      *            The configuration for interacting with MongoDB.
      */
@@ -91,7 +91,7 @@ public class MongoClientImpl implements MongoClient {
 
     /**
      * Returns the client value.
-     * 
+     *
      * @return The client value.
      */
     public Client getClient() {
@@ -114,7 +114,7 @@ public class MongoClientImpl implements MongoClient {
      * <p>
      * Overridden to create the named database.
      * </p>
-     * 
+     *
      * @see com.allanbank.mongodb.Mongo#getDatabase(java.lang.String)
      */
     @Override
@@ -165,7 +165,7 @@ public class MongoClientImpl implements MongoClient {
      * <p>
      * Overridden to issue a listDatabases command against the 'admin' database.
      * </p>
-     * 
+     *
      * @see com.allanbank.mongodb.Mongo#listDatabaseNames()
      */
     @Override
@@ -195,7 +195,7 @@ public class MongoClientImpl implements MongoClient {
 
     /**
      * Restarts an iterator that was previously saved.
-     * 
+     *
      * @param cursorDocument
      *            The document containing the state of the cursor.
      * @return The restarted iterator.
@@ -226,7 +226,7 @@ public class MongoClientImpl implements MongoClient {
 
     /**
      * Restarts a document stream from a cursor that was previously saved.
-     * 
+     *
      * @param results
      *            Callback that will be notified of the results of the cursor.
      * @param cursorDocument

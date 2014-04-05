@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb;
@@ -11,7 +11,7 @@ import com.allanbank.mongodb.client.MongoClientImpl;
  * represented via a {@link Mongo} instance) to a MongoDB cluster. Both explicit
  * construction with a pre-instantiated {@link MongoClientConfiguration} and via
  * a MongoDB URI are supported.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -23,7 +23,7 @@ public class MongoFactory {
     /**
      * Creates a new {@link Mongo} instance using the
      * {@link MongoClientConfiguration}.
-     * 
+     *
      * @param config
      *            The configuration for the connection to MongoDB.
      * @return The {@link Mongo} representation of the connections to MongoDB.
@@ -38,12 +38,12 @@ public class MongoFactory {
 
     /**
      * Creates a new {@link Mongo} instance using a MongoDB style URL.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @return The {@link Mongo} representation of the connections to MongoDB.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      * @deprecated Use the {@link #createClient(MongoDbUri)} instead. This
@@ -56,12 +56,12 @@ public class MongoFactory {
 
     /**
      * Creates a new {@link Mongo} instance using a MongoDB style URL.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @return The {@link Mongo} representation of the connections to MongoDB.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      * @deprecated Use the {@link #createClient(String)} instead. This method
@@ -75,7 +75,7 @@ public class MongoFactory {
     /**
      * Creates a new {@link Mongo} instance using the
      * {@link MongoClientConfiguration}.
-     * 
+     *
      * @param config
      *            The configuration for the connection to MongoDB.
      * @return The {@link Mongo} representation of the connections to MongoDB.
@@ -86,12 +86,12 @@ public class MongoFactory {
 
     /**
      * Creates a new {@link Mongo} instance using a MongoDB style URL.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @return The {@link Mongo} representation of the connections to MongoDB.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
@@ -101,12 +101,12 @@ public class MongoFactory {
 
     /**
      * Creates a new {@link Mongo} instance using a MongoDB style URL.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @return The {@link Mongo} representation of the connections to MongoDB.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */

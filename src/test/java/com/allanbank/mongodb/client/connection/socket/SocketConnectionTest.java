@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.socket;
@@ -92,10 +92,34 @@ import com.allanbank.mongodb.error.ServerVersionException;
 
 /**
  * SocketConnectionTest provides tests for the {@link SocketConnection} class.
- * 
+ *
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SocketConnectionTest {
+    /**
+     * AFUNIXSocketException provides a test instance of the Unix domain socket
+     * exception.
+     *
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static final class AFUNIXSocketException extends SocketException {
+
+        /** The serialization id for the class. */
+        private static final long serialVersionUID = 1433767421262380441L;
+
+    }
+
+    /**
+     * SocketFactoryWithConnectionListener provides a test socket factory that
+     * also implements SocketConnectionListener.
+     *
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public abstract class SocketFactoryWithConnectionListener extends
+            SocketFactory implements SocketConnectionListener {
+        // Nothing.
+    }
+
     /** Update document with the "build info". */
     private static final Document BUILD_INFO;
 
@@ -111,7 +135,7 @@ public class SocketConnectionTest {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -123,7 +147,7 @@ public class SocketConnectionTest {
 
     /**
      * Stops a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -154,7 +178,7 @@ public class SocketConnectionTest {
 
     /**
      * Cleans up the test connection.
-     * 
+     *
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -170,7 +194,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -226,7 +250,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -267,7 +291,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -309,7 +333,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -372,7 +396,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -430,7 +454,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -488,7 +512,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -547,7 +571,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -608,7 +632,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -660,7 +684,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -724,7 +748,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -781,7 +805,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -822,7 +846,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -870,7 +894,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -925,7 +949,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -987,7 +1011,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1050,7 +1074,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1113,7 +1137,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1176,7 +1200,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1239,7 +1263,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1302,7 +1326,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1365,7 +1389,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1434,7 +1458,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#raiseErrors(MongoDbException)} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1491,7 +1515,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -1555,7 +1579,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1621,7 +1645,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1669,7 +1693,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1743,7 +1767,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1792,7 +1816,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1841,7 +1865,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1890,7 +1914,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1939,7 +1963,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2003,7 +2027,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2046,7 +2070,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2095,7 +2119,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -2193,7 +2217,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2222,7 +2246,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2250,7 +2274,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2291,7 +2315,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2333,7 +2357,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2375,7 +2399,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2418,7 +2442,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2462,7 +2486,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#shutdown} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2511,7 +2535,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#shutdown} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2545,7 +2569,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2602,7 +2626,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2644,7 +2668,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2669,7 +2693,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2689,7 +2713,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2735,7 +2759,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2781,7 +2805,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2816,7 +2840,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2863,7 +2887,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2914,7 +2938,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#stop} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2962,7 +2986,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -3026,7 +3050,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -3090,7 +3114,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -3154,7 +3178,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#shutdown} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -3204,7 +3228,7 @@ public class SocketConnectionTest {
 
     /**
      * Waits for the capture to have been set.
-     * 
+     *
      * @param capture
      *            The capture to wait for.
      */
@@ -3223,29 +3247,5 @@ public class SocketConnectionTest {
             }
             now = System.currentTimeMillis();
         }
-    }
-
-    /**
-     * AFUNIXSocketException provides a test instance of the Unix domain socket
-     * exception.
-     * 
-     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static final class AFUNIXSocketException extends SocketException {
-
-        /** The serialization id for the class. */
-        private static final long serialVersionUID = 1433767421262380441L;
-
-    }
-
-    /**
-     * SocketFactoryWithConnectionListener provides a test socket factory that
-     * also implements SocketConnectionListener.
-     * 
-     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public abstract class SocketFactoryWithConnectionListener extends
-            SocketFactory implements SocketConnectionListener {
-        // Nothing.
     }
 }

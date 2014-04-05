@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.bson.builder.impl;
@@ -41,7 +41,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * A builder for BSON documents.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -61,7 +61,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
 
     /**
      * Creates a new builder.
-     * 
+     *
      * @param outerScope
      *            The outer document scope.
      */
@@ -71,7 +71,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
 
     /**
      * Creates a new builder.
-     * 
+     *
      * @param seedDocument
      *            The document to seed the builder with. The builder will
      *            contain the seed document elements plus any added/appended
@@ -456,7 +456,7 @@ public class DocumentBuilderImpl extends AbstractBuilder implements
      * <p>
      * Returns the result of {@link #build()}.
      * </p>
-     * 
+     *
      * @see #build()
      */
     @Override

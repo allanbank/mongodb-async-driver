@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -18,7 +18,7 @@ import com.allanbank.mongodb.error.ReplyException;
 /**
  * Callback to expect and extract a single document from the reply and then
  * extract a contained {@link NumericElement} and coerce it to a integer value.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -36,7 +36,7 @@ public class ReplyIntegerCallback extends AbstractReplyCallback<Integer> {
 
     /**
      * Create a new ReplyIntegerCallback.
-     * 
+     *
      * @param results
      *            The callback to notify of the 'n' value.
      */
@@ -46,7 +46,7 @@ public class ReplyIntegerCallback extends AbstractReplyCallback<Integer> {
 
     /**
      * Create a new ReplyIntegerCallback.
-     * 
+     *
      * @param name
      *            The name of the {@link NumericElement numeric} value.
      * @param results
@@ -64,7 +64,7 @@ public class ReplyIntegerCallback extends AbstractReplyCallback<Integer> {
      * <p>
      * Creates an exception from the {@link Reply} if the 'n' field is missing.
      * </p>
-     * 
+     *
      * @param reply
      *            The raw reply.
      * @return The exception created.
@@ -91,7 +91,7 @@ public class ReplyIntegerCallback extends AbstractReplyCallback<Integer> {
      * <p>
      * Overridden to return the 'n' field in the reply document.
      * </p>
-     * 
+     *
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override

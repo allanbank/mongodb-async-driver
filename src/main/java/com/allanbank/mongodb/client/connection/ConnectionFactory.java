@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -25,7 +25,7 @@ import com.allanbank.mongodb.client.connection.socket.SocketConnection;
  * configuration type (Sharded, Replica Set, Standalone) and the setup the
  * appropriate delegate connection factory.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -34,7 +34,7 @@ public interface ConnectionFactory extends Closeable {
 
     /**
      * Creates a connection to the address provided.
-     * 
+     *
      * @return The Connection to MongoDB.
      * @throws IOException
      *             On a failure connecting to the server.
@@ -43,28 +43,28 @@ public interface ConnectionFactory extends Closeable {
 
     /**
      * Returns the type of cluster the connection factory connects to.
-     * 
+     *
      * @return The type of cluster the connection factory connects to.
      */
     public ClusterType getClusterType();
 
     /**
      * Returns the maximum server version within the cluster.
-     * 
+     *
      * @return The maximum server version within the cluster.
      */
     public Version getMaximumServerVersion();
 
     /**
      * Returns the minimum server version within the cluster.
-     * 
+     *
      * @return The minimum server version within the cluster.
      */
     public Version getMinimumServerVersion();
 
     /**
      * Returns the reconnection strategy for the type of connections.
-     * 
+     *
      * @return The reconnection strategy for the type of connections.
      */
     public ReconnectStrategy getReconnectStrategy();
@@ -72,7 +72,7 @@ public interface ConnectionFactory extends Closeable {
     /**
      * Returns smallest value for the maximum number of write operations allowed
      * in a single write command.
-     * 
+     *
      * @return The smallest value for maximum number of write operations allowed
      *         in a single write command.
      */
@@ -81,7 +81,7 @@ public interface ConnectionFactory extends Closeable {
     /**
      * Returns the smallest value for the maximum BSON object size within the
      * cluster.
-     * 
+     *
      * @return The smallest value for the maximum BSON object size within the
      *         cluster.
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.util.log;
@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 /**
  * Slf4jLog is the simplified logging implementation for SLF4J logging facade.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -30,7 +30,7 @@ public class Slf4jLog extends AbstractLog {
 
     /**
      * Creates a new {@link Slf4jLog}.
-     * 
+     *
      * @param logMethod
      *            The <code>log(Marker, String, int, String, Object[])</code>
      *            method from the <code>LocationAwareLogger</code> interface.
@@ -47,7 +47,7 @@ public class Slf4jLog extends AbstractLog {
      * <p>
      * Overridden to create a {@link LogRecord} based on the log information.
      * </p>
-     * 
+     *
      * @see AbstractLog#doLog(Level, Throwable, String, Object...)
      */
     @Override
@@ -76,7 +76,7 @@ public class Slf4jLog extends AbstractLog {
     /**
      * Returns the integer level for the {@link Level} as defined in the
      * LocationAwareLogger interface.
-     * 
+     *
      * @param level
      *            The level to convert.
      * @return The integer level.

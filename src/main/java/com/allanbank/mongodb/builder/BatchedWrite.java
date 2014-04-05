@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -66,7 +66,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * For a more generalized batched write and query capability see the
  * {@link BatchedAsyncMongoCollection} and {@link MongoCollection#startBatch()}.
  * </p>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -74,6 +74,341 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedWrite implements Serializable {
+
+    /**
+     * Builder for creating {@link BatchedWrite}s.
+     *
+     * @api.yes This class is part of the driver's API. Public and protected
+     *          members will be deprecated for at least 1 non-bugfix release
+     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
+     *          before being removed or modified.
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static class Builder {
+
+        /** The durability for the writes. */
+        protected Durability myDurability;
+
+        /** The mode for submitting the writes to the server. */
+        protected BatchedWriteMode myMode;
+
+        /** The writes to submit to the server. */
+        protected final List<WriteOperation> myWrites;
+
+        /**
+         * Creates a new Builder.
+         */
+        public Builder() {
+            myWrites = new ArrayList<WriteOperation>();
+
+            reset();
+        }
+
+        /**
+         * Constructs a new {@link BatchedWrite} object from the state of the
+         * builder.
+         *
+         * @return The new {@link BatchedWrite} object.
+         */
+        public BatchedWrite build() {
+            return new BatchedWrite(this);
+        }
+
+        /**
+         * Update a document based on a query.
+         * <p>
+         * Defaults to deleting as many documents as match the query.
+         * </p>
+         * <p>
+         * This method is delegates to
+         * {@link #delete(DocumentAssignable, boolean) delete(query, false)}
+         * </p>
+         *
+         * @param query
+         *            The query to find the document to delete.
+         * @return This builder for chaining method calls.
+         */
+        public Builder delete(final DocumentAssignable query) {
+            return delete(query, false);
+        }
+
+        /**
+         * Update a document based on a query.
+         * <p>
+         * Defaults to deleting as many documents as match the query.
+         * </p>
+         *
+         * @param query
+         *            The query to find the document to delete.
+         * @param singleDelete
+         *            If true then only a single document will be deleted. If
+         *            running in a sharded environment then this field must be
+         *            false or the query must contain the shard key.
+         * @return This builder for chaining method calls.
+         */
+        public Builder delete(final DocumentAssignable query,
+                final boolean singleDelete) {
+            return write(new DeleteOperation(query, false));
+        }
+
+        /**
+         * Sets the durability for the writes.
+         * <p>
+         * This method delegates to {@link #setDurability(Durability)}.
+         * </p>
+         *
+         * @param durability
+         *            The new value for the durability for the writes.
+         * @return This builder for chaining method calls.
+         */
+        public Builder durability(final Durability durability) {
+            return setDurability(durability);
+        }
+
+        /**
+         * Returns the durability for the write.
+         *
+         * @return This durability for the write.
+         */
+        public Durability getDurability() {
+            return myDurability;
+        }
+
+        /**
+         * Adds an insert operation to the batched write.
+         *
+         * @param document
+         *            The document to insert.
+         * @return This builder for chaining method calls.
+         */
+        public Builder insert(final DocumentAssignable document) {
+            return write(new InsertOperation(document));
+        }
+
+        /**
+         * Sets the mode for submitting the writes to the server.
+         * <p>
+         * This method delegates to {@link #setMode(BatchedWriteMode)}.
+         * </p>
+         *
+         * @param mode
+         *            The new value for the mode for submitting the writes to
+         *            the server.
+         * @return This builder for chaining method calls.
+         */
+        public Builder mode(final BatchedWriteMode mode) {
+            return setMode(mode);
+        }
+
+        /**
+         * Resets the builder back to its initial state for reuse.
+         *
+         * @return This builder for chaining method calls.
+         */
+        public Builder reset() {
+            myWrites.clear();
+            myMode = BatchedWriteMode.SERIALIZE_AND_CONTINUE;
+            myDurability = null;
+
+            return this;
+        }
+
+        /**
+         * Saves the {@code document} to MongoDB.
+         * <p>
+         * If the {@code document} does not contain an {@code _id} field then
+         * this method is equivalent to: {@link #insert(DocumentAssignable)
+         * insert(document)}.
+         * </p>
+         * <p>
+         * If the {@code document} does contain an {@code _id} field then this
+         * method is equivalent to:
+         * {@link #update(DocumentAssignable, DocumentAssignable)
+         * updateAsync(BuilderFactory.start().add(document.get("_id")),
+         * document, false, true)}.
+         * </p>
+         *
+         * @param document
+         *            The document to save.
+         * @return This builder for chaining method calls.
+         */
+        public Builder save(final DocumentAssignable document) {
+            final Document doc = document.asDocument();
+            final Element id = doc.get("_id");
+            if (id == null) {
+                return insert(doc);
+            }
+            return update(BuilderFactory.start().add(id), doc, false, true);
+        }
+
+        /**
+         * Sets the durability for the writes.
+         *
+         * @param durability
+         *            The new value for the durability for the writes.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setDurability(final Durability durability) {
+            myDurability = durability;
+            return this;
+        }
+
+        /**
+         * Sets the mode for submitting the writes to the server.
+         *
+         * @param mode
+         *            The new value for the mode for submitting the writes to
+         *            the server.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setMode(final BatchedWriteMode mode) {
+            myMode = mode;
+            return this;
+        }
+
+        /**
+         * Sets the writes to submit to the server.
+         *
+         * @param writes
+         *            The new value for the writes to submit to the server.
+         * @return This builder for chaining method calls.
+         */
+        public Builder setWrites(final List<WriteOperation> writes) {
+            myWrites.clear();
+            if (writes != null) {
+                myWrites.addAll(writes);
+            }
+            return this;
+        }
+
+        /**
+         * Update a document based on a query.
+         * <p>
+         * Defaults to updating a single document and not performing an upsert
+         * if no document is found.
+         * </p>
+         * <p>
+         * This method is delegates to
+         * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean)
+         * update(query, update, false, false)}
+         * </p>
+         *
+         * @param query
+         *            The query to find the document to update.
+         * @param update
+         *            The update operations to apply to the document.
+         * @return This builder for chaining method calls.
+         */
+        public Builder update(final DocumentAssignable query,
+                final DocumentAssignable update) {
+            return update(query, update, false, false);
+        }
+
+        /**
+         * Update a document based on a query.
+         * <p>
+         * Defaults to updating a single document and not performing an upsert
+         * if no document is found.
+         * </p>
+         *
+         * @param query
+         *            The query to find the document to update.
+         * @param update
+         *            The update operations to apply to the document.
+         * @param multiUpdate
+         *            If true then the update is applied to all of the matching
+         *            documents, otherwise only the first document found is
+         *            updated.
+         * @param upsert
+         *            If true then if no document is found then a new document
+         *            is created and updated, otherwise no operation is
+         *            performed.
+         * @return This builder for chaining method calls.
+         */
+        public Builder update(final DocumentAssignable query,
+                final DocumentAssignable update, final boolean multiUpdate,
+                final boolean upsert) {
+            return write(new UpdateOperation(query, update, multiUpdate, upsert));
+        }
+
+        /**
+         * Adds a single write to the list of writes to send to the server.
+         *
+         * @param write
+         *            The write to add to the list of writes to send to the
+         *            server.
+         * @return This builder for chaining method calls.
+         */
+        public Builder write(final WriteOperation write) {
+            myWrites.add(write);
+            return this;
+        }
+
+        /**
+         * Sets the writes to submit to the server.
+         * <p>
+         * This method delegates to {@link #setWrites(List)}.
+         * </p>
+         *
+         * @param writes
+         *            The new value for the writes to submit to the server.
+         * @return This builder for chaining method calls.
+         */
+        public Builder writes(final List<WriteOperation> writes) {
+            return setWrites(writes);
+        }
+    }
+
+    /**
+     * Bundle is a container for the write command and the
+     * {@link WriteOperation} it contains.
+     *
+     * @api.yes This class is part of the driver's API. Public and protected
+     *          members will be deprecated for at least 1 non-bugfix release
+     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
+     *          before being removed or modified.
+     */
+    public static final class Bundle {
+        /** The command containing the bundled write operations. */
+        private final Document myCommand;
+
+        /** The writes that are bundled in the command. */
+        private final List<WriteOperation> myWrites;
+
+        /**
+         * Creates a new Bundle.
+         *
+         * @param command
+         *            The command containing the bundled write operations.
+         * @param writes
+         *            The writes that are bundled in the command.
+         */
+        protected Bundle(final Document command,
+                final List<WriteOperation> writes) {
+            super();
+            myCommand = command;
+            myWrites = Collections
+                    .unmodifiableList(new ArrayList<WriteOperation>(writes));
+        }
+
+        /**
+         * Returns the command containing the bundled write operations.
+         *
+         * @return The command containing the bundled write operations.
+         */
+        public Document getCommand() {
+            return myCommand;
+        }
+
+        /**
+         * Returns the writes that are bundled in the command.
+         *
+         * @return The writes that are bundled in the command.
+         */
+        public List<WriteOperation> getWrites() {
+            return myWrites;
+        }
+    }
 
     /** The first version of MongoDB to support the {@code aggregate} command. */
     public static final Version REQUIRED_VERSION = Version.parse("2.5.5");
@@ -83,7 +418,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Creates a new builder for a {@link BatchedWrite}.
-     * 
+     *
      * @return The builder to construct a {@link BatchedWrite}.
      */
     public static Builder builder() {
@@ -101,7 +436,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Creates a new BatchedWrite.
-     * 
+     *
      * @param builder
      *            The builder for the writes.
      */
@@ -114,7 +449,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Returns the durability for the writes.
-     * 
+     *
      * @return The durability for the writes.
      */
     public Durability getDurability() {
@@ -123,7 +458,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Returns the mode for submitting the writes to the server.
-     * 
+     *
      * @return The mode for submitting the writes to the server.
      */
     public BatchedWriteMode getMode() {
@@ -132,7 +467,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Returns the writes to submit to the server.
-     * 
+     *
      * @return The writes to submit to the server.
      */
     public List<WriteOperation> getWrites() {
@@ -142,7 +477,7 @@ public class BatchedWrite implements Serializable {
     /**
      * Creates write commands for all of the insert, updates and deletes. The
      * number and order of the writes is based on the {@link #getMode() mode}.
-     * 
+     *
      * @param collectionName
      *            The name of the collection the documents will be inserted
      *            into.
@@ -172,7 +507,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Adds the document to the array of documents.
-     * 
+     *
      * @param array
      *            The array to add the operation to.
      * @param operation
@@ -211,7 +546,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Adds the durability ('writeConcern') to the command document.
-     * 
+     *
      * @param command
      *            The command document to add the durability to.
      * @param durability
@@ -244,7 +579,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Creates a {@link DocumentToLargeException} for the operation.
-     * 
+     *
      * @param operation
      *            The large operation.
      * @param size
@@ -292,7 +627,7 @@ public class BatchedWrite implements Serializable {
      * added to command documents of there own once the command overhead has
      * been factored in.
      * </p>
-     * 
+     *
      * @param collectionName
      *            The name of the collection the documents will be inserted
      *            into.
@@ -391,7 +726,7 @@ public class BatchedWrite implements Serializable {
      * below with the full map. That allows those big operations to be added to
      * commands of there own once the command overhead has been factored in.
      * </p>
-     * 
+     *
      * @param collectionName
      *            The name of the collection the documents will be inserted
      *            into.
@@ -488,7 +823,7 @@ public class BatchedWrite implements Serializable {
      * <dt>'limit' field</dt>
      * <dd>name (6 bytes), type (1 byte), value (4 bytes)</dd>
      * </dl>
-     * 
+     *
      * @param index
      *            The index of the operation in the operations array.
      * @param operation
@@ -523,7 +858,7 @@ public class BatchedWrite implements Serializable {
     /**
      * Returns the number of bytes required to encode the index within the array
      * element.
-     * 
+     *
      * @param index
      *            The index to return the size of.
      * @return The length of the encoded index.
@@ -556,7 +891,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Starts a new command document.
-     * 
+     *
      * @param operation
      *            The operation to start.
      * @param collectionName
@@ -601,340 +936,5 @@ public class BatchedWrite implements Serializable {
         addDurability(command, getDurability());
 
         return command.pushArray(arrayName);
-    }
-
-    /**
-     * Builder for creating {@link BatchedWrite}s.
-     * 
-     * @api.yes This class is part of the driver's API. Public and protected
-     *          members will be deprecated for at least 1 non-bugfix release
-     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
-     *          before being removed or modified.
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    public static class Builder {
-
-        /** The durability for the writes. */
-        protected Durability myDurability;
-
-        /** The mode for submitting the writes to the server. */
-        protected BatchedWriteMode myMode;
-
-        /** The writes to submit to the server. */
-        protected final List<WriteOperation> myWrites;
-
-        /**
-         * Creates a new Builder.
-         */
-        public Builder() {
-            myWrites = new ArrayList<WriteOperation>();
-
-            reset();
-        }
-
-        /**
-         * Constructs a new {@link BatchedWrite} object from the state of the
-         * builder.
-         * 
-         * @return The new {@link BatchedWrite} object.
-         */
-        public BatchedWrite build() {
-            return new BatchedWrite(this);
-        }
-
-        /**
-         * Update a document based on a query.
-         * <p>
-         * Defaults to deleting as many documents as match the query.
-         * </p>
-         * <p>
-         * This method is delegates to
-         * {@link #delete(DocumentAssignable, boolean) delete(query, false)}
-         * </p>
-         * 
-         * @param query
-         *            The query to find the document to delete.
-         * @return This builder for chaining method calls.
-         */
-        public Builder delete(final DocumentAssignable query) {
-            return delete(query, false);
-        }
-
-        /**
-         * Update a document based on a query.
-         * <p>
-         * Defaults to deleting as many documents as match the query.
-         * </p>
-         * 
-         * @param query
-         *            The query to find the document to delete.
-         * @param singleDelete
-         *            If true then only a single document will be deleted. If
-         *            running in a sharded environment then this field must be
-         *            false or the query must contain the shard key.
-         * @return This builder for chaining method calls.
-         */
-        public Builder delete(final DocumentAssignable query,
-                final boolean singleDelete) {
-            return write(new DeleteOperation(query, false));
-        }
-
-        /**
-         * Sets the durability for the writes.
-         * <p>
-         * This method delegates to {@link #setDurability(Durability)}.
-         * </p>
-         * 
-         * @param durability
-         *            The new value for the durability for the writes.
-         * @return This builder for chaining method calls.
-         */
-        public Builder durability(final Durability durability) {
-            return setDurability(durability);
-        }
-
-        /**
-         * Returns the durability for the write.
-         * 
-         * @return This durability for the write.
-         */
-        public Durability getDurability() {
-            return myDurability;
-        }
-
-        /**
-         * Adds an insert operation to the batched write.
-         * 
-         * @param document
-         *            The document to insert.
-         * @return This builder for chaining method calls.
-         */
-        public Builder insert(final DocumentAssignable document) {
-            return write(new InsertOperation(document));
-        }
-
-        /**
-         * Sets the mode for submitting the writes to the server.
-         * <p>
-         * This method delegates to {@link #setMode(BatchedWriteMode)}.
-         * </p>
-         * 
-         * @param mode
-         *            The new value for the mode for submitting the writes to
-         *            the server.
-         * @return This builder for chaining method calls.
-         */
-        public Builder mode(final BatchedWriteMode mode) {
-            return setMode(mode);
-        }
-
-        /**
-         * Resets the builder back to its initial state for reuse.
-         * 
-         * @return This builder for chaining method calls.
-         */
-        public Builder reset() {
-            myWrites.clear();
-            myMode = BatchedWriteMode.SERIALIZE_AND_CONTINUE;
-            myDurability = null;
-
-            return this;
-        }
-
-        /**
-         * Saves the {@code document} to MongoDB.
-         * <p>
-         * If the {@code document} does not contain an {@code _id} field then
-         * this method is equivalent to: {@link #insert(DocumentAssignable)
-         * insert(document)}.
-         * </p>
-         * <p>
-         * If the {@code document} does contain an {@code _id} field then this
-         * method is equivalent to:
-         * {@link #update(DocumentAssignable, DocumentAssignable)
-         * updateAsync(BuilderFactory.start().add(document.get("_id")),
-         * document, false, true)}.
-         * </p>
-         * 
-         * @param document
-         *            The document to save.
-         * @return This builder for chaining method calls.
-         */
-        public Builder save(final DocumentAssignable document) {
-            final Document doc = document.asDocument();
-            final Element id = doc.get("_id");
-            if (id == null) {
-                return insert(doc);
-            }
-            return update(BuilderFactory.start().add(id), doc, false, true);
-        }
-
-        /**
-         * Sets the durability for the writes.
-         * 
-         * @param durability
-         *            The new value for the durability for the writes.
-         * @return This builder for chaining method calls.
-         */
-        public Builder setDurability(final Durability durability) {
-            myDurability = durability;
-            return this;
-        }
-
-        /**
-         * Sets the mode for submitting the writes to the server.
-         * 
-         * @param mode
-         *            The new value for the mode for submitting the writes to
-         *            the server.
-         * @return This builder for chaining method calls.
-         */
-        public Builder setMode(final BatchedWriteMode mode) {
-            myMode = mode;
-            return this;
-        }
-
-        /**
-         * Sets the writes to submit to the server.
-         * 
-         * @param writes
-         *            The new value for the writes to submit to the server.
-         * @return This builder for chaining method calls.
-         */
-        public Builder setWrites(final List<WriteOperation> writes) {
-            myWrites.clear();
-            if (writes != null) {
-                myWrites.addAll(writes);
-            }
-            return this;
-        }
-
-        /**
-         * Update a document based on a query.
-         * <p>
-         * Defaults to updating a single document and not performing an upsert
-         * if no document is found.
-         * </p>
-         * <p>
-         * This method is delegates to
-         * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean)
-         * update(query, update, false, false)}
-         * </p>
-         * 
-         * @param query
-         *            The query to find the document to update.
-         * @param update
-         *            The update operations to apply to the document.
-         * @return This builder for chaining method calls.
-         */
-        public Builder update(final DocumentAssignable query,
-                final DocumentAssignable update) {
-            return update(query, update, false, false);
-        }
-
-        /**
-         * Update a document based on a query.
-         * <p>
-         * Defaults to updating a single document and not performing an upsert
-         * if no document is found.
-         * </p>
-         * 
-         * @param query
-         *            The query to find the document to update.
-         * @param update
-         *            The update operations to apply to the document.
-         * @param multiUpdate
-         *            If true then the update is applied to all of the matching
-         *            documents, otherwise only the first document found is
-         *            updated.
-         * @param upsert
-         *            If true then if no document is found then a new document
-         *            is created and updated, otherwise no operation is
-         *            performed.
-         * @return This builder for chaining method calls.
-         */
-        public Builder update(final DocumentAssignable query,
-                final DocumentAssignable update, final boolean multiUpdate,
-                final boolean upsert) {
-            return write(new UpdateOperation(query, update, multiUpdate, upsert));
-        }
-
-        /**
-         * Adds a single write to the list of writes to send to the server.
-         * 
-         * @param write
-         *            The write to add to the list of writes to send to the
-         *            server.
-         * @return This builder for chaining method calls.
-         */
-        public Builder write(final WriteOperation write) {
-            myWrites.add(write);
-            return this;
-        }
-
-        /**
-         * Sets the writes to submit to the server.
-         * <p>
-         * This method delegates to {@link #setWrites(List)}.
-         * </p>
-         * 
-         * @param writes
-         *            The new value for the writes to submit to the server.
-         * @return This builder for chaining method calls.
-         */
-        public Builder writes(final List<WriteOperation> writes) {
-            return setWrites(writes);
-        }
-    }
-
-    /**
-     * Bundle is a container for the write command and the
-     * {@link WriteOperation} it contains.
-     * 
-     * @api.yes This class is part of the driver's API. Public and protected
-     *          members will be deprecated for at least 1 non-bugfix release
-     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
-     *          before being removed or modified.
-     */
-    public static final class Bundle {
-        /** The command containing the bundled write operations. */
-        private final Document myCommand;
-
-        /** The writes that are bundled in the command. */
-        private final List<WriteOperation> myWrites;
-
-        /**
-         * Creates a new Bundle.
-         * 
-         * @param command
-         *            The command containing the bundled write operations.
-         * @param writes
-         *            The writes that are bundled in the command.
-         */
-        protected Bundle(final Document command,
-                final List<WriteOperation> writes) {
-            super();
-            myCommand = command;
-            myWrites = Collections
-                    .unmodifiableList(new ArrayList<WriteOperation>(writes));
-        }
-
-        /**
-         * Returns the command containing the bundled write operations.
-         * 
-         * @return The command containing the bundled write operations.
-         */
-        public Document getCommand() {
-            return myCommand;
-        }
-
-        /**
-         * Returns the writes that are bundled in the command.
-         * 
-         * @return The writes that are bundled in the command.
-         */
-        public List<WriteOperation> getWrites() {
-            return myWrites;
-        }
     }
 }

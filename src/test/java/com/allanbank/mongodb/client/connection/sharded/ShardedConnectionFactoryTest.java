@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -59,7 +59,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 /**
  * ShardedConnectionFactoryTest provides tests for the
  * {@link ShardedConnectionFactory}.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedConnectionFactoryTest {
@@ -78,7 +78,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -90,7 +90,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Stops a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -163,12 +163,12 @@ public class ShardedConnectionFactoryTest {
         assertEquals(1, servers.size());
 
         assertEquals(3, ourServer.getRequests().size()); // For buildInfo + ping
-                                                         // + request.
+        // + request.
     }
 
     /**
      * Test method for {@link ShardedConnectionFactory#bootstrap()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -213,7 +213,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#bootstrap()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -263,7 +263,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#bootstrap()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -291,7 +291,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#bootstrap()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -331,7 +331,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#bootstrap()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -371,7 +371,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#close()} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -411,7 +411,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -447,7 +447,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -519,7 +519,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */

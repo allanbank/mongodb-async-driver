@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014, Allanbank Consulting, Inc. 
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.client.connection.socket;
@@ -32,7 +32,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * messages before releasing a write request. For that reason this
  * implementation is only used with the normal Java Socket implementations.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -47,7 +47,7 @@ public class SocketConnection extends AbstractSocketConnection {
 
     /**
      * Creates a new SocketConnection to a MongoDB server.
-     * 
+     *
      * @param server
      *            The MongoDB server to connect to.
      * @param config

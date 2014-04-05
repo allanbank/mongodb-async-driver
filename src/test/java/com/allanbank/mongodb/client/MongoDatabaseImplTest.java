@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -42,7 +42,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * MongoDatabaseImplTest provides tests for the {@link MongoDatabaseImpl} class.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("unchecked")
@@ -553,7 +553,7 @@ public class MongoDatabaseImplTest {
     /**
      * Test method for
      * {@link MongoDatabaseImpl#runCommandAsync(DocumentAssignable)}.
-     * 
+     *
      * @throws Exception
      *             On a failure.
      */
@@ -579,7 +579,7 @@ public class MongoDatabaseImplTest {
 
     /**
      * Test method for {@link MongoDatabaseImpl#runCommandAsync(String)}.
-     * 
+     *
      * @throws Exception
      *             On a failure.
      */
@@ -606,7 +606,7 @@ public class MongoDatabaseImplTest {
     /**
      * Test method for
      * {@link MongoDatabaseImpl#runCommandAsync(String, DocumentAssignable)}.
-     * 
+     *
      * @throws Exception
      *             On a failure.
      */
@@ -639,7 +639,7 @@ public class MongoDatabaseImplTest {
      * Test method for
      * {@link MongoDatabaseImpl#runCommandAsync(String, String, DocumentAssignable)}
      * .
-     * 
+     *
      * @throws Exception
      *             On a failure.
      */
@@ -864,7 +864,7 @@ public class MongoDatabaseImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -875,7 +875,7 @@ public class MongoDatabaseImplTest {
 
     /**
      * Creates a reply around the document.
-     * 
+     *
      * @param replyDoc
      *            The document to include in the reply.
      * @return The {@link Reply}
@@ -888,7 +888,7 @@ public class MongoDatabaseImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */

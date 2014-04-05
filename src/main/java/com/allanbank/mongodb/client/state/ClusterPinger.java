@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -30,12 +30,98 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * ClusterPinger pings each of the connections in the cluster and updates the
  * latency of the server from this client.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterPinger implements Runnable, Closeable {
+
+    /**
+     * Pinger provides logic to ping servers.
+     *
+     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected static final class Pinger {
+        /**
+         * Pings the server and suppresses all exceptions. Updates the server
+         * state with a latency and the tags found in the response, if any.
+         *
+         * @param server
+         *            The server to update with the results of the ping. If
+         *            <code>false</code> is returned then the state will not
+         *            have been updated. Passing <code>null</code> for the state
+         *            is allowed.
+         * @param conn
+         *            The connection to ping.
+         * @return True if the ping worked, false otherwise.
+         */
+        public boolean ping(final Server server, final Connection conn) {
+            try {
+                final Future<Reply> future = pingAsync(ClusterType.STAND_ALONE,
+                        server, conn);
+
+                // Wait for the reply.
+                if (future != null) {
+                    future.get(1, TimeUnit.MINUTES);
+
+                    return true;
+                }
+            }
+            catch (final ExecutionException e) {
+                LOG.info(e, "Could not ping '{}': {}",
+                        server.getCanonicalName(), e.getMessage());
+            }
+            catch (final TimeoutException e) {
+                LOG.info(e, "'{}' might be a zombie - not receiving "
+                        + "a response to ping: {}", server.getCanonicalName(),
+                        e.getMessage());
+            }
+            catch (final InterruptedException e) {
+                LOG.info(e, "Interrupted pinging '{}': {}",
+                        server.getCanonicalName(), e.getMessage());
+            }
+
+            return false;
+        }
+
+        /**
+         * Pings the server and suppresses all exceptions. Returns a future that
+         * can be used to determine if a response has been received. The future
+         * will update the {@link Server} latency and tags if found.
+         *
+         * @param type
+         *            The type of cluster to ping.
+         * @param server
+         *            The server to update with the results of the ping. If
+         *            <code>false</code> is returned then the state will not
+         *            have been updated. Passing <code>null</code> for the state
+         *            is allowed.
+         * @param conn
+         *            The connection to ping.
+         * @return A {@link Future} that will be updated once the reply is
+         *         received.
+         */
+        public Future<Reply> pingAsync(final ClusterType type,
+                final Server server, final Connection conn) {
+            try {
+                final ServerUpdateCallback future = new ServerUpdateCallback(
+                        server);
+
+                conn.send(new IsMaster(), future);
+                if (type == ClusterType.REPLICA_SET) {
+                    conn.send(new ReplicaSetStatus(), new ServerUpdateCallback(
+                            server));
+                }
+
+                return future;
+            }
+            catch (final MongoDbException e) {
+                LOG.info("Could not ping '{}': {}", server, e.getMessage());
+            }
+            return null;
+        }
+    }
 
     /** The default interval between ping sweeps in seconds. */
     public static final int DEFAULT_PING_INTERVAL_SECONDS = 600;
@@ -48,7 +134,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Pings the server and suppresses all exceptions.
-     * 
+     *
      * @param server
      *            The address of the server. Used for logging.
      * @param conn
@@ -85,7 +171,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Creates a new ClusterPinger.
-     * 
+     *
      * @param cluster
      *            The state of the cluster.
      * @param clusterType
@@ -126,7 +212,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Returns the units for the ping sweep intervals.
-     * 
+     *
      * @return The units for the ping sweep intervals.
      */
     public TimeUnit getIntervalUnits() {
@@ -135,7 +221,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Returns the interval for a ping sweep across all of the servers..
-     * 
+     *
      * @return The interval for a ping sweep across all of the servers..
      */
     public int getPingSweepInterval() {
@@ -277,7 +363,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Sets the value of units for the ping sweep intervals.
-     * 
+     *
      * @param intervalUnits
      *            The new value for the units for the ping sweep intervals.
      */
@@ -287,7 +373,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Sets the interval for a ping sweep across all of the servers..
-     * 
+     *
      * @param pingSweepInterval
      *            The new value for the interval for a ping sweep across all of
      *            the servers..
@@ -323,7 +409,7 @@ public class ClusterPinger implements Runnable, Closeable {
      * This method also serves as an extension point for derived classes to do
      * other periodic work.
      * </p>
-     * 
+     *
      * @param server
      *            The server to ping.
      * @param conn
@@ -332,91 +418,5 @@ public class ClusterPinger implements Runnable, Closeable {
     protected void pingAsync(final Server server, final Connection conn) {
         // Ping to update the latency and tags.
         PINGER.pingAsync(myClusterType, server, conn);
-    }
-
-    /**
-     * Pinger provides logic to ping servers.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected static final class Pinger {
-        /**
-         * Pings the server and suppresses all exceptions. Updates the server
-         * state with a latency and the tags found in the response, if any.
-         * 
-         * @param server
-         *            The server to update with the results of the ping. If
-         *            <code>false</code> is returned then the state will not
-         *            have been updated. Passing <code>null</code> for the state
-         *            is allowed.
-         * @param conn
-         *            The connection to ping.
-         * @return True if the ping worked, false otherwise.
-         */
-        public boolean ping(final Server server, final Connection conn) {
-            try {
-                final Future<Reply> future = pingAsync(ClusterType.STAND_ALONE,
-                        server, conn);
-
-                // Wait for the reply.
-                if (future != null) {
-                    future.get(1, TimeUnit.MINUTES);
-
-                    return true;
-                }
-            }
-            catch (final ExecutionException e) {
-                LOG.info(e, "Could not ping '{}': {}",
-                        server.getCanonicalName(), e.getMessage());
-            }
-            catch (final TimeoutException e) {
-                LOG.info(e, "'{}' might be a zombie - not receiving "
-                        + "a response to ping: {}", server.getCanonicalName(),
-                        e.getMessage());
-            }
-            catch (final InterruptedException e) {
-                LOG.info(e, "Interrupted pinging '{}': {}",
-                        server.getCanonicalName(), e.getMessage());
-            }
-
-            return false;
-        }
-
-        /**
-         * Pings the server and suppresses all exceptions. Returns a future that
-         * can be used to determine if a response has been received. The future
-         * will update the {@link Server} latency and tags if found.
-         * 
-         * @param type
-         *            The type of cluster to ping.
-         * @param server
-         *            The server to update with the results of the ping. If
-         *            <code>false</code> is returned then the state will not
-         *            have been updated. Passing <code>null</code> for the state
-         *            is allowed.
-         * @param conn
-         *            The connection to ping.
-         * @return A {@link Future} that will be updated once the reply is
-         *         received.
-         */
-        public Future<Reply> pingAsync(final ClusterType type,
-                final Server server, final Connection conn) {
-            try {
-                final ServerUpdateCallback future = new ServerUpdateCallback(
-                        server);
-
-                conn.send(new IsMaster(), future);
-                if (type == ClusterType.REPLICA_SET) {
-                    conn.send(new ReplicaSetStatus(), new ServerUpdateCallback(
-                            server));
-                }
-
-                return future;
-            }
-            catch (final MongoDbException e) {
-                LOG.info("Could not ping '{}': {}", server, e.getMessage());
-            }
-            return null;
-        }
     }
 }

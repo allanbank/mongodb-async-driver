@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -11,7 +11,7 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * FutureReplyCallback provides a {@link FutureCallback} that also implements
  * the {@link ReplyCallback} interface.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class FutureReplyCallback extends FutureCallback<Reply> implements

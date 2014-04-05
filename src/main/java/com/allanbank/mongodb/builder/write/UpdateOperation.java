@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -10,7 +10,7 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * UpdateOperation provides a container for the fields in an update request.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -36,7 +36,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Creates a new UpdateOperation.
-     * 
+     *
      * @param query
      *            The query to find the documents to update.
      * @param update
@@ -59,7 +59,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Returns the query to find the documents to update.
-     * 
+     *
      * @return The query to find the documents to update.
      */
     public Document getQuery() {
@@ -79,7 +79,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Returns the update specification.
-     * 
+     *
      * @return The update specification.
      */
     public Document getUpdate() {
@@ -88,7 +88,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Returns true if the update can modify multiple documents.
-     * 
+     *
      * @return True if the update can modify multiple documents.
      */
     public boolean isMultiUpdate() {
@@ -97,7 +97,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Returns true if the document should be inserted if not found.
-     * 
+     *
      * @return True if the document should be inserted if not found.
      */
     public boolean isUpsert() {

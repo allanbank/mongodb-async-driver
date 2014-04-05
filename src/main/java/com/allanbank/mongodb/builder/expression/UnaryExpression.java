@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb.builder.expression;
@@ -11,7 +11,7 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
 /**
  * UnaryExpression provides an implementation of an {@link Expression} with 1
  * operand.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -26,7 +26,7 @@ public class UnaryExpression implements Expression, ElementAssignable {
 
     /**
      * Creates a new NaryExpression.
-     * 
+     *
      * @param operator
      *            The operator this object represents.
      * @param expression
@@ -43,13 +43,13 @@ public class UnaryExpression implements Expression, ElementAssignable {
      * Overridden to return the sub expressions as an element:
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * <code>
-     * { "$op" : ??? } 
+     * { "$op" : ??? }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Override
@@ -64,13 +64,13 @@ public class UnaryExpression implements Expression, ElementAssignable {
      * array element:
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * { &lt;name&gt; : { "$op" : ??? } }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Override

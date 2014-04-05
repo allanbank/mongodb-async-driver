@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Allanbank Consulting, Inc. 
+ * Copyright 2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -18,7 +18,7 @@ import com.allanbank.mongodb.builder.ParallelScan;
 /**
  * ParallelScanCommandTest provides tests for the {@link ParallelScanCommand}
  * class.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ParallelScanCommandTest {

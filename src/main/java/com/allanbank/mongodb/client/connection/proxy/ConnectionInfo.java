@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -10,10 +10,10 @@ import com.allanbank.mongodb.client.connection.Connection;
 /**
  * ConnectionInfo provides a container for the information on a discovered
  * server.
- * 
+ *
  * @param <K>
  *            The type of key used to identify the server.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -28,7 +28,7 @@ public class ConnectionInfo<K> {
 
     /**
      * Creates a new ConnectionInfo.
-     * 
+     *
      * @param connection
      *            The connection to the primary server.
      * @param connectionKey
@@ -42,7 +42,7 @@ public class ConnectionInfo<K> {
 
     /**
      * Returns the connection to the primary server.
-     * 
+     *
      * @return The connection to the primary server.
      */
     public Connection getConnection() {
@@ -51,7 +51,7 @@ public class ConnectionInfo<K> {
 
     /**
      * Returns the primary server.
-     * 
+     *
      * @return The primary server.
      */
     public K getConnectionKey() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014, Allanbank Consulting, Inc. 
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -44,7 +44,7 @@ import com.allanbank.mongodb.error.ConnectionLostException;
 /**
  * BasicAcceptanceTestCases provides acceptance test cases for when interacting
  * with a replica set.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
@@ -119,7 +119,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
     /**
      * Tests that using the secondary preferred read preference submits queries
      * to secondaries.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      * @throws ExecutionException
@@ -278,7 +278,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Test recovery from a sudden server failure.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure to sleep in the test.
      */
@@ -392,7 +392,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Extracts the specified opcounter value from the document.
-     * 
+     *
      * @param doc
      *            The document to pull the value from.
      * @param op
@@ -410,7 +410,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Keeps trying to step down the primary until it works.
-     * 
+     *
      * @param deferSeconds
      *            The number of seconds to stay a secondary after the step down.
      * @throws MongoDbException

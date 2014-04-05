@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc. 
+ * Copyright 2011-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -15,10 +15,10 @@ import com.allanbank.mongodb.bson.Document;
 
 /**
  * Iterator over the results of fixed collection.
- * 
+ *
  * @param <T>
  *            The type being iterated.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -30,7 +30,7 @@ public class SimpleMongoIteratorImpl<T> implements MongoIterator<T> {
 
     /**
      * Create a new SimpleMongoIteratorImpl.
-     * 
+     *
      * @param wrapped
      *            The collection to turn into a {@link MongoIterator}.
      */
@@ -98,7 +98,7 @@ public class SimpleMongoIteratorImpl<T> implements MongoIterator<T> {
      * <p>
      * Overridden to return the next document from the query.
      * </p>
-     * 
+     *
      * @see java.util.Iterator#next()
      */
     @Override
@@ -111,7 +111,7 @@ public class SimpleMongoIteratorImpl<T> implements MongoIterator<T> {
      * <p>
      * Overridden to throw an {@link UnsupportedOperationException}.
      * </p>
-     * 
+     *
      * @see java.util.Iterator#remove()
      */
     @Override

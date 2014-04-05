@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc. 
+ * Copyright 2012-2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -31,7 +31,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * ReadPreferenceTest provides tests for the {@link ReadPreference} class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReadPreferenceTest {
@@ -157,7 +157,7 @@ public class ReadPreferenceTest {
         final Document t = BuilderFactory.start().addInteger("a", 1).build();
 
         final Document[] tags = new Document[] {}; // Empty document matches
-                                                   // all.
+        // all.
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
             assertTrue(prefs.matches(t));
@@ -419,7 +419,7 @@ public class ReadPreferenceTest {
 
     /**
      * Test method for {@link ReadPreference#readResolve} .
-     * 
+     *
      * @throws IOException
      *             On a failure.
      * @throws ClassNotFoundException

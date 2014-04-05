@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -20,7 +20,7 @@ import com.allanbank.mongodb.client.VersionRange;
 
 /**
  * QueryVersionVisitorTest provides tests for the {@link QueryVersionVisitor}.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class QueryVersionVisitorTest {

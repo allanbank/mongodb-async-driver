@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc. 
+ * Copyright 2013, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -20,7 +20,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * Version provides a class to handle version numbers and provide the version of
  * the driver in use.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class Version implements Serializable, Comparable<Version> {
@@ -88,7 +88,7 @@ public class Version implements Serializable, Comparable<Version> {
      * Returns the earlier of the two versions. If either version is
      * {@code null} then the other version is returned. Only if both version are
      * {@code null} will {@code null} be returned.
-     * 
+     *
      * @param lhs
      *            The first version to compare.
      * @param rhs
@@ -107,7 +107,7 @@ public class Version implements Serializable, Comparable<Version> {
      * Returns the best guess at the version of the server based on the wire
      * protocol version number. Returns the first version of the server to
      * support the wire protocol version.
-     * 
+     *
      * @param wireVersion
      *            Wire protocol version.
      * @return The best guess at the version of the server based on the wire
@@ -133,7 +133,7 @@ public class Version implements Serializable, Comparable<Version> {
      * Returns the later of the two versions. If either version is {@code null}
      * then the other version is returned. Only if both version are {@code null}
      * will {@code null} be returned.
-     * 
+     *
      * @param lhs
      *            The first version to compare.
      * @param rhs
@@ -150,7 +150,7 @@ public class Version implements Serializable, Comparable<Version> {
     /**
      * Parses a version from a version array. The values in the array are
      * assumed to be {@link NumericElement}s.
-     * 
+     *
      * @param versionArray
      *            The version array to parse.
      * @return The version.
@@ -167,7 +167,7 @@ public class Version implements Serializable, Comparable<Version> {
 
     /**
      * Parses a version of the general format 'int.int.int-suffix'.
-     * 
+     *
      * @param version
      *            The version string to parse.
      * @return The version.
@@ -210,7 +210,7 @@ public class Version implements Serializable, Comparable<Version> {
 
     /**
      * Creates a new Version.
-     * 
+     *
      * @param version
      *            The "values" for the version number.
      * @param suffix
@@ -259,10 +259,10 @@ public class Version implements Serializable, Comparable<Version> {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -282,7 +282,7 @@ public class Version implements Serializable, Comparable<Version> {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -320,11 +320,11 @@ public class Version implements Serializable, Comparable<Version> {
     /**
      * Compares two {@code int} values numerically. The value returned is
      * identical to what would be returned by:
-     * 
+     *
      * <pre>
      * Integer.valueOf(x).compareTo(Integer.valueOf(y))
      * </pre>
-     * 
+     *
      * @param x
      *            the first {@code int} to compare
      * @param y
