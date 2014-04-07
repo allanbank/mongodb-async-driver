@@ -6,11 +6,14 @@
 package com.allanbank.mongodb.builder.expression;
 
 import static com.allanbank.mongodb.bson.builder.BuilderFactory.a;
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.d;
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.e;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Pattern;
 
@@ -175,6 +178,9 @@ public class ExpressionsTest {
                 .addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\$cond").get(0), e.asElement());
+
+        assertEquals("'$cond' : [ 1,  2,  3 ]", e.toString());
+
     }
 
     /**
@@ -186,6 +192,8 @@ public class ExpressionsTest {
                 .toElement("f"));
         assertEquals(new BooleanElement("f", false), Expressions
                 .constant(false).toElement("f"));
+
+        assertEquals("true", Expressions.constant(true).toString());
     }
 
     /**
@@ -330,6 +338,9 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").addTimestamp("$dayOfYear", 1);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
+
+        assertEquals("'$dayOfYear' : ISODate('1970-01-01T00:00:00.001+0000')",
+                e.toString());
     }
 
     /**
@@ -454,6 +465,108 @@ public class ExpressionsTest {
         b.push("f").pushArray("$ifNull").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\$ifNull").get(0), e.asElement());
+    }
+
+    /**
+     * Test method for {@link Expressions#let(Expression, Element...)}.
+     */
+    @Test
+    public void testLetExpressionElelements() {
+        assertEquals(
+                new DocumentElement("f",
+                        d(
+                                e("$let",
+                                        d(e("vars", d(e("foo", 1), e("bar", 2))
+                                                .build()), e("in", 3))))
+                                .build()),
+                Expressions.let(Expressions.constant(3),
+                        Expressions.set("foo", Expressions.constant(1)),
+                        Expressions.set("bar", Expressions.constant(2)))
+                        .toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#let(List,Expression)}.
+     */
+    @Test
+    public void testLetListElementsExpression() {
+        assertEquals(
+                new DocumentElement("f",
+                        d(
+                                e("$let",
+                                        d(e("vars", d(e("foo", 1), e("bar", 2))
+                                                .build()), e("in", 3))))
+                                .build()),
+                Expressions
+                        .let(Arrays
+                                .asList(Expressions.set("foo",
+                                        Expressions.constant(1)),
+                                        Expressions.set("bar",
+                                                Expressions.constant(2))),
+                                Expressions.constant(3)).toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#let(String, Expression)}.
+     */
+    @Test
+    public void testLetMultipleVars() {
+        assertEquals(
+                new DocumentElement("f", d(
+                        e("$let",
+                                d(e("vars",
+                                        d(
+                                                e("foo", 1),
+                                                e("bar", 2),
+                                                e("baz", d(e("$literal", 1))
+                                                        .build())).build()),
+                                        e("in", 3)))).build()),
+                Expressions.let("foo", Expressions.constant(1))
+                        .let("bar", Expressions.constant(2))
+                        .let("baz", BuilderFactory.start().add("$literal", 1))
+                        .in(Expressions.constant(3)).toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#let(String, DocumentAssignable)}.
+     */
+    @Test
+    public void testLetStringDocumentAssignable() {
+        assertEquals(
+                new DocumentElement(
+                        "f",
+                        d(
+                                e("$let",
+                                        d(e("vars",
+                                                d(
+                                                        e("foo",
+                                                                d(
+                                                                        e("$literal",
+                                                                                1))
+                                                                        .build()))
+                                                        .build()), e("in", 3))))
+                                .build()),
+                Expressions
+                        .let("foo", BuilderFactory.start().add("$literal", 1))
+                        .in(Expressions.constant(3)).toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#let(String, Expression)}.
+     */
+    @Test
+    public void testLetStringExpression() {
+        assertEquals(
+                new DocumentElement("f", BuilderFactory.d(
+                        BuilderFactory.e("$let", BuilderFactory.d(
+                                BuilderFactory.e(
+                                        "vars",
+                                        BuilderFactory.d(
+                                                BuilderFactory.e("foo", 1))
+                                                .build()), BuilderFactory.e(
+                                        "in", 3)))).build()),
+                Expressions.let("foo", Expressions.constant(1))
+                        .in(Expressions.constant(3)).toElement("f"));
     }
 
     /**

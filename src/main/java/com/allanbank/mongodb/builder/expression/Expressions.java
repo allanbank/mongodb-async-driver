@@ -7,7 +7,9 @@ package com.allanbank.mongodb.builder.expression;
 
 import static com.allanbank.mongodb.bson.builder.BuilderFactory.d;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -527,6 +529,384 @@ public final class Expressions {
     public static NaryExpression ifNull(final Expression first,
             final Expression second) {
         return new NaryExpression(IF_NULL, first, second);
+    }
+
+    /**
+     * Creates a {@code $let} expression with the provided variables and
+     * {@code in} expression.
+     * <p>
+     * Here is the <a href=
+     * "http://docs.mongodb.org/master/reference/operator/aggregation/let/">
+     * <code>let</code> expression's documentation</a> aggregation pipe line
+     * using this helper class. <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
+     * import static {@link Expressions#add com.allanbank.mongodb.builder.expression.Expressions.add};
+     * import static {@link Expressions#cond com.allanbank.mongodb.builder.expression.Expressions.cond};
+     * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
+     * import static {@link Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
+     * import static {@link Expressions#let com.allanbank.mongodb.builder.expression.Expressions.let};
+     * import static {@link Expressions#multiply com.allanbank.mongodb.builder.expression.Expressions.multiply};
+     * import static {@link Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
+     * import static {@link Expressions#var com.allanbank.mongodb.builder.expression.Expressions.var};
+     * 
+     * Aggregate.Builder aggregate = Aggregate.builder();
+     * 
+     * //   $project: {
+     * //      finalTotal: {
+     * //         $let: {
+     * //            vars: {
+     * //               total: { $add: [ '$price', '$tax' ] },
+     * //               discounted: { $cond: { if: '$applyDiscount', then: 0.9, else: 1 } }
+     * //            },
+     * //            in: { $multiply: [ "$$total", "$$discounted" ] }
+     * //         }
+     * //      }
+     * //   }
+     * final Aggregate.Builder aggregation = Aggregate.builder();
+     * aggregation.project(
+     *         include(),
+     *         set("finalTotal",
+     *                 let(
+     *                    multiply(var("total"), var("discounted"))
+     *                    set("total", add(field("price"), field("tax"))),
+     *                    set("discounted",
+     *                         cond(field("applyDiscount"), constant(0.9),
+     *                                 constant(1))))));
+     * 
+     * // Aggregation Pipeline : '$pipeline' : [
+     * //   {
+     * //     '$project' : {
+     * //       finalTotal : {
+     * //         '$let' : {
+     * //           vars : {
+     * //             total : {
+     * //               '$add' : [
+     * //                 '$price', 
+     * //                 '$tax'
+     * //               ]
+     * //             },
+     * //             discounted : {
+     * //               '$cond' : [
+     * //                 '$applyDiscount', 
+     * //                 0.9, 
+     * //                 1
+     * //               ]
+     * //             }
+     * //           },
+     * //           in : {
+     * //             '$multiply' : [
+     * //               '$$total', 
+     * //               '$$discounted'
+     * //             ]
+     * //           }
+     * //         }
+     * //       }
+     * //     }
+     * //   }
+     * // ]
+     * System.out.println("Aggregation Pipeline : " + aggregation);
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     *
+     * @param inExpression
+     *            The expression to be evaluated with the variables within the
+     *            {@code $let} expression.
+     * @param variables
+     *            The variables for the {@code $let} expression.
+     * @return The Element to set the value to the document.
+     */
+    public static UnaryExpression let(final Expression inExpression,
+            final Element... variables) {
+        return let(Arrays.asList(variables), inExpression);
+    }
+
+    /**
+     * Creates a {@code $let} expression with the provided variables and
+     * {@code in} expression.
+     * <p>
+     * Here is the <a href=
+     * "http://docs.mongodb.org/master/reference/operator/aggregation/let/">
+     * <code>let</code> expression's documentation</a> aggregation pipe line
+     * using this helper class. <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
+     * import static {@link Expressions#add com.allanbank.mongodb.builder.expression.Expressions.add};
+     * import static {@link Expressions#cond com.allanbank.mongodb.builder.expression.Expressions.cond};
+     * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
+     * import static {@link Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
+     * import static {@link Expressions#let com.allanbank.mongodb.builder.expression.Expressions.let};
+     * import static {@link Expressions#multiply com.allanbank.mongodb.builder.expression.Expressions.multiply};
+     * import static {@link Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
+     * import static {@link Expressions#var com.allanbank.mongodb.builder.expression.Expressions.var};
+     * 
+     * Aggregate.Builder aggregate = Aggregate.builder();
+     * 
+     * //   $project: {
+     * //      finalTotal: {
+     * //         $let: {
+     * //            vars: {
+     * //               total: { $add: [ '$price', '$tax' ] },
+     * //               discounted: { $cond: { if: '$applyDiscount', then: 0.9, else: 1 } }
+     * //            },
+     * //            in: { $multiply: [ "$$total", "$$discounted" ] }
+     * //         }
+     * //      }
+     * //   }
+     * final Aggregate.Builder aggregation = Aggregate.builder();
+     * aggregation.project(
+     *         include(),
+     *         set("finalTotal",
+     *                 let(
+     *                    Arrays.asList(
+     *                       set("total", add(field("price"), field("tax"))),
+     *                       set("discounted",
+     *                          cond(field("applyDiscount"), constant(0.9),
+     *                                 constant(1))))
+     *                    multiply(var("total"), var("discounted")))));
+     * 
+     * // Aggregation Pipeline : '$pipeline' : [
+     * //   {
+     * //     '$project' : {
+     * //       finalTotal : {
+     * //         '$let' : {
+     * //           vars : {
+     * //             total : {
+     * //               '$add' : [
+     * //                 '$price', 
+     * //                 '$tax'
+     * //               ]
+     * //             },
+     * //             discounted : {
+     * //               '$cond' : [
+     * //                 '$applyDiscount', 
+     * //                 0.9, 
+     * //                 1
+     * //               ]
+     * //             }
+     * //           },
+     * //           in : {
+     * //             '$multiply' : [
+     * //               '$$total', 
+     * //               '$$discounted'
+     * //             ]
+     * //           }
+     * //         }
+     * //       }
+     * //     }
+     * //   }
+     * // ]
+     * System.out.println("Aggregation Pipeline : " + aggregation);
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * 
+     * @param variables
+     *            The variables for the {@code $let} expression.
+     * @param inExpression
+     *            The expression to be evaluated with the variables within the
+     *            {@code $let} expression.
+     * @return The Element to set the value to the document.
+     */
+    public static UnaryExpression let(final List<Element> variables,
+            final Expression inExpression) {
+        final DocumentAssignable letDocument = d(new DocumentElement("vars",
+                variables), inExpression.toElement("in"));
+
+        return new UnaryExpression("$let", new Constant(new DocumentElement(
+                "$let", letDocument.asDocument())));
+    }
+
+    /**
+     * Starts the creation of a {@code $let} expression. The returned
+     * {@link LetBuilder} can be used to add additional variables before setting
+     * the {@link LetBuilder#in final expression} to evaluate.
+     * <p>
+     * Here is the <a href=
+     * "http://docs.mongodb.org/master/reference/operator/aggregation/let/">
+     * <code>let</code> expression's documentation</a> aggregation pipe line
+     * using this helper class. <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
+     * import static {@link Expressions#add com.allanbank.mongodb.builder.expression.Expressions.add};
+     * import static {@link Expressions#cond com.allanbank.mongodb.builder.expression.Expressions.cond};
+     * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
+     * import static {@link Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
+     * import static {@link Expressions#let com.allanbank.mongodb.builder.expression.Expressions.let};
+     * import static {@link Expressions#multiply com.allanbank.mongodb.builder.expression.Expressions.multiply};
+     * import static {@link Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
+     * import static {@link Expressions#var com.allanbank.mongodb.builder.expression.Expressions.var};
+     * 
+     * Aggregate.Builder aggregate = Aggregate.builder();
+     * 
+     * //   $project: {
+     * //      finalTotal: {
+     * //         $let: {
+     * //            vars: {
+     * //               total: { $add: [ '$price', '$tax' ] },
+     * //               discounted: { $cond: { if: '$applyDiscount', then: 0.9, else: 1 } }
+     * //            },
+     * //            in: { $multiply: [ "$$total", "$$discounted" ] }
+     * //         }
+     * //      }
+     * //   }
+     * final Aggregate.Builder aggregation = Aggregate.builder();
+     * aggregation.project(
+     *         include(),
+     *         set("finalTotal",
+     *                         let("total", add(field("price"), field("tax")))
+     *                            .let("discounted", cond(field("applyDiscount"), 
+     *                                                    constant(0.9),
+     *                                                    constant(1)))
+     *                            .in(multiply(var("total"), var("discounted")))));
+     * 
+     * // Aggregation Pipeline : '$pipeline' : [
+     * //   {
+     * //     '$project' : {
+     * //       finalTotal : {
+     * //         '$let' : {
+     * //           vars : {
+     * //             total : {
+     * //               '$add' : [
+     * //                 '$price', 
+     * //                 '$tax'
+     * //               ]
+     * //             },
+     * //             discounted : {
+     * //               '$cond' : [
+     * //                 '$applyDiscount', 
+     * //                 0.9, 
+     * //                 1
+     * //               ]
+     * //             }
+     * //           },
+     * //           in : {
+     * //             '$multiply' : [
+     * //               '$$total', 
+     * //               '$$discounted'
+     * //             ]
+     * //           }
+     * //         }
+     * //       }
+     * //     }
+     * //   }
+     * // ]
+     * System.out.println("Aggregation Pipeline : " + aggregation);
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     *
+     * @param name
+     *            The name of the first field to set.
+     * @param document
+     *            The document to set the first field value to.
+     * @return The Element to set the value to the document.
+     */
+    public static LetBuilder let(final String name,
+            final DocumentAssignable document) {
+        return new LetBuilder(new DocumentElement(name, document.asDocument()));
+    }
+
+    /**
+     * Starts the creation of a {@code $let} expression. The returned
+     * {@link LetBuilder} can be used to add additional variables before setting
+     * the {@link LetBuilder#in final expression} to evaluate.
+     * <p>
+     * Here is the <a href=
+     * "http://docs.mongodb.org/master/reference/operator/aggregation/let/">
+     * <code>let</code> expression's documentation</a> aggregation pipe line
+     * using this helper class. <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
+     * import static {@link Expressions#add com.allanbank.mongodb.builder.expression.Expressions.add};
+     * import static {@link Expressions#cond com.allanbank.mongodb.builder.expression.Expressions.cond};
+     * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
+     * import static {@link Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
+     * import static {@link Expressions#let com.allanbank.mongodb.builder.expression.Expressions.let};
+     * import static {@link Expressions#multiply com.allanbank.mongodb.builder.expression.Expressions.multiply};
+     * import static {@link Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
+     * import static {@link Expressions#var com.allanbank.mongodb.builder.expression.Expressions.var};
+     * 
+     * Aggregate.Builder aggregate = Aggregate.builder();
+     * 
+     * //   $project: {
+     * //      finalTotal: {
+     * //         $let: {
+     * //            vars: {
+     * //               total: { $add: [ '$price', '$tax' ] },
+     * //               discounted: { $cond: { if: '$applyDiscount', then: 0.9, else: 1 } }
+     * //            },
+     * //            in: { $multiply: [ "$$total", "$$discounted" ] }
+     * //         }
+     * //      }
+     * //   }
+     * final Aggregate.Builder aggregation = Aggregate.builder();
+     * aggregation.project(
+     *         include(),
+     *         set("finalTotal",
+     *                         let("total", add(field("price"), field("tax")))
+     *                            .let("discounted", cond(field("applyDiscount"), 
+     *                                                    constant(0.9),
+     *                                                    constant(1)))
+     *                            .in(multiply(var("total"), var("discounted")))));
+     * 
+     * // Aggregation Pipeline : '$pipeline' : [
+     * //   {
+     * //     '$project' : {
+     * //       finalTotal : {
+     * //         '$let' : {
+     * //           vars : {
+     * //             total : {
+     * //               '$add' : [
+     * //                 '$price', 
+     * //                 '$tax'
+     * //               ]
+     * //             },
+     * //             discounted : {
+     * //               '$cond' : [
+     * //                 '$applyDiscount', 
+     * //                 0.9, 
+     * //                 1
+     * //               ]
+     * //             }
+     * //           },
+     * //           in : {
+     * //             '$multiply' : [
+     * //               '$$total', 
+     * //               '$$discounted'
+     * //             ]
+     * //           }
+     * //         }
+     * //       }
+     * //     }
+     * //   }
+     * // ]
+     * System.out.println("Aggregation Pipeline : " + aggregation);
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     *
+     * @param name
+     *            The name of the field to set.
+     * @param expression
+     *            The expression to compute the value for the first field.
+     * @return The Element to set the value to the expression.
+     */
+    public static LetBuilder let(final String name, final Expression expression) {
+        return new LetBuilder(expression.toElement(name));
     }
 
     /**
